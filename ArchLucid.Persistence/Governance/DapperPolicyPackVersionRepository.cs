@@ -50,21 +50,23 @@ public sealed class DapperPolicyPackVersionRepository(
 
         try
         {
-            const string scopeSql = """
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string scopeSql = $"""
                                     SELECT TenantId, WorkspaceId, ProjectId
                                     FROM dbo.PolicyPacks
                                     WHERE PolicyPackId = @PolicyPackId
-                                    """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                                    {PersistenceTenantScope.AndTripleWhere(scope)};
+                                    """;
 
-            ScopeContext scope = scopeContextProvider.GetCurrentScope();
             PolicyPackScopeTriple? hdr = await conn.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
                 new CommandDefinition(
                     scopeSql,
                     new
                     {
                         version.PolicyPackId,
-                        scope.TenantId,
-                        EmptyTenantId = Guid.Empty
+                        ScopeTenantId = scope.TenantId,
+                        ScopeWorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
                     },
                     transaction,
                     cancellationToken: ct));
@@ -174,21 +176,23 @@ public sealed class DapperPolicyPackVersionRepository(
 
         try
         {
-            const string packScopeSql = """
+            ScopeContext packLookupScope = scopeContextProvider.GetCurrentScope();
+            string packScopeSql = $"""
                                         SELECT TenantId, WorkspaceId, ProjectId
                                         FROM dbo.PolicyPacks
                                         WHERE PolicyPackId = @PolicyPackId
-                                        """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                                        {PersistenceTenantScope.AndTripleWhere(packLookupScope)};
+                                        """;
 
-            ScopeContext requestScope = scopeContextProvider.GetCurrentScope();
             PolicyPackScopeTriple? packScope = await connection.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
                 new CommandDefinition(
                     packScopeSql,
                     new
                     {
                         PolicyPackId = policyPackId,
-                        requestScope.TenantId,
-                        EmptyTenantId = Guid.Empty
+                        ScopeTenantId = packLookupScope.TenantId,
+                        ScopeWorkspaceId = packLookupScope.WorkspaceId,
+                        ScopeProjectId = packLookupScope.ProjectId
                     },
                     transaction,
                     cancellationToken: ct));

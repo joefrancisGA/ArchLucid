@@ -48,27 +48,26 @@ public sealed class DapperConversationThreadRepository(
     /// <inheritdoc />
     public async Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT ThreadId, TenantId, WorkspaceId, ProjectId,
                                   RunId, BaseRunId, TargetRunId,
                                   Title, CreatedUtc, LastUpdatedUtc, ArchivedUtc
                            FROM dbo.ConversationThreads
                            WHERE ThreadId = @ThreadId
                              AND ArchivedUtc IS NULL
-                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
+                           """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ConversationThread>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    ThreadId = threadId,
-                    scope.TenantId,
-                    EmptyTenantId = Guid.Empty
-                },
-                cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ThreadId = threadId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            }, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -162,13 +161,14 @@ public sealed class DapperConversationThreadRepository(
     /// <inheritdoc />
     public async Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            UPDATE dbo.ConversationThreads
                            SET LastUpdatedUtc = @UpdatedUtc
                            WHERE ThreadId = @ThreadId
-                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
+                           """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -177,8 +177,9 @@ public sealed class DapperConversationThreadRepository(
                 {
                     ThreadId = threadId,
                     UpdatedUtc = updatedUtc,
-                    scope.TenantId,
-                    EmptyTenantId = Guid.Empty
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
     }

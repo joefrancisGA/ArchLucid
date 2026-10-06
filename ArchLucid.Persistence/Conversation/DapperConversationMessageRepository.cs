@@ -24,11 +24,13 @@ public sealed class DapperConversationMessageRepository(
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(message);
-        const string scopeSql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = $"""
                                 SELECT TenantId, WorkspaceId, ProjectId
                                 FROM dbo.ConversationThreads
                                 WHERE ThreadId = @ThreadId
-                                """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                                {PersistenceTenantScope.AndTripleWhere(scope)};
+                                """;
 
         const string sql = """
                            INSERT INTO dbo.ConversationMessages
@@ -45,7 +47,6 @@ public sealed class DapperConversationMessageRepository(
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         ConversationThreadDenormScopeRow? scopeHdr =
             await connection.QuerySingleOrDefaultAsync<ConversationThreadDenormScopeRow>(
                 new CommandDefinition(
@@ -53,8 +54,9 @@ public sealed class DapperConversationMessageRepository(
                     new
                     {
                         message.ThreadId,
-                        scope.TenantId,
-                        EmptyTenantId = Guid.Empty
+                        ScopeTenantId = scope.TenantId,
+                        ScopeWorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
                     },
                     cancellationToken: ct));
 

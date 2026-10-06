@@ -51,10 +51,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         string countSql = $"""
                            SELECT COUNT(1)
                            FROM dbo.AzureInventoryResources
-                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter}
+                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter};
                            """
-            + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope)
-            + ";";
+                           + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         string listSql = $"""
                           SELECT ResourceRowId, SnapshotId, TenantId, CloudResourceId, AzureResourceId,
@@ -62,12 +61,10 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                  SourceEvidenceReference
                           FROM dbo.AzureInventoryResources
                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId{resourceFilter}{neverShowFilter}
-                          """
-            + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope)
-            + """
                           ORDER BY AzureResourceId
                           OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
-                          """;
+                          """
+                          + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = filterByCloudResource
             ? new

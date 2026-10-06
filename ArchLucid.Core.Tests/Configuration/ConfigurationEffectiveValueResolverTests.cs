@@ -380,7 +380,7 @@ public sealed class ConfigurationEffectiveValueResolverTests
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] =
-                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=placeholder-not-a-real-key",
+                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=xxxx",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();

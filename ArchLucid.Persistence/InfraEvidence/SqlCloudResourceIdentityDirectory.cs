@@ -333,9 +333,8 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                   AND {VisibleExplorerResourceTypePredicate}
                                   AND {VisibleExplorerAzureResourceIdPredicate}
                                   {workQueueFilter}
-                                """
-            + PersistenceTenantScope.AndTripleWhere(scope)
-            + ";";
+                                  {PersistenceTenantScope.AndTripleWhere(scope)};
+                                """;
 
         string listSql = $"""
                                SELECT
@@ -356,9 +355,7 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
                                  AND {VisibleExplorerResourceTypePredicate}
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
-                               """
-            + PersistenceTenantScope.AndTripleWhere(scope)
-            + """
+                                 {PersistenceTenantScope.AndTripleWhere(scope)}
                                ORDER BY LastSeenUtc DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
@@ -368,14 +365,14 @@ public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory conn
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            ScopeTenantId = scope.TenantId,
-            ScopeWorkspaceId = scope.WorkspaceId,
-            ScopeProjectId = scope.ProjectId,
             NamePrefix = trimmedPrefix,
             ResourceType = trimmedType,
             ResourceGroup = trimmedGroup,
             Skip = skip,
             PageSize = safePageSize,
+            ScopeTenantId = scope.TenantId,
+            ScopeWorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
             FindingStatusOpen = (int)OperationalSecurityFindingStatus.Open,
             FindingStatusRecurred = (int)OperationalSecurityFindingStatus.Recurred,
             FindingStatusAwaitingVerification = (int)OperationalSecurityFindingStatus.AwaitingVerification,

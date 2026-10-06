@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Evolution;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -12,16 +13,20 @@ namespace ArchLucid.Persistence.Coordination.Evolution;
 
 /// <summary>Dapper access to <c>EvolutionSimulationRuns</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperEvolutionSimulationRunRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IEvolutionSimulationRunRepository
 {
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
-        const string scopeSql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = $"""
                                 SELECT TenantId, WorkspaceId, ProjectId
                                 FROM dbo.EvolutionCandidateChangeSets
                                 WHERE CandidateChangeSetId = @CandidateChangeSetId
-                                """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                                {PersistenceTenantScope.AndTripleWhere(scope)};
+                                """;
 
         const string sql = """
                            INSERT INTO dbo.EvolutionSimulationRuns
@@ -63,8 +68,9 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                     new
                     {
                         record.CandidateChangeSetId,
-                        TenantId = Guid.Empty,
-                        EmptyTenantId = Guid.Empty
+                        ScopeTenantId = scope.TenantId,
+                        ScopeWorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
                     },
                     cancellationToken: cancellationToken));
 

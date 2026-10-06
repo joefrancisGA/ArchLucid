@@ -87,18 +87,18 @@ public sealed class DapperPolicyPackChangeLogRepository(
         if (maxRows <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT TOP (@MaxRows)
                                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                ChangeType, ChangedBy, ChangedUtc,
                                PreviousValue, NewValue, SummaryText
                            FROM dbo.PolicyPackChangeLog
                            WHERE PolicyPackId = @PolicyPackId
-                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob + """
+                           {PersistenceTenantScope.AndTripleWhere(scope)}
                            ORDER BY ChangedUtc DESC;
                            """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection =
             await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -109,8 +109,9 @@ public sealed class DapperPolicyPackChangeLogRepository(
                 {
                     PolicyPackId = policyPackId,
                     MaxRows = maxRows,
-                    scope.TenantId,
-                    EmptyTenantId = Guid.Empty
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
 

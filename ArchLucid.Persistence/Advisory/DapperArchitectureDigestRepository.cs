@@ -13,7 +13,9 @@ namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperArchitectureDigestRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IArchitectureDigestRepository
 {
     /// <inheritdoc />
@@ -78,20 +80,18 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
-    public async Task<ArchitectureDigest?> GetByIdAsync(ScopeContext scope, Guid digestId, CancellationToken ct)
+    public async Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
     {
-        PersistenceTenantScope.RequireScopedTenant(scope);
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
                 Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
             FROM dbo.ArchitectureDigests
             WHERE DigestId = @DigestId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND ArchivedUtc IS NULL;
+              AND ArchivedUtc IS NULL
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -99,9 +99,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             new CommandDefinition(sql, new
             {
                 DigestId = digestId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 

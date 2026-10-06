@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Sql;
@@ -67,16 +68,16 @@ public sealed partial class SqlFindingsSnapshotRepository
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
+        // Backfill reads the denormalized triple off the snapshot row; trusted-job scope
+        // keeps the helper visible to ARCH006 without filtering before the triple is known.
+        string scopeSql = FindingsSnapshotWriteSql.SelectScopeTripleForBackfill.TrimEnd().TrimEnd(';')
+                          + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
+
         FindingsSnapshotScopeTripleRow? scopeHdr =
             await connection.QuerySingleOrDefaultAsync<FindingsSnapshotScopeTripleRow>(
                 new CommandDefinition(
-                    FindingsSnapshotWriteSql.SelectScopeTripleForBackfill,
-                    new
-                    {
-                        snapshot.FindingsSnapshotId,
-                        TenantId = Guid.Empty,
-                        EmptyTenantId = Guid.Empty
-                    },
+                    scopeSql,
+                    new { snapshot.FindingsSnapshotId },
                     transaction,
                     cancellationToken: ct));
 

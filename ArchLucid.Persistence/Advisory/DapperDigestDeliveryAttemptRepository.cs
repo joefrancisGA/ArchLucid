@@ -13,7 +13,9 @@ namespace ArchLucid.Persistence.Advisory;
 /// <summary>Dapper implementation of <see cref="IDigestDeliveryAttemptRepository"/> over <c>dbo.DigestDeliveryAttempts</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperDigestDeliveryAttemptRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IDigestDeliveryAttemptRepository
 {
     /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="DigestDeliveryAttemptListCap.Value"/>.</summary>
@@ -63,12 +65,11 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
-        ScopeContext scope,
         Guid digestId,
         CancellationToken ct)
     {
-        PersistenceTenantScope.RequireScopedTenant(scope);
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT TOP (@Cap)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -76,9 +77,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE DigestId = @DigestId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
+            {PersistenceTenantScope.AndTripleWhere(scope)}
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -88,9 +87,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             {
                 Cap = ListByDigestCap,
                 DigestId = digestId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
 
         return result.ToList();
@@ -150,14 +149,13 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
-        ScopeContext scope,
         Guid subscriptionId,
         int take,
         CancellationToken ct)
     {
-        PersistenceTenantScope.RequireScopedTenant(scope);
         take = Math.Clamp(take, 1, 200);
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT TOP (@Take)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -165,9 +163,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE SubscriptionId = @SubscriptionId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
+            {PersistenceTenantScope.AndTripleWhere(scope)}
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -179,9 +175,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 {
                     SubscriptionId = subscriptionId,
                     Take = take,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
 

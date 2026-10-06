@@ -30,7 +30,8 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
         CancellationToken cancellationToken = default)
     {
         int safeTake = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
-        const string sqlHead = """
+        string sql =
+            $"""
              SELECT TOP (@Take)
                  r.RunId,
                  r.WorkspaceId,
@@ -40,13 +41,9 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
              WHERE r.TenantId = @TenantId
                AND r.ArchivedUtc IS NULL
                AND r.GoldenManifestId IS NOT NULL
-             """;
-        const string sqlTail = """
+               {(includeDemo ? string.Empty : " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsForAliasR)}
              ORDER BY r.CreatedUtc DESC, r.RunId ASC;
              """;
-        string sql = includeDemo
-            ? sqlHead + sqlTail
-            : sqlHead + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsAliasR + sqlTail;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<ReferenceEvidenceRunCandidate> rows = await connection.QueryAsync<ReferenceEvidenceRunCandidate>(

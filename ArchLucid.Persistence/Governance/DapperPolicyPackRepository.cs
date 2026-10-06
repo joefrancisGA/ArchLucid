@@ -101,8 +101,8 @@ public sealed class DapperPolicyPackRepository(
     /// <inheritdoc />
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
-        // Platform packs may be authored in a different workspace than the caller; bind tenant only.
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, PackSlug, Description, PackType, DistributionScope, Status,
@@ -110,17 +110,21 @@ public sealed class DapperPolicyPackRepository(
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId = @PolicyPackId
                              AND IsDeleted = 0
-                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
+                           """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
-            new CommandDefinition(sql, new
-            {
-                PolicyPackId = policyPackId,
-                scope.TenantId,
-                EmptyTenantId = Guid.Empty
-            }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    PolicyPackId = policyPackId,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />

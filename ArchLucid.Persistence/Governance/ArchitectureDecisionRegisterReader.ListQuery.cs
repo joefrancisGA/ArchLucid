@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Infrastructure;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Governance;
@@ -56,7 +58,8 @@ public sealed partial class ArchitectureDecisionRegisterReader
             + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope)
             + """
                       ORDER BY m.CreatedUtc DESC, d.SortOrder ASC;
-                      """;
+                      """
+                      + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

@@ -149,23 +149,25 @@ public sealed partial class SqlArtifactBundleRepository(
         IDbTransaction? transaction,
         CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
                            SELECT
                                TenantId, WorkspaceId, ProjectId,
                                BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
                            FROM dbo.ArtifactBundles
                            WHERE BundleId = @BundleId
-                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+                           {PersistenceTenantScope.AndTripleWhere(scope)};
+                           """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
             new CommandDefinition(
                 sql,
                 new
                 {
                     BundleId = bundleId,
-                    scope.TenantId,
-                    EmptyTenantId = Guid.Empty
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 transaction,
                 cancellationToken: ct));

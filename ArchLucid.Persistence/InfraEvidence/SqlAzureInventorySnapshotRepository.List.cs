@@ -166,7 +166,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             + """
                                ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
-                               """;
+                               """
+                               + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = new
         {

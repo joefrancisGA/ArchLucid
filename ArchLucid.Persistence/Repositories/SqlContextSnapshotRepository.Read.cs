@@ -21,21 +21,22 @@ public sealed partial class SqlContextSnapshotRepository
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string sql = """
-                     SELECT TOP 1
-                         SnapshotId,
-                         RunId,
-                         ProjectId,
-                         CreatedUtc,
-                         CanonicalObjectsJson,
-                         DeltaSummary,
-                         WarningsJson,
-                         ErrorsJson,
-                         SourceHashesJson
-                     FROM dbo.ContextSnapshots
-                     WHERE ProjectId = @ProjectId
-                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + """
-                     ORDER BY CreatedUtc DESC;
-                     """;
+                           SELECT TOP 1
+                               SnapshotId,
+                               RunId,
+                               ProjectId,
+                               CreatedUtc,
+                               CanonicalObjectsJson,
+                               DeltaSummary,
+                               WarningsJson,
+                               ErrorsJson,
+                               SourceHashesJson
+                           FROM dbo.ContextSnapshots
+                           WHERE ProjectId = @ProjectId
+                           """
+                     + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + """
+                           ORDER BY CreatedUtc DESC;
+                           """;
 
         DynamicParameters parameters = new();
         parameters.Add("ProjectId", projectId);

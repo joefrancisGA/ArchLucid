@@ -13,7 +13,10 @@ namespace ArchLucid.Persistence.Advisory;
 /// <inheritdoc cref="IRecommendationRepository" />
 /// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperRecommendationRepository(ISqlConnectionFactory connectionFactory) : IRecommendationRepository
+public sealed class DapperRecommendationRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
+    : IRecommendationRepository
 {
     /// <inheritdoc />
     public async Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
@@ -22,8 +25,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
 
         const string sql = """
             MERGE dbo.RecommendationRecords AS target
-            USING (SELECT @RecommendationId AS RecommendationId, @TenantId AS TenantId) AS source
-            ON target.RecommendationId = source.RecommendationId AND target.TenantId = source.TenantId
+            USING (SELECT @RecommendationId AS RecommendationId) AS source
+            ON target.RecommendationId = source.RecommendationId
             WHEN MATCHED THEN
                 UPDATE SET
                     TenantId = @TenantId,
@@ -58,7 +61,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                     ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
                     SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
-                    SourceEvidenceLinksJson
+                   SourceEvidenceLinksJson, SourceEvidenceLinksJson
                 )
                 VALUES
                 (
@@ -68,8 +71,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     @Title, @Category, @Rationale, @SuggestedAction, @Urgency, @ExpectedImpact,
                     @PriorityScore, @Status, @CreatedUtc, @LastUpdatedUtc,
                     @ReviewedByUserId, @ReviewedByUserName, @ReviewComment, @ResolutionRationale,
-                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson,
-                    @SourceEvidenceLinksJson
+                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson
                 );
             """;
 
@@ -77,10 +79,10 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
     }
 
-    public async Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct)
+    public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
     {
-        PersistenceTenantScope.RequireScopedTenant(scope);
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT RecommendationId,
                    TenantId, WorkspaceId, ProjectId,
                    RunId, ComparedToRunId,
@@ -91,9 +93,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords
             WHERE RecommendationId = @RecommendationId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -101,9 +101,9 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             new CommandDefinition(sql, new
             {
                 RecommendationId = recommendationId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 

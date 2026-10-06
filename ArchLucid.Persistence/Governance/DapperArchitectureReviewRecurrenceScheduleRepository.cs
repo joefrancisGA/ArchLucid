@@ -134,7 +134,8 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(
         Guid scheduleId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
@@ -142,9 +143,9 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             FROM dbo.ArchitectureReviewRecurrenceSchedules
             WHERE ScheduleId = @ScheduleId
-            """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
+            {PersistenceTenantScope.AndTripleWhere(scope)};
+            """;
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<ArchitectureReviewRecurrenceSchedule>(
@@ -153,8 +154,9 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(
                 new
                 {
                     ScheduleId = scheduleId,
-                    scope.TenantId,
-                    EmptyTenantId = Guid.Empty
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: cancellationToken));
     }
