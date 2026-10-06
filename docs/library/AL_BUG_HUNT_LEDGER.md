@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` calls returned `false` for atomic-transition losers while the target `TrialStatus` was already persisted; re-read tenant after `TryRecordTrialLifecycleTransitionAsync` miss and return idempotent success without duplicate audit; regression `TryAdvanceTenantAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 141 scoped tenancy tests passed.
+
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — weekly digest delivery scanners built exec/sponsor `unsubscribeUrl` from raw `OperatorBaseUrl` userinfo and `ExecDigestEmailDispatcher` copied it into template models; added `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` and sanitize unsubscribe hrefs at dispatch; regressions `SanitizeOperatorAbsoluteUrl_omits_user_info_and_preserves_path_and_query` and `ExecDigestEmailDispatcher_omits_user_info_from_unsubscribe_url_in_template_model`; 156 scoped notifications/digest tests passed.
 
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `ExecDigestSponsorDeepLinkOperatorLinks` and `RecurrenceCompletionOperatorLinks` concatenated raw `OperatorBaseUrl` userinfo into digest sponsor and recurrence compare email CTAs; normalize via `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority`; regressions `BuildDashboardUrl_omits_user_info_from_operator_base_url`, `BuildRunCollateralUrl_omits_user_info_from_operator_base_url`, `BuildCompareUrl_omits_user_info_from_operator_base_url`; 154 scoped notifications/digest tests passed.
@@ -28273,13 +28275,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 41
-- **bugs-found:** 27
+- **hunts:** 42
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — concurrent erasure restore/clear/legal-hold returned false for atomic-transition losers
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — concurrent trial lifecycle transition losers returned false after atomic miss
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): reseeded trial lifecycle automation after erasure idempotency fixes; proved concurrent `TryAdvanceTenantAsync` losers returned `false` despite `TrialStatus` already at the target state; fixed idempotent re-read; 141 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — concurrent lifecycle transition losers returned `false` while target `TrialStatus` was already persisted — **hit 2026-10-06 seed hunt (seed→hit):** re-read tenant after `TryRecordTrialLifecycleTransitionAsync` miss; regression `TryAdvanceTenantAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`.
 
 2026-10-05 seed hunt (seed→hit): reseeded application-tenancy-lifecycle after erasure-approval idempotency fix; proved restore/clear/identical legal-hold losers returned `false` after atomic miss; fixed idempotent re-read paths; three regressions; 136 scoped tenancy tests passed.
 

@@ -1,5 +1,3 @@
-{"at":"2026-09-06T06:15:21.8141577Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-06T06:17:12.4832459Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:21:05.7738074Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:25:23.5140155Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T06:30:01.9940238Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8748,4 +8746,5 @@
 {"at":"2026-10-06T05:58:09.0142282Z","zoneId":"core-requests-constraints","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Requests/RequestConstraintTokenMatcher.cs"]}
 {"at":"2026-10-06T06:02:52.7393738Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/TrialLifecycleEmailDispatcher.cs"]}
 {"at":"2026-10-06T06:07:28.2025419Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/ExecDigestSponsorDeepLinkOperatorLinks.cs,ArchLucid.Application/Notifications/Email/RecurrenceCompletionOperatorLinks.cs"]}
-{"at":"2026-10-06T06:13:24.4036780Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs,ArchLucid.Application/Notifications/Email/EmailBrandingUrls.cs"]}
+{"at":"2026-10-06T06:13:24.403678Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs,ArchLucid.Application/Notifications/Email/EmailBrandingUrls.cs"]}
+{"at":"2026-10-06T06:19:55.8900249Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TrialLifecycleTransitionEngine.cs"]}

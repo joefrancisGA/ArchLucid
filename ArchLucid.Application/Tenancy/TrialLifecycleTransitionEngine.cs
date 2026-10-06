@@ -92,7 +92,15 @@ public sealed class TrialLifecycleTransitionEngine(
             cancellationToken);
 
         if (!ok)
+        {
+            TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+            if (afterMiss is not null
+                && TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, advancement.ToStatus))
+                return true;
+
             return false;
+        }
 
         await EmitAuditAsync(tenant, advancement, cancellationToken);
         ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
