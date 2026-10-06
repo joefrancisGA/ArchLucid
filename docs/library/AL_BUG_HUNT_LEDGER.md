@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `GovernanceController` policy-pack `Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` parsed run ids with `Trim()` + `Guid.TryParse` while submit routes use `GovernanceRunIdNormalizer`, rejecting Word-pasted interior no-break space run ids; `TryParseGovernanceRunIdFromBody` + normalized ids to sealed guard and services; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
+
 2026-10-06 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after recursive nested-aggregate fixes; cheap-disproof closed triple-wrapper mixed aggregate (fail-fast on first attempt) and top-level sibling transient + wrapped-mixed aggregate (`inners.All` intentional fail-fast per parallel-persist semantics); seeded five candidates; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
 
 2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — `IsParallelPersistAggregateInnerRetriable` applied `SqlTransientDetector` to nested aggregate inners instead of recursing, so `AggregateException` → wrapper → wrapper → mixed nested aggregate retried; recurse `IsParallelPersistAggregateInnerRetriable` for nested parallel-persist sets; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
@@ -26135,15 +26137,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 304
+- **hunts:** 305
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 510
+- **bugs-found:** 511
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — pre-finalize run id parse omitted GovernanceRunIdNormalizer
+- **last-bug:** 2026-10-06 — policy-pack simulate/dry-run run id parse omitted GovernanceRunIdNormalizer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-06 seed hunt (seed→hit): promoted `GovernancePreCommitSimulationController.TryParseRunId` / `GovernanceController.TryParseArchitectureRunIdForAudit` — interior no-break space (U+00A0) in run ids failed `Guid.TryParse` on pre-finalize GET/simulate while `ValidateGovernanceRouteRunId` accepted the same literal on submit; normalize via `GovernanceRunIdNormalizer` before parse (workflow parity); regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`, `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`, and updated zero-width-prefix simulate test for normalize parity; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
+
+2026-10-06 seed hunt (seed→hit): promoted `GovernanceController.PolicyPacks.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — same interior U+00A0 parity gap on policy-pack dry-run/simulate bodies; `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
+- [x] (proven) `GovernanceController.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — `Guid.TryParse(request.RunId.Trim())` and per-id `Trim()` on `evaluateAgainstRunIds` rejected interior no-break space run ids that `ValidateGovernanceRouteRunId` accepts on submit — **hit 2026-10-06 seed hunt:** `GovernanceRunIdNormalizer` via `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`.
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 
