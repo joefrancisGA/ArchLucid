@@ -352,6 +352,32 @@ public sealed class AuthSignInReturnPathGuardTests
     }
 
     [Fact]
+    public void TryNormalize_accepts_plus_in_path_without_form_style_space_decoding()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews+api").Should().Be("/reviews+api");
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_matrix_style_semicolon_segments_when_no_open_redirect_shape()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews;region=east").Should().Be("/reviews;region=east");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_matrix_style_path_when_protocol_relative_slashes_appear_in_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews;next=//evil.example").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/signin/%2E%2E/other")]
+    [InlineData("/signin/%2e%2e/other")]
+    public void TryNormalize_rejects_percent_encoded_dot_dot_segments_case_insensitively(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Fact]
     public void TryNormalize_completes_for_large_multi_pass_percent_encoded_safe_path()
     {
         string segment = string.Concat(Enumerable.Repeat("%252541", 12_000));
