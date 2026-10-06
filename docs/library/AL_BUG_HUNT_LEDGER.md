@@ -3667,6 +3667,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-06 seed hunt (seed→hit): promoted missing leading-slash ARM endpoint candidate; proved dual-model consensus disagreed when one relationship omitted the leading `/` on `subscriptions/...` paths; extended `LooksLikeArmResourceId` and `NormalizeArmResourceId` to accept and canonicalize subscription-relative ARM ids; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash`; 1000 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): promoted trailing-slash ARM `RelationshipKey` candidate; proved dual-model consensus disagreed when one relationship endpoint ended with `/` and the other did not; extended `NormalizeArmResourceId` to trim trailing slashes after duplicate-slash collapse; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation`; 999 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): promoted `TopologyProposalConsensusMerger.RelationshipKey` / `GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId` duplicate-slash ARM candidate; proved dual-model consensus disagreed when one relationship used `/subscriptions/...//resourcegroups/...` and the other used a single slash despite equivalent declared service ARM ids; fixed by collapsing repeated `/` in `NormalizeArmResourceId` (consensus + edge-mapper ARM lookups); regression `Merge_intersects_relationships_when_models_use_arm_endpoint_duplicate_slash_variation`; 998 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
@@ -3698,6 +3700,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` / `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — module-qualified versus root Terraform relationship endpoints did not normalize to the same identity when the inventoried side used the other form — **hit 2026-10-05 seed hunt (seed→hit):** `TryNormalizeTerraformEndpointIdentity`; regressions `MapRelationships_resolves_module_qualified_terraform_address_when_graph_node_source_id_is_root_address` and `Merge_intersects_relationships_when_models_use_module_qualified_versus_root_terraform_addresses`.
 - [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` — ARM duplicate-slash path separator variants failed consensus intersection — **hit 2026-10-06 seed hunt (seed→hit):** same fix as duplicate-slash row above (`NormalizeArmResourceId`).
 - [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` / `NormalizeArmResourceId` — trailing `/` on ARM relationship endpoints failed consensus intersection — **hit 2026-10-06 seed hunt (seed→hit):** trim trailing slashes in `NormalizeArmResourceId`; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation`.
+- [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` / `GraphAzureInventoryReconciliationAnalyzer` — ARM endpoints without a leading `/` failed consensus intersection and ARM literal detection — **hit 2026-10-06 seed hunt (seed→hit):** `LooksLikeArmResourceId` accepts `subscriptions/...`; `NormalizeArmResourceId` prefixes `/`; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash`.
 - [x] (proven) `AgentTopologyProposalGraphMerge.TopologyServiceNode` / `TopologyDatastoreNode` — whitespace-bearing model-proposed names were copied into generated `svc-`/`ds-` node IDs while endpoint keys used trimmed synthetic ids, so relationships referencing normalized `svc-{name}` resolved to dangling endpoints — **hit 2026-10-05 thorough hunt:** materialize via `ResolveMaterializedServiceNodeId` / `ResolveMaterializedDatastoreNodeId` sharing `BuildSyntheticServiceNodeId` / `BuildSyntheticDatastoreNodeId`; regressions `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id` and `WithMergedTopologyProposals_materializes_canonical_synthetic_node_ids_when_manifest_names_have_surrounding_whitespace`.
 
 2026-10-05 thorough hunt (dry): cheap-disproof closed duplicate-relationship edge candidate (duplicate of 2026-10-03 row); added surrounding-whitespace regression covering blank-id datastore materialization; 980 scoped edge-mapper/graph-merge tests passed.
@@ -3731,11 +3734,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
-- **hunts:** 84
-- **bugs-found:** 69
+- **hunts:** 85
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — ARM resource-id trailing slash broke topology consensus relationship intersection
+- **last-bug:** 2026-10-06 — ARM resource-id missing leading slash broke topology consensus intersection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

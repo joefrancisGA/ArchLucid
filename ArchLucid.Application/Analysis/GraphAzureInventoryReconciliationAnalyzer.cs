@@ -149,8 +149,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     internal static bool LooksLikeArmResourceId(string? value)
     {
-        return !string.IsNullOrWhiteSpace(value)
-               && value.Trim().StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        string trimmed = value.Trim();
+
+        return trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string NormalizeArmResourceId(string resourceId)
@@ -165,6 +170,11 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         while (normalized.Length > 1 && normalized.EndsWith('/'))
         {
             normalized = normalized[..^1];
+        }
+
+        if (normalized.StartsWith("subscriptions/", StringComparison.Ordinal))
+        {
+            normalized = "/" + normalized;
         }
 
         return normalized;
