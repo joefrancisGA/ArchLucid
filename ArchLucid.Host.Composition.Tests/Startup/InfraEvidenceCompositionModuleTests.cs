@@ -7,6 +7,7 @@ using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -455,6 +456,43 @@ public sealed class InfraEvidenceCompositionModuleTests
         result.Response.Should().NotBeNull();
         result.Response!.InsufficientEvidence.Should().BeTrue(
             "collector returns an empty bundle when no CloudResourceId, DiffId, or topic-specific identifiers are supplied");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_remediation_factory_workbench_and_brand_asset_blob_store()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        IRemediationFactoryWorkbenchQueryService workbenchQueryService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationFactoryWorkbenchQueryService>();
+
+        RemediationFactoryWorkbenchSummary summary = await workbenchQueryService.GetSummaryAsync(
+            scope,
+            CancellationToken.None);
+
+        summary.FactoryMetrics.Should().NotBeNull();
+        summary.OpenInstancesByStatus.Should().NotBeNull();
+        summary.Waves.Should().NotBeNull();
+
+        serviceScope.ServiceProvider.GetRequiredService<ITenantBrandAssetBlobStore>()
+            .Should().BeOfType<NullTenantBrandAssetBlobStore>(
+                "OpenAPI-like InMemory hosts disable artifact blob offload; brand uploads fail at WriteAsync with an explicit operator message");
+
+        serviceScope.ServiceProvider.GetRequiredService<IBrandAssetService>()
+            .Should().BeOfType<BrandAssetService>();
     }
 
     private static ScopeContext CreateDefaultScope() =>
