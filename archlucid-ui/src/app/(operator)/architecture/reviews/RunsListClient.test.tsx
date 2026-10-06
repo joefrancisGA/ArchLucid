@@ -760,6 +760,27 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
 
+  it("closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = "";
+    fireEvent.popState(window);
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
+
   it("re-applies compare selection when compareRuns URL changes without a popstate event", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

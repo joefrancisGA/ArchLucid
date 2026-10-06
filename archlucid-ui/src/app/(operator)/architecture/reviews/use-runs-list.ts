@@ -300,6 +300,37 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setSelectedRunState(null);
   }, [safeRuns, urlInspectorRunId]);
 
+  useEffect(() => {
+    const syncInspectorFromUrlOnPopState = (): void => {
+      if (safeRuns.length === 0) {
+        setSelectedRunState(null);
+
+        return;
+      }
+
+      const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+        new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+      );
+
+      if (committedInspectorRunId.length === 0) {
+        setSelectedRunState(null);
+
+        return;
+      }
+
+      const fromUrl =
+        safeRuns.find((run) => run.runId === committedInspectorRunId) ?? null;
+
+      setSelectedRunState(fromUrl);
+    };
+
+    window.addEventListener("popstate", syncInspectorFromUrlOnPopState);
+
+    return () => {
+      window.removeEventListener("popstate", syncInspectorFromUrlOnPopState);
+    };
+  }, [safeRuns]);
+
   const closeInspector = useCallback(() => {
     setSelectedRun(null);
   }, [setSelectedRun]);
