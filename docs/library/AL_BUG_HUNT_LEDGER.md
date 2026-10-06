@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read `SqlRunRepository` query/list/write/archive partials and `RunListQueryParameters` after consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (project-list and graph-at-time slug normalize-only seeks, committed/prior project slug parity gap, operator-governance `OccurredUtc` kind, tenant-scoped archive-by-id without workspace predicate); scoped zone tests passed (1 SQL integration skipped).
+
 2026-10-06 thorough hunt (dry): `ui-claim-discipline-policy` — cheap-disproved five seeded candidates (authentication-sign-in and contact-support TOC/anchor parity via `AuthenticationSignInHelpEvidenceOrientationStrip` / `ContactSupportHelpEvidenceOrientationStrip` heading ids; admin-diagnostics omit defensive; comparison-replay filtered TOC; `HelpTopicMarkdownView` claim TOC props unreachable); no wrong-omit hit; 26 scoped `claim-discipline-policy` tests passed.
 
 2026-10-06 seed hunt (seed-only): `ui-claim-discipline-policy` — re-read `claim-discipline-policy.ts` and live help/admin guide mounts after candidate exhaustion; no hunt-ready row promoted; seeded five `(candidate)` rows (authentication-sign-in and contact-support TOC/anchor parity, admin-diagnostics omit vs operator orientation, comparison-replay header anchor gap, dead `HelpTopicMarkdownView` claim TOC props); 26 scoped `claim-discipline-policy` tests passed.
@@ -5513,10 +5515,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -5571,6 +5573,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2175 (seed-only): reseeded sql-run-repository with `-Hint sql run -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+2026-10-06 seed hunt (seed-only): reread `SqlRunRepository` list/query/graph-at-time/committed/archive partials and `RunListQueryParameters` after #6977 require-then-normalize fixes on architecture-request seeks; no row met the same-run hunt-ready failing-repro bar; seeded five bounded `(candidate)` rows below for follow-on thorough hunts. Scoped zone tests passed (1 SQL integration skipped).
+
+- [ ] (candidate) `RunListQueryParameters.ForProjectList` / `ForProjectKeysetPage` — tab- or Unicode-leading-whitespace `projectSlug` binds `@NormalizedProjectSlug` via `NormalizeProjectSlug` (space-edge trim only) without a `Require*` Unicode trim like `RequireArchitectureRequestId` on architecture-request SQL paths; reachable when `ListByProjectAsync` / `ListByProjectKeysetAsync` consume API or dashboard project filters with padded seeks.
+- [ ] (candidate) `RunListQueryParameters.ForLatestGraphAtOrBefore` / `SqlRunRepository.Query.GraphAtTime.GetLatestWithGraphAtOrBeforeAsync` — `authorityProjectSlug` uses normalize-only binding while temporal graph callers may pass leading tab/NBSP padding from slug fields; parity risk with SQL `STRING_SPLIT(LTRIM(RTRIM(ProjectId)))` collapse vs InMemory `AuthorityProjectSlugMatches`.
+- [ ] (candidate) `RunListQueryParameters.ForLatestCommittedByManifestCreatedUtc` / `ForPriorCommittedRunBeforeCurrent` — project-slug seeks for manifest-order and prior-resolve SQL still normalize without require-then-normalize on the seek string; reachable from `GetLatestCommittedRunIdByManifestCreatedUtcAsync` / `GetPriorCommittedRunIdBeforeCurrentAsync` when upstream passes whitespace-padded authority slugs.
+- [ ] (candidate) `RunRecordParameters.ForOperatorGovernanceDisposition` — `OccurredUtc` is bound without `DateTime.SpecifyKind(..., DateTimeKind.Utc)` unlike `ForLatestGraphAtOrBefore`; reachable when `TrySetOperatorGovernanceDispositionAsync` records disposition timestamps from callers that supply unspecified `DateTimeKind`.
+- [ ] (candidate) `SqlRunRepository.Write.Archive.ArchiveRunsByIdsAsync` — `[TenantScopeExempt]` archival updates explicit `RunIds` without `WorkspaceId` / `ScopeProjectId` predicates; reachable when retention operators batch-archive run ids exported from another workspace in the same tenant catalog.
 
 2026-10-04 seed hunt (seed-only): reread `SqlRunRepository` and its save/query partials plus the selected SQL shape tests. The wrapper and current partials expose no fresh reachable scope or transaction mismatch beyond the closed normalization and representative-selection rows; no new candidate met the seed-hunt bar. No code changes.
 
