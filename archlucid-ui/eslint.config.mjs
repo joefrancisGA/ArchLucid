@@ -67,5 +67,6 @@ export default defineConfig([
     "lighthouserc.cjs",
     "lighthouserc.acceptance.cjs",
     "scripts/lighthouse-acceptance-puppeteer.cjs",
+    "vendor/**",
   ]),
 ]);
