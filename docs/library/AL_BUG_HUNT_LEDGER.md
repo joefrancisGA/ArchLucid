@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator budget gate, cache coalesce miss path, manifest source hashing, and pin/TTL eviction after consecutive dry hunts closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (budget rejection run id on omitted client `RunId`, duplicate source filename segments, pinned-expired TTL `CreatedUtc` eviction bias, blank vs null `ModelAliasId` hash parity, pin reservation without cache row blocking prune); 74 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `architecture-intelligence-orchestrator` — cheap-disproof closed five seeded `(candidate)` rows (whitespace vs omitted client `RunId` intentional manifest coalescing with per-request run id on cache hit; first-run client `RunId` manifest gains `modelfp` after baseline load; dual-manifest `IsPinned` false at pin cap does not block `Set`/`TryGet`; declared-priority casing dedupe intentional; blank stored `RunId` invalidation gap unreachable from orchestrator pipeline); regressions `Build_matches_content_hash_when_client_run_id_is_whitespace_only_vs_omitted`, `RunAsync_whitespace_client_run_id_shares_manifest_with_omitted_run_id_and_assigns_fresh_run_id_on_cache_hit`, `Build_changes_content_hash_when_baseline_model_loads_for_same_client_run_id`, `Build_matches_declared_priorities_hash_when_entries_differ_only_by_casing`, `PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached`, `InvalidateForRun_does_not_remove_entries_with_blank_stored_run_id`; 74 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator entry, dual-manifest pin scopes, manifest hashing, and review-cache invalidation after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (whitespace-only client `RunId` manifest parity, first-run client `RunId` before persist, composite pin partial failure at pin cap, declared-priority casing collapse, `InvalidateForRun` skip when stored `RunId` blank); 68 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -29956,6 +29958,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-06 seed hunt (seed-only): re-read budget gate, coalesce miss path, source hashing, pin/TTL eviction; seeded five `(candidate)` rows; 74 scoped tests passed.
+
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded candidates (whitespace vs omitted run id, first-run client run id manifest, dual pin cap, priority casing, blank stored run id invalidation); 74 scoped tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read orchestrator entry, dual-manifest pins, manifest hashing, and invalidation after thorough dry; seeded five new `(candidate)` rows; 68 scoped picker-filter tests passed (`RunAnalyzers=false`).
@@ -29978,13 +29982,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
 - **hunts:** 28
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-06 seed hunt (seed-only): re-read orchestrator budget gate, coalesce miss short-circuit, manifest hashing, and pin/TTL eviction; seeded five new `(candidate)` rows; 74 scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read orchestrator continue path, manifest hashing, and review-cache tombstone lookup; no hunt-ready row promoted; seeded five new `(candidate)` rows in Hypotheses; 66 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
@@ -30066,6 +30072,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCacheCompositePinScope` / `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — partial dual pin when distinct-key cap reached — **cheap-disproof 2026-10-06 thorough hunt:** #1218 storage/read does not require pin success; regression `PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached` plus `RunAsync_second_identical_request_is_cache_hit_when_distinct_pin_cap_is_saturated`.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` / `HashPriorities` — declared priorities differing only by casing collapse before hash — **cheap-disproof 2026-10-06 thorough hunt:** intentional dedupe via `ClosedLoopDeclaredPrioritiesNormalizer` (snapshot parity in `ClosedLoopReasoningRequestSnapshotTests`); regression `Build_matches_declared_priorities_hash_when_entries_differ_only_by_casing`.
 - [x] (invalid) `ReviewResultCache.InvalidateForRun` — skips rows with blank stored `RunId` — **cheap-disproof 2026-10-06 thorough hunt:** `SanitizeForStorage` nulls blank ids and live pipeline always assigns run ids before cache `Set`; regression `InvalidateForRun_does_not_remove_entries_with_blank_stored_run_id` documents run-id invalidation scope only.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ArchitectureIntelligenceBudgetResultApplier.CreateRejected` — tier budget denial returns a generated `runId` when the client omitted `RunId`, before any cache manifest or pipeline work (reachable architecture-intelligence analyze call blocked by tier budget).
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that share `FileName` and `ContentType` append separate hash blocks, so two uploads of the same filename with different bodies split cache keys (reachable intake listing two `architecture.md` attachments).
+- [ ] (candidate) `ReviewResultCache.TryGet` — pinned expired-entry TTL refresh replaces the `CacheEntry` shell but preserves `CreatedUtc`, skewing `TryEvictOldestUnpinnedEntry` ordering relative to wall-clock retention (reachable improve-loop pin across expiry).
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` / `ClosedLoopModelAliasIdNormalizer` — `ModelAliasId` null vs empty string normalizes to the same `alias=` segment, so clients toggling blank alias forms share a cache manifest (reachable requests with `ModelAliasId` `null` vs `""`).
+- [ ] (candidate) `ReviewResultCache.PinStorageKey` / `PruneOrphanPinRefcounts` — `_pinReservationsWithoutCacheEntry` retains a pin refcount when `PinStorageKey` succeeds before the matching `Set`, blocking orphan refcount prune until unpin or insert (reachable `PinScope` opened ahead of first cache write on a new manifest).
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
