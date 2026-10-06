@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `ClientSecret=` effective values on non-sensitive paths leaked because `LooksLikeEmbeddedConnectionString` omitted OAuth-style `ClientSecret=` from leading-pair and semicolon-delimited credential marker detection; regression `Resolve_redacts_plain_scalar_connection_string_when_client_secret_is_the_only_pair`; 1065 scoped Configuration tests passed (Release, no-build filter).
+
 2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `AccessKey=` effective values on non-sensitive paths leaked in operator config summaries because `LooksLikeEmbeddedConnectionString` only treated `Password`/`Pwd`/`AccountKey`/`SharedAccessKey` as leading credential pairs; recognize `AccessKey=` for scalar and semicolon-delimited connection strings; regression `Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair`; 1064 scoped Configuration tests passed (Release, no-build filter).
 
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `EmailBrandingUrls.TryBuildLogoImageUrl` accepted scheme-only `EmailNotificationOptions.OperatorBaseUrl` values such as `https://` after `TrimEnd('/')`, producing malformed weekly Sponsor report logo URLs (`https:/logo/icon-192.png`); require absolute URI with a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`; 27 scoped branding + report dispatcher tests passed.
@@ -20213,11 +20215,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 39
-- **bugs-found:** 22
+- **hunts:** 40
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — single-pair `AccessKey=` effective values leaked in config summary
+- **last-bug:** 2026-10-06 — single-pair `ClientSecret=` effective values leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20236,6 +20238,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner.LooksLikeEmbeddedConnectionString` — single-pair `AccessKey=` effective values on non-sensitive paths leaked after the `Password=`/`AccountKey=` single-pair fix because `AccessKey=` was omitted from leading-pair and semicolon-delimited marker detection — **hit 2026-10-06 seed hunt (seed→hit):** treat `AccessKey=` like other credential connection-string pairs; regression `Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair`.
 
 2026-10-06 seed hunt (seed→hit): reseeded core-configuration-summary after recent connection-string redaction hits; proved single-pair `AccessKey=` scalar leak; 1064 scoped Configuration tests passed (Release, no-build filter).
+
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.LooksLikeEmbeddedConnectionString` — single-pair `ClientSecret=` effective values on non-sensitive paths leaked after `AccessKey=`/`Password=` single-pair fixes — **hit 2026-10-06 seed hunt (seed→hit):** recognize `ClientSecret=` in leading-pair and semicolon-delimited marker detection; regression `Resolve_redacts_plain_scalar_connection_string_when_client_secret_is_the_only_pair`.
+
+2026-10-06 seed hunt (seed→hit): reseeded core-configuration-summary after `AccessKey=` fix; proved single-pair `ClientSecret=` scalar leak; 1065 scoped Configuration tests passed (Release, no-build filter).
 
 2026-10-03 seed hunt (seed-only): re-read the configuration summary redaction, effective-value resolver, deployment options, OTP normalization, and configuration tests; no new candidate met the wrong-outcome and product-contract bar for same-run proof.
 

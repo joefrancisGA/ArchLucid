@@ -81,6 +81,7 @@ internal static class ConfigurationSensitiveConfigValueScanner
             || trimmed.Contains("Pwd=", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("AccountKey=", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("AccessKey=", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("ClientSecret=", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
     }
 
@@ -89,5 +90,6 @@ internal static class ConfigurationSensitiveConfigValueScanner
         || trimmed.StartsWith("Pwd=", StringComparison.OrdinalIgnoreCase)
         || trimmed.StartsWith("AccountKey=", StringComparison.OrdinalIgnoreCase)
         || trimmed.StartsWith("AccessKey=", StringComparison.OrdinalIgnoreCase)
+        || trimmed.StartsWith("ClientSecret=", StringComparison.OrdinalIgnoreCase)
         || trimmed.StartsWith("SharedAccessKey=", StringComparison.OrdinalIgnoreCase);
 }
