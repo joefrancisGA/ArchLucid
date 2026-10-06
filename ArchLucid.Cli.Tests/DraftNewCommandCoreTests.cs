@@ -1187,6 +1187,147 @@ public sealed class DraftNewCommandCoreTests
         }
     }
 
+    [Fact]
+    public async Task RunCoreAsync_prompted_intent_when_read_line_eof_returns_operation_failed_without_json_envelope()
+    {
+        bool clientCreated = false;
+
+        DraftNewCommandOptions options = new()
+        {
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) =>
+            {
+                clientCreated = true;
+
+                return CreateDraftFlowClient();
+            },
+            ReadLineAsync = (_, _) => Task.FromResult<string?>(null),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        clientCreated.Should().BeFalse();
+        output.ToString().Should().NotContain("\"ok\"");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_prompted_business_outcome_when_read_line_eof_returns_operation_failed()
+    {
+        CapturePatchMetadataHandler handler = new();
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(handler);
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            ReadLineAsync = (_, _) => Task.FromResult<string?>(null),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        handler.SystemName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_emits_admit_draft_id_when_submit_body_draft_id_differs()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+        Guid mismatchedSubmitDraftId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new SubmitMismatchedDraftIdHandler(mismatchedSubmitDraftId));
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.Success);
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Last(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("draftId").GetString().Should().Be(DraftId.ToString("D"));
+            document.RootElement.GetProperty("draftId").GetString().Should().NotBe(mismatchedSubmitDraftId.ToString("D"));
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_execute_failure_emits_structured_failure_and_stderr_guidance()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new ExecuteFailureHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("execute failed");
+            output.ToString().Should().Contain("execute_failed");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();
@@ -1307,6 +1448,31 @@ public sealed class DraftNewCommandCoreTests
                 {
                     draftId = DraftId,
                     status = "Drafting",
+                    runId = "run-draft-cli-001",
+                    requestId = "req-draft-cli-001",
+                });
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class SubmitMismatchedDraftIdHandler : DraftFlowHandler
+    {
+        private readonly Guid _submitDraftId;
+
+        public SubmitMismatchedDraftIdHandler(Guid submitDraftId) => _submitDraftId = submitDraftId;
+
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = _submitDraftId,
+                    status = "RunSpawned",
                     runId = "run-draft-cli-001",
                     requestId = "req-draft-cli-001",
                 });
