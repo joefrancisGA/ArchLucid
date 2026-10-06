@@ -626,6 +626,48 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_start_index_above_total_returns_empty_page()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, null, 99, 10, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ScimUserResourceParser_preserves_outer_whitespace_on_optional_displayName()
+    {
+        using JsonDocument doc = JsonDocument.Parse(
+            """
+            {
+              "userName": "alice@example.com",
+              "externalId": "ext-1",
+              "displayName": "  Alice  "
+            }
+            """);
+
+        (_, string? displayName, _, _) = ScimUserResourceParser.ParseUser(doc.RootElement);
+
+        displayName.Should().Be("  Alice  ");
+    }
+
+    [Fact]
     public async Task ListAsync_negative_count_clamped_to_empty_page()
     {
         Guid tenantId = Guid.NewGuid();
@@ -802,6 +844,37 @@ public sealed class ScimUsersServiceUnitTests
 
         await act.Should().ThrowAsync<ScimUserResourceParseException>();
         (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.ExternalId.Should().Be("ext-1");
+    }
+
+    [Fact]
+    public async Task PatchAsync_remove_displayName_clears_display_name()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "remove", "path": "displayName" }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.DisplayName.Should().BeNull();
     }
 
     [Fact]

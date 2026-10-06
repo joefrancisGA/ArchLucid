@@ -36,7 +36,9 @@ public sealed partial class ScimUserService
         string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
 
-        if (core.TryGetValue("displayName", out JsonElement displayNameElement))
+        if (!core.ContainsKey("displayName") && current.ContainsKey("displayName"))
+            displayName = string.Empty;
+        else if (core.TryGetValue("displayName", out JsonElement displayNameElement))
             displayName = ResolvePatchDisplayName(displayNameElement, displayName);
 
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
