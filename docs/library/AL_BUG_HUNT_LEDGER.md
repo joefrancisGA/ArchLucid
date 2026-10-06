@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository` after consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (write-guard trim vs NVARCHAR length, in-memory read parity, write-in-flight cache bypass, tab-padded setting keys, MERGE idempotent delete vs cache generation); 12 scoped `SqlTenantSettingsRepository` tests + 24 `TenantSettings_` cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): `tenant-erasure` — promoted dot-segment erasure lifecycle allowlist parity; proved `/v1/tenant/erasure/./approve` and `/v1/tenant/./erasure/approve` returned `403` during quarantine because `NormalizeRequestPath` collapsed duplicate slashes only; normalize `.` / `..` path segments before `Skip`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five follow-on `(candidate)` rows; 50 scoped `TenantErasure` tests passed (26 Api + 19 Application + 4 Core + 1 Persistence).
 
 2026-10-06 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five seeded `(candidate)` rows (`Accepted`+`QualityRejected` dual-flag on winning row still blocks via existing evaluator test; non-Guid `runId` blocked by `CommitArchitectureVersionPinIntegrityEvaluator` before quality gate; TB-1228 unsupported-band hold is PilotStrict-only (not WarnOnly); full-width digit task-id split mirrors zero-width fail-closed semantics; `Mixed`/`Fallback` structural guard blocks before trace quality evaluation); regressions `GetBlockingReasonsAsync_returns_invalid_run_id_before_repository_calls_for_non_guid`, `Applies_is_false_when_warn_only_even_with_unsupported_hold_flag_on`, `Select_when_task_ids_differ_only_by_full_width_digits_form_separate_groups`, `GetBlockingReasons_when_full_width_task_id_group_has_rejected_latest_still_blocks`, `GetBlockingReasons_when_mixed_or_fallback_blocks_before_downstream_integrity_evaluators`; seeded five follow-on candidates; 97 scoped zone tests passed (`RunAnalyzers=false`).
@@ -3868,13 +3870,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-06 seed hunt (seed-only): re-read repositories; no hunt-ready promotion; seeded five `(candidate)` rows below; 36 scoped tests passed (12 `SqlTenantSettingsRepository` + 24 `TenantSettings_`).
 
 2026-10-05 thorough hunt (dry): closed five open `(candidate)` rows; cancel mid-read regression; 47 scoped TenantSettings tests passed.
 
@@ -3891,6 +3895,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — validates `settingValue.Trim().Length` while `SqlTenantSettingsRepository.UpsertCoreAsync` persists `settingValue.Trim()`; reachable when callers pass padding whitespace around a payload near the 512-char migration limit (`TenantSettingsSchemaLimits.SettingValueMaxLength`).
+- [ ] (candidate) `InMemoryTenantSettingsRepository.TryGetAsync` — returns stored values without `string.IsNullOrWhiteSpace` absent normalization applied in `SqlTenantSettingsRepository.TryGetCoreAsync`; reachable in unit tests and local harnesses that use the in-memory repository only.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — `WriteInFlightKeys.ContainsKey` bypasses hybrid cache and reads inner directly without generation-stamped keys; reachable when `UpsertAsync`/`DeleteAsync` overlaps `TryGetAsync` on the same `(tenantId, settingKey)` slot.
+- [ ] (candidate) `TenantSettingKeyNormalizer.Normalize` — `settingKey.Trim().ToLowerInvariant()` collapses leading/trailing tabs while rejecting whitespace-only keys via `ThrowIfNullOrWhiteSpace`; reachable when a caller supplies `\t`-padded keys that normalize to an existing production `TenantSettingKeys` constant.
+- [ ] (candidate) `SqlTenantSettingsRepository.DeleteCoreAsync` — idempotent `DELETE` with no row affected still succeeds while `CachingTenantSettingsRepository` bumps cache generations; reachable via `DeleteAsync` on an already-absent key after a prior delete cleared SQL but a stale hybrid-cache hit could still exist (symmetry with proven delete cached-hit rows #1239).
 
 - [x] (valid-no-repro) `HybridHotPathReadCache.GetOrCreateAsync` + `CachingTenantSettingsRepository.TryGetAsync` — cancellation during inner factory — **cheap-disproof 2026-10-05 thorough hunt:** canceled cold-cache `TryGetAsync` does not block post-upsert reads; regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`.
 - [x] (invalid) `CachingTenantSettingsRepository.TryGetAsync` — negative cache survives out-of-band `dbo.TenantSettings` mutation — **cheap-disproof 2026-10-05 thorough hunt:** read-through cache by design; wrapper upsert/delete bumps generation; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write` (parity #1359).
