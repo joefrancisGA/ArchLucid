@@ -142,7 +142,7 @@
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
-2026-10-06 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: SQL capacity insert rolls back on `OperationCanceledException` (`BackgroundJobRepository.CapacityInsert` transaction `Rollback`); processor retry backoff interrupted by `stoppingToken` leaves the Azure message undeleted for visibility retry (not a spurious `SendMessageAsync` on shutdown); in-memory terminal eviction is bounded retention by design (`EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved`); watchdog notify loop honors `cancellationToken` so trailing reclaimed ids wait for the next pass (#1429 batch semantics); reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
+2026-10-06 thorough hunt (hit): `host-core-jobs` — `InMemoryBackgroundJobQueue` assigned `Pending` during retry then `Task.Delay(..., stoppingToken)` left orphan rows without channel work when host stop interrupted backoff; re-queue pending retry work items on shutdown-interrupted delay; regression `StopAsync_during_retry_backoff_requeues_pending_job_for_next_start`; cheap-disproof closed four seeded candidates (SQL capacity insert rollback, durable processor retry backoff vs shutdown, terminal eviction retention, watchdog notify batch semantics); reseeded four candidates; 75 Host.Core + 42 focused Api background-job tests passed.
 
 2026-10-05 thorough hunt (hit): `host-core-jobs` — `DurableBackgroundJobQueue.EnqueueAsync` committed SQL insert then treated `OperationCanceledException` from `SendJobIdAsync` like a notify failure (or left `Pending` without queue notification); cancel cleanup via `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`; cheap-disproof closed orphan blob on processor success cancel, in-memory `GetFileAsync` after cancel-during-execute, registry-cancel stale message delete, intentional cancel-wins contract, and SQL insert rollback on cancel during `TryInsertPendingJobIfUnderCapacityAsync`; reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
 
@@ -10808,11 +10808,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 38
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 1
+- **hunts:** 39
+- **bugs-found:** 28
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-05 — durable enqueue cancel after SQL insert mishandled notify abort
+- **last-bug:** 2026-10-06 — in-memory retry backoff interrupted by host stop orphaned Pending jobs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10849,10 +10849,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel branch — **cheap-disproof 2026-10-05 thorough hunt:** deleting stale notifications after `MarkCanceledAsync` matches prior processor not-claimable / registry-cancel dry-hunt contract; `TryPrepareQueuedJobAsync` prevents duplicate execution on terminal rows.
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.MarkCanceledAsync` outside `TryAssignUnlessCanceled` — **cheap-disproof 2026-10-05 thorough hunt:** intentional cancel-wins ordering documented by `MarkCanceled_while_running_does_not_overwrite_with_succeeded`; `TryAssignUnlessCanceled` guards executor transitions, not user cancel entry.
 
-- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` passes `cancellationToken` into Dapper `CommandDefinition`; cancel during SQL should roll back the transaction (verify no orphan when cancel surfaces only after `Commit`).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry `SendMessageAsync` after backoff may run when `stoppingToken` is canceled mid-delay (host shutdown vs job cancel distinction).
-- [ ] (candidate) `InMemoryBackgroundJobQueue.EvictOldTerminalJobs` — evicts oldest terminal rows while a client still holds a `jobId` from a completed export (reachable poll after eviction returns null `GetInfoAsync`).
-- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed `Pending` rows depend on per-job notify in a foreach; partial batch failure handling is proven (#1429) but mid-batch host shutdown may still leave trailing ids without notify until next pass.
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` cancel during SQL — **cheap-disproof 2026-10-06 thorough hunt:** `BackgroundJobRepository.CapacityInsert` `catch` rolls back the transaction; no committed orphan on `OperationCanceledException`.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry backoff interrupted by `stoppingToken` — **cheap-disproof 2026-10-06 thorough hunt:** `Task.Delay` OCE exits before `SendMessageAsync`; Azure message remains for visibility retry (intentional).
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.EvictOldTerminalJobs` — poll after eviction returns null — **cheap-disproof 2026-10-06 thorough hunt:** bounded terminal retention by design; regression `EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved`.
+- [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork` — mid-batch shutdown trailing notify — **cheap-disproof 2026-10-06 thorough hunt:** trailing reclaimed ids wait for next pass (#1429 batch semantics); `cancellationToken` honored in notify loop.
+
+- [x] (proven) `InMemoryBackgroundJobQueue.ExecuteAsync` — retry backoff `Task.Delay(..., stoppingToken)` interrupted by host stop left `Pending` jobs without channel work items — **hit 2026-10-06 thorough hunt:** `TryRequeuePendingRetryWorkItemAsync` on shutdown-interrupted delay; regression `StopAsync_during_retry_backoff_requeues_pending_job_for_next_start`.
+
+2026-10-06 thorough hunt (hit): cheap-disproof closed four seeded candidates; proved in-memory retry orphan on shutdown-interrupted backoff; reseeded four candidates; 75 Host.Core + 42 focused Api background-job tests passed.
+
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` swallows `MarkCanceledAsync` failures, leaving `Pending` rows without queue notification when enqueue cancel cleanup fails.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` before backoff leaves `Pending` rows without a new queue message when shutdown interrupts delay (durable path relies on undeleted Azure message; verify no duplicate execution on redelivery).
+- [ ] (candidate) `InMemoryBackgroundJobQueue.TryRequeuePendingRetryWorkItemAsync` — pending-capacity `WaitAsync(0)` failure during shutdown-interrupted retry leaves `Pending` without channel item until client cancel or eviction.
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — notify failure marks reclaimed rows `Failed` with `retryCount: 0` even when `MaxRetries` would allow reclaim retries (verify parity with processor notify-failure paths).
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
@@ -27726,6 +27735,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-06 seed hunt (seed→hit): promoted recycle-bin purge schedule parity with `SqlArchitectureProjectRetentionPurgeService` (`NOT EXISTS` on `TenantWorkspaces.DefaultProjectId`); proved `ListRecycleBinAsync` still computed `purgeAfterUtc` for soft-deleted workspace-default metadata pins; nullable `PurgeAfterUtc` on `TenantWorkspaceDeletedProjectApiDto`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
 
 - [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — soft-deleted project still referenced as `TenantWorkspaces.DefaultProjectId` returned `purgeAfterUtc` while retention purge SQL never hard-deletes pinned defaults — **hit 2026-10-06 seed hunt (seed→hit):** omit purge schedule (`purgeAfterUtc: null`) when `projectId == currentWorkspace.DefaultProjectId`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`.
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — purge schedule used only `currentWorkspace.DefaultProjectId` while retention purge SQL skips any project id referenced on any `TenantWorkspaces` row — **hit 2026-10-06 seed hunt (seed→hit):** build tenant-wide pinned-default set from `ListWorkspacesAsync`; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`.
+
+2026-10-06 seed hunt (seed→hit): promoted cross-workspace default-metadata purge parity with `SqlArchitectureProjectRetentionPurgeService`; 42 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents

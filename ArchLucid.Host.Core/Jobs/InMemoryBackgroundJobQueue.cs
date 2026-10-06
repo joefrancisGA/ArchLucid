@@ -205,7 +205,18 @@ public sealed class InMemoryBackgroundJobQueue(
                         continue;
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
-                    await Task.Delay(delayMs, stoppingToken);
+
+                    try
+                    {
+                        await Task.Delay(delayMs, stoppingToken);
+                    }
+                    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                    {
+                        if (await TryRequeuePendingRetryWorkItemAsync(item))
+                            continue;
+
+                        throw;
+                    }
 
                     if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeRequeue) ||
                         beforeRequeue.State == BackgroundJobState.Canceled)
@@ -293,6 +304,25 @@ public sealed class InMemoryBackgroundJobQueue(
 
             EvictOldTerminalJobs();
         }
+    }
+
+    private async Task<bool> TryRequeuePendingRetryWorkItemAsync(WorkItem item)
+    {
+        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
+            return false;
+
+        if (current.State is not BackgroundJobState.Pending)
+            return false;
+
+        if (!await _pendingJobs.WaitAsync(0, CancellationToken.None))
+            return false;
+
+        if (_queue.Writer.TryWrite(item))
+            return true;
+
+        _pendingJobs.Release();
+
+        return false;
     }
 
     private bool TryAssignUnlessCanceled(string jobId, Func<BackgroundJobInfo, BackgroundJobInfo> transform)

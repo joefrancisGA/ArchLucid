@@ -587,6 +587,54 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task StopAsync_during_retry_backoff_requeues_pending_job_for_next_start()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        int attempts = 0;
+
+        InMemoryBackgroundJobQueue queue = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>((_, _) =>
+                {
+                    attempts++;
+
+                    return Task.FromException<BackgroundJobFile>(new InvalidOperationException("transient"));
+                }));
+
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = await queue.EnqueueAsync(Work("retry-stop"), maxRetries: 2);
+
+        BackgroundJobInfo? pendingDuringBackoff = null;
+
+        for (int i = 0; i < 50; i++)
+        {
+            pendingDuringBackoff = await queue.GetInfoAsync(jobId);
+
+            if (pendingDuringBackoff?.State == BackgroundJobState.Pending && pendingDuringBackoff.RetryCount > 0)
+                break;
+
+            await Task.Delay(20, CancellationToken.None);
+        }
+
+        pendingDuringBackoff.Should().NotBeNull();
+        pendingDuringBackoff!.RetryCount.Should().BeGreaterThan(0);
+
+        await queue.StopAsync(CancellationToken.None);
+        await queue.StartAsync(CancellationToken.None);
+
+        await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(15));
+
+        BackgroundJobInfo? finalInfo = await queue.GetInfoAsync(jobId);
+        finalInfo.Should().NotBeNull();
+        finalInfo!.State.Should().Be(BackgroundJobState.Failed);
+        attempts.Should().BeGreaterThan(1, "retry must resume after host stop interrupted the backoff delay");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job()
     {
         using CancellationTokenSource cts = new();
