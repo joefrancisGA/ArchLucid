@@ -65,6 +65,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 UnresolvedRelationshipDetails = node.UnresolvedRelationshipDetails.ToList(),
                 IsAvdCollapsedBoundary = node.IsAvdCollapsedBoundary,
                 DataFlowTraversalHopEvidenceDetails = node.DataFlowTraversalHopEvidenceDetails.ToList(),
+                NsgInboundRuleChips = node.NsgInboundRuleChips
+                    .Select(chip => new DiagramNsgInboundRuleChip(chip.Text, chip.IsRisky))
+                    .ToList(),
             });
         }
 

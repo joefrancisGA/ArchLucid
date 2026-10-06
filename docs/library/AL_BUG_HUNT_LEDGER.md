@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `MermaidDiagramDeterministicRepairer.Repair` rebuilt nodes without `NsgInboundRuleChips` while the render pipeline repairs before `DiagramForestLayoutSvgRenderer`, so data-flow canvases dropped inbound rule chips painted on storage and NSG owner cards; copy chips on repair; regressions `Repair_keeps_nsg_inbound_rule_chips_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; 644 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
 2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding ignored `+=` compound assignments, so `unscopedRunsSql += "… dbo.Runs …"` after a benign initializer never contributed SQL to ARCH006 analysis; fold add-assignments by appending statically resolved right-hand fragments; regression `ARCH006_reports_unscoped_sql_for_field_built_with_compound_assignment`; 25 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding covered fields and locals only, so auto-properties assigned unscoped SQL in instance methods (with benign `= string.Empty` initializers) still evaded ARCH006 after initializer merge; include `IPropertySymbol` in assignment scans; regression `ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method`; 24 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
@@ -25522,11 +25524,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 35
+- **hunts:** 36
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 43
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — data-flow rollup dropped NSG inbound rule chips from collapsed members
+- **last-bug:** 2026-10-06 — deterministic Mermaid repair dropped NSG inbound rule chips before forest layout
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25599,6 +25601,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up storage (and other) cards replaced member `NsgInboundRuleChips` with an empty list while edge dedupe already merged NSG annotations, hiding inbound rule chips on the collapsed canvas card — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct member chips with max-three-visible plus remainder overflow; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`.
 
 2026-10-06 seed hunt (seed→hit): promoted rollup NSG inbound chip loss after edge-annotation merge fix; focused filter reported 643 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `MermaidDiagramDeterministicRepairer.Repair` — rebuilt `DiagramNode` copies omitted `NsgInboundRuleChips` while edge NSG metadata was already copied, so inventory/data-flow render pipelines dropped inbound rule chips from painted forest cards — **hit 2026-10-06 seed hunt (seed→hit):** copy chips when cloning nodes for repair; regressions `Repair_keeps_nsg_inbound_rule_chips_for_forest_layout` and `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists` (NSG chip assertions).
+
+2026-10-06 seed hunt (seed→hit): reseeded artifact-synthesis after rollup chip fixes; proved Mermaid deterministic repair dropped `NsgInboundRuleChips` before forest layout; focused filter reported 644 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
