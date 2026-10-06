@@ -139,6 +139,20 @@ public sealed partial class TenantWorkspacesController
         if (projectId != scope.ProjectId)
             return this.NotFoundProblem("Architecture project was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
+        IReadOnlyList<ArchitectureProjectRecord> softDeletedProjects =
+            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
+            ?? Array.Empty<ArchitectureProjectRecord>();
+
+        ArchitectureProjectRecord? softDeletedProject = softDeletedProjects
+            .FirstOrDefault(p => p.WorkspaceId == workspaceId && p.Id == projectId);
+
+        if (softDeletedProject is not null && !softDeletedProject.DeletedUtc.HasValue)
+        {
+            return this.NotFoundProblem(
+                "Architecture project was not found or is not soft-deleted.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         ArchitectureProjectRestoreResult outcome =
             await _architectureProjectRepository.TryRestoreAsync(
                 scope.TenantId,

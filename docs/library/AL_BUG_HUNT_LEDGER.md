@@ -28200,9 +28200,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 25
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
+- **hunts:** 26
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — delete allowed when sibling workspace DefaultProjectId pinned active project
 - **related-pd-tb:** none
@@ -28281,6 +28281,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — `purgeAfterUtc` vs purge worker cutoff at displayed instant — **cheap-disproof 2026-10-06 thorough hunt:** worker uses `DeletedUtc < cutoff` with `cutoff = UtcNow.AddDays(-retentionDays)`; eligibility begins strictly after `ComputePurgeAfterUtc`; regression `Purge_worker_eligibility_uses_strict_cutoff_at_displayed_purge_after_instant`.
 - [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — tenant-wide metadata pin on soft-deleted `projectId` with operator DELETE retry — **cheap-disproof 2026-10-06 thorough hunt:** default guard applies only when project is still active in caller workspace; sibling pin + `AlreadyDeleted` returns HTTP 204; regression `DeleteProjectAsync_returns_no_content_when_sibling_pins_soft_deleted_project_on_delete_retry` (extends `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`).
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — orphan `IsDeleted=1` row with `DeletedUtc=null` — **cheap-disproof 2026-10-06 thorough hunt:** controller filters `Where(p => p.DeletedUtc.HasValue)` before computing schedule; regression `ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`.
+
+2026-10-06 seed hunt (seed→hit): promoted recycle-bin / restore parity for legacy orphan soft-deletes (`IsDeleted=1`, `DeletedUtc` null); `RestoreProjectAsync` returns 404 before repository restore; `TryRestoreAsync` requires `DeletedUtc` in SQL and in-memory store; regression `RestoreProjectAsync_returns_not_found_when_soft_deleted_row_lacks_deleted_utc`; 48 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.RestoreProjectAsync` — orphan `IsDeleted=1` without `DeletedUtc` restored while `ListRecycleBinAsync` omitted the row — **hit 2026-10-06 seed hunt (seed→hit):** reject restore when soft-deleted list row lacks `DeletedUtc`; repository restore requires `DeletedUtc IS NOT NULL`; regression `RestoreProjectAsync_returns_not_found_when_soft_deleted_row_lacks_deleted_utc`.
 
 ---
 ## Zone: application-agents
