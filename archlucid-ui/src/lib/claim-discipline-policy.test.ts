@@ -268,4 +268,9 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("azure-permissions-help")).toBe(true);
     expect(resolveClaimDisciplineForStrip("azure-permissions-help", "Not a diligence package.")).toBeUndefined();
   });
+
+  it("omits policy-packs-help legacy orientation slug via alias to help-policy-packs", () => {
+    expect(shouldOmitClaimDisciplineBand("policy-packs-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("policy-packs-help", "Not a diligence package.")).toBeUndefined();
+  });
 });

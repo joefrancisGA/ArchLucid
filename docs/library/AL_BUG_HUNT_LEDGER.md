@@ -30325,13 +30325,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 32
-- **bugs-found:** 16
+- **hunts:** 33
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — report-a-problem help omitted operator-only claim band
+- **last-bug:** 2026-10-06 — policy-packs-help legacy orientation slug skipped omit alias
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 thorough hunt (hit): promoted `policy-packs-help` legacy orientation slug gap; `PolicyPacksHelpEvidenceOrientationStrip` still passed `policy-packs-help` while omit set keys `help-policy-packs`, so `resolveClaimDisciplineForStrip` would surface a bottom claim if the legacy strip remounts beside `HelpPolicyPacksClaimOrientationStrip`; aliased `policy-packs-help` → `help-policy-packs`; cheap-disproved four sibling candidates (data-handling specialty host, intentional marketing `privacy`, governance drift intentional non-omit, workspace-health/operational-errors sources-only strips with header claim fold); 27 scoped `claim-discipline-policy` tests passed.
 
 2026-10-06 seed hunt (seed-only): reread `claim-discipline-policy.ts` and orientation registry slugs after infra-evidence composition dry hunt; no hunt-ready row met the same-run failing-repro bar; seeded five slug-catalog candidates (`policy-packs-help` legacy strip, `help-data-handling` registry strip, marketing `privacy`, `help-governance-infrastructure-drift` omit gap, operator `workspace-health` / `operational-errors` strips); 26 scoped `claim-discipline-policy` tests passed.
 
@@ -30420,11 +30422,11 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `resolveGuideHeadingsForStrip` — alternate claim heading id vs caller `claimHeadingId` — **cheap-disproof 2026-10-05 thorough hunt:** omitted guides already pass matching ids (e.g. `help-advisory-scans` / `what-advisory-scans-are-not`); no live mismatch found in zone paths
 - [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace or trailing-slash strip slugs — **cheap-disproof 2026-10-05 thorough hunt:** strip slugs are static registry literals at component callsites, not URL-derived strings
 
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `PolicyPacksHelpEvidenceOrientationStrip` — registry strip still passes legacy slug `policy-packs-help` while omit set keys canonical `help-policy-packs` with no alias; remounting the legacy strip on `/help/policy-packs` would leave `resolveClaimDisciplineForStrip` showing a bottom claim band beside the hosted guide header claim strip.
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `HelpDataHandlingEvidenceOrientationStrip` — architecture registry uses slug `help-data-handling`, which is absent from the omit set; a reachable generic `HelpTopicMarkdownView` mount with `evidenceOrientation` could surface duplicate claim discipline above the tenant-isolation specialty host that already renders `help-data-handling-tenant-isolation-claim-discipline`.
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `PrivacyEvidenceOrientationStrip` — marketing `/privacy` passes slug `privacy` with a non-empty claim through `EvidenceOrientationSourcesAndClaimStrip` while `privacy` is not in the omit catalog; operator-style header fold on a future shared privacy shell would need an omit entry or alias before suppressing the footer band.
-- [ ] (candidate) `resolveGuideHeadingsForStrip` / `help-governance-infrastructure-drift` — slug is absent from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` while `HelpGovernanceInfrastructureDriftGuideView` filters TOC via `GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_HEADING_ID`; adding omit without relocating the in-page claim anchor would orphan TOC scroll targets (regression guard in `HelpTopicGovernanceInfrastructureDrift.test.tsx` branches on `shouldOmitClaimDisciplineBand`).
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `WorkspaceHealthEvidenceOrientationStrip` and `OperationalErrorsEvidenceOrientationStrip` — operator registry slugs `workspace-health` and `operational-errors` are missing from the omit set; reachable sponsor workspace health or operational-errors pages that fold claim into `OperatorPageHeader` could duplicate the shared claim band if these strips gain non-empty claim props.
+- [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` / `PolicyPacksHelpEvidenceOrientationStrip` — legacy slug `policy-packs-help` was not aliased to canonical `help-policy-packs`, so `resolveClaimDisciplineForStrip` would leave the registry orientation claim visible if remounted beside the hosted guide header claim strip — **hit 2026-10-06 thorough hunt:** alias `policy-packs-help` → `help-policy-packs`; regression `omits policy-packs-help legacy orientation slug via alias to help-policy-packs` in `claim-discipline-policy.test.ts`.
+- [x] (invalid) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `DataHandlingTenantIsolationHelpEvidenceOrientationStrip` — **cheap-disproof 2026-10-06 thorough hunt:** `/help/data-handling` routes to `HelpDataHandlingTenantIsolationGuideView` (not generic `HelpTopicMarkdownView`); operator shell renders `HelpDataHandlingTenantIsolationClaimDiscipline` once; orientation strip with slug `help-data-handling` mounts only on buyer-polished shell (`HelpTopicDataHandlingTenantIsolation.test.tsx` asserts no duplicate orientation on operator).
+- [x] (invalid) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `PrivacyEvidenceOrientationStrip` — **invalid 2026-10-06 thorough hunt:** marketing `/privacy` intentionally renders a legal-notice claim band; omit catalog targets operator/help surfaces that fold claim into headers, not evaluation marketing footers (owner route-traffic note: sources-only `see-it` sibling).
+- [x] (invalid) `resolveGuideHeadingsForStrip` / `help-governance-infrastructure-drift` — **invalid 2026-10-06 thorough hunt:** slug is intentionally absent from omit set so in-page claim + filtered TOC stay aligned; `HelpTopicGovernanceInfrastructureDrift.test.tsx` documents the branch when omit is false — not a present wrong outcome.
+- [x] (valid-no-repro) `WorkspaceHealthEvidenceOrientationStrip` / `OperationalErrorsEvidenceOrientationStrip` — **cheap-disproof 2026-10-06 thorough hunt:** strips pass no `claim` prop so `resolveClaimDisciplineForStrip` suppresses bottom bands while `OperatorPageHeader` owns claim on `/insights/workspace-health` and `/internal/operational-errors`; omit entries are unnecessary until a claim prop ships.
 
 2026-09-08 thorough hunt #1307 (hit): proved notifications, workspace-settings, and jira-integration raw-TOC/omit mismatches; 14 scoped claim-discipline unit tests passed.
 

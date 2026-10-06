@@ -200,6 +200,7 @@ const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string>
   ["glossary-help", "help-glossary"],
   ["pilot-guide-help", "help-pilot-guide"],
   ["procurement-help", "procurement"],
+  ["policy-packs-help", "help-policy-packs"],
   ["help-path-chooser-bottom", "help-path-chooser"],
 ]);
 
