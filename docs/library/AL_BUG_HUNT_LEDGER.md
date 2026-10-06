@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after two consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (primary-datastore vs compute chosen role isolation, agentTopologyProposal sub-key interior whitespace, region chosen same-role gate, inventory vs topology substantive name collisions, cloud-platform row on new proposal id); 86 scoped TechnologyLedger tests passed.
+
 2026-10-06 thorough hunt (dry): `technology-ledger-merge` — cheap-disproof closed five seeded `(candidate)` rows (region vs compute chosen isolation by role; alternative ungrounded name rows do not block substantive topology refs; malformed topology ref string fallback dedupe; whitespace-only assumed name dedupe; cloud-platform sub-key re-seed dedupe); regressions `Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute`, `Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref`, `Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`, `Resolve_skips_when_both_assumed_rows_have_whitespace_only_refs_and_matching_technology_name`, `Resolve_skips_cloud_platform_candidate_when_same_proposal_id_and_cloud_platform_subkey`; 86 scoped TechnologyLedger tests passed.
 
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after dry hunt closed prior candidates; no hunt-ready row promoted; seeded five `(candidate)` rows (region vs compute chosen isolation, alternative-row name dedupe with mixed grounding refs, hybrid `EvidenceRefsMatch` parse fallback, assumed-row ungrounded name dedupe, cloud-platform sub-key re-seed); 81 scoped TechnologyLedger tests passed.
@@ -4697,7 +4699,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
@@ -4705,7 +4707,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
-2026-10-06 seed hunt (seed-only): re-read merge policy after prior dry hunt; seeded five follow-on `(candidate)` rows; 81 scoped TechnologyLedger tests passed.
+2026-10-06 seed hunt (seed-only): re-read merge policy after two consecutive dry hunts; seeded five new `(candidate)` rows; 86 scoped TechnologyLedger tests passed.
+
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `FirstOrDefault` chosen lookup is role-scoped, so a `PrimaryDatastore` agent candidate may still insert when a `ComputeRuntime` authoritative `Chosen` row would block same-family compute candidates — reachable via `TechnologyLedgerTopologyProposalMapper.MapCandidates` emitting datastore + service rows into `TechnologyLedgerTopologyProposalSeeder`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — `agentTopologyProposal` sub-key segment comparison is ordinal and does not trim interior whitespace, so `agentTopologyProposal:p1:svc-api` vs `agentTopologyProposal:p1:svc-api ` may fail to dedupe topology re-seeds — reachable when manifest sub-keys retain trailing spaces from `StableTopologyIdentitySubKey` inputs.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `TechnologyLedgerRole.Region` authoritative `Chosen` with substantive `EvidenceRef` suppresses same-family region candidates sharing `TechnologyName` even when compute-runtime rows differ — reachable when region rows are promoted to `Chosen` before topology re-seed (`TechnologyLedgerRunCommandService` patch flows).
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.ShouldTreatAsDuplicateByName` — substantive `inventory:*` chosen/assumed ref and substantive `agentTopologyProposal:*` candidate with matching `TechnologyName` do not dedupe by name, allowing duplicate display labels in one role — reachable when inventory evidence and topology proposals ground the same technology label differently.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerRole.CloudPlatform` rows use a fixed `cloud-platform` sub-key, so a second cloud-platform candidate with a new `ProposalId` inserts another platform row instead of deduping by technology label — reachable on topology proposal re-ingest when `ProposalId` changes (`TechnologyLedgerTopologyProposalMapper`).
 
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — region vs compute chosen isolation — **cheap-disproof 2026-10-06 thorough hunt:** `FirstOrDefault` chosen lookup is role-scoped; region candidates insert while compute chosen blocks only compute-runtime paths; regression `Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.ShouldTreatAsDuplicateByName` — `Alternative` row with ungrounded ref and matching name — **cheap-disproof 2026-10-06 thorough hunt:** substantive topology candidates still insert (intentional exploration of distinct `agentTopologyProposal:*` refs); regression `Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref`.
