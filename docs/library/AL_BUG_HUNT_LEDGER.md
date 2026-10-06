@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `technology-ledger-merge` — cheap-disproof closed five seeded `(candidate)` rows (region vs compute chosen isolation by role; alternative ungrounded name rows do not block substantive topology refs; malformed topology ref string fallback dedupe; whitespace-only assumed name dedupe; cloud-platform sub-key re-seed dedupe); regressions `Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute`, `Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref`, `Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`, `Resolve_skips_when_both_assumed_rows_have_whitespace_only_refs_and_matching_technology_name`, `Resolve_skips_cloud_platform_candidate_when_same_proposal_id_and_cloud_platform_subkey`; 86 scoped TechnologyLedger tests passed.
+
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after dry hunt closed prior candidates; no hunt-ready row promoted; seeded five `(candidate)` rows (region vs compute chosen isolation, alternative-row name dedupe with mixed grounding refs, hybrid `EvidenceRefsMatch` parse fallback, assumed-row ungrounded name dedupe, cloud-platform sub-key re-seed); 81 scoped TechnologyLedger tests passed.
 
 2026-10-06 thorough hunt (dry): `technology-ledger-merge` — cheap-disproof closed five seeded `(candidate)` rows (whitespace-only candidate ref suppressed when same-family chosen exists; malformed `agentTopologyProposal` refs without sub-key do not false-dedupe; first-colon proposal-id split is intentional; `Future` rows participate in evidence-ref dedupe by design; full-width digit technology labels remain distinct without Unicode normalization); regressions `Resolve_returns_null_for_whitespace_only_evidence_ref_when_chosen_has_distinct_technology_name`, `Resolve_keeps_distinct_malformed_agent_topology_refs_missing_subkey`, `Resolve_dedupes_agent_topology_refs_using_first_colon_separator_in_remainder`, `Resolve_skips_when_future_row_shares_evidence_ref`, `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_full_width_digits`; 81 scoped TechnologyLedger tests passed.
@@ -4695,9 +4697,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
 - **related-pd-tb:** none
@@ -4705,11 +4707,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed-only): re-read merge policy after prior dry hunt; seeded five follow-on `(candidate)` rows; 81 scoped TechnologyLedger tests passed.
 
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `FirstOrDefault` chosen lookup is role-scoped, so a `TechnologyLedgerRole.Region` agent candidate may still insert when a `ComputeRuntime` authoritative `Chosen` row would block same-family compute candidates — reachable via `TechnologyLedgerTopologyProposalMapper.MapCandidates` emitting region + service rows into `TechnologyLedgerTopologyProposalSeeder`.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.ShouldTreatAsDuplicateByName` — `TechnologyLedgerStatus.Alternative` row with ungrounded `EvidenceRef` and matching `TechnologyName` does not dedupe a substantive agent candidate, allowing duplicate display labels in one role — reachable when operators demote prior choices to `Alternative` before topology re-seed (`TechnologyLedgerRunCommandService` patch flows).
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — when only one side parses as `agentTopologyProposal`, comparison falls back to case-insensitive full-string equality, so manually imported refs may collide with malformed topology strings — reachable via operator-imported `TechnologyLedgerEntry.EvidenceRef` values outside mapper emission.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — same role and provider family with matching normalized `TechnologyName` and both whitespace-only `EvidenceRef` values dedupe via `ShouldTreatAsDuplicateByName` even when topology mappers always emit substantive `agentTopologyProposal:*` refs on new candidates — reachable when legacy assumed rows lack grounding refs in `GetByRunIdAsync` snapshots.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerRole.CloudPlatform` rows share the fixed `cloud-platform` sub-key across proposals (`TechnologyLedgerTopologyProposalMapper`), so re-seeding with the same `ProposalId` should dedupe while a new proposal id inserts a second cloud-platform row — reachable on topology proposal re-ingest with unchanged `ProposalId`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — region vs compute chosen isolation — **cheap-disproof 2026-10-06 thorough hunt:** `FirstOrDefault` chosen lookup is role-scoped; region candidates insert while compute chosen blocks only compute-runtime paths; regression `Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.ShouldTreatAsDuplicateByName` — `Alternative` row with ungrounded ref and matching name — **cheap-disproof 2026-10-06 thorough hunt:** substantive topology candidates still insert (intentional exploration of distinct `agentTopologyProposal:*` refs); regression `Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — malformed topology ref string fallback — **cheap-disproof 2026-10-06 thorough hunt:** when `TryParseAgentTopologyProposalRef` fails on both sides, case-insensitive full-string equality dedupes idempotent re-seed; regression `Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — whitespace-only assumed refs with matching technology name — **cheap-disproof 2026-10-06 thorough hunt:** `ShouldTreatAsDuplicateByName` treats dual-ungrounded name collisions as duplicates; regression `Resolve_skips_when_both_assumed_rows_have_whitespace_only_refs_and_matching_technology_name`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — cloud-platform sub-key re-seed — **cheap-disproof 2026-10-06 thorough hunt:** identical `agentTopologyProposal:{proposalId}:cloud-platform` refs dedupe across topology re-ingest; regression `Resolve_skips_cloud_platform_candidate_when_same_proposal_id_and_cloud_platform_subkey`.
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows; 86 scoped TechnologyLedger tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` / `EvidenceRefsMatch` after bugsmash churn; no hunt-ready promotion; seeded five `(candidate)` rows; 76 scoped TechnologyLedger tests passed.
 
