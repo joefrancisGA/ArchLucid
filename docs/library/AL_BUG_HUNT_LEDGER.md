@@ -166,6 +166,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-06 seed hunt (seed→hit): `agent-runtime-safety` — `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only input without honoring a cancelled token (early return before Azure SDK call); `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; 577 scoped agent-runtime-safety tests passed.
+
 2026-10-06 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` against `ArchLucid.Api/Program.cs` after the Pilot/Advanced/SaaS overlay hit; promoted Pilot-overlay parity and cheap-disproved (worker loads `appsettings.Pilot.json` when `!IsDevelopment()` before Advanced/SaaS and `AddEnvironmentVariables()`, matching API); seeded SaaS/Pilot regression gaps and post-`Build()` options-validator drift candidates; 12 scoped worker host/composition tests passed.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
@@ -11399,6 +11401,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only scans without honoring a cancelled token; `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; seeded five follow-up candidates; 577 scoped agent-runtime-safety tests passed.
+
 2026-10-02 thorough hunt (dry): cheap-disproved the disabled-guard cancellation candidate because `NullContentSafetyGuard` is an intentional pass-through used only when content safety is disabled and its focused tests establish allowed/no-category behavior; 575 focused tests passed with analyzers disabled.
 
 2026-10-02 seed hunt (seed-only): re-read the selected safety and prompt-injection sources; seeded a disabled-guard cancellation candidate for `NullContentSafetyGuard`; 575 focused tests passed with analyzers disabled and no candidate was promoted.
@@ -12267,13 +12271,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 56
-- **last-hunt:** 2026-10-02
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-09-27 — run-header AgentType label allowed newline field spoof outside quarantine
+- **hunts:** 57
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-06 — Azure content safety guard ignored cancellation on whitespace-only scans
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard` whitespace early-return skipped `ThrowIfCancellationRequested`; fixed before non-cancellable allow path; 577 scoped agent-runtime-safety tests passed.
 
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
@@ -12286,6 +12292,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `AzureContentSafetyGuard.AnalyzeAsync` — whitespace-only input returns allowed without checking `CancellationToken` — **hit 2026-10-06 seed hunt:** `string.IsNullOrWhiteSpace` short-circuit ran before cooperative cancel; host shutdown could complete a no-op allow while callers expected `OperationCanceledException`; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`.
+
+- [ ] (candidate) `NullContentSafetyGuard` — same whitespace+cancellation contract as the Azure guard (intentional disabled pass-through may still need explicit policy).
+
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.GuardAsync` — circuit-open degraded allow path does not honor cancellation before deny-list scrub.
+
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer` — `EvidenceNote.NoteType` is not sanitized (discriminator used only for staged-note filtering today).
+
+- [ ] (candidate) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — `maxCharacters` exactly at `beginIndex` trims without appending `EndMarker` (edge budget at section open).
+
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffered chunks retained in memory for entire completion before output scan (resource bound under adversarial streaming).
 
 - [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content — cheap-disproof 2026-10-02 thorough hunt: `AgentLoopPrepareStage.PrepareAsync` builds a fresh evidence package and request, then invokes the sanitizer once; no production caller provides the required repeated-object reachability.
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
