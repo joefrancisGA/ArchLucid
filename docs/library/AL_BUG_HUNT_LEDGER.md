@@ -6660,6 +6660,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `EmailBrandingUrls.TryBuildLogoImageUrl` — scheme-only `OperatorBaseUrl` (`https://`) became `https:` after slash trim and composed `https:/logo/icon-192.png` in weekly Sponsor report templates — **hit 2026-10-06 seed hunt (seed→hit):** reject absolute bases without a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`.
 
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` / `EmailBrandingUrls.TryBuildLogoImageUrl` — `OperatorBaseUrl` values with embedded userinfo (`https://user:secret@host`) were concatenated verbatim into weekly Sponsor report logo `<img src>` URLs — **hit 2026-10-06 seed hunt (seed→hit):** compose logo URLs from scheme/host/port authority only; regressions `TryBuildLogoImageUrl_omits_user_info_from_operator_base_url` and `WeeklySponsorReportEmailDispatcher_omits_user_info_from_operator_base_url_in_logo_image_url`.
+
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
 2026-09-10 seed hunt #1593 (seed-only): reseeded weekly-digest-email; cheap-disproof closed tenant guard, whitespace ISO-week rejection, model trim, mailbox trim, blank-list render skip, and event-type tag candidates; 26 scoped digest/job tests passed.
