@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read invitation scope parity, bootstrap status proxy guard, sign-in-methods allowlist gap, email-OTP verify inputs, and routing evaluate error mapping after two consecutive dry hunts; cheap-disproof closed bootstrap GET 401 as intentional LK-07 stale-session recovery (not silent wrong data); seeded five `(candidate)` rows; regression `proxy-bff-session-guard.test.ts`; scoped auth/proxy vitest 340 passed with 3 unrelated baseline seam failures.
+
 2026-10-06 thorough hunt (dry): `ui-auth-proxy` — cheap-disproof closed five seeded `(candidate)` rows (invitation stale-scope future-harm only; email-OTP `nextStep` enum parity with API; split-site host gate does not redirect `/api/proxy`; pre-auth email-OTP bypasses BFF CSRF by design; access-request UI `202` matches `PostAuthBootstrapController` `Accepted()`); regressions in `host-gate.test.ts`, `email-otp-post-auth.test.ts`, `proxy-bff-session-guard.test.ts`, and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 339 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read pre-auth invitation validate, email-OTP post-auth routing, bootstrap access-request, and proxy host gate after thorough dry emptied open rows; cheap-disproof closed promotion attempt (stale operator scope on `validateInvitationToken` does not change validation outcome — `UserInvitationPublicController` is `[AllowUnscopedRoute]` token-only); seeded five `(candidate)` rows; regressions in `invitation-validation-api.test.ts` and `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 335 passed with 3 unrelated baseline seam failures.
@@ -11902,13 +11904,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read auth/proxy clients and BFF guard on bootstrap reads; cheap-disproof closed expired-BFF bootstrap status GET as intentional 401 with cookie clear (UI `bootstrap_status_failed` is fail-closed, not wrong tenant data); seeded five bounded candidates below; regression `proxy-bff-session-guard.test.ts`; scoped auth/proxy vitest 340 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 thorough hunt (dry): cheap-disproved all five open `(candidate)` rows — invitation validate scope forwarding already classified with no wrong outcome today; `EmailOtpAuthNextStep` enum matches UI `switch` (unknown `nextStep` default is intentional forward-compat); `decideHostGateRedirect` does not treat `/api/proxy` as operator path; email-otp challenge on `isPublicAnonymousProxyPath` allows active BFF without CSRF; `initiatePostAuthAccessRequest` `202`-only check matches API `ProducesResponseType(Status202Accepted)`; regressions in `host-gate.test.ts`, `email-otp-post-auth.test.ts`, `proxy-bff-session-guard.test.ts`, and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 339 passed with 3 unrelated baseline seam failures.
 
@@ -11937,6 +11941,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `invitation-validation-api.ts` — `validateInvitationToken` uses `mergeRegistrationScopeForProxy` on pre-auth `GET /v1/auth/invitations/validate` while `evaluateAuthSignInRouting` omits browser scope headers; reachable on `/auth/invite?token=` when `archlucid_operator_scope_v1` remains in localStorage; hygiene unless a future handler binds scope (today `[AllowUnscopedRoute]` on `UserInvitationPublicController`).
+- [ ] (candidate) `fetchPostAuthBootstrapStatus` / `enforceProxyBffSessionGuard` — `GET /api/proxy/v1/auth/bootstrap/status` is not `isPublicAnonymousProxyPath`; expired or idle BFF session returns proxy 401 and `PostAuthBootstrapClient` surfaces generic load failure; reachable when HttpOnly cookie outlives access token during `/auth/bootstrap`.
+- [ ] (candidate) `isPreAuthSignInAnonymousProxyPath` — OpenAPI `/v1/auth/sign-in-methods/*` email-OTP routes are absent from the allowlist; a future `lib/auth` proxy client for signed-in account-security OTP would 401/403 under LK-07 when a stale BFF cookie is present (process risk; no in-zone caller today).
+- [ ] (candidate) `evaluateAuthSignInRouting` (`auth-sign-in-routing-api.ts`) — all non-OK proxy responses collapse to `null`; `POST /api/proxy/v1/auth/routing/evaluate` proxy 401 after stale BFF clear is indistinguishable from network/upstream failure in `use-sign-in-flow-state.ts` (buyer-visible generic email error).
+- [ ] (candidate) `verifyEmailOtpCode` (`email-otp-api.ts`) — does not guard empty `challengeId` before POST; reachable only via direct helper misuse (`use-sign-in-flow-state.ts` already rejects null/empty before call); defense-in-depth gap if a new caller skips UI guards.
+
+- [x] (valid-no-repro) `fetchPostAuthBootstrapStatus` / expired BFF on bootstrap status GET — **valid-no-repro 2026-10-06 seed hunt:** `enforceProxyBffSessionGuard` returns 401 and clears cookies on non-anonymous paths when the session is expired; UI `bootstrap_status_failed` is intentional fail-closed, not cross-tenant data corruption; regression `proxy-bff-session-guard.test.ts`.
 
 - [x] (valid-no-repro) `validateInvitationToken` / `mergeRegistrationScopeForProxy` — **valid-no-repro 2026-10-06 seed hunt:** stale `archlucid_operator_scope_v1` scope headers are forwarded on `GET /api/proxy/v1/auth/invitations/validate` (unlike `evaluateAuthSignInRouting`), but `UserInvitationPublicController.ValidateAsync` is `[AllowUnscopedRoute]` and validates the query token only — no wrong validation outcome today; regressions `invitation-validation-api.test.ts` and `proxy-upstream-headers.test.ts`.
 

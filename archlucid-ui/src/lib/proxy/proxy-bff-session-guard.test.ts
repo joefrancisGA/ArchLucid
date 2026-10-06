@@ -242,6 +242,31 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("blocks bootstrap status GET when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "GET",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "GET",
+      "corr-bootstrap-status-expired",
+      "v1/auth/bootstrap/status",
+    );
+
+    expect(result.allowed).toBe(false);
+
+    if (!result.allowed) {
+      expect(result.response.status).toBe(401);
+    }
+  });
+
   it("allows pre-auth email-otp challenge POST without CSRF when the BFF session is active", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
