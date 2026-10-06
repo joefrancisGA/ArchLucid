@@ -6600,6 +6600,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-06 seed hunt (seed-only): `alert-simulation` — reseeded after compare-to `Guid.Empty` hit; no hunt-ready rows; added five `(candidate)` hypotheses (recent-run clamp/slug, compare-to manifest-null drop, recommendation scope, learning profile scope, controller rule-kind stamping).
+
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — `BuildContextAsync` treated `comparedToRunId == Guid.Empty` as a real compare-to because `Guid?.HasValue` is true for empty, calling `GetRunDetailAsync` with `00000000-…`; gate compare branch with `comparedToRunId is Guid compareRunId && compareRunId != Guid.Empty`; regression `GetContextsAsync_when_compared_to_run_id_is_empty_does_not_query_compare_to_run_detail`; 23 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — `BuildContextAsync` bound only `GoldenManifest.RunId` to the requested run and ignored `RunRecord.RunId` drift, so a mis-keyed authority row could simulate the wrong catalog run; require `detail.Run.RunId` (and compare-to run row id) to match the requested id; regression `GetContextsAsync_when_run_record_id_mismatches_requested_run_returns_empty`; 22 scoped `AlertSimulationContextProviderTests` passed.
@@ -6618,7 +6620,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
@@ -6657,6 +6659,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` — `Guid.Empty` explicit `runId` and recent-run summary rows invoked `GetRunDetailAsync` with the empty guid because `Guid?` treats empty as set — **hit 2026-10-06 seed hunt:** return empty for explicit `Guid.Empty`, skip empty run ids in batch sweep, treat `comparedToRunId == Guid.Empty` as no comparison; regressions `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority` and `GetContextsAsync_recent_run_batch_skips_empty_run_ids_from_authority_list`; 21 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — mis-keyed `RunDetailDto` rows where `RunRecord.RunId` differed from the requested run id still simulated when `GoldenManifest.RunId` matched — **hit 2026-10-06 seed hunt:** require `detail.Run.RunId == runId` and compare-to `RunRecord.RunId == comparedToRunId` before building contexts; regression `GetContextsAsync_when_run_record_id_mismatches_requested_run_returns_empty`; 22 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `comparedToRunId` of `Guid.Empty` entered the compare-to branch because `Nullable<Guid>.HasValue` is true for empty, invoking `GetRunDetailAsync(Guid.Empty)` — **hit 2026-10-06 seed hunt:** compare branch requires non-empty guid; regression `GetContextsAsync_when_compared_to_run_id_is_empty_does_not_query_compare_to_run_detail`; 23 scoped `AlertSimulationContextProviderTests` passed.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` of `0` or negative from `RuleSimulationRequest.RecentRunCount` is clamped to `1` via `Math.Clamp(recentRunCount, 1, 50)`, so historical-window simulation always evaluates at least one run when the client intended zero.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — whitespace-only `runProjectSlug` from `RuleSimulationRequest.RunProjectSlug` is rewritten to `"default"` before `ListRunsByProjectAsync`, so a slug of spaces lists the default project runs instead of failing validation.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch requires `comparedDetail.GoldenManifest` non-null but does not require `FindingsSnapshotMatchesGoldenManifest` on the baseline run; foreign compared findings rows might still influence advisor if a future code path reads `comparedDetail.FindingsSnapshot`.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `recommendationRepository.ListByRunAsync` is keyed only by primary `runId`; if authority mis-associates recommendations to another run id, simulation could attach foreign recommendations (depends on repository invariants).
+- [ ] (candidate) `AlertSimulationController.StampSimulationScope` — when `RuleKind` is Composite, embedded `SimpleRule` tenant/workspace/project ids are not overwritten, so a request carrying both payloads could leave stale scope on the unused simple rule if downstream ever reads it.
+
+2026-10-06 seed hunt (seed-only): reseeded alert-simulation; five `(candidate)` rows; 23 scoped `AlertSimulationContextProviderTests` passed (no code change).
 
 2026-10-06 seed hunt (seed→hit): proved Guid.Empty compare-to id still queried authority; 23 scoped `AlertSimulationContextProviderTests` passed.
 
