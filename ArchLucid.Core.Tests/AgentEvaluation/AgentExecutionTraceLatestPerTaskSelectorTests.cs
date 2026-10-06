@@ -308,6 +308,66 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups()
+    {
+        AgentExecutionTrace visibleTask = new()
+        {
+            TraceId = "trace-visible",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace zwspTask = new()
+        {
+            TraceId = "trace-zwsp",
+            TaskId = "manifest-task\u200B",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace zwnjTask = new()
+        {
+            TraceId = "trace-zwnj",
+            TaskId = "manifest-task\u200C",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([visibleTask, zwspTask, zwnjTask]);
+
+        latest.Should().HaveCount(3);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-visible", "trace-zwsp", "trace-zwnj"]);
+    }
+
+    [Fact]
+    public void Select_when_negative_attempt_index_does_not_win_over_attempt_zero()
+    {
+        AgentExecutionTrace negativeRejected = new()
+        {
+            TraceId = "trace-negative-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = -1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace zeroAccepted = new()
+        {
+            TraceId = "trace-zero",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([negativeRejected, zeroAccepted]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-zero");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace()
     {
         DateTime sharedUtc = new(2026, 12, 20, 10, 0, 0, DateTimeKind.Utc);
