@@ -72,7 +72,7 @@ describe("ExtractUploadSettingsPageClient (SecureNow)", () => {
 
     expect(screen.getByText(EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_SECURENOW)).toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-page-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-page-shortcuts")).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-page-shortcuts")).not.toBeInTheDocument();
     expect(pageText).toContain("SecureNow checkout");
     expect(pageText).not.toMatch(/\bArchLucid\b/);
     expect(pageText).toContain("cloud inventory packager script");
