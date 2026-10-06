@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `context-ingestion` — promoted dotenv `export KEY=value` shell prefix: `SettingName` and proposal `Name` kept the `export` token while host inference still worked; strip optional `export ` before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on `(candidate)` rows; 808 scoped ContextIngestion/Canonicalization tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `architecture-intelligence-orchestrator` — cheap-disproof closed five seeded `(candidate)` rows (null vs empty source `Content` intentional hash parity; continue budget rejection before model load; framing keys differing only by casing produce distinct hashes not collapse; silent `Set` at max entries unreachable when all pinned due to pin-cap vs `MaxEntries`; continue unknown run id fails closed after manifest built with null model); regressions `Build_matches_content_hash_when_source_content_is_null_vs_empty_string`, `Build_changes_content_hash_when_framing_keys_differ_only_by_casing`, `RunAsync_continue_budget_rejection_occurs_before_model_load`, `RunAsync_continue_with_unknown_run_id_fails_closed_before_cache_reuse`; 81 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator continue/budget gates, manifest source/framing hashing, and cache capacity pinning after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (null vs empty source `Content`, continue path budget rejection before model load, framing-answer key casing collapse, silent `Set` skip at max entries when all pinned, continue manifest with missing persisted model); 77 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -23573,13 +23575,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-06 seed hunt (seed→hit): dotenv `export KEY=value` left `export` in `SettingName` / proposal `Name`; fixed prefix strip; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on candidates; 808 scoped tests passed.
+
+- [x] (proven) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines kept `export` in `SettingName` and proposal `Name` while URL host inference still worked — **hit 2026-10-06 seed hunt:** strip optional `export ` shell prefix before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`.
+- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — inline `#` comments on `KEY=value` lines are not stripped from values before host parsing — **seed 2026-10-06:** reachable `format=dotenv` pastes from shell scripts with trailing comments.
+- [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `env_file:` references are not expanded into proposed edges (only inline `environment:` blocks) — **seed 2026-10-06:** multi-file compose extracts per SN-RT-09.
+- [ ] (candidate) `HelmChartInfrastructureDeclarationParser` — batch parse ignores `values.yaml` connection strings when only `Chart.yaml` triggers helm format — **seed 2026-10-06:** DX-30 chart uploads with values beside templates.
+- [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — legacy state JSON with top-level `modules` array and no `values` / `planned_values` wrapper — **seed 2026-10-06:** mislabeled `terraform-show-json` uploads.
+- [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform rows differing only in `tf.mode` or `tf.tainted` may collapse when type/name/occurrence match — **seed 2026-10-06:** repeated connector normalize batches.
+
 2026-10-05 seed hunt (seed→hit): terraform `planned_values` root + compose-env list URL misparsed; 807 scoped tests passed.
 
 - [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.ParseAsync` — `terraform plan -json` pasted with `format=terraform-show-json` returned no resources because only `values` was accepted — **hit 2026-10-05 seed hunt:** `TryGetTerraformShowValuesRoot` also accepts `planned_values` / `plannedValues`; regression `ParseAsync_planned_values_root_module_emits_canonical_resource`.
 - [x] (proven) `ComposeEnvInfrastructureDeclarationParser` — YAML list `environment: [ - KEY=https://host ]` emitted nothing because map regex matched the colon in `https://` — **hit 2026-10-05 seed hunt:** parse `KEY=value` list lines before map-style regex; regression `ComposeEnv_environment_list_emits_proposed_host`.
 - [x] (valid-no-repro) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines — **cheap-disproof 2026-10-05 seed hunt:** value URL still parsed for host inference; setting name retains `export` prefix (separate hygiene candidate).
 
-- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — strip optional `export` shell prefix before `KEY=value` so `SettingName` and proposal names stay canonical — **seed 2026-10-05:** reachable `format=dotenv` pastes from shell scripts.
+- [x] (proven) `DotenvInfrastructureDeclarationParser` — strip optional `export` shell prefix before `KEY=value` so `SettingName` and proposal names stay canonical — **hit 2026-10-06 seed hunt:** see top-of-zone entry; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`.
 - [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — treat top-level `services:` as structural key (not a service name) so nested `environment:` blocks bind to the correct service — **seed 2026-10-05:** multi-service compose-env extracts per SN-RT-09.
 - [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` — multi-doc `---` YAML with snake_case pod fields not projected on second document — **seed 2026-10-05:** parity with kubernetes-json snake_case tests.
 - [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform rows differing in `tf.tainted` / `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** repeated connector normalize batches.
@@ -23594,7 +23605,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `PlainTextContextDocumentParser` — `text/markdown; charset=utf-8` vs `text/plain; charset=utf-8` routing — **cheap-disproof 2026-10-05:** both normalize to distinct supported types; same parser by design.
 
 - [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `environment:` list entries (`- KEY=value`) under compose-env declarations — **seed 2026-10-05:** map-style lines are parsed; reachable `format=compose-env` uploads with YAML list env blocks per SN-RT-09.
-- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — lines prefixed with `export ` before `KEY=value` — **seed 2026-10-05:** shell-style dotenv extracts may be pasted verbatim; reachability `format=dotenv` on architecture requests.
+- [x] (proven) `DotenvInfrastructureDeclarationParser` — lines prefixed with `export ` before `KEY=value` — **hit 2026-10-06 seed hunt:** duplicate of export-prefix fix; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`.
 - [ ] (candidate) `KubernetesYamlInfrastructureDeclarationParser` / `KubernetesYamlContentParser` — multi-doc YAML with `---` separators and mixed camelCase vs snake_case pod fields — **seed 2026-10-05:** parity with kubernetes-json snake_case projection paths.
 - [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — top-level `state` / `state_version` roots instead of `values` for non-show JSON exports — **seed 2026-10-05:** pasted terraform JSON variants in `terraform-show-json` declarations.
 - [ ] (candidate) `CanonicalDeduplicator.GetDedupeFingerprint` — terraform resources differing only in `tf.tainted` or `mode` may collapse when type/name/occurrence match — **seed 2026-10-05:** reachable duplicate rows from repeated connector normalize passes.
@@ -25509,10 +25520,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1040
-- **bugs-found:** 423
+- **hunts:** 1041
+- **bugs-found:** 424
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-14
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-18 — hunt #6932: terraform-show-json failover_regions property gap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
