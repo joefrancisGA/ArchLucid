@@ -8,6 +8,9 @@ import {
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { dismissFirstSessionPurposeChooserIfVisible } from "./live-seat-scope-assertions";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
+import {
+  parsePrivateBetaCommittedRunId,
+} from "./private-beta-create-identity";
 
 const REVIEWS_NEW_BASELINE_WIZARD_PATH = "/architecture/reviews/new?baseline=1&path=detailed";
 
@@ -80,54 +83,108 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
 
   const startReview = wizard.getByRole("button", { name: "Start an architecture review" });
 
-  await expect(startReview).toBeVisible({
-    timeout: 60_000,
-  });
+  return waitForPrivateBetaWizardCreatedRunId(page, startReview);
+}
 
-  let runId = "";
+async function waitForPrivateBetaWizardCreatedRunId(page: Page, startReview: Locator): Promise<string> {
+  await expect(startReview).toBeVisible({ timeout: 60_000 });
+
+  let resolvedRunId = "";
+
+  const captureCreatePost = page
+    .waitForResponse(
+      (response) =>
+        response.url().includes("/api/proxy/v1/architecture/request") &&
+        response.request().method() === "POST",
+      { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
+    )
+    .then(async (response) => {
+      const bodyText = (await response.text()).trim();
+      resolvedRunId =
+        extractRunIdFromArchitectureCreateResponse(response.status(), bodyText) ?? resolvedRunId;
+    })
+    .catch(() => undefined);
+
+  const captureReviewPoll = page
+    .waitForResponse(
+      (response) => {
+        const runId = parseRunIdFromProxyReviewUrl(response.url());
+
+        return (
+          runId !== null &&
+          response.request().method() === "GET" &&
+          response.ok()
+        );
+      },
+      { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
+    )
+    .then((response) => {
+      resolvedRunId = parseRunIdFromProxyReviewUrl(response.url()) ?? resolvedRunId;
+    })
+    .catch(() => undefined);
+
+  await dismissFirstSessionPurposeChooserIfVisible(page);
+  await dismissBlockingModalOverlays(page);
+  await clickThroughBlockingOverlays(page, startReview);
+
+  await Promise.race([
+    captureCreatePost,
+    captureReviewPoll,
+    page.getByTestId("new-run-wizard-progress").waitFor({ state: "visible", timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() }),
+  ]);
 
   await expect(async () => {
-    await dismissFirstSessionPurposeChooserIfVisible(page);
-    await dismissBlockingModalOverlays(page);
-    await expect(startReview).toBeEnabled({ timeout: 10_000 });
-
-    const createRespPromise = page.waitForResponse(
-      (response) => {
-        if (!response.url().includes("/api/proxy/v1/architecture/request")) {
-          return false;
-        }
-
-        if (response.request().method() !== "POST") {
-          return false;
-        }
-
-        const status = response.status();
-
-        return status === 200 || status === 201;
-      },
-      { timeout: 120_000 },
-    );
-
-    await clickThroughBlockingOverlays(page, startReview);
-
-    const createResp = await createRespPromise;
-    const bodyText = (await createResp.text()).trim();
-
-    expect(bodyText.length, `empty architecture create body (HTTP ${createResp.status()})`).toBeGreaterThan(0);
-
-    let createJson: { run?: { runId?: string } };
-
-    try {
-      createJson = JSON.parse(bodyText) as { run?: { runId?: string } };
-    } catch {
-      throw new Error(`architecture create response was not JSON: ${bodyText.slice(0, 400)}`);
+    if (resolvedRunId.length > 0) {
+      return;
     }
 
-    runId = createJson.run?.runId ?? "";
-    expect(runId.length).toBeGreaterThan(0);
-  }).toPass({ timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() });
+    const pollResponse = await page.waitForResponse(
+      (response) => {
+        const runId = parseRunIdFromProxyReviewUrl(response.url());
 
-  return runId;
+        return (
+          runId !== null &&
+          response.request().method() === "GET" &&
+          response.ok()
+        );
+      },
+      { timeout: 60_000 },
+    );
+
+    resolvedRunId = parseRunIdFromProxyReviewUrl(pollResponse.url()) ?? "";
+    expect(resolvedRunId.length).toBeGreaterThan(0);
+  }).toPass({ timeout: 120_000 });
+
+  return resolvedRunId;
+}
+
+function extractRunIdFromArchitectureCreateResponse(status: number, bodyText: string): string | null {
+  const committedRunId = parsePrivateBetaCommittedRunId(status, bodyText);
+
+  if (committedRunId !== null) {
+    return committedRunId;
+  }
+
+  if (bodyText.length === 0) {
+    return null;
+  }
+
+  try {
+    const createJson = JSON.parse(bodyText) as { run?: { runId?: string } };
+    const runId = createJson.run?.runId?.trim() ?? "";
+
+    return runId.length > 0 ? runId : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseRunIdFromProxyReviewUrl(url: string): string | null {
+  const match = url.match(
+    /\/api\/proxy\/v1\/authority\/reviews\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i,
+  );
+
+  return match?.[1] ?? null;
 }
 
 async function clickSimplifiedPilotWizardNext(
