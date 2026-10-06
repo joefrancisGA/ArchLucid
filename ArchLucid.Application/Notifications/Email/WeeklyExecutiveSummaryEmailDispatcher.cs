@@ -65,7 +65,6 @@ public sealed class WeeklySponsorReportEmailDispatcher(
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
-        string normalizedRunDetailUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(runDetailUrl.Trim());
         string normalizedRunIdHex = runIdHex.Trim();
         string normalizedSummaryMarkdown = summaryMarkdown.Trim();
 
@@ -83,6 +82,9 @@ public sealed class WeeklySponsorReportEmailDispatcher(
             return false;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
+        string normalizedRunDetailUrl = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            runDetailUrl.Trim(),
+            emailOptions.OperatorBaseUrl);
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
             ? null

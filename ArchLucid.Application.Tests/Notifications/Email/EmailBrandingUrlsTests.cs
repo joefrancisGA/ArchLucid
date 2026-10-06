@@ -72,4 +72,24 @@ public sealed class EmailBrandingUrlsTests
 
         url.Should().Be("https://app.example/logo/x.png");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_repairs_scheme_only_concat_run_detail_url_with_operator_authority()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https:/architecture/reviews/a1b2c3d4",
+            "https://ops.example.test");
+
+        url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
+    }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_returns_relative_path_when_scheme_only_concat_has_no_repair_authority()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https:/architecture/reviews/a1b2c3d4",
+            "https://");
+
+        url.Should().Be("/architecture/reviews/a1b2c3d4");
+    }
 }

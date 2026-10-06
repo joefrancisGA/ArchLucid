@@ -1263,6 +1263,52 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_repairs_scheme_only_concat_run_detail_url_using_operator_base_authority()
+    {
+        WeeklySponsorReportEmailModel? capturedModel = null;
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as WeeklySponsorReportEmailModel)
+            .ReturnsAsync("<p>report</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("report");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions
+        {
+            ProductDisplayName = "ArchLucid",
+            OperatorBaseUrl = "https://ops.example.test",
+        });
+
+        WeeklySponsorReportEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("9a9a9a9a-9a9a-9a9a-9a9a-9a9a9a9a9a9a"),
+            "2026-W45",
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https:/architecture/reviews/a1b2c3d4",
+            weekLabel: "W45",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        sent.Should().BeTrue();
+        capturedModel.Should().NotBeNull();
+        capturedModel!.RunDetailUrl.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
+    }
+
+    [Fact]
     public async Task WeeklySponsorReportEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url()
     {
         WeeklySponsorReportEmailModel? capturedModel = null;

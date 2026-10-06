@@ -49,6 +49,51 @@ public static class EmailBrandingUrls
         return builder.Uri.ToString();
     }
 
+    /// <summary>
+    /// Strips userinfo from absolute URLs and repairs single-slash scheme-only concat paths
+    /// (for example <c>https:/architecture/reviews/…</c> from <c>https://</c> operator bases).
+    /// </summary>
+    public static string SanitizeOperatorNavigableUrl(string url, string? operatorBaseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+
+        string sanitized = SanitizeOperatorAbsoluteUrl(url.Trim());
+
+        if (Uri.TryCreate(sanitized, UriKind.Absolute, out Uri? absoluteUri) && !string.IsNullOrEmpty(absoluteUri.Host))
+            return sanitized;
+
+        string? relativePath = TryExtractMalformedSchemeOnlyConcatPath(sanitized);
+
+        if (relativePath is null)
+            return sanitized;
+
+        string? authority = TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is not null)
+            return $"{authority}{relativePath}";
+
+        return relativePath;
+    }
+
+    private static string? TryExtractMalformedSchemeOnlyConcatPath(string sanitized)
+    {
+        if (sanitized.Length > "https:/".Length
+            && sanitized.StartsWith("https:/", StringComparison.OrdinalIgnoreCase)
+            && !sanitized.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return sanitized["https:".Length..];
+        }
+
+        if (sanitized.Length > "http:/".Length
+            && sanitized.StartsWith("http:/", StringComparison.OrdinalIgnoreCase)
+            && !sanitized.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            return sanitized["http:".Length..];
+        }
+
+        return null;
+    }
+
     /// <summary>Returns <see langword="null"/> when <paramref name = "operatorBaseUrl"/> is blank.</summary>
     public static String? TryBuildLogoImageUrl(string? operatorBaseUrl, string relativePath = DefaultLogoRelativePath)
     {
