@@ -20,7 +20,7 @@ import {
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
   EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
-  EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+  extractUploadSettingsPageTitle,
   extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
 import { extractUploadSettingsNavHrefForPath } from "@/lib/extract-upload-settings-route";
@@ -75,7 +75,7 @@ export function ExtractUploadSettingsPageHeader(
 
   return (
     <OperatorPageHeader
-      title={EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE}
+      title={extractUploadSettingsPageTitle(productLine)}
       titleTestId="extract-upload-page-title"
       navHref={navHref}
       headingLevel="h1"

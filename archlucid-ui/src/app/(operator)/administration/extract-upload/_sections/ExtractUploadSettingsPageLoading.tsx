@@ -3,11 +3,12 @@
 import { usePathname } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import {
   EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE,
-  EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
+  extractUploadSettingsPageTitle,
 } from "@/lib/extract-upload-settings-page-copy";
 import { extractUploadSettingsNavHrefForPath } from "@/lib/extract-upload-settings-route";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 /** Shared loading chrome for extract-upload routes that hydrate URL search params on the client. */
 export function ExtractUploadSettingsPageLoading(): React.JSX.Element {
   const pathname = usePathname();
+  const { productLine } = useProductLine();
   const navHref = extractUploadSettingsNavHrefForPath(pathname);
 
   return (
@@ -26,7 +28,7 @@ export function ExtractUploadSettingsPageLoading(): React.JSX.Element {
       aria-busy="true"
     >
       <OperatorPageHeader
-        title={EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE}
+        title={extractUploadSettingsPageTitle(productLine)}
         titleTestId="extract-upload-page-title"
         navHref={navHref}
         headingLevel="h1"
