@@ -40,7 +40,7 @@ import {
   COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
 } from "@/lib/command-palette-handler-actions";
 import {
-  EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
+  extractUploadAdvancedCommandDisclosureSummary,
   EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
   EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL,
@@ -52,7 +52,7 @@ import {
   extractUploadNonAzureScriptSourceHint,
   EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND,
   EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX,
-  EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
+  extractUploadScriptDownloadLabel,
   EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
   EXTRACT_UPLOAD_SCHEDULED_AGENT_DESCRIPTION,
@@ -298,7 +298,7 @@ function ExtractUploadSettingsPageClientInner() {
                     <summary
                       className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}
                     >
-                      {EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY.replace("Azure", platformLabel)}
+                      {extractUploadAdvancedCommandDisclosureSummary(productLine).replace("Azure", platformLabel)}
                     </summary>
                     <pre
                       className={cn(
@@ -324,7 +324,7 @@ function ExtractUploadSettingsPageClientInner() {
                       rel="noreferrer"
                       data-testid="extract-upload-script-download"
                     >
-                      {EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL}
+                      {extractUploadScriptDownloadLabel(productLine)}
                     </a>
                   ) : (
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

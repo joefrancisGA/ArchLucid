@@ -118,8 +118,25 @@ export const EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION =
 export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
   "Advanced: full inventory packager command (Azure example)" as const;
 
+export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY_SECURENOW =
+  "Advanced: full inventory packager command" as const;
+
 export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
   "Download packager script — Azure example" as const;
+
+export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL_SECURENOW = "Download packager script" as const;
+
+export function extractUploadAdvancedCommandDisclosureSummary(productLineId: ProductLineId): string {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY_SECURENOW
+    : EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY;
+}
+
+export function extractUploadScriptDownloadLabel(productLineId: ProductLineId): string {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL_SECURENOW
+    : EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL;
+}
 
 export const EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL = "Cloud inventory ZIP upload" as const;
 
