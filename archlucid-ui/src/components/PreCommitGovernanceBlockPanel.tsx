@@ -75,10 +75,7 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
                 <Link
                   href={findingInspectHref(runId, findingId)}
                   className={cn("font-mono font-medium", OPERATOR_LINK.nav)}
-                  {/* React escapes attribute values; this is an opaque finding ID, not HTML. */}
-
-                  {/* codeql[js/xss-through-exception] */}
-                  data-testid={`pre-commit-governance-block-finding-link-${findingId}`}
+                  data-testid={/* codeql[js/xss-through-exception] */ `pre-commit-governance-block-finding-link-${findingId}`}
                 >
                   {findingId}
                 </Link>
