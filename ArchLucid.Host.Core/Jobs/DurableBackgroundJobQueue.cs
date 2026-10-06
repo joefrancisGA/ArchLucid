@@ -53,6 +53,12 @@ public sealed class DurableBackgroundJobQueue(
         {
             await notifySender.SendJobIdAsync(jobId, cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            await TryCancelInsertedPendingJobAfterEnqueueAbortedAsync(jobId);
+
+            throw;
+        }
         catch (Exception ex)
         {
             BackgroundJobRow? current = await repository.GetAsync(jobId, cancellationToken);
@@ -122,4 +128,16 @@ public sealed class DurableBackgroundJobQueue(
 
     public Task MarkCanceledAsync(string jobId, CancellationToken cancellationToken = default) =>
         repository.MarkCanceledAsync(jobId, cancellationToken);
+
+    private async Task TryCancelInsertedPendingJobAfterEnqueueAbortedAsync(string jobId)
+    {
+        try
+        {
+            await repository.MarkCanceledAsync(jobId, CancellationToken.None);
+        }
+        catch (Exception)
+        {
+            // Best-effort cleanup when the caller canceled enqueue after the SQL insert succeeded.
+        }
+    }
 }

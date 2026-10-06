@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-05 thorough hunt (hit): `host-core-jobs` — `DurableBackgroundJobQueue.EnqueueAsync` committed SQL insert then treated `OperationCanceledException` from `SendJobIdAsync` like a notify failure (or left `Pending` without queue notification); cancel cleanup via `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`; cheap-disproof closed orphan blob on processor success cancel, in-memory `GetFileAsync` after cancel-during-execute, registry-cancel stale message delete, intentional cancel-wins contract, and SQL insert rollback on cancel during `TryInsertPendingJobIfUnderCapacityAsync`; reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
+
 2026-10-05 seed hunt (seed→hit): `host-core-jobs` — `InMemoryBackgroundJobQueue.EnqueueAsync` inserted `_info`/`_workUnits` before `WaitAsync(0, cancellationToken)` so a canceled enqueue left orphan `Pending` rows without channel items; cleanup on `OperationCanceledException` (release acquired slot when needed); regression `EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`; reseeded five hosted-loop candidates; 74 Host.Core + 41 focused Api background-job tests passed.
 
 2026-10-05 thorough hunt (hit): `finding-inspect-sql` — `InMemoryFindingInspectReadRepository` passed raw `RulesApplied[0]` into `ResolveRuleFields` trace fallback so invisible-only first trace entries dropped substantive later rules (unlike applied-rule-id JSON skipping); `ResolveFirstTraceRuleText` + in-memory wiring; regression `GetInspectAsync_uses_first_substantive_trace_rule_when_applied_rule_ids_are_absent`; cheap-disproof closed agent-trace `modelAlias` divergence (in-memory storage contract uses hydrated `Finding` fields) and null disposition/waiver/audit follow-up (no relational child hydration on demo inspect); reseeded three inspect parity candidates; 436 scoped Persistence inspect tests passed.
@@ -10792,11 +10794,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 36
-- **bugs-found:** 26
+- **hunts:** 37
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — in-memory enqueue cancel left orphan Pending rows
+- **last-bug:** 2026-10-05 — durable enqueue cancel after SQL insert mishandled notify abort
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10827,11 +10829,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `InMemoryBackgroundJobQueue.EnqueueAsync` — canceled `WaitAsync(0, cancellationToken)` after inserting `_info`/`_workUnits` left orphan `Pending` jobs without channel work items — **hit 2026-10-05 seed hunt:** remove inserted state and release any acquired pending slot on `OperationCanceledException`; regression `EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job`.
 
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService` success path — `UploadAsync` runs before cancel re-reads; cancel between blob upload and `MarkSucceededAsync` may store result blobs without `ResultBlobName` on a `Canceled` row (reachable when `MarkCanceledAsync` lands after executor success).
-- [ ] (candidate) `InMemoryBackgroundJobQueue` success path — `_files[jobId]` is assigned before cancel re-reads; `GetFileAsync` may return a result for a `Canceled` job (reachable client poll after cancel-during-execute).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — registry-cancel branch deletes the Azure notification after `MarkCanceledAsync` without verifying the row is non-executable when cancel raced with a concurrent terminal transition (needs `TryPrepareQueuedJobAsync` / repository state citation before hunt-ready).
-- [ ] (candidate) `InMemoryBackgroundJobQueue.MarkCanceledAsync` — direct `_info` assignment is outside `TryAssignUnlessCanceled`; late cancel after `Succeeded` is blocked by the Pending/Running guard, but cancel-vs-success ordering is intentionally cancel-wins per `MarkCanceled_while_running_does_not_overwrite_with_succeeded` (revisit only if product contract changes).
-- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `cancellationToken` during `TryInsertPendingJobIfUnderCapacityAsync` may leave an inserted `Pending` row when cancel is observed only after SQL insert completes (reachable API cancel on durable enqueue).
+- [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — post-insert `SendJobIdAsync` `OperationCanceledException` mishandled as notify failure or left orphan `Pending` rows — **hit 2026-10-05 thorough hunt:** best-effort `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService` success path — blob upload before cancel re-reads — **cheap-disproof 2026-10-05 thorough hunt:** cancel skips `MarkSucceededAsync` by design (`ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment`); orphan blobs without `ResultBlobName` are storage hygiene only, not incorrect job state.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue` success path — `_files` assigned before cancel re-reads — **cheap-disproof 2026-10-05 thorough hunt:** cancel-wins on `State` is the supported contract (`MarkCanceled_while_running_does_not_overwrite_with_succeeded`); incidental file retention on `Canceled` rows is not a queue state defect.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` registry-cancel branch — **cheap-disproof 2026-10-05 thorough hunt:** deleting stale notifications after `MarkCanceledAsync` matches prior processor not-claimable / registry-cancel dry-hunt contract; `TryPrepareQueuedJobAsync` prevents duplicate execution on terminal rows.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.MarkCanceledAsync` outside `TryAssignUnlessCanceled` — **cheap-disproof 2026-10-05 thorough hunt:** intentional cancel-wins ordering documented by `MarkCanceled_while_running_does_not_overwrite_with_succeeded`; `TryAssignUnlessCanceled` guards executor transitions, not user cancel entry.
+
+- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — `TryInsertPendingJobIfUnderCapacityAsync` passes `cancellationToken` into Dapper `CommandDefinition`; cancel during SQL should roll back the transaction (verify no orphan when cancel surfaces only after `Commit`).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry `SendMessageAsync` after backoff may run when `stoppingToken` is canceled mid-delay (host shutdown vs job cancel distinction).
+- [ ] (candidate) `InMemoryBackgroundJobQueue.EvictOldTerminalJobs` — evicts oldest terminal rows while a client still holds a `jobId` from a completed export (reachable poll after eviction returns null `GetInfoAsync`).
+- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed `Pending` rows depend on per-job notify in a foreach; partial batch failure handling is proven (#1429) but mid-batch host shutdown may still leave trailing ids without notify until next pass.
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 

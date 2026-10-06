@@ -1,6 +1,3 @@
-{"at":"2026-09-05T23:56:57.3875673Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-06T00:01:20.8172004Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-06T00:02:00Z","zoneId":"archlucid-core","outcome":"hit","huntNumber":931}
 {"at":"2026-09-06T00:03:38.7664966Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T00:05:00Z","zoneId":"archlucid-core","outcome":"hit","huntNumber":932}
 {"at":"2026-09-06T00:07:56.0776041Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8773,4 +8770,5 @@
 {"at":"2026-10-05T23:28:32.6302375Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/"]}
 {"at":"2026-10-05T23:33:50.5621706Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/"]}
 {"at":"2026-10-05T23:42:58.4048086Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Findings/InMemoryFindingInspectReadRepository.cs,ArchLucid.Persistence/Findings/FindingInspectReadRepositoryCore.cs)"]}
-{"at":"2026-10-05T23:56:38.8235270Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/InMemoryBackgroundJobQueue.cs)"]}
+{"at":"2026-10-05T23:56:38.823527Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/InMemoryBackgroundJobQueue.cs)"]}
+{"at":"2026-10-06T00:03:31.5825822Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/DurableBackgroundJobQueue.cs)"]}
