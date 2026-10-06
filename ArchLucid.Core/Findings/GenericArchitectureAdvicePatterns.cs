@@ -1430,7 +1430,9 @@ public static partial class GenericArchitectureAdvicePatterns
         RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex UnderSpecifiedFindingPattern();
 
-    [GeneratedRegex(@"\b(conflicts? with|contradicts?|violat(?:e[ds]?|ing) (?:the |a |an )?constraints?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    [GeneratedRegex(
+        @"\b(conflicts? with|contradicts?|violat(?:e[ds]?|ing) (?:the |a |an )?constraints?|(?:in )?violation of (?:the |a |an )?constraints?)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex ConflictFindingPattern();
 
     [GeneratedRegex(
