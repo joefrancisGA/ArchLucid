@@ -308,6 +308,38 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace()
+    {
+        DateTime sharedUtc = new(2026, 12, 20, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace warningPatchedDuplicate = new()
+        {
+            TraceId = "trace-a-warning-patched",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = true,
+            RecordedQualityGateOutcome = null,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([warningPatchedDuplicate, rejectedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-z-rejected");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_rejected_newer_and_warned_older_prefers_warned_trace()
     {
         DateTime olderUtc = new(2026, 12, 3, 10, 0, 0, DateTimeKind.Utc);

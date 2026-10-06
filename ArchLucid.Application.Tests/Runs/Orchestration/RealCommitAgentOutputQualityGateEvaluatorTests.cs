@@ -478,6 +478,21 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_gate_disabled_with_empty_traces_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = false,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
+            .Should().BeEmpty(
+                "tenant-disabled quality gate is intentional product configuration, including for empty trace lists");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
