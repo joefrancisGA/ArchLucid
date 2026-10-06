@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,7 +13,9 @@ namespace ArchLucid.Persistence.Advisory;
 /// <summary>Dapper implementation of <see cref="IDigestSubscriptionRepository"/> over <c>dbo.DigestSubscriptions</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperDigestSubscriptionRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IDigestSubscriptionRepository
 {
     /// <inheritdoc />
@@ -49,7 +53,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                 IsEnabled = @IsEnabled,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
-            WHERE SubscriptionId = @SubscriptionId;
+            WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -59,20 +66,25 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson
             FROM dbo.DigestSubscriptions
-            WHERE SubscriptionId = @SubscriptionId;
+            WHERE SubscriptionId = @SubscriptionId
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<DigestSubscription>(
             new CommandDefinition(sql, new
             {
-                SubscriptionId = subscriptionId
+                SubscriptionId = subscriptionId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 

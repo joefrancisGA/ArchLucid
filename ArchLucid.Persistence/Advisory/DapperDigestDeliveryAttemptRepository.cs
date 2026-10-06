@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,7 +13,9 @@ namespace ArchLucid.Persistence.Advisory;
 /// <summary>Dapper implementation of <see cref="IDigestDeliveryAttemptRepository"/> over <c>dbo.DigestDeliveryAttempts</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperDigestDeliveryAttemptRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IDigestDeliveryAttemptRepository
 {
     /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="DigestDeliveryAttemptListCap.Value"/>.</summary>
@@ -49,7 +53,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             SET
                 Status = @Status,
                 ErrorMessage = @ErrorMessage
-            WHERE AttemptId = @AttemptId;
+            WHERE AttemptId = @AttemptId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -61,7 +68,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         Guid digestId,
         CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT TOP (@Cap)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -69,6 +77,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE DigestId = @DigestId
+            {PersistenceTenantScope.AndTripleWhere(scope)}
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -77,7 +86,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             new CommandDefinition(sql, new
             {
                 Cap = ListByDigestCap,
-                DigestId = digestId
+                DigestId = digestId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
 
         return result.ToList();
@@ -142,7 +154,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         CancellationToken ct)
     {
         take = Math.Clamp(take, 1, 200);
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT TOP (@Take)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
@@ -150,6 +163,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE SubscriptionId = @SubscriptionId
+            {PersistenceTenantScope.AndTripleWhere(scope)}
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -160,7 +174,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 new
                 {
                     SubscriptionId = subscriptionId,
-                    Take = take
+                    Take = take,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
 

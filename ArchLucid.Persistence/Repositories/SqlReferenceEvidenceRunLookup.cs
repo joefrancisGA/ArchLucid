@@ -30,8 +30,6 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
         CancellationToken cancellationToken = default)
     {
         int safeTake = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
-        string demoExclusion = includeDemo ? string.Empty : " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("r");
-
         string sql =
             $"""
              SELECT TOP (@Take)
@@ -43,7 +41,7 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
              WHERE r.TenantId = @TenantId
                AND r.ArchivedUtc IS NULL
                AND r.GoldenManifestId IS NOT NULL
-               {demoExclusion}
+               {(includeDemo ? string.Empty : " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsForAliasR)}
              ORDER BY r.CreatedUtc DESC, r.RunId ASC;
              """;
 

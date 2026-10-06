@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,7 +13,10 @@ namespace ArchLucid.Persistence.Advisory;
 /// <inheritdoc cref="IRecommendationRepository" />
 /// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperRecommendationRepository(ISqlConnectionFactory connectionFactory) : IRecommendationRepository
+public sealed class DapperRecommendationRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
+    : IRecommendationRepository
 {
     /// <inheritdoc />
     public async Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
@@ -76,7 +81,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
 
     public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT RecommendationId,
                    TenantId, WorkspaceId, ProjectId,
                    RunId, ComparedToRunId,
@@ -86,14 +92,18 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
                    SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords
-            WHERE RecommendationId = @RecommendationId;
+            WHERE RecommendationId = @RecommendationId
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<RecommendationRecord>(
             new CommandDefinition(sql, new
             {
-                RecommendationId = recommendationId
+                RecommendationId = recommendationId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 

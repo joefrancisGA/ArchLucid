@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Governance;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchLucid.Persistence.Governance;
@@ -52,7 +54,8 @@ public sealed partial class ArchitectureDecisionRegisterReader
                       INNER JOIN dbo.GoldenManifests AS m ON m.ManifestId = d.ManifestId
                       WHERE m.TenantId = @TenantId AND m.WorkspaceId = @WorkspaceId{projectFilter}{filterSql}
                       ORDER BY m.CreatedUtc DESC, d.SortOrder ASC;
-                      """;
+                      """
+                      + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

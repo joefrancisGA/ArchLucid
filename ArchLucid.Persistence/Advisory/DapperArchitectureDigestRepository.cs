@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -11,7 +13,9 @@ namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperArchitectureDigestRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IArchitectureDigestRepository
 {
     /// <inheritdoc />
@@ -78,21 +82,26 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
                 Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
             FROM dbo.ArchitectureDigests
             WHERE DigestId = @DigestId
-              AND ArchivedUtc IS NULL;
+              AND ArchivedUtc IS NULL
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ArchitectureDigest>(
             new CommandDefinition(sql, new
             {
-                DigestId = digestId
+                DigestId = digestId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 

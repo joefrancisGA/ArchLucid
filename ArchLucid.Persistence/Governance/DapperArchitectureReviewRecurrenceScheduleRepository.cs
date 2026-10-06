@@ -2,8 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -12,7 +14,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Governance;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IArchitectureReviewRecurrenceScheduleRepository
 {
     public async Task CreateAsync(ArchitectureReviewRecurrenceSchedule schedule, CancellationToken cancellationToken = default)
@@ -56,7 +60,10 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
                 LastRunStatus = @LastRunStatus,
                 LastErrorMessage = @LastErrorMessage,
                 ConsecutiveFailureCount = @ConsecutiveFailureCount
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -127,19 +134,30 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
         Guid scheduleId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId, ArchitectureId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
                 LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
                 LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             FROM dbo.ArchitectureReviewRecurrenceSchedules
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<ArchitectureReviewRecurrenceSchedule>(
-            new CommandDefinition(sql, new { ScheduleId = scheduleId }, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ScheduleId = scheduleId,
+                    ScopeTenantId = scope.TenantId,
+                    ScopeWorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
+                cancellationToken: cancellationToken));
     }
 }

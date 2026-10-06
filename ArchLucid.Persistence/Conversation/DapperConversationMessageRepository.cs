@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -13,17 +15,21 @@ namespace ArchLucid.Persistence.Conversation;
 ///     SQL Server <see cref="IConversationMessageRepository" /> for <c>dbo.ConversationMessages</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperConversationMessageRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperConversationMessageRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IConversationMessageRepository
 {
     /// <inheritdoc />
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(message);
-        const string scopeSql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = $"""
                                 SELECT TenantId, WorkspaceId, ProjectId
                                 FROM dbo.ConversationThreads
-                                WHERE ThreadId = @ThreadId;
+                                WHERE ThreadId = @ThreadId
+                                {PersistenceTenantScope.AndTripleWhere(scope)};
                                 """;
 
         const string sql = """
@@ -43,7 +49,16 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
 
         ConversationThreadDenormScopeRow? scopeHdr =
             await connection.QuerySingleOrDefaultAsync<ConversationThreadDenormScopeRow>(
-                new CommandDefinition(scopeSql, new { message.ThreadId }, cancellationToken: ct));
+                new CommandDefinition(
+                    scopeSql,
+                    new
+                    {
+                        message.ThreadId,
+                        ScopeTenantId = scope.TenantId,
+                        ScopeWorkspaceId = scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    },
+                    cancellationToken: ct));
 
         if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
             throw new InvalidOperationException(

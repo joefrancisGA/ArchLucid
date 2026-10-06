@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -14,7 +16,9 @@ namespace ArchLucid.Persistence.Advisory;
 /// </summary>
 /// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperAdvisoryScanScheduleRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IAdvisoryScanScheduleRepository
 {
     /// <inheritdoc />
@@ -54,7 +58,10 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
                 RunProjectSlug = @RunProjectSlug,
                 LastRunUtc = @LastRunUtc,
                 NextRunUtc = @NextRunUtc
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -128,20 +135,25 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
     /// <inheritdoc />
     public async Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
                 Name, CronExpression, IsEnabled,
                 CreatedUtc, LastRunUtc, NextRunUtc
             FROM dbo.AdvisoryScanSchedules
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+            {PersistenceTenantScope.AndTripleWhere(scope)};
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {
-                ScheduleId = scheduleId
+                ScheduleId = scheduleId,
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
     }
 }

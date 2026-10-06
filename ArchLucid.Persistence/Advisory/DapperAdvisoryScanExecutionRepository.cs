@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -13,7 +15,9 @@ namespace ArchLucid.Persistence.Advisory;
 /// </summary>
 /// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperAdvisoryScanExecutionRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IAdvisoryScanExecutionRepository
 {
     /// <inheritdoc />
@@ -48,7 +52,10 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
                 Status = @Status,
                 ResultJson = @ResultJson,
                 ErrorMessage = @ErrorMessage
-            WHERE ExecutionId = @ExecutionId;
+            WHERE ExecutionId = @ExecutionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -61,12 +68,14 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
         int take,
         CancellationToken ct)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string sql = $"""
             SELECT TOP (@Take)
                 ExecutionId, ScheduleId, TenantId, WorkspaceId, ProjectId,
                 StartedUtc, CompletedUtc, Status, ErrorMessage
             FROM dbo.AdvisoryScanExecutions
             WHERE ScheduleId = @ScheduleId
+            {PersistenceTenantScope.AndTripleWhere(scope)}
             ORDER BY StartedUtc DESC;
             """;
 
@@ -75,7 +84,10 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
-                Take = Math.Clamp(take, 1, 200)
+                Take = Math.Clamp(take, 1, 200),
+                ScopeTenantId = scope.TenantId,
+                ScopeWorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
             }, cancellationToken: ct));
 
         return result

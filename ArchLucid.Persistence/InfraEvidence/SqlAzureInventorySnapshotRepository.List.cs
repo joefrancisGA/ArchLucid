@@ -3,6 +3,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -162,7 +163,8 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                    )
                                ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
-                               """;
+                               """
+                               + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = new
         {

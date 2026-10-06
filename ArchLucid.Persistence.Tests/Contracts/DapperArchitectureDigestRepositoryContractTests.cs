@@ -1,4 +1,5 @@
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -19,6 +20,8 @@ public sealed class DapperArchitectureDigestRepositoryContractTests(SqlServerPer
 
     protected override IArchitectureDigestRepository CreateRepository()
     {
-        return new DapperArchitectureDigestRepository(new SqlConnectionFactory(fixture.ConnectionString));
+        return new DapperArchitectureDigestRepository(
+            new SqlConnectionFactory(fixture.ConnectionString),
+            new EmptyPersistenceScopeContextProvider());
     }
 }

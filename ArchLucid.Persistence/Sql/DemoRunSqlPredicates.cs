@@ -17,9 +17,37 @@ internal static class DemoRunSqlPredicates
     /// <summary>
     ///     Predicate for a <c>dbo.Runs</c> row alias — excludes demo/sample/showcase runs and canonical showcase ids.
     /// </summary>
+    internal const string ExcludeShowcaseDemoRunsForAliasR =
+        "r.IsDemoWelcomeRun = 0"
+        + " AND r.IsPublicShowcase = 0"
+        + " AND r.IsSample = 0"
+        + " AND r.ArchitectureRequestId <> N'request-contoso-demo'"
+        + " AND r.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'"
+        + " AND r.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'"
+        + " AND r.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)";
+
+    /// <summary>Same predicate as <see cref="ExcludeShowcaseDemoRunsForAliasR"/> for alias <c>rInner</c>.</summary>
+    internal const string ExcludeShowcaseDemoRunsForAliasRInner =
+        "rInner.IsDemoWelcomeRun = 0"
+        + " AND rInner.IsPublicShowcase = 0"
+        + " AND rInner.IsSample = 0"
+        + " AND rInner.ArchitectureRequestId <> N'request-contoso-demo'"
+        + " AND rInner.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'"
+        + " AND rInner.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'"
+        + " AND rInner.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)";
+
+    /// <summary>
+    ///     Predicate for a <c>dbo.Runs</c> row alias — excludes demo/sample/showcase runs and canonical showcase ids.
+    /// </summary>
     internal static string ExcludeShowcaseDemoRuns(string runsAlias)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runsAlias);
+
+        if (string.Equals(runsAlias, "r", StringComparison.Ordinal))
+            return ExcludeShowcaseDemoRunsForAliasR;
+
+        if (string.Equals(runsAlias, "rInner", StringComparison.Ordinal))
+            return ExcludeShowcaseDemoRunsForAliasRInner;
 
         return
             $"{runsAlias}.IsDemoWelcomeRun = 0" +
