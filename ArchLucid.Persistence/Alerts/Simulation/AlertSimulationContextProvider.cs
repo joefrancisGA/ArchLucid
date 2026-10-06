@@ -47,10 +47,15 @@ public sealed class AlertSimulationContextProvider(
 
         if (runId.HasValue)
         {
+            if (runId.Value == Guid.Empty)
+                return results;
+
+            Guid? compareToRunId = comparedToRunId == Guid.Empty ? null : comparedToRunId;
+
             AlertEvaluationContext? single = await BuildContextAsync(
                     scope,
                     runId.Value,
-                    comparedToRunId,
+                    compareToRunId,
                     skipOnSealedHashFailure: false,
                     ct)
                 ;
@@ -68,6 +73,9 @@ public sealed class AlertSimulationContextProvider(
 
         foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc).DistinctBy(x => x.RunId))
         {
+            if (run.RunId == Guid.Empty)
+                continue;
+
             AlertEvaluationContext? context = await BuildContextAsync(
                 scope,
                 run.RunId,
