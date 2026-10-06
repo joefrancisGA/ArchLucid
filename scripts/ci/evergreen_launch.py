@@ -124,7 +124,7 @@ def command_launch(args: argparse.Namespace) -> int:
         },
     )
     _append_github_output({"agent_url": launched.url, "agent_id": launched.agent_id})
-    print(f"launched: {launched.url} (model {launched.model})")
+    print(f"launched: {launched.url} (model {launched.model} -> catalog id {launched.model_id})")
     return 0
 
 

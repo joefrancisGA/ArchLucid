@@ -110,7 +110,12 @@ class TestEvergreenLaunchCli(unittest.TestCase):
             captured["payload"] = json.loads(body)
             return {"agent": {"id": "bc_9", "url": "https://cursor.com/agents/bc_9"}, "run": {"id": "run_9"}}
 
-        with mock.patch("evergreen.cloud_agent_client.post_json", side_effect=fake_post):
+        catalog: dict[str, Any] = {"items": [{"id": "grok-4.6-high"}]}
+
+        with (
+            mock.patch("evergreen.cloud_agent_client.post_json", side_effect=fake_post),
+            mock.patch("evergreen.cloud_agent_client.get_json", return_value=catalog),
+        ):
             code = self._run(
                 [
                     "--repository",
@@ -130,7 +135,7 @@ class TestEvergreenLaunchCli(unittest.TestCase):
 
         self.assertEqual(code, 0)
         payload = captured["payload"]
-        self.assertEqual(payload["model"]["id"], "cursor-grok-4.6-high")
+        self.assertEqual(payload["model"], {"id": "grok-4.6-high", "params": []})
         self.assertEqual(payload["repos"], [{"url": "https://github.com/o/r", "startingRef": "master"}])
         self.assertTrue(payload["autoCreatePR"])
         self.assertIn(f"Evergreen-Fingerprint: {decision['fingerprint']}", payload["prompt"]["text"])
