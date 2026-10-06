@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) between phrase words still blocked `managed identity` matching while en/em dash punctuation was already normalized; map `UnicodeCategory.DashPunctuation` except ASCII `-` plus U+2043 to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_fullwidth_hyphen_minus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hyphen_bullet_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_hyphen_forms_compound_slug`; 882 scoped RequestConstraint tests passed.
+
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `FindingRemediationAssignmentOperatorLinks` and `FindingRemediationAssignmentEmailDispatcher` concatenated raw `OperatorBaseUrl` userinfo into finding inspect and assigned-queue hrefs; normalize via `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` in link builder and dispatcher; regressions `BuildFindingInspectUrl_omits_user_info_from_operator_base_url`, `BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url`, and `TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links`; 150 scoped notifications/digest tests passed.
 
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `CommitSponsorEmailNotifier` and sibling notification dispatchers built operator review/support links from raw `OperatorBaseUrl`, embedding `user:password@` userinfo into outbound email hrefs; added `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` and wired commit-sponsor, recurrence-completion, and support-problem notifiers; regressions `TryNormalizeOperatorBaseAuthority_omits_user_info` and `NotifyAfterCommitAsync_omits_user_info_from_operator_base_url_in_review_link`; 136 scoped Application Notifications.Email tests passed.
@@ -20384,11 +20386,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 22
-- **bugs-found:** 21
+- **hunts:** 23
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — Unicode control characters split multi-word constraint phrases
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — fullwidth hyphen and hyphen bullet split constraint phrases
+
+2026-10-06 seed hunt (seed→hit): reseeded `RequestConstraintTokenMatcher` normalization after control-character fix; proved fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) still split phrases like `managed identity`; fixed by mapping dash punctuation (except ASCII `-`) and U+2043 to ASCII space; 882 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-06 seed hunt (seed→hit):** map `UnicodeCategory.DashPunctuation` except ASCII `-` and explicit U+2043 to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_fullwidth_hyphen_minus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hyphen_bullet_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_hyphen_forms_compound_slug`.
 
 2026-10-05 seed hunt #22 (seed→hit): reseeded phrase normalization after ASCII whitespace fix; proved vertical tab (U+000B) and next-line (U+0085) still split phrases like `managed identity`; fixed by mapping `UnicodeCategory.Control` (except NUL) to ASCII space; regressions in `RequestConstraintPhraseUnicodeWhitespaceTests`; 879 scoped RequestConstraint tests passed.
 

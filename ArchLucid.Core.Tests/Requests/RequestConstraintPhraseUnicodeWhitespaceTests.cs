@@ -169,6 +169,30 @@ public sealed class RequestConstraintPhraseUnicodeWhitespaceTests
         RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
     }
 
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_fullwidth_hyphen_minus_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\uFF0Didentity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_true_when_hyphen_bullet_splits_phrase()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Use managed\u2043identity for Key Vault"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasManagedIdentityConstraint_returns_false_when_ascii_hyphen_forms_compound_slug()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["Require managed-identity-auth for apps"]);
+
+        RequestConstraintClassifier.HasManagedIdentityConstraint(request).Should().BeFalse();
+    }
+
     private static ArchitectureRequest CreateRequest(
         List<string>? constraints = null,
         List<string>? capabilities = null)
