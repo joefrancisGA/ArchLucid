@@ -9,6 +9,12 @@ import {
   getAzureExtractorDemoZipBytes,
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
+import {
+  getAzureLabDemoScenario,
+  getAzureLabDemoZipBytes,
+  isAzureLabDemoScenarioId,
+} from "@/lib/azure-lab-inventory-demo-scenarios";
+import type { ExtractUploadDemoScenarioId } from "@/lib/administration/extract-upload-demo-scenario-url";
 import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azure-package-zip";
 import {
   extractUploadDemoScenarioHrefFromSearch,
@@ -41,7 +47,7 @@ export function useExtractUploadDemo({
   setSelectedFileLabel,
 }: UseExtractUploadDemoInput) {
   const urlDemoScenario = parseExtractUploadDemoScenarioFromSearch(searchParams.get("demoScenario"));
-  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<AzureExtractorDemoScenarioId>(
+  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<ExtractUploadDemoScenarioId>(
     urlDemoScenario ?? DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
   const [demoScenarioExplicitlySelected, setDemoScenarioExplicitlySelected] = useState(
@@ -49,7 +55,7 @@ export function useExtractUploadDemo({
   );
 
   const setSelectedDemoScenarioId = useCallback(
-    (scenarioId: AzureExtractorDemoScenarioId) => {
+    (scenarioId: ExtractUploadDemoScenarioId) => {
       setSelectedDemoScenarioIdState(scenarioId);
       setDemoScenarioExplicitlySelected(true);
       router.replace(extractUploadDemoScenarioHrefFromSearch(searchParams.toString(), scenarioId, pathname), {
@@ -72,8 +78,12 @@ export function useExtractUploadDemo({
     clearUploadState();
     clearSelectionState();
 
-    const scenario = getAzureExtractorDemoScenario(selectedDemoScenarioId);
-    const bytes = getAzureExtractorDemoZipBytes(selectedDemoScenarioId);
+    const scenario = isAzureLabDemoScenarioId(selectedDemoScenarioId)
+      ? getAzureLabDemoScenario(selectedDemoScenarioId)
+      : getAzureExtractorDemoScenario(selectedDemoScenarioId as AzureExtractorDemoScenarioId);
+    const bytes = isAzureLabDemoScenarioId(selectedDemoScenarioId)
+      ? getAzureLabDemoZipBytes(selectedDemoScenarioId)
+      : getAzureExtractorDemoZipBytes(selectedDemoScenarioId as AzureExtractorDemoScenarioId);
     const validation = readArchLucidAzurePackageZipFromBytes(bytes);
 
     if (!validation.ok) {

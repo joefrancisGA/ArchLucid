@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { AzureLabDemoScenarioPicker } from "@/components/wizard/AzureLabDemoScenarioPicker";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
 import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cloud-package-command";
@@ -46,6 +47,8 @@ import {
   EXTRACT_UPLOAD_DEMO_CONFIRM_ACTION_LABEL,
   EXTRACT_UPLOAD_DEMO_CONFIRM_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_CONFIRM_TITLE,
+  EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_DESCRIPTION,
+  EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
@@ -82,6 +85,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
+import { isAzureLabDemoScenarioId } from "@/lib/azure-lab-inventory-demo-scenarios";
 
 function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
   switch (platform) {
@@ -451,10 +455,36 @@ function ExtractUploadSettingsPageClientInner() {
                 <div className="mt-3 space-y-3">
                   <AzureExtractorDemoScenarioPicker
                     layout="stack"
-                    selectedScenarioId={demo.selectedDemoScenarioId}
-                    onSelectScenario={demo.setSelectedDemoScenarioId}
+                    selectedScenarioId={
+                      isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)
+                        ? "customer-intake-modernization"
+                        : demo.selectedDemoScenarioId
+                    }
+                    onSelectScenario={(scenarioId) => demo.setSelectedDemoScenarioId(scenarioId)}
                     testIdPrefix="extract-upload-demo"
                   />
+                  <details
+                    className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
+                    data-testid="extract-upload-lab-demo-disclosure"
+                    open={isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)}
+                  >
+                    <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
+                      {EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_SUMMARY}
+                    </summary>
+                    <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                      {EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_DESCRIPTION}
+                    </p>
+                    <div className="mt-3">
+                      <AzureLabDemoScenarioPicker
+                        selectedScenarioId={
+                          isAzureLabDemoScenarioId(demo.selectedDemoScenarioId)
+                            ? demo.selectedDemoScenarioId
+                            : null
+                        }
+                        onSelectScenario={demo.setSelectedDemoScenarioId}
+                      />
+                    </div>
+                  </details>
                   <Button
                     type="button"
                     variant="secondary"

@@ -94,6 +94,11 @@ export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
   "Upload a bundled synthetic cloud inventory ZIP — same format as read-only packager output — without running a script locally." as const;
 
+export const EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_SUMMARY = "Scale and edge samples" as const;
+
+export const EXTRACT_UPLOAD_LAB_DEMO_DISCLOSURE_DESCRIPTION =
+  "These samples exercise large and irregular Azure inventories. Edge samples are expected to look incomplete." as const;
+
 export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory" as const;
 
 export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
