@@ -8777,3 +8777,4 @@
 {"at":"2026-10-06T11:23:22.8391147Z","zoneId":"tenant-erasure","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T11:36:12.9633111Z","zoneId":"run-execute-ownership","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-06T11:41:24.7287901Z","zoneId":"run-execute-ownership","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-06T11:47:22.7547837Z","zoneId":"run-execute-ownership","outcome":"dry","productLine":"archlucid-shared"}

@@ -17,6 +17,23 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
 {
     [Fact]
+    public async Task AcquireAsync_propagates_repository_exceptions_instead_of_mapping_to_peer_conflict()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated SQL timeout"));
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        Func<Task> act = () => sut.AcquireAsync(runId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("simulated SQL timeout");
+    }
+
+    [Fact]
     public async Task AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim()
     {
         Guid runId = Guid.NewGuid();
