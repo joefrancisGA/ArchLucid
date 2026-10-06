@@ -277,6 +277,66 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Theory]
+    [InlineData("")]
+    [InlineData("oauth")]
+    [InlineData("   ")]
+    public void TestLogin_rejects_invalid_protocol(string protocol)
+    {
+        IdentityProviderConfigurationController controller = CreateController(
+            testLoginService: new SsoWizardTestLoginService());
+
+        IActionResult result = controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = protocol,
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        ObjectResult objectResult = result.Should().BeOfType<ObjectResult>().Subject;
+        objectResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        objectResult.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            (Microsoft.AspNetCore.Mvc.ProblemDetails)objectResult.Value!;
+
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("oidc or saml");
+    }
+
+    [Fact]
+    public void TestLogin_passes_normalized_protocol_token_to_sandbox_service()
+    {
+        IdentityProviderTestLoginRequest? captured = null;
+
+        Mock<ISsoWizardTestLoginService> testLogin = new();
+        testLogin
+            .Setup(s => s.Execute(It.IsAny<IdentityProviderTestLoginRequest>(), It.IsAny<ScopeContext>()))
+            .Callback<IdentityProviderTestLoginRequest, ScopeContext>((req, _) => captured = req)
+            .Returns(new IdentityProviderTestLoginResponse
+            {
+                Success = true,
+                MappedRoles = ["Admin"],
+                DiagnosticSummary = "ok",
+            });
+
+        IdentityProviderConfigurationController controller = CreateController(testLoginService: testLogin.Object);
+
+        controller.TestLogin(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "  SAML  ",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = ValidClaimMapping(),
+                SampleClaimValues = ["al-admins"],
+            });
+
+        captured.Should().NotBeNull();
+        captured!.Protocol.Should().Be("saml");
+    }
+
+    [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]
     public void TestLogin_rejects_non_http_scheme_issuer_uri(string issuerUri)

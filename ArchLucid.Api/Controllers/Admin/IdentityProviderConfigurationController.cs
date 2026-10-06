@@ -82,6 +82,13 @@ public sealed class IdentityProviderConfigurationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (!IdentityProviderProtocolParser.TryParse(request.Protocol, out TenantIdentityProtocol parsedProtocol))
+        {
+            return this.BadRequestProblem(
+                "Protocol must be oidc or saml.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
         {
             return this.BadRequestProblem(
@@ -93,7 +100,7 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderTestLoginResponse response = _testLoginService.Execute(
             new IdentityProviderTestLoginRequest
             {
-                Protocol = request.Protocol,
+                Protocol = IdentityProviderProtocolParser.ToWizardToken(parsedProtocol),
                 IssuerUri = canonicalIssuerUri,
                 ClaimMapping = request.ClaimMapping,
                 SampleClaimValues = request.SampleClaimValues,
