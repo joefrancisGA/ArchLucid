@@ -416,6 +416,36 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter()
+    {
+        ClosedLoopReasoningRequest bare = CreateRequest("Same body.");
+        bare.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest withCharset = CreateRequest("ignored");
+        withCharset.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown; charset=utf-8",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(bare).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(withCharset).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_framing_keys_differ_only_by_casing()
     {
         ClosedLoopReasoningRequest lowerKey = CreateRequest("Architecture note.");

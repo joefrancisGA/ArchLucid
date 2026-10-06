@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted MIME `; charset=utf-8` on `SourceTexts.ContentType` splitting review cache `ContentHash` from bare types; strip parameters via `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on `(candidate)` rows; 83 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted source `ContentType` casing split on review cache manifest `ContentHash` while attachments are the same; canonicalize via `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on `(candidate)` rows; 82 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): `context-ingestion` — promoted dotenv `export KEY=value` shell prefix: `SettingName` and proposal `Name` kept the `export` token while host inference still worked; strip optional `export ` before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on `(candidate)` rows; 808 scoped ContextIngestion/Canonicalization tests passed (`RunAnalyzers=false`).
@@ -29977,10 +29979,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-06 seed hunt (seed→hit): MIME charset parameter on `SourceTexts.ContentType` split cache manifest hash; `NormalizeContentTypeForLookup` + lowercase in normalizer; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on candidates; 83 scoped tests passed.
+
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters on `SourceTexts.ContentType` (`text/markdown; charset=utf-8` vs bare) split `ContentHash` — **hit 2026-10-06 seed hunt:** `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` before lowercase; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`.
+- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — `FileName` path segments with backslash vs forward slash may split cache keys for the same logical upload — **seed 2026-10-06:** Windows-style vs POSIX declaration names on architecture requests.
+- [ ] (candidate) `ReviewCacheModelFingerprint` — baseline model property ordering or casing in JSON projection may change `modelfp` without semantic model drift — **seed 2026-10-06:** reachable when persisted model round-trips through different serializers.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — blank vs omitted `WorkspaceId`/`ProjectId` may diverge from scope normalizer empty forms — **seed 2026-10-06:** partial scope on closed-loop requests.
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — leader exception after partial `Set` may leave followers without cache entry while single-flight completes — **seed 2026-10-06:** concurrent identical analysis requests under failure injection.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — client `RunId` with surrounding whitespace vs normalized compact id may build different pin scopes — **seed 2026-10-06:** `NormalizeRequired` at entry vs raw `request.RunId` on manifest build paths.
+
 2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` / `ReviewCacheManifestBuilder.HashContent` — `SourceTexts.ContentType` casing split `ContentHash` for identical attachments — **hit 2026-10-06 seed hunt:** lowercase trimmed content types in normalizer (manifest + snapshot); regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
-- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters (`text/plain; charset=utf-8` vs bare `text/plain`) may split cache keys despite equivalent intake — **seed 2026-10-06:** parity with context-ingestion charset normalization on architecture `SourceTexts`.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters (`text/plain; charset=utf-8` vs bare `text/plain`) split cache keys — **hit 2026-10-06 seed hunt:** see charset-parameter entry above.
 - [ ] (candidate) `ReviewCacheLedgerFingerprint` — technology ledger entry order permutations may change `ledgerfp` when semantic content matches — **seed 2026-10-06:** reachable when ledger reload order differs between coalesced requests.
 - [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` with identical `FileName`/`ContentType` but different `Content` order in request list — **seed 2026-10-06:** order-sensitive hash may false-split or false-merge multi-attachment reviews.
 - [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` toggled between consecutive identical analysis manifests may bypass vs hit review cache asymmetrically — **seed 2026-10-06:** `ReviewCacheKeyBuilder.BuildInFlight` publish partition vs storage keys.
@@ -30014,11 +30025,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 31
-- **bugs-found:** 11
+- **hunts:** 32
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — source `ContentType` casing split review cache manifest hash
+- **last-bug:** 2026-10-06 — MIME charset parameter split review cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30122,6 +30133,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — continue manifest with `existing == null` for unknown run id — **cheap-disproof 2026-10-06 thorough hunt:** extraction fails closed; no cache reuse; regression `RunAsync_continue_with_unknown_run_id_fails_closed_before_cache_reuse`.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` / `ReviewCacheManifestBuilder.HashContent` — `SourceTexts.ContentType` letter casing produced different `ContentHash` for the same attachment body — **hit 2026-10-06 seed hunt:** lowercase trimmed content types in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME `; charset=utf-8` on `SourceTexts.ContentType` split `ContentHash` from bare MIME — **hit 2026-10-06 seed hunt:** `NormalizeContentTypeForLookup` before lowercase; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
