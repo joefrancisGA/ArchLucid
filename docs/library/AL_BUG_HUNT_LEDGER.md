@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — `ListRecycleBinAsync` omitted purge schedule only when the current workspace pinned `DefaultProjectId`, but `SqlArchitectureProjectRetentionPurgeService` excludes purge when any `TenantWorkspaces` row pins the project; align recycle-bin `purgeAfterUtc` with tenant-wide default metadata pins; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`; 42 scoped TenantWorkspaces tests passed.
+
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.Apply` deduplicated parallel edges from rolled-up members but kept only the first member's NSG annotation labels and blocked flag; merge labels, rule details, and `IsDataFlowNsgBlocked` on duplicate rollup edge keys; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`; 638 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
 
 2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — recycle bin advertised `purgeAfterUtc` for soft-deleted projects still referenced as `TenantWorkspaces.DefaultProjectId` while `SqlArchitectureProjectRetentionPurgeService` excludes those rows from hard purge; set nullable `PurgeAfterUtc` when workspace default metadata pins the project; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
@@ -27663,11 +27665,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 21
-- **bugs-found:** 4
+- **hunts:** 22
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — recycle bin false purge schedule for workspace-default soft-deletes
+- **last-bug:** 2026-10-06 — recycle bin false purge when another workspace pins DefaultProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
