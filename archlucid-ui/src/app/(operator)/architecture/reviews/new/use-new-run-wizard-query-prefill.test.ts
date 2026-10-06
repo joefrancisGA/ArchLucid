@@ -107,4 +107,30 @@ describe("useNewRunWizardQueryPrefill", () => {
       expect(setValue).toHaveBeenCalledTimes(2);
     });
   });
+
+  it("applies accelerator prefill and skips preset when both query params are present", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams("ai-llm-workload"),
+          presetDeeplinkPresetId: "greenfield",
+          presetDeeplinkToken: "greenfield",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset,
+        setValue: vi.fn(),
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledTimes(1);
+    });
+  });
 });

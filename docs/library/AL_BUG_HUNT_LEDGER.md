@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows (specimen preview hidden during commit probe is TB-2151 intentional; strict `baseline=1` contract; unrecognized `path=` with `baseline=1` still opens detailed; quick-mode track polling by design; accelerator wins over preset); regressions in `use-new-run-wizard-intake-params`, `reviews-new-path-switcher-state`, `use-new-run-wizard-track-stream`, `use-new-run-wizard-query-prefill` tests; 14 focused `reviews/new` vitest files passed.
+
 2026-10-06 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows (lexicographic sort is out-of-repo misuse; report intentionally emits annotated composition/pilot lines verbatim; doc citation is filename-level by design; keyvault/private dual-guard is intentional sync; orchestrator legacy annotation matches apply-saas sequence); regressions `DefaultApplyOrderRoots_leaf_order_differs_from_lexicographic_sort_of_paths`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`; 29 scoped deployment-evidence tests passed; `assert_terraform_root_ordering_sync.py` OK.
 
 2026-10-06 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardIntakeParams`, `resolveInitialReviewsNewActivePath`, specimen preview presentation, and track-stream hooks after picker rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (specimen preview hidden while commit probe pending, strict `baseline=1` match, unrecognized `path=` typo fallback, quick-mode track polling always on, accelerator+preset query precedence); 10 focused vitest files under `reviews/new` passed (steps, query-prefill, path-switcher-state, specimen preview).
@@ -30125,9 +30127,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
@@ -30246,11 +30248,13 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 2026-10-06 seed hunt (seed-only): re-read intake param resolution, path bootstrap, specimen preview, and track polling hooks; seeded five new `(candidate)` rows below; 10 focused `reviews/new` vitest tests passed.
 
-- [ ] (candidate) `useReviewsNewSpecimenPreviewPresentation` — while `useCorePilotCommitContextQuery` is `isPending` or `isError`, both `showProminentSection` and `showHeaderLinks` are false — reachable on first paint of `/architecture/reviews/new` before the commit probe resolves (TB-2151 specimen entry points vanish during loading).
-- [ ] (candidate) `useNewRunWizardIntakeParams` — `baselineFirst` is true only when `searchParams.get("baseline") === "1"` with no trim — reachable via `?baseline=%201` or padded values where the simplified pilot (`baseline=1`) deep link does not open.
-- [ ] (candidate) `resolveInitialReviewsNewActivePath` — unrecognized `path=` values fall through to `quick-review` even when `baseline=1` / tour flags are absent — reachable from malformed marketing links such as `?path=detailed-review` that operators expect to open the full wizard.
-- [ ] (candidate) `useNewRunWizardTrackStream` — `useRunSummaryStream` stays enabled for all quick-review steps once `runId` is set (`wizardMode === "quick" ? true : stepIndex === TRACK_STEP_INDEX`) — reachable after quick-start spawns a run while the operator is still on early wizard slides (continuous polling vs track-step gating in full mode).
-- [ ] (candidate) `useNewRunWizardIntakeParams` + `useNewRunWizardQueryPrefill` — `accelerator=` and `preset=` can both be present on the same URL with precedence determined only by effect ordering in the prefill hook — reachable from composed GTM deep links on `/architecture/reviews/new` carrying both params.
+2026-10-06 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; no failing repro; 14 focused `reviews/new` vitest tests passed.
+
+- [x] (valid-no-repro) `useReviewsNewSpecimenPreviewPresentation` — specimen surfaces hidden while commit context loads — **cheap-disproof 2026-10-06 thorough hunt:** intentional TB-2151 behavior to avoid flashing the wrong surface before `hasCommittedManifest` is known; regression `hides both surfaces while commit context is loading`.
+- [x] (valid-no-repro) `useNewRunWizardIntakeParams` — strict `baseline === "1"` without trim — **cheap-disproof 2026-10-06 thorough hunt:** canonical deep links use exact `baseline=1` (e2e helpers and `NewRunWizardClient.baseline-first.test.tsx`); padded values are malformed URLs; regression `does not set baselineFirst when baseline query is padded whitespace`.
+- [x] (valid-no-repro) `resolveInitialReviewsNewActivePath` — unrecognized `path=` falls back to quick-review — **cheap-disproof 2026-10-06 thorough hunt:** bare `/architecture/reviews/new` defaults to quick start by product contract; `baseline=1` still opens detailed despite a typo `path=`; regressions `defaults unrecognized path= values to quick-review` and `opens detailed wizard for baseline=1 even when path= is unrecognized`.
+- [x] (valid-no-repro) `useNewRunWizardTrackStream` — quick-review polls on every step after spawn — **cheap-disproof 2026-10-06 thorough hunt:** quick-start track UI expects live summary while the operator remains on early slides; full wizard gates polling to `TRACK_STEP_INDEX` by design; regression `keeps summary polling enabled on every quick-review step after a run is spawned`.
+- [x] (valid-no-repro) `useNewRunWizardIntakeParams` + `useNewRunWizardQueryPrefill` — accelerator and preset on one URL — **cheap-disproof 2026-10-06 thorough hunt:** preset effect explicitly yields when `acceleratorPackId !== null` (comment: accelerator is more specific); regression `applies accelerator prefill and skips preset when both query params are present`.
 
 ---
 
