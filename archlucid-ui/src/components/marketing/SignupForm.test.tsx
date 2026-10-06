@@ -449,6 +449,51 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not fire a second register request on rapid double-click before submitting state updates", async () => {
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          setTimeout(
+            () =>
+              resolve(
+                new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+                  status: 201,
+                  headers: { "Content-Type": "application/json" },
+                }),
+              ),
+            50,
+          );
+        }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    const button = screen.getByRole("button", { name: /Create evaluation workspace/i });
+
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(registerFetchCount()).toBe(1);
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 60);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not fire a second register request when the form is submitted again while in flight", async () => {
     let resolveFetch: (value: Response) => void = () => undefined;
 
@@ -460,6 +505,9 @@ describe("SignupForm", () => {
     );
 
     vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
 
     render(<SignupForm />);
     fillRequiredFields();
@@ -473,13 +521,13 @@ describe("SignupForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(registerFetchCount()).toBe(1);
     });
 
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(registerFetchCount()).toBe(1);
     });
 
     resolveFetch(

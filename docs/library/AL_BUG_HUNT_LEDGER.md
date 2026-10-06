@@ -266,6 +266,8 @@
 
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
 
+2026-10-06 seed hunt (seed→hit): `ui-form-validation` — rapid double-click on the signup CTA could enqueue two `handleSubmit` handlers before `submitting` re-rendered, issuing parallel `POST /api/proxy/v1/register` calls; guard with synchronous `registerInFlightRef`; regression `does not fire a second register request on rapid double-click before submitting state updates`; 28 scoped SignupForm vitest tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-form-validation` — `SignupForm` `onSubmit` `finally` block reset `submitting` after a successful register response, re-enabling the primary CTA before `router.push` and allowing a duplicate `POST /api/proxy/v1/register`; keep submit locked after success and guard with `registerCompletedRef`; regression `does not fire a second register request after success before navigation`; 27 scoped SignupForm vitest tests passed.
 
 2026-10-06 seed hunt (seed→hit): `llm-wallet` — webhook `TryCreditRefillAsync` with `incrementMonthlyAutoRefillCount: false` updated balance only and left `LastRefillUtc` null/stale after Stripe payment-intent top-ups; stamp `LastRefillUtc` on all positive refill credits; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`; 24 scoped `LlmTenantWalletServiceTests` passed.
@@ -3916,11 +3918,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 27
-- **bugs-found:** 5
+- **hunts:** 28
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — successful signup re-enabled submit and allowed duplicate register POST
+- **last-bug:** 2026-10-06 — rapid double-click issued parallel register POSTs before submitting state updated
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -3979,6 +3981,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
 - [x] (proven) `SignupForm` `onSubmit` — `finally` reset `submitting` after successful register re-enabled the primary CTA before client navigation and allowed a second `POST /api/proxy/v1/register` — **hit 2026-10-06 seed hunt:** keep submit locked and ignore duplicate handler entry after success via `registerCompletedRef`; regression `does not fire a second register request after success before navigation`; 27 scoped SignupForm tests passed.
+- [x] (proven) `SignupForm` `onSubmit` — rapid double-click before `submitting` re-render could start two parallel register fetches — **hit 2026-10-06 seed hunt:** synchronous `registerInFlightRef` gate at handler entry; regression `does not fire a second register request on rapid double-click before submitting state updates`; 28 scoped SignupForm vitest tests passed.
+
+2026-10-06 seed hunt (seed→hit): proved rapid double-click could POST register twice before submitting state updated; 28 scoped SignupForm vitest tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved successful signup could POST register twice before navigation; 27 scoped SignupForm vitest tests passed.
 

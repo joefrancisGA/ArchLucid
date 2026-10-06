@@ -46,6 +46,7 @@ export function SignupForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const registerCompletedRef = useRef(false);
+  const registerInFlightRef = useRef(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -69,10 +70,11 @@ export function SignupForm() {
   const readinessMessage = deriveSignupFormReadinessMessage(values);
 
   const onSubmit = handleSubmit(async (values) => {
-    if (registerCompletedRef.current) {
+    if (registerCompletedRef.current || registerInFlightRef.current) {
       return;
     }
 
+    registerInFlightRef.current = true;
     setSubmitting(true);
     let registerSucceeded = false;
 
@@ -182,6 +184,7 @@ export function SignupForm() {
       showError("Signup", message);
     } finally {
       if (!registerSucceeded) {
+        registerInFlightRef.current = false;
         setSubmitting(false);
       }
     }
