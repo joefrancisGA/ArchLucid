@@ -92,8 +92,24 @@ internal static class InventoryDiagramExternalTargetApplier
 
                 string targetArmId = ArmResourceIdNormalizer.Normalize(peering.RemoteVirtualNetworkArmId);
 
-                if (diagramNodeIdByArmId.ContainsKey(targetArmId))
+                if (diagramNodeIdByArmId.TryGetValue(targetArmId, out string? existingDiagramNodeId))
                 {
+                    bool hasCapturedTarget = graph.Nodes.Any(node =>
+                        string.Equals(
+                            ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                            targetArmId,
+                            StringComparison.OrdinalIgnoreCase)
+                        && !(node.Properties.TryGetValue(ExecutiveVnetPeeringStubNodeFactory.StubPropertyKey, out string? stubKind)
+                            && string.Equals(stubKind, ExecutiveVnetPeeringStubNodeFactory.RemoteVnetStubValue, StringComparison.OrdinalIgnoreCase)));
+                    DiagramNode? existingDiagramNode = ast.Nodes.FirstOrDefault(node =>
+                        string.Equals(node.NodeId, existingDiagramNodeId, StringComparison.Ordinal));
+
+                    if (!hasCapturedTarget && existingDiagramNode is not null)
+                    {
+                        existingDiagramNode.Label = "Outside this subscription: " + ReadResourceName(targetArmId);
+                        externalDiagramNodeIdByArmId[targetArmId] = existingDiagramNodeId;
+                    }
+
                     continue;
                 }
 
