@@ -6600,6 +6600,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-06 seed hunt (seed→hit): `alert-simulation` — explicit `runId` / recent-run list entries of `Guid.Empty` were treated as real runs (`Nullable<Guid>.HasValue` is true for empty), querying authority with `00000000-…` and building bogus simulation contexts; reject empty explicit run ids and skip empty rows in recent-run batch; normalize `comparedToRunId == Guid.Empty` to null; regressions `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority` and `GetContextsAsync_recent_run_batch_skips_empty_run_ids_from_authority_list`; 21 scoped `AlertSimulationContextProviderTests` passed.
+
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — `BuildContextAsync` called `RunMatchesCallerScope` when `RunDetailDto.Run` was null, throwing `NullReferenceException` instead of failing closed; guard null run rows before scope binding; regression `GetContextsAsync_when_run_detail_missing_run_record_returns_empty`; 19 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — recent-run batch replayed duplicate `RunId` rows from `ListRunsByProjectAsync` twice, inflating `EvaluatedRunCount` and alert simulation outcomes; `DistinctBy(RunId)` after `CreatedUtc` ordering; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`; 18 scoped `AlertSimulationContextProviderTests` passed.
@@ -6612,11 +6614,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 21
-- **bugs-found:** 5
+- **hunts:** 22
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — null RunDetailDto.Run crashed alert simulation context build
+- **last-bug:** 2026-10-06 — Guid.Empty run ids queried authority in alert simulation
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -6648,6 +6650,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` recent-run sweep — duplicate `RunId` entries from `ListRunsByProjectAsync` built multiple `AlertEvaluationContext` rows for the same run and inflated simulation counts — **hit 2026-10-06 seed hunt:** `DistinctBy(x => x.RunId)` after `OrderByDescending(CreatedUtc)`; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`; 18 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `RunDetailDto` with golden manifest but null `Run` dereferenced `detail.Run` in `RunMatchesCallerScope` and surfaced `NullReferenceException` to callers — **hit 2026-10-06 seed hunt:** return null when `detail.Run` is missing (primary and compare-to paths); regression `GetContextsAsync_when_run_detail_missing_run_record_returns_empty`; 19 scoped `AlertSimulationContextProviderTests` passed.
+- [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` — `Guid.Empty` explicit `runId` and recent-run summary rows invoked `GetRunDetailAsync` with the empty guid because `Guid?` treats empty as set — **hit 2026-10-06 seed hunt:** return empty for explicit `Guid.Empty`, skip empty run ids in batch sweep, treat `comparedToRunId == Guid.Empty` as no comparison; regressions `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority` and `GetContextsAsync_recent_run_batch_skips_empty_run_ids_from_authority_list`; 21 scoped `AlertSimulationContextProviderTests` passed.
+
+2026-10-06 seed hunt (seed→hit): proved Guid.Empty run ids reached authority in alert simulation; 21 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-06 seed hunt (seed→hit): proved null run record crashed alert simulation context build; 19 scoped `AlertSimulationContextProviderTests` passed.
 
