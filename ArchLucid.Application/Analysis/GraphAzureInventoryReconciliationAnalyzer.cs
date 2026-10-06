@@ -155,6 +155,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     internal static string NormalizeArmResourceId(string resourceId)
     {
-        return resourceId.Trim().ToLowerInvariant();
+        string normalized = resourceId.Trim().ToLowerInvariant();
+
+        while (normalized.Contains("//", StringComparison.Ordinal))
+        {
+            normalized = normalized.Replace("//", "/", StringComparison.Ordinal);
+        }
+
+        return normalized;
     }
 }
