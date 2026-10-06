@@ -238,6 +238,39 @@ public sealed class PolicyPacksControllerSimulateBulkScopeTests
     }
 
     [Fact]
+    public async Task SimulateBulk_accepts_run_id_with_interior_no_break_space()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid runGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string runIdWithNbsp = runGuid.ToString("D").Insert(9, "\u00a0");
+        string normalizedRunId = runGuid.ToString("D");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.SimulateBulkAsync(
+                packId,
+                It.Is<IReadOnlyList<string>>(ids => ids.Count == 1 && ids[0] == normalizedRunId),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackSimulateBulkSummary>.Success(new PolicyPackSimulateBulkSummary
+            {
+                PolicyPackId = packId,
+                RequestedRunCount = 1,
+            }));
+
+        PolicyPacksController sut = CreateController(httpFacade);
+
+        IActionResult result = await sut.SimulateBulk(
+            packId,
+            new PolicyPackSimulateBulkRequest { RunIds = [runIdWithNbsp] },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task SimulateBulk_evaluates_runs_when_pack_is_in_caller_scope()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

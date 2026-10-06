@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` still used `Trim()` + `Guid.TryParse` after `GovernanceController` policy-pack parity fix; shared `GovernanceRunIdHttpParser`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
+
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `GovernanceController` policy-pack `Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` parsed run ids with `Trim()` + `Guid.TryParse` while submit routes use `GovernanceRunIdNormalizer`, rejecting Word-pasted interior no-break space run ids; `TryParseGovernanceRunIdFromBody` + normalized ids to sealed guard and services; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
 
 2026-10-06 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after recursive nested-aggregate fixes; cheap-disproof closed triple-wrapper mixed aggregate (fail-fast on first attempt) and top-level sibling transient + wrapped-mixed aggregate (`inners.All` intentional fail-fast per parallel-persist semantics); seeded five candidates; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
@@ -26137,11 +26139,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 305
+- **hunts:** 306
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 511
+- **bugs-found:** 512
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — policy-pack simulate/dry-run run id parse omitted GovernanceRunIdNormalizer
+- **last-bug:** 2026-10-06 — PolicyPacksController simulate paths omitted GovernanceRunIdNormalizer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26150,6 +26152,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-06 seed hunt (seed→hit): promoted `GovernanceController.PolicyPacks.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — same interior U+00A0 parity gap on policy-pack dry-run/simulate bodies; `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 - [x] (proven) `GovernanceController.Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` — `Guid.TryParse(request.RunId.Trim())` and per-id `Trim()` on `evaluateAgainstRunIds` rejected interior no-break space run ids that `ValidateGovernanceRouteRunId` accepts on submit — **hit 2026-10-06 seed hunt:** `GovernanceRunIdNormalizer` via `TryParseGovernanceRunIdFromBody`; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`.
+
+- [x] (proven) `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` — same `Trim()` + `Guid.TryParse` gap on policy-pack catalog and governance-preview bodies — **hit 2026-10-06 seed hunt:** `GovernanceRunIdHttpParser.TryParseFromBody`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`.
+
+2026-10-06 seed hunt (seed→hit): promoted PolicyPacksController / GovernancePreview run-id normalization parity; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 

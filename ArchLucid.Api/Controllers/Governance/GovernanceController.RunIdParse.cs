@@ -1,12 +1,9 @@
-using ArchLucid.Application.Governance;
+using ArchLucid.Api.Http.Governance;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
 public sealed partial class GovernanceController
 {
-    private static bool TryParseGovernanceRunIdFromBody(string raw, out string normalizedRunId)
-    {
-        normalizedRunId = GovernanceRunIdNormalizer.Normalize(raw);
-        return Guid.TryParse(normalizedRunId, out Guid parsedRunId) && parsedRunId != Guid.Empty;
-    }
+    private static bool TryParseGovernanceRunIdFromBody(string raw, out string normalizedRunId) =>
+        GovernanceRunIdHttpParser.TryParseFromBody(raw, out normalizedRunId);
 }
