@@ -8801,7 +8801,6 @@
 {"at":"2026-10-05T15:46:07.0263731Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
 {"at":"2026-10-05T15:47:53.0073872Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-05T15:55:08.3777332Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
-=======
 {"at":"2026-10-05T16:00:21.55838Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
 {"at":"2026-10-05T16:13:27.1378317Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Exports/,ArchLucid.Api/Controllers/Authority/"]}
 {"at":"2026-10-05T16:33:36.2444354Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"]}
