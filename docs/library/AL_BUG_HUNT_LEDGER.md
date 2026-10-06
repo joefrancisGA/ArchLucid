@@ -5304,13 +5304,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 265
-- **bugs-found:** 488
+- **hunts:** 266
+- **bugs-found:** 489
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — legal-hold reason internal whitespace broke operator safe-retry idempotency
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — quarantine restore safe-retry returned false after successful restore
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted quarantine-restore operator safe-retry parity with `TryClearLegalHoldAsync`; proved `TryRestoreQuarantineAsync` returned `false` on sequential retry after a successful restore (`OffboardedUtc` already null), surfacing admin `409 Conflict` instead of idempotent `204`; return success when quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; 45 scoped `TenantErasure` tests passed (18 Application + 23 Api + 4 Core).
 
 2026-10-05 seed hunt (seed→hit): proved `TenantErasureCommandService.NormalizeLegalHoldReason` trimmed surrounding whitespace only, so operator safe-retry with the same semantic reason but extra internal spaces duplicated `TenantErasureLegalHoldSet` audits; collapse internal whitespace runs when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`; 43 scoped `TenantErasure` tests passed (16 Application + 23 Api + 4 Core).
 - **last-bug:** 2026-10-05 — offboard safe-retry returned null (409) when tenant was already in erasure quarantine
@@ -5335,6 +5337,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `TenantErasureCommandService.TryRestoreQuarantineAsync` — operator safe-retry after a successful restore returned `false` because `OffboardedUtc` was already null, unlike concurrent-restore miss path and `TryClearLegalHoldAsync` idempotency — **hit 2026-10-06 seed hunt (seed→hit):** return success when erasure quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`.
 - [x] (proven) `TenantErasureCommandService.NormalizeLegalHoldReason` / `IsIdenticalLegalHoldRetry` — legal-hold reasons differing only by internal whitespace duplicated `TenantErasureLegalHoldSet` audits on operator safe-retry — **hit 2026-10-05 seed hunt (seed→hit):** collapse internal whitespace when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`.
 - [x] (proven) `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — `LegalHoldUntilUtc` compared with `==` so the same instant with a different `DateTimeOffset` offset duplicated legal-hold audits on retry — **hit 2026-10-05 seed hunt:** compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`.
 - [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — platform admin legal-hold requests passed untrimmed `Reason` while tenant-admin HTTP trimmed before the command service, so `IsIdenticalLegalHoldRetry` missed semantic duplicates and appended duplicate `TenantErasureLegalHoldSet` audits on safe retry — **hit 2026-10-05 seed hunt:** normalize legal-hold reason on persist and when comparing stored values; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_surrounding_whitespace`
