@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` (`Resolve`, `HasMatchingProposal`, `EvidenceRefsMatch`, `ShouldTreatAsDuplicateByName`, `NormalizeTechnologyName`); no hunt-ready row promoted; retained five open `(candidate)` rows for next thorough hunt; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandIntakeLoop`, connect/admit/MUST stages, hooks, and arg parser; no hunt-ready row promoted; five open `(candidate)` rows unchanged for next thorough hunt; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` (`TryNormalize`, percent-decode loop, path-only vs full-string checks); no hunt-ready row promoted for same-run proof; refreshed five `(candidate)` rows (dropped `AuthSignInRoutingController` locus outside zone `paths`); 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -4778,6 +4780,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-10-06 seed hunt (seed-only): re-read merge policy partials; no hunt-ready promotion; five open `(candidate)` rows unchanged; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): re-read merge policy; no hunt-ready promotion; refreshed five `(candidate)` rows below (dropped empty-chosen open row superseded by valid-no-repro regression); 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read merge policy whitespace normalization and empty chosen labels; cheap-disproof closed NBSP-vs-space promotion and whitespace-only chosen-name blocking; removed stale duplicate `(candidate)` rows already closed by thorough hunt; seeded five follow-on `(candidate)` rows below; regressions `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators` and `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
@@ -4805,7 +4809,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
