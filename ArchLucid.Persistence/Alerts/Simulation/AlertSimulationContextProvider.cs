@@ -50,12 +50,10 @@ public sealed class AlertSimulationContextProvider(
             if (runId.Value == Guid.Empty)
                 return results;
 
-            Guid? compareToRunId = comparedToRunId == Guid.Empty ? null : comparedToRunId;
-
             AlertEvaluationContext? single = await BuildContextAsync(
                     scope,
                     runId.Value,
-                    compareToRunId,
+                    comparedToRunId,
                     skipOnSealedHashFailure: false,
                     ct)
                 ;
@@ -141,23 +139,23 @@ public sealed class AlertSimulationContextProvider(
 
         ComparisonResult? comparison = null;
 
-        if (comparedToRunId.HasValue)
+        if (comparedToRunId is Guid compareRunId && compareRunId != Guid.Empty)
         {
             RunDetailDto? comparedDetail = await authorityQueryService
-                .GetRunDetailAsync(scope, comparedToRunId.Value, ct)
+                .GetRunDetailAsync(scope, compareRunId, ct)
                 ;
 
             if (comparedDetail?.GoldenManifest is not null
                 && comparedDetail.Run is not null
                 && RunMatchesCallerScope(comparedDetail.Run, scope)
-                && comparedDetail.Run.RunId == comparedToRunId.Value
-                && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
+                && comparedDetail.Run.RunId == compareRunId
+                && comparedDetail.GoldenManifest.RunId == compareRunId)
             {
                 if (skipOnSealedHashFailure)
                 {
                     if (!AlertSimulationSealedManifestHashGuard.TryEnsureRunSealedManifestHash(
                             comparedDetail.GoldenManifest,
-                            comparedToRunId.Value,
+                            compareRunId,
                             manifestHashService))
                     {
                         comparedDetail = null;
@@ -167,7 +165,7 @@ public sealed class AlertSimulationContextProvider(
                 {
                     AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
                         comparedDetail.GoldenManifest,
-                        comparedToRunId.Value,
+                        compareRunId,
                         manifestHashService);
                 }
 

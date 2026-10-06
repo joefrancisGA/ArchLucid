@@ -6600,6 +6600,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-06 seed hunt (seed→hit): `alert-simulation` — `BuildContextAsync` treated `comparedToRunId == Guid.Empty` as a real compare-to because `Guid?.HasValue` is true for empty, calling `GetRunDetailAsync` with `00000000-…`; gate compare branch with `comparedToRunId is Guid compareRunId && compareRunId != Guid.Empty`; regression `GetContextsAsync_when_compared_to_run_id_is_empty_does_not_query_compare_to_run_detail`; 23 scoped `AlertSimulationContextProviderTests` passed.
+
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — `BuildContextAsync` bound only `GoldenManifest.RunId` to the requested run and ignored `RunRecord.RunId` drift, so a mis-keyed authority row could simulate the wrong catalog run; require `detail.Run.RunId` (and compare-to run row id) to match the requested id; regression `GetContextsAsync_when_run_record_id_mismatches_requested_run_returns_empty`; 22 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `alert-simulation` — explicit `runId` / recent-run list entries of `Guid.Empty` were treated as real runs (`Nullable<Guid>.HasValue` is true for empty), querying authority with `00000000-…` and building bogus simulation contexts; reject empty explicit run ids and skip empty rows in recent-run batch; normalize `comparedToRunId == Guid.Empty` to null; regressions `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority` and `GetContextsAsync_recent_run_batch_skips_empty_run_ids_from_authority_list`; 21 scoped `AlertSimulationContextProviderTests` passed.
@@ -6616,11 +6618,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 23
-- **bugs-found:** 7
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — RunRecord.RunId drift ignored during alert simulation bind
+- **last-bug:** 2026-10-06 — Guid.Empty comparedToRunId still queried compare-to run detail
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -6654,6 +6656,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `RunDetailDto` with golden manifest but null `Run` dereferenced `detail.Run` in `RunMatchesCallerScope` and surfaced `NullReferenceException` to callers — **hit 2026-10-06 seed hunt:** return null when `detail.Run` is missing (primary and compare-to paths); regression `GetContextsAsync_when_run_detail_missing_run_record_returns_empty`; 19 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` — `Guid.Empty` explicit `runId` and recent-run summary rows invoked `GetRunDetailAsync` with the empty guid because `Guid?` treats empty as set — **hit 2026-10-06 seed hunt:** return empty for explicit `Guid.Empty`, skip empty run ids in batch sweep, treat `comparedToRunId == Guid.Empty` as no comparison; regressions `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority` and `GetContextsAsync_recent_run_batch_skips_empty_run_ids_from_authority_list`; 21 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — mis-keyed `RunDetailDto` rows where `RunRecord.RunId` differed from the requested run id still simulated when `GoldenManifest.RunId` matched — **hit 2026-10-06 seed hunt:** require `detail.Run.RunId == runId` and compare-to `RunRecord.RunId == comparedToRunId` before building contexts; regression `GetContextsAsync_when_run_record_id_mismatches_requested_run_returns_empty`; 22 scoped `AlertSimulationContextProviderTests` passed.
+- [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `comparedToRunId` of `Guid.Empty` entered the compare-to branch because `Nullable<Guid>.HasValue` is true for empty, invoking `GetRunDetailAsync(Guid.Empty)` — **hit 2026-10-06 seed hunt:** compare branch requires non-empty guid; regression `GetContextsAsync_when_compared_to_run_id_is_empty_does_not_query_compare_to_run_detail`; 23 scoped `AlertSimulationContextProviderTests` passed.
+
+2026-10-06 seed hunt (seed→hit): proved Guid.Empty compare-to id still queried authority; 23 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-06 seed hunt (seed→hit): proved RunRecord vs requested run id drift could simulate wrong catalog row; 22 scoped `AlertSimulationContextProviderTests` passed.
 
