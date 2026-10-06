@@ -416,6 +416,8 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ACTIONS_COLUMN_LABE
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL = "Delete" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_IN_PROGRESS_LABEL = "Deleting…" as const;
+
 export function formatGovernanceInfrastructureDriftDeleteSnapshotAriaLabel(subscriptionLabel: string): string {
   return `Delete inventory snapshot for ${subscriptionLabel}`;
 }
@@ -450,6 +452,8 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY =
   "This permanently removes the snapshot and derived drift, diagram, and advisory Terraform rows. Detach architecture bindings and close remediation instances that reference it first." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL = "Delete snapshot" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_IN_PROGRESS_LABEL = "Deleting…" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL = "Loading snapshots…" as const;
 

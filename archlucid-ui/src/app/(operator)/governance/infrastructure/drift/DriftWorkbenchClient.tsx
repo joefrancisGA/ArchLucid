@@ -157,6 +157,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_SECTION_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_IN_PROGRESS_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_BODY,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_TITLE,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_NOT_SCOPED_LABEL,
@@ -1446,8 +1447,13 @@ export function DriftWorkbenchClient() {
             onSortColumn={handleSnapshotSortColumn}
             onTableFiltersChange={handleSnapshotTableFiltersChange}
             onClearFilters={handleClearSnapshotTableFilters}
+            pendingDeleteSnapshotId={pendingDeleteSnapshotId}
             deletingSnapshotId={deletingSnapshotId}
             onDeleteSnapshot={(snapshotId) => {
+              if (pendingDeleteSnapshotId != null || deletingSnapshotId != null) {
+                return;
+              }
+
               setPendingDeleteSnapshotId(snapshotId);
             }}
           />
@@ -1854,7 +1860,7 @@ export function DriftWorkbenchClient() {
       <AlertDialog
         open={pendingDeleteSnapshotId != null}
         onOpenChange={(open) => {
-          if (!open) {
+          if (!open && deletingSnapshotId == null) {
             setPendingDeleteSnapshotId(null);
           }
         }}
@@ -1880,11 +1886,18 @@ export function DriftWorkbenchClient() {
               variant="destructive"
               data-testid="infra-drift-delete-snapshot-confirm"
               disabled={deletingSnapshotId != null}
+              aria-busy={deletingSnapshotId != null}
               onClick={() => {
+                if (deletingSnapshotId != null) {
+                  return;
+                }
+
                 void handleConfirmDeleteSnapshot();
               }}
             >
-              {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL}
+              {deletingSnapshotId != null
+                ? GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_IN_PROGRESS_LABEL
+                : GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_DELETE_CONFIRM_ACTION_LABEL}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -6,6 +6,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_ARIA_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_IN_PROGRESS_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_LOADING_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECT_ACTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_SELECTED_LABEL,
@@ -39,6 +40,7 @@ export type DriftSnapshotsTableProps = {
   readonly onTableFiltersChange: (patch: Partial<DriftSnapshotsTableFilterState>) => void;
   readonly onClearFilters: () => void;
   readonly onDeleteSnapshot?: (snapshotId: string) => void;
+  readonly pendingDeleteSnapshotId?: string | null;
   readonly deletingSnapshotId?: string | null;
 };
 
@@ -62,8 +64,11 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
     onTableFiltersChange,
     onClearFilters,
     onDeleteSnapshot,
+    pendingDeleteSnapshotId = null,
     deletingSnapshotId = null,
   } = props;
+
+  const snapshotDeleteFlowActive = pendingDeleteSnapshotId != null || deletingSnapshotId != null;
 
   if (loading && snapshots.length === 0) {
     return (
@@ -177,13 +182,21 @@ export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.
                       className="text-red-700 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200"
                       aria-label={deleteAriaLabel}
                       data-testid={`infra-drift-snapshot-delete-${snapshot.snapshotId}`}
-                      disabled={deletingSnapshotId === snapshot.snapshotId}
+                      disabled={snapshotDeleteFlowActive}
+                      aria-busy={deletingSnapshotId === snapshot.snapshotId}
                       onClick={(event) => {
                         event.stopPropagation();
+
+                        if (snapshotDeleteFlowActive) {
+                          return;
+                        }
+
                         onDeleteSnapshot(snapshot.snapshotId);
                       }}
                     >
-                      {GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL}
+                      {deletingSnapshotId === snapshot.snapshotId
+                        ? GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_IN_PROGRESS_LABEL
+                        : GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOTS_TABLE_DELETE_ACTION_LABEL}
                     </Button>
                   ) : null}
                 </div>
