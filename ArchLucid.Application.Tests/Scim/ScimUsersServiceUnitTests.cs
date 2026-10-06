@@ -40,6 +40,19 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task CreateAsync_empty_user_object_throws_parse_exception()
+    {
+        Guid tenantId = Guid.NewGuid();
+        ScimUserService sut = CreateService(new InMemoryScimUserRepository(), new InMemoryTenantRepository());
+
+        using JsonDocument body = JsonDocument.Parse("{}");
+
+        Func<Task> act = () => sut.CreateAsync(tenantId, body.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimUserResourceParseException>();
+    }
+
+    [Fact]
     public async Task CreateAsync_trimmed_external_id_conflicts_with_existing_user()
     {
         Guid tenantId = Guid.NewGuid();
@@ -613,6 +626,31 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_negative_count_clamped_to_empty_page()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, null, 1, -5, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ListAsync_count_zero_returns_empty_page_with_total_results()
     {
         Guid tenantId = Guid.NewGuid();
@@ -764,6 +802,37 @@ public sealed class ScimUsersServiceUnitTests
 
         await act.Should().ThrowAsync<ScimUserResourceParseException>();
         (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.ExternalId.Should().Be("ext-1");
+    }
+
+    [Fact]
+    public async Task PatchAsync_replace_displayName_whitespace_only_clears_display_name()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "displayName", "value": "   " }]
+            }
+            """);
+
+        await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.DisplayName.Should().BeNull();
     }
 
     [Fact]

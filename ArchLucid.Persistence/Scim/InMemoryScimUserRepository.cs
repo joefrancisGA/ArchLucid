@@ -142,7 +142,11 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             TenantId = tenantId,
             ExternalId = externalId ?? e.ExternalId,
             UserName = userName ?? e.UserName,
-            DisplayName = displayName ?? e.DisplayName,
+            DisplayName = displayName is null
+                ? e.DisplayName
+                : string.IsNullOrWhiteSpace(displayName)
+                    ? null
+                    : displayName,
             Active = active ?? e.Active,
             ResolvedRole = resolvedRole ?? e.ResolvedRole,
             ResolvedRoleOrigin = resolvedRoleOrigin,

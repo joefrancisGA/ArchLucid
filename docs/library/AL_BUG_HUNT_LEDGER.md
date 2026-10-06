@@ -2,6 +2,8 @@
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware.ShouldSkip` left `//health/live` (and similar double-leading-slash probe URLs) subject to TB-304 on staging-like hosts because `PathString.StartsWithSegments` did not match normalized health paths; collapse duplicate leading slashes before probe checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; cheap-disproof closed duplicate `tenant_id` claim/header parity (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`, `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`) and comma-joined policy literal skip (`OnActionExecutionAsync_combined_policy_string_does_not_skip_binding_when_literal_name_differs`); 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
 
+2026-10-06 seed hunt (seed→hit): `scim-users` — PATCH replace `displayName` with whitespace-only values left the prior display name because `ReadOptionalString` coalesced to fallback and repositories treated null `displayName` as “keep existing”; normalize whitespace-only PATCH values to an explicit clear and persist null in SQL/in-memory repos; regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`; cheap-disproof closed negative list `count` clamp (`ListAsync_negative_count_clamped_to_empty_page`) and empty POST body (`CreateAsync_empty_user_object_throws_parse_exception`); 25 scoped `ScimUsers` Application unit tests + 5 Api tests passed.
+
 2026-10-06 seed hunt (seed→hit): `scim-users` — `ScimUserService.PatchAsync` `ReadOptionalString` ignored non-string PATCH `displayName` replace values and kept the prior display name while PUT `ScimUserResourceParser` returns `invalidValue`; align PATCH optional strings with parser typing; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` Application unit tests passed.
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `RouteTenantScopeBindingFilter.HasPolicy` only inspected `AuthorizeAttribute` metadata while ASP.NET Core `AuthorizeFilter` carries policy names on `AuthorizeData`, so platform tenant deletion routes could 403 when ambient scope disagreed with route `{tenantId}`; scan `IAuthorizeData` and `AuthorizeFilter.AuthorizeData`; regression `OnActionExecutionAsync_authorize_filter_platform_deletion_policy_skips_binding`; cheap-disproof closed unknown authenticated scheme header-only skip (`ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme`) and intentional `/openapi/*` TB-304 skip for nested segments (`InvokeAsync_staging_host_skips_openapi_nested_segment_paths`); 72 scoped scope-binding unit tests passed (integration tests unavailable).
@@ -8134,11 +8136,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 24
-- **bugs-found:** 16
+- **hunts:** 25
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — PATCH non-string `displayName` silently ignored
+- **last-bug:** 2026-10-06 — PATCH whitespace-only `displayName` did not clear stored display name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8170,9 +8172,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with non-string JSON type kept prior `displayName` without `invalidValue` — **hit 2026-10-06 seed hunt:** throw `invalidValue` like `ScimUserResourceParser`; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` unit tests passed.
 
-- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with whitespace-only string may persist untrimmed or ambiguous empty display names vs PUT parser trim semantics.
-- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` query is clamped only in `ScimUserService` (`Math.Clamp(count, 0, 200)`); verify controller passes through without surprising `startIndex`/`count` combinations for Entra list probes.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — empty request body deserializes to default `JsonElement` instead of `invalidSyntax` before service validation.
+- [x] (proven) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with whitespace-only string kept prior `displayName` without clearing — **hit 2026-10-06 seed hunt:** `ResolvePatchDisplayName` + repository persistence for explicit clear; regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`; 25 scoped `ScimUsers` unit tests + 5 Api tests passed.
+- [x] (valid-no-repro) `ScimUserService.ListAsync` — negative `count` query clamped in service (`Math.Clamp(count, 0, 200)`); controller forwarding is sufficient for Entra list probes — **cheap-disproof 2026-10-06 seed hunt:** regression `ListAsync_negative_count_clamped_to_empty_page`
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — empty request body reaches `ScimUserResourceParser` and fails closed — **cheap-disproof 2026-10-06 seed hunt:** empty `{}` body throws `ScimUserResourceParseException` before insert; regression `CreateAsync_empty_user_object_throws_parse_exception`
+
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH `remove` on `displayName` may still leave the prior display name because flat-map fallback repopulates the field.
+- [ ] (candidate) `ScimUserResourceParser.ReadOptionalString` — PUT `displayName` with outer whitespace may persist untrimmed strings unlike PATCH trim/clear semantics.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` values above `totalResults` may return confusing `items` pages without SCIM `invalidValue` guidance.
 
 ### Hypotheses
 
@@ -8953,9 +8959,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed→hit): promoted `AuthorizeFilter` platform deletion policy skip gap; proved and fixed; cheap-disproof closed unknown auth scheme and nested `/openapi` skip candidates; reseeded three follow-on candidates below; 72 scoped scope-binding unit tests passed.
 
-- [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — `AuthorizeFilter.AuthorizeData` policy strings that combine multiple policy names may not match the `PlatformTenantDeletionAuthority` literal skip.
-- [ ] (candidate) `ScopeIdentityBindingValidator.Validate` — multiple parseable `tenant_id` claims where `FindFirst` disagrees with a later claim but matches a steering `x-tenant-id` header.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — double-slash or dot-segment normalized health probe paths (e.g. `//health/live`) on staging-like hosts.
+- [x] (valid-no-repro) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — `AuthorizeFilter.AuthorizeData` policy strings that combine multiple policy names may not match the `PlatformTenantDeletionAuthority` literal skip — **cheap-disproof 2026-10-06 seed hunt:** ASP.NET treats `Policy` as a single registered policy name; comma-joined literals are not composite requirements; regression `OnActionExecutionAsync_combined_policy_string_does_not_skip_binding_when_literal_name_differs`
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` — multiple parseable `tenant_id` claims where `FindFirst` disagrees with a later claim but matches a steering `x-tenant-id` header — **cheap-disproof 2026-10-06 seed hunt:** `FindFirst` + header disagreement still rejects; matching header to first claim is consistent with `HttpScopeContextProvider`; regressions `Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim` and `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`
+- [x] (proven) `ScopeResolutionGuardMiddleware.ShouldSkip` — double-slash health probe paths (e.g. `//health/live`) on staging-like hosts — **hit 2026-10-06 seed hunt:** `NormalizeLeadingSlashSegments` before probe segment checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
+
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeLeadingSlashSegments` — dot-segment (`/health/./live`) or backslash-normalized probe paths may still miss public health skip rules.
+- [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` — first `tenant_id` claim unparseable with later parseable claim and matching `x-tenant-id` header may pass `Validate` while scope resolves from header on non-Bearer schemes.
+- [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding.
+
+2026-10-06 seed hunt (seed→hit): promoted double-leading-slash health probe TB-304 gap; proved and fixed; cheap-disproof closed duplicate `tenant_id` and comma-joined policy candidates; reseeded three follow-on candidates; 91 scoped scope-binding unit tests passed.
 
 2026-10-06 seed hunt (seed→hit): promoted lowercase Bearer auth-type TB-072 bypass; proved and fixed; reseeded three follow-on candidates; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
