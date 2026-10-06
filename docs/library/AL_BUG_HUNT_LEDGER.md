@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows (InternalLoopback omitting connect guard by design for SAML/startup probes; DevOps integration 60s timeout not a guard bypass; resilience `MaxRetryAttempts` clamp; ARM retail retry bounded on fixed public authorities; CloudControlPlane pool tuning without tenant URL SSRF surface); regressions in `CoreSafetyNetworkPrivateNetworkThoroughHuntTests`; 32 scoped Core `PrivateNetwork` tests + 5 composition thorough-hunt tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` percent-decode loop, homoglyph inventories, and fragment/query partitioning after consecutive dry hunts; cheap-disproof closed three promotion attempts (percent-encoded `@` in path portion; safe-path `%2F` canonicalization; query `://` substring rejection is intentional whole-string check); no hunt-ready row promoted; seeded four `(candidate)` rows; 142 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows (JSON connect/submit/create `OperationFailed` paths intentionally stderr-only without `ok:true`, parity with patch/admission; JSON whitespace-only `--system-name` caught by `IsNullOrWhiteSpace` preflight; cooperative cancel during MUST `ReadLineAsync` propagates `OperationCanceledException` by design); regressions `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope`, `RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled`, `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true`; seeded five follow-on `(candidate)` rows; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
@@ -21335,9 +21337,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
@@ -21389,11 +21391,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` / integration Polly retries — **cheap-disproof 2026-10-06 thorough hunt:** guarded ITSM clients re-run connect callback on each attempt; retries increase latency on blocked targets without reaching private networks.
 - [x] (valid-no-repro) `OutboundHttpSocketsHandlerProfile.LlmCompletion` / `LlmBatchCompositionModule` — LLM batch HttpClient without connect guard — **cheap-disproof 2026-10-06 thorough hunt:** `AzureOpenAI:Endpoint` is deployment operator configuration (same trust class as choosing storage endpoints), not per-tenant integration URL input guarded by TB-274 integration wiring.
 
-- [ ] (candidate) `OutboundHttpSocketsHandlerProfile.InternalLoopback` / `ConfigureArchLucidOutboundSocketsHandler` — SAML metadata and hosted startup probe `HttpClient` registrations use the InternalLoopback pool profile without `rejectPrivateNetworkConnectEndpoints: true`; reachable input is operator-configured SAML metadata HTTPS URL (preflight URL/DNS policies live outside this zone; connect-time guard is intentionally omitted on loopback-tuned handlers).
-- [ ] (candidate) `OutboundHttpClientTimeoutSeconds.DevOpsIntegration` — ITSM integration factory clients use 60s timeouts while connect guard remains opt-in on `ExternalIntegration` profile; reachable input is slow or hanging TCP to a public hostname that resolves to a private address — longer timeout increases wait, not bypass.
-- [ ] (candidate) `OutboundExternalHttpResilienceOptions.Normalize` — `MaxRetryAttempts` clamps to 10 on integration Polly pipelines stacked atop guarded `HttpClient` handlers; reachable input is repeated connect-time rejection to a forbidden address — retries amplify failure noise without opening a private-network path.
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.Create` — Polly retries `HttpRequestException` including connect faults; ARM/retail factory clients target fixed `ArchLucidAzurePublicHttpClients` authorities, not tenant-supplied integration URLs — retries are not an SSRF bypass class for TB-274.
-- [ ] (candidate) `ArchLucidMultiCloudPublicHttpClients` + `OutboundHttpSocketsHandlerProfile.CloudControlPlane` — AWS/GCP catalog clients omit connect guard while using compile-time public pricing roots (`AwsPricingAuthority`, `GcpCloudBillingAuthority`); not the integration URL SSRF surface covered by #1928.
+- [x] (valid-no-repro) `OutboundHttpSocketsHandlerProfile.InternalLoopback` / `ConfigureArchLucidOutboundSocketsHandler` — SAML metadata and hosted startup probe `HttpClient` registrations use the InternalLoopback pool profile without `rejectPrivateNetworkConnectEndpoints: true` — **valid-no-repro 2026-10-06 thorough hunt:** intentional omission; metadata URL policy is out-of-band; regression `InternalLoopback_profile_registration_omits_private_network_connect_guard_by_design`.
+- [x] (valid-no-repro) `OutboundHttpClientTimeoutSeconds.DevOpsIntegration` — ITSM integration factory clients use 60s timeouts while connect guard remains opt-in on `ExternalIntegration` profile — **valid-no-repro 2026-10-06 thorough hunt:** timeout does not disable `ConnectCallback`; regression `External_integration_long_timeout_still_wires_private_network_connect_guard`.
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions.Normalize` — `MaxRetryAttempts` clamps to 10 on integration Polly pipelines stacked atop guarded `HttpClient` handlers — **valid-no-repro 2026-10-06 thorough hunt:** retries do not bypass connect guard; regression `OutboundExternalHttpResilienceOptions_Normalize_clamps_max_retry_attempts_without_affecting_connect_guard`.
+- [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy.Create` — Polly retries `HttpRequestException` including connect faults — **invalid 2026-10-06 thorough hunt:** fixed public ARM/retail authorities; retry count bounded; regression `AzureRmAndRetailPricesHttpRetryPolicy_max_retries_is_bounded_not_an_ssrf_bypass_vector`.
+- [x] (valid-no-repro) `ArchLucidMultiCloudPublicHttpClients` + `OutboundHttpSocketsHandlerProfile.CloudControlPlane` — AWS/GCP catalog clients omit connect guard while using compile-time public pricing roots — **valid-no-repro 2026-10-06 thorough hunt:** not tenant integration URL SSRF; regression `CloudControlPlane_profile_does_not_imply_private_network_connect_guard_on_pool_settings_only`.
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded outbound-transport candidates; `CoreSafetyNetworkPrivateNetworkThoroughHuntTests`; 37 scoped `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`).
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
 
