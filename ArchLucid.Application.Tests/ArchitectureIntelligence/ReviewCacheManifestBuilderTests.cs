@@ -167,6 +167,61 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_model_alias_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest withoutAlias = CreateRequest("Architecture note.");
+
+        ClosedLoopReasoningRequest emptyAlias = CreateRequest("Architecture note.");
+        emptyAlias.ModelAliasId = string.Empty;
+
+        ReviewCacheManifestBuilder.Build(withoutAlias).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyAlias).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_duplicate_filename_has_different_content()
+    {
+        ClosedLoopReasoningRequest firstBody = CreateRequest("Architecture note.");
+        firstBody.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "architecture.md",
+                ContentType = "text/markdown",
+                Content = "Version one.",
+            },
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "architecture.md",
+                ContentType = "text/markdown",
+                Content = "Version two.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest secondBody = CreateRequest("Architecture note.");
+        secondBody.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "architecture.md",
+                ContentType = "text/markdown",
+                Content = "Version two.",
+            },
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "architecture.md",
+                ContentType = "text/markdown",
+                Content = "Version one.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(firstBody).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(secondBody).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_hash_when_golden_fixture_flag_changes()
     {
         ClosedLoopReasoningRequest withoutGolden = CreateRequest("Architecture note.");

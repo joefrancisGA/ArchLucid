@@ -225,6 +225,41 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
     }
 
     [Fact]
+    public async Task RunAsync_budget_rejection_returns_generated_run_id_when_client_omits_run_id()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-budget-reject-no-run-id",
+            ReviewTier = ArchitectureIntelligenceReviewTier.Trial,
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "huge.md",
+                    ContentType = "text/markdown",
+                    Content = new string('z', 40_000),
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(request);
+
+        request.RunId.Should().BeNull();
+        result.BudgetRejected.Should().BeTrue();
+        result.RunId.Should().NotBeNullOrWhiteSpace();
+        result.Model.Elements.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RunAsync_whitespace_client_run_id_shares_manifest_with_omitted_run_id_and_assigns_fresh_run_id_on_cache_hit()
     {
         ServiceCollection services = new();
