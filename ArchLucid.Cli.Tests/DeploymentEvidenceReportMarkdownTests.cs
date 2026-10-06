@@ -57,4 +57,36 @@ public sealed class DeploymentEvidenceReportMarkdownTests
         sb.ToString().Should().Contain("pilot");
         sb.ToString().Should().Contain("127.0.0.1:5128");
     }
+
+    [Fact]
+    public void Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        for (int index = 0; index < roots.Count; index++)
+        {
+            md.Should().Contain($"{index + 1}. {roots[index]}");
+        }
+
+        md.Should().Contain("metadata composition root");
+        md.Should().Contain(DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+    }
 }

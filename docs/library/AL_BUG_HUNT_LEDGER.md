@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows (lexicographic sort is out-of-repo misuse; report intentionally emits annotated composition/pilot lines verbatim; doc citation is filename-level by design; keyvault/private dual-guard is intentional sync; orchestrator legacy annotation matches apply-saas sequence); regressions `DefaultApplyOrderRoots_leaf_order_differs_from_lexicographic_sort_of_paths`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`; 29 scoped deployment-evidence tests passed; `assert_terraform_root_ordering_sync.py` OK.
+
 2026-10-06 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardIntakeParams`, `resolveInitialReviewsNewActivePath`, specimen preview presentation, and track-stream hooks after picker rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (specimen preview hidden while commit probe pending, strict `baseline=1` match, unrecognized `path=` typo fallback, quick-mode track polling always on, accelerator+preset query precedence); 10 focused vitest files under `reviews/new` passed (steps, query-prefill, path-switcher-state, specimen preview).
 
 2026-10-06 thorough hunt (hit): `cli-draft-new` — proved default `PromptRequiredAsync` spun on stdin EOF and ignored injectable `ReadLineAsync`; routed prompts through `ReadLineAsync` and return `null` on EOF (fail closed in admit stage); cheap-disproof closed api-base-url whitespace (connect fails before create), answer-path scope parity (regression added), patch `ExpectedUpdatedUtc` race (operational); regressions `PromptRequiredAsync_returns_null_when_read_line_returns_null`, `RunCoreAsync_prompted_system_name_when_read_line_eof_returns_operation_failed`, `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create`, `RunCoreAsync_draft_scope_mismatch_after_answer_must_question_returns_operation_failed`; 32 scoped `DraftNewCommandCoreTests` passed.
@@ -7676,9 +7678,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -7692,11 +7694,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed-only): re-read `DeploymentEvidenceTerraformReference` after technology-ledger dry streak rotation; seeded five new `(candidate)` rows; 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed.
 
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — lexicographic sort of the twenty evidence lines would move bare `infra/terraform` ahead of longer `infra/terraform-*` siblings and break hosted wave ordering — reachable when operators export deployment-evidence Markdown paths into spreadsheet tools that auto-sort rows (out-of-repo consumer misuse).
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown` — numbered list includes metadata-only composition/pilot lines interleaved with executable leaves; automation that drops lines containing `metadata composition root` may remove composition waves while leaving pilot/orchestrator annotations — reachable via `foreach` over `DefaultApplyOrderRoots()` in `DeploymentEvidenceReportMarkdown`.
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — filename-only citation cannot deep-link to per-root rows in `REFERENCE_SAAS_STACK_ORDER.md`; table row moves without renaming the file leave evidence citations pointing at stale guidance — reachable from report backtick citation in `DeploymentEvidenceReportMarkdown`.
-- [ ] (candidate) `DefaultApplyOrderRoots` — `infra/terraform-keyvault` vs `infra/terraform-private` ordering is guarded by both `apply-saas.ps1` sync and `REFERENCE_SAAS_STACK_ORDER.md` advanced-table regressions; editing only one source may yield confusing partial failures — reachable when hosted foundation wave order changes in `infra/apply-saas.ps1`.
-- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator line annotates `-LegacyLeafRoots` isolation while the same root remains in default `$multiRootSequence`; deployment-evidence readers may assume orchestrator is excluded from hosted validate — reachable from annotated orchestrator string in static evidence list.
+2026-10-06 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; no failing repro; 29 scoped deployment-evidence tests passed; python ordering guard OK.
+
+- [x] (invalid) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — lexicographic sort would break hosted wave ordering — **cheap-disproof 2026-10-06 thorough hunt:** authoritative order is fixed sequence synced to `apply-saas.ps1`; out-of-repo spreadsheet sorting is operator misuse, not an in-repo defect; regression `DefaultApplyOrderRoots_leaf_order_differs_from_lexicographic_sort_of_paths`.
+- [x] (invalid) `DeploymentEvidenceReportMarkdown` — automation dropping metadata annotation lines — **cheap-disproof 2026-10-06 thorough hunt:** report intentionally lists every `DefaultApplyOrderRoots()` line verbatim for human auditors; no in-repo consumer filters composition annotations; regression `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — filename-only citation without per-root anchors — **cheap-disproof 2026-10-06 thorough hunt:** evidence report cites the authoritative reference doc path by design; row-level sync is enforced by `DefaultApplyOrderRoots_leaf_sequence_matches_reference_doc_advanced_table` and apply-saas regressions, not Markdown anchors.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — `infra/terraform-keyvault` vs `infra/terraform-private` dual-guard partial failures — **cheap-disproof 2026-10-06 thorough hunt:** intentional triple sync (C# constant, `apply-saas.ps1`, reference advanced table); partial edits fail CI by design via existing leaf-sequence regressions, not a product bug.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — orchestrator legacy annotation vs `$multiRootSequence` membership — **cheap-disproof 2026-10-06 thorough hunt:** annotation documents `-LegacyLeafRoots` semantics; `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` and `DefaultApplyOrderRoots_lists_orchestrator_only_once_as_legacy_leaf` prove orchestrator remains in the canonical sequence by design.
 
 2026-10-06 seed hunt (seed-only): reread static apply-order constant, Markdown report consumer, and live `apply-saas.ps1` / pilot / reference-doc sync regressions; cheap-disproof closed four open interpretation candidates; seeded five bounded `(candidate)` rows below. 25 scoped tests passed.
 
