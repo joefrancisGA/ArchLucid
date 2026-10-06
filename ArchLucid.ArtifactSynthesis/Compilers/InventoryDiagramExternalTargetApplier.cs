@@ -448,7 +448,9 @@ internal static class InventoryDiagramExternalTargetApplier
 
             foreach (JsonElement item in document.RootElement.EnumerateArray())
             {
-                if (!item.TryGetProperty("properties", out JsonElement properties)
+                if (item.ValueKind is not JsonValueKind.Object
+                    || !item.TryGetProperty("properties", out JsonElement properties)
+                    || properties.ValueKind is not JsonValueKind.Object
                     || !properties.TryGetProperty("privateLinkServiceId", out JsonElement target)
                     || target.ValueKind is not JsonValueKind.String)
                 {
