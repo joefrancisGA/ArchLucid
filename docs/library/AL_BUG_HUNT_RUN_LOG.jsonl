@@ -8765,4 +8765,5 @@
 {"at":"2026-10-06T09:41:43.4455311Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx"]}
 {"at":"2026-10-06T09:44:25.6104744Z","zoneId":"ui-runs-list","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx"]}
 {"at":"2026-10-06T09:50:48.2115616Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared"}
-{"at":"2026-10-06T10:03:56.9473210Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-06T10:03:56.947321Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-06T10:13:33.7724642Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}

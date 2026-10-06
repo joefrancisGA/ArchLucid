@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `saml-jwt-bearer` — duplicate direct SAML `oid` claims left ambiguous directory keys (`FindFirst` order) before cookie persistence; dedupe `oid` after GUID scope dedupe; regressions `Apply_collapses_duplicate_direct_oid_claims_with_same_value` and `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`; 73 scoped SAML/JWT/SCIM bearer tests passed (3 SQL-backed integration tests unavailable).
+
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` used ordinal `Bearer` match so principals with lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation and accepted hostile `x-tenant-id`; match ApiKey/Bearer/SCIM/SAML scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type`, `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`, and `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path` (cheap-disproof); 84 scoped Api unit tests passed (6 SQL integration tests unavailable).
 
 2026-10-06 thorough hunt (dry): `core-authority-runs` — cheap-disproof closed four open `(candidate)` rows (Committed without manifest → NotStarted by design + SQL CHECK; UTF-8 BOM dead-letter reject #1203; fractional `"5.0"` ordinal parse for in-memory callers only; unparseable legacy + golden manifest → InProgress progress-marker branch); regressions `TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal` and `ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only`; 44 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
@@ -9076,11 +9078,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 18
-- **bugs-found:** 17
+- **hunts:** 19
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — duplicate direct SAML `tenant_id` claims not collapsed before cookie persistence
+- **last-bug:** 2026-10-06 — duplicate direct SAML `oid` claims not collapsed before cookie persistence
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9145,6 +9147,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 thorough hunt (hit): promoted duplicate direct SAML `tenant_id` candidate; dedupe canonical GUID scope claims after inbound promotion; cheap-disproof closed trial JWT `auth_time`/`iat` claim-type parity; 24 scoped SAML/JWT/SCIM bearer tests passed.
 
 - [x] (proven) `ArchLucidSamlInboundClaimsNormalizer` — duplicate canonical `tenant_id` claims emitted directly by the IdP were never collapsed before cookie persistence — **hit 2026-10-06 thorough hunt:** `DeduplicateCanonicalGuidScopeClaims` after promotion; regressions `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid` and `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`
+
+- [x] (proven) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `oid` claims left ambiguous directory keys for `RoleSyncService.TryDirectoryObjectKey` before cookie persistence — **hit 2026-10-06 seed hunt:** `DeduplicateCanonicalOidClaim` after GUID scope dedupe; regressions `Apply_collapses_duplicate_direct_oid_claims_with_same_value` and `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
+
+- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `workspace_id` / `project_id` claims may still surface when values differ only by GUID format (`N` vs `D`) before `DeduplicateCanonicalGuidScopeClaims` normalizes.
+- [ ] (candidate) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — `auth_time` claims using `ClaimValueTypes.Integer64` (JWT handler shape) vs string-encoded epoch seconds on cookie principals.
+- [ ] (candidate) `RoleSyncService.TryDirectoryObjectKey` — duplicate long-form `objectidentifier` URI claims with conflicting values when short `oid` is absent.
+
+2026-10-06 seed hunt (seed→hit): promoted duplicate direct SAML `oid` claims; proved and fixed; reseeded three follow-on candidates; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
 - [x] (valid-no-repro) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` string claim type vs `iat` `Integer64` on trial JWTs — **cheap-disproof 2026-10-06 thorough hunt:** `RecentAuthenticationEvaluator` parses epoch seconds from JWT round-tripped `auth_time`/`iat` pair; regression `HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`
 
 2026-10-05 seed hunt (seed→hit): reseeded SAML sign-in audit multi-`tenant_id` aggregation gap; proved and fixed; added inbound normalizer duplicate-canonical-tenant and trial JWT claim-type candidates.

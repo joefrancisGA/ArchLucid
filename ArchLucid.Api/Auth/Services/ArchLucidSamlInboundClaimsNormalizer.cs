@@ -40,6 +40,7 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
         PromoteSingleValueIfMissing(identity, options.DirectoryObjectIdClaimType, "oid");
 
         DeduplicateCanonicalGuidScopeClaims(identity);
+        DeduplicateCanonicalOidClaim(identity);
     }
 
     internal static bool IsSaml2AuthenticatedIdentity(ClaimsIdentity identity)
@@ -148,5 +149,29 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
             return;
 
         identity.AddClaim(new Claim(claimType, distinctParseable[0].ToString("D")));
+    }
+
+    private static void DeduplicateCanonicalOidClaim(ClaimsIdentity identity)
+    {
+        List<Claim> existing = identity.Claims
+            .Where(c => string.Equals(c.Type, "oid", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (existing.Count <= 1)
+            return;
+
+        List<string> distinctValues = existing
+            .Select(static c => c.Value.Trim())
+            .Where(static value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (Claim claim in existing)
+            identity.RemoveClaim(claim);
+
+        if (distinctValues.Count != 1)
+            return;
+
+        identity.AddClaim(new Claim("oid", distinctValues[0]));
     }
 }
