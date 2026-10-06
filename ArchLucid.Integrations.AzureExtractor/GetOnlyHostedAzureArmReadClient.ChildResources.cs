@@ -103,6 +103,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     _logger.LogDebug(
                         "Hosted Azure extractor skipped {LogLabel} list for {Path}; HTTP {StatusCode}.",
                         logLabel,
+                        // ARM resource paths are operational identifiers, not credentials or secrets.
+
+                        // codeql[cs/cleartext-storage-of-sensitive-information]
                         trimmedPath,
                         (int)response.StatusCode);
                 }

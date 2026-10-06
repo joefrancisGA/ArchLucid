@@ -63,6 +63,10 @@ public static class DrawIoXmlPayloadExpander
 
         try
         {
+            // DTDs and external entities are prohibited; schema validation is not applicable to
+            // draw.io's user-provided document because the sanitizer extracts only mxfile content.
+
+            // codeql[cs/xml/missing-validation]
             using XmlReader reader = XmlReader.Create(new StringReader(normalized), SafeXmlReaderSettings);
             XDocument document = XDocument.Load(reader, LoadOptions.None);
             XElement? mxFile = document.Root;
