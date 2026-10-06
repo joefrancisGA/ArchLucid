@@ -17,16 +17,23 @@ public sealed class DapperPlatformAuditRepository(ISqlConnectionFactory connecti
         ArgumentNullException.ThrowIfNull(auditEvent);
 
         const string sql = """
-                           INSERT INTO dbo.PlatformAuditEvents (
-                               EventId, OccurredUtc, EventType,
-                               ActorUserId, ActorUserName,
-                               SubjectTenantId, DataJson, CorrelationId
+                           IF NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.PlatformAuditEvents WITH (UPDLOCK, HOLDLOCK)
+                               WHERE EventId = @EventId
                            )
-                           VALUES (
-                               @EventId, @OccurredUtc, @EventType,
-                               @ActorUserId, @ActorUserName,
-                               @SubjectTenantId, @DataJson, @CorrelationId
-                           );
+                           BEGIN
+                               INSERT INTO dbo.PlatformAuditEvents (
+                                   EventId, OccurredUtc, EventType,
+                                   ActorUserId, ActorUserName,
+                                   SubjectTenantId, DataJson, CorrelationId
+                               )
+                               VALUES (
+                                   @EventId, @OccurredUtc, @EventType,
+                                   @ActorUserId, @ActorUserName,
+                                   @SubjectTenantId, @DataJson, @CorrelationId
+                               );
+                           END;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
