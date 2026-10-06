@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (hit): `saml-jwt-bearer` — `RoleSyncService.TryDirectoryObjectKey` used `FindFirst` on long-form `objectidentifier` when `oid` was absent, binding SCIM role override to the first of conflicting URI claims; require exactly one distinct non-empty value; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`; cheap-disproof closed duplicate `workspace_id`/`project_id` GUID `N` vs `D` format (`Apply_collapses_duplicate_direct_workspace_id_claims_when_values_differ_only_by_guid_format`, `Apply_collapses_duplicate_direct_project_id_claims_when_values_differ_only_by_guid_format`) and cookie `auth_time` `ClaimValueTypes.Integer64` (`HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal`, `TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat`); 77 scoped SAML/JWT/SCIM bearer unit tests passed (3 SQL integration tests unavailable); 5 RoleSyncService tests passed.
+
 2026-10-06 seed hunt (seed→hit): `saml-jwt-bearer` — duplicate direct SAML `oid` claims left ambiguous directory keys (`FindFirst` order) before cookie persistence; dedupe `oid` after GUID scope dedupe; regressions `Apply_collapses_duplicate_direct_oid_claims_with_same_value` and `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`; 73 scoped SAML/JWT/SCIM bearer tests passed (3 SQL-backed integration tests unavailable).
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` used ordinal `Bearer` match so principals with lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation and accepted hostile `x-tenant-id`; match ApiKey/Bearer/SCIM/SAML scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type`, `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`, and `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path` (cheap-disproof); 84 scoped Api unit tests passed (6 SQL integration tests unavailable).
@@ -9078,11 +9080,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 19
-- **bugs-found:** 18
+- **hunts:** 20
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — duplicate direct SAML `oid` claims not collapsed before cookie persistence
+- **last-bug:** 2026-10-06 — conflicting long-form `objectidentifier` claims bound SCIM directory key via `FindFirst`
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9150,9 +9152,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `oid` claims left ambiguous directory keys for `RoleSyncService.TryDirectoryObjectKey` before cookie persistence — **hit 2026-10-06 seed hunt:** `DeduplicateCanonicalOidClaim` after GUID scope dedupe; regressions `Apply_collapses_duplicate_direct_oid_claims_with_same_value` and `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
 
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `workspace_id` / `project_id` claims may still surface when values differ only by GUID format (`N` vs `D`) before `DeduplicateCanonicalGuidScopeClaims` normalizes.
-- [ ] (candidate) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — `auth_time` claims using `ClaimValueTypes.Integer64` (JWT handler shape) vs string-encoded epoch seconds on cookie principals.
-- [ ] (candidate) `RoleSyncService.TryDirectoryObjectKey` — duplicate long-form `objectidentifier` URI claims with conflicting values when short `oid` is absent.
+- [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `workspace_id` / `project_id` claims may still surface when values differ only by GUID format (`N` vs `D`) before `DeduplicateCanonicalGuidScopeClaims` normalizes — **cheap-disproof 2026-10-06 thorough hunt:** `DeduplicateCanonicalGuidScopeClaim` parses GUIDs and emits canonical `D` format; regressions `Apply_collapses_duplicate_direct_workspace_id_claims_when_values_differ_only_by_guid_format` and `Apply_collapses_duplicate_direct_project_id_claims_when_values_differ_only_by_guid_format`
+- [x] (valid-no-repro) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — `auth_time` claims using `ClaimValueTypes.Integer64` (JWT handler shape) vs string-encoded epoch seconds on cookie principals — **cheap-disproof 2026-10-06 thorough hunt:** `long.TryParse` on `Claim.Value` handles `Integer64` value type; regressions `HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal` and `TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat`
+- [x] (proven) `RoleSyncService.TryDirectoryObjectKey` — duplicate long-form `objectidentifier` URI claims with conflicting values when short `oid` is absent — **hit 2026-10-06 thorough hunt:** `FindFirst` returned attacker-controlled first value; require exactly one distinct non-empty long-form claim; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`
 
 2026-10-06 seed hunt (seed→hit): promoted duplicate direct SAML `oid` claims; proved and fixed; reseeded three follow-on candidates; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
 - [x] (valid-no-repro) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` string claim type vs `iat` `Integer64` on trial JWTs — **cheap-disproof 2026-10-06 thorough hunt:** `RecentAuthenticationEvaluator` parses epoch seconds from JWT round-tripped `auth_time`/`iat` pair; regression `HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`
