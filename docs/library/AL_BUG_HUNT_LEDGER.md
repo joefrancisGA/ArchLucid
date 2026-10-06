@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-data-export` — promoted terraform advisory career-posture parity; proved `DownloadTerraformAdvisoryExport` / `CreateTerraformPr` omitted `ResolveRunExportCareerPostureBlockedResultAsync` while run ZIP download and blob push enforced `AuditExportCareerPostureGate`; aligned terraform paths; regressions `DownloadTerraformAdvisoryExport_returns_409_when_working_career_simulator_unlabeled` and `CreateTerraformPr_returns_409_when_working_career_simulator_unlabeled`; seeded five follow-on `(candidate)` rows; 17 `ArtifactExportControllerRunExportTests` + 8 picker-filter export tests passed.
+
 2026-10-06 thorough hunt (dry): `worker-host` — cheap-disproof closed four seeded `(candidate)` rows (Pilot/SaaS overlay regression gaps closed with parity tests; post-`Build()` `CollectErrors` vs `IValidateOptions` drift not reproduced—worker pre-`Build()` `ValidateOrThrow` uses same `CollectErrors` and existing fail-fast tests cover options resolution; schema bootstrap before health pipeline remains intentional liveness semantics); regressions `Worker_host_loads_appsettings_saas_overlay_from_content_root`, `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root`; 14 scoped worker host/composition tests passed.
 
 2026-10-06 thorough hunt (dry): `sql-run-repository` — cheap-disproof closed five seeded `(candidate)` rows (project-list/graph/committed slug seeks symmetric with InMemory `AuthorityProjectSlugMatches` without `Require*` trim; operator-governance `OccurredUtc` kind passed through while production caller supplies UTC; archive-by-id tenant-catalog exemption scoped at API); regressions `ForProjectList_preserves_tab_prefix_in_normalized_slug_like_in_memory_list_filter`, `InMemory_list_by_project_does_not_match_tab_prefixed_seek_when_stored_slug_is_unpadded`, `ForOperatorGovernanceDisposition_passes_occurred_utc_kind_through_unchanged`; 136 scoped zone tests passed (1 SQL integration skipped).
@@ -9302,6 +9304,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-10-06 seed hunt (seed→hit): re-read export controllers after lifecycle parity wave; promoted terraform advisory career-posture gap; proved and fixed; seeded RunArtifacts career parity and CLI boolean edge candidates below; 25 scoped export controller tests passed.
+
 2026-10-05 thorough hunt (hit): promoted `RunArtifacts` lifecycle parity candidate; proved `ListArtifactsForRun` / `DownloadBundleForRun` / `DownloadArtifactForRun` and manifest-scoped artifact routes returned descriptors or bytes after sealed-hash guard while blob push and run ZIP export rejected lifecycle-incomplete runs; added `EnsureAuthorityLifecycleCompleteOrConflict` on all `ArtifactExportController.RunArtifacts` paths; regression `ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed `VerifyRunExportLineage` (read-only hash/anchor verification, not byte export), `GetRunExportHistory` lifecycle gap (facade `TryEnsureExportRunLifecycleCompleteAsync` already enforced), Mermaid pre-build branch (lifecycle preflight now precedes optional PNG render), and `ArchitectureExportController` summary export (`RunSummaryOnePagerExportService` enforces `AuthorityLifecycleCompareExportGuard`); 24 scoped artifact export controller tests passed.
 
 2026-10-05 seed hunt (seed→hit): reseeded run ZIP download lifecycle parity; proved `DownloadRunExport` returned ZIP after sealed-hash guard while `PushRunExportToBlob` rejected lifecycle-incomplete runs via `EnsureAuthorityLifecycleCompleteOrConflict`; aligned ZIP download with blob-push lifecycle preflight; regression `DownloadRunExport_returns_409_when_authority_lifecycle_not_complete`; 21 scoped `ArtifactExportController` export tests passed.
@@ -11113,11 +11117,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 939
-- **bugs-found:** 50
+- **hunts:** 940
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — run artifact bundle/list/download omitted authority lifecycle Complete guard
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — terraform advisory export/PR omitted career artifact honesty gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11231,6 +11235,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArtifactExportController.RunArtifacts` download/list paths — sealed-hash guard only — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs listed or downloaded artifacts while run ZIP export returned 409; regressions `ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete` and `DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete`.
 - [x] (valid-no-repro) `ArchitectureExportController.ExportRunSummary` — controller sealed-hash only — **cheap-disproof 2026-10-05 thorough hunt:** `RunSummaryOnePagerExportService.GenerateMarkdownAsync` calls `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` before building markdown; controller maps `ConflictException` to 409.
+
+- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `ResolveRunExportCareerPostureBlockedResultAsync` while `DownloadRunExport` and `PushRunExportToBlob` enforce `AuditExportCareerPostureGate` — **hit 2026-10-06 seed hunt:** working-career simulator runs downloaded advisory ZIP or opened Terraform PR while sibling run export paths returned career-blocked 409; regressions `DownloadTerraformAdvisoryExport_returns_409_when_working_career_simulator_unlabeled` and `CreateTerraformPr_returns_409_when_working_career_simulator_unlabeled`.
+
+2026-10-06 seed hunt (seed-only): re-read `ArtifactExportController` run export, terraform advisory, and `ExportBundleCareerPostureResolver` after lifecycle parity wave; promoted and proved terraform career-posture gap in same run; seeded five `(candidate)` rows below for follow-on thorough hunts. 25 scoped export controller tests passed.
+
+- [ ] (candidate) `ArtifactExportController.RunArtifacts` (`ListArtifactsForRun` / `DownloadBundleForRun` / `DownloadArtifactForRun`) — lifecycle and sealed-hash guards without `ResolveRunExportCareerPostureBlockedResultAsync`; reachable when operators list or download manifest artifact bundles for working-career simulator runs that run ZIP export already blocks.
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string `"1.0"` / `"1"` for `is_sample_run` / `is_demo_tenant` in CLI `pilot-run-deltas.json` may bypass sample-workspace block while numeric `1` / `1.0` already block; reachable from `ExportBundleCareerPostureResolver.ResolveFromDeltasJson` proof-packet bundling.
+- [ ] (candidate) `ArtifactExportController.ListArtifacts` / `GetArtifactDescriptor` (manifest-id routes) — sealed-hash and lifecycle on manifest compare path but no career posture gate; reachable when signed-review-record artifact metadata is listed for career-blocked runs in the same scope.
+- [ ] (candidate) `ExportsController.CompareExportRecordsSummary` — persists markdown diff summary after sealed-manifest guards on export-record ids without re-checking career artifact honesty on the underlying run; reachable when operators persist comparison summaries for export records tied to sample-workspace runs (metadata mutation vs byte export).
+- [ ] (candidate) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — accepts `https://account.blob.core.windows.net/` hosts with percent-encoded userinfo or `@` credential segments that `Uri.TryCreate` normalizes before `EmbeddedCredentialUrlGuard` runs; reachable on `POST .../export/push` when attackers supply obfuscated destination SAS URLs.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
