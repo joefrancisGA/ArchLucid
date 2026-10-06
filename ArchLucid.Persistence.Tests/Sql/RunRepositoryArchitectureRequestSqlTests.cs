@@ -113,6 +113,13 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters()
+    {
+        RunRepositorySql.ExistsRunForArchitectureRequestInScope.Should().NotContain("@FailedStatus");
+        RunRepositorySql.ExistsRunForArchitectureRequestInScope.Should().NotContain("@QualityRejectedStatus");
+    }
+
+    [Fact]
     public void SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc()
     {
         RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read list vs detail connection routing, archival purge batch, governance rationale binds, existence vs representative SQL, and NOLOCK list shapes; cheap-disproof closed five stale `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters` and `Run_detail_read_shapes_include_warning_flags_and_governance_columns` (NOLOCK guard); 137 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after three consecutive dry hunts; cheap-disproof closed NBSP-vs-space promotion (whitespace normalization matches tab/space parity) and whitespace-only chosen-name suppression (distinct display names still insert); closed stale duplicate open `(candidate)` rows superseded by 2026-10-06 thorough hunt entries; seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators` and `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `ui-auth-proxy` — cheap-disproof closed five seeded `(candidate)` rows (bootstrap workspace 403 maps to generic failure by intentional LK-07 fail-closed; accept/select `null` collapse is conservative bootstrap UX; access-request `false` on 403 is silent by design; trial/local routes absent from allowlist with no `lib/auth` caller; invitation validate generic throw pairs with invite recovery — stale BFF does not block validate GET per `proxy-route-pre-auth-anonymous.test.ts`); regressions in `post-auth-bootstrap-api.test.ts`, `invitation-validation-api.test.ts`, and `proxy-anonymous-marketing-paths.test.ts`; scoped auth/proxy vitest 351 passed with 3 unrelated baseline seam failures.
@@ -5774,14 +5776,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
-2026-10-06 seed hunt (seed-only): graph-at-time tab-prefix bind parity; seeded five candidates; 137 scoped tests (1 skipped).
+2026-10-06 seed hunt (seed-only): re-read connection factories, archival purge, governance binds, and existence/representative SQL shapes; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions `ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters` and NOLOCK guard on `SelectByScopedId` in `HotPathRelationalQueryShapeTests`; 137 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
+
+- [ ] (candidate) `GetLatestWithGraphAtOrBeforeAsync` (`SqlRunRepository.Query.GraphAtTime.cs`) — uses primary `ISqlConnectionFactory` while `ListByProjectAsync` / `ListRecentInScopeAsync` route through `IAuthorityRunListConnectionFactory` (optional read replica per `ReadReplicaQueryRoute.AuthorityRunList`); reachable under read scale-out when dashboard lists lag but graph-at-time reads primary.
+- [ ] (candidate) `CountActiveRunsForArchitectureRequestAsync` — SQL treats `LegacyRunStatus IS NULL` as active occupancy alongside non-terminal statuses; reachable when migration rows with NULL status retain concurrency slots unlike committed/failed/rejected terminals (`CountActiveRunsForArchitectureRequest` shape).
+- [ ] (candidate) `ClearGraphSnapshotForArchitecture` — returns silently when `architectureId == Guid.Empty` without throwing; reachable when callers pass default GUID after failed parse upstream.
+- [ ] (candidate) `ExistsRunForArchitectureRequestInScope` — includes archived rows by design (`ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design`); reachable when UI treats existence as “active request still open” without a separate archived filter.
+- [ ] (candidate) `SelectLatestCommittedRunIdByManifestCreatedUtc` / list-by-project NOLOCK shapes — hot list reads tolerate dirty reads while committed manifest lookups use `GoldenManifests` NOLOCK joins; reachable when concurrent finalize/archive reorders manifest `CreatedUtc` vs run list ordering during dashboard refresh.
+
+- [x] (valid-no-repro) `SqlRunRepository.List` vs `GetByIdAsync` connection routing — **valid-no-repro 2026-10-06 seed hunt:** intentional read-replica routing for authority run lists (`AuthorityRunListConnectionFactoryTests`); detail reads stay on primary for correctness; transient list/detail mismatch is deployment topology, not normalization drift.
+- [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` — **valid-no-repro 2026-10-06 seed hunt:** tenant-catalog `dbo.Archival_PurgeStaleUncommittedRunsBatch` intentionally spans workspaces; regression `Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs`.
+- [x] (valid-no-repro) `ForArchitectureRequestScopeExists` shared parameter bag — **valid-no-repro 2026-10-06 seed hunt:** existence SQL omits dead-letter status filters while representative SQL consumes `@FailedStatus` / `@QualityRejectedStatus`; regression `ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters`.
+- [x] (valid-no-repro) `RunRecordParameters.ForOperatorGovernanceDisposition` rationale trimming — **valid-no-repro 2026-10-06 seed hunt:** buyer-visible rationale stored verbatim by contract; regression `ForOperatorGovernanceDisposition_stores_the_rationale_verbatim`.
+- [x] (valid-no-repro) `HotPathRelationalQueryShapes` list NOLOCK vs `SelectByScopedId` — **valid-no-repro 2026-10-06 seed hunt:** dashboard lists tolerate dirty reads; scoped detail reads omit `NOLOCK`; regression `Run_detail_read_shapes_include_warning_flags_and_governance_columns`.
 
 - [x] (valid-no-repro) `RunListQueryParameters.ForLatestGraphAtOrBefore` — tab-prefixed `authorityProjectSlug` might strip tabs unlike committed/list SQL binds — **cheap-disproof 2026-10-06 seed hunt:** normalize-only bind preserves `\t` like `ForLatestCommittedByManifestCreatedUtc`; regression `ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks`.
-- [ ] (candidate) `SqlRunRepository.List` — `ListByProjectAsync` / `ListRecentInScopeAsync` use `IAuthorityRunListConnectionFactory` while `GetByIdAsync` uses `ISqlConnectionFactory`; reachable when read-scale-out routes list queries to a lagging replica and detail reads hit primary — dashboard list vs run detail transient mismatch, not normalization parity.
-- [ ] (candidate) `SqlRunRepository.Write.Purge.HardDeleteStaleUncommittedRunsBatchAsync` — invokes `dbo.Archival_PurgeStaleUncommittedRunsBatch` without `ScopeContext` workspace/project predicates; reachable from tenant-catalog retention jobs purging stale drafts across workspaces in one batch.
-- [ ] (candidate) `SqlRunRepository.Query.ScopeExistence.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` — binds `RunListQueryParameters.ForArchitectureRequestScopeExists` while executing `SelectRepresentativeRunIdForArchitectureRequestInScope`; unused `FailedStatus` / `QualityRejectedStatus` properties on the Dapper bag — maintenance hazard if existence SQL gains predicates representative SQL does not share.
-- [ ] (candidate) `RunRecordParameters.ForOperatorGovernanceDisposition` — `Rationale` is passed through without `.Trim()` while `Decision` and `ActorUserId` trim; reachable when operators paste governance notes with accidental leading/trailing spaces into `TrySetOperatorGovernanceDispositionAsync`.
-- [ ] (candidate) `HotPathRelationalQueryShapes` — project/recent list shapes use `WITH (NOLOCK)` while scoped `SelectByScopedId` does not; reachable under concurrent archive/update when dashboard lists show rows detail get-by-id no longer returns in the same snapshot.
 
 - **id:** sql-run-repository
 - **status:** open
@@ -5789,13 +5798,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-27 — SQL scope seeks skipped `Require*` before normalize so tab-prefixed ids diverged from InMemory
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 
 2026-09-27 seed hunt (seed→hit): reseeded sql-run-repository after LTRIM/RTRIM edge parity; proved `RunListQueryParameters` bound `@NormalizedArchitectureRequestId` / `@NormalizedSystemName` via `Normalize*` alone while InMemory paths use `RequireArchitectureRequestId` / `RequireSystemName` (Unicode trim) first, so tab-prefixed seeks missed active-run / existence / workspace collision SQL matches that InMemory counted; fixed parameter builders to require-then-normalize; regressions `ForActiveRunCountByArchitectureRequest_normalizes_tab_prefixed_seek_like_in_memory_require` and `ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require`; 158 scoped zone tests passed (1 SQL integration skipped).

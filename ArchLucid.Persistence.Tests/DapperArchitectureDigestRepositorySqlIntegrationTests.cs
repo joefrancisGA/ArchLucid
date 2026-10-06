@@ -18,7 +18,7 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperArchitectureDigestRepository repository = new(factory, new EmptyPersistenceScopeContextProvider());
+        DapperArchitectureDigestRepository repository = new(factory);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

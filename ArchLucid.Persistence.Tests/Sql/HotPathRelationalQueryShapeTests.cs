@@ -278,6 +278,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Run_detail_read_shapes_include_warning_flags_and_governance_columns()
     {
+        RunRepositorySql.SelectByScopedId.Should().NotContain("WITH (NOLOCK)");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectCoreColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
