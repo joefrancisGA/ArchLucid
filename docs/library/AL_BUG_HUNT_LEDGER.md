@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read pre-auth invitation validate, email-OTP post-auth routing, bootstrap access-request, and proxy host gate after thorough dry emptied open rows; cheap-disproof closed promotion attempt (stale operator scope on `validateInvitationToken` does not change validation outcome — `UserInvitationPublicController` is `[AllowUnscopedRoute]` token-only); seeded five `(candidate)` rows; regressions in `invitation-validation-api.test.ts` and `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 335 passed with 3 unrelated baseline seam failures.
+
 2026-10-06 thorough hunt (dry): `ui-auth-proxy` — cheap-disproof closed five seeded `(candidate)` rows (bootstrap `returnUrl` sanitized in `PostAuthBootstrapClient` before API helpers; CSRF pair desync on bootstrap POST is intentional LK-07 403; diagnostics allowlist gap is process-only while signed-in nudge telemetry uses `mergeRegistrationScopeForProxy`; pre-auth routing evaluate omits browser scope headers by design); regressions in `PostAuthBootstrapClient.test.tsx`, `auth-sign-in-routing-api.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-anonymous-marketing-paths.test.ts`; scoped auth/proxy vitest 333 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read post-auth bootstrap scope helper and LK-07 guard on diagnostics allowlist after Oct 5 hit wave; cheap-disproved `mergeRegistrationScopeForProxy` GET/POST CSRF contract and active-session `first-tenant-funnel` CSRF skip (intentional anonymous diagnostics class); no hunt-ready row promoted; seeded five `(candidate)` rows; scoped auth/proxy vitest 331 passed with 3 unrelated baseline seam failures.
@@ -11898,13 +11900,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read invitation validate scope forwarding vs routing evaluate parity, email-OTP `nextStep` default branch, split-site proxy host gate, pre-auth OTP 403 mapping, and bootstrap access-request status contract; cheap-disproof closed stale-scope-on-validate wrong-outcome promotion (`AllowUnscopedRoute` token-only API); seeded five bounded candidates below; regressions in `invitation-validation-api.test.ts` and `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 335 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 thorough hunt (dry): cheap-disproved all five open `(candidate)` rows — bootstrap chrome uses `resolveSafeReturnPath` before `post-auth-bootstrap-api` calls and API `SanitizeReturnPath` is server fail-closed; missing readable CSRF with active HttpOnly session on `v1/auth/bootstrap/workspaces` is intentional LK-07 (not pair-desync defect); exact diagnostics allowlist is process risk only (`trial-upgrade-nudge` uses `mergeRegistrationScopeForProxy` with CSRF); pre-auth `evaluateAuthSignInRouting` intentionally omits browser scope headers unlike bootstrap clients; regressions in `PostAuthBootstrapClient.test.tsx`, `auth-sign-in-routing-api.test.ts`, `proxy-bff-session-guard.test.ts`, and `proxy-anonymous-marketing-paths.test.ts`; scoped auth/proxy vitest 333 passed with 3 unrelated baseline seam failures.
 
@@ -11929,6 +11933,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `validateInvitationToken` / `mergeRegistrationScopeForProxy` — **valid-no-repro 2026-10-06 seed hunt:** stale `archlucid_operator_scope_v1` scope headers are forwarded on `GET /api/proxy/v1/auth/invitations/validate` (unlike `evaluateAuthSignInRouting`), but `UserInvitationPublicController.ValidateAsync` is `[AllowUnscopedRoute]` and validates the query token only — no wrong validation outcome today; regressions `invitation-validation-api.test.ts` and `proxy-upstream-headers.test.ts`.
+
+- [ ] (candidate) `validateInvitationToken` — `mergeRegistrationScopeForProxy` on pre-auth `GET /v1/auth/invitations/validate` forwards stale browser scope while `auth-sign-in-routing-api.ts` omits scope headers; reachable on `/auth/invite` with prior tenant scope in localStorage; harm requires a future API handler that binds scope on the validate route without `[AllowUnscopedRoute]`.
+- [ ] (candidate) `resolveEmailOtpPostAuthPath` (`email-otp-post-auth.ts`) — `default` branch returns `safeReturn` for unknown `nextStep` strings from `POST /v1/auth/email-otp/verify`; reachable when OpenAPI adds a new bootstrap step before the UI `switch` maps it (skips `/auth/bootstrap` handoff).
+- [ ] (candidate) `proxy.ts` / `decideHostGateRedirect` — explicit `/api/proxy/:path*` matcher runs split-site host gate before the route handler; reachable when marketing vs app origins diverge (`isSplitSiteHostingEnabled`) and a browser issues `/api/proxy/*` on the wrong host (307 redirect may drop same-origin cookie semantics).
+- [ ] (candidate) `email-otp-api.ts` `mapStatusToFailureCategory` — pre-auth `POST /v1/auth/email-otp/*` relies on `isPublicAnonymousProxyPath`; proxy 403 from active BFF session without CSRF maps to `unknown` rather than prompting cookie clear; reachable if a new `[AllowAnonymous]` auth route ships without allowlist parity.
+- [ ] (candidate) `post-auth-bootstrap-api.ts` `initiatePostAuthAccessRequest` — success is `response.status === 202` only; reachable when `POST /v1/auth/bootstrap/access-request` response code changes (200/204) and UI reports failure despite server acceptance.
 
 - [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — **valid-no-repro 2026-10-06 seed hunt:** GET/HEAD bootstrap status reads omit `applyBffCsrfHeader` while POST mutations attach the readable `archlucid-bff-csrf` companion when present; intentional LK-07 shape for idempotent bootstrap polls; regression `proxy-fetch-registration-scope.test.ts`.
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` / `v1/diagnostics/first-tenant-funnel` — **valid-no-repro 2026-10-06 seed hunt:** active HttpOnly BFF session without CSRF header still allows POST on exact-path diagnostics allowlist (same class as `core-pilot-rail-step` and marketing bypasses); fire-and-forget funnel client omits CSRF by design; regression `allows first-tenant funnel telemetry without CSRF when the BFF session is active`.
