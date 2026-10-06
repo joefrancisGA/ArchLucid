@@ -6176,11 +6176,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 30
-- **bugs-found:** 15
+- **hunts:** 31
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — Stripe webhook payment-intent credit skipped auto-refill below trigger threshold
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — webhook payment-intent credit counted toward monthly auto-replenish cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6219,6 +6219,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — retry after uncredited Stripe charge double-billed — **hit 2026-10-05 seed hunt:** when `CreditRefillWithRetryAsync` exhausted optimistic retries after a successful `ChargeRefillAsync`, a later auto-refill charged Stripe again instead of retrying wallet credit for the same payment intent; pending intent map + `RefillCredit` settlement queue + webhook credit path; regression `TryAutoRefillAsync_retries_wallet_credit_without_second_stripe_charge_when_first_credit_fails`
 - [x] (proven) `LlmTenantWalletConsumeRetry.CreditAdjustmentInternalAsync` — overage reconciliation credit did not enqueue auto-refill when balance remained below trigger — **hit 2026-10-05 seed hunt:** `ReconcileOverageInternalAsync` negative delta credits via `CreditAdjustmentInternalAsync` without the post-credit auto-refill enqueue that delta consume already had; regression `ReconcileOverageInternalAsync_enqueues_auto_refill_when_overage_credit_leaves_balance_below_trigger_threshold`
 - [x] (proven) `LlmTenantWalletWebhookStage.ApplyWebhookPaymentIntentSucceededAsync` — webhook payment-intent credit did not enqueue auto-refill when balance remained below trigger — **hit 2026-10-05 seed hunt:** small or partial Stripe top-ups could leave auto-replenish-enabled wallets under the refill trigger without scheduling settlement auto-refill; regression `ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold`
+- [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` / `LlmTenantWalletWebhookStage.ApplyWebhookPaymentIntentSucceededAsync` — webhook payment-intent credits incremented `AutoRefillsThisUtcMonthCount` and blocked `TryAutoRefillAsync` under a tight monthly cap — **hit 2026-10-06 seed hunt:** `CanAutoRefill` multiplies count by `RefillIncrementUsd`, so a $5 webhook top-up consumed a full $50 cap slot; webhook credits pass `incrementMonthlyAutoRefillCount: false`; regression `TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`
+
+2026-10-06 seed hunt (seed→hit): proved webhook top-up incremented monthly auto-replenish count and blocked auto-refill; 23 scoped wallet tests passed.
 
 2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 

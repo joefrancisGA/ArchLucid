@@ -18,6 +18,7 @@ public sealed partial class SqlLlmTenantWalletRepository
         string? stripePaymentIntentId,
         int utcYearMonth,
         byte[] expectedRowVersion,
+        bool incrementMonthlyAutoRefillCount = true,
         CancellationToken cancellationToken = default)
     {
         if (amountUsd <= 0m)
@@ -46,15 +47,22 @@ public sealed partial class SqlLlmTenantWalletRepository
 
             using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
 
-            const string update = """
-                                  UPDATE dbo.LlmTenantWalletState
-                                  SET BalanceUsd = @BalanceAfterUsd,
-                                      AutoRefillsThisUtcMonthCount = @MonthCount,
-                                      AutoRefillsThisUtcMonthYearMonth = @UtcYearMonth,
-                                      LastRefillUtc = SYSUTCDATETIME()
-                                  WHERE TenantId = @TenantId
-                                    AND RowVersion = @ExpectedRowVersion;
-                                  """;
+            string update = incrementMonthlyAutoRefillCount
+                ? """
+                  UPDATE dbo.LlmTenantWalletState
+                  SET BalanceUsd = @BalanceAfterUsd,
+                      AutoRefillsThisUtcMonthCount = @MonthCount,
+                      AutoRefillsThisUtcMonthYearMonth = @UtcYearMonth,
+                      LastRefillUtc = SYSUTCDATETIME()
+                  WHERE TenantId = @TenantId
+                    AND RowVersion = @ExpectedRowVersion;
+                  """
+                : """
+                  UPDATE dbo.LlmTenantWalletState
+                  SET BalanceUsd = @BalanceAfterUsd
+                  WHERE TenantId = @TenantId
+                    AND RowVersion = @ExpectedRowVersion;
+                  """;
 
             int rows = await connection.ExecuteAsync(
                 new CommandDefinition(

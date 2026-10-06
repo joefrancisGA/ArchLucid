@@ -42,7 +42,13 @@ public sealed class LlmTenantWalletWebhookStage(
             return false;
 
         LlmTenantWalletCreditResult credit = await _refillStage
-            .CreditRefillWithRetryAsync(tenantId, amountUsd, correlationId, paymentIntentId, cancellationToken)
+            .CreditRefillWithRetryAsync(
+                tenantId,
+                amountUsd,
+                correlationId,
+                paymentIntentId,
+                incrementMonthlyAutoRefillCount: false,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (!credit.Succeeded)

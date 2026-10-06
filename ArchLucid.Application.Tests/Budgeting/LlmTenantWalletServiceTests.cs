@@ -35,7 +35,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
@@ -52,7 +52,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
@@ -162,7 +162,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
@@ -209,7 +209,7 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 0m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 0m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
@@ -230,6 +230,57 @@ public sealed class LlmTenantWalletServiceTests
         LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
         view.BalanceUsd.Should().Be(50m);
         view.AutoRefillsThisUtcMonthCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 50m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object);
+
+        bool webhookCredited = await service.ApplyWebhookPaymentIntentSucceededAsync(
+            tenantId,
+            "pi_small_topup_blocks_cap",
+            5m,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        webhookCredited.Should().BeTrue();
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).AutoRefillsThisUtcMonthCount.Should().Be(0,
+            "operator webhook top-ups must not consume the auto-replenish monthly refill count");
+
+        Mock<IStripeWalletGateway> stripe = new();
+        stripe
+            .Setup(s => s.ChargeRefillAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(StripeWalletChargeResult.Ok("pi_auto_after_webhook"));
+
+        service = CreateService(repository, stripe.Object);
+
+        bool refilled = await service.TryAutoRefillAsync(tenantId, Guid.NewGuid(), CancellationToken.None);
+
+        refilled.Should().BeTrue("a $5 webhook top-up must not exhaust the $50 monthly auto-replenish cap");
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).BalanceUsd.Should().Be(55m);
+        (await service.GetWalletAsync(tenantId, CancellationToken.None)).AutoRefillsThisUtcMonthCount.Should().Be(1);
     }
 
     [SkippableFact]
@@ -321,8 +372,8 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_1", julyYearMonth, [], CancellationToken.None);
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_2", julyYearMonth, [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_1", julyYearMonth, [], cancellationToken: CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_2", julyYearMonth, [], cancellationToken: CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, timeProvider: timeProvider);
 
@@ -352,9 +403,9 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_1", julyYearMonth, [], CancellationToken.None);
-        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_2", julyYearMonth, [], CancellationToken.None);
-        await repository.TryConsumeAsync(tenantId, 95m, Guid.NewGuid(), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_1", julyYearMonth, [], cancellationToken: CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 50m, Guid.NewGuid(), "pi_july_2", julyYearMonth, [], cancellationToken: CancellationToken.None);
+        await repository.TryConsumeAsync(tenantId, 95m, Guid.NewGuid(), [], cancellationToken: CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
@@ -402,7 +453,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         int chargeCalls = 0;
         int paymentIntentCounter = 0;
@@ -468,7 +519,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         int creditAttempts = 0;
         Mock<ILlmTenantWalletRepository> repository = new();
@@ -486,6 +537,7 @@ public sealed class LlmTenantWalletServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<int>(),
                 It.IsAny<byte[]>(),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .Returns((
                 Guid id,
@@ -494,6 +546,7 @@ public sealed class LlmTenantWalletServiceTests
                 string? stripePaymentIntentId,
                 int utcYearMonth,
                 byte[] expectedRowVersion,
+                bool incrementMonthlyAutoRefillCount,
                 CancellationToken ct) =>
             {
                 creditAttempts++;
@@ -508,6 +561,7 @@ public sealed class LlmTenantWalletServiceTests
                     stripePaymentIntentId,
                     utcYearMonth,
                     expectedRowVersion,
+                    incrementMonthlyAutoRefillCount,
                     ct);
             });
         repository
@@ -586,7 +640,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         LlmWalletSettlementQueue queue = new();
         LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
@@ -609,7 +663,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
-        await repository.TryCreditRefillAsync(tenantId, 70m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 70m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], cancellationToken: CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
@@ -671,7 +725,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         LlmWalletSettlementQueue queue = new();
         LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
@@ -742,7 +796,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         LlmWalletSettlementQueue queue = new();
         LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
@@ -784,7 +838,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         LlmWalletSettlementQueue queue = new();
         LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
@@ -820,7 +874,7 @@ public sealed class LlmTenantWalletServiceTests
             null,
             int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
             [],
-            CancellationToken.None);
+            cancellationToken: CancellationToken.None);
 
         LlmTenantWalletService service = CreateService(repository);
 
