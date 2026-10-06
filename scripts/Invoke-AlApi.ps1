@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Start a Cursor Cloud Agent via the v1 API (Composer 2.5 standard, not Fast).
+    Start a Cursor Cloud Agent via the v1 API (standard tier only; Composer 2.5 by default, Grok 4.6 High via -Model).
 
 .PARAMETER Text
     Task prompt text for the cloud agent.
@@ -17,6 +17,10 @@
 
 .PARAMETER StartingRef
     Optional branch override (for example master). Falls back to config.startingRef, then master.
+
+.PARAMETER Model
+    Allowlisted model id (see .cursor/rules/Model-Allowlist-Override.mdc). Defaults to composer-2.5.
+    Fast-tier slugs are rejected by the ValidateSet.
 #>
 [CmdletBinding()]
 param(
@@ -33,7 +37,11 @@ param(
     [bool]$WorkOnCurrentBranch = $false,
 
     [Parameter(Mandatory = $false)]
-    [string]$StartingRef
+    [string]$StartingRef,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('composer-2.5', 'cursor-grok-4.6-high')]
+    [string]$Model = 'composer-2.5'
 )
 
 Set-StrictMode -Version Latest
@@ -188,9 +196,20 @@ else {
 
 $autoCreatePr = if ($null -ne $config.autoCreatePR) { [bool]$config.autoCreatePR } else { $false }
 
-# Locked: /al-api always uses Composer 2.5 standard (non-Fast) for lower cost.
-$modelId = "composer-2.5"
+# Standard tier only: the ValidateSet excludes fast slugs, and Composer additionally gets fast=false.
+$modelId = $Model
 $useFast = $false
+
+# Only Composer exposes the fast/standard toggle as a model param; Grok tiers are separate slugs.
+$modelParams = @()
+if ($modelId -eq 'composer-2.5') {
+    $modelParams = @(
+        @{
+            id = "fast"
+            value = if ($useFast) { "true" } else { "false" }
+        }
+    )
+}
 
 $prompt = @{
     text = $Text
@@ -205,12 +224,7 @@ $body = @{
     prompt = $prompt
     model = @{
         id = $modelId
-        params = @(
-            @{
-                id = "fast"
-                value = if ($useFast) { "true" } else { "false" }
-            }
-        )
+        params = $modelParams
     }
     repos = @(
         @{

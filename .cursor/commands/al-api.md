@@ -1,6 +1,6 @@
 # /al-api — Launch a Cloud Agent via API
 
-You are invoking the **/al-api** slash command. Your job is to start a Cursor Cloud Agent through the local helper script, using **Composer 2.5 standard** (not Fast). This is hardcoded in the script and cannot be overridden.
+You are invoking the **/al-api** slash command. Your job is to start a Cursor Cloud Agent through the local helper script, using **Composer 2.5 standard** (not Fast) by default. The only other accepted model is **Grok 4.6 High standard** (`-Model cursor-grok-4.6-high` / `AL_API_MODEL=cursor-grok-4.6-high`); fast-tier slugs are rejected by the scripts, matching `.cursor/rules/Model-Allowlist-Override.mdc`.
 
 ## Input
 
