@@ -647,6 +647,74 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task ListArtifactsForRun_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactQueryService> artifacts = new();
+
+        ArtifactExportController sut = CreateController(
+            out _,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId),
+            artifactQueryService: artifacts.Object);
+
+        IActionResult result = await sut.ListArtifactsForRun(runId, CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        artifacts.Verify(
+            q => q.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadBundleForRun_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+
+        ArtifactExportController sut = CreateController(
+            out _,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId),
+            artifactPackagingService: packaging.Object);
+
+        IActionResult result = await sut.DownloadBundleForRun(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(
+            p => p.BuildBundlePackage(It.IsAny<Guid>(), It.IsAny<IReadOnlyList<SynthesizedArtifact>>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DownloadRunExport_returns_409_when_working_career_simulator_unlabeled()
     {
         Guid runId = Guid.NewGuid();

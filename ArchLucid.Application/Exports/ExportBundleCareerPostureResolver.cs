@@ -172,6 +172,15 @@ public static class ExportBundleCareerPostureResolver
             if (string.Equals(text, "0", StringComparison.Ordinal))
                 return false;
 
+            if (double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double stringNumeric)
+                && double.IsFinite(stringNumeric)
+                && stringNumeric >= int.MinValue
+                && stringNumeric <= int.MaxValue
+                && stringNumeric == Math.Truncate(stringNumeric))
+            {
+                return stringNumeric != 0;
+            }
+
             if (string.Equals(text, "yes", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(text, "y", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(text, "on", StringComparison.OrdinalIgnoreCase)

@@ -58,6 +58,12 @@ public sealed partial class ArtifactExportController
                 return lifecycleProblem;
         }
 
+        IActionResult? careerBlockedResult =
+            await ResolveRunExportCareerPostureBlockedResultAsync(summary.RunId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         IReadOnlyList<ArtifactDescriptor> artifacts =
             await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
@@ -103,6 +109,11 @@ public sealed partial class ArtifactExportController
         if (lifecycleProblem is not null)
             return lifecycleProblem;
 
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         return await ListArtifacts(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -139,6 +150,11 @@ public sealed partial class ArtifactExportController
         if (lifecycleProblem is not null)
             return lifecycleProblem;
 
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         return await DownloadBundle(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -174,6 +190,11 @@ public sealed partial class ArtifactExportController
 
         if (lifecycleProblem is not null)
             return lifecycleProblem;
+
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
 
         return await DownloadArtifact(detail.Run.GoldenManifestId.Value, artifactId, ct);
     }
@@ -220,6 +241,12 @@ public sealed partial class ArtifactExportController
             if (lifecycleProblem is not null)
                 return lifecycleProblem;
         }
+
+        IActionResult? careerBlockedResult =
+            await ResolveRunExportCareerPostureBlockedResultAsync(summary.RunId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
@@ -275,6 +302,12 @@ public sealed partial class ArtifactExportController
             if (lifecycleProblem is not null)
                 return lifecycleProblem;
         }
+
+        IActionResult? careerBlockedResult =
+            await ResolveRunExportCareerPostureBlockedResultAsync(summary.RunId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
@@ -338,6 +371,12 @@ public sealed partial class ArtifactExportController
             if (lifecycleProblem is not null)
                 return lifecycleProblem;
         }
+
+        IActionResult? careerBlockedResult =
+            await ResolveRunExportCareerPostureBlockedResultAsync(summary.RunId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
 
         IReadOnlyList<SynthesizedArtifact> artifacts =
             await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
