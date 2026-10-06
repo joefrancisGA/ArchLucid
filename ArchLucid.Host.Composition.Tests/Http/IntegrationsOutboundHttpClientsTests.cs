@@ -32,7 +32,10 @@ public sealed class IntegrationsOutboundHttpClientsTests
 
         using HttpClient client = factory.CreateClient(clientName);
 
-        GetPrimarySocketsHandler(client).ConnectCallback.Should().NotBeNull();
+        SocketsHttpHandler socketsHandler = GetPrimarySocketsHandler(client);
+        socketsHandler.ConnectCallback.Should().NotBeNull();
+        socketsHandler.AllowAutoRedirect.Should().BeTrue(
+            "ITSM integrations allow redirects; SocketsHttpHandler invokes ConnectCallback for each redirect connection");
 
         IOptionsMonitor<HttpClientFactoryOptions>? optionsMonitor =
             provider.GetService<IOptionsMonitor<HttpClientFactoryOptions>>();
