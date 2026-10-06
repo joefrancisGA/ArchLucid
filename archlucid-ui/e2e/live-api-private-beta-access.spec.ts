@@ -497,6 +497,7 @@ test.describe(
     await injectDefaultTenantOperatorScope(page, {
       reestablishJwtSession: false,
       jwtAccessToken: inviteeSession.accessToken,
+      sampleWorkspaceVisitActive: false,
     });
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);

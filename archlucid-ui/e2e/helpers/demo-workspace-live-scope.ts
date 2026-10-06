@@ -9,6 +9,7 @@ import {
   serializeOperatorScopeCookiePayload,
 } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
+import { E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY } from "@/lib/operator/e2e-live-seat-ls010-bypass";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import { resolveLiveJwtMode } from "./live-api-auth";
@@ -64,6 +65,7 @@ async function writeOperatorScopeToBrowser(
   },
 ): Promise<void> {
   const sampleWorkspaceVisitActive = options?.sampleWorkspaceVisitActive !== false;
+  const suppressLs010BootstrapRedirect = sampleWorkspaceVisitActive === false;
   const scopeCookieValue = serializeOperatorScopeCookiePayload({
     tenantId: scope.tenantId,
     workspaceId: scope.workspaceId,
@@ -90,6 +92,8 @@ async function writeOperatorScopeToBrowser(
         readonly cookieName: string;
         readonly cookieValue: string;
         readonly sampleWorkspaceVisitActive: boolean;
+        readonly suppressLs010BootstrapRedirect: boolean;
+        readonly ls010BypassKey: string;
       },
     ) => {
       const record = {
@@ -103,8 +107,12 @@ async function writeOperatorScopeToBrowser(
       window.localStorage.setItem(payload.key, JSON.stringify(record));
       if (payload.sampleWorkspaceVisitActive) {
         window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+        window.sessionStorage.removeItem(payload.ls010BypassKey);
       } else {
         window.sessionStorage.removeItem(payload.sampleVisitKey);
+        if (payload.suppressLs010BootstrapRedirect) {
+          window.sessionStorage.setItem(payload.ls010BypassKey, "1");
+        }
       }
       window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
@@ -118,6 +126,8 @@ async function writeOperatorScopeToBrowser(
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
       sampleWorkspaceVisitActive,
+      suppressLs010BootstrapRedirect,
+      ls010BypassKey: E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY,
     },
   );
 
@@ -136,6 +146,8 @@ async function writeOperatorScopeToBrowser(
         readonly cookieName: string;
         readonly cookieValue: string;
         readonly sampleWorkspaceVisitActive: boolean;
+        readonly suppressLs010BootstrapRedirect: boolean;
+        readonly ls010BypassKey: string;
       },
     ) => {
       const record = {
@@ -149,8 +161,12 @@ async function writeOperatorScopeToBrowser(
       window.localStorage.setItem(payload.key, JSON.stringify(record));
       if (payload.sampleWorkspaceVisitActive) {
         window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+        window.sessionStorage.removeItem(payload.ls010BypassKey);
       } else {
         window.sessionStorage.removeItem(payload.sampleVisitKey);
+        if (payload.suppressLs010BootstrapRedirect) {
+          window.sessionStorage.setItem(payload.ls010BypassKey, "1");
+        }
       }
       window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
@@ -164,6 +180,8 @@ async function writeOperatorScopeToBrowser(
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
       sampleWorkspaceVisitActive,
+      suppressLs010BootstrapRedirect,
+      ls010BypassKey: E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY,
     },
   );
 }
@@ -208,6 +226,8 @@ export async function injectDefaultTenantOperatorScope(
     readonly reestablishJwtSession?: boolean;
     /** Re-issues BFF cookies for invitee principals when admin re-prime is skipped (TB-927). */
     readonly jwtAccessToken?: string;
+    /** Default true for admin JwtBearer CI; false for live-seat invitee scope (TB-927) with LS-010 bypass. */
+    readonly sampleWorkspaceVisitActive?: boolean;
   },
 ): Promise<void> {
   const defaultScope = {
@@ -221,8 +241,11 @@ export async function injectDefaultTenantOperatorScope(
 
   // Register after demo-workspace init scripts in the same browser context so default scope wins
   // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
-  // Keep sample-visit active for dev-default scope: clearing it triggers LS-010 → /auth/bootstrap (JwtBearer CI).
-  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
+  // Keep sample-visit active for dev-default scope unless invitee live-seat inject opts out (TB-927).
+  await writeOperatorScopeToBrowser(page, defaultScope, {
+    persistViaInitScript: true,
+    sampleWorkspaceVisitActive: options?.sampleWorkspaceVisitActive !== false,
+  });
 
   // Init script only runs on navigations after registration — reload once so scope is committed
   // before the first /administration/users RSC flight.

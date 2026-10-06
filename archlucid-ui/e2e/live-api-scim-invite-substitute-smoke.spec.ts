@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
-import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk, primePrivateBetaBrowserSessionIfJwtMode } from "./helpers/live-private-beta-access";
+import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk, primePrivateBetaBrowserSessionIfJwtMode, writeJwtBrowserSession } from "./helpers/live-private-beta-access";
 import { injectDefaultTenantOperatorScope, recoverFromAuthBootstrapIfNeeded } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
@@ -88,6 +88,8 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     }
 
     try {
+      await writeJwtBrowserSession(page, accessToken);
+      await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
       await expect(async () => {
         const createControl = page.getByTestId("scim-create-token");
         await createControl.scrollIntoViewIfNeeded();
