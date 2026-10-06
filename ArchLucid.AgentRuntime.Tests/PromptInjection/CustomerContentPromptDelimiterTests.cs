@@ -723,6 +723,20 @@ public sealed class CustomerContentPromptDelimiterTests
     }
 
     [Fact]
+    public void TruncatePreservingSectionBounds_when_budget_cannot_fit_end_marker_strips_back_before_open_begin_marker()
+    {
+        string begin = CustomerContentPromptDelimiters.BeginMarker;
+        string text = $"header\n{begin}\n{new string('y', 200)}";
+        int beginIndex = text.IndexOf(begin, StringComparison.Ordinal);
+        int maxCharacters = beginIndex + 3;
+
+        string truncated = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(text, maxCharacters);
+
+        truncated.Should().NotContain(begin);
+        truncated.Length.Should().BeLessThanOrEqualTo(maxCharacters);
+    }
+
+    [Fact]
     public void CriticUserPrompt_staged_summary_from_builder_neutralizes_ledger_line_separator_spoof()
     {
         DateTime utc = DateTime.SpecifyKind(new DateTime(2026, 1, 1, 0, 0, 0), DateTimeKind.Utc);
