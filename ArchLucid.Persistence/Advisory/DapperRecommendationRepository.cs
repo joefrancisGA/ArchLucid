@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -20,8 +22,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
 
         const string sql = """
             MERGE dbo.RecommendationRecords AS target
-            USING (SELECT @RecommendationId AS RecommendationId) AS source
-            ON target.RecommendationId = source.RecommendationId
+            USING (SELECT @RecommendationId AS RecommendationId, @TenantId AS TenantId) AS source
+            ON target.RecommendationId = source.RecommendationId AND target.TenantId = source.TenantId
             WHEN MATCHED THEN
                 UPDATE SET
                     TenantId = @TenantId,
@@ -56,7 +58,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     PriorityScore, Status, CreatedUtc, LastUpdatedUtc,
                     ReviewedByUserId, ReviewedByUserName, ReviewComment, ResolutionRationale,
                     SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
-                   SourceEvidenceLinksJson, SourceEvidenceLinksJson
+                    SourceEvidenceLinksJson
                 )
                 VALUES
                 (
@@ -66,7 +68,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     @Title, @Category, @Rationale, @SuggestedAction, @Urgency, @ExpectedImpact,
                     @PriorityScore, @Status, @CreatedUtc, @LastUpdatedUtc,
                     @ReviewedByUserId, @ReviewedByUserName, @ReviewComment, @ResolutionRationale,
-                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson
+                    @SupportingFindingIdsJson, @SupportingDecisionIdsJson, @SupportingArtifactIdsJson,
+                    @SourceEvidenceLinksJson
                 );
             """;
 
@@ -74,8 +77,9 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
     }
 
-    public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
+    public async Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT RecommendationId,
                    TenantId, WorkspaceId, ProjectId,
@@ -86,14 +90,20 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                    SupportingFindingIdsJson, SupportingDecisionIdsJson, SupportingArtifactIdsJson,
                    SourceEvidenceLinksJson
             FROM dbo.RecommendationRecords
-            WHERE RecommendationId = @RecommendationId;
+            WHERE RecommendationId = @RecommendationId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<RecommendationRecord>(
             new CommandDefinition(sql, new
             {
-                RecommendationId = recommendationId
+                RecommendationId = recommendationId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

@@ -39,6 +39,33 @@ public sealed class PersistenceTenantScopeTests
     }
 
     [Fact]
+    public void AndTripleWhere_with_alias_qualifies_columns()
+    {
+        ScopeContext scope = ScopedContext();
+
+        string clause = PersistenceTenantScope.AndTripleWhere(scope, "s");
+
+        clause.Should().Contain("s.TenantId = @ScopeTenantId");
+        clause.Should().Contain("s.WorkspaceId = @ScopeWorkspaceId");
+        clause.Should().Contain("s.ProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void AndTripleWhere_with_alias_is_empty_for_trusted_jobs()
+    {
+        string clause = PersistenceTenantScope.AndTripleWhere(TrustedJobContext(), "s");
+
+        clause.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AndTenantIdOrTrustedJob_contains_tenant_predicate()
+    {
+        PersistenceTenantScope.AndTenantIdOrTrustedJob.Should().Contain("TenantId = @TenantId");
+        PersistenceTenantScope.AndTenantIdOrTrustedJob.Should().Contain("AND");
+    }
+
+    [Fact]
     public void AndProjectIdTripleWhere_targets_ProjectId_column()
     {
         string clause = PersistenceTenantScope.AndProjectIdTripleWhere(ScopedContext());

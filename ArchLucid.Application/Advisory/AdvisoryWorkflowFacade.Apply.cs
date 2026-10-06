@@ -17,8 +17,9 @@ public sealed partial class AdvisoryWorkflowFacade
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
         RecommendationRecord? existing =
-            await _recommendationRepository.GetByIdAsync(recommendationId, cancellationToken);
+            await _recommendationRepository.GetByIdAsync(scope, recommendationId, cancellationToken);
 
         if (existing is null)
         {
@@ -29,7 +30,6 @@ public sealed partial class AdvisoryWorkflowFacade
             };
         }
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
         await AdvisoryApplySealedManifestHashGuard.EnsureRecommendationRunSealedOrThrowAsync(
             existing,
             request,
@@ -39,6 +39,7 @@ public sealed partial class AdvisoryWorkflowFacade
             cancellationToken);
 
         RecommendationRecord? updated = await _recommendationWorkflowService.ApplyActionAsync(
+            scope,
             recommendationId,
             userId,
             userName,

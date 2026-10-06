@@ -19,25 +19,31 @@ public sealed partial class SqlContextSnapshotRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(projectId);
 
-        const string sql = """
-                           SELECT TOP 1
-                               SnapshotId,
-                               RunId,
-                               ProjectId,
-                               CreatedUtc,
-                               CanonicalObjectsJson,
-                               DeltaSummary,
-                               WarningsJson,
-                               ErrorsJson,
-                               SourceHashesJson
-                           FROM dbo.ContextSnapshots
-                           WHERE ProjectId = @ProjectId
-                           ORDER BY CreatedUtc DESC;
-                           """;
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string sql = """
+                     SELECT TOP 1
+                         SnapshotId,
+                         RunId,
+                         ProjectId,
+                         CreatedUtc,
+                         CanonicalObjectsJson,
+                         DeltaSummary,
+                         WarningsJson,
+                         ErrorsJson,
+                         SourceHashesJson
+                     FROM dbo.ContextSnapshots
+                     WHERE ProjectId = @ProjectId
+                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + """
+                     ORDER BY CreatedUtc DESC;
+                     """;
+
+        DynamicParameters parameters = new();
+        parameters.Add("ProjectId", projectId);
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         ContextSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotStorageRow>(
-            new CommandDefinition(sql, new { ProjectId = projectId }, cancellationToken: ct));
+            new CommandDefinition(sql, parameters, cancellationToken: ct));
 
         if (row is null)
             return null;

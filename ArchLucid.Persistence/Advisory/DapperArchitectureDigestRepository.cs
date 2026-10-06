@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -76,8 +78,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
-    public async Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
+    public async Task<ArchitectureDigest?> GetByIdAsync(ScopeContext scope, Guid digestId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT
                 DigestId, TenantId, WorkspaceId, ProjectId,
@@ -85,6 +88,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                 Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
             FROM dbo.ArchitectureDigests
             WHERE DigestId = @DigestId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
               AND ArchivedUtc IS NULL;
             """;
 
@@ -92,7 +98,10 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
         return await connection.QueryFirstOrDefaultAsync<ArchitectureDigest>(
             new CommandDefinition(sql, new
             {
-                DigestId = digestId
+                DigestId = digestId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Data.Infrastructure;
+
 namespace ArchLucid.Persistence.Sql;
 
 /// <summary>
@@ -73,6 +75,6 @@ internal static class FindingsSnapshotWriteSql
     public const string SelectScopeTripleForBackfill = """
                                                        SELECT TenantId, WorkspaceId, ProjectId
                                                        FROM dbo.FindingsSnapshots
-                                                       WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                                                       """;
+                                                       WHERE FindingsSnapshotId = @FindingsSnapshotId
+                                                       """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 }

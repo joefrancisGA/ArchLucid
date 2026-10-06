@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -19,8 +20,8 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
         const string scopeSql = """
                                 SELECT TenantId, WorkspaceId, ProjectId
                                 FROM dbo.EvolutionCandidateChangeSets
-                                WHERE CandidateChangeSetId = @CandidateChangeSetId;
-                                """;
+                                WHERE CandidateChangeSetId = @CandidateChangeSetId
+                                """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
         const string sql = """
                            INSERT INTO dbo.EvolutionSimulationRuns
@@ -57,7 +58,15 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
 
         EvolutionSimulationScopeRow? scopeHdr =
             await connection.QuerySingleOrDefaultAsync<EvolutionSimulationScopeRow>(
-                new CommandDefinition(scopeSql, new { record.CandidateChangeSetId }, cancellationToken: cancellationToken));
+                new CommandDefinition(
+                    scopeSql,
+                    new
+                    {
+                        record.CandidateChangeSetId,
+                        TenantId = Guid.Empty,
+                        EmptyTenantId = Guid.Empty
+                    },
+                    cancellationToken: cancellationToken));
 
         if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
             throw new InvalidOperationException(

@@ -3665,13 +3665,27 @@ export interface components {
             securityDiscrepancy?: boolean;
             terraformAddress?: null | string;
         };
+        DiagramInfrastructureEdgeGapRow: {
+            associationType?: null | string;
+            diagramEdgeId?: null | string;
+            edgeGapId?: string;
+            explainText?: string;
+            /** Format: uuid */
+            fromCloudResourceId?: null | string;
+            gapKind?: string;
+            /** Format: uuid */
+            toCloudResourceId?: null | string;
+        };
         DiagramInfrastructureReconciliationRequest: {
             /** Format: uuid */
             snapshotId?: string;
         };
         DiagramInfrastructureReconciliationResult: {
+            /** Format: uuid */
+            comparisonId?: null | string;
             /** Format: int32 */
             diagramNodeCount?: number;
+            edgeGaps?: components["schemas"]["DiagramInfrastructureEdgeGapRow"][];
             /** Format: int32 */
             inventoryResourceCount?: number;
             rows?: components["schemas"]["DiagramInfrastructureCorrespondenceRow"][];
@@ -5621,6 +5635,17 @@ export interface components {
             content?: string;
             format?: string;
             name?: string;
+        };
+        InfrastructureDiagramComparisonCreateRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
+            sources?: components["schemas"]["DiagramSourceReference"][];
+        };
+        InfrastructureDiagramNodeMappingSaveRequest: {
+            /** Format: uuid */
+            cloudResourceId?: string;
+            diagramNodeId?: null | string;
+            normalizedDiagramLabel?: string;
         };
         InsightDensityCurationSummary: {
             /** Format: int32 */
@@ -9945,11 +9970,41 @@ export interface components {
             sharedDependencyNodeId?: null | string;
             status?: string;
         };
+        SecureNowQuestionDispositionAuditResponse: {
+            action?: string;
+            actorKey?: string;
+            /** Format: date-time */
+            occurredUtc?: string;
+            reason?: string;
+        };
         SecureNowQuestionDispositionReopenApiRequest: {
             questionKey?: string;
             reason?: string;
             resourceId?: string;
             subscriptionId?: string;
+        };
+        SecureNowQuestionDispositionResponse: {
+            actorKey?: string;
+            answerCode?: null | string;
+            answerText?: null | string;
+            auditEntries?: components["schemas"]["SecureNowQuestionDispositionAuditResponse"][];
+            /** Format: uuid */
+            dispositionId?: string;
+            evidenceFingerprint?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isExpired?: boolean;
+            questionKey?: string;
+            reason?: string;
+            resourceId?: string;
+            scopeKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            source?: string;
+            status?: string;
+            subscriptionId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
         };
         SecureNowQuestionDispositionWriteApiRequest: {
             answerCode?: null | string;
@@ -9977,7 +10032,10 @@ export interface components {
             questionKey?: string;
             questionText?: string;
             reason?: null | string;
+            reasonText?: string;
             resourceId?: string;
+            resourceName?: string;
+            resourceType?: string;
             scopeKind?: string;
             /** Format: uuid */
             snapshotId?: string;
@@ -11578,7 +11636,7 @@ export interface components {
             /** Format: uuid */
             projectId?: string;
             /** Format: date-time */
-            purgeAfterUtc?: string;
+            purgeAfterUtc?: null | string;
         };
         TenantWorkspaceProjectApiDto: {
             displayName?: null | string;

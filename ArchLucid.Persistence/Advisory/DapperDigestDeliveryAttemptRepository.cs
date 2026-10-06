@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -49,7 +51,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             SET
                 Status = @Status,
                 ErrorMessage = @ErrorMessage
-            WHERE AttemptId = @AttemptId;
+            WHERE AttemptId = @AttemptId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -58,9 +63,11 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
+        ScopeContext scope,
         Guid digestId,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT TOP (@Cap)
                 AttemptId, DigestId, SubscriptionId,
@@ -69,6 +76,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE DigestId = @DigestId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -77,7 +87,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             new CommandDefinition(sql, new
             {
                 Cap = ListByDigestCap,
-                DigestId = digestId
+                DigestId = digestId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
 
         return result.ToList();
@@ -137,10 +150,12 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid subscriptionId,
         int take,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         take = Math.Clamp(take, 1, 200);
         const string sql = """
             SELECT TOP (@Take)
@@ -150,6 +165,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 ChannelType, Destination
             FROM dbo.DigestDeliveryAttempts
             WHERE SubscriptionId = @SubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -160,7 +178,10 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                 new
                 {
                     SubscriptionId = subscriptionId,
-                    Take = take
+                    Take = take,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
                 },
                 cancellationToken: ct));
 

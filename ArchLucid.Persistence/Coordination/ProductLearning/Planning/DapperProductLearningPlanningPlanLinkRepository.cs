@@ -173,7 +173,12 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
             new CommandDefinition(
                 ProductLearningPlanningPlanLinkSql.SelectPlanScope,
-                new { PlanId = planId },
+                new
+                {
+                    PlanId = planId,
+                    TenantId = Guid.Empty,
+                    EmptyTenantId = Guid.Empty
+                },
                 cancellationToken: cancellationToken));
 
         if (row is null)

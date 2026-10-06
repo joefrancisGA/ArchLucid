@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -23,7 +24,7 @@ public sealed class DapperPolicyPackChangeLogRepositoryContractTests(SqlServerPe
         SqlConnectionFactory sql = new(fixture.ConnectionString);
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
 
-        return new DapperPolicyPackChangeLogRepository(sql, readMirror);
+        return new DapperPolicyPackChangeLogRepository(sql, readMirror, new EmptyPersistenceScopeContextProvider());
     }
 
     protected override async Task EnsurePolicyPackRowAsync(
@@ -33,7 +34,7 @@ public sealed class DapperPolicyPackChangeLogRepositoryContractTests(SqlServerPe
     {
         SqlConnectionFactory sql = new(fixture.ConnectionString);
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
-        DapperPolicyPackRepository packRepository = new(sql, readMirror);
+        DapperPolicyPackRepository packRepository = new(sql, readMirror, new EmptyPersistenceScopeContextProvider());
 
         PolicyPack? existing = await packRepository.GetByIdAsync(policyPackId, cancellationToken);
 

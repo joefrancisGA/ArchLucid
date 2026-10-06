@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Data.Infrastructure;
+
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>
@@ -84,8 +86,8 @@ internal static class ProductLearningPlanningPlanLinkSql
     public const string SelectPlanScope = """
                                           SELECT TenantId, WorkspaceId, ProjectId
                                           FROM dbo.ProductLearningImprovementPlans
-                                          WHERE PlanId = @PlanId;
-                                          """;
+                                          WHERE PlanId = @PlanId
+                                          """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
     public const string ArchitectureRunExists = """
                                                 SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.Runs WHERE RunId = @RunId) THEN 1 ELSE 0 END;

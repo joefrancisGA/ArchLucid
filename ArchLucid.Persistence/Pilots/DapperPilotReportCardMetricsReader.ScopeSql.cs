@@ -4,7 +4,7 @@ namespace ArchLucid.Persistence.Pilots;
 
 public sealed partial class DapperPilotReportCardMetricsReader
 {
-    private static readonly string CommittedRunsScopeFilterRuns =
+    private const string CommittedRunsScopeFilterRuns =
         """
         r.TenantId = @TenantId
             AND r.WorkspaceId = @WorkspaceId
@@ -14,10 +14,10 @@ public sealed partial class DapperPilotReportCardMetricsReader
                 (NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL)
                 OR (r.GoldenManifestId IS NOT NULL)
             )
-        """
-        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("r");
+            AND 
+        """ + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsAliasR;
 
-    private static readonly string CommittedRunsScopeFilterRunsInner =
+    private const string CommittedRunsScopeFilterRunsInner =
         """
         rInner.TenantId = @TenantId
             AND rInner.WorkspaceId = @WorkspaceId
@@ -27,6 +27,6 @@ public sealed partial class DapperPilotReportCardMetricsReader
                 (NULLIF(LTRIM(RTRIM(rInner.CurrentManifestVersion)), N'') IS NOT NULL)
                 OR (rInner.GoldenManifestId IS NOT NULL)
             )
-        """
-        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("rInner");
+            AND 
+        """ + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsAliasRInner;
 }

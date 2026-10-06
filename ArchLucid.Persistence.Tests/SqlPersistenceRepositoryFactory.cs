@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Scoping;
 
 using Microsoft.Extensions.Options;
 
@@ -22,7 +23,11 @@ internal static class SqlPersistenceRepositoryFactory
 
     internal static SqlArtifactBundleRepository CreateArtifactBundleRepository(ISqlConnectionFactory factory)
     {
-        return new SqlArtifactBundleRepository(factory, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+        return new SqlArtifactBundleRepository(
+            factory,
+            new NullArtifactBlobStore(),
+            DisabledLargePayloadOptions,
+            new EmptyPersistenceScopeContextProvider());
     }
 
     private static IOptionsMonitor<ArtifactLargePayloadOptions> CreateDisabledLargePayloadOptions()

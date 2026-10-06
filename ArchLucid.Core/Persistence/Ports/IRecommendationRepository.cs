@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -7,7 +8,7 @@ public interface IRecommendationRepository
 {
     Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct);
 
-    Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct);
+    Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct);
 
     Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
         Guid tenantId,

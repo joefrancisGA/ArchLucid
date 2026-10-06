@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Advisory.Delivery;
 using ArchLucid.Contracts.Advisory.Scheduling;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
@@ -30,8 +31,9 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         await sut.CreateAsync(older, CancellationToken.None);
         await sut.CreateAsync(newer, CancellationToken.None);
 
+        ScopeContext scope = new();
         IReadOnlyList<AdvisoryScanExecution> listed =
-            await sut.ListByScheduleAsync(scheduleId, take: 10, CancellationToken.None);
+            await sut.ListByScheduleAsync(scope, scheduleId, take: 10, CancellationToken.None);
 
         listed.Should().HaveCount(2);
         listed[0].ExecutionId.Should().Be(newer.ExecutionId);
@@ -54,7 +56,7 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         await sut.UpdateAsync(execution, CancellationToken.None);
 
         IReadOnlyList<AdvisoryScanExecution> listed =
-            await sut.ListByScheduleAsync(execution.ScheduleId, take: 1, CancellationToken.None);
+            await sut.ListByScheduleAsync(new ScopeContext(), execution.ScheduleId, take: 1, CancellationToken.None);
 
         listed.Should().ContainSingle();
         listed[0].Status.Should().Be("Completed");
@@ -93,7 +95,7 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         await sut.CreateAsync(second, CancellationToken.None);
 
         IReadOnlyList<DigestDeliveryAttempt> byDigest =
-            await sut.ListByDigestAsync(digestId, CancellationToken.None);
+            await sut.ListByDigestAsync(new ScopeContext(), digestId, CancellationToken.None);
 
         byDigest.Should().HaveCount(2);
         byDigest[0].AttemptId.Should().Be(second.AttemptId);
@@ -110,7 +112,7 @@ public sealed class InMemoryAdvisoryRepositoryCoverageTests
         byDigestIds.Select(a => a.AttemptId).Should().BeEquivalentTo(byDigest.Select(a => a.AttemptId));
 
         IReadOnlyList<DigestDeliveryAttempt> bySubscription =
-            await sut.ListBySubscriptionAsync(subscriptionId, take: 10, CancellationToken.None);
+            await sut.ListBySubscriptionAsync(new ScopeContext(), subscriptionId, take: 10, CancellationToken.None);
 
         bySubscription.Should().HaveCount(2);
     }

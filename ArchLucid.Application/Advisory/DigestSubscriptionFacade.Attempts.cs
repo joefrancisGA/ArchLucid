@@ -13,17 +13,15 @@ public sealed partial class DigestSubscriptionFacade
         int take,
         CancellationToken ct)
     {
-        DigestSubscription? subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, ct).ConfigureAwait(false);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        DigestSubscription? subscription =
+            await _subscriptionRepository.GetByIdAsync(scope, subscriptionId, ct).ConfigureAwait(false);
 
         if (subscription is null)
             return new DigestSubscriptionAttemptsResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        if (!MatchesScope(subscription, scope))
-            return new DigestSubscriptionAttemptsResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
-
         IReadOnlyList<DigestDeliveryAttempt> attempts = await _attemptRepository.ListBySubscriptionAsync(
+            scope,
             subscriptionId,
             Math.Clamp(take, 1, PaginationDefaults.MaxPageSize),
             ct).ConfigureAwait(false);
@@ -39,20 +37,13 @@ public sealed partial class DigestSubscriptionFacade
     public async Task<DigestSubscriptionAttemptsResult> ListAttemptsByDigestAsync(Guid digestId, CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        ArchitectureDigest? digest = await _digestRepository.GetByIdAsync(digestId, ct).ConfigureAwait(false);
+        ArchitectureDigest? digest = await _digestRepository.GetByIdAsync(scope, digestId, ct).ConfigureAwait(false);
 
         if (digest is null)
             return new DigestSubscriptionAttemptsResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
 
-        if (digest.TenantId != scope.TenantId ||
-            digest.WorkspaceId != scope.WorkspaceId ||
-            digest.ProjectId != scope.ProjectId)
-        {
-            return new DigestSubscriptionAttemptsResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
-        }
-
         IReadOnlyList<DigestDeliveryAttempt> attempts =
-            await _attemptRepository.ListByDigestAsync(digestId, ct).ConfigureAwait(false);
+            await _attemptRepository.ListByDigestAsync(scope, digestId, ct).ConfigureAwait(false);
 
         return new DigestSubscriptionAttemptsResult
         {
