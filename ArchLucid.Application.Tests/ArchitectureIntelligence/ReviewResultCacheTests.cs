@@ -241,6 +241,26 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_misses_tombstone_when_cached_run_id_is_compact_and_invalidation_used_hyphenated_form()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-tryget-casing" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? miss).Should().BeFalse();
+        miss.Should().BeNull();
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set()
     {
         ReviewResultCache cache = new();
