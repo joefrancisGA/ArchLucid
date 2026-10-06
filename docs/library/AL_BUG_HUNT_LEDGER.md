@@ -3667,6 +3667,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-06 thorough hunt (dry): cheap-disproof closed duplicate `MapRelationships` candidate (duplicate ledger row of 2026-10-03 / 2026-10-05); mapper intentionally emits one edge per manifest row with identical derived `EdgeId`; `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; regressions `MapRelationships_emits_parallel_edges_for_duplicate_manifest_relationship_rows` and `WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice`; 984 scoped edge-mapper/graph-merge tests passed (`RunAnalyzers=false`).
+
 2026-10-05 thorough hunt (hit): proved topology graph merge materialized `svc-`/`ds-` node ids from raw manifest names while endpoint indexing and relationship resolution used trimmed synthetic ids, so `DropDanglingEdges` removed agent-proposed edges; aligned materialization with `ResolveDeclaredServiceNodeId` / `BuildSyntheticServiceNodeId`; regression `WithMergedTopologyProposals_materializes_edge_when_service_name_has_trailing_whitespace_and_relationship_uses_trimmed_synthetic_id`; 979 scoped edge-mapper/graph-merge tests passed.
 
 2026-10-05 thorough hunt (hit): proved module-qualified Terraform `SourceId` values on graph nodes and manifest services were indexed only by the full address while agent relationships referenced the root resource address (`azurerm_*.name`), so `MapRelationships` dropped edges; index leaf Terraform addresses via `TryParseLeafResourceAddress`; regression `MapRelationships_resolves_root_terraform_address_when_graph_node_source_id_is_module_qualified`; 980 scoped edge-mapper/graph-merge tests passed.
@@ -3724,10 +3726,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
-- **hunts:** 81
+- **hunts:** 82
 - **bugs-found:** 67
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — overlay manifest service/datastore aliases omitted Terraform leaf addresses for module-qualified ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3816,8 +3818,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-11 seed hunt #1777 (hit): reseeded arm-terraform-source-ids after #1776; proved padded endpoint alias key resolution gap; 1 scoped edge mapper regression passed.
 
 - [x] (proven) `TerraformAzurermResourceTypeParser.TryParseSlug` — a reachable Terraform module address such as `module.azurerm_wrapper.azurerm_app_service.main` matched the module token first, so the actual provider resource token was not recognized; synthetic service aliases were omitted and relationship edges were dropped — **hit 2026-10-02 seed hunt:** parse the final `azurerm_`/`azuread_` token; regression `MapRelationships_resolves_synthetic_service_id_when_terraform_module_name_contains_azurerm_token`.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — emits one `GraphEdge` per duplicate `ManifestRelationship` without deduplicating the derived edge id; reachable duplicate agent relationship proposals can create duplicate graph edges or unstable overwrite behavior, requiring graph-merge proof of the intended duplicate semantics.
-- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate `ManifestRelationship` rows (duplicate ledger row closed 2026-10-05) — see proven classification at 2026-10-03 thorough hunt above; `AppendUniqueEdges` dedupes before commit.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — emits one `GraphEdge` per duplicate `ManifestRelationship` without deduplicating the derived edge id — **cheap-disproof 2026-10-06 thorough hunt:** intentional mapper semantics; production path uses `AgentTopologyProposalGraphMerge.AppendUniqueEdges` keyed by directed `(fromNodeId, toNodeId, edgeType)`; regressions `MapRelationships_emits_parallel_edges_for_duplicate_manifest_relationship_rows` and `WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice` (see also 2026-10-03 row).
 
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex` / `TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress` — module-qualified Terraform `SourceId` on graph nodes and manifest endpoints did not register the root `azurerm_*.name` alias, so relationships referencing the short address missed resolution — **hit 2026-10-05 thorough hunt:** leaf address keys and resolution aliases on graph nodes and declared manifests; regression `MapRelationships_resolves_root_terraform_address_when_graph_node_source_id_is_module_qualified`.
 - [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` / `AddManifestDatastoreEndpointAliases` — overlay alias dictionaries registered module-qualified `ServiceId`/`DatastoreId` but not the parsed leaf `azurerm_*.name`, so `MapRelationships` dropped edges when overlay aliases were the only resolution path for compute/datastore endpoints — **hit 2026-10-05 seed hunt (seed→hit):** parity with declared-manifest leaf aliases; regression `MapRelationships_resolves_leaf_terraform_address_from_overlay_service_aliases_when_topology_nodes_omit_compute`.
