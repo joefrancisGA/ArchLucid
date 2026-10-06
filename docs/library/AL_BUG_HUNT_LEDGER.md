@@ -2,6 +2,8 @@
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware.ShouldSkip` left `//health/live` (and similar double-leading-slash probe URLs) subject to TB-304 on staging-like hosts because `PathString.StartsWithSegments` did not match normalized health paths; collapse duplicate leading slashes before probe checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; cheap-disproof closed duplicate `tenant_id` claim/header parity (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`, `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`) and comma-joined policy literal skip (`OnActionExecutionAsync_combined_policy_string_does_not_skip_binding_when_literal_name_differs`); 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
 
+2026-10-06 seed hunt (seed→hit): `scim-users` — PATCH `remove` on `displayName` left the prior display name because `ReadOptionalString` fell back when the flat map key was deleted; detect remove via missing `displayName` in patched core map and clear through persistence; regression `PatchAsync_remove_displayName_clears_display_name`; cheap-disproof closed PUT optional `displayName` outer whitespace (`ScimUserResourceParser_preserves_outer_whitespace_on_optional_displayName`) and high `startIndex` list paging (`ListAsync_start_index_above_total_returns_empty_page`); 28 scoped `ScimUsers` Application unit tests passed.
+
 2026-10-06 seed hunt (seed→hit): `scim-users` — PATCH replace `displayName` with whitespace-only values left the prior display name because `ReadOptionalString` coalesced to fallback and repositories treated null `displayName` as “keep existing”; normalize whitespace-only PATCH values to an explicit clear and persist null in SQL/in-memory repos; regression `PatchAsync_replace_displayName_whitespace_only_clears_display_name`; cheap-disproof closed negative list `count` clamp (`ListAsync_negative_count_clamped_to_empty_page`) and empty POST body (`CreateAsync_empty_user_object_throws_parse_exception`); 25 scoped `ScimUsers` Application unit tests + 5 Api tests passed.
 
 2026-10-06 seed hunt (seed→hit): `scim-users` — `ScimUserService.PatchAsync` `ReadOptionalString` ignored non-string PATCH `displayName` replace values and kept the prior display name while PUT `ScimUserResourceParser` returns `invalidValue`; align PATCH optional strings with parser typing; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` Application unit tests passed.
@@ -8136,11 +8138,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 25
-- **bugs-found:** 17
+- **hunts:** 26
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — PATCH whitespace-only `displayName` did not clear stored display name
+- **last-bug:** 2026-10-06 — PATCH `remove` on `displayName` did not clear stored display name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8176,9 +8178,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScimUserService.ListAsync` — negative `count` query clamped in service (`Math.Clamp(count, 0, 200)`); controller forwarding is sufficient for Entra list probes — **cheap-disproof 2026-10-06 seed hunt:** regression `ListAsync_negative_count_clamped_to_empty_page`
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — empty request body reaches `ScimUserResourceParser` and fails closed — **cheap-disproof 2026-10-06 seed hunt:** empty `{}` body throws `ScimUserResourceParseException` before insert; regression `CreateAsync_empty_user_object_throws_parse_exception`
 
-- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH `remove` on `displayName` may still leave the prior display name because flat-map fallback repopulates the field.
-- [ ] (candidate) `ScimUserResourceParser.ReadOptionalString` — PUT `displayName` with outer whitespace may persist untrimmed strings unlike PATCH trim/clear semantics.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `startIndex` values above `totalResults` may return confusing `items` pages without SCIM `invalidValue` guidance.
+- [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `displayName` left the prior display name because flat-map fallback repopulated the field — **hit 2026-10-06 seed hunt:** detect removed `displayName` key after patch apply; regression `PatchAsync_remove_displayName_clears_display_name`; 28 scoped `ScimUsers` unit tests passed.
+- [x] (valid-no-repro) `ScimUserResourceParser.ReadOptionalString` — PUT `displayName` with outer whitespace persists untrimmed strings unlike PATCH trim/clear semantics — **cheap-disproof 2026-10-06 seed hunt:** optional PUT `displayName` preserves source whitespace by design; regression `ScimUserResourceParser_preserves_outer_whitespace_on_optional_displayName`
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
+
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` may still repopulate from flat-map fallback (required-string paths).
+- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
+- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
 
 ### Hypotheses
 
