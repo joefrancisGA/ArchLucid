@@ -307,6 +307,26 @@ public sealed class ScopeResolutionGuardMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_staging_host_skips_openapi_nested_segment_paths()
+    {
+        DefaultHttpContext context = CreateContext("/openapi/extra/nested/segment");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task InvokeAsync_staging_host_skips_openapi_paths()
     {
         DefaultHttpContext context = CreateContext("/openapi/v1.json");

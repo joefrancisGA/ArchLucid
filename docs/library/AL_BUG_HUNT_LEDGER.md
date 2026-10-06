@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `RouteTenantScopeBindingFilter.HasPolicy` only inspected `AuthorizeAttribute` metadata while ASP.NET Core `AuthorizeFilter` carries policy names on `AuthorizeData`, so platform tenant deletion routes could 403 when ambient scope disagreed with route `{tenantId}`; scan `IAuthorizeData` and `AuthorizeFilter.AuthorizeData`; regression `OnActionExecutionAsync_authorize_filter_platform_deletion_policy_skips_binding`; cheap-disproof closed unknown authenticated scheme header-only skip (`ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme`) and intentional `/openapi/*` TB-304 skip for nested segments (`InvokeAsync_staging_host_skips_openapi_nested_segment_paths`); 72 scoped scope-binding unit tests passed (integration tests unavailable).
+
 2026-10-06 thorough hunt (hit): `saml-jwt-bearer` — `RoleSyncService.TryDirectoryObjectKey` used `FindFirst` on long-form `objectidentifier` when `oid` was absent, binding SCIM role override to the first of conflicting URI claims; require exactly one distinct non-empty value; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`; cheap-disproof closed duplicate `workspace_id`/`project_id` GUID `N` vs `D` format (`Apply_collapses_duplicate_direct_workspace_id_claims_when_values_differ_only_by_guid_format`, `Apply_collapses_duplicate_direct_project_id_claims_when_values_differ_only_by_guid_format`) and cookie `auth_time` `ClaimValueTypes.Integer64` (`HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal`, `TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat`); 77 scoped SAML/JWT/SCIM bearer unit tests passed (3 SQL integration tests unavailable); 5 RoleSyncService tests passed.
 
 2026-10-06 seed hunt (seed→hit): `saml-jwt-bearer` — duplicate direct SAML `oid` claims left ambiguous directory keys (`FindFirst` order) before cookie persistence; dedupe `oid` after GUID scope dedupe; regressions `Apply_collapses_duplicate_direct_oid_claims_with_same_value` and `Apply_strips_conflicting_direct_oid_claims_when_idp_emits_two_distinct_values`; 73 scoped SAML/JWT/SCIM bearer tests passed (3 SQL-backed integration tests unavailable).
@@ -8927,19 +8929,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 52
-- **bugs-found:** 12
+- **hunts:** 53
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — lowercase `bearer` auth type skipped TB-072 header-only escalation
+- **last-bug:** 2026-10-06 — `AuthorizeFilter` platform deletion policy not honored by route tenant binding skip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 - [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
-- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — `AuthenticationType` values outside known schemes (e.g. custom test handlers) still skip header-only guards while `HttpScopeContextProvider` may resolve scope from `x-*-id` headers on non-production hosts.
-- [ ] (candidate) `RouteTenantScopeBindingFilter.HasPolicy` — composite authorization policies that embed `PlatformTenantDeletionAuthority` without a top-level `AuthorizeAttribute.Policy` string may not skip route tenant binding.
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/openapi` segment skip may still apply to deeply nested paths such as `/openapi/extra/segment` beyond the mapped OpenAPI document route.
+- [x] (valid-no-repro) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — `AuthenticationType` values outside known schemes (e.g. custom test handlers) still skip header-only guards while `HttpScopeContextProvider` may resolve scope from `x-*-id` headers on non-production hosts — **cheap-disproof 2026-10-06 seed hunt:** production auth registers only Bearer/ApiKey/ScimBearer/Saml2 plus intentional DevelopmentBypass skip; regression `ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme`
+- [x] (proven) `RouteTenantScopeBindingFilter.HasPolicy` — `AuthorizeFilter` endpoint metadata carries `PlatformTenantDeletionAuthority` on `AuthorizeData`, not as a top-level `AuthorizeAttribute`, so route tenant binding incorrectly forbade cross-scope platform deletion — **hit 2026-10-06 seed hunt:** inspect `IAuthorizeData` and `AuthorizeFilter.AuthorizeData`; regression `OnActionExecutionAsync_authorize_filter_platform_deletion_policy_skips_binding`
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/openapi` segment skip applies to nested paths such as `/openapi/extra/segment` beyond the mapped document route — **cheap-disproof 2026-10-06 seed hunt:** intentional contract-probe carve-out aligned with `MapOpenApi` prefix; regression `InvokeAsync_staging_host_skips_openapi_nested_segment_paths`
+
+2026-10-06 seed hunt (seed→hit): promoted `AuthorizeFilter` platform deletion policy skip gap; proved and fixed; cheap-disproof closed unknown auth scheme and nested `/openapi` skip candidates; reseeded three follow-on candidates below; 72 scoped scope-binding unit tests passed.
+
+- [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — `AuthorizeFilter.AuthorizeData` policy strings that combine multiple policy names may not match the `PlatformTenantDeletionAuthority` literal skip.
+- [ ] (candidate) `ScopeIdentityBindingValidator.Validate` — multiple parseable `tenant_id` claims where `FindFirst` disagrees with a later claim but matches a steering `x-tenant-id` header.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — double-slash or dot-segment normalized health probe paths (e.g. `//health/live`) on staging-like hosts.
 
 2026-10-06 seed hunt (seed→hit): promoted lowercase Bearer auth-type TB-072 bypass; proved and fixed; reseeded three follow-on candidates; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
