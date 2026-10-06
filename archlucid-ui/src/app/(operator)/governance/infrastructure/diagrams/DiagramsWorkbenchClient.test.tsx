@@ -614,7 +614,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
     await waitFor(() => {
-      expect(picker).toHaveTextContent("889 resources");
+      expect(picker).toHaveTextContent("9/1/2026");
     });
     expect(picker).not.toHaveTextContent(subscriptionId);
   });
