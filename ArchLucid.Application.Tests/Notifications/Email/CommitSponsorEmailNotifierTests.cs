@@ -48,6 +48,39 @@ public sealed class CommitSponsorEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task NotifyAfterCommitAsync_omits_user_info_from_operator_base_url_in_review_link()
+    {
+        Mock<ITenantTrialEmailContactLookup> lookup = new();
+        lookup
+            .Setup(x => x.TryResolveAdminEmailAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("sponsor@example.com");
+
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptions(
+            new EmailNotificationOptions
+            {
+                ProductDisplayName = "Prod",
+                OperatorBaseUrl = "https://user:secret@ops.example.test",
+            });
+
+        CommitSponsorEmailNotifier sut = CreateSut(lookup.Object, email.Object, options);
+
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(
+                It.Is<EmailMessage>(m =>
+                    m.HtmlBody.Contains("https://ops.example.test/architecture/reviews/", StringComparison.Ordinal)
+                    && !m.HtmlBody.Contains("user:secret", StringComparison.Ordinal)
+                    && m.TextBody!.Contains("https://ops.example.test/architecture/reviews/", StringComparison.Ordinal)
+                    && !m.TextBody.Contains("user:secret", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_admin_email_resolved_sends_with_peer_review_link()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();

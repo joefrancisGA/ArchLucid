@@ -46,10 +46,12 @@ public sealed partial class GovernanceController
             if (targetRunIdValidation is not null)
                 return targetRunIdValidation;
 
-            if (!Guid.TryParse(request.TargetRunId.Trim(), out Guid targetRunGuid) || targetRunGuid == Guid.Empty)
+            if (!TryParseGovernanceRunIdFromBody(request.TargetRunId, out string normalizedTargetRunId))
             {
                 return this.BadRequestProblem("targetRunId is not valid.", ProblemTypes.ValidationFailed);
             }
+
+            request.TargetRunId = normalizedTargetRunId;
         }
 
         if (request.TargetManifestId == Guid.Empty)
@@ -150,6 +152,8 @@ public sealed partial class GovernanceController
                 ProblemTypes.ValidationFailed);
         }
 
+        List<string> normalizedEvaluateAgainstRunIds = new(evaluateAgainstRunIds.Count);
+
         foreach (string runId in evaluateAgainstRunIds)
         {
             if (string.IsNullOrWhiteSpace(runId))
@@ -162,12 +166,14 @@ public sealed partial class GovernanceController
             if (runIdValidation is not null)
                 return runIdValidation;
 
-            if (!Guid.TryParse(runId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+            if (!TryParseGovernanceRunIdFromBody(runId, out string normalizedRunId))
             {
                 return this.BadRequestProblem(
                     "evaluateAgainstRunIds contains an invalid run id.",
                     ProblemTypes.ValidationFailed);
             }
+
+            normalizedEvaluateAgainstRunIds.Add(normalizedRunId);
         }
 
         if (id == Guid.Empty)
@@ -190,7 +196,7 @@ public sealed partial class GovernanceController
         try
         {
             IActionResult? sealedGuardResult = await EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
-                evaluateAgainstRunIds,
+                normalizedEvaluateAgainstRunIds,
                 cancellationToken);
 
             if (sealedGuardResult is not null)
@@ -199,7 +205,7 @@ public sealed partial class GovernanceController
             PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
                 id,
                 proposedThresholds,
-                evaluateAgainstRunIds,
+                normalizedEvaluateAgainstRunIds,
                 pageSize,
                 page,
                 cancellationToken);

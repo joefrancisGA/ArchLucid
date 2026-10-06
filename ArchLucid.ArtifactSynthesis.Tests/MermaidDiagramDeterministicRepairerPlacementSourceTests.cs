@@ -44,6 +44,31 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
     }
 
     [Fact]
+    public void Repair_keeps_nsg_inbound_rule_chips_for_forest_layout()
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "storage",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                    NsgInboundRuleChips = [new DiagramNsgInboundRuleChip("in 443/TCP · Internet", IsRisky: false)],
+                },
+            ],
+        });
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(repaired);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("in 443/TCP · Internet");
+    }
+
+    [Fact]
     public void Repair_keeps_resource_kind_for_specialized_icon_resolution()
     {
         DiagramAst repaired = Repair(new DiagramAst
@@ -97,6 +122,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
             UnresolvedRelationshipDetails = ["missing relationship"],
             IsAvdCollapsedBoundary = true,
             DataFlowTraversalHopEvidenceDetails = ["hop evidence"],
+            NsgInboundRuleChips = [new DiagramNsgInboundRuleChip("in 443/TCP · Internet", IsRisky: true)],
         };
         DiagramEdge sourceEdge = new()
         {
@@ -140,6 +166,10 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
         repairedNode.IsAvdCollapsedBoundary.Should().BeTrue();
         repairedNode.DataFlowTraversalHopEvidenceDetails.Should().Equal(sourceNode.DataFlowTraversalHopEvidenceDetails);
         repairedNode.DataFlowTraversalHopEvidenceDetails.Should().NotBeSameAs(sourceNode.DataFlowTraversalHopEvidenceDetails);
+        repairedNode.NsgInboundRuleChips.Should().ContainSingle()
+            .Which.Text.Should().Be("in 443/TCP · Internet");
+        repairedNode.NsgInboundRuleChips.Should().NotBeSameAs(sourceNode.NsgInboundRuleChips);
+        repairedNode.NsgInboundRuleChips.Single().IsRisky.Should().BeTrue();
 
         repairedEdge.DeclaredConnectionId.Should().Be(sourceEdge.DeclaredConnectionId);
         repairedEdge.IsDataFlowNsgBlocked.Should().BeTrue();

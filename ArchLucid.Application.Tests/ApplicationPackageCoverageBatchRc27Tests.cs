@@ -210,6 +210,16 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
     }
 
     [Fact]
+    public void BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner()
+    {
+        ArchitectureRunDetail detail = new();
+
+        string markdown = BuyerProofPackLimitationsMarkdown.Build(detail, demoDataWarning: true);
+
+        markdown.Should().Contain("Demo data warning");
+    }
+
+    [Fact]
     public void BuyerProofPackTrustPointerMarkdown_Value_contains_trust_posture_pointer()
     {
         string markdown = BuyerProofPackTrustPointerMarkdown.Value;

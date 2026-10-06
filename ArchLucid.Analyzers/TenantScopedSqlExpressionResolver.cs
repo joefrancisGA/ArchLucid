@@ -1,3 +1,5 @@
+using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -81,6 +83,12 @@ internal static class TenantScopedSqlExpressionResolver
                  propertyDeclaration.Initializer?.Value is ExpressionSyntax propertyInitializer)
         {
             yield return propertyInitializer.ToString();
+        }
+
+        if (symbol is not null)
+        {
+            foreach (TargetAssignment targetAssignment in GetTargetAssignments(symbol, semanticModel))
+                yield return targetAssignment.Right.ToString();
         }
     }
 
@@ -322,9 +330,11 @@ internal static class TenantScopedSqlExpressionResolver
             return new ResolutionResult(localConst, true, false);
 
         ResolutionResult? fromInitializer = TryResolveFromDeclaratorInitializer(symbol, semanticModel);
+        ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+        ResolutionResult? merged = MergeBranchResolutions(fromInitializer, fromAssignment);
 
-        if (fromInitializer is not null)
-            return fromInitializer;
+        if (merged is not null)
+            return merged;
 
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
@@ -366,6 +376,229 @@ internal static class TenantScopedSqlExpressionResolver
         }
 
         return null;
+    }
+
+    private static ResolutionResult? MergeBranchResolutions(
+        ResolutionResult? left,
+        ResolutionResult? right)
+    {
+        if (left is null)
+            return right;
+
+        if (right is null)
+            return left;
+
+        bool hasScopeHelper = left.HasScopeHelperInvocation || right.HasScopeHelperInvocation;
+        List<string> branchSqlTexts = [];
+
+        AppendDistinctBranchSqlTexts(branchSqlTexts, left);
+        AppendDistinctBranchSqlTexts(branchSqlTexts, right);
+
+        if (branchSqlTexts.Count == 0)
+            return new ResolutionResult(null, false, hasScopeHelper);
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static ResolutionResult? TryResolveFromSimpleAssignments(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not ILocalSymbol and not IFieldSymbol and not IPropertySymbol)
+            return null;
+
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = [];
+
+        foreach (TargetAssignment targetAssignment in GetTargetAssignments(symbol, semanticModel))
+        {
+            ApplyTargetAssignment(targetAssignment, branchSqlTexts, ref hasScopeHelper);
+        }
+
+        if (branchSqlTexts.Count == 0)
+        {
+            return hasScopeHelper
+                ? new ResolutionResult(null, false, true)
+                : null;
+        }
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private readonly struct TargetAssignment
+    {
+        internal TargetAssignment(bool isAddAssignment, ExpressionSyntax right, SemanticModel semanticModel)
+        {
+            IsAddAssignment = isAddAssignment;
+            Right = right;
+            SemanticModel = semanticModel;
+        }
+
+        internal bool IsAddAssignment { get; }
+
+        internal ExpressionSyntax Right { get; }
+
+        internal SemanticModel SemanticModel { get; }
+    }
+
+    private static IEnumerable<TargetAssignment> GetTargetAssignments(
+        ISymbol symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is ILocalSymbol local)
+        {
+            SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+                yield break;
+
+            BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
+
+            if (block is null)
+                yield break;
+
+            foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+                yield return targetAssignment;
+
+            yield break;
+        }
+
+        if (symbol is not IFieldSymbol and not IPropertySymbol)
+            yield break;
+
+        bool isStaticMember = symbol switch
+        {
+            IFieldSymbol field => field.IsStatic,
+            IPropertySymbol property => property.IsStatic,
+            _ => false,
+        };
+
+        foreach (IMethodSymbol method in symbol.ContainingType.GetMembers().OfType<IMethodSymbol>())
+        {
+            if (method.MethodKind is not MethodKind.Ordinary and not MethodKind.Constructor)
+                continue;
+
+            if (method.IsStatic != isStaticMember)
+                continue;
+
+            BlockSyntax? block = TryGetMethodBodyBlock(method);
+
+            if (block is null)
+                continue;
+
+            foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+                yield return targetAssignment;
+        }
+    }
+
+    private static void ApplyTargetAssignment(
+        TargetAssignment targetAssignment,
+        List<string> branchSqlTexts,
+        ref bool hasScopeHelper)
+    {
+        ResolutionResult rightResolution = ResolveCore(
+            targetAssignment.Right,
+            targetAssignment.SemanticModel,
+            visitingInterpolatedHole: false);
+        hasScopeHelper |= rightResolution.HasScopeHelperInvocation;
+
+        if (!targetAssignment.IsAddAssignment)
+        {
+            AppendDistinctBranchSqlTexts(branchSqlTexts, rightResolution);
+
+            return;
+        }
+
+        if (!rightResolution.IsStaticallyResolved)
+            return;
+
+        string appended = rightResolution.SqlText ?? string.Empty;
+
+        if (branchSqlTexts.Count == 0)
+        {
+            if (appended.Length > 0)
+                branchSqlTexts.Add(appended);
+
+            return;
+        }
+
+        List<string> updated = [];
+
+        foreach (string existing in branchSqlTexts)
+        {
+            string combined = existing + appended;
+
+            if (!updated.Contains(combined, StringComparer.Ordinal))
+                updated.Add(combined);
+        }
+
+        branchSqlTexts.Clear();
+        branchSqlTexts.AddRange(updated);
+    }
+
+    private static BlockSyntax? TryGetMethodBodyBlock(IMethodSymbol method)
+    {
+        SyntaxReference? syntaxReference = method.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is ConstructorDeclarationSyntax constructorDeclaration)
+            return constructorDeclaration.Body;
+
+        if (syntaxReference?.GetSyntax() is MethodDeclarationSyntax methodDeclaration)
+            return methodDeclaration.Body;
+
+        return null;
+    }
+
+    private static IEnumerable<TargetAssignment> GetTargetAssignmentsInBlock(
+        BlockSyntax block,
+        ISymbol targetSymbol,
+        SemanticModel semanticModel)
+    {
+        SemanticModel modelForBlock = GetSemanticModelForSyntax(block, semanticModel);
+
+        foreach (AssignmentExpressionSyntax assignment in block.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+        {
+            if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression) &&
+                !assignment.IsKind(SyntaxKind.AddAssignmentExpression))
+            {
+                continue;
+            }
+
+            if (!TryGetAssignmentTargetSymbol(assignment.Left, modelForBlock, out ISymbol? leftSymbol))
+                continue;
+
+            if (leftSymbol is null || !SymbolEqualityComparer.Default.Equals(leftSymbol, targetSymbol))
+                continue;
+
+            yield return new TargetAssignment(
+                assignment.IsKind(SyntaxKind.AddAssignmentExpression),
+                assignment.Right,
+                modelForBlock);
+        }
+    }
+
+    private static bool TryGetAssignmentTargetSymbol(
+        ExpressionSyntax left,
+        SemanticModel semanticModel,
+        out ISymbol? targetSymbol)
+    {
+        targetSymbol = null;
+
+        if (left is IdentifierNameSyntax identifier)
+        {
+            targetSymbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+
+            return targetSymbol is not null;
+        }
+
+        if (left is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } memberAccess)
+        {
+            targetSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+
+            return targetSymbol is not null;
+        }
+
+        return false;
     }
 
     private static SemanticModel GetSemanticModelForSyntax(SyntaxNode syntax, SemanticModel semanticModel)

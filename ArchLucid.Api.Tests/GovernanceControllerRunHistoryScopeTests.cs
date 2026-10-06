@@ -1491,6 +1491,72 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "test",
+                "actor",
+                "actor-id",
+                null,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("actor");
+        actor.Setup(a => a.GetActorId()).Returns("actor-id");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "submit-audit-nbsp-test";
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runIdWithNbsp,
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: false,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.RunId.Should().Be(runId);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_logs_trimmed_manifest_version_in_audit_when_manifest_version_is_padded()
     {
         Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");

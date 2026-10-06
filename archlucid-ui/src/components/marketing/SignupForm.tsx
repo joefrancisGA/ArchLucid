@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -39,12 +39,51 @@ type TenantProvisioningResult = {
   wasAlreadyProvisioned?: boolean;
 };
 
+/** JSON body for `POST /v1/register` (same shaping as submit handler). */
+export function buildSignupRegisterPayload(values: SignupFormValues): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    organizationName: values.organizationName,
+    adminEmail: values.adminEmail,
+    adminDisplayName: values.adminDisplayName,
+  };
+
+  if (values.companySize) {
+    payload.companySize = values.companySize;
+  }
+
+  const teamTrim = values.architectureTeamSize?.trim() ?? "";
+
+  if (teamTrim.length > 0) {
+    const t = Number(teamTrim);
+
+    if (Number.isFinite(t) && Number.isInteger(t) && t > 0 && t <= 10_000) {
+      payload.architectureTeamSize = t;
+    }
+  }
+
+  if (values.industryVertical) {
+    payload.industryVertical = values.industryVertical;
+  }
+
+  if (values.industryVertical === "Other") {
+    const o = values.industryVerticalOther?.trim() ?? "";
+
+    if (o.length > 0) {
+      payload.industryVerticalOther = o;
+    }
+  }
+
+  return payload;
+}
+
 const optionalFieldLabelClass = cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
 
 /** Self-service signup: posts to `POST /v1/register` via same-origin API proxy. */
 export function SignupForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const registerCompletedRef = useRef(false);
+  const registerInFlightRef = useRef(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -68,40 +107,16 @@ export function SignupForm() {
   const readinessMessage = deriveSignupFormReadinessMessage(values);
 
   const onSubmit = handleSubmit(async (values) => {
+    if (registerCompletedRef.current || registerInFlightRef.current) {
+      return;
+    }
+
+    registerInFlightRef.current = true;
     setSubmitting(true);
+    let registerSucceeded = false;
 
     try {
-      const payload: Record<string, unknown> = {
-        organizationName: values.organizationName,
-        adminEmail: values.adminEmail,
-        adminDisplayName: values.adminDisplayName,
-      };
-
-      if (values.companySize) {
-        payload.companySize = values.companySize;
-      }
-
-      const teamTrim = values.architectureTeamSize?.trim() ?? "";
-
-      if (teamTrim.length > 0) {
-        const t = Number(teamTrim);
-
-        if (Number.isFinite(t)) {
-          payload.architectureTeamSize = t;
-        }
-      }
-
-      if (values.industryVertical) {
-        payload.industryVertical = values.industryVertical;
-      }
-
-      if (values.industryVertical === "Other") {
-        const o = values.industryVerticalOther?.trim() ?? "";
-
-        if (o.length > 0) {
-          payload.industryVerticalOther = o;
-        }
-      }
+      const payload = buildSignupRegisterPayload(values);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -111,7 +126,11 @@ export function SignupForm() {
       const firstTouch = readFirstTouchCookie();
 
       if (firstTouch) {
-        headers["x-archlucid-first-touch"] = serializeFirstTouchHeader(firstTouch);
+        try {
+          headers["x-archlucid-first-touch"] = serializeFirstTouchHeader(firstTouch);
+        } catch {
+          /* Cookie attribution must not block evaluation signup when header encoding fails. */
+        }
       }
 
       const res = await fetch("/api/proxy/v1/register", {
@@ -145,6 +164,9 @@ export function SignupForm() {
         return;
       }
 
+      registerSucceeded = true;
+      registerCompletedRef.current = true;
+
       if (values.companySize) {
         try {
           sessionStorage.setItem("archlucid_signup_company_size", values.companySize);
@@ -173,7 +195,10 @@ export function SignupForm() {
       const message = e instanceof Error ? e.message : "Request failed.";
       showError("Signup", message);
     } finally {
-      setSubmitting(false);
+      if (!registerSucceeded) {
+        registerInFlightRef.current = false;
+        setSubmitting(false);
+      }
     }
   });
 

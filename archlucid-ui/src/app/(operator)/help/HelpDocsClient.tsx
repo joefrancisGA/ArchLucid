@@ -80,29 +80,80 @@ function helpDocCategoryDomId(category: string): string {
   return `help-cat-${slugifyHelpHeading(category)}`;
 }
 
+function normalizeHelpHubFilterQuery(query: string): string {
+  let normalized = query.trim().toLowerCase();
+
+  while (normalized.length > 1 && normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  return normalized;
+}
+
+function normalizeDocIndexUrlForDedupe(url: string): string {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+      }
+
+      if (schemeRelative) {
+        return `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
+      }
+
+      return parsed.toString();
+    } catch {
+      if (trimmed.length > 1 && trimmed.endsWith("/") && !trimmed.includes("?")) {
+        return trimmed.replace(/\/+$/, "");
+      }
+
+      return trimmed;
+    }
+  }
+
+  if (trimmed.length > 1 && trimmed.endsWith("/")) {
+    return trimmed.replace(/\/+$/, "");
+  }
+
+  return trimmed;
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
   }
 
   const seenKeys = new Set<string>();
-  const staticUrls = new Set<string>();
+  const claimedUrls = new Set<string>();
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    staticUrls.add(e.url);
+    claimedUrls.add(normalizeDocIndexUrlForDedupe(e.url));
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
 
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
+    const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+    const duplicateNormalizedPath =
+      normalizedUrl !== "/help" && claimedUrls.has(normalizedUrl);
 
-    if (seenKeys.has(k) || staticUrls.has(e.url)) {
+    if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;
     }
 
     seenKeys.add(k);
+
+    if (normalizedUrl !== "/help") {
+      claimedUrls.add(normalizedUrl);
+    }
+
     merged.push(e);
   }
 
@@ -154,6 +205,11 @@ export function HelpDocsClient() {
         ? indexQuery.error.message
         : "Failed to load documentation index."
       : null;
+  const emptyIndexWarning =
+    indexQuery.isSuccess && indexQuery.data !== undefined && indexQuery.data.length === 0
+      ? "Documentation index response was empty."
+      : null;
+  const indexRefreshWarning = loadError ?? emptyIndexWarning;
   const entries = indexQuery.isPending
     ? null
     : mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, indexQuery.data ?? null);
@@ -162,7 +218,7 @@ export function HelpDocsClient() {
   const mergedEntries = useMemo(() => entries ?? [...HELP_DOCS_STATIC_ENTRIES], [entries]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalizeHelpHubFilterQuery(query);
 
     if (q.length === 0) {
       return mergedEntries;
@@ -171,7 +227,9 @@ export function HelpDocsClient() {
     return mergedEntries.filter((e) => {
       const localizedTitle = localize(e.title);
       const localizedSummary = localize(e.summary);
-      const hay = `${e.category} ${e.title} ${e.summary} ${e.url} ${localizedTitle} ${localizedSummary}`.toLowerCase();
+      const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+      const hay =
+        `${e.category} ${e.title} ${e.summary} ${e.url} ${normalizedUrl} ${localizedTitle} ${localizedSummary}`.toLowerCase();
 
       return hay.includes(q);
     });
@@ -206,9 +264,11 @@ export function HelpDocsClient() {
         <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
         on nav items when configured.
       </p>
-      {loadError !== null ? (
+      {indexRefreshWarning !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-amber-800 dark:text-amber-200")} role="status">
-          Full documentation index could not be refreshed ({loadError}). Quick links below are always available.
+          {loadError !== null
+            ? `Full documentation index could not be refreshed (${loadError}). Quick links below are always available.`
+            : `${indexRefreshWarning} Quick links below are always available.`}
         </p>
       ) : null}
       {entries === null ? (
@@ -258,7 +318,7 @@ export function HelpDocsClient() {
               {rows.map((row) => (
                 <li key={`${cat}-${row.title}-${row.url}`}>
                   <Link
-                    href={row.url}
+                    href={normalizeDocIndexUrlForDedupe(row.url.trim())}
                     className={OPERATOR_LINK.inline}
                     {...linkProps(row.url)}
                   >

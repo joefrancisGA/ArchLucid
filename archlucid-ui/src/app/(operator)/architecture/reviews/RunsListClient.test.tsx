@@ -4,10 +4,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const runsListSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { routerQuery: "", committedQuery: "" };
+
+  const parseQueryFromHref = (href: string): string => {
+    try {
+      const url = new URL(href, "http://localhost/");
+
+      return url.search.startsWith("?") ? url.search.slice(1) : url.search;
+    } catch {
+      const qIndex = href.indexOf("?");
+
+      return qIndex >= 0 ? href.slice(qIndex + 1) : "";
+    }
+  };
 
   return {
     state,
+    parseQueryFromHref,
     subscribe(listener: () => void): () => void {
       listeners.add(listener);
 
@@ -16,20 +29,31 @@ const runsListSearchParamsHarness = vi.hoisted(() => {
       };
     },
     applyHref(href: string): void {
-      try {
-        const url = new URL(href, "http://localhost/");
-        state.query = url.search.startsWith("?") ? url.search.slice(1) : url.search;
-      } catch {
-        const qIndex = href.indexOf("?");
-        state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
+      const query = parseQueryFromHref(href);
+      state.routerQuery = query;
+      state.committedQuery = query;
+
+      for (const listener of listeners) {
+        listener();
       }
+    },
+    applyRouterHref(href: string): void {
+      state.routerQuery = parseQueryFromHref(href);
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    syncRouterFromCommitted(): void {
+      state.routerQuery = state.committedQuery;
 
       for (const listener of listeners) {
         listener();
       }
     },
     reset(): void {
-      state.query = "";
+      state.routerQuery = "";
+      state.committedQuery = "";
     },
   };
 });
@@ -43,9 +67,9 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => runsListSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => runsListSearchParamsHarness.state.committedQuery,
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
-      runsListSearchParamsHarness.applyHref(href);
+      runsListSearchParamsHarness.state.committedQuery = runsListSearchParamsHarness.parseQueryFromHref(href);
 
       return true;
     },
@@ -56,7 +80,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-    useSearchParams: () => new URLSearchParams(runsListSearchParamsHarness.state.query),
+    useSearchParams: () => new URLSearchParams(runsListSearchParamsHarness.state.routerQuery),
     usePathname: () => "/architecture/reviews",
     useRouter: () => ({
       replace: (href: string) => {
@@ -131,7 +155,7 @@ const sampleRun: RunSummary = {
 function RunsListSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
   useSyncExternalStore(
     runsListSearchParamsHarness.subscribe,
-    () => runsListSearchParamsHarness.state.query,
+    () => runsListSearchParamsHarness.state.routerQuery,
     () => "",
   );
 
@@ -139,7 +163,8 @@ function RunsListSearchParamsRerenderHost({ children }: { readonly children: Rea
 }
 
 function renderRunsList(ui: ReactElement, searchQuery = "") {
-  runsListSearchParamsHarness.state.query = searchQuery;
+  runsListSearchParamsHarness.state.routerQuery = searchQuery;
+  runsListSearchParamsHarness.state.committedQuery = searchQuery;
 
   return render(<RunsListSearchParamsRerenderHost>{ui}</RunsListSearchParamsRerenderHost>);
 }
@@ -309,7 +334,7 @@ describe("RunsListClient inspector", () => {
     );
 
     expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
-    expect(runsListSearchParamsHarness.state.query).not.toContain("compareRuns=");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("compareRuns=");
   });
 
   it("buyer-polished: uses finalized section heading and scope chips", () => {
@@ -513,7 +538,7 @@ describe("RunsListClient inspector", () => {
     fireEvent.change(filterInput, { target: { value: "Second" } });
 
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
-    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("inspectorRunId=");
   });
 
   it("buyer-polished: scope filter closes inspector when the selected run is hidden", () => {
@@ -537,7 +562,7 @@ describe("RunsListClient inspector", () => {
     );
 
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
-    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("inspectorRunId=");
   });
 
   it("keeps compareRuns selection when text filter hides one selected row", () => {
@@ -559,7 +584,7 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
     expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
-    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
   });
 
   it("buyer-polished: inspectorRunId deep link opens inspector on card layout", () => {
@@ -657,6 +682,38 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("re-sorts rows when sort= changes via popstate before useSearchParams catches up", () => {
+    const olderRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      description: "Older review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+    };
+    const newerRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Newer review",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+    };
+
+    const rowOrder = (): string[] =>
+      Array.from(document.querySelectorAll('[data-testid^="runs-row-"]')).map((row) =>
+        row.getAttribute("data-testid") ?? "",
+      );
+
+    renderRunsList(
+      <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(rowOrder()[0]).toBe(`runs-row-${newerRun.runId}`);
+
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc";
+    fireEvent.popState(window);
+
+    expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
+    expect(screen.getByTestId("runs-list-sort-created-asc")).toHaveAttribute("aria-current", "page");
+  });
+
   it("closes stale inspector preview when inspectorRunId changes to an unknown run without popstate", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
@@ -684,6 +741,32 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
 
+  it("keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`inspectorRunId=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.routerQuery).not.toContain("inspectorRunId=");
+
+    const refreshedRuns = [sampleRun, secondRun].map((run) => ({ ...run }));
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={refreshedRuns} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+  });
+
   it("closes the inspector when inspectorRunId URL changes without a popstate event", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
@@ -707,6 +790,59 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
+
+  it("closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = "";
+    fireEvent.popState(window);
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
+
+  it("switches inspector preview when inspectorRunId changes via popstate before useSearchParams catches up", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    const preview = screen.getByTestId("run-inspector-preview");
+    expect(preview).toBeInTheDocument();
+    expect(within(preview).getByText(sampleRun.description!)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = `inspectorRunId=${secondRun.runId}`;
+    fireEvent.popState(window);
+
+    const refreshedRuns = [sampleRun, secondRun].map((run) => ({ ...run }));
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={refreshedRuns} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    const previewAfterPopstate = screen.getByTestId("run-inspector-preview");
+    expect(previewAfterPopstate).toBeInTheDocument();
+    expect(within(previewAfterPopstate).getByText(secondRun.description!)).toBeInTheDocument();
+    expect(within(previewAfterPopstate).queryByText(sampleRun.description!)).toBeNull();
   });
 
   it("re-applies compare selection when compareRuns URL changes without a popstate event", () => {
@@ -928,11 +1064,11 @@ describe("RunsListClient inspector", () => {
       target: { value: "Demo" },
     });
 
-    expect(runsListSearchParamsHarness.state.query).not.toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
 
     await vi.advanceTimersByTimeAsync(300);
 
-    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
 
     vi.useRealTimers();
   });
@@ -959,6 +1095,12 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.getByText(/only two reviews can be compared/i)).toBeInTheDocument();
 
+    runsListSearchParamsHarness.syncRouterFromCommitted();
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />
+      </RunsListSearchParamsRerenderHost>,
+    );
     runsListSearchParamsHarness.applyHref("/architecture/reviews");
     view.rerender(
       <RunsListSearchParamsRerenderHost>
@@ -968,6 +1110,34 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByText(/only two reviews can be compared/i)).toBeNull();
     expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
+  });
+
+  it("clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up", () => {
+    const runB: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+    const runC: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      description: "Third review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runB.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runC.runId}`)).getByRole("checkbox"));
+
+    expect(screen.getByText(/only two reviews can be compared/i)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = `compareRuns=${sampleRun.runId}`;
+    fireEvent.popState(window);
+
+    expect(screen.queryByText(/only two reviews can be compared/i)).toBeNull();
   });
 
   it("shows a replacement notice when a third compare checkbox is selected", () => {
@@ -993,9 +1163,9 @@ describe("RunsListClient inspector", () => {
     expect(
       screen.getByText(/only two reviews can be compared/i),
     ).toBeInTheDocument();
-    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${runB.runId}`);
-    expect(runsListSearchParamsHarness.state.query).toContain(runC.runId);
-    expect(runsListSearchParamsHarness.state.query).not.toContain(sampleRun.runId);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${runB.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(runC.runId);
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain(sampleRun.runId);
   });
 
   it("buyer-polished: active text filter switches from card layout to the work-queue table", () => {
@@ -1129,8 +1299,8 @@ describe("RunsListClient inspector", () => {
     });
     fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
 
-    expect(runsListSearchParamsHarness.state.query).toContain(`inspectorRunId=${sampleRun.runId}`);
-    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`inspectorRunId=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
   });
 
   it("preserves pending text filter in compareRuns URL sync before q= debounce completes", () => {
@@ -1149,8 +1319,8 @@ describe("RunsListClient inspector", () => {
     });
     fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
 
-    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${sampleRun.runId}`);
-    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
   });
 
   it("preserves q= and sort= in the Next pagination link", () => {

@@ -140,6 +140,50 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
     }
 
     [Fact]
+    public async Task RunSinglePassAsync_preserves_reclaimed_retry_count_when_queue_notify_fails()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+
+        repository
+            .Setup(r => r.ResetStaleRunningJobsOlderThanAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { "job-reclaimed" });
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-reclaimed", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+
+        repository
+            .Setup(r => r.GetAsync("job-reclaimed", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new BackgroundJobRow
+            {
+                JobId = "job-reclaimed",
+                State = nameof(BackgroundJobState.Pending),
+                RetryCount = 2,
+                MaxRetries = 5,
+            });
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        services.AddSingleton(notifySender.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new BackgroundJobsOptions { ProcessorVisibilityMinutes = 15 }),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                "job-reclaimed",
+                It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
+                2,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling()
     {
         Mock<IBackgroundJobRepository> repository = new();

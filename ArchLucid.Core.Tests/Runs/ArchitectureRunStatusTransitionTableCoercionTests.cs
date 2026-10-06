@@ -19,6 +19,16 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("5.0", out ArchitectureRunStatus status);
+
+        // In-memory transition callers only; SQL CK_Runs_LegacyRunStatus allowlist stores enum names on persisted rows.
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Committed);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_string_encoded_boolean_ordinal()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("True", out ArchitectureRunStatus status);

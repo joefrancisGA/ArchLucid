@@ -29,4 +29,17 @@ public sealed class ContentSafetyEnabledButUnconfiguredGuardTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*ContentSafety:Enabled is true*");
     }
+
+    [Fact]
+    public async Task CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error()
+    {
+        ContentSafetyEnabledButUnconfiguredGuard sut = new();
+
+        using CancellationTokenSource cts = new();
+        await cts.CancelAsync();
+
+        Func<Task> act = () => sut.CheckInputAsync("input", cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
 }

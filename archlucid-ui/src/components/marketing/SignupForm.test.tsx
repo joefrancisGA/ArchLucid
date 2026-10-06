@@ -20,7 +20,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { showError, showSuccess } from "@/lib/toast";
-import { SignupForm } from "./SignupForm";
+import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
 function fillRequiredFields() {
   fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
@@ -29,12 +29,144 @@ function fillRequiredFields() {
 }
 
 describe("SignupForm", () => {
+  it("omits non-integer optional architecture team size from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "3.5",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
   it("disables submit until required fields are valid (TB-2010)", () => {
     render(<SignupForm />);
 
     expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
     expect(screen.getByTestId("signup-form-readiness")).toHaveTextContent(/work email/i);
     expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it("does not allow another register POST when success handling throws after a 201", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockImplementation(() => {
+      throw new Error("toast failed");
+    });
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "toast failed");
+      expect(registerFetchCount()).toBe(1);
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Creating/i }));
+
+    expect(registerFetchCount()).toBe(1);
+
+    vi.mocked(showSuccess).mockReset();
+    vi.unstubAllGlobals();
+  });
+
+  it("does not fire a second register request after success before navigation", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalled();
+      expect(registerFetchCount()).toBe(1);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Creating/i }));
+
+    expect(registerFetchCount()).toBe(1);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still posts register when first-touch cookie contains non-Latin1 UTM values", async () => {
+    const capturedUtc = "2026-10-06T00:00:00.000Z";
+    const cookieValue = encodeURIComponent(
+      JSON.stringify({ utm_source: "launch", utm_campaign: "🚀", capturedUtc }),
+    );
+
+    document.cookie = `archlucid.firstTouch.v1=${cookieValue}`;
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers["x-archlucid-first-touch"]).toBeUndefined();
+
+    document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
   });
 
   it("submits valid payload to the same-origin proxy", async () => {
@@ -381,7 +513,7 @@ describe("SignupForm", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
     });
 
     vi.unstubAllGlobals();
@@ -407,6 +539,51 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not fire a second register request on rapid double-click before submitting state updates", async () => {
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          setTimeout(
+            () =>
+              resolve(
+                new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+                  status: 201,
+                  headers: { "Content-Type": "application/json" },
+                }),
+              ),
+            50,
+          );
+        }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    const button = screen.getByRole("button", { name: /Create evaluation workspace/i });
+
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(registerFetchCount()).toBe(1);
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 60);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not fire a second register request when the form is submitted again while in flight", async () => {
     let resolveFetch: (value: Response) => void = () => undefined;
 
@@ -418,6 +595,9 @@ describe("SignupForm", () => {
     );
 
     vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
 
     render(<SignupForm />);
     fillRequiredFields();
@@ -431,13 +611,13 @@ describe("SignupForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(registerFetchCount()).toBe(1);
     });
 
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(registerFetchCount()).toBe(1);
     });
 
     resolveFetch(

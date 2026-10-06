@@ -38,6 +38,9 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
         PromoteSingleValueIfMissing(identity, options.WorkspaceIdClaimType, "workspace_id");
         PromoteSingleValueIfMissing(identity, options.ProjectIdClaimType, "project_id");
         PromoteSingleValueIfMissing(identity, options.DirectoryObjectIdClaimType, "oid");
+
+        DeduplicateCanonicalGuidScopeClaims(identity);
+        DeduplicateCanonicalOidClaim(identity);
     }
 
     internal static bool IsSaml2AuthenticatedIdentity(ClaimsIdentity identity)
@@ -114,4 +117,61 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
 
     private static bool IsGuidScopeClaimType(string targetClaimType) =>
         targetClaimType is "tenant_id" or "workspace_id" or "project_id";
+
+    private static void DeduplicateCanonicalGuidScopeClaims(ClaimsIdentity identity)
+    {
+        DeduplicateCanonicalGuidScopeClaim(identity, "tenant_id");
+        DeduplicateCanonicalGuidScopeClaim(identity, "workspace_id");
+        DeduplicateCanonicalGuidScopeClaim(identity, "project_id");
+    }
+
+    private static void DeduplicateCanonicalGuidScopeClaim(ClaimsIdentity identity, string claimType)
+    {
+        List<Claim> existing = identity.Claims
+            .Where(c => string.Equals(c.Type, claimType, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (existing.Count <= 1)
+            return;
+
+        List<Guid> distinctParseable = existing
+            .Select(static c => c.Value)
+            .Select(static value => Guid.TryParse(value, out Guid parsed) ? parsed : (Guid?)null)
+            .Where(static parsed => parsed is not null)
+            .Select(static parsed => parsed!.Value)
+            .Distinct()
+            .ToList();
+
+        foreach (Claim claim in existing)
+            identity.RemoveClaim(claim);
+
+        if (distinctParseable.Count != 1)
+            return;
+
+        identity.AddClaim(new Claim(claimType, distinctParseable[0].ToString("D")));
+    }
+
+    private static void DeduplicateCanonicalOidClaim(ClaimsIdentity identity)
+    {
+        List<Claim> existing = identity.Claims
+            .Where(c => string.Equals(c.Type, "oid", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (existing.Count <= 1)
+            return;
+
+        List<string> distinctValues = existing
+            .Select(static c => c.Value.Trim())
+            .Where(static value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (Claim claim in existing)
+            identity.RemoveClaim(claim);
+
+        if (distinctValues.Count != 1)
+            return;
+
+        identity.AddClaim(new Claim("oid", distinctValues[0]));
+    }
 }

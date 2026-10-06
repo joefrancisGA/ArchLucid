@@ -128,7 +128,7 @@ public sealed partial class DapperScimUserRepository
                     Id = id,
                     ExternalId = externalId,
                     UserName = userName,
-                    DisplayName = displayName,
+                    DisplayName = string.IsNullOrWhiteSpace(displayName) ? null : displayName,
                     DisplayNameProvided = displayName is null ? 0 : 1,
                     Active = active,
                     ResolvedRole = resolvedRole,

@@ -163,6 +163,22 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_partially_completed_with_context_snapshot_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa14"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GoldenManifestId = null,
+        };
+
+        // TryResolveTerminalFailurePhase runs before progress-marker branches (#1168 ordering).
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete()
     {
         RunRecord header = new()
@@ -346,5 +362,21 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         // Dead-letter detection precedes legacy-status and progress-marker branches.
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa15"),
+            LegacyRunStatus = "not-a-valid-run-status",
+            GoldenManifestId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ContextSnapshotId = null,
+        };
+
+        // SQL CK_Runs_LegacyRunStatus enum-name allowlist blocks persisted rows; progress-marker branch is intentional for fixtures.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }
 }

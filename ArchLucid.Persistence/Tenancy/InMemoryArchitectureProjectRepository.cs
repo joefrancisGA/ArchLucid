@@ -117,6 +117,9 @@ public sealed class InMemoryArchitectureProjectRepository : IArchitectureProject
         if (!row.IsDeleted)
             return Task.FromResult(ArchitectureProjectRestoreResult.AlreadyActive);
 
+        if (!row.DeletedUtc.HasValue)
+            return Task.FromResult(ArchitectureProjectRestoreResult.NotFoundOrNotDeleted);
+
         bool clash = _byId.Values.Any(o =>
             o.WorkspaceId == workspaceId &&
             !o.IsDeleted &&

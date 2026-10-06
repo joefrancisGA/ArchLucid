@@ -70,6 +70,46 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing()
+    {
+        const string runId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+        const string tenantLower = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string tenantUpper = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA";
+
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+        request.TenantId = tenantLower;
+        request.RunId = runId;
+
+        ReviewCacheDependencyManifest manifestLower =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                tenantLower,
+                runId);
+
+        ReviewCacheDependencyManifest manifestUpper =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                tenantUpper,
+                runId);
+
+        manifestLower.ContentHash.Should().Be(manifestUpper.ContentHash);
+
+        string keyLower = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            tenantLower,
+            runId,
+            manifestLower,
+            publishToProduct: false);
+
+        string keyUpper = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            tenantUpper,
+            runId,
+            manifestUpper,
+            publishToProduct: false);
+
+        keyLower.Should().Be(keyUpper);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_partitions_publish_intent()
     {
         ClosedLoopReasoningRequest request = CreateContinueRequest();

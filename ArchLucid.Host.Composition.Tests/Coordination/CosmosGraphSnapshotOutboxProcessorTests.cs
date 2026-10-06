@@ -10,6 +10,7 @@ using ArchLucid.Persistence.Queries;
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -477,5 +478,94 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = Guid.NewGuid(),
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        outbox
+            .Setup(o => o.RecordBackoffAfterProcessingFailureAsync(
+                outboxId,
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GraphSnapshot?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => Mock.Of<ICosmosGraphSnapshotOutboxCosmosWriter>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
+            TimeProvider.System,
+            new ThrowingWarningLogger<CosmosGraphSnapshotOutboxProcessor>());
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private sealed class ThrowingWarningLogger<T> : ILogger<T>
+    {
+        private sealed class NullScope : IDisposable
+        {
+            public void Dispose()
+            {
+            }
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+            where TState : notnull => new NullScope();
+
+        public bool IsEnabled(LogLevel logLevel) => logLevel == LogLevel.Warning;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel == LogLevel.Warning)
+            {
+                throw new InvalidOperationException("log sink unavailable");
+            }
+        }
     }
 }

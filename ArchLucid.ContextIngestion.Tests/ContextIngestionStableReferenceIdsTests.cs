@@ -7,6 +7,14 @@ namespace ArchLucid.ContextIngestion.Tests;
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionStableReferenceIdsTests
 {
+    [Fact]
+    public void ForDocument_ignores_content_type_charset_parameters()
+    {
+        ContextIngestionStableReferenceIds.ForDocument("spec.txt", "text/plain")
+            .Should()
+            .Be(ContextIngestionStableReferenceIds.ForDocument("spec.txt", "text/plain; charset=utf-8"));
+    }
+
     [Theory]
     [InlineData("text/plain", "TEXT/PLAIN")]
     [InlineData("text/markdown", "Text/Markdown")]

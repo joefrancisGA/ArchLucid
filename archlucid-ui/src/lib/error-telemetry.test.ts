@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { BFF_CSRF_COOKIE_NAME, BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
+
 describe("error-telemetry", () => {
   beforeEach(() => {
     vi.stubGlobal(
@@ -33,6 +35,23 @@ describe("error-telemetry", () => {
     const body = JSON.parse(String(call[1]?.body));
     expect(body.message).toBe("unit probe");
     expect(body.context).toEqual({ source: "test" });
+  });
+
+  it("includes the BFF CSRF header when the companion cookie is present", async () => {
+    vi.stubEnv("NODE_ENV", "test");
+    document.cookie = `${BFF_CSRF_COOKIE_NAME}=csrf-for-telemetry`;
+    const { reportClientError } = await import("@/lib/error-telemetry");
+
+    reportClientError(new Error("csrf probe"));
+
+    await vi.waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+
+    const init = vi.mocked(fetch).mock.calls[0][1];
+    const headers = init?.headers as Headers;
+    expect(headers.get(BFF_CSRF_HEADER)).toBe("csrf-for-telemetry");
+    document.cookie = `${BFF_CSRF_COOKIE_NAME}=; Max-Age=0`;
   });
 
   it("does not post in development", async () => {

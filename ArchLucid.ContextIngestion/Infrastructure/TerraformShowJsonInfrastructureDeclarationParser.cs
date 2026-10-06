@@ -40,10 +40,10 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser(
             using JsonDocument doc = JsonDocument.Parse(declaration.Content);
             JsonElement root = doc.RootElement;
 
-            if (!TryGetPropertyIgnoreCase(root, "values", out JsonElement values))
+            if (!TryGetTerraformShowValuesRoot(root, out JsonElement values))
             {
                 logger.LogWarning(
-                    "Infrastructure declaration '{Name}' (terraform-show-json) has no 'values' root; expected terraform state JSON.",
+                    "Infrastructure declaration '{Name}' (terraform-show-json) has no 'values' or 'planned_values' root; expected terraform show/plan JSON.",
                     declaration.Name);
 
                 return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
@@ -67,5 +67,21 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser(
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static bool TryGetTerraformShowValuesRoot(JsonElement root, out JsonElement values)
+    {
+        if (TryGetPropertyIgnoreCase(root, "values", out values))
+            return true;
+
+        if (TryGetPropertyIgnoreCase(root, "planned_values", out values))
+            return true;
+
+        if (TryGetPropertyIgnoreCase(root, "plannedValues", out values))
+            return true;
+
+        values = default;
+
+        return false;
     }
 }

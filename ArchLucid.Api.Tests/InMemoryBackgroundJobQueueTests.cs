@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Reflection;
+
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
@@ -378,6 +381,137 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_spam_during_failing_job_with_retries_never_surfaces_running_after_canceled()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    await Task.Delay(5, ct);
+
+                    throw new InvalidOperationException("retry spam failure");
+                }));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        string jobId = await queueRef.EnqueueAsync(Work("cancel-tryassign-spam"), maxRetries: 3);
+
+        bool sawCanceled = false;
+
+        Task cancelSpam = Task.Run(async () =>
+        {
+            for (int attempt = 0; attempt < 800; attempt++)
+            {
+                await queueRef!.MarkCanceledAsync(jobId);
+                await Task.Delay(0, CancellationToken.None);
+
+                BackgroundJobInfo? snapshot = await queueRef.GetInfoAsync(jobId);
+
+                if (snapshot?.State == BackgroundJobState.Canceled)
+                    sawCanceled = true;
+
+                if (sawCanceled && snapshot?.State == BackgroundJobState.Running)
+                    throw new InvalidOperationException("Running observed after Canceled was visible.");
+            }
+        });
+
+        await Task.WhenAny(cancelSpam, WaitForAnyTerminalStateAsync(queueRef, jobId, TimeSpan.FromSeconds(12)));
+
+        await cancelSpam;
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled);
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task MarkCanceled_during_dequeue_does_not_overwrite_with_running()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    await Task.Delay(25, ct);
+
+                    throw new InvalidOperationException("dequeue race failure");
+                }));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        string jobId = await queueRef.EnqueueAsync(Work("dequeue-cancel-race"), maxRetries: 2);
+
+        Task cancelSpam = Task.Run(async () =>
+        {
+            for (int attempt = 0; attempt < 400; attempt++)
+            {
+                await queueRef!.MarkCanceledAsync(jobId);
+                await Task.Delay(0, CancellationToken.None);
+            }
+        });
+
+        await Task.WhenAny(cancelSpam, WaitForAnyTerminalStateAsync(queueRef, jobId, TimeSpan.FromSeconds(10)));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over Running assignment during dequeue");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task MarkCanceled_during_terminal_failure_log_blocked_before_return_does_not_assign_failed()
+    {
+        TaskCompletionSource<bool> releaseLog = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("moving to DLQ", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                releaseLog.Task.Wait(TimeSpan.FromSeconds(5));
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("terminal failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("terminal-cancel-blocked-log"), maxRetries: 0);
+
+        await Task.Delay(200, CancellationToken.None);
+
+        await queueRef.MarkCanceledAsync(jobIdRef!);
+        releaseLog.TrySetResult(true);
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef!, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef!);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel before DLQ log returns must block terminal Failed assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
@@ -450,5 +584,81 @@ public sealed class InMemoryBackgroundJobQueueTests
         }
 
         throw new TimeoutException($"Job {jobId} did not reach a terminal state within {timeout}.");
+    }
+
+    [SkippableFact]
+    public async Task StopAsync_during_retry_backoff_requeues_pending_job_for_next_start()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        int attempts = 0;
+
+        InMemoryBackgroundJobQueue queue = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>((_, _) =>
+                {
+                    attempts++;
+
+                    return Task.FromException<BackgroundJobFile>(new InvalidOperationException("transient"));
+                }));
+
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = await queue.EnqueueAsync(Work("retry-stop"), maxRetries: 2);
+
+        BackgroundJobInfo? pendingDuringBackoff = null;
+
+        for (int i = 0; i < 50; i++)
+        {
+            pendingDuringBackoff = await queue.GetInfoAsync(jobId);
+
+            if (pendingDuringBackoff?.State == BackgroundJobState.Pending && pendingDuringBackoff.RetryCount > 0)
+                break;
+
+            await Task.Delay(20, CancellationToken.None);
+        }
+
+        pendingDuringBackoff.Should().NotBeNull();
+        pendingDuringBackoff!.RetryCount.Should().BeGreaterThan(0);
+
+        await queue.StopAsync(CancellationToken.None);
+        await queue.StartAsync(CancellationToken.None);
+
+        await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(15));
+
+        BackgroundJobInfo? finalInfo = await queue.GetInfoAsync(jobId);
+        finalInfo.Should().NotBeNull();
+        finalInfo!.State.Should().Be(BackgroundJobState.Failed);
+        attempts.Should().BeGreaterThan(1, "retry must resume after host stop interrupted the backoff delay");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task EnqueueAsync_when_cancellation_requested_does_not_leave_orphan_pending_job()
+    {
+        using CancellationTokenSource cts = new();
+        cts.Cancel();
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue queue = CreateSystem(logger);
+
+        Func<Task> act = async () => _ = await queue.EnqueueAsync(Work("canceled-enqueue"), cancellationToken: cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        ConcurrentDictionary<string, BackgroundJobInfo> info = ReadInMemoryJobInfoDictionary(queue);
+        info.Should().BeEmpty("canceled enqueue must not leave a Pending row without a channel item");
+    }
+
+    private static ConcurrentDictionary<string, BackgroundJobInfo> ReadInMemoryJobInfoDictionary(
+        InMemoryBackgroundJobQueue queue)
+    {
+        FieldInfo? field = typeof(InMemoryBackgroundJobQueue).GetField(
+            "_info",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        field.Should().NotBeNull();
+
+        return (ConcurrentDictionary<string, BackgroundJobInfo>)field!.GetValue(queue)!;
     }
 }

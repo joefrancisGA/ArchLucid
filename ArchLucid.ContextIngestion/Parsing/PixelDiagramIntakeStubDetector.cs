@@ -18,13 +18,8 @@ public static class PixelDiagramIntakeStubDetector
         ArgumentNullException.ThrowIfNull(document);
         metadata = default!;
 
-        if (!string.Equals(
-                document.ContentType?.Trim(),
-                SupportedContextDocumentContentTypes.StructuredDiagramJson,
-                StringComparison.OrdinalIgnoreCase))
-        {
+        if (!SupportedContextDocumentContentTypes.IsStructuredDiagramJsonContentType(document.ContentType))
             return false;
-        }
 
         if (string.IsNullOrWhiteSpace(document.Content))
         {

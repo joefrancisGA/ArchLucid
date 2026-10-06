@@ -11,7 +11,8 @@ public interface ILlmTenantWalletRefillStage
         decimal amountUsd,
         Guid correlationId,
         string paymentIntentId,
-        CancellationToken cancellationToken);
+        bool incrementMonthlyAutoRefillCount = true,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Auto-refill count for the current UTC month; prior-month rows display as zero until the next refill writes.

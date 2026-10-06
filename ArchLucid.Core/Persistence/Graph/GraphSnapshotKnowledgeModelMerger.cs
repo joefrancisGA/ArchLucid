@@ -12,14 +12,21 @@ public static class GraphSnapshotKnowledgeModelMerger
         ArgumentNullException.ThrowIfNull(contextGraph);
         ArgumentNullException.ThrowIfNull(modelGraph);
 
-        HashSet<string> modelNodeIds = modelGraph.Nodes
-            .Select(static node => NormalizeNodeId(node.NodeId))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        List<GraphNode> mergedNodes = [];
+        HashSet<string> mergedNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
-        List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
-        HashSet<string> mergedNodeIds = new(modelNodeIds, StringComparer.OrdinalIgnoreCase);
+        foreach (GraphNode modelNode in modelGraph.Nodes ?? [])
+        {
+            string normalizedModelNodeId = NormalizeNodeId(modelNode.NodeId);
 
-        foreach (GraphNode contextNode in contextGraph.Nodes)
+            if (mergedNodeIds.Contains(normalizedModelNodeId))
+                continue;
+
+            mergedNodeIds.Add(normalizedModelNodeId);
+            mergedNodes.Add(NormalizeNodeIdWhitespace(modelNode));
+        }
+
+        foreach (GraphNode contextNode in contextGraph.Nodes ?? [])
         {
             string normalizedNodeId = NormalizeNodeId(contextNode.NodeId);
 
@@ -27,45 +34,39 @@ public static class GraphSnapshotKnowledgeModelMerger
                 continue;
 
             mergedNodeIds.Add(normalizedNodeId);
-            mergedNodes.Add(contextNode);
+            mergedNodes.Add(NormalizeNodeIdWhitespace(contextNode));
         }
-
-        HashSet<string> edgeKeys = modelGraph.Edges
-            .Select(static edge => BuildEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         Dictionary<string, string> canonicalNodeIdByNormalized = BuildCanonicalNodeIdLookup(mergedNodes);
 
-        List<GraphEdge> mergedEdges = [.. modelGraph.Edges];
+        List<GraphEdge> mergedEdges = [];
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphEdge contextEdge in contextGraph.Edges)
+        foreach (GraphEdge modelEdge in modelGraph.Edges ?? [])
         {
-            string fromNodeId = ResolveCanonicalEndpoint(contextEdge.FromNodeId, canonicalNodeIdByNormalized);
-            string toNodeId = ResolveCanonicalEndpoint(contextEdge.ToNodeId, canonicalNodeIdByNormalized);
-            string key = BuildEdgeKey(fromNodeId, toNodeId, contextEdge.EdgeType);
+            GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(modelEdge, canonicalNodeIdByNormalized);
+            string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
 
             if (edgeKeys.Contains(key))
                 continue;
 
             edgeKeys.Add(key);
-            mergedEdges.Add(
-                new GraphEdge
-                {
-                    EdgeId = contextEdge.EdgeId,
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
-                    EdgeType = contextEdge.EdgeType,
-                    Label = contextEdge.Label,
-                    Weight = contextEdge.Weight,
-                    InferenceSource = contextEdge.InferenceSource,
-                    ProvenanceKind = contextEdge.ProvenanceKind,
-                    DeclaredConnectionId = contextEdge.DeclaredConnectionId,
-                    Properties = contextEdge.Properties,
-                    ReasoningTrace = contextEdge.ReasoningTrace,
-                });
+            mergedEdges.Add(canonicalEdge);
         }
 
-        List<string> warnings = [.. modelGraph.Warnings, .. contextGraph.Warnings];
+        foreach (GraphEdge contextEdge in contextGraph.Edges ?? [])
+        {
+            GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(contextEdge, canonicalNodeIdByNormalized);
+            string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
+
+            if (edgeKeys.Contains(key))
+                continue;
+
+            edgeKeys.Add(key);
+            mergedEdges.Add(canonicalEdge);
+        }
+
+        List<string> warnings = [.. modelGraph.Warnings ?? [], .. contextGraph.Warnings ?? []];
 
         return new GraphSnapshot
         {
@@ -80,6 +81,26 @@ public static class GraphSnapshotKnowledgeModelMerger
     }
 
     private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+
+    private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)
+    {
+        string normalizedNodeId = NormalizeNodeId(node.NodeId);
+
+        if (node.NodeId == normalizedNodeId)
+            return node;
+
+        return new GraphNode
+        {
+            NodeId = normalizedNodeId,
+            NodeType = node.NodeType,
+            Label = node.Label,
+            Category = node.Category,
+            SourceType = node.SourceType,
+            SourceId = node.SourceId,
+            Properties = node.Properties,
+            ReasoningTrace = node.ReasoningTrace,
+        };
+    }
 
     private static Dictionary<string, string> BuildCanonicalNodeIdLookup(IReadOnlyList<GraphNode> mergedNodes)
     {
@@ -106,6 +127,26 @@ public static class GraphSnapshotKnowledgeModelMerger
             : normalizedNodeId;
     }
 
+    private static GraphEdge CanonicalizeEdgeEndpoints(
+        GraphEdge edge,
+        IReadOnlyDictionary<string, string> canonicalNodeIdByNormalized)
+    {
+        return new GraphEdge
+        {
+            EdgeId = edge.EdgeId,
+            FromNodeId = ResolveCanonicalEndpoint(edge.FromNodeId, canonicalNodeIdByNormalized),
+            ToNodeId = ResolveCanonicalEndpoint(edge.ToNodeId, canonicalNodeIdByNormalized),
+            EdgeType = (edge.EdgeType ?? string.Empty).Trim(),
+            Label = edge.Label,
+            Weight = edge.Weight,
+            InferenceSource = edge.InferenceSource,
+            ProvenanceKind = edge.ProvenanceKind,
+            DeclaredConnectionId = edge.DeclaredConnectionId,
+            Properties = edge.Properties,
+            ReasoningTrace = edge.ReasoningTrace,
+        };
+    }
+
     private static string BuildEdgeKey(string fromNodeId, string toNodeId, string edgeType)
-        => $"{NormalizeNodeId(fromNodeId)}|{NormalizeNodeId(toNodeId)}|{edgeType.Trim()}";
+        => $"{NormalizeNodeId(fromNodeId)}|{NormalizeNodeId(toNodeId)}|{(edgeType ?? string.Empty).Trim()}";
 }

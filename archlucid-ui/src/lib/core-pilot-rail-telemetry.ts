@@ -21,11 +21,11 @@ function postRailStep(stepIndex: number): void {
   }
 }
 
-/** Records checklist progress (indices align with CORE_PILOT_STEPS ordering). */
+/** Records checklist progress (indices 0–3 match `POST /v1/diagnostics/core-pilot-rail-step` validation). */
 export function recordCorePilotRailChecklistStep(stepIndex: number): void {
   const n = Number.isFinite(stepIndex) ? Math.trunc(stepIndex) : NaN;
 
-  if (n < 0 || n > 5) {
+  if (n < 0 || n > 3) {
     return;
   }
 

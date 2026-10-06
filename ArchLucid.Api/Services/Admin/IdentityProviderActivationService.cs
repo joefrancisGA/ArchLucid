@@ -49,14 +49,8 @@ public sealed class IdentityProviderActivationService(
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmedActorId))
             throw new ArgumentException("actorId is required.", nameof(actorId));
 
-        string protocol = request.Protocol?.Trim().ToLowerInvariant() ?? string.Empty;
-
-        TenantIdentityProtocol parsedProtocol = protocol switch
-        {
-            "oidc" => TenantIdentityProtocol.Oidc,
-            "saml" => TenantIdentityProtocol.Saml,
-            _ => throw new ArgumentException("Protocol must be oidc or saml.")
-        };
+        if (!IdentityProviderProtocolParser.TryParse(request.Protocol, out TenantIdentityProtocol parsedProtocol))
+            throw new ArgumentException("Protocol must be oidc or saml.");
 
         if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");

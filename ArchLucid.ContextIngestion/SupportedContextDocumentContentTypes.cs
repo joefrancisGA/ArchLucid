@@ -47,52 +47,85 @@ public static class SupportedContextDocumentContentTypes
         VisioVsdx,
     ];
 
+    /// <summary>
+    ///     Strips MIME parameter suffixes (for example <c>; charset=utf-8</c>) for allowlist and parser lookup.
+    /// </summary>
+    public static string NormalizeContentTypeForLookup(string? contentType)
+    {
+        if (string.IsNullOrWhiteSpace(contentType))
+            return string.Empty;
+
+        string trimmed = contentType.Trim();
+        int parameterIndex = trimmed.IndexOf(';');
+
+        if (parameterIndex >= 0)
+            trimmed = trimmed[..parameterIndex].Trim();
+
+        return trimmed;
+    }
+
     public static bool IsSupported(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && All.Contains(contentType.Trim(), StringComparer.OrdinalIgnoreCase);
+        string normalized = NormalizeContentTypeForLookup(contentType);
+
+        return !string.IsNullOrEmpty(normalized)
+               && All.Contains(normalized, StringComparer.OrdinalIgnoreCase);
     }
 
     public static bool IsPlainTextContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), "text/plain", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            "text/plain",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsMarkdownContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), "text/markdown", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            "text/markdown",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsStructuredDiagramJsonContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), StructuredDiagramJson, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            StructuredDiagramJson,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsMermaidContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), Mermaid, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            Mermaid,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsStructuredDiagramSvgContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), StructuredDiagramSvg, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            StructuredDiagramSvg,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsDrawIoXmlContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), DrawIoXml, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            DrawIoXml,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsVisioVsdxContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && string.Equals(contentType.Trim(), VisioVsdx, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            NormalizeContentTypeForLookup(contentType),
+            VisioVsdx,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -100,7 +133,9 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public static bool IsForbiddenImageContentType(string? contentType)
     {
-        return !string.IsNullOrWhiteSpace(contentType)
-               && contentType.Trim().StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        string normalized = NormalizeContentTypeForLookup(contentType);
+
+        return !string.IsNullOrEmpty(normalized)
+               && normalized.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
@@ -199,5 +200,55 @@ public sealed class FindingRemediationAssignmentEmailDispatcherTests
         renderer.Verify(
             r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links()
+    {
+        FindingRemediationAssignmentEmailModel? capturedModel = null;
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as FindingRemediationAssignmentEmailModel)
+            .ReturnsAsync("<p>assigned</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("assigned");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions
+        {
+            ProductDisplayName = "ArchLucid",
+            OperatorBaseUrl = "https://user:secret@ops.example.test",
+        });
+
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        bool dispatched = await sut.TryDispatchAsync(
+            Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            runId,
+            "finding-userinfo",
+            "Open ingress",
+            "assignee@example.test",
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        dispatched.Should().BeTrue();
+        capturedModel.Should().NotBeNull();
+        capturedModel!.FindingInspectUrl.Should().Be(
+            "https://ops.example.test/architecture/reviews/11111111111111111111111111111111/findings/finding-userinfo");
+        capturedModel.AssignedToQueueUrl.Should().Be("https://ops.example.test/governance/findings/assigned-to-me");
+        capturedModel.LogoImageUrl.Should().Be("https://ops.example.test/logo/icon-192.png");
     }
 }

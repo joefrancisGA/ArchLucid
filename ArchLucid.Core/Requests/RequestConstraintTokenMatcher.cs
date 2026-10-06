@@ -448,6 +448,14 @@ internal static class RequestConstraintTokenMatcher
             case '\u2212':
             case '\u00B7':
             case '\u2022':
+            case '\u2043':
+            case '\u2027':
+            case '\u2054':
+            case '\u2215':
+            case '\u2044':
+            case '\uFF0F':
+            case '\u115F':
+            case '\u3164':
                 replacement = ' ';
 
                 return true;
@@ -471,6 +479,14 @@ internal static class RequestConstraintTokenMatcher
                 return true;
             default:
                 System.Globalization.UnicodeCategory category = char.GetUnicodeCategory(character);
+
+                // Preserve ASCII hyphen for compound identifiers (e.g. managed-identity); map Word-style dashes to spaces.
+                if (category is System.Globalization.UnicodeCategory.DashPunctuation && character != '-')
+                {
+                    replacement = ' ';
+
+                    return true;
+                }
 
                 if (category is System.Globalization.UnicodeCategory.SpaceSeparator
                     or System.Globalization.UnicodeCategory.LineSeparator

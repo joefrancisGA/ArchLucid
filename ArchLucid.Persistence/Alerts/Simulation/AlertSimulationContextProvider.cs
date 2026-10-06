@@ -47,6 +47,9 @@ public sealed class AlertSimulationContextProvider(
 
         if (runId.HasValue)
         {
+            if (runId.Value == Guid.Empty)
+                return results;
+
             AlertEvaluationContext? single = await BuildContextAsync(
                     scope,
                     runId.Value,
@@ -66,8 +69,11 @@ public sealed class AlertSimulationContextProvider(
             .ListRunsByProjectAsync(scope, string.IsNullOrWhiteSpace(runProjectSlug) ? "default" : runProjectSlug.Trim(), take, ct)
             ;
 
-        foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc))
+        foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc).DistinctBy(x => x.RunId))
         {
+            if (run.RunId == Guid.Empty)
+                continue;
+
             AlertEvaluationContext? context = await BuildContextAsync(
                 scope,
                 run.RunId,
@@ -99,7 +105,10 @@ public sealed class AlertSimulationContextProvider(
 
         // Defense in depth: never build simulation contexts from a run that does not match the caller scope,
         // even if the query layer returned a row (mis-scoped catalog / IDOR residual).
-        if (!RunMatchesCallerScope(detail.Run, scope))
+        if (detail.Run is null || !RunMatchesCallerScope(detail.Run, scope))
+            return null;
+
+        if (detail.Run.RunId != runId)
             return null;
 
         if (detail.GoldenManifest.RunId != runId)
@@ -130,21 +139,23 @@ public sealed class AlertSimulationContextProvider(
 
         ComparisonResult? comparison = null;
 
-        if (comparedToRunId.HasValue)
+        if (comparedToRunId is Guid compareRunId && compareRunId != Guid.Empty)
         {
             RunDetailDto? comparedDetail = await authorityQueryService
-                .GetRunDetailAsync(scope, comparedToRunId.Value, ct)
+                .GetRunDetailAsync(scope, compareRunId, ct)
                 ;
 
             if (comparedDetail?.GoldenManifest is not null
+                && comparedDetail.Run is not null
                 && RunMatchesCallerScope(comparedDetail.Run, scope)
-                && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
+                && comparedDetail.Run.RunId == compareRunId
+                && comparedDetail.GoldenManifest.RunId == compareRunId)
             {
                 if (skipOnSealedHashFailure)
                 {
                     if (!AlertSimulationSealedManifestHashGuard.TryEnsureRunSealedManifestHash(
                             comparedDetail.GoldenManifest,
-                            comparedToRunId.Value,
+                            compareRunId,
                             manifestHashService))
                     {
                         comparedDetail = null;
@@ -154,7 +165,7 @@ public sealed class AlertSimulationContextProvider(
                 {
                     AlertSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrow(
                         comparedDetail.GoldenManifest,
-                        comparedToRunId.Value,
+                        compareRunId,
                         manifestHashService);
                 }
 

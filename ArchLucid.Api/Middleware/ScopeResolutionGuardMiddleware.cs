@@ -50,8 +50,8 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
     private static bool ShouldSkip(HttpContext context)
     {
-        string path = context.Request.Path.Value ?? string.Empty;
-        PathString pathString = context.Request.Path;
+        PathString pathString = NormalizeLeadingSlashSegments(context.Request.Path);
+        string path = pathString.Value ?? string.Empty;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -103,5 +103,18 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
         return string.Equals(trimmed, "/robots.txt", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "/sitemap.xml", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static PathString NormalizeLeadingSlashSegments(PathString path)
+    {
+        string? value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
+            return path;
+
+        while (value.StartsWith("//", StringComparison.Ordinal))
+            value = value[1..];
+
+        return new PathString(value);
     }
 }

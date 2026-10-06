@@ -121,7 +121,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const filterTextRef = useRef(filterText);
   filterTextRef.current = filterText;
   const buyerPackageScope = urlBuyerPackageScope;
-  const sortOrder = urlSortOrder;
+  const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
+  const sortOrderRef = useRef(sortOrder);
+  sortOrderRef.current = sortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const compareSelectionRef = useRef(compareSelection);
@@ -142,6 +144,37 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     filterTextRef.current = urlFilterText;
     setFilterTextState(urlFilterText);
   }, [urlFilterText]);
+
+  useEffect(() => {
+    if (sortOrderRef.current === urlSortOrder) {
+      return;
+    }
+
+    sortOrderRef.current = urlSortOrder;
+    setSortOrderState(urlSortOrder);
+  }, [urlSortOrder]);
+
+  useEffect(() => {
+    const syncSortOrderFromUrl = (): void => {
+      const next = sortOrderFromRunsListSort(
+        parseRunsListSortFromSearch(new URLSearchParams(readWindowLocationSearch()).get("sort")),
+      );
+
+      if (sortOrderRef.current === next) {
+        return;
+      }
+
+      sortOrderRef.current = next;
+      setSortOrderState(next);
+    };
+
+    syncSortOrderFromUrl();
+    window.addEventListener("popstate", syncSortOrderFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSortOrderFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const syncFilterTextFromUrl = (): void => {
@@ -237,6 +270,10 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
     compareSelectionRef.current = next;
     setCompareSelectionState(next);
+
+    if (next.length < 2) {
+      setCompareSelectionNotice(null);
+    }
   }, [urlCompareRunsRaw]);
 
   useEffect(() => {
@@ -254,6 +291,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
       compareSelectionRef.current = next;
       setCompareSelectionState(next);
+      setCompareSelectionNotice(null);
     };
 
     syncCompareSelectionFromUrl();
@@ -271,13 +309,30 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       return;
     }
 
-    if (urlInspectorRunId.length === 0) {
+    const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+    );
+
+    if (urlInspectorRunId.length === 0 && committedInspectorRunId.length === 0) {
       setSelectedRunState(null);
 
       return;
     }
 
-    const fromUrl = safeRuns.find((run) => run.runId === urlInspectorRunId) ?? null;
+    let effectiveInspectorRunId = urlInspectorRunId;
+
+    if (urlInspectorRunId.length === 0) {
+      effectiveInspectorRunId = committedInspectorRunId;
+    }
+    else if (
+      committedInspectorRunId.length > 0 &&
+      committedInspectorRunId !== urlInspectorRunId
+    ) {
+      // History navigation updates window.location before App Router searchParams catch up.
+      effectiveInspectorRunId = committedInspectorRunId;
+    }
+
+    const fromUrl = safeRuns.find((run) => run.runId === effectiveInspectorRunId) ?? null;
 
     if (fromUrl !== null) {
       setSelectedRunState(fromUrl);
@@ -287,6 +342,37 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
     setSelectedRunState(null);
   }, [safeRuns, urlInspectorRunId]);
+
+  useEffect(() => {
+    const syncInspectorFromUrlOnPopState = (): void => {
+      if (safeRuns.length === 0) {
+        setSelectedRunState(null);
+
+        return;
+      }
+
+      const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+        new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+      );
+
+      if (committedInspectorRunId.length === 0) {
+        setSelectedRunState(null);
+
+        return;
+      }
+
+      const fromUrl =
+        safeRuns.find((run) => run.runId === committedInspectorRunId) ?? null;
+
+      setSelectedRunState(fromUrl);
+    };
+
+    window.addEventListener("popstate", syncInspectorFromUrlOnPopState);
+
+    return () => {
+      window.removeEventListener("popstate", syncInspectorFromUrlOnPopState);
+    };
+  }, [safeRuns]);
 
   const closeInspector = useCallback(() => {
     setSelectedRun(null);

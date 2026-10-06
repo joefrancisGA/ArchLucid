@@ -2,6 +2,7 @@ import { describe, expect, it, afterEach, beforeEach } from "vitest";
 
 import {
   isProxyClientScopeForwardingAllowed,
+  resolveAnonymousPublicProxyScopeHeaders,
   resolveProxyUpstreamScopeHeaders,
 } from "@/lib/proxy-scope-resolution";
 
@@ -108,6 +109,20 @@ describe("proxy-scope-resolution", () => {
     process.env.ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS = "true";
 
     expect(isProxyClientScopeForwardingAllowed()).toBe(true);
+  });
+
+  it("resolveAnonymousPublicProxyScopeHeaders forwards inbound scope only", () => {
+    process.env.NODE_ENV = "production";
+    process.env.ARCHLUCID_PROXY_TENANT_ID = "11111111-1111-1111-1111-111111111111";
+
+    const headers = new Headers({
+      "x-tenant-id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
+
+    const resolved = resolveAnonymousPublicProxyScopeHeaders(headers, "v1/marketing/early-access");
+
+    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+    expect(resolved["x-workspace-id"]).toBeUndefined();
   });
 
   it("applies pinned demo workspace scope from pilot-run-deltas proxy paths in production", () => {

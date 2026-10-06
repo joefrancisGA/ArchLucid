@@ -74,7 +74,12 @@ public sealed class TrialLifecycleTransitionEngine(
                 cancellationToken);
 
             if (!recorded)
+            {
+                if (await IsAdvancementAlreadyAppliedAsync(tenantId, advancement.ToStatus, cancellationToken))
+                    return true;
+
                 return false;
+            }
 
             await EmitAuditAsync(tenant, advancement, cancellationToken);
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
@@ -92,11 +97,26 @@ public sealed class TrialLifecycleTransitionEngine(
             cancellationToken);
 
         if (!ok)
+        {
+            if (await IsAdvancementAlreadyAppliedAsync(tenantId, advancement.ToStatus, cancellationToken))
+                return true;
+
             return false;
+        }
 
         await EmitAuditAsync(tenant, advancement, cancellationToken);
         ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
         return true;
+    }
+
+    private async Task<bool> IsAdvancementAlreadyAppliedAsync(
+        Guid tenantId,
+        string targetStatus,
+        CancellationToken cancellationToken)
+    {
+        TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        return afterMiss is not null && TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
     }
 
     private async Task EmitAuditAsync(TenantRecord tenant, TrialLifecycleAdvancement advancement, CancellationToken cancellationToken)

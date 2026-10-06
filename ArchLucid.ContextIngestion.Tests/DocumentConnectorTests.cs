@@ -143,6 +143,55 @@ public sealed class DocumentConnectorTests
     }
 
     [Fact]
+    public async Task DeltaAsync_ReMappedDocumentWithCharsetParameter_ReportsUnchanged()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ: Must scale",
+                }
+            ],
+        };
+
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextIngestionRequest firstMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload firstRaw = await connector.FetchAsync(firstMapped, CancellationToken.None);
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = firstMapped.ProjectId,
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        request.Documents[0].ContentType = "text/plain; charset=utf-8";
+        ContextIngestionRequest secondMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload secondRaw = await connector.FetchAsync(secondMapped, CancellationToken.None);
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task DeltaAsync_ReMappedDocumentWithDifferentNameCasing_ReportsUnchanged()
     {
         ArchitectureRequest request = new()
@@ -304,6 +353,34 @@ public sealed class DocumentConnectorTests
                     DocumentId = "doc-1",
                     Name = "spec.txt",
                     ContentType = " text/plain ",
+                    Content = "REQ: must encrypt",
+                }
+            ]
+        };
+
+        NormalizedContextBatch batch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task NormalizeAsync_ContentTypeWithCharsetParameter_ParsesDocument()
+    {
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload raw = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    DocumentId = "doc-1",
+                    Name = "spec.txt",
+                    ContentType = "text/plain; charset=utf-8",
                     Content = "REQ: must encrypt",
                 }
             ]

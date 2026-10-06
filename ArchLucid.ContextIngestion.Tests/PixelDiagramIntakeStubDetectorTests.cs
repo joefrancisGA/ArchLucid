@@ -44,6 +44,38 @@ public sealed class PixelDiagramIntakeStubDetectorTests
     }
 
     [Fact]
+    public void TryDetect_ReturnsTrue_ForPixelStub_WhenContentTypeIncludesCharsetParameter()
+    {
+        ContextDocumentReference document = new()
+        {
+            Name = "topology.png",
+            ContentType = $"{SupportedContextDocumentContentTypes.StructuredDiagramJson}; charset=utf-8",
+            Content =
+                """
+                {
+                  "nodes": [],
+                  "edges": [],
+                  "trustBoundaryLabels": [],
+                  "intakeStub": {
+                    "kind": "pixel-diagram-not-verifiable",
+                    "sourceMimeType": "image/png",
+                    "extractionMethod": "None",
+                    "verificationStatus": "NotVerifiable",
+                    "evidenceItemId": null,
+                    "pendingStoredFileMarker": "pending-stored-file:topology.png"
+                  }
+                }
+                """,
+        };
+
+        PixelDiagramIntakeStubDetector.TryDetect(document, out PixelDiagramIntakeStubMetadata metadata)
+            .Should()
+            .BeTrue();
+
+        metadata.FileName.Should().Be("topology.png");
+    }
+
+    [Fact]
     public async Task DocumentConnector_NormalizeAsync_MintsCanonicalObjects_ForNativeDiagramJson()
     {
         DocumentConnectorPayloadNormalizer normalizer = new(
@@ -98,6 +130,50 @@ public sealed class PixelDiagramIntakeStubDetectorTests
                 {
                     Name = "topology.png",
                     ContentType = SupportedContextDocumentContentTypes.StructuredDiagramJson,
+                    Content =
+                        """
+                        {
+                          "nodes": [],
+                          "edges": [],
+                          "trustBoundaryLabels": [],
+                          "intakeStub": {
+                            "kind": "pixel-diagram-not-verifiable",
+                            "sourceMimeType": "image/png",
+                            "extractionMethod": "None",
+                            "verificationStatus": "NotVerifiable",
+                            "evidenceItemId": null,
+                            "pendingStoredFileMarker": "pending-stored-file:topology.png"
+                          }
+                        }
+                        """,
+                },
+            ],
+        };
+
+        NormalizedContextBatch batch = await normalizer.NormalizeAsync(payload, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().BeEmpty();
+        batch.Warnings.Should().ContainSingle()
+            .Which.Should().StartWith(PixelDiagramNotVerifiableWarnings.Prefix);
+    }
+
+    [Fact]
+    public async Task DocumentConnector_NormalizeAsync_DoesNotMintCanonicalObjects_ForPixelStub_WithCharsetContentType()
+    {
+        DocumentConnectorPayloadNormalizer normalizer = new(
+        [
+            new ArchLucidDiagramJsonContextDocumentParser(),
+            new PlainTextContextDocumentParser(),
+        ]);
+
+        DocumentConnectorPayload payload = new()
+        {
+            Documents =
+            [
+                new ContextDocumentReference
+                {
+                    Name = "topology.png",
+                    ContentType = $"{SupportedContextDocumentContentTypes.StructuredDiagramJson}; charset=utf-8",
                     Content =
                         """
                         {

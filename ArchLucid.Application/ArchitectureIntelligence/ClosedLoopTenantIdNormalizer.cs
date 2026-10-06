@@ -22,6 +22,6 @@ internal static class ClosedLoopTenantIdNormalizer
         if (string.IsNullOrWhiteSpace(tenantId))
             return string.Empty;
 
-        return tenantId.Trim();
+        return ClosedLoopScopeIdHashNormalizer.Normalize(tenantId);
     }
 }

@@ -53,12 +53,25 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
     /// </summary>
     public static string? TryDirectoryObjectKey(ClaimsPrincipal principal)
     {
+        ArgumentNullException.ThrowIfNull(principal);
+
         string? oid = principal.FindFirst("oid")?.Value;
 
         if (!string.IsNullOrWhiteSpace(oid))
             return oid.Trim();
 
-        return principal.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value?.Trim();
+        const string objectIdentifierClaimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+
+        List<string> distinctObjectIdentifierValues = principal.FindAll(objectIdentifierClaimType)
+            .Select(static claim => claim.Value.Trim())
+            .Where(static value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (distinctObjectIdentifierValues.Count != 1)
+            return null;
+
+        return distinctObjectIdentifierValues[0];
     }
 
     private static IEnumerable<Claim> RoleClaimsForPolicies(string canonicalRoleValue)

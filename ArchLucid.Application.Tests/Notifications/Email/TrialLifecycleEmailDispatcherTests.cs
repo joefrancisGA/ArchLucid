@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
@@ -445,5 +446,69 @@ public sealed class TrialLifecycleEmailDispatcherTests
         provider.Verify(
             p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task DispatchAsync_omits_user_info_from_operator_base_url_in_trial_welcome_link()
+    {
+        Guid tenantId = Guid.Parse("61616161-6161-6161-6161-616161616161");
+        TrialFirstRunEmailModel? capturedModel = null;
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme",
+                TrialStatus = TrialLifecycleStatus.Active,
+                TrialRunsLimit = 5,
+                TrialRunsUsed = 1,
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("admin@example.test");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as TrialFirstRunEmailModel)
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions
+        {
+            ProductDisplayName = "ArchLucid",
+            OperatorBaseUrl = "https://user:secret@ops.example.test",
+        });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("62626262-6262-6262-6262-626262626262"),
+            ProjectId = Guid.Parse("63636363-6363-6363-6363-636363636363"),
+            Trigger = TrialLifecycleEmailTrigger.FirstRunCommitted,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        capturedModel.Should().NotBeNull();
+        capturedModel!.GettingStartedUrl.Should().Be("https://ops.example.test/welcome");
+        capturedModel.LogoImageUrl.Should().Be("https://ops.example.test/logo/icon-192.png");
     }
 }
