@@ -127,6 +127,56 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
             Times.Never);
     }
 
+    [SkippableFact]
+    public async Task HandleWebhookAsync_retries_when_prior_ledger_status_is_failed()
+    {
+        byte[] keyMaterial = new byte[32];
+        Array.Fill(keyMaterial, (byte)10);
+        string signingSecret = "whsec_" + Convert.ToBase64String(keyMaterial);
+
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.Stripe,
+            Stripe = new StripeBillingOptions { WebhookSigningSecret = signingSecret }
+        };
+
+        TestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        ledger
+            .Setup(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        ledger
+            .Setup(l => l.GetWebhookEventResultStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Failed");
+
+        Mock<ITenantRepository> tenants = new();
+        Mock<IAuditService> audit = new();
+        BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+        Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+            new(ledger.Object, activator, changePlan.Object, audit.Object);
+        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(monitor, ledger, subscriptionProcessor, changePlan);
+
+        Event stripeEvent = new()
+        {
+            Id = "evt_failed_retry", Type = "ping", ApiVersion = StripeNetWebhookApiVersion
+        };
+
+        string json = stripeEvent.ToJson();
+        string signature = BuildStripeV1Signature(signingSecret, json);
+
+        BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound { RawBody = json, StripeSignatureHeader = signature },
+            CancellationToken.None);
+
+        result.IsReplayRejected.Should().BeFalse();
+        result.Succeeded.Should().BeTrue();
+        ledger.Verify(
+            l => l.MarkWebhookProcessedAsync("evt_failed_retry", "Processed", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static string BuildStripeV1Signature(string whsecSecret, string payload)
     {
         if (!whsecSecret.StartsWith("whsec_", StringComparison.Ordinal))
