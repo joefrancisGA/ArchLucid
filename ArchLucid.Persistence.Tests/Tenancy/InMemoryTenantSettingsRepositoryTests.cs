@@ -21,6 +21,24 @@ public sealed class InMemoryTenantSettingsRepositoryTests
     }
 
     [Fact]
+    public async Task UpsertAsync_round_trips_tab_padded_setting_key_to_same_slot()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        await repository.UpsertAsync(
+            tenantId,
+            "\t" + TenantSettingKeys.AgentOutputQualityGateMode + "\t",
+            "PilotStrict",
+            CancellationToken.None);
+
+        string? loaded =
+            await repository.TryGetAsync(tenantId, TenantSettingKeys.AgentOutputQualityGateMode, CancellationToken.None);
+
+        loaded.Should().Be("PilotStrict");
+    }
+
+    [Fact]
     public async Task UpsertAsync_round_trips_trimmed_key_and_value()
     {
         InMemoryTenantSettingsRepository repository = new();

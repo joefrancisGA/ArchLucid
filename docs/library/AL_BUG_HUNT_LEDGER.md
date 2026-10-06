@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `tenant-settings-sql` — cheap-disproof closed five seeded `(candidate)` rows (write-guard trim length matches persisted trim; in-memory whitespace read gap not production SQL-reachable; write-in-flight inner read intentional; tab-padded keys normalize to same slot; double delete on absent key does not resurrect cached hits); regressions `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, `UpsertAsync_round_trips_tab_padded_setting_key_to_same_slot`, `TenantSettings_TryGetAsync_returns_null_after_second_delete_on_already_absent_key`; seeded five follow-on candidates; 38 scoped tests passed (13 `SqlTenantSettingsRepository` + 25 `TenantSettings_`).
+
 2026-10-06 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository` after consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (write-guard trim vs NVARCHAR length, in-memory read parity, write-in-flight cache bypass, tab-padded setting keys, MERGE idempotent delete vs cache generation); 12 scoped `SqlTenantSettingsRepository` tests + 24 `TenantSettings_` cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): `tenant-erasure` — promoted dot-segment erasure lifecycle allowlist parity; proved `/v1/tenant/erasure/./approve` and `/v1/tenant/./erasure/approve` returned `403` during quarantine because `NormalizeRequestPath` collapsed duplicate slashes only; normalize `.` / `..` path segments before `Skip`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five follow-on `(candidate)` rows; 50 scoped `TenantErasure` tests passed (26 Api + 19 Application + 4 Core + 1 Persistence).
@@ -3870,13 +3872,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded candidates; 38 scoped tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read repositories; no hunt-ready promotion; seeded five `(candidate)` rows below; 36 scoped tests passed (12 `SqlTenantSettingsRepository` + 24 `TenantSettings_`).
 
@@ -3896,11 +3900,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — validates `settingValue.Trim().Length` while `SqlTenantSettingsRepository.UpsertCoreAsync` persists `settingValue.Trim()`; reachable when callers pass padding whitespace around a payload near the 512-char migration limit (`TenantSettingsSchemaLimits.SettingValueMaxLength`).
-- [ ] (candidate) `InMemoryTenantSettingsRepository.TryGetAsync` — returns stored values without `string.IsNullOrWhiteSpace` absent normalization applied in `SqlTenantSettingsRepository.TryGetCoreAsync`; reachable in unit tests and local harnesses that use the in-memory repository only.
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — `WriteInFlightKeys.ContainsKey` bypasses hybrid cache and reads inner directly without generation-stamped keys; reachable when `UpsertAsync`/`DeleteAsync` overlaps `TryGetAsync` on the same `(tenantId, settingKey)` slot.
-- [ ] (candidate) `TenantSettingKeyNormalizer.Normalize` — `settingKey.Trim().ToLowerInvariant()` collapses leading/trailing tabs while rejecting whitespace-only keys via `ThrowIfNullOrWhiteSpace`; reachable when a caller supplies `\t`-padded keys that normalize to an existing production `TenantSettingKeys` constant.
-- [ ] (candidate) `SqlTenantSettingsRepository.DeleteCoreAsync` — idempotent `DELETE` with no row affected still succeeds while `CachingTenantSettingsRepository` bumps cache generations; reachable via `DeleteAsync` on an already-absent key after a prior delete cleared SQL but a stale hybrid-cache hit could still exist (symmetry with proven delete cached-hit rows #1239).
+- [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — padding whitespace around near-limit payloads — **cheap-disproof 2026-10-06 thorough hunt:** guard and MERGE both use trimmed length/value; cannot exceed `NVARCHAR(512)` when trim fits; regression `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
+- [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — whitespace-only read parity vs SQL — **cheap-disproof 2026-10-06 thorough hunt:** `UpsertAsync` rejects whitespace values; no production caller seeds whitespace rows in SQL or in-memory paths in this zone.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — `WriteInFlightKeys` bypass reads inner during upsert/delete — **cheap-disproof 2026-10-06 thorough hunt:** intentional freshness during wrapper writes; parity `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed` and concurrent upsert/delete regressions (#1178/#1239).
+- [x] (valid-no-repro) `TenantSettingKeyNormalizer.Normalize` — tab-padded keys — **cheap-disproof 2026-10-06 thorough hunt:** trim+case normalization is intentional; regression `UpsertAsync_round_trips_tab_padded_setting_key_to_same_slot`.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.DeleteCoreAsync` + caching wrapper — idempotent second delete after cached hit — **cheap-disproof 2026-10-06 thorough hunt:** generation bumps on each delete invalidate stale hits; regression `TenantSettings_TryGetAsync_returns_null_after_second_delete_on_already_absent_key`.
+
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — MERGE `UPDATE` path refreshes `UpdatedUtc` even when `SettingValue` unchanged; reachable via idempotent `UpsertAsync` retries from operator safe-retry flows (audit/telemetry noise, not stale-read defect).
+- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — interior newlines/tabs in JSON payloads count toward trim length while remaining valid `SettingValue`; reachable via `WorkspaceAllowedEngineSetService.SetAsync` serialized alias lists near the 512-char limit.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — cold-cache factory cancellation leaves no hybrid-cache entry but `CacheGenerations` may advance on a concurrent upsert before retry; reachable when `TryGetAsync` is canceled mid-load (extends #1178 cancel regression).
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — returns `value.Trim()` on read while upsert stores `settingValue.Trim()` only; interior whitespace in persisted JSON differs from read trim semantics only on legacy direct-SQL rows (ops hygiene).
+- [ ] (candidate) `TenantSettingKeyNormalizer.Normalize` — `ToLowerInvariant()` on workspace-suffixed keys `{constant}.{workspaceId:D}`; reachable when workspace id casing in suffix differs only by hex letter case (Guid `D` format is lowercase by construction).
 
 - [x] (valid-no-repro) `HybridHotPathReadCache.GetOrCreateAsync` + `CachingTenantSettingsRepository.TryGetAsync` — cancellation during inner factory — **cheap-disproof 2026-10-05 thorough hunt:** canceled cold-cache `TryGetAsync` does not block post-upsert reads; regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`.
 - [x] (invalid) `CachingTenantSettingsRepository.TryGetAsync` — negative cache survives out-of-band `dbo.TenantSettings` mutation — **cheap-disproof 2026-10-05 thorough hunt:** read-through cache by design; wrapper upsert/delete bumps generation; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write` (parity #1359).
