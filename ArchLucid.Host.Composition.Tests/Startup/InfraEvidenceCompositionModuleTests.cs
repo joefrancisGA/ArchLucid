@@ -7,6 +7,7 @@ using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -366,6 +367,94 @@ public sealed class InfraEvidenceCompositionModuleTests
         result.Succeeded.Should().BeTrue(result.ErrorMessage);
         result.Hub.Should().NotBeNull();
         result.Hub!.CloudResourceId.Should().Be(upserted.CloudResourceId);
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_duplicates_diff_consumer_descriptors()
+    {
+        ServiceCollection services = [];
+        IConfiguration configuration = new ConfigurationBuilder().Build();
+        InfraEvidenceCompositionModule.Register(services, configuration);
+        InfraEvidenceCompositionModule.Register(services, configuration);
+
+        int diffConsumerRegistrations = services.Count(
+            static descriptor => descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer));
+
+        diffConsumerRegistrations.Should().Be(4,
+            "MS DI collects every IAzureInventoryDiffConsumer registration; production calls Register once via AddInfraEvidenceCapability");
+
+        services.Count(static descriptor =>
+                descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer)
+                && descriptor.ImplementationType == typeof(AuditContinuousReadinessDiffConsumer))
+            .Should().Be(2);
+
+        services.Count(static descriptor =>
+                descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer)
+                && descriptor.ImplementationType == typeof(SecureNowArchitectDiffConsumer))
+            .Should().Be(2);
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_diagram_advisory_services()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IStructuredDiagramIngestService>()
+            .Should().BeOfType<StructuredDiagramIngestService>();
+        serviceScope.ServiceProvider.GetRequiredService<IDiagramInfrastructureReconciliationService>()
+            .Should().BeOfType<DiagramInfrastructureReconciliationService>();
+        serviceScope.ServiceProvider.GetRequiredService<IInfrastructureDiagramComparisonService>()
+            .Should().BeOfType<InfrastructureDiagramComparisonService>();
+        serviceScope.ServiceProvider.GetRequiredService<IVisionDiagramIngestService>()
+            .Should().BeOfType<VisionDiagramIngestService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_ask_grounding_sparse_identifiers_returns_insufficient_evidence()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IInfraEvidenceAskGroundingService askGroundingService =
+            serviceScope.ServiceProvider.GetRequiredService<IInfraEvidenceAskGroundingService>();
+
+        InfraEvidenceAskGroundingResult result = await askGroundingService.TryAnswerAsync(
+            scope,
+            new InfraEvidenceAskRequest
+            {
+                Question = "What infrastructure changed in this workspace?",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue(result.ErrorMessage);
+        result.Response.Should().NotBeNull();
+        result.Response!.InsufficientEvidence.Should().BeTrue(
+            "collector returns an empty bundle when no CloudResourceId, DiffId, or topic-specific identifiers are supplied");
     }
 
     private static ScopeContext CreateDefaultScope() =>
