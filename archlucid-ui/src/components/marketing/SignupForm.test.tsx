@@ -131,6 +131,44 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("still posts register when first-touch cookie contains non-Latin1 UTM values", async () => {
+    const capturedUtc = "2026-10-06T00:00:00.000Z";
+    const cookieValue = encodeURIComponent(
+      JSON.stringify({ utm_source: "launch", utm_campaign: "🚀", capturedUtc }),
+    );
+
+    document.cookie = `archlucid.firstTouch.v1=${cookieValue}`;
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers["x-archlucid-first-touch"]).toBeUndefined();
+
+    document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
+  });
+
   it("submits valid payload to the same-origin proxy", async () => {
     vi.mocked(showSuccess).mockClear();
 

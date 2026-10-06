@@ -126,7 +126,11 @@ export function SignupForm() {
       const firstTouch = readFirstTouchCookie();
 
       if (firstTouch) {
-        headers["x-archlucid-first-touch"] = serializeFirstTouchHeader(firstTouch);
+        try {
+          headers["x-archlucid-first-touch"] = serializeFirstTouchHeader(firstTouch);
+        } catch {
+          /* Cookie attribution must not block evaluation signup when header encoding fails. */
+        }
       }
 
       const res = await fetch("/api/proxy/v1/register", {
