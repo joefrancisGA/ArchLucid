@@ -30,6 +30,8 @@
 
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` percent-decode loop, homoglyph inventories, and fragment/query partitioning after consecutive dry hunts; cheap-disproof closed three promotion attempts (percent-encoded `@` in path portion; safe-path `%2F` canonicalization; query `://` substring rejection is intentional whole-string check); no hunt-ready row promoted; seeded four `(candidate)` rows; 142 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
+2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandIntakeLoop`, connect/admit/MUST stages, hooks, and arg parser after four consecutive dry hunts in `host-core-jobs`; no row met hunt-ready bar for same-run proof; refreshed five `(candidate)` rows (dropped short `--text` JSON row already closed as valid-no-repro); 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows (JSON connect/submit/create `OperationFailed` paths intentionally stderr-only without `ok:true`, parity with patch/admission; JSON whitespace-only `--system-name` caught by `IsNullOrWhiteSpace` preflight; cooperative cancel during MUST `ReadLineAsync` propagates `OperationCanceledException` by design); regressions `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope`, `RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled`, `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true`; seeded five follow-on `(candidate)` rows; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted MIME `; charset=utf-8` on `SourceTexts.ContentType` splitting review cache `ContentHash` from bare types; strip parameters via `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on `(candidate)` rows; 83 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -7729,10 +7731,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandHooks.ReadLineAsync` — cancel during MUST answer — **cheap-disproof 2026-10-06 thorough hunt:** cooperative cancellation; regression `RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled`.
 - [x] (valid-no-repro) `DraftNewCommandAdmitStage` — JSON create failure stderr-only — **cheap-disproof 2026-10-06 thorough hunt:** regression `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true`.
 - [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` HTTP failure in JSON mode exits `OperationFailed` with stderr only (no structured JSON failure line) — **seed 2026-10-06:** reachable before pending-MUST fast-fail.
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `SkipMustQuestionAsync` API failure after `--skip-must-questions` exits stderr-only in JSON mode — **seed 2026-10-06:** reachable when skip endpoint returns 409/500.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `SkipDraftQuestionAsync` API failure after `--skip-must-questions` exits stderr-only in JSON mode — **seed 2026-10-06:** reachable when skip endpoint returns 409/500.
 - [ ] (candidate) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` transport failure (non-semantic HTTP error) stderr-only in JSON mode — **seed 2026-10-06:** distinct from semantic `Admitted=false` redirect path.
 - [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--business-outcome` fails usage preflight stderr-only in JSON mode — **seed 2026-10-06:** parity with `--system-name` whitespace row.
-- [ ] (candidate) `DraftNewCommandConnectStage` — JSON mode with `--text` shorter than minimum length after trim returns `UsageError` stderr-only (no `CliJson.WriteFailureLine`) — **seed 2026-10-06:** intent length gate after JSON preflight passes.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — interactive `AnswerDraftQuestionAsync` API failure exits stderr-only without `CliJson.WriteFailureLine` — **seed 2026-10-06:** reachable non-JSON MUST answer path when answer endpoint returns 4xx/5xx.
+
+2026-10-06 seed hunt (seed-only): re-read intake/connect/admit/MUST partials; no hunt-ready promotion; refreshed five `(candidate)` rows above; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 - **id:** cli-draft-new
 - **status:** open
@@ -7740,7 +7744,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-06
@@ -7775,6 +7779,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
 ### Hypotheses
+
+2026-10-06 seed hunt (seed-only): re-read intake/connect/admit/MUST partials and arg parser; no hunt-ready row promoted; refreshed five `(candidate)` rows (see zone header); 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read connect/admit/MUST/intake loop after three consecutive dry hunts; no hunt-ready row promoted; seeded five new `(candidate)` rows below; 47 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
