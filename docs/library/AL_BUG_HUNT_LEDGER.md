@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read connect/admit/MUST/intake loop after three consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (JSON connect failure envelope, JSON submit failure envelope, JSON whitespace metadata preflight, MUST read cancellation, create failure JSON envelope); 47 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five seeded `(candidate)` rows (`ResolveBaseUrl` already trims config URLs; admit-stage trims flag metadata; interactive whitespace MUST answer is usage stderr without operator hints; JSON `no-auto-execute` documents `executionStarted: false`; patch conflict stderr-only matches other JSON `OperationFailed` paths); regressions `ResolveBaseUrl_trims_trailing_slash_from_config_api_url`, `RunCoreAsync_connect_passes_trimmed_override_base_url_to_connect_async`, `Parse_preserves_surrounding_whitespace_on_system_name_flag`, `RunCoreAsync_flag_system_name_with_surrounding_whitespace_is_trimmed_before_patch`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`, `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`, `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true`; 52 scoped draft-new CLI tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read connect/admit/MUST/intake loop and arg parser after consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (config vs override base URL slash normalization, parse-time metadata trim gap, interactive whitespace MUST answer, JSON `no-auto-execute` success shape, patch failure JSON envelope gap); 41 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
@@ -7609,13 +7611,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read connect/admit/MUST/intake loop after three consecutive dry hunts; no hunt-ready row promoted; seeded five new `(candidate)` rows below; 47 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 52 scoped draft-new CLI tests passed (`RunAnalyzers=false`).
 
@@ -7642,6 +7646,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
 ### Hypotheses
+
+2026-10-06 seed hunt (seed-only): re-read connect/admit/MUST/intake loop after three consecutive dry hunts; no hunt-ready row promoted; seeded five new `(candidate)` rows below; 47 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 52 scoped draft-new CLI tests passed (`RunAnalyzers=false`).
 
@@ -7688,6 +7694,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — interactive (non-JSON) whitespace-only MUST answer returns `UsageError` on stderr without `CliJson.WriteFailureLine` or `CliOperatorHints` (reachable piped stdin answer line `"   "` during pending MUST resolution) — **cheap-disproof 2026-10-06 thorough hunt:** usage validation on interactive path; operator hints reserved for API failures; regression `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`.
 - [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — `--json` with `--no-auto-execute` emits `ok: true` and `executionStarted: false` while still returning `runId`/`requestId` (reachable automation misreading success as completed execution) — **cheap-disproof 2026-10-06 thorough hunt:** `executionStarted` field documents spawn-without-execute; regression `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`.
 - [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `PatchDraftAsync` failure (e.g. optimistic concurrency `409`) exits `OperationFailed` with stderr only and no `CliJson.WriteFailureLine` when `--json` is enabled (reachable API conflict after successful create) — **cheap-disproof 2026-10-06 thorough hunt:** JSON mode omits structured failure for API `OperationFailed` paths (parity with admission redirect); regression `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true`.
+
+- [ ] (candidate) `DraftNewCommandConnectStage` — non-`Connected` `ApiConnectionOutcome` from `ConnectAsync` returns `CliCommandShared.ExitCodeForFailedConnection` with stderr only and no `CliJson.WriteFailureLine` when global `--json` is enabled (reachable before `CreateApiClient`).
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — `SubmitDraftAsync` failure after MUST resolution exits `OperationFailed` with stderr only and no `CliJson.WriteFailureLine` when `--json` is enabled (reachable HTTP 409/500 on submit).
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — parser-supplied whitespace-only `--system-name` or `--business-outcome` fails JSON preflight with stderr usage text only (no structured JSON failure line).
+- [ ] (candidate) `DraftNewCommandHooks.ReadLineAsync` — cooperative cancellation during MUST-question `ReadLineAsync` propagates `OperationCanceledException` to `RunCoreAsync` instead of a deterministic `CliExitCode` (reachable cancel mid-MUST answer).
+- [ ] (candidate) `DraftNewCommandAdmitStage` — `CreateDraftAsync` failure with `--json` enabled exits `OperationFailed` with stderr only and no `CliJson.WriteFailureLine` (reachable API error before patch/admit).
 
 - [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` (`must_questions_pending`) before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode rejects pending MUST questions before the read loop; defensive `WriteFailureLine` (`must_question_answer_required`) on whitespace-answer branch.
