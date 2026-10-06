@@ -15,6 +15,11 @@ describe("run-retrieval-grounding-summary-display", () => {
     expect(formatRetrievalGroundingRatioPercent(42)).toBe("42%");
   });
 
+  it("parses numeric strings and ignores non-numeric strings", () => {
+    expect(formatRetrievalGroundingRatioPercent("0.42")).toBe("42%");
+    expect(formatRetrievalGroundingRatioPercent("not-a-ratio")).toBe("Not recorded");
+  });
+
   it("does not default missing disposition to WARN", () => {
     expect(resolveRetrievalGroundingDispositionPresentation(null).titleSuffix).toBe(
       "Disposition not returned",

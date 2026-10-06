@@ -43,14 +43,16 @@ export type InfraEvidenceMermaidOutlineEdge = {
   readonly declaredConnectionId: string | null;
 };
 
+export type InfraEvidenceMermaidDropGateRow = {
+  readonly reason: string;
+  readonly from: string;
+  readonly to: string;
+};
+
 export type InfraEvidenceMermaidOutline = {
   readonly nodes: readonly InfraEvidenceMermaidOutlineNode[];
   readonly edges: readonly InfraEvidenceMermaidOutlineEdge[];
-  readonly dropGateRows?: readonly {
-    readonly reason: string;
-    readonly from: string;
-    readonly to: string;
-  }[];
+  readonly dropGateRows?: readonly InfraEvidenceMermaidDropGateRow[];
   readonly ledgerDrops?: readonly InfraEvidenceMermaidLedgerDrop[];
 };
 
@@ -686,7 +688,7 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {
   const nodeMap = new Map<string, InfraEvidenceMermaidOutlineNode>();
   const edges: InfraEvidenceMermaidOutlineEdge[] = [];
-  const dropGateRows: InfraEvidenceMermaidOutline["dropGateRows"][number][] = [];
+  const dropGateRows: InfraEvidenceMermaidDropGateRow[] = [];
   const ledgerDrops: InfraEvidenceMermaidLedgerDrop[] = [];
   const subgraphResourceGroups: string[] = [];
   let pendingMetadata: OutlineNodeMetadata = emptyOutlineNodeMetadata();

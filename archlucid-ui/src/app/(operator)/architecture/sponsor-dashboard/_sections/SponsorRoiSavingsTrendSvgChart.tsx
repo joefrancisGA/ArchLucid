@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export type SponsorRoiSavingsTrendPoint = {
   readonly snapshotUtc: string;
-  readonly totalEstimatedUsdSavings: number;
+  readonly totalEstimatedUsdSavings: number | null;
   readonly savingsTooltipSuffix?: string | null;
 };
 

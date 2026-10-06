@@ -11,7 +11,10 @@ import {
   DEFAULT_FINDING_JOB_VIEW,
   type FindingJobView,
 } from "@/lib/findings/finding-job-view";
-import type { FindingsNaturalLanguageFacets } from "@/lib/findings/findings-natural-language-filter";
+import {
+  EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS,
+  type FindingsNaturalLanguageFacets,
+} from "@/lib/findings/findings-natural-language-filter";
 
 export type GovernanceFindingsSavedViewsBarProps = {
   readonly registerFilter: RiskRegisterFilter;
@@ -73,7 +76,7 @@ export function applyFindingsSavedViewFilters(
     typeof source.nlFacets === "object" &&
     !Array.isArray(source.nlFacets)
       ? normalizeFindingsNaturalLanguageFacets(source.nlFacets as Record<string, unknown>)
-      : {};
+      : EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS;
 
   return {
     registerFilter: (typeof source.registerFilter === "string" ? source.registerFilter : "all") as RiskRegisterFilter,
@@ -90,7 +93,7 @@ function normalizeFindingsNaturalLanguageFacets(
   const hasKnownFacet = "severity" in value || "status" in value || "titleKeywords" in value;
 
   if (!hasKnownFacet) {
-    return {};
+    return EMPTY_FINDINGS_NATURAL_LANGUAGE_FACETS;
   }
 
   const severity = value.severity;
