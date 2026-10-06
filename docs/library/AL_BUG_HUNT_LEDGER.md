@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `application-agents` — `TopologyProposalDualModelConsensusEnricher` called `TopologyProposalConsensusMerger.Merge` on topology proposals whose `AddedServices`/`AddedDatastores`/`AddedRelationships` were null after JSON deserialize; null-coalesce collection properties before intersection and disagreement math; regression `Merge_when_primary_added_services_is_null_does_not_throw`; 101 scoped Application.Tests.Agents tests passed.
+
 2026-10-06 thorough hunt (hit): `application-agents` — `AgentArchitectureFindingEmissionGate.ApplyToResults` threw when deserialized `AgentResult.WithheldFindings` was null while withholding prose-only findings; initialize the list before append; regressions `ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result` and `EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null`; cheap-disproved consensus audit `.Count` on null merged lists (`Merge_merged_proposal_collection_properties_are_never_null`); 100 scoped Application.Tests.Agents tests passed.
 
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — `ArchitectureRunExecuteOrchestrator` read `IsEnabled` then `AcquireAsync` no-opped when `RunExecuteOwnershipLeaseOptions.Enabled` flipped false before acquire, but `BeginRenewalScope` still heartbeated and `RenewAsync` invoked SQL without a local acquire pin; skip `RenewAsync` when the run is not tracked in `_activeHolderInstanceIds`; regression `RenewAsync_does_not_invoke_repository_without_local_acquire_pin`; aligned drain/disabled-renew and release-ordering tests with pin semantics; 67 scoped ownership/orchestrator tests passed.
@@ -28304,11 +28306,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 30
-- **bugs-found:** 28
+- **hunts:** 31
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — null WithheldFindings on deserialized agent results crashed emission gate during withhold
+- **last-bug:** 2026-10-06 — null topology proposal service lists crashed dual-model consensus merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -28361,8 +28363,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null `AgentEvidencePackage.Policies` after JSON deserialization threw on `.Count` during post-run provenance aggregation — **hit 2026-10-05 seed hunt:** null-coalesce policies before counting and enumerating titles; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`
 - [x] (proven) `AgentArchitectureFindingEmissionEnricher` / `AgentArchitectureFindingEmissionGate.ApplyToResults` — null `AgentResult.WithheldFindings` when withholding prose-only findings from deserialized results — **hit 2026-10-06 thorough hunt:** `result.WithheldFindings ??= []` before append; regressions `ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result` and `EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null`.
 - [x] (invalid) `TopologyProposalDualModelConsensusEnricher` — audit `DataJson` uses `.Count` on merged `AddedServices` / `AddedDatastores` / `AddedRelationships` when consensus merge returns null lists — **cheap-disproof 2026-10-06 thorough hunt:** `TopologyProposalConsensusMerger.Merge` always assigns non-null intersection lists; regression `Merge_merged_proposal_collection_properties_are_never_null`.
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `TopologyProposalConsensusMerger.Merge` — null `AddedServices` on deserialized topology proposals threw in `IntersectServices` before consensus audit — **hit 2026-10-06 seed hunt:** null-coalesce services/datastores/relationships at merge entry; regression `Merge_when_primary_added_services_is_null_does_not_throw`.
 
 2026-10-06 thorough hunt (hit): promoted withheld-findings candidate; proved `ApplyToResults` NRE on `"withheldFindings": null` JSON; fixed with null-coalescing before append; cheap-disproved consensus audit null merged-list candidate; 100 scoped Application.Tests.Agents tests passed.
+
+2026-10-06 seed hunt (seed→hit): promoted null topology collection lists on dual-model consensus path; proved `TopologyProposalConsensusMerger.Merge` NRE when `AddedServices` was null on deserialized primary proposal; fixed by null-coalescing services/datastores/relationships before intersection; regression `Merge_when_primary_added_services_is_null_does_not_throw`; seeded five follow-on `(candidate)` rows; 101 scoped Application.Tests.Agents tests passed.
+
+- (candidate) `AgentProposalStructuralPostProcessorEnricher` — `evidence.StructuralGroundingDropLog = groundingDropLog` overwrites a non-empty drop log when structural post-process runs more than once in the same evidence package instance during a long execute batch.
+- (candidate) `TopologyProposalDualModelConsensusEnricher` — `DisagreementConfidenceMultiplier` applied twice when merge disagreements exist and calibrated confidence was already scaled by an earlier enricher pass on the same `AgentResult` reference.
+- (candidate) `EvidenceProposalPromoter.PromoteAsync` — `TryGetEvidenceProposalAsync` returns proposal JSON from enrichment overlay while base `AgentResult` row was deleted, allowing promote after run purge when enrichment row remains.
+- (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — enrichment read path re-hydrates findings stripped by emission gate when `EnrichedResultJson` predates gate ordering fix, reviving stub generation for withheld prose.
+- (candidate) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `ArchitectureRequest.Description` bypasses minimum-length guard used elsewhere on execute requests when curated evidence runs on resumed runs with sparse request snapshots.
 
 2026-10-05 seed hunt (seed→hit): re-read `ReviewRunEngineProvenanceAggregator`; proved `DerivePolicyPackVersion` threw when deserialized `AgentEvidencePackage.Policies` was null; fixed with null-coalescing; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`; seeded WithheldFindings and consensus audit-count candidates; 98 scoped Application.Tests.Agents tests passed.
 
