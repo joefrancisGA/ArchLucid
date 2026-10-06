@@ -1,6 +1,35 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
+import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
+
+describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns success for neutral API bodies that omit challengeId (anti-enumeration contract)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "If this address is eligible, you will receive a code.",
+        ssoRequired: false,
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result.kind).toBe("success");
+
+    if (result.kind === "success") {
+      expect(result.response.challengeId ?? null).toBeNull();
+    }
+  });
+});
 
 describe("verifyEmailOtpCode (pre-auth proxy)", () => {
   beforeEach(() => {

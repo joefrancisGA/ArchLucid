@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  createPostAuthWorkspace,
   fetchPostAuthBootstrapStatus,
   initiatePostAuthAccessRequest,
 } from "@/lib/auth/post-auth-bootstrap-api";
@@ -18,6 +19,30 @@ describe("fetchPostAuthBootstrapStatus", () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
 
     await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
+  });
+});
+
+describe("createPostAuthWorkspace", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns generic failure when the proxy responds with 403", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 403 }));
+
+    const result = await createPostAuthWorkspace({
+      workspaceName: "Workspace",
+      organizationName: "Org",
+      termsAccepted: true,
+      includeDemoSeed: false,
+    });
+
+    expect(result.succeeded).toBe(false);
+    expect(result.customerMessage).toBe("Workspace creation could not be completed.");
   });
 });
 
