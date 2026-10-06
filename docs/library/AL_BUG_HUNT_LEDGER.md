@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` / `EvidenceRefsMatch` after consecutive dry hunts closed all open rows; cheap-disproof closed locked `Evidence` chosen parity and tab-vs-space technology-name normalization; no hunt-ready row promoted; seeded five `(candidate)` rows; 93 scoped `TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read `SqlRunRepository` list/graph/committed/purge partials and `RunListQueryParameters` after Oct 6 thorough hunt closed all open rows; cheap-disproof closed graph-at-time tab-prefixed slug binding parity with committed/list seeks; no hunt-ready row promoted; seeded five `(candidate)` rows; 137 scoped zone tests passed (1 SQL integration skipped, `RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows (InternalLoopback omitting connect guard by design for SAML/startup probes; DevOps integration 60s timeout not a guard bypass; resilience `MaxRetryAttempts` clamp; ARM retail retry bounded on fixed public authorities; CloudControlPlane pool tuning without tenant URL SSRF surface); regressions in `CoreSafetyNetworkPrivateNetworkThoroughHuntTests`; 32 scoped Core `PrivateNetwork` tests + 5 composition thorough-hunt tests passed (`RunAnalyzers=false`).
@@ -4738,6 +4740,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-10-06 seed hunt (seed-only): cheap-disproof locked Evidence chosen + tab/space name normalization; seeded five candidates; 93 scoped TechnologyLedger tests passed.
+
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — locked `Chosen` with `TechnologyLedgerSource.Evidence` might not suppress same-family same-name agent candidates like `User` chosen — **cheap-disproof 2026-10-06 seed hunt:** locked gate uses `IsAuthoritativeChosenSource` (`User` or `Evidence`); regression `Resolve_skips_same_family_candidate_when_locked_evidence_chosen_shares_technology_name`.
+- [x] (valid-no-repro) `NormalizeTechnologyName` — tab vs space internal separators might keep distinct `TechnologyName` labels from matching — **cheap-disproof 2026-10-06 seed hunt:** whitespace collapse is intentional for display-name parity; regression `Resolve_skips_when_technology_names_differ_only_by_tab_vs_space_separators`.
+- [ ] (candidate) `TryParseAgentTopologyProposalRef` — first-colon split in remainder treats URN-style proposal ids (`agentTopologyProposal:urn:uuid:svc-a`) as `{proposalId}=urn`, `{subKey}=uuid:svc-a`; reachable only if topology proposal ids adopt colon-rich identifiers beyond current UUID mapper output.
+- [ ] (candidate) `HasMatchingProposal` — substantive `Assumed` rows participate in name/ref dedupe before the chosen-family gate; reachable when topology re-seed leaves first-batch `Assumed` compute rows while operators later promote a different chosen entry without clearing assumptions.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — same-family dual-ungrounded `TechnologyNamesMatch` duplicates suppress candidates via `ShouldTreatAsDuplicateByName` even when `ProviderFamily` matches but inventory vs agent provenance differs; reachable when cold-start rows lack `EvidenceRef` on both sides.
+- [ ] (candidate) `SharesProviderFamilyGate` — concrete Azure vs AWS mismatch bypasses chosen-family suppression while `HasMatchingProposal` still dedupes identical `agentTopologyProposal:*` refs per role; reachable when multi-cloud exploration inserts share stable topology refs across provider rows (intentional per `Resolve_inserts_assumed_on_provider_conflict`).
+- [ ] (candidate) `NormalizeTechnologyName` — compatibility-form digits / punctuation-only deltas (`Service2` vs `Service２`) remain distinct labels; reachable when localized manifest display names differ only by Unicode compatibility characters (not normalized to ASCII).
+
+- **id:** technology-ledger-merge
+- **status:** open
+- **impact:** medium
+- **aliases:** technology ledger; ledger merge policy
+- **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
+- **test-filter:** FullyQualifiedName~TechnologyLedger
+- **hunts:** 49
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
 2026-09-27 seed hunt #28 (seed→hit): reseeded technology-ledger-merge; proved locked authoritative `Chosen` rows without substantive `EvidenceRef` still suppressed agent candidates sharing `TechnologyName` but distinct topology `EvidenceRef` (unlocked path already required grounding ref); fixed locked gate to require `HasSubstantiveEvidenceRef` on chosen; regression `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`; 72 scoped TechnologyLedger tests passed.
 
 2026-09-27 seed hunt #27 (seed→hit): reseeded technology-ledger-merge after locked-chosen fix; proved locked gate treated cold-start `AgentProposed` `Chosen` rows like authoritative inventory, so a locked first topology service blocked a second service sharing `TechnologyName` but a distinct `EvidenceRef`; fixed by requiring `IsAuthoritativeChosenSource` for locked same-name suppression; regression `Resolve_keeps_second_compute_candidate_when_locked_cold_start_chosen_shares_display_name`; 71 scoped TechnologyLedger tests passed.
@@ -4762,20 +4788,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-26 seed hunt (seed-only): reseeded technology-ledger-merge after cross-role `EvidenceRef` hit; cheap-disproof closed stale reseed templates (distinct `EvidenceRef` with matching family+name remains intentional per `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`; inventory `Chosen` with `CloudProvider.None` does not enter the same-family gate against Azure/AWS candidates); no new hunt-ready rows; 60 scoped TechnologyLedger tests passed.
 
 2026-09-26 seed hunt (seed→hit): reseeded technology-ledger-merge; proved chosen-family insert gate treated `EvidenceRef` collisions across different `TechnologyLedgerRole` values as blocking compute-runtime candidates; fixed by scoping the novel-ref check to the candidate role; regression `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`; 60 scoped TechnologyLedger tests passed.
-
-- **id:** technology-ledger-merge
-- **status:** open
-- **impact:** medium
-- **aliases:** technology ledger; ledger merge policy
-- **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
-- **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 48
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-06 seed hunt (seed-only): re-read merge policy after two consecutive dry hunts; seeded five new `(candidate)` rows; 86 scoped TechnologyLedger tests passed.
 

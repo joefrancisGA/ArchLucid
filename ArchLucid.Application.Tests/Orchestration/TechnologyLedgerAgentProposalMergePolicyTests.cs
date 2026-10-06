@@ -1065,6 +1065,40 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_skips_same_family_candidate_when_locked_evidence_chosen_shares_technology_name()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.Source = TechnologyLedgerSource.Evidence;
+        chosen.TechnologyName = "Azure SQL";
+        chosen.EvidenceRef = "inventory:arm:sql";
+        chosen.IsLocked = true;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_technology_names_differ_only_by_tab_vs_space_separators()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Azure\tSQL";
+        chosen.EvidenceRef = "inventory:sql";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
     public void Resolve_inserts_second_cloud_platform_row_when_proposal_id_changes()
     {
         TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
