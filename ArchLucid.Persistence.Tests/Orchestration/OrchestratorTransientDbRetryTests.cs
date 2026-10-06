@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
@@ -836,5 +838,114 @@ public sealed class OrchestratorTransientDbRetryTests
 
         attempts.Should().Be(2);
         result.Should().Be(7);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_task_canceled_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(deadlock, new TaskCanceledException("parallel task canceled"));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_operation_canceled_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(deadlock, new OperationCanceledException("parallel task canceled"));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_nested_mixed_aggregate_follows_transient_sql_on_wrapper_chain()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException transientSql = SqlExceptionTestFactory.Create(1205);
+        SetInnerException(
+            transientSql,
+            new AggregateException(deadlock, fkViolation));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("parallel persist failed", transientSql);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_transient_sql_wraps_mixed_parallel_persist_aggregate_on_inner_chain()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException transientSql = SqlExceptionTestFactory.Create(1205);
+        SetInnerException(
+            transientSql,
+            new AggregateException(deadlock, fkViolation));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw transientSql;
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public void Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive()
+    {
+        TimeSpan baseDelay = TimeSpan.FromSeconds(2);
+        const int attemptNumber = 3;
+        double baseMilliseconds = baseDelay.TotalMilliseconds * Math.Pow(2, attemptNumber - 1);
+        int jitterSpan = SqlOpenRetryDelayCalculator.ComputeJitterSpanMilliseconds(baseMilliseconds);
+        int maxNegativeOffset = -jitterSpan;
+
+        TimeSpan retryDelay = SqlOpenRetryDelayCalculator.Calculate(
+            attemptNumber,
+            baseDelay,
+            maxNegativeOffset);
+
+        retryDelay.Should().BeGreaterThan(TimeSpan.Zero);
+    }
+
+    private static void SetInnerException(Exception outer, Exception inner)
+    {
+        FieldInfo? field = typeof(Exception).GetField(
+            "_innerException",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
+        field.Should().NotBeNull("Exception._innerException is required for nested parallel-persist repro shapes");
+        field!.SetValue(outer, inner);
     }
 }
