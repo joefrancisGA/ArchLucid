@@ -36,7 +36,6 @@ import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady, expectLiveReviewsNewPageReady } from "./helpers/live-page-readiness";
 import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
-import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
