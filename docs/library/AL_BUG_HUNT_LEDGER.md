@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator continue/budget gates, manifest source/framing hashing, and cache capacity pinning after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (null vs empty source `Content`, continue path budget rejection before model load, framing-answer key casing collapse, silent `Set` skip at max entries when all pinned, continue manifest with missing persisted model); 77 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `architecture-intelligence-orchestrator` — cheap-disproof closed five seeded `(candidate)` rows (budget rejection returns correlation `runId` without pipeline/cache; duplicate filename uploads intentionally distinct hash blocks; pinned-expired TTL refresh preserves `CreatedUtc` by design for improve-loop pins; blank `ModelAliasId` forms share manifest via `NormalizeForHash`; pin-before-`Set` reservation intentional); regressions `RunAsync_budget_rejection_returns_generated_run_id_when_client_omits_run_id`, `Build_changes_content_hash_when_duplicate_filename_has_different_content`, `Build_matches_content_hash_when_model_alias_is_null_vs_empty_string`; 77 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator budget gate, cache coalesce miss path, manifest source hashing, and pin/TTL eviction after consecutive dry hunts closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows in Hypotheses (budget rejection run id on omitted client `RunId`, duplicate source filename segments, pinned-expired TTL `CreatedUtc` eviction bias, blank vs null `ModelAliasId` hash parity, pin reservation without cache row blocking prune); 74 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -29960,6 +29962,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-06 seed hunt (seed-only): re-read continue/budget, source/framing hash, cache capacity; seeded five `(candidate)` rows; 77 scoped tests passed.
+
 2026-10-06 thorough hunt (dry): closed five seeded candidates (budget rejection run id, duplicate filenames, TTL `CreatedUtc`, alias normalization, pin reservation); 77 scoped tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read budget gate, coalesce miss path, source hashing, pin/TTL eviction; seeded five `(candidate)` rows; 74 scoped tests passed.
@@ -29986,13 +29990,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
 - **hunts:** 29
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — continue in-flight coalesce key split on tenant GUID hex casing
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+2026-10-06 seed hunt (seed-only): re-read continue/budget gates, framing/source hashing, cache capacity; seeded five `(candidate)` rows; 77 scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read orchestrator budget gate, coalesce miss short-circuit, manifest hashing, and pin/TTL eviction; seeded five new `(candidate)` rows; 74 scoped tests passed (`RunAnalyzers=false`).
 
@@ -30082,6 +30088,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired TTL refresh preserves `CreatedUtc` — **cheap-disproof 2026-10-06 thorough hunt:** improve-loop pin semantics; regression `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` / `ClosedLoopModelAliasIdNormalizer` — `ModelAliasId` null vs `""` — **cheap-disproof 2026-10-06 thorough hunt:** `NormalizeForHash` maps both to empty `alias=` segment; regression `Build_matches_content_hash_when_model_alias_is_null_vs_empty_string`.
 - [x] (valid-no-repro) `ReviewResultCache.PinStorageKey` / `PruneOrphanPinRefcounts` — pin reservation before `Set` — **cheap-disproof 2026-10-06 thorough hunt:** intentional in-flight pin until insert/unpin; regression `PinStorageKey_retains_in_flight_reservation_when_another_key_unpins`.
+
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `ClosedLoopReasoningSourceText.Content` null serializes as `string.Empty` in the hash payload, so null vs empty file bodies share a cache manifest (reachable intake attachment with `Content: null` vs `""`).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `RunContinueFromExistingReviewAsync` — `ContinueFromExistingRun` requests still pass through tier budget admission before loading the persisted model, so budget rejection returns `CreateRejected` without attempting continue extraction (reachable continue analyze call blocked by trial tier budget).
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` / `ClosedLoopFramingAnswersNormalizer` — framing answer keys that differ only by letter casing collapse before hashing (reachable `FramingAnswers` map with `"Business-Outcome"` vs `"business-outcome"`).
+- [ ] (candidate) `ReviewResultCache.Set` — returns without inserting when `MaxEntries` is saturated and every entry is pinned, so callers receive no signal that cache storage was skipped (reachable improve-loop with all storage keys pinned).
+- [ ] (candidate) `RunContinueFromExistingReviewAsync` / `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — continue coalesce manifest is built with `existing == null` when the client `RunId` does not resolve to a persisted model, producing a manifest with empty `modelfp` before extraction fails closed (reachable continue POST with unknown run id).
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 
