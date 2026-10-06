@@ -7,6 +7,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Identity;
 
 using FluentAssertions;
 
@@ -120,6 +121,49 @@ public sealed class IdentityProviderConfigurationControllerTests
         captured.Should().NotBeNull();
         using JsonDocument document = JsonDocument.Parse(captured!.DataJson!);
         document.RootElement.GetProperty("protocol").GetString().Should().Be("oidc");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService activation = new(repository);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("  admin@test  ");
+
+        IdentityProviderConfigurationController controller = CreateController(
+            activationService: activation,
+            configurationRepository: repository,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+
+        await controller.ActivateAsync(
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("admin@test");
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.UpdatedByActorId.Should().Be("admin@test");
+        captured.ActorUserId.Should().Be(loaded.UpdatedByActorId);
     }
 
     [Fact]
@@ -264,7 +308,8 @@ public sealed class IdentityProviderConfigurationControllerTests
         IIdentityProviderActivationService? activationService = null,
         IActorContext? actorContext = null,
         IAuditService? auditService = null,
-        IIdentityProviderDiscoveryService? discoveryService = null)
+        IIdentityProviderDiscoveryService? discoveryService = null,
+        ITenantIdentityProviderConfigurationRepository? configurationRepository = null)
     {
         Mock<IScopeContextProvider> scopeContextProvider = new();
         scopeContextProvider
@@ -280,7 +325,7 @@ public sealed class IdentityProviderConfigurationControllerTests
             discoveryService ?? Mock.Of<IIdentityProviderDiscoveryService>(),
             testLoginService ?? new SsoWizardTestLoginService(),
             activationService ?? Mock.Of<IIdentityProviderActivationService>(),
-            Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
+            configurationRepository ?? Mock.Of<ITenantIdentityProviderConfigurationRepository>(),
             scopeContextProvider.Object,
             actorContext ?? Mock.Of<IActorContext>(),
             auditService ?? Mock.Of<IAuditService>())

@@ -7946,22 +7946,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 40
-- **bugs-found:** 24
+- **hunts:** 41
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — activate audit logged raw request protocol instead of persisted protocol
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — activate audit logged untrimmed actor id while row stored trimmed `UpdatedByActorId`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` logged `IActorContext.GetActorId()` verbatim in audit `ActorUserId` while `IdentityProviderActivationService` trimmed and persisted `UpdatedByActorId`, so SSO activation forensics could not correlate audit events with the configuration row; audit now uses `record.UpdatedByActorId`; regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`; cheap-disproof closed GET configuration claim-mapping exposure (admin contract returns full wizard row by design) and whitespace-only `MetadataXml` clear-on-reactivate (documented null-preserve / whitespace-clear semantics with regressions); seeded test-login protocol field unused in sandbox path; 55 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `ActorUserId` logged raw context actor id while persisted `UpdatedByActorId` was trimmed — **hit 2026-10-06 seed hunt (seed→hit):** audit uses `record.UpdatedByActorId`; regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` and Key Vault secret name to tenant admins without extra redaction — **cheap-disproof 2026-10-06 seed hunt:** admin-only wizard read model; no secret values in row; field exposure matches API contract.
+- [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — whitespace-only `MetadataXml` on re-activate clears SAML metadata — **cheap-disproof 2026-10-06 seed hunt:** intentional clear vs null-preserve; regressions `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided` and invisible-unicode variant.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — accepts arbitrary `Protocol` strings because sandbox `SsoWizardTestLoginService` ignores protocol, so the wizard can report sandbox success while activate would reject the same protocol token.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` wrote `request.Protocol` verbatim into audit `DataJson` while `IdentityProviderActivationService` normalized protocol before upsert, so forensics could disagree with `TenantIdentityProviderConfigurationRecord.Protocol`; audit now logs persisted `oidc`/`saml` strings from `record.Protocol`; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`; cheap-disproof closed activate-response missing issuer echo (wizard uses GET configuration) and HTTP issuer policy (absolute HTTP(S) is intentional for dev IdP endpoints); 54 scoped activation/controller tests passed.
 
 - [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` logged raw `request.Protocol` — **hit 2026-10-05 seed hunt (seed→hit):** audit uses persisted protocol; regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — activate response omits canonical `IssuerUri` — **cheap-disproof 2026-10-05 seed hunt:** `GET configuration` returns the persisted row including canonical issuer.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — `http://` issuers accepted — **cheap-disproof 2026-10-05 seed hunt:** validator intentionally allows HTTP(S) for non-TLS dev IdPs; production TLS is an deployment/policy concern outside the wizard guard.
-
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `ClaimMappingJson` and optional secret metadata to any admin in tenant scope without field-level redaction beyond what the API contract documents.
-- [ ] (candidate) `IdentityProviderActivationService.ResolveOptionalPersistedField` — whitespace-only `MetadataXml` on re-activate clears SAML metadata even when the operator intended to preserve the prior XML by sending an empty string from a stale wizard form.
 
 2026-10-05 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.DiscoverAsync` returned raw `IssuerUri`/`JwksUri` strings from discovery while activate/test-login canonicalize HTTP(S) endpoints, so the wizard pre-filled values that disagreed with persisted activation; `WithCanonicalWizardUris` on successful discovery responses; regression `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; seeded activate audit protocol and activate-response issuer echo follow-ups; 53 scoped activation/controller tests passed.
 

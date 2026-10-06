@@ -135,8 +135,8 @@ public sealed class IdentityProviderConfigurationController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
-                    ActorUserId = actorId,
-                    ActorUserName = User.Identity?.Name ?? actorId,
+                    ActorUserId = record.UpdatedByActorId,
+                    ActorUserName = User.Identity?.Name ?? record.UpdatedByActorId,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
