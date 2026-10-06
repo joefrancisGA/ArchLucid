@@ -8776,3 +8776,4 @@
 {"at":"2026-10-06T19:00:45.2510108Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-06T19:06:30.5796646Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-06T19:14:11.0234703Z","zoneId":"ui-review-intake-wizards","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
+{"at":"2026-10-06T19:18:01.3052960Z","zoneId":"core-authority-runs","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Runs/,ArchLucid.Core/Authority/"]}

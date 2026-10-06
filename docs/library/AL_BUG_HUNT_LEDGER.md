@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `core-authority-runs` — cheap-disproof closed three reseeded `(candidate)` rows (Committed+`Guid.Empty` same NotStarted path as null manifest + SQL CHECK; em-space before `{` fails leading-brace gate with no writer reachability; `"-5.0"` rejected because `TryParseWholeNumberString` requires non-negative ordinals); regressions `ResolveFromRunHeader_committed_with_empty_golden_manifest_guid_returns_not_started_for_in_memory_rows`, `IsDeadLettered_returns_false_for_leading_unicode_whitespace_before_open_brace`, `TryParseStatus_rejects_negative_fractional_whole_number_ordinal`; 46 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
+
 2026-10-06 thorough hunt (dry): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows (specimen preview hidden during commit probe is TB-2151 intentional; strict `baseline=1` contract; unrecognized `path=` with `baseline=1` still opens detailed; quick-mode track polling by design; accelerator wins over preset); regressions in `use-new-run-wizard-intake-params`, `reviews-new-path-switcher-state`, `use-new-run-wizard-track-stream`, `use-new-run-wizard-query-prefill` tests; 14 focused `reviews/new` vitest files passed.
 
 2026-10-06 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows (lexicographic sort is out-of-repo misuse; report intentionally emits annotated composition/pilot lines verbatim; doc citation is filename-level by design; keyvault/private dual-guard is intentional sync; orchestrator legacy annotation matches apply-saas sequence); regressions `DefaultApplyOrderRoots_leaf_order_differs_from_lexicographic_sort_of_paths`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`; 29 scoped deployment-evidence tests passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -21034,9 +21036,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
@@ -21071,9 +21073,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable.TryParseStatus` — fractional whole-number strings such as `"5.0"` coerce to `Committed` for in-memory transition callers while list surfaces use enum names only on persisted rows — **cheap-disproof 2026-10-06 thorough hunt:** intentional `TryParseWholeNumberString` parity with `"4.0"`; SQL allowlist blocks ordinals on persist; regression `TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — unparseable `LegacyRunStatus` with non-empty `GoldenManifestId` surfaces `InProgress` via progress-marker branch without validating enum name against SQL allowlist — **cheap-disproof 2026-10-06 thorough hunt:** SQL `CK_Runs_LegacyRunStatus` blocks persisted garbage status; progress-marker branch intentional for fixtures; regression `ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only`.
 
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId = Guid.Empty` (non-null empty guid) matches `Committed`+null NotStarted path because `IsCommittedWithGoldenManifest` rejects empty guid (same SQL CHECK as null manifest on persisted rows).
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON root with leading Unicode whitespace before `{` (not BOM) is rejected by `TrimStart`+brace gate while writers only emit trimmed object JSON.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative fractional whole strings such as `"-5.0"` coerce to `Committed` ordinal for in-memory callers (`TryParseWholeNumberString` allows negative finite values that floor to defined enum ordinals).
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId = Guid.Empty` matches `Committed`+null NotStarted path — **cheap-disproof 2026-10-06 thorough hunt:** duplicate of null-manifest row; `IsCommittedWithGoldenManifest` rejects empty guid; SQL CHECK blocks persisted rows; regression `ResolveFromRunHeader_committed_with_empty_golden_manifest_guid_returns_not_started_for_in_memory_rows`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON with leading Unicode whitespace before `{` rejected by leading-brace gate — **cheap-disproof 2026-10-06 thorough hunt:** em space (`\u2003`) survives `TrimStart` so conservative false; writers emit trimmed JSON (#1203); regression `IsDeadLettered_returns_false_for_leading_unicode_whitespace_before_open_brace`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` — `"-5.0"` coerces to `Committed` — **cheap-disproof 2026-10-06 thorough hunt:** `TryParseWholeNumberString` requires `numeric >= 0` for fractional ordinals; regression `TryParseStatus_rejects_negative_fractional_whole_number_ordinal`.
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed three reseeded candidates; no failing repro; 46 scoped Core tests passed.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four open candidates; reseeded three fixture/SQL-guarded follow-ons; 44 scoped Core tests passed.
 

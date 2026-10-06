@@ -61,4 +61,14 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeTrue();
         status.Should().Be(ArchitectureRunStatus.Created);
     }
+
+    [Fact]
+    public void TryParseStatus_rejects_negative_fractional_whole_number_ordinal()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-5.0", out ArchitectureRunStatus status);
+
+        // TryParseWholeNumberString requires non-negative finite values for fractional ordinals; SQL stores enum names on persisted rows.
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
 }

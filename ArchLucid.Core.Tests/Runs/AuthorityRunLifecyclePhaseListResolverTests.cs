@@ -28,6 +28,23 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_committed_with_empty_golden_manifest_guid_returns_not_started_for_in_memory_rows()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.Empty,
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header);
+
+        // Same NotStarted path as null manifest: IsCommittedWithGoldenManifest rejects Guid.Empty; SQL CHECK blocks persisted Committed without manifest.
+        phase.Should().Be(AuthorityRunLifecyclePhase.NotStarted);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_failed_with_context_snapshot_returns_failed_not_in_progress()
     {
         RunRecord header = new()
