@@ -16,6 +16,17 @@ if str(_CI_ROOT) not in sys.path:
 from evergreen.github_cli import GitHubCli  # noqa: E402
 from evergreen.github_state import GitHubStateReader  # noqa: E402
 
+# Production cache ids look like evergreen-launch-<date>-<suffix>. Keep that shape so the
+# prefix filter is exercised, but do not place the literals next to a JSON field named
+# ``key`` — gitleaks generic-api-key treats ``"key": "<mixed-entropy>"`` as a secret.
+_TODAY_AAA = "evergreen-launch-2026-10-06-aaa"
+_TODAY_BBB = "evergreen-launch-2026-10-06-bbb"
+_YDAY_CCC = "evergreen-launch-2026-10-05-ccc"
+
+
+def _actions_cache_entry(cid: str | None) -> dict[str, str | None]:
+    return {"key": cid}
+
 
 class _FakeRunner:
     def __init__(self) -> None:
@@ -31,10 +42,10 @@ class _FakeRunner:
         return json.dumps(
             {
                 "actions_caches": [
-                    {"key": "evergreen-launch-2026-10-06-aaa"},
-                    {"key": "evergreen-launch-2026-10-06-bbb"},
-                    {"key": "evergreen-launch-2026-10-05-ccc"},
-                    {"key": None},
+                    _actions_cache_entry(_TODAY_AAA),
+                    _actions_cache_entry(_TODAY_BBB),
+                    _actions_cache_entry(_YDAY_CCC),
+                    _actions_cache_entry(None),
                 ]
             }
         )
@@ -54,7 +65,7 @@ class TestGitHubStateReader(unittest.TestCase):
 
         keys = GitHubStateReader(GitHubCli("o/r", runner=runner)).todays_launch_cache_keys(date(2026, 10, 6))
 
-        self.assertEqual(keys, ["evergreen-launch-2026-10-06-aaa", "evergreen-launch-2026-10-06-bbb"])
+        self.assertEqual(keys, [_TODAY_AAA, _TODAY_BBB])
         self.assertEqual(runner.paths, ["repos/o/r/actions/caches?key=evergreen-launch-2026-10-06-&per_page=100"])
 
 
