@@ -56,6 +56,18 @@ public sealed class DraftNewCommandOptionsTests
     }
 
     [Fact]
+    public void Parse_preserves_surrounding_whitespace_on_system_name_flag()
+    {
+        DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(
+            ["--system-name", "  Contoso API  "],
+            out string? error);
+
+        error.Should().BeNull();
+        options.Should().NotBeNull();
+        options!.SystemName.Should().Be("  Contoso API  ");
+    }
+
+    [Fact]
     public void Parse_duplicate_text_flag_uses_last_value()
     {
         const string firstIntent =
