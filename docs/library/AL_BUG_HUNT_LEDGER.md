@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` (`TryNormalize`, percent-decode loop, path-only vs full-string checks); no hunt-ready row promoted for same-run proof; refreshed five `(candidate)` rows (dropped `AuthSignInRoutingController` locus outside zone `paths`); 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read list vs detail connection routing, archival purge batch, governance rationale binds, existence vs representative SQL, and NOLOCK list shapes; cheap-disproof closed five stale `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters` and `Run_detail_read_shapes_include_warning_flags_and_governance_columns` (NOLOCK guard); 137 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` (`Resolve`, `HasMatchingProposal`, `EvidenceRefsMatch`, `ShouldTreatAsDuplicateByName`); no hunt-ready row promoted for same-run proof; refreshed open `(candidate)` list (replaced empty-chosen row already covered by `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`); 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
@@ -5224,6 +5226,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
+2026-10-06 seed hunt (seed-only): re-read guard implementation; no hunt-ready promotion; refreshed five `(candidate)` rows below; 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): cheap-disproof closed four prior candidates; seeded five follow-on candidates; 147 scoped tests passed.
 
 - [x] (valid-no-repro) `TryNormalize` — lone `+` in path segments is not form-decoded to space by `Uri.UnescapeDataString` — **cheap-disproof 2026-10-06 seed hunt:** `application/x-www-form-urlencoded` `+` semantics are not the contract; JSON/query binding supplies literal `+`; regression `TryNormalize_accepts_plus_in_path_without_form_style_space_decoding`.
@@ -5233,7 +5237,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `TryNormalize` — fragment-only `//` or `://` substrings reject the whole return path even when browsers navigate to the path portion only — **seed 2026-10-06:** reachable `ReturnPath` values like `/reviews#//evil` from hand-built client links.
 - [ ] (candidate) `GetPathWithoutQueryOrFragment` — path checks ignore query but `candidate.Contains("://")` scans the full string — **seed 2026-10-06:** conservative rejection when scheme delimiter appears only after `?` (see prior valid-no-repro row; follow-on for fragment-only `://`).
-- [ ] (candidate) `AuthSignInRoutingController.EvaluateAsync` — invalid-email branch normalizes `ReturnPath` on the response while the routed request still carries the raw value — **seed 2026-10-06:** reachable when malformed email short-circuits before `AuthSignInRoutingEvaluator` normalization.
+- [ ] (candidate) `TryNormalize` — accepted paths return the full string including `?query` while traversal/`@` checks use `GetPathWithoutQueryOrFragment` only — **seed 2026-10-06:** reachable safe paths like `/reviews?tab=open` (query `://` payloads already rejected via full-string scan).
 - [ ] (candidate) `TryNormalizeAfterPercentDecoding` — returns last decoded path string including query/fragment while path-only checks use `GetPathWithoutQueryOrFragment` — **seed 2026-10-06:** percent-encoded delimiters in query may change normalized output shape vs browser resolution.
 - [ ] (candidate) `ContainsDotDotSegment` — splits only on `/` so encoded or homoglyph dots inside a single segment rely on the decode/homoglyph passes — **seed 2026-10-06:** re-open only when a cited producer emits single-segment `%2e%2e` without slashes before the decode cap.
 
