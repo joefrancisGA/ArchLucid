@@ -20940,13 +20940,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): reread `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after host-infra-evidence-composition dry hunt; no hunt-ready row met the same-run failing-repro bar; seeded five outbound-transport candidates (ITSM auto-redirect vs webhook dry-run, CloudControlPlane public catalog clients without connect guard, ARM retry on transport faults, resilience retry stacking, LLM completion profile without connect guard); 32 scoped PrivateNetwork tests passed (`RunAnalyzers=false`).
 
 2026-09-30 seed hunt (seed-only): inspected the configured Safety and Http paths; they expose only the content-safety interface and transport settings, while the actual SSRF guard is outside this zone and its known candidates are closed; no new reachable candidate emerged.
 
@@ -20981,6 +20983,12 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - [x] (valid-no-repro) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true` — **cheap-disproof 2026-09-12 thorough hunt #1954:** already fixed in #1928 (`External_integration_http_clients_wire_private_network_connect_guard`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there — **cheap-disproof 2026-09-11 seed hunt #1793:** TB-274 scope excludes documentation/reserved blocks; regression `IsForbiddenHostLiteral_allows_documentation_and_reserved_ipv4_outside_tb274_scope`.
+
+- [ ] (candidate) `OutboundHttpSocketsHandlerProfile.ExternalIntegration` + `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards/ITSM health/OAuth clients pass `rejectPrivateNetworkConnectEndpoints: true` but leave default `allowAutoRedirect: true` (webhook dry-run sets `allowAutoRedirect: false` at lines 48–51); reachable 3xx from operator-configured integration base URL could follow redirect to loopback/private host if redirect connections skip `OutboundHttpsConnectGuard`.
+- [ ] (candidate) `ArchLucidAzurePublicHttpClients` / `ArchLucidMultiCloudPublicHttpClients` + `OutboundHttpSocketsHandlerProfile.CloudControlPlane` — `RegisterAzureArmAndRetailPricesHttpClients` and `RegisterMultiCloudPublicPricingHttpClients` wire `ConfigureArchLucidOutboundSocketsHandler(CloudControlPlane)` without `rejectPrivateNetworkConnectEndpoints`; fixed `BaseAddress` authorities still use default auto-redirect; reachable catalog/ARM follower that GETs vendor `nextLink` absolute URLs on the same named client could connect to RFC1918 targets.
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.Create` — `ShouldHandle` retries all `HttpRequestException` transport faults; ARM/Retail factory clients attach this policy (`ServiceCollectionExtensions.AzureArmHttpClients`); reachable intermittent connect failure against a forbidden resolved address may execute multiple connection attempts per logical ARM/retail read.
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` / `ArchLucid:OutboundHttp:Resilience` — `Normalize()` allows `MaxRetryAttempts` up to 10; integration clients chain `AddOutboundExternalHttpResilience` with `ExternalIntegration` sockets tuning; reachable webhook/ITSM outbound with connect guard may still retry `HttpRequestException`, increasing probe volume against blocked private targets.
+- [ ] (candidate) `OutboundHttpSocketsHandlerProfile.LlmCompletion` + `OutboundSocketsHttpHandlerSettings.Apply` — LLM batch HttpClient registration uses `ConfigureArchLucidOutboundSocketsHandler(LlmCompletion)` without `rejectPrivateNetworkConnectEndpoints` (`LlmBatchCompositionModule`); reachable misconfigured `AzureOpenAI:Endpoint` (operator config) could open completion transport to link-local or RFC1918 hosts at connect time.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
 
