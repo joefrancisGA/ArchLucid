@@ -48,4 +48,12 @@ describe("validateInvitationToken (pre-auth proxy)", () => {
     expect(headers.get("x-project-id")).toBe("33333333-3333-3333-3333-333333333333");
     expect(payload.status).toBe("Valid");
   });
+
+  it("throws invitation_validation_failed on any non-OK proxy response", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 404 }));
+
+    await expect(validateInvitationToken("invite-token-value")).rejects.toThrow(
+      "invitation_validation_failed",
+    );
+  });
 });

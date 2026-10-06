@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  acceptPostAuthInvitation,
   createPostAuthWorkspace,
   fetchPostAuthBootstrapStatus,
   initiatePostAuthAccessRequest,
+  selectPostAuthWorkspace,
 } from "@/lib/auth/post-auth-bootstrap-api";
 
 describe("fetchPostAuthBootstrapStatus", () => {
@@ -65,5 +67,48 @@ describe("initiatePostAuthAccessRequest", () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 200 }));
 
     await expect(initiatePostAuthAccessRequest()).resolves.toBe(false);
+  });
+
+  it("returns false when the proxy responds with 403", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 403 }));
+
+    await expect(initiatePostAuthAccessRequest("hello")).resolves.toBe(false);
+  });
+});
+
+describe("acceptPostAuthInvitation", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns null when the proxy responds with 403", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 403 }));
+
+    await expect(acceptPostAuthInvitation("inv-1", null)).resolves.toBeNull();
+  });
+});
+
+describe("selectPostAuthWorkspace", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns null when the proxy responds with 401", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    await expect(
+      selectPostAuthWorkspace(
+        "11111111-1111-1111-1111-111111111111",
+        "22222222-2222-2222-2222-222222222222",
+      ),
+    ).resolves.toBeNull();
   });
 });

@@ -26,6 +26,12 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isPublicAnonymousProxyPath("v1/auth/sign-in-methods/email-otp/challenge")).toBe(false);
   });
 
+  it("does not treat trial/local auth routes as pre-auth anonymous paths", () => {
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/register")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/token")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/verify-email")).toBe(false);
+  });
+
   it("includes anonymous health probes and post-registration trial-status", () => {
     expect(isPublicAnonymousProxyPath("health/ready")).toBe(true);
     expect(isPublicAnonymousProxyPath("health/live")).toBe(true);

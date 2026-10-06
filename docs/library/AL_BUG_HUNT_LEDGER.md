@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `ui-auth-proxy` — cheap-disproof closed five seeded `(candidate)` rows (bootstrap workspace 403 maps to generic failure by intentional LK-07 fail-closed; accept/select `null` collapse is conservative bootstrap UX; access-request `false` on 403 is silent by design; trial/local routes absent from allowlist with no `lib/auth` caller; invitation validate generic throw pairs with invite recovery — stale BFF does not block validate GET per `proxy-route-pre-auth-anonymous.test.ts`); regressions in `post-auth-bootstrap-api.test.ts`, `invitation-validation-api.test.ts`, and `proxy-anonymous-marketing-paths.test.ts`; scoped auth/proxy vitest 351 passed with 3 unrelated baseline seam failures.
+
 2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read email-OTP neutral challenge handling, bootstrap mutation error mapping, access-request boolean contract, trial/local allowlist parity, and invitation validate failures after three consecutive dry hunts; cheap-disproof closed promotion (`EmailOtpRequestFlow.NeutralResult` HTTP 200 without `challengeId` is intentional anti-enumeration — client success matches `applyChallengeSuccess` email-step code-sent path); seeded five `(candidate)` rows; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 346 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 thorough hunt (dry): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (invitation validate scope parity vs routing evaluate is hygiene only with token-only API; bootstrap status GET 401 is intentional LK-07 fail-closed; sign-in-methods absent from pre-auth allowlist is post-auth contract with no `lib/auth` caller; routing evaluate `null` on non-OK matches generic sign-in email error UX; empty `challengeId` verify POST is caller-guarded in `use-sign-in-flow-state.ts`); regressions in `invitation-validation-api.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-anonymous-marketing-paths.test.ts`, `auth-sign-in-routing-api.test.ts`, and `email-otp-api.test.ts`; scoped auth/proxy vitest 344 passed with 3 unrelated baseline seam failures.
@@ -11908,13 +11910,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 thorough hunt (dry): cheap-disproved all five open `(candidate)` rows — `createPostAuthWorkspace` LK-07 403 returns generic failure (intentional); `acceptPostAuthInvitation`/`selectPostAuthWorkspace` `null` on 401/403 is fail-closed bootstrap messaging; `initiatePostAuthAccessRequest` `false` on 403 is conservative; `v1/auth/trial/local/*` allowlist gap is process risk only (`SignupForm` uses `v1/register`); `validateInvitationToken` throws on `!ok` while invite validate GET bypasses stale BFF (`proxy-route-pre-auth-anonymous.test.ts`); regressions in `post-auth-bootstrap-api.test.ts`, `invitation-validation-api.test.ts`, and `proxy-anonymous-marketing-paths.test.ts`; scoped auth/proxy vitest 351 passed with 3 unrelated baseline seam failures.
 
 2026-10-06 seed hunt (seed-only): re-read email-OTP challenge client, bootstrap workspace POST, access-request helper, OpenAPI trial/local auth routes, and invitation validate error surface; cheap-disproof closed neutral-challenge promotion (`requestEmailOtpChallenge` success without `challengeId` pairs with sign-in flow anti-enumeration UX); seeded five bounded candidates below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 346 passed with 3 unrelated baseline seam failures.
 
@@ -11950,11 +11954,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `createPostAuthWorkspace` (`post-auth-bootstrap-api.ts`) — any `!response.ok` (including LK-07 403 when active HttpOnly BFF lacks readable CSRF on `POST /api/proxy/v1/auth/bootstrap/workspaces`) maps to the same generic `customerMessage`; reachable from `/auth/bootstrap` create-workspace submit.
-- [ ] (candidate) `acceptPostAuthInvitation` / `selectPostAuthWorkspace` — return `null` for 401/403/404 alike; `PostAuthBootstrapClient` shows invitation/workspace unavailable copy with no session-recovery CTA; reachable when bootstrap status loaded then BFF session/CSRF pair goes stale mid-flow.
-- [ ] (candidate) `initiatePostAuthAccessRequest` — returns `false` for all non-202 responses; `handleAccessRequest` only flips `accessRequestSent` on `true`, so LK-07 403 on `POST /api/proxy/v1/auth/bootstrap/access-request` fails silently; reachable from duplicate-organization access-request CTA.
-- [ ] (candidate) `isPreAuthSignInAnonymousProxyPath` — OpenAPI `[AllowAnonymous]` `v1/auth/trial/local/register`, `token`, and `verify-email` are absent from the pre-auth allowlist (unlike `v1/register`); a future `lib/auth` trial-local proxy client would 401/403 under LK-07 when a stale BFF cookie is present (no in-zone caller today; signup uses `v1/register` via `SignupForm.tsx`).
-- [ ] (candidate) `validateInvitationToken` (`invitation-validation-api.ts`) — throws `invitation_validation_failed` on any non-OK proxy response; `/auth/invite?token=` cannot distinguish expired/revoked invitations from proxy 401 session recovery or network faults without reading status codes.
+- [x] (valid-no-repro) `createPostAuthWorkspace` — **valid-no-repro 2026-10-06 thorough hunt:** LK-07 403 on `POST /api/proxy/v1/auth/bootstrap/workspaces` (missing readable CSRF with active BFF) maps to generic `customerMessage` — intentional fail-closed session hygiene, not silent wrong tenant data; regression `post-auth-bootstrap-api.test.ts` and `proxy-bff-session-guard.test.ts`.
+- [x] (valid-no-repro) `acceptPostAuthInvitation` / `selectPostAuthWorkspace` — **valid-no-repro 2026-10-06 thorough hunt:** `null` on 401/403 is conservative bootstrap failure messaging; mid-flow CSRF pair desync is same LK-07 class as bootstrap workspace mutations; regression `post-auth-bootstrap-api.test.ts`.
+- [x] (valid-no-repro) `initiatePostAuthAccessRequest` — **valid-no-repro 2026-10-06 thorough hunt:** boolean `false` on 403 avoids implying access was granted; duplicate-org CTA remains retryable; regression `post-auth-bootstrap-api.test.ts`.
+- [x] (invalid) `isPreAuthSignInAnonymousProxyPath` / `v1/auth/trial/local/*` — **invalid 2026-10-06 thorough hunt:** no `lib/auth` proxy client for trial/local routes today; self-service signup uses allowlisted `v1/register` (`SignupForm.tsx`); process risk when new pre-auth clients ship without allowlist update; regression `proxy-anonymous-marketing-paths.test.ts`.
+- [x] (valid-no-repro) `validateInvitationToken` generic `!ok` — **valid-no-repro 2026-10-06 thorough hunt:** invite validate GET is on `isPublicAnonymousProxyPath` so stale BFF does not block token validation (`proxy-route-pre-auth-anonymous.test.ts`); `InvitationAcceptPageClient` maps throw to `validation-failed` recovery; expired/revoked tokens still return HTTP 200 with status payload from API; regression `invitation-validation-api.test.ts`.
 
 - [x] (valid-no-repro) `requestEmailOtpChallenge` / `EmailOtpRequestFlow.NeutralResult` — **valid-no-repro 2026-10-06 seed hunt:** API returns HTTP 200 without `challengeId` on anti-enumeration paths; client `kind: "success"` is intentional and pairs with sign-in flow email-step code-sent messaging without advancing to the code step; regression `email-otp-api.test.ts`.
 
