@@ -184,7 +184,10 @@ export async function injectDemoWorkspaceOperatorScope(
 }
 
 /** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
-export async function injectDefaultTenantOperatorScope(page: Page): Promise<void> {
+export async function injectDefaultTenantOperatorScope(
+  page: Page,
+  options?: { readonly reestablishJwtSession?: boolean },
+): Promise<void> {
   const defaultScope = {
     tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
     workspaceId: LIVE_E2E_DEFAULT_WORKSPACE_ID,
@@ -202,7 +205,9 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   // before the first /administration/users RSC flight.
   await page.goto("/", { waitUntil: "domcontentloaded" });
   if (resolveLiveJwtMode()) {
-    await primePrivateBetaBrowserSessionIfJwtMode(page);
+    if (options?.reestablishJwtSession !== false) {
+      await primePrivateBetaBrowserSessionIfJwtMode(page);
+    }
     await waitForOperatorAuthMeProxyOk(page);
   }
 }
