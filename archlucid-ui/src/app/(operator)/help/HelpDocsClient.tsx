@@ -80,6 +80,16 @@ function helpDocCategoryDomId(category: string): string {
   return `help-cat-${slugifyHelpHeading(category)}`;
 }
 
+function normalizeHelpHubFilterQuery(query: string): string {
+  let normalized = query.trim().toLowerCase();
+
+  while (normalized.length > 1 && normalized.endsWith("/")) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  return normalized;
+}
+
 function normalizeDocIndexUrlForDedupe(url: string): string {
   const trimmed = url.trim();
 
@@ -181,7 +191,7 @@ export function HelpDocsClient() {
   const mergedEntries = useMemo(() => entries ?? [...HELP_DOCS_STATIC_ENTRIES], [entries]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalizeHelpHubFilterQuery(query);
 
     if (q.length === 0) {
       return mergedEntries;
@@ -190,7 +200,9 @@ export function HelpDocsClient() {
     return mergedEntries.filter((e) => {
       const localizedTitle = localize(e.title);
       const localizedSummary = localize(e.summary);
-      const hay = `${e.category} ${e.title} ${e.summary} ${e.url} ${localizedTitle} ${localizedSummary}`.toLowerCase();
+      const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+      const hay =
+        `${e.category} ${e.title} ${e.summary} ${e.url} ${normalizedUrl} ${localizedTitle} ${localizedSummary}`.toLowerCase();
 
       return hay.includes(q);
     });

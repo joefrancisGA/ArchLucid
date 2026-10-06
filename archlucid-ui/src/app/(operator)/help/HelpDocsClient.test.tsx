@@ -252,6 +252,30 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("filters entries when the search query ends with a trailing slash on the url path token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Admin diagnostics" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "admin-diagnostics/" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Admin diagnostics" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("filters entries by documentation url path when title summary and category omit the token", async () => {
     vi.stubGlobal(
       "fetch",
