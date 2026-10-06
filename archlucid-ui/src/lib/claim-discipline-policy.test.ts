@@ -253,4 +253,19 @@ describe("claim-discipline-policy", () => {
       resolveClaimDisciplineForStrip("report-a-problem-help", "Not a diligence package."),
     ).toContain("Not a diligence package.");
   });
+
+  it("omits scope-help registry strip slug while ScopeHelpClaimDisciplineStrip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("scope-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("scope-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits findings-help orientation claim while FindingsHelpClaimDisciplineStrip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("findings-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("findings-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits azure-permissions-help orientation claim while header info strip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("azure-permissions-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("azure-permissions-help", "Not a diligence package.")).toBeUndefined();
+  });
 });

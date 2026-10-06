@@ -8790,3 +8790,4 @@
 {"at":"2026-10-06T13:00:00.9057006Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T13:04:42.8011062Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T13:11:57.8768732Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-06T13:21:39.9194732Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
