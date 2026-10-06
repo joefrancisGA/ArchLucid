@@ -23,7 +23,9 @@ public static class EmailBrandingUrls
         if (!Uri.TryCreate(trimmedBase, UriKind.Absolute, out Uri? absoluteUri) || string.IsNullOrEmpty(absoluteUri.Host))
             return null;
 
+        UriBuilder authorityBuilder = new(absoluteUri.Scheme, absoluteUri.Host, absoluteUri.Port);
+        string sanitizedBase = authorityBuilder.Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
         string rel = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
-        return $"{trimmedBase}{rel}";
+        return $"{sanitizedBase}{rel}";
     }
 }

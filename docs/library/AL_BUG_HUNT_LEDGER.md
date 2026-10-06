@@ -4,6 +4,8 @@
 
 2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `AccessKey=` effective values on non-sensitive paths leaked in operator config summaries because `LooksLikeEmbeddedConnectionString` only treated `Password`/`Pwd`/`AccountKey`/`SharedAccessKey` as leading credential pairs; recognize `AccessKey=` for scalar and semicolon-delimited connection strings; regression `Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair`; 1064 scoped Configuration tests passed (Release, no-build filter).
 
+2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `EmailBrandingUrls.TryBuildLogoImageUrl` composed logo URLs from the raw `OperatorBaseUrl` string, embedding `user:password@` userinfo from misconfigured bases into weekly Sponsor report `<img src>` values; rebuild logo URLs from scheme/host/port authority only; regressions `TryBuildLogoImageUrl_omits_user_info_from_operator_base_url` and `WeeklySponsorReportEmailDispatcher_omits_user_info_from_operator_base_url_in_logo_image_url`; 8 scoped branding + report dispatcher tests passed.
+
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `EmailBrandingUrls.TryBuildLogoImageUrl` accepted scheme-only `EmailNotificationOptions.OperatorBaseUrl` values such as `https://` after `TrimEnd('/')`, producing malformed weekly Sponsor report logo URLs (`https:/logo/icon-192.png`); require absolute URI with a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`; 27 scoped branding + report dispatcher tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` returned `https://` and `//` URLs unchanged, so two fetched doc-index rows for the same external path with and without a trailing slash both rendered; normalize absolute URLs via `URL` pathname trailing-slash trim for merge dedupe and link `href`; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`; 31 scoped HelpDocsClient tests passed.
@@ -6586,17 +6588,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved scheme-only `OperatorBaseUrl` (`https://`) produced malformed logo URLs in weekly Sponsor report mail; fixed in `EmailBrandingUrls.TryBuildLogoImageUrl`; 27 scoped branding + report dispatcher tests passed.
 
+2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email after scheme-only operator-base fix; proved `OperatorBaseUrl` values with embedded userinfo leaked credentials into weekly Sponsor report logo URLs; fixed authority-only logo URL composition; regressions above.
+
 - **id:** weekly-digest-email
 - **status:** open
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 27
-- **bugs-found:** 11
+- **hunts:** 28
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — scheme-only OperatorBaseUrl produced malformed weekly report logo URL
+- **last-bug:** 2026-10-06 — OperatorBaseUrl userinfo leaked into weekly report logo image URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -41,6 +41,14 @@ public sealed class EmailBrandingUrlsTests
     }
 
     [SkippableFact]
+    public void TryBuildLogoImageUrl_omits_user_info_from_operator_base_url()
+    {
+        string? url = EmailBrandingUrls.TryBuildLogoImageUrl("https://user:secret@ops.example.test");
+
+        url.Should().Be("https://ops.example.test/logo/icon-192.png");
+    }
+
+    [SkippableFact]
     public void TryBuildLogoImageUrl_accepts_relative_path_without_leading_slash()
     {
         string? url = EmailBrandingUrls.TryBuildLogoImageUrl("https://app.example", "logo/x.png");
