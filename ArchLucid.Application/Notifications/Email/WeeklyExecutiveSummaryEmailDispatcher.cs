@@ -65,7 +65,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
-        string normalizedRunDetailUrl = runDetailUrl.Trim();
+        string normalizedRunDetailUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(runDetailUrl.Trim());
         string normalizedRunIdHex = runIdHex.Trim();
         string normalizedSummaryMarkdown = summaryMarkdown.Trim();
 

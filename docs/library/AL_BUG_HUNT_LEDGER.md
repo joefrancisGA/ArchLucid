@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` copied trimmed `runDetailUrl` into template models without stripping embedded userinfo, so weekly delivery scanners that build links via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` with misconfigured `OperatorBaseUrl` leaked credentials into sponsor report `<a href>` values; sanitize with `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl`; regressions `WeeklySponsorReportEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model` and `WeeklySponsorSummaryEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model`; 54 scoped digest idempotency tests passed.
+
 2026-10-06 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent `ExportOnly`→`Deleted` lifecycle transitions returned `false` for atomic-transition losers while `TrialStatus` was already `Deleted`, duplicating audit risk on retries; extended idempotent re-read to the hard-purge transition path via `IsAdvancementAlreadyAppliedAsync`; regression `TryAdvanceTenantAsync_concurrent_deleted_transition_returns_success_without_duplicate_audit_when_race_loses_atomic_transition`; 142 scoped tenancy tests passed.
 
 2026-10-06 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` calls returned `false` for atomic-transition losers while the target `TrialStatus` was already persisted; re-read tenant after `TryRecordTrialLifecycleTransitionAsync` miss and return idempotent success without duplicate audit; regression `TryAdvanceTenantAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 141 scoped tenancy tests passed.
@@ -6606,6 +6608,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
+2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved `runDetailUrl` values with embedded userinfo reached weekly Sponsor report/summary template `RunDetailUrl` hrefs; fixed with `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` in both weekly dispatchers; 54 scoped digest idempotency tests passed.
+
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved scheme-only `OperatorBaseUrl` (`https://`) produced malformed logo URLs in weekly Sponsor report mail; fixed in `EmailBrandingUrls.TryBuildLogoImageUrl`; 27 scoped branding + report dispatcher tests passed.
 
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email after scheme-only operator-base fix; proved `OperatorBaseUrl` values with embedded userinfo leaked credentials into weekly Sponsor report logo URLs; fixed authority-only logo URL composition; regressions above.
@@ -6616,11 +6620,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 28
-- **bugs-found:** 12
+- **hunts:** 29
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — OperatorBaseUrl userinfo leaked into weekly report logo image URL
+- **last-bug:** 2026-10-06 — runDetailUrl userinfo leaked into weekly sponsor report/summary run links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6681,6 +6685,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `EmailBrandingUrls.TryBuildLogoImageUrl` — scheme-only `OperatorBaseUrl` (`https://`) became `https:` after slash trim and composed `https:/logo/icon-192.png` in weekly Sponsor report templates — **hit 2026-10-06 seed hunt (seed→hit):** reject absolute bases without a host before composing logo paths; regressions `TryBuildLogoImageUrl_returns_null_when_base_is_scheme_only` and `WeeklySponsorReportEmailDispatcher_omits_logo_when_operator_base_url_is_scheme_only`.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `EmailBrandingUrls.TryBuildLogoImageUrl` — `OperatorBaseUrl` values with embedded userinfo (`https://user:secret@host`) were concatenated verbatim into weekly Sponsor report logo `<img src>` URLs — **hit 2026-10-06 seed hunt (seed→hit):** compose logo URLs from scheme/host/port authority only; regressions `TryBuildLogoImageUrl_omits_user_info_from_operator_base_url` and `WeeklySponsorReportEmailDispatcher_omits_user_info_from_operator_base_url_in_logo_image_url`.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — `runDetailUrl` built from misconfigured `OperatorBaseUrl` via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` retained `user:password@` userinfo in template `RunDetailUrl` hrefs — **hit 2026-10-06 seed hunt (seed→hit):** `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` after trim; regressions `WeeklySponsorReportEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model` and `WeeklySponsorSummaryEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model`.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
