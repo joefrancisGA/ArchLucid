@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalHostInKeyVault` while private-endpoint access already used `members.Any`, so mixed rollup cards hid Key Vault-hosted linked services when the first member had an explicit host; `members.Any` plus a separate Key Vault detail line when hosts are also shown; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`; 642 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while factory names already merged all members, so rolled-up ADF link cards hid peer hosts and runtimes; merge distinct values onto `ExternalTargetHosts` / `ExternalIntegrationRuntimes` and format rollup detail lines; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`; 640 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
 
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` still used `Trim()` + `Guid.TryParse` after `GovernanceController` policy-pack parity fix; shared `GovernanceRunIdHttpParser`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
@@ -25434,11 +25436,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 33
+- **hunts:** 34
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 41
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — data-flow rollup showed only first member external target host and integration runtime
+- **last-bug:** 2026-10-06 — data-flow rollup dropped Key Vault host indicator when first member had explicit host
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25503,6 +25505,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while `ExternalFactoryNames` already merged all members, so four or more same-neighbor links hid peer hosts and runtimes on the canvas — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct hosts and runtimes onto rollup node list fields; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`.
 
 2026-10-06 seed hunt (seed→hit): promoted rollup external host/runtime identity loss after factory-name parity fix; focused filter reported 640 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` / `DiagramForestCanvasLabelContext.BuildDataFlowDetailLines` — rolled-up ADF link cards copied only the first member's `ExternalHostInKeyVault` and treated Key Vault as mutually exclusive with explicit host lines, hiding Key Vault-hosted peers when the first member listed a hostname — **hit 2026-10-06 seed hunt (seed→hit):** `members.Any` for Key Vault flag and show `Host in Key Vault` alongside merged host lines; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup Key Vault host indicator loss on mixed explicit-host / Key Vault members; focused filter reported 642 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 

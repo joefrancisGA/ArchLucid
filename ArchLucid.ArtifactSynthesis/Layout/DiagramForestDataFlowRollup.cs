@@ -183,7 +183,7 @@ internal static class DiagramForestDataFlowRollup
             ExternalTargetHosts = targetHosts,
             ExternalIntegrationRuntime = integrationRuntimes.Count == 1 ? integrationRuntimes[0] : null,
             ExternalIntegrationRuntimes = integrationRuntimes,
-            ExternalHostInKeyVault = first.ExternalHostInKeyVault,
+            ExternalHostInKeyVault = members.Any(member => member.ExternalHostInKeyVault),
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),

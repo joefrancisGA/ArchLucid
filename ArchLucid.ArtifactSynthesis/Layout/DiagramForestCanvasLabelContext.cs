@@ -244,7 +244,8 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add(node.ExternalTargetHost.Trim());
         }
-        else if (node.ExternalHostInKeyVault)
+
+        if (node.ExternalHostInKeyVault)
         {
             lines.Add("Host in Key Vault");
         }

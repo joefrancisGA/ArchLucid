@@ -338,6 +338,80 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "source",
+                    Label = "Source",
+                    OrderKey = 0,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "application",
+                    Label = "Application",
+                    OrderKey = 1,
+                },
+            ],
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "mysql-link-0",
+                    Label = "mysql-link-0",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "source",
+                    OrderKey = 0,
+                    ExternalLinkedServiceType = "AzureMySql",
+                    ExternalFactoryName = "adf-factory-0",
+                    ExternalTargetHost = "mysql-0.partner.example",
+                },
+                ..Enumerable.Range(1, 3).Select(index => new DiagramNode
+                {
+                    NodeId = $"mysql-link-{index}",
+                    Label = $"mysql-link-{index}",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "source",
+                    OrderKey = index,
+                    ExternalLinkedServiceType = "AzureMySql",
+                    ExternalFactoryName = $"adf-factory-{index}",
+                    ExternalHostInKeyVault = true,
+                }),
+                new DiagramNode
+                {
+                    NodeId = "consumer-app",
+                    Label = "consumer-app",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "application",
+                    OrderKey = 10,
+                    ArmResourceType = "Microsoft.Web/sites",
+                },
+            ],
+            Edges =
+            [
+                ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+                {
+                    FromNodeId = $"mysql-link-{index}",
+                    ToNodeId = "consumer-app",
+                    Label = "reads",
+                }),
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("4 MySQL links");
+        result.Svg.Should().Contain("mysql-0.partner.example");
+        result.Svg.Should().Contain("Host in Key Vault");
+    }
+
+    [Fact]
     public void Render_data_flow_shows_adf_link_identity_lines()
     {
         DiagramAst ast = new()

@@ -112,4 +112,58 @@ public sealed class DiagramForestDataFlowRollupTests
             .BeEquivalentTo(["managed", "selfHostedIr"], options => options.WithStrictOrdering());
         rollup.ExternalIntegrationRuntime.Should().BeNull();
     }
+
+    [Fact]
+    public void Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault()
+    {
+        const string consumerId = "consumer-app";
+        List<DiagramNode> nodes =
+        [
+            new DiagramNode
+            {
+                NodeId = "mysql-link-0",
+                Label = "mysql-link-0",
+                NodeType = "TopologyResource",
+                SubgraphId = "source",
+                OrderKey = 0,
+                ExternalLinkedServiceType = "AzureMySql",
+                ExternalFactoryName = "adf-factory-0",
+                ExternalTargetHost = "mysql-0.partner.example",
+            },
+            ..Enumerable.Range(1, 3).Select(index => new DiagramNode
+            {
+                NodeId = $"mysql-link-{index}",
+                Label = $"mysql-link-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "source",
+                OrderKey = index,
+                ExternalLinkedServiceType = "AzureMySql",
+                ExternalFactoryName = $"adf-factory-{index}",
+                ExternalHostInKeyVault = true,
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "application",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"mysql-link-{index}",
+                ToNodeId = consumerId,
+                Label = "reads",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.ExternalHostInKeyVault.Should().BeTrue("any member with Key Vault host should surface on the rollup card");
+    }
 }
