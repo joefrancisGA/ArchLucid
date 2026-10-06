@@ -121,7 +121,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const filterTextRef = useRef(filterText);
   filterTextRef.current = filterText;
   const buyerPackageScope = urlBuyerPackageScope;
-  const sortOrder = urlSortOrder;
+  const [sortOrder, setSortOrderState] = useState<SortOrder>(urlSortOrder);
+  const sortOrderRef = useRef(sortOrder);
+  sortOrderRef.current = sortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const compareSelectionRef = useRef(compareSelection);
@@ -142,6 +144,37 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     filterTextRef.current = urlFilterText;
     setFilterTextState(urlFilterText);
   }, [urlFilterText]);
+
+  useEffect(() => {
+    if (sortOrderRef.current === urlSortOrder) {
+      return;
+    }
+
+    sortOrderRef.current = urlSortOrder;
+    setSortOrderState(urlSortOrder);
+  }, [urlSortOrder]);
+
+  useEffect(() => {
+    const syncSortOrderFromUrl = (): void => {
+      const next = sortOrderFromRunsListSort(
+        parseRunsListSortFromSearch(new URLSearchParams(readWindowLocationSearch()).get("sort")),
+      );
+
+      if (sortOrderRef.current === next) {
+        return;
+      }
+
+      sortOrderRef.current = next;
+      setSortOrderState(next);
+    };
+
+    syncSortOrderFromUrl();
+    window.addEventListener("popstate", syncSortOrderFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSortOrderFromUrl);
+    };
+  }, []);
 
   useEffect(() => {
     const syncFilterTextFromUrl = (): void => {

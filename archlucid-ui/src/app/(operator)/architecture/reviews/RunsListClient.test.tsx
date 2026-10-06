@@ -682,6 +682,38 @@ describe("RunsListClient inspector", () => {
     expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
   });
 
+  it("re-sorts rows when sort= changes via popstate before useSearchParams catches up", () => {
+    const olderRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      description: "Older review",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+    };
+    const newerRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Newer review",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+    };
+
+    const rowOrder = (): string[] =>
+      Array.from(document.querySelectorAll('[data-testid^="runs-row-"]')).map((row) =>
+        row.getAttribute("data-testid") ?? "",
+      );
+
+    renderRunsList(
+      <RunsListClient runs={[olderRun, newerRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(rowOrder()[0]).toBe(`runs-row-${newerRun.runId}`);
+
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc";
+    fireEvent.popState(window);
+
+    expect(rowOrder()[0]).toBe(`runs-row-${olderRun.runId}`);
+    expect(screen.getByTestId("runs-list-sort-created-asc")).toHaveAttribute("aria-current", "page");
+  });
+
   it("closes stale inspector preview when inspectorRunId changes to an unknown run without popstate", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
