@@ -229,20 +229,21 @@ export async function waitForOperatorAuthMeProxyOk(
     /* fall through — /me may have completed before this waiter registered */
   }
 
-  const meAlreadyOk = await page
-    .evaluate(async () => {
-      const response = await fetch("/api/proxy/api/auth/me", {
-        method: "GET",
-        credentials: "same-origin",
-        cache: "no-store",
-      });
+  const deadline = Date.now() + timeoutMs;
 
-      return response.ok;
-    })
-    .catch(() => false);
+  while (Date.now() < deadline) {
+    const probe = await probeAuthMeViaProxy(page);
 
-  if (meAlreadyOk) {
-    return;
+    if (probe.ok) {
+      return;
+    }
+
+    if (probe.status === 429) {
+      await page.waitForTimeout(parseAuthMe429RetryMs(probe.text));
+      continue;
+    }
+
+    break;
   }
 
   const origin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
@@ -306,6 +307,31 @@ export function resolveScopeFromAuthMe(
   };
 }
 
+function parseAuthMe429RetryMs(detailText: string): number {
+  const match = /Try again in (\d+) second/i.exec(detailText);
+
+  if (match === null) {
+    return 15_000;
+  }
+
+  return Math.min((Number(match[1]) + 1) * 1000, 60_000);
+}
+
+async function probeAuthMeViaProxy(page: Page): Promise<{ ok: boolean; status: number; text: string }> {
+  return page
+    .evaluate(async () => {
+      const res = await fetch("/api/proxy/api/auth/me", {
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      const text = await res.text();
+
+      return { ok: res.ok, status: res.status, text: text.slice(0, 400) };
+    })
+    .catch(() => ({ ok: false, status: 0, text: "" }));
+}
+
 export async function fetchAuthMeViaProxy(
   page: Page,
   accessToken?: string | null,
@@ -317,22 +343,29 @@ export async function fetchAuthMeViaProxy(
     await writeJwtBrowserSession(page, trimmedToken);
   }
 
-  const result = await page.evaluate(async () => {
-    const res = await fetch("/api/proxy/api/auth/me", {
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    const text = await res.text();
+  const deadline = Date.now() + 120_000;
+  let lastStatus = 0;
+  let lastText = "";
 
-    return { status: res.status, text };
-  });
+  while (Date.now() < deadline) {
+    const result = await probeAuthMeViaProxy(page);
 
-  if (result.status < 200 || result.status >= 300) {
-    throw new Error(`GET /api/proxy/api/auth/me failed ${result.status}: ${result.text.slice(0, 400)}`);
+    if (result.ok) {
+      return JSON.parse(result.text) as LiveAuthMeProxyBody;
+    }
+
+    lastStatus = result.status;
+    lastText = result.text;
+
+    if (result.status === 429) {
+      await page.waitForTimeout(parseAuthMe429RetryMs(result.text));
+      continue;
+    }
+
+    break;
   }
 
-  return JSON.parse(result.text) as LiveAuthMeProxyBody;
+  throw new Error(`GET /api/proxy/api/auth/me failed ${lastStatus}: ${lastText}`);
 }
 
 /** Direct API `GET /api/auth/me` — validates JWT role claims without the UI BFF proxy (TB-927). */
