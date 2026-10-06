@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (hit): `application-agents` — `AgentArchitectureFindingEmissionGate.ApplyToResults` threw when deserialized `AgentResult.WithheldFindings` was null while withholding prose-only findings; initialize the list before append; regressions `ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result` and `EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null`; cheap-disproved consensus audit `.Count` on null merged lists (`Merge_merged_proposal_collection_properties_are_never_null`); 100 scoped Application.Tests.Agents tests passed.
+
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — `ArchitectureRunExecuteOrchestrator` read `IsEnabled` then `AcquireAsync` no-opped when `RunExecuteOwnershipLeaseOptions.Enabled` flipped false before acquire, but `BeginRenewalScope` still heartbeated and `RenewAsync` invoked SQL without a local acquire pin; skip `RenewAsync` when the run is not tracked in `_activeHolderInstanceIds`; regression `RenewAsync_does_not_invoke_repository_without_local_acquire_pin`; aligned drain/disabled-renew and release-ordering tests with pin semantics; 67 scoped ownership/orchestrator tests passed.
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware.ShouldSkip` left `//health/live` (and similar double-leading-slash probe URLs) subject to TB-304 on staging-like hosts because `PathString.StartsWithSegments` did not match normalized health paths; collapse duplicate leading slashes before probe checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; cheap-disproof closed duplicate `tenant_id` claim/header parity (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`, `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`) and comma-joined policy literal skip (`OnActionExecutionAsync_combined_policy_string_does_not_skip_binding_when_literal_name_differs`); 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
@@ -28302,11 +28304,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 29
-- **bugs-found:** 27
+- **hunts:** 30
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — null Policies on deserialized evidence package crashed engine provenance aggregation
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — null WithheldFindings on deserialized agent results crashed emission gate during withhold
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -28357,8 +28359,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `Findings`/`Claims`/`EvidenceRefs` on deserialized `AgentResult` or catalog lists on `AgentEvidencePackage` threw before LLM prompt assembly — **hit 2026-10-05 seed hunt:** null-coalesce list properties before LINQ and `string.Join`; regression `BuildUserPrompt_tolerates_null_collections_on_result_and_evidence`
 - [x] (proven) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — null `AgentResult.Findings` or `ArchitectureFinding.EvidenceRefs` on deserialized enrichment rows threw in the findings loop and evidence-ref helpers — **hit 2026-10-05 seed hunt:** null-coalesce in the stub loop and `HasEvidenceReferences` / `BuildPrompt`; regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows`
 - [x] (proven) `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` — null `AgentEvidencePackage.Policies` after JSON deserialization threw on `.Count` during post-run provenance aggregation — **hit 2026-10-05 seed hunt:** null-coalesce policies before counting and enumerating titles; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`
-- [ ] (candidate) `AgentArchitectureFindingEmissionEnricher` / `AgentArchitectureFindingEmissionGate.ApplyToResults` — null `AgentResult.WithheldFindings` when withholding prose-only findings from deserialized results (post-execution enricher runs before persistence normalizers)
-- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — audit `DataJson` uses `.Count` on merged `AddedServices` / `AddedDatastores` / `AddedRelationships` when consensus merge returns null lists from JSON-shaped proposals
+- [x] (proven) `AgentArchitectureFindingEmissionEnricher` / `AgentArchitectureFindingEmissionGate.ApplyToResults` — null `AgentResult.WithheldFindings` when withholding prose-only findings from deserialized results — **hit 2026-10-06 thorough hunt:** `result.WithheldFindings ??= []` before append; regressions `ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result` and `EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null`.
+- [x] (invalid) `TopologyProposalDualModelConsensusEnricher` — audit `DataJson` uses `.Count` on merged `AddedServices` / `AddedDatastores` / `AddedRelationships` when consensus merge returns null lists — **cheap-disproof 2026-10-06 thorough hunt:** `TopologyProposalConsensusMerger.Merge` always assigns non-null intersection lists; regression `Merge_merged_proposal_collection_properties_are_never_null`.
+
+2026-10-06 thorough hunt (hit): promoted withheld-findings candidate; proved `ApplyToResults` NRE on `"withheldFindings": null` JSON; fixed with null-coalescing before append; cheap-disproved consensus audit null merged-list candidate; 100 scoped Application.Tests.Agents tests passed.
 
 2026-10-05 seed hunt (seed→hit): re-read `ReviewRunEngineProvenanceAggregator`; proved `DerivePolicyPackVersion` threw when deserialized `AgentEvidencePackage.Policies` was null; fixed with null-coalescing; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`; seeded WithheldFindings and consensus audit-count candidates; 98 scoped Application.Tests.Agents tests passed.
 

@@ -90,4 +90,30 @@ public sealed class TopologyProposalConsensusMergerWarningsTests
         result.MergedProposal.RequiredControls.Should().NotBeNull();
         result.MergedProposal.AddedServices.Should().ContainSingle();
     }
+
+    [Fact]
+    public void Merge_merged_proposal_collection_properties_are_never_null()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = [],
+            AddedDatastores = [],
+            AddedRelationships = [],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = [],
+            AddedDatastores = [],
+            AddedRelationships = [],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedServices.Should().NotBeNull();
+        result.MergedProposal.AddedDatastores.Should().NotBeNull();
+        result.MergedProposal.AddedRelationships.Should().NotBeNull();
+    }
 }
