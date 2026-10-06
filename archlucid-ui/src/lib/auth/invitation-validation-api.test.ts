@@ -38,7 +38,7 @@ describe("validateInvitationToken (pre-auth proxy)", () => {
       }),
     );
 
-    await validateInvitationToken("invite-token-value");
+    const payload = await validateInvitationToken("invite-token-value");
 
     const init = vi.mocked(fetch).mock.calls[0]?.[1];
     const headers = new Headers(init?.headers);
@@ -46,5 +46,6 @@ describe("validateInvitationToken (pre-auth proxy)", () => {
     expect(headers.get("x-tenant-id")).toBe("11111111-1111-1111-1111-111111111111");
     expect(headers.get("x-workspace-id")).toBe("22222222-2222-2222-2222-222222222222");
     expect(headers.get("x-project-id")).toBe("33333333-3333-3333-3333-333333333333");
+    expect(payload.status).toBe("Valid");
   });
 });

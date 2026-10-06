@@ -21,6 +21,11 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isAnonymousMarketingProxyPath("v1/auth/routing/evaluate")).toBe(false);
   });
 
+  it("does not treat signed-in sign-in-methods routes as pre-auth anonymous paths", () => {
+    expect(isPublicAnonymousProxyPath("v1/auth/sign-in-methods")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/sign-in-methods/email-otp/challenge")).toBe(false);
+  });
+
   it("includes anonymous health probes and post-registration trial-status", () => {
     expect(isPublicAnonymousProxyPath("health/ready")).toBe(true);
     expect(isPublicAnonymousProxyPath("health/live")).toBe(true);

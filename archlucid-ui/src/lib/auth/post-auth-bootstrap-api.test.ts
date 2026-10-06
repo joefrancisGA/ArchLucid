@@ -1,6 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { initiatePostAuthAccessRequest } from "@/lib/auth/post-auth-bootstrap-api";
+import {
+  fetchPostAuthBootstrapStatus,
+  initiatePostAuthAccessRequest,
+} from "@/lib/auth/post-auth-bootstrap-api";
+
+describe("fetchPostAuthBootstrapStatus", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("throws bootstrap_status_failed when the proxy returns 401", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
+  });
+});
 
 describe("initiatePostAuthAccessRequest", () => {
   beforeEach(() => {

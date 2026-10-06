@@ -45,4 +45,12 @@ describe("evaluateAuthSignInRouting (pre-auth proxy)", () => {
     expect(headers.get("x-workspace-id")).toBeNull();
     expect(headers.get("x-project-id")).toBeNull();
   });
+
+  it("returns null when the proxy responds with 401 (same shape as network failure)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const result = await evaluateAuthSignInRouting("operator@example.com", null, "/reviews");
+
+    expect(result).toBeNull();
+  });
 });
