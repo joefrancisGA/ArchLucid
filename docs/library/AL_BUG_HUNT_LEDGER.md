@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `ui-claim-discipline-policy` — cheap-disproved `contact-support-help` / `contact-support` slug parity (operator and buyer-polished shells render claim once via `ContactSupportHelpEvidenceOrientationStrip` only; no separate claim strip; omit would drop required copy) and `core-pilot-help` / `first-architecture-review` (registry orientation strip is not mounted; operator claim lives in `CorePilotHelpClosingPanel`, buyer-polished in `OperatorPageHeader`); regressions `keeps contact-support-help visible where orientation strip is the sole claim owner` and `keeps core-pilot-help strip slug visible while first-architecture-review guide omits sibling help slugs`; 19 scoped `claim-discipline-policy` tests passed.
+
 2026-10-06 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack controller partials (assign, CRUD, catalog mutate/read, simulate/validate) after recent churn; cheap-disproof closed `POST validate` facade `ValidationFailed` without controller mapping (`PolicyPackValidateContentHttpMapper` runs before `ValidateContentAsync`); no hunt-ready row promoted; seeded five `(candidate)` rows; 79 scoped `PolicyPacksController` tests passed.
 
 2026-10-06 seed hunt (seed→hit): `tenant-erasure` — `TenantErasureQuarantineMiddleware.Skip` used raw `PathString.StartsWithSegments`, so duplicate-slash tenant erasure lifecycle URLs (`/v1/tenant//erasure/approve`) failed the `/v1/tenant/erasure` allowlist and returned `403` while quarantined; normalize collapsed duplicate slashes before skip checks; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`; 46 scoped `TenantErasure` tests passed (24 Api + 18 Application + 4 Core).
@@ -30297,10 +30299,10 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — procurement help duplicated claim on operator shell (procurement-help slug outside omit set)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -30316,6 +30318,8 @@ ABQ-09 churn hotspot.
 2026-10-05 seed hunt (hit): proved multiple live orientation strips still pass legacy strip slugs (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`) while `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` keys the canonical `help-*` registry slugs, so `shouldOmitClaimDisciplineBand` left duplicate claim callouts; fixed via `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` in omit resolution; 13 scoped `claim-discipline-policy` tests plus evidence-trail, glossary, and pilot-guide strip regressions passed.
 
 2026-10-05 thorough hunt (hit): proved `ConnectGcpSecurelyHelpEvidenceOrientationStrip` used `stripSlug="connect-gcp-securely-help"` while omit policy keys `cloud-connections-gcp`, duplicating claim discipline with the header info strip; aligned strip slug with registry; cheap-disproved remaining heading-id and whitespace slug candidates; 12 scoped `claim-discipline-policy` tests plus GCP help regressions passed.
+
+2026-10-06 thorough hunt (dry): cheap-disproved open `contact-support-help` and `core-pilot-help` slug-parity candidates; 19 scoped `claim-discipline-policy` tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the help alias candidate because the live GCP help route uses the same canonical `cloud-connections-gcp` slug in the registry and policy; found no actual alternate heading ID in the omitted-guide callers; and found strip slugs are static registry values rather than URL-derived strings, so whitespace/trailing-slash input was not reachable. The focused policy suite passed 11 tests.
 
@@ -30341,8 +30345,8 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `ConnectAwsSecurelyHelpEvidenceOrientationStrip` / `ConnectAzureSecurelyHelpEvidenceOrientationStrip` — legacy `connect-aws-securely-help` and `connect-azure-securely-help` slugs left orientation claim visible alongside `Connect*HelpClaimDisciplineStrip` on operator help pages while `cloud-connections-gcp` omit already suppressed GCP orientation claim — **hit 2026-10-05 seed hunt:** omit `cloud-connections-aws` / `cloud-connections-azure` plus aliases; regressions in `claim-discipline-policy.test.ts`, connect AWS/Azure help topic tests, and orientation strip tests
 - [x] (proven) `ProcurementHelpEvidenceOrientationStrip` / `procurement-help` — operator shell duplicated claim with `ProcurementHelpClaimDisciplineStrip` because strip slug `procurement-help` was not omitted while registry slug is `procurement` — **hit 2026-10-05 seed hunt:** omit `procurement` and alias `procurement-help`; regressions in `claim-discipline-policy.test.ts` and `HelpTopicProcurement.test.tsx`
-- [ ] (candidate) `contact-support-help` / `contact-support` — `ContactSupportHelpEvidenceOrientationStrip` uses `contact-support-help` while registry slug is `contact-support` and omit set has neither; reachable at `/help/contact-support` (single claim today via orientation strip only)
-- [ ] (candidate) `core-pilot-help` / `first-architecture-review` — `CorePilotHelpEvidenceOrientationStrip` uses `core-pilot-help` while omit set keys `help-first-review` and `first-review-guide`; live guide uses header/closing-panel claim paths and unused registry strip import
+- [x] (invalid) `contact-support-help` / `contact-support` — `ContactSupportHelpEvidenceOrientationStrip` uses `contact-support-help` while registry slug is `contact-support` and omit set has neither — **invalid 2026-10-06 thorough hunt:** operator and buyer-polished shells show claim once via orientation strip only (no `*ClaimDisciplineStrip` duplicate); adding omit without a header claim owner would remove required copy (parity with `authentication-sign-in-help`)
+- [x] (invalid) `core-pilot-help` / `first-architecture-review` — `CorePilotHelpEvidenceOrientationStrip` uses `core-pilot-help` while omit set keys `help-first-review` and `first-review-guide` — **invalid 2026-10-06 thorough hunt:** registry orientation strip is not mounted on `/help/first-architecture-review`; operator claim renders in `CorePilotHelpClosingPanel`, buyer-polished in `OperatorPageHeader`; no duplicate band reachable via `resolveClaimDisciplineForStrip`
 - [x] (invalid) `AuthenticationSignInHelpEvidenceOrientationStrip` / `authentication-sign-in-help` — registry slug `authentication-sign-in`; buyer-polished folds claim into header while omit set lacks alias — **invalid 2026-10-05 thorough hunt:** operator shell shows claim once in orientation strip (no `*ClaimDisciplineStrip` duplicate); buyer-polished already omits orientation strip; adding omit without operator claim strip would remove required copy
 - [x] (invalid) `system-health` vs `help-system-health` — operator workspace strips use `system-health` slug while omit set keys `help-system-health` — **invalid 2026-10-05 thorough hunt:** `/help/system-health` orientation strip passes `help-system-health` (omitted; claim strip owns copy); `/administration/system-health` orientation strip is sources-only on `system-health` with no claim prop
 - [x] (proven) `shouldOmitClaimDisciplineBand` / `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — live orientation strips pass legacy ids (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`, `connect-gcp-securely-help`) while omit set keys canonical `help-*` / registry slugs, so `resolveClaimDisciplineForStrip` still surfaced duplicate claim bands — **hit 2026-10-05 seed hunt:** alias map in omit resolution; regressions in `claim-discipline-policy.test.ts` and evidence-trail, glossary, pilot-guide orientation strip tests

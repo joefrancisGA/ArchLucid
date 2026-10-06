@@ -218,4 +218,15 @@ describe("claim-discipline-policy", () => {
       { id: "where-to-go-next", title: "Where to go next" },
     ]);
   });
+
+  it("keeps contact-support-help visible where orientation strip is the sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("contact-support-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("contact-support")).toBe(false);
+  });
+
+  it("keeps core-pilot-help strip slug visible while first-architecture-review guide omits sibling help slugs", () => {
+    expect(shouldOmitClaimDisciplineBand("core-pilot-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("help-first-review")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("first-review-guide")).toBe(true);
+  });
 });
