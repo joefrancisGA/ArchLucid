@@ -229,4 +229,9 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("help-first-review")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("first-review-guide")).toBe(true);
   });
+
+  it("omits subprocessors-help orientation claim while header claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("subprocessors-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("subprocessors-help", "Not a diligence package.")).toBeUndefined();
+  });
 });
