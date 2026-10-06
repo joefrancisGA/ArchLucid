@@ -8792,4 +8792,5 @@
 {"at":"2026-10-06T13:11:57.8768732Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T13:21:39.9194732Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
 {"at":"2026-10-06T13:27:05.3343115Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
-{"at":"2026-10-06T13:32:29.1993540Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
+{"at":"2026-10-06T13:32:29.199354Z","zoneId":"ui-claim-discipline-policy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
+{"at":"2026-10-06T13:38:47.6330185Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
