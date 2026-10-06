@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewFailureTechnicalMetadataDisclosure` synced `reviewFailureTechnicalMetadataOpen` from the URL only on mount and `popstate`, so Next.js soft navigation left the technical failure `<details>` open state stale; reconcile from reactive `useSearchParams`; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event`; 38 scoped review-detail workspace vitest tests passed (5 files).
+
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — help hub search used exact substring match on `e.url`, so a query ending in a path slash (e.g. `admin-diagnostics/`) missed static quick links whose URLs omit the trailing slash; normalize filter queries and index normalized URLs in the haystack; regression `filters entries when the search query ends with a trailing slash on the url path token`; 29 scoped HelpDocsClient tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `mergeDocIndex` deduped fetched rows against static quick-link URLs with exact string match, so a doc-index row for `/help/admin-diagnostics/` duplicated the static `/help/admin-diagnostics` card; normalize internal paths (trim, strip trailing slashes) before static URL dedupe; regression `does not duplicate a static quick link when fetched index repeats the path with a trailing slash`; 28 scoped HelpDocsClient tests passed.
@@ -29288,11 +29290,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 31
-- **bugs-found:** 22
+- **hunts:** 32
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — findingId URL soft navigation desync (workbench selection)
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — technical failure metadata disclosure URL desync on soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29328,7 +29330,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
-- (candidate) `RunDetailWorkspaceHeader` — record-metadata disclosure synchronization only listens for `popstate`, so an external same-document query-string update can leave the disclosure state stale; reachable when another review-detail control replaces the URL without a full navigation.
+- [x] (proven) `ReviewFailureTechnicalMetadataDisclosure` — `reviewFailureTechnicalMetadataOpen` synced only on mount/`popstate`, leaving `<details>` open state stale on Next.js soft navigation — **hit 2026-10-06 seed hunt:** reactive `useSearchParams` reconciliation; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event` (closes record-metadata disclosure candidate).
 - [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`
 - (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused failure mocked `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; the hook intentionally reads presenter state from `window.location`, so the failure does not establish a product defect.

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -17,6 +17,7 @@ import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 import {
   parseReviewFailureTechnicalMetadataOpenFromSearch,
+  REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM,
   reviewFailureTechnicalMetadataDisclosureHrefFromSearch,
 } from "@/lib/reviews/review-failure-technical-metadata-disclosure-url";
 
@@ -34,6 +35,8 @@ export function ReviewFailureTechnicalMetadataDisclosure(
   props: ReviewFailureTechnicalMetadataDisclosureProps,
 ): ReactElement | null {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamOpen = searchParams.get(REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM);
   const [open, setOpenState] = useState(() =>
     parseReviewFailureTechnicalMetadataOpenFromSearch(null),
   );
@@ -84,6 +87,17 @@ export function ReviewFailureTechnicalMetadataDisclosure(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    const next = parseReviewFailureTechnicalMetadataOpenFromSearch(searchParamOpen);
+
+    if (openRef.current === next) {
+      return;
+    }
+
+    openRef.current = next;
+    setOpenState(next);
+  }, [searchParamOpen]);
 
   const input: ReviewFailureTechnicalMetadataInput = {
     runId: props.runId,
