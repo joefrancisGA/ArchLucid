@@ -56,7 +56,29 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
             Times.Once);
     }
 
-    private static RunExecuteOwnershipLeaseService CreateSut(Mock<IRunExecuteOwnershipLeaseRepository> leases)
+    [Fact]
+    public async Task IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new(MockBehavior.Strict);
+
+        RunExecuteOwnershipLeaseOptions options = new() { Enabled = true };
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(() => options);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, optionsMonitor);
+
+        options.Enabled = false;
+
+        await sut.AcquireAsync(runId, CancellationToken.None);
+
+        sut.IsLocallyHoldingExecuteOwnership(runId).Should().BeFalse();
+        leases.VerifyNoOtherCalls();
+    }
+
+    private static RunExecuteOwnershipLeaseService CreateSut(
+        Mock<IRunExecuteOwnershipLeaseRepository> leases,
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>>? optionsMonitor = null)
     {
         Mock<IHostProcessInstanceId> instance = new();
         instance.Setup(i => i.Value).Returns("instance-a");
@@ -64,8 +86,11 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
         Mock<IArchLucidStorageMode> storage = new();
         storage.Setup(s => s.IsInMemory).Returns(false);
 
-        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> optionsMonitor = new();
-        optionsMonitor.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        if (optionsMonitor is null)
+        {
+            optionsMonitor = new Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>>();
+            optionsMonitor.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        }
 
         return new RunExecuteOwnershipLeaseService(
             leases.Object,

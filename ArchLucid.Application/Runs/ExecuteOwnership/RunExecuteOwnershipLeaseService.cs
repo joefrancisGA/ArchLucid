@@ -45,6 +45,9 @@ public sealed class RunExecuteOwnershipLeaseService(
     public bool IsEnabled => !_storageMode.IsInMemory && _optionsMonitor.CurrentValue.Enabled;
 
     /// <inheritdoc />
+    public bool IsLocallyHoldingExecuteOwnership(Guid runId) => _activeHolderInstanceIds.ContainsKey(runId);
+
+    /// <inheritdoc />
     public async Task AcquireAsync(Guid runId, CancellationToken cancellationToken)
     {
         if (!IsEnabled)

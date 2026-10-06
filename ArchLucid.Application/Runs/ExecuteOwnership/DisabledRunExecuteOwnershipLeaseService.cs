@@ -7,6 +7,9 @@ public sealed class DisabledRunExecuteOwnershipLeaseService : IRunExecuteOwnersh
     public bool IsEnabled => false;
 
     /// <inheritdoc />
+    public bool IsLocallyHoldingExecuteOwnership(Guid runId) => false;
+
+    /// <inheritdoc />
     public Task AcquireAsync(Guid runId, CancellationToken cancellationToken) => Task.CompletedTask;
 
     /// <inheritdoc />

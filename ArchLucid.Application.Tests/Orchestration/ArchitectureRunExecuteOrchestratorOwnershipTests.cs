@@ -240,6 +240,7 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
         ownership
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -282,10 +283,37 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
         }
     }
 
+    [Fact]
+    public async Task ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire()
+    {
+        Guid runGuid = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        string runId = runGuid.ToString("N");
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = new();
+        ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(false);
+        ownership
+            .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        ownership
+            .Setup(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()))
+            .Returns(new RecordingRenewalScope(static () => { }));
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(runId, runGuid, Mock.Of<IAgentExecutor>(), ownership.Object);
+
+        Func<Task> act = () => sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*not acquired*");
+
+        ownership.Verify(s => s.BeginRenewalScope(runGuid, It.IsAny<CancellationTokenSource>()), Times.Never);
+    }
+
     private static Mock<IRunExecuteOwnershipLeaseService> CreateEnabledOwnershipMock(Guid runGuid)
     {
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
         ownership
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
