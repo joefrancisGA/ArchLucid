@@ -130,6 +130,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
+
 2026-10-06 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: SQL capacity insert rolls back on `OperationCanceledException` (`BackgroundJobRepository.CapacityInsert` transaction `Rollback`); processor retry backoff interrupted by `stoppingToken` leaves the Azure message undeleted for visibility retry (not a spurious `SendMessageAsync` on shutdown); in-memory terminal eviction is bounded retention by design (`EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved`); watchdog notify loop honors `cancellationToken` so trailing reclaimed ids wait for the next pass (#1429 batch semantics); reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
 
 2026-10-05 thorough hunt (hit): `host-core-jobs` — `DurableBackgroundJobQueue.EnqueueAsync` committed SQL insert then treated `OperationCanceledException` from `SendJobIdAsync` like a notify failure (or left `Pending` without queue notification); cancel cleanup via `MarkCanceledAsync` when `cancellationToken` requested cancel; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`; cheap-disproof closed orphan blob on processor success cancel, in-memory `GetFileAsync` after cancel-during-execute, registry-cancel stale message delete, intentional cancel-wins contract, and SQL insert rollback on cancel during `TryInsertPendingJobIfUnderCapacityAsync`; reseeded four candidates; 75 Host.Core + 41 focused Api background-job tests passed.
@@ -14933,13 +14935,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 463
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 3503
+- **hunts:** 464
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 3504
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — `GraphSnapshotKnowledgeModelMerger` left padded context edge endpoints after model node deduplication
+- **last-bug:** 2026-10-06 — `GraphSnapshotKnowledgeModelMerger` left padded model edge endpoints uncorrected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` left model-graph edge endpoints unpadded while context edges were canonicalized; fixed by canonicalizing model and context edges through the same lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
 2026-10-05 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` context edges could keep whitespace-padded `FromNodeId`/`ToNodeId` after model nodes deduplicated by trim; fixed by resolving endpoints to canonical merged node ids; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`. Scoped `FullyQualifiedName~ArchLucid.Core` passed 7204/7204; KnowledgeGraph merger suite 7/7.
 
@@ -14964,6 +14968,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — model-graph edges kept padded `FromNodeId`/`ToNodeId` while merged nodes used trim-normalized ids — **hit 2026-10-06 seed hunt:** canonicalize model edges through the same endpoint lookup as context edges; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — context graph edge endpoints differ from model node ids only by outer whitespace — deduplication skipped the context node but appended the edge with padded `FromNodeId`/`ToNodeId`, leaving dangling endpoints in the merged snapshot; **hit 2026-10-05 seed hunt:** resolve endpoints against canonical merged node ids before append; regression `Merge_canonicalizes_context_edge_endpoints_when_model_node_id_is_trimmed`.
 
