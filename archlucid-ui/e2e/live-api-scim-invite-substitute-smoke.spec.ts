@@ -22,13 +22,14 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     test.setTimeout(120_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
+    const scopeOptions = { reestablishJwtSession: false, jwtAccessToken: accessToken } as const;
 
     await primePrivateBetaBrowserPage(page, accessToken);
-    await injectDefaultTenantOperatorScope(page);
+    await injectDefaultTenantOperatorScope(page, scopeOptions);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await injectDefaultTenantOperatorScope(page);
+      await injectDefaultTenantOperatorScope(page, scopeOptions);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
@@ -45,13 +46,14 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     test.setTimeout(180_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
+    const scopeOptions = { reestablishJwtSession: false, jwtAccessToken: accessToken } as const;
 
     await primePrivateBetaBrowserPage(page, accessToken);
-    await injectDefaultTenantOperatorScope(page);
+    await injectDefaultTenantOperatorScope(page, scopeOptions);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await injectDefaultTenantOperatorScope(page);
+      await injectDefaultTenantOperatorScope(page, scopeOptions);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
@@ -61,7 +63,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     await expect(async () => {
       await primePrivateBetaBrowserSessionIfJwtMode(page);
-      await injectDefaultTenantOperatorScope(page);
+      await injectDefaultTenantOperatorScope(page, scopeOptions);
       const tokensList = page.waitForResponse(
         (response) =>
           response.url().includes("/api/proxy/v1/admin/scim/tokens") &&

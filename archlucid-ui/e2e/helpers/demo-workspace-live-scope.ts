@@ -57,8 +57,13 @@ export type DemoWorkspaceScopeIds = {
 async function writeOperatorScopeToBrowser(
   page: Page,
   scope: DemoWorkspaceScopeIds,
-  options?: { readonly persistViaInitScript?: boolean },
+  options?: {
+    readonly persistViaInitScript?: boolean;
+    /** Demo workspace runs set sample-visit chrome; default tenant admin scope must not (TB-927). */
+    readonly sampleWorkspaceVisitActive?: boolean;
+  },
 ): Promise<void> {
+  const sampleWorkspaceVisitActive = options?.sampleWorkspaceVisitActive !== false;
   const scopeCookieValue = serializeOperatorScopeCookiePayload({
     tenantId: scope.tenantId,
     workspaceId: scope.workspaceId,
@@ -84,6 +89,7 @@ async function writeOperatorScopeToBrowser(
         readonly projectId: string;
         readonly cookieName: string;
         readonly cookieValue: string;
+        readonly sampleWorkspaceVisitActive: boolean;
       },
     ) => {
       const record = {
@@ -95,7 +101,11 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
-      window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      if (payload.sampleWorkspaceVisitActive) {
+        window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      } else {
+        window.sessionStorage.removeItem(payload.sampleVisitKey);
+      }
       window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
@@ -107,6 +117,7 @@ async function writeOperatorScopeToBrowser(
       projectId: scope.projectId,
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
+      sampleWorkspaceVisitActive,
     },
   );
 
@@ -124,6 +135,7 @@ async function writeOperatorScopeToBrowser(
         readonly projectId: string;
         readonly cookieName: string;
         readonly cookieValue: string;
+        readonly sampleWorkspaceVisitActive: boolean;
       },
     ) => {
       const record = {
@@ -135,7 +147,11 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
-      window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      if (payload.sampleWorkspaceVisitActive) {
+        window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+      } else {
+        window.sessionStorage.removeItem(payload.sampleVisitKey);
+      }
       window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
@@ -147,6 +163,7 @@ async function writeOperatorScopeToBrowser(
       projectId: scope.projectId,
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
+      sampleWorkspaceVisitActive,
     },
   );
 }
@@ -204,7 +221,10 @@ export async function injectDefaultTenantOperatorScope(
 
   // Register after demo-workspace init scripts in the same browser context so default scope wins
   // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
-  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
+  await writeOperatorScopeToBrowser(page, defaultScope, {
+    persistViaInitScript: true,
+    sampleWorkspaceVisitActive: false,
+  });
 
   // Init script only runs on navigations after registration — reload once so scope is committed
   // before the first /administration/users RSC flight.

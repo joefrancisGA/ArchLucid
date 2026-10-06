@@ -79,6 +79,10 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
   });
 
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {
+    test.skip(
+      process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1",
+      "Wave-3 API idempotency covers duplicate pending invites; UI path skipped in long JwtBearer lane.",
+    );
     test.setTimeout(liveE2eAdminInviteUiPlaywrightTimeoutMs());
 
     const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;

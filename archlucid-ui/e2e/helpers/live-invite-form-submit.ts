@@ -246,18 +246,17 @@ export async function expectRevokedInvitationRowVisible(page: Page, inviteEmail:
   await expect(async () => {
     await primePrivateBetaBrowserSessionIfJwtMode(page);
     await injectDefaultTenantOperatorScope(page);
+    const invitationsLoaded = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/proxy/v1/admin/users/invitations") &&
+        response.request().method() === "GET" &&
+        response.ok(),
+      { timeout: 60_000 },
+    );
     await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
+    await invitationsLoaded.catch(() => undefined);
     await dismissBlockingModalOverlays(page);
     await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 30_000 });
-    await page
-      .waitForResponse(
-        (response) =>
-          response.url().includes("/api/proxy/v1/admin/users/invitations") &&
-          response.request().method() === "GET" &&
-          response.ok(),
-        { timeout: 60_000 },
-      )
-      .catch(() => undefined);
     const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
     await expect(showResolvedToggle).toBeVisible({ timeout: 60_000 });
     const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
