@@ -808,7 +808,7 @@ export function DiagramsWorkbenchClient() {
   const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
-  const renderInFlight = loadingPreview || loadingRender;
+  const renderInFlight = loadingRender;
   const exportsDisabled =
     exportBusy
     || renderInFlight

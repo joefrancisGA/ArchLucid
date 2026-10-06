@@ -369,6 +369,17 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-executive-always-show")).toBeInTheDocument();
   });
 
+  it("does not show the render status while a diagram type is unselected", async () => {
+    searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
+    render(<DiagramsWorkbenchClient />);
+
+    const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
+
+    expect(modePicker).toHaveValue("");
+    expect(screen.queryByTestId("infra-diagrams-render-status-strip")).not.toBeInTheDocument();
+    expect(fetchInfraEvidenceMermaidRenderMock).not.toHaveBeenCalled();
+  });
+
   it("emphasizes may and observed in the data flow diagram type caption", async () => {
     searchParams = new URLSearchParams("snapshotId=11111111-1111-1111-1111-111111111111");
     render(<DiagramsWorkbenchClient />);
