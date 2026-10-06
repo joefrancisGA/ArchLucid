@@ -726,6 +726,55 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(
+                    new InvalidOperationException(
+                        "outer parallel persist failed",
+                        new AggregateException(
+                            new InvalidOperationException(
+                                "inner parallel persist failed",
+                                new AggregateException(deadlock, fkViolation)))));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException(
+                    "outer parallel persist failed",
+                    new AggregateException(
+                        new InvalidOperationException(
+                            "inner parallel persist failed",
+                            new AggregateException(deadlock, fkViolation))));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate()
     {
         int attempts = 0;

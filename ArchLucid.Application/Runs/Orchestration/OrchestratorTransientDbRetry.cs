@@ -74,7 +74,7 @@ public static class OrchestratorTransientDbRetry
     private static bool IsParallelPersistAggregateInnerRetriable(Exception inner)
     {
         if (TryGetParallelPersistInners(inner, out IReadOnlyCollection<Exception> nestedInners) && nestedInners.Count > 0)
-            return nestedInners.All(SqlTransientDetector.IsTransient);
+            return nestedInners.All(IsParallelPersistAggregateInnerRetriable);
 
         return SqlTransientDetector.IsTransient(inner);
     }

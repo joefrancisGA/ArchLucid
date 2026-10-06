@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — `IsParallelPersistAggregateInnerRetriable` applied `SqlTransientDetector` to nested aggregate inners instead of recursing, so `AggregateException` → wrapper → wrapper → mixed nested aggregate retried; recurse `IsParallelPersistAggregateInnerRetriable` for nested parallel-persist sets; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
+
 2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — top-level `AggregateException` with wrapper inners used `inners.All(SqlTransientDetector.IsTransient)`, so a nested mixed parallel-persist aggregate behind `InvalidOperationException` retried on the first nested inner only; flatten nested aggregates per top-level inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
 
 2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — `ListRecycleBinAsync` omitted purge schedule only when the current workspace pinned `DefaultProjectId`, but `SqlArchitectureProjectRetentionPurgeService` excludes purge when any `TenantWorkspaces` row pins the project; align recycle-bin `purgeAfterUtc` with tenant-wide default metadata pins; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`; 42 scoped TenantWorkspaces tests passed.
@@ -4532,11 +4534,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 30
-- **bugs-found:** 4
+- **hunts:** 31
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — top-level aggregate wrapper inners skipped nested mixed parallel-persist aggregate flatten
+- **last-bug:** 2026-10-06 — nested parallel-persist flatten not recursive through multi-wrapper aggregate inners
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4638,6 +4640,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` whose sole inner is `InvalidOperationException` wrapping a mixed nested `AggregateException(deadlock, permanent SqlException)` retried because `inners.All(SqlTransientDetector.IsTransient)` only walked each wrapper's `InnerException` chain and saw the first nested aggregate inner — **hit 2026-10-06 seed hunt:** apply nested parallel-persist flatten per top-level aggregate inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`
 
 2026-10-06 seed hunt (seed→hit): promoted top-level aggregate + nested mixed parallel-persist candidate; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
+
+- [x] (proven) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — nested parallel-persist aggregate inners used `SqlTransientDetector` only, so a top-level `AggregateException` whose inner was a wrapper around another wrapper around a mixed nested aggregate retried on the first nested `SqlException` inner — **hit 2026-10-06 seed hunt:** recurse `IsParallelPersistAggregateInnerRetriable` for nested aggregate inners; regressions `ExecuteAsync_does_not_retry_mixed_aggregate_when_top_level_inner_is_wrapper_around_another_wrapper` and `ExecuteAsync_does_not_retry_mixed_aggregate_behind_double_repository_wrapper`
+
+2026-10-06 seed hunt (seed→hit): promoted multi-wrapper nested mixed aggregate candidate; 58 scoped transient-retry tests passed (40 Persistence + 18 Application).
 
 ---
 
