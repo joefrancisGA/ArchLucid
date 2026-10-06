@@ -29,4 +29,25 @@ public sealed class ExecDigestSponsorDeepLinkOperatorLinksTests
         url.Should().Be(
             $"https://app.example.com/digest/sponsor/run/{RunIdHex}?token=signed-token");
     }
+
+    [Fact]
+    public void BuildDashboardUrl_omits_user_info_from_operator_base_url()
+    {
+        string url = ExecDigestSponsorDeepLinkOperatorLinks.BuildDashboardUrl(
+            "https://user:secret@ops.example.test",
+            Token);
+
+        url.Should().Be("https://ops.example.test/digest/sponsor?token=signed-token");
+    }
+
+    [Fact]
+    public void BuildRunCollateralUrl_omits_user_info_from_operator_base_url()
+    {
+        string url = ExecDigestSponsorDeepLinkOperatorLinks.BuildRunCollateralUrl(
+            "https://user:secret@ops.example.test",
+            RunIdHex,
+            Token);
+
+        url.Should().Be($"https://ops.example.test/digest/sponsor/run/{RunIdHex}?token=signed-token");
+    }
 }

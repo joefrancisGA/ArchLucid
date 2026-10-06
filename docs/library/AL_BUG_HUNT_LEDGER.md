@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `ExecDigestSponsorDeepLinkOperatorLinks` and `RecurrenceCompletionOperatorLinks` concatenated raw `OperatorBaseUrl` userinfo into digest sponsor and recurrence compare email CTAs; normalize via `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority`; regressions `BuildDashboardUrl_omits_user_info_from_operator_base_url`, `BuildRunCollateralUrl_omits_user_info_from_operator_base_url`, `BuildCompareUrl_omits_user_info_from_operator_base_url`; 154 scoped notifications/digest tests passed.
+
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `TrialLifecycleEmailDispatcher.CombineUrl` built trial getting-started/welcome links from raw `OperatorBaseUrl`, embedding `user:password@` userinfo while logo URLs were authority-normalized; fixed with `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority`; regression `DispatchAsync_omits_user_info_from_operator_base_url_in_trial_welcome_link`; 151 scoped notifications/digest tests passed.
 
 2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — division slash (U+2215), fullwidth solidus (U+FF0F), fraction slash (U+2044), hyphenation point (U+2027), inverted undertie (U+2054), and Hangul filler (U+3164) between phrase words still blocked `managed identity` matching; map paste-style slash and invisible filler separators to ASCII space while preserving ASCII `/` for compound slugs; regressions `HasManagedIdentityConstraint_returns_true_when_division_slash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_fullwidth_solidus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hangul_filler_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_slash_forms_compound_slug`; 886 scoped RequestConstraint tests passed.
@@ -25414,13 +25416,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 59
-- **bugs-found:** 43
+- **hunts:** 60
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — operator base userinfo leaked into trial lifecycle welcome links
+- **last-bug:** 2026-10-06 — operator base userinfo leaked into exec digest sponsor deep links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): reseeded operator deep-link builders after trial lifecycle fix; proved `ExecDigestSponsorDeepLinkOperatorLinks` still embedded userinfo in weekly digest sponsor CTAs built by delivery scanners; fixed link builders; 154 scoped notifications/digest tests passed.
+
+- [x] (proven) `ExecDigestSponsorDeepLinkOperatorLinks` / `RecurrenceCompletionOperatorLinks` — raw `OperatorBaseUrl` userinfo leaked into digest sponsor and recurrence compare links — **hit 2026-10-06 seed hunt (seed→hit):** `TryNormalizeOperatorBaseAuthority` in link builders; regressions `BuildDashboardUrl_omits_user_info_from_operator_base_url`, `BuildRunCollateralUrl_omits_user_info_from_operator_base_url`, `BuildCompareUrl_omits_user_info_from_operator_base_url`.
+
+- [ ] (candidate) `ExecDigestWeeklyDeliveryScanner` / `SponsorDigestWeeklyDeliveryScanner` — `unsubscribeUrl` built from trimmed `OperatorBaseUrl` without authority normalization (`$"{apiBase}/v1.0/notifications/.../unsubscribe?token=..."`), reachable when weekly digest delivery runs for a tenant with configured recipients.
 
 2026-10-06 seed hunt (seed→hit): promoted ledger candidate `TrialLifecycleEmailDispatcher.CombineUrl`; proved raw `OperatorBaseUrl` userinfo reached first-run getting-started links; fixed dispatcher base URL with `TryNormalizeOperatorBaseAuthority`; 151 scoped notifications/digest tests passed.
 
