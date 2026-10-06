@@ -4978,15 +4978,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 2026-10-02 seed hunt (seed-only): re-read the return-path guard and its HTTP callers; seeded an unbounded return-path resource-budget candidate; 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled and no candidate promoted.
+
+2026-10-06 thorough hunt (dry): cheap-disproved unbounded percent-decode resource-exhaustion candidate; `MaxPercentDecodePasses` caps decode work at eight linear passes; `POST /auth/routing/evaluate` is rate-limited (`email-otp`); host request body limits bound attacker-controlled JSON size; no failing repro; regression `TryNormalize_completes_for_large_multi_pass_percent_encoded_safe_path`; 137 scoped AuthSignInReturnPathGuard tests passed (`RunAnalyzers=false`).
 
 2026-10-03 thorough hunt (dry): attempted a bounded-input/resource-exhaustion repro for the eight-pass percent-decoding path; no measurable failing repro or correctness defect emerged. 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled; the candidate remains open.
 
@@ -5109,7 +5111,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AuthSignInReturnPathGuard.TryNormalizeAfterPercentDecoding` has no input-size budget and may repeatedly allocate while decoding an attacker-controlled `AuthSignInRoutingEvaluateBody.ReturnPath` through eight passes; reachable from the unauthenticated sign-in routing JSON body, with a potential request resource-exhaustion outcome that needs a bounded-input repro.
+- [x] (valid-no-repro) `AuthSignInReturnPathGuard.TryNormalizeAfterPercentDecoding` — attacker-controlled large `ReturnPath` through eight decode passes — **cheap-disproof 2026-10-06 thorough hunt:** decode iterations capped at `MaxPercentDecodePasses`; per-pass work is linear in input length bounded by host JSON/body limits and `AuthSignInRoutingController` rate limiting; no measurable exhaustion repro (extends 2026-10-03 dry attempt); regression `TryNormalize_completes_for_large_multi_pass_percent_encoded_safe_path`.
 - [x] A protocol-relative or encoded external URL is accepted as an in-app return path â€” fixed earlier (`/%2f%2fevil.example`); regression in `TryNormalize_rejects_open_redirect_shapes`
 - [x] Backslash or `@` host smuggling bypasses the leading-slash check â€” retired: existing `TryNormalize_rejects_open_redirect_shapes` cases cover `/\\evil`, `/path@evil`, `/%40` decode
 - [x] Control characters in the return path still survive normalization â€” fixed: reject control chars after each percent-decode pass (`/%09//evil.example`, `/%00//evil.example`)
