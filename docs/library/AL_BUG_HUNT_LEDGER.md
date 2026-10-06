@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `cli-terraform-evidence` — re-read `DeploymentEvidenceTerraformReference` and live `apply-saas.ps1` / reference-doc sync regressions after zone rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (lexicographic sort misuse, metadata-line filtering, doc deep-link fragility, reference-table vs ps1 dual-guard wedge, orchestrator legacy annotation vs default sequence); 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed.
+
 2026-10-06 thorough hunt (dry): `technology-ledger-merge` — cheap-disproof closed five seeded `(candidate)` rows (primary-datastore vs compute chosen role isolation; sub-key trailing whitespace dedupes via outer `EvidenceRef` trim; region chosen authoritative name gate; inventory vs topology substantive name exploration; cloud-platform insert on new `ProposalId` intentional); regressions `Resolve_inserts_primary_datastore_candidate_when_compute_chosen_would_block_compute_only`, `Resolve_skips_when_outer_evidence_ref_differs_only_by_trailing_whitespace`, `Resolve_skips_region_candidate_when_region_chosen_shares_technology_name_and_has_grounding_ref`, `Resolve_keeps_topology_candidate_when_inventory_assumed_row_shares_technology_name`, `Resolve_inserts_second_cloud_platform_row_when_proposal_id_changes`; 91 scoped TechnologyLedger tests passed.
 
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after two consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows (primary-datastore vs compute chosen role isolation, agentTopologyProposal sub-key interior whitespace, region chosen same-role gate, inventory vs topology substantive name collisions, cloud-platform row on new proposal id); 86 scoped TechnologyLedger tests passed.
@@ -7646,7 +7648,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
@@ -7659,6 +7661,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
+
+2026-10-06 seed hunt (seed-only): re-read `DeploymentEvidenceTerraformReference` after technology-ledger dry streak rotation; seeded five new `(candidate)` rows; 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — lexicographic sort of the twenty evidence lines would move bare `infra/terraform` ahead of longer `infra/terraform-*` siblings and break hosted wave ordering — reachable when operators export deployment-evidence Markdown paths into spreadsheet tools that auto-sort rows (out-of-repo consumer misuse).
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown` — numbered list includes metadata-only composition/pilot lines interleaved with executable leaves; automation that drops lines containing `metadata composition root` may remove composition waves while leaving pilot/orchestrator annotations — reachable via `foreach` over `DefaultApplyOrderRoots()` in `DeploymentEvidenceReportMarkdown`.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — filename-only citation cannot deep-link to per-root rows in `REFERENCE_SAAS_STACK_ORDER.md`; table row moves without renaming the file leave evidence citations pointing at stale guidance — reachable from report backtick citation in `DeploymentEvidenceReportMarkdown`.
+- [ ] (candidate) `DefaultApplyOrderRoots` — `infra/terraform-keyvault` vs `infra/terraform-private` ordering is guarded by both `apply-saas.ps1` sync and `REFERENCE_SAAS_STACK_ORDER.md` advanced-table regressions; editing only one source may yield confusing partial failures — reachable when hosted foundation wave order changes in `infra/apply-saas.ps1`.
+- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator line annotates `-LegacyLeafRoots` isolation while the same root remains in default `$multiRootSequence`; deployment-evidence readers may assume orchestrator is excluded from hosted validate — reachable from annotated orchestrator string in static evidence list.
 
 2026-10-06 seed hunt (seed-only): reread static apply-order constant, Markdown report consumer, and live `apply-saas.ps1` / pilot / reference-doc sync regressions; cheap-disproof closed four open interpretation candidates; seeded five bounded `(candidate)` rows below. 25 scoped tests passed.
 
