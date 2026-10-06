@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.Apply` deduplicated parallel edges from rolled-up members but kept only the first member's NSG annotation labels and blocked flag; merge labels, rule details, and `IsDataFlowNsgBlocked` on duplicate rollup edge keys; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`; 638 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
 2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — recycle bin advertised `purgeAfterUtc` for soft-deleted projects still referenced as `TenantWorkspaces.DefaultProjectId` while `SqlArchitectureProjectRetentionPurgeService` excludes those rows from hard purge; set nullable `PurgeAfterUtc` when workspace default metadata pins the project; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
 
 2026-10-06 seed hunt (seed→hit): `host-core-coordination` — retrieval and Cosmos skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed (post-commit/export parity gap); `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
@@ -25367,11 +25369,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 31
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 39
+- **hunts:** 32
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — data-flow rollup cards showed only the first ADF factory name
+- **last-bug:** 2026-10-06 — data-flow rollup dropped parallel NSG edge annotations after member collapse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25428,6 +25430,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only `ExternalFactoryName` from the first member while `DiagramForestCanvasLabelContext` prefers `ExternalFactoryNames`, so four or more same-neighbor linked services hid every factory after the first on the canvas — **hit 2026-10-05 seed hunt (seed→hit):** merge distinct factory names from all members onto the rollup node; regression `Render_data_flow_rollup_card_lists_all_adf_factory_names`
 
 2026-10-05 seed hunt (seed→hit): promoted and proved data-flow rollup ADF factory identity loss; focused filter reported 637 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.Apply` — parallel edges from rolled-up members to the same neighbor with identical label/layout-only key kept only the first member's `DataFlowNsgAnnotationLabels` and `IsDataFlowNsgBlocked` — **hit 2026-10-06 seed hunt (seed→hit):** merge NSG labels, rule details, and blocked flag when deduplicating rollup edges; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`.
+
+2026-10-06 seed hunt (seed→hit): reseeded artifact-synthesis after rollup consumer-label fixes; proved data-flow rollup parallel edge dedupe dropped NSG annotations from collapsed storage members; focused filter reported 638 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
