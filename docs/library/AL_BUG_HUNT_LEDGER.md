@@ -7946,20 +7946,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 42
-- **bugs-found:** 26
+- **hunts:** 43
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — test-login accepted invalid protocol while activate rejects it
+- **last-bug:** 2026-10-06 — GET configuration returned non-canonical issuer for legacy rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.GetConfigurationAsync` returned repository `IssuerUri` verbatim while discover, test-login, and activate canonicalize HTTP(S) issuers, so wizard reload after a legacy `:443` row disagreed with sandbox and activation; `WithCanonicalConfigurationIssuer` on successful reads; regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`; cheap-disproof closed activate audit metadata presence gap (audit logs activation summary fields; full row remains on GET configuration); seeded malformed legacy issuer passthrough on GET; 60 scoped activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderConfigurationController.GetConfigurationAsync` — stored issuer with redundant default port returned verbatim — **hit 2026-10-06 seed hunt (seed→hit):** `WithCanonicalConfigurationIssuer`; regression above.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits SAML metadata configured flag — **cheap-disproof 2026-10-06 seed hunt:** intentional audit summary; operators use GET configuration or DB row for full SAML fields.
+
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — when stored `IssuerUri` is not canonicalizable (legacy bad URL), read path returns it verbatim with no validation envelope, so the wizard may loop on activate 400 until the operator edits the issuer manually.
 
 2026-10-06 seed hunt (seed→hit): promoted and proved `IdentityProviderConfigurationController.TestLogin` returned sandbox success for invalid `Protocol` values (`oauth`, whitespace) while `IdentityProviderActivationService` rejects them on activate; shared `IdentityProviderProtocolParser` validates and normalizes protocol on test-login (and activation); regressions `TestLogin_rejects_invalid_protocol` and `TestLogin_passes_normalized_protocol_token_to_sandbox_service`; seeded GET configuration issuer canonicalization on read and activate audit metadata presence follow-ups; 59 scoped activation/controller tests passed.
 
 - [x] (proven) `IdentityProviderConfigurationController.TestLogin` — invalid or whitespace `Protocol` succeeded in sandbox while activate rejects — **hit 2026-10-06 seed hunt (seed→hit):** controller validates via `IdentityProviderProtocolParser`; regressions above.
-
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — returns stored `IssuerUri` verbatim from the repository without re-canonicalizing, so legacy rows with redundant ports or path segments may disagree with OIDC issuer checks after later activate-only canonicalization fixes.
-- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits whether SAML `MetadataXml` is configured, so forensics cannot distinguish cleared metadata from never-supplied metadata.
 
 2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.ActivateAsync` logged `IActorContext.GetActorId()` verbatim in audit `ActorUserId` while `IdentityProviderActivationService` trimmed and persisted `UpdatedByActorId`, so SSO activation forensics could not correlate audit events with the configuration row; audit now uses `record.UpdatedByActorId`; regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`; cheap-disproof closed GET configuration claim-mapping exposure (admin contract returns full wizard row by design) and whitespace-only `MetadataXml` clear-on-reactivate (documented null-preserve / whitespace-clear semantics with regressions); seeded test-login protocol field unused in sandbox path; 55 scoped activation/controller tests passed.
 

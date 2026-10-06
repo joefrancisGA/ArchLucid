@@ -213,6 +213,36 @@ public sealed class IdentityProviderConfigurationControllerTests
     }
 
     [Fact]
+    public async Task GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+
+        await repository.UpsertAsync(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://idp.example:443/oidc",
+                ClaimMappingJson = """{"roleClaimName":"groups","mappings":[]}""",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin@test",
+                IsActive = true,
+            },
+            CancellationToken.None);
+
+        IdentityProviderConfigurationController controller = CreateController(configurationRepository: repository);
+
+        IActionResult result = await controller.GetConfigurationAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantIdentityProviderConfigurationRecord body =
+            ok.Value.Should().BeOfType<TenantIdentityProviderConfigurationRecord>().Subject;
+
+        body.IssuerUri.Should().Be("https://idp.example/oidc");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_returns_canonical_issuer_and_jwks_uris()
     {
         Mock<IIdentityProviderDiscoveryService> discovery = new();

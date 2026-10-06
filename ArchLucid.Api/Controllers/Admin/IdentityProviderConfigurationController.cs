@@ -193,7 +193,30 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(record);
+        return Ok(WithCanonicalConfigurationIssuer(record));
+    }
+
+    private static TenantIdentityProviderConfigurationRecord WithCanonicalConfigurationIssuer(
+        TenantIdentityProviderConfigurationRecord record)
+    {
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer)
+            || string.Equals(record.IssuerUri, canonicalIssuer, StringComparison.Ordinal))
+        {
+            return record;
+        }
+
+        return new TenantIdentityProviderConfigurationRecord
+        {
+            TenantId = record.TenantId,
+            Protocol = record.Protocol,
+            IssuerUri = canonicalIssuer,
+            MetadataXml = record.MetadataXml,
+            ClaimMappingJson = record.ClaimMappingJson,
+            KeyVaultSecretName = record.KeyVaultSecretName,
+            UpdatedUtc = record.UpdatedUtc,
+            UpdatedByActorId = record.UpdatedByActorId,
+            IsActive = record.IsActive,
+        };
     }
 
     private static IdentityProviderDiscoverResponse WithCanonicalWizardUris(IdentityProviderDiscoverResponse response)
