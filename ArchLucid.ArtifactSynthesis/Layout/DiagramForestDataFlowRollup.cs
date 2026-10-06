@@ -187,6 +187,7 @@ internal static class DiagramForestDataFlowRollup
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),
+            HasPublicInternetExposure = members.Any(member => member.HasPublicInternetExposure),
             IsDataFlowRollup = true,
             DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),

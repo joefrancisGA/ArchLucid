@@ -100,7 +100,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
         {
-            label = "private endpoint";
+            label = InventoryDiagramRelationshipLabelTexts.PrivateAccess;
             return true;
         }
 

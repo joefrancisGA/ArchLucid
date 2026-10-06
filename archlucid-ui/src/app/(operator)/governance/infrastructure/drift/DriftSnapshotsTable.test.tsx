@@ -143,4 +143,37 @@ describe("DriftSnapshotsTable", () => {
       screen.getByRole("button", { name: "Delete inventory snapshot for Prod" }),
     ).toBeInTheDocument();
   });
+
+  it("disables delete actions while a delete is pending or in progress", () => {
+    const onDeleteSnapshot = vi.fn();
+
+    const { rerender } = render(
+      <DriftSnapshotsTable
+        snapshots={[snapshot(), snapshot({ snapshotId: "22222222-2222-2222-2222-222222222222", subscriptionName: "Dev" })]}
+        selectedSnapshotId=""
+        focusedSnapshotId=""
+        {...tableProps}
+        onDeleteSnapshot={onDeleteSnapshot}
+        pendingDeleteSnapshotId="11111111-1111-1111-1111-111111111111"
+      />,
+    );
+
+    expect(screen.getByTestId("infra-drift-snapshot-delete-11111111-1111-1111-1111-111111111111")).toBeDisabled();
+    expect(screen.getByTestId("infra-drift-snapshot-delete-22222222-2222-2222-2222-222222222222")).toBeDisabled();
+
+    rerender(
+      <DriftSnapshotsTable
+        snapshots={[snapshot(), snapshot({ snapshotId: "22222222-2222-2222-2222-222222222222", subscriptionName: "Dev" })]}
+        selectedSnapshotId=""
+        focusedSnapshotId=""
+        {...tableProps}
+        onDeleteSnapshot={onDeleteSnapshot}
+        deletingSnapshotId="11111111-1111-1111-1111-111111111111"
+      />,
+    );
+
+    expect(screen.getByTestId("infra-drift-snapshot-delete-11111111-1111-1111-1111-111111111111")).toHaveTextContent(
+      "Deleting…",
+    );
+  });
 });

@@ -57,7 +57,9 @@ internal static class InventoryDiagramOrphanedStateApplier
             {
                 diagramNode.ConnectionState = InventoryDiagramConnectionState.Connected;
                 diagramNode.ConnectionStateMessage = null;
-                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    result.UnresolvedRelationshipDetails);
                 continue;
             }
 
@@ -65,7 +67,9 @@ internal static class InventoryDiagramOrphanedStateApplier
             {
                 diagramNode.ConnectionState = result.State;
                 diagramNode.ConnectionStateMessage = result.MissingRequirementMessage;
-                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    result.UnresolvedRelationshipDetails);
                 continue;
             }
 
@@ -76,7 +80,9 @@ internal static class InventoryDiagramOrphanedStateApplier
             {
                 diagramNode.ConnectionState = InventoryDiagramConnectionState.Used;
                 diagramNode.ConnectionStateMessage = publicIpUsedMessage;
-                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    result.UnresolvedRelationshipDetails);
                 continue;
             }
 
@@ -84,14 +90,46 @@ internal static class InventoryDiagramOrphanedStateApplier
             {
                 diagramNode.ConnectionState = InventoryDiagramConnectionState.Used;
                 diagramNode.ConnectionStateMessage = usedMessage;
-                diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+                diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+                    diagramNode.UnresolvedRelationshipDetails,
+                    result.UnresolvedRelationshipDetails);
                 continue;
             }
 
             diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
             diagramNode.ConnectionStateMessage = null;
-            diagramNode.UnresolvedRelationshipDetails = result.UnresolvedRelationshipDetails.ToList();
+            diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+                diagramNode.UnresolvedRelationshipDetails,
+                result.UnresolvedRelationshipDetails);
         }
+    }
+
+    private static List<string> MergeUnresolvedRelationshipDetails(
+        IReadOnlyList<string> existingDetails,
+        IReadOnlyList<string> classifiedDetails)
+    {
+        List<string> merged = [];
+
+        if (existingDetails is not null)
+        {
+            foreach (string detail in existingDetails)
+            {
+                if (!string.IsNullOrWhiteSpace(detail) && !merged.Contains(detail, StringComparer.Ordinal))
+                {
+                    merged.Add(detail);
+                }
+            }
+        }
+
+        foreach (string detail in classifiedDetails)
+        {
+            if (!string.IsNullOrWhiteSpace(detail) && !merged.Contains(detail, StringComparer.Ordinal))
+            {
+                merged.Add(detail);
+            }
+        }
+
+        return merged;
     }
 
     private static bool TryResolveUsedMessage(
