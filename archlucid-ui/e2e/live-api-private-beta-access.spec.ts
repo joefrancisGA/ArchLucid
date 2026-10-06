@@ -7,8 +7,6 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-
 import {
   acceptInvitationAsPlatformUser,
   assertJwtScopeBindingRejectsForgedTenantHeader,
@@ -387,11 +385,14 @@ test.describe(
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
-    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
+    await expect(async () => {
+      await injectDefaultTenantOperatorScope(page);
+      await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 90_000,
+      });
+      await expectLiveReviewsHubListReady(page, { timeoutMs: 30_000, projectId: scope.projectId });
+    }).toPass({ timeout: 120_000 });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
     );

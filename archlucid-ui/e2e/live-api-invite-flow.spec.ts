@@ -11,7 +11,6 @@ import {
   provisionScimDirectoryUser,
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
-import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, liveE2eAdminInviteUiPlaywrightTimeoutMs } from "./helpers/live-api-client";
 
@@ -48,11 +47,13 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
     await expect(pendingRow).toContainText("Pending");
 
-    await clickThroughBlockingOverlays(page, pendingRow.getByRole("button", { name: "Revoke" }));
+    await expect(async () => {
+      await pendingRow.scrollIntoViewIfNeeded();
+      await pendingRow.getByRole("button", { name: "Revoke" }).click();
+      await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
 
     const revokeDialog = page.getByRole("alertdialog");
-
-    await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
 
     const revokedRow = invitationsTable.locator("tr", { hasText: inviteEmail });

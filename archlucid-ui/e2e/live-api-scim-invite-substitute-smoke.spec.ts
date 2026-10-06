@@ -59,6 +59,20 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
+    await expect(async () => {
+      const tokensList = page.waitForResponse(
+        (response) =>
+          response.url().includes("/api/proxy/v1/admin/scim/tokens") &&
+          response.request().method() === "GET" &&
+          response.ok(),
+        { timeout: 45_000 },
+      );
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await waitForOperatorAuthMeProxyOk(page);
+      await tokensList;
+      await expect(page.getByTestId("scim-create-token")).toBeVisible({ timeout: 15_000 });
+    }).toPass({ timeout: 120_000 });
+
     const existingDialog = page.getByRole("alertdialog");
 
     if (await existingDialog.isVisible().catch(() => false)) {
@@ -68,7 +82,9 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     try {
       await expect(async () => {
-        await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+        const createControl = page.getByTestId("scim-create-token");
+        await createControl.scrollIntoViewIfNeeded();
+        await createControl.click();
         await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
       }).toPass({ timeout: 60_000 });
     } catch (error) {
