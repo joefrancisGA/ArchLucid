@@ -131,18 +131,15 @@ public sealed partial class AdvisorySchedulingController
         CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scope, scheduleId, ct);
+
         if (schedule is null)
             return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(schedule, scope))
-            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
-
         IReadOnlyList<AdvisoryScanExecution>
-            items = await executionRepository.ListByScheduleAsync(scheduleId, take, ct);
+            items = await executionRepository.ListByScheduleAsync(scope, scheduleId, take, ct);
         return Ok(items);
     }
 
@@ -163,14 +160,11 @@ public sealed partial class AdvisorySchedulingController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RunNow(Guid scheduleId, CancellationToken ct = default)
     {
-        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scope, scheduleId, ct);
+
         if (schedule is null)
             return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(schedule, scope))
-            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
         if (!await AdvisoryScheduleEligibilityGuard.HasFinalizedReviewForProjectAsync(

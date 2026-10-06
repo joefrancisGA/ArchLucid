@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
@@ -16,7 +18,8 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _items.RemoveAll(x => x.RecommendationId == recommendation.RecommendationId);
+            _items.RemoveAll(x =>
+                x.RecommendationId == recommendation.RecommendationId && SameScope(x, recommendation));
             if (_items.Count >= MaxEntries)
                 _items.RemoveAt(0);
 
@@ -27,13 +30,12 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
     }
 
     /// <inheritdoc />
-    public Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
+    public Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-
-            return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId));
-
+            return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId && MatchesScope(x, scope)));
     }
 
     /// <inheritdoc />
@@ -88,4 +90,14 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
             return Task.FromResult<IReadOnlyList<RecommendationRecord>>(result);
         }
     }
+
+    private static bool MatchesScope(RecommendationRecord record, ScopeContext scope) =>
+        record.TenantId == scope.TenantId &&
+        record.WorkspaceId == scope.WorkspaceId &&
+        record.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(RecommendationRecord stored, RecommendationRecord incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

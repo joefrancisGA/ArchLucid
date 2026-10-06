@@ -417,7 +417,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.5"
+$scriptVersion = "0.4.6"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -643,16 +643,60 @@ try
 
     [System.Diagnostics.Stopwatch]$securityInventoryWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
+    [object[]]$roleAssignmentRows = @()
+    [object[]]$networkAssociationRows = @()
+    [object[]]$federatedCredentialRows = @()
+    [object[]]$effectiveNetworkControlRows = @()
+    [object[]]$policyAssignmentRows = @()
+    [object[]]$diagnosticSettingRows = @()
+    [object[]]$defenderSummaryRows = @()
+    [object[]]$adfLinkedServiceRows = @()
+    [object[]]$adfDatasetRows = @()
+    [object[]]$adfPipelineFlowRows = @()
+    [object[]]$adfTriggerRows = @()
+    [object[]]$adfIntegrationRuntimeRows = @()
+    [object[]]$adfDataflowRows = @()
+    [object[]]$eventGridSubscriptionRows = @()
+    [object[]]$logicAppConnectionRows = @()
+    [object[]]$messagingAssociationRows = @()
+    [object[]]$serviceConnectorRows = @()
+    [object[]]$appSettingHostRows = @()
+    [object[]]$dependencyObservationRows = @()
+    [object[]]$sqlDatabasePrincipalRows = @()
+
     try
     {
         Enter-ArchLucidExtractorProgressStep -Handle $progressHeartbeat -Step SecurityInventory
 
-        [object[]]$roleAssignmentRows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows `
-            -SubscriptionId $SubscriptionId `
-            -ResourceGroupScope $ResourceGroupScope `
-            -ManagementGroupId $ManagementGroupId)
+        try
+        {
+            $roleAssignmentRows = @(Get-ArchLucidAzureRoleAssignmentCompanionRows `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope `
+                -ManagementGroupId $ManagementGroupId)
+        }
+        catch
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step SecurityInventory `
+                -Message ("role-assignments.json collection failed; continuing with other companions. {0}" -f $_.Exception.Message) `
+                -Context @{ scope = $scopeDescriptor }
+        }
 
-        [object[]]$networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($inventoryForAssociationDerivation))
+        try
+        {
+            $networkAssociationRows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($inventoryForAssociationDerivation))
+        }
+        catch
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step SecurityInventory `
+                -Message ("network-associations.json collection failed; continuing with other companions. {0}" -f $_.Exception.Message) `
+                -Context @{ scope = $scopeDescriptor }
+        }
+
         [System.Collections.ArrayList]$publicIpIpConfigurationFacts = [System.Collections.ArrayList]::new()
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
@@ -825,26 +869,41 @@ try
         Add-ArchLucidExtractorWarning `
             -Telemetry $telemetry `
             -Step SecurityInventory `
-            -Message ("Failed to collect role assignments or network associations; companion files will contain empty arrays. {0}" -f $_.Exception.Message) `
+            -Message ("SecurityInventory stopped before all companion collectors completed; successful companion results were preserved. {0}" -f $_.Exception.Message) `
             -Context @{ scope = $scopeDescriptor }
 
-        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "network-associations.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") "[]"
-        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") "[]"
+        Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "network-associations.json") (ConvertTo-ArchLucidJsonArray -Items $networkAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "federated-credentials.json") (ConvertTo-ArchLucidJsonArray -Items $federatedCredentialRows)
+        Write-Utf8NoBom (Join-Path $staging "effective-network-controls.json") (ConvertTo-ArchLucidJsonArray -Items $effectiveNetworkControlRows)
+        Write-Utf8NoBom (Join-Path $staging "policy-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $policyAssignmentRows)
+        Write-Utf8NoBom (Join-Path $staging "diagnostic-settings.json") (ConvertTo-ArchLucidJsonArray -Items $diagnosticSettingRows)
+        Write-Utf8NoBom (Join-Path $staging "defender-summary.json") (ConvertTo-ArchLucidJsonArray -Items $defenderSummaryRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-linked-services.json") (ConvertTo-ArchLucidJsonArray -Items $adfLinkedServiceRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-datasets.json") (ConvertTo-ArchLucidJsonArray -Items $adfDatasetRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-pipeline-flows.json") (ConvertTo-ArchLucidJsonArray -Items $adfPipelineFlowRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-triggers.json") (ConvertTo-ArchLucidJsonArray -Items $adfTriggerRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-integration-runtimes.json") (ConvertTo-ArchLucidJsonArray -Items $adfIntegrationRuntimeRows)
+        Write-Utf8NoBom (Join-Path $staging "adf-dataflows.json") (ConvertTo-ArchLucidJsonArray -Items $adfDataflowRows)
+        Write-Utf8NoBom (Join-Path $staging "event-grid-subscriptions.json") (ConvertTo-ArchLucidJsonArray -Items $eventGridSubscriptionRows)
+        Write-Utf8NoBom (Join-Path $staging "logic-app-connections.json") (ConvertTo-ArchLucidJsonArray -Items $logicAppConnectionRows)
+        Write-Utf8NoBom (Join-Path $staging "messaging-associations.json") (ConvertTo-ArchLucidJsonArray -Items $messagingAssociationRows)
+        Write-Utf8NoBom (Join-Path $staging "service-connector-links.json") (ConvertTo-ArchLucidJsonArray -Items $serviceConnectorRows)
+
+        if ($IncludeAppSettingsHosts)
+        {
+            Write-Utf8NoBom (Join-Path $staging "app-settings-hosts.json") (ConvertTo-ArchLucidJsonArray -Items $appSettingHostRows)
+        }
+
+        if ($IncludeDependencyObservations)
+        {
+            Write-Utf8NoBom (Join-Path $staging "dependency-observations.json") (ConvertTo-ArchLucidJsonArray -Items $dependencyObservationRows)
+        }
+
+        if ($IncludeSqlDatabasePrincipals)
+        {
+            Write-Utf8NoBom (Join-Path $staging "sql-database-principals.json") (ConvertTo-ArchLucidJsonArray -Items $sqlDatabasePrincipalRows)
+        }
 
         Complete-ArchLucidExtractorStep `
             -Telemetry $telemetry `

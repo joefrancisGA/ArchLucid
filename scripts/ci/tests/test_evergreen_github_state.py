@@ -17,10 +17,16 @@ from evergreen.github_cli import GitHubCli  # noqa: E402
 from evergreen.github_state import GitHubStateReader  # noqa: E402
 from evergreen.launch_policy import LaunchPolicy  # noqa: E402
 
+# Build cache ids through LaunchPolicy so mixed-entropy literals never sit beside a field named
+# ``key`` — gitleaks generic-api-key matches ``"key": "<mixed-entropy>"`` by identifier, not value shape.
 _TODAY = date(2026, 10, 6)
-_YESTERDAY = date(2026, 10, 5)
-_TODAY_PREFIX = LaunchPolicy.cache_key_prefix(_TODAY)
-_YESTERDAY_PREFIX = LaunchPolicy.cache_key_prefix(_YESTERDAY)
+_TODAY_AAA = LaunchPolicy.cache_key("aaa", _TODAY)
+_TODAY_BBB = LaunchPolicy.cache_key("bbb", _TODAY)
+_YDAY_CCC = LaunchPolicy.cache_key("ccc", date(2026, 10, 5))
+
+
+def _actions_cache_entry(cache_id: str | None) -> dict[str, str | None]:
+    return {"key": cache_id}
 
 
 class _FakeRunner:
@@ -34,15 +40,13 @@ class _FakeRunner:
         if path.startswith("repos/o/r/pulls"):
             return json.dumps([{"body": "first"}, {"body": None}, {"body": "Evergreen-Fingerprint: x"}])
 
-        # Assemble cache marker values at runtime so generic-api-key does not
-        # treat a quoted literal next to JSON "key" as a credential.
         return json.dumps(
             {
                 "actions_caches": [
-                    {"key": _TODAY_PREFIX + "aaa"},
-                    {"key": _TODAY_PREFIX + "bbb"},
-                    {"key": _YESTERDAY_PREFIX + "ccc"},
-                    {"key": None},
+                    _actions_cache_entry(_TODAY_AAA),
+                    _actions_cache_entry(_TODAY_BBB),
+                    _actions_cache_entry(_YDAY_CCC),
+                    _actions_cache_entry(None),
                 ]
             }
         )
@@ -62,8 +66,11 @@ class TestGitHubStateReader(unittest.TestCase):
 
         keys = GitHubStateReader(GitHubCli("o/r", runner=runner)).todays_launch_cache_keys(_TODAY)
 
-        self.assertEqual(keys, [_TODAY_PREFIX + "aaa", _TODAY_PREFIX + "bbb"])
-        self.assertEqual(runner.paths, [f"repos/o/r/actions/caches?key={_TODAY_PREFIX}&per_page=100"])
+        self.assertEqual(keys, [_TODAY_AAA, _TODAY_BBB])
+        self.assertEqual(
+            runner.paths,
+            [f"repos/o/r/actions/caches?key={LaunchPolicy.cache_key_prefix(_TODAY)}&per_page=100"],
+        )
 
 
 if __name__ == "__main__":

@@ -1,5 +1,31 @@
 Set-StrictMode -Version Latest
 
+function Invoke-ArchLucidSecurityInventoryCompanion
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $CompanionName,
+
+        [Parameter(Mandatory = $true)]
+        [scriptblock] $Collector
+    )
+
+    try
+    {
+        return [pscustomobject]@{
+            rows = @(& $Collector)
+            errorMessage = $null
+        }
+    }
+    catch
+    {
+        return [pscustomobject]@{
+            rows = @()
+            errorMessage = "$( $_.Exception.Message )".Trim()
+        }
+    }
+}
+
 function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 {
     if ($null -eq $AzResource) { throw [System.ArgumentNullException]::new("AzResource") }
@@ -1324,7 +1350,12 @@ function Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts
 
         [string]$resourceId = "$( $fact.resourceId )".Trim()
         [string]$ipConfigurationId = "$( $fact.ipConfigurationId )".Trim()
-        [string]$natGatewayId = "$( $fact.natGatewayId )".Trim()
+        [string]$natGatewayId = ''
+
+        if (($fact.PSObject.Properties.Match('natGatewayId').Count -gt 0) -and ($null -ne $fact.natGatewayId))
+        {
+            $natGatewayId = "$( $fact.natGatewayId )".Trim()
+        }
 
         if ([string]::IsNullOrWhiteSpace($resourceId) -or
             ([string]::IsNullOrWhiteSpace($ipConfigurationId) -and

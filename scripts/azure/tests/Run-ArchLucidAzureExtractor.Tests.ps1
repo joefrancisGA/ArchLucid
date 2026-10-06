@@ -50,11 +50,13 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         Remove-Item Env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC -ErrorAction SilentlyContinue
     }
 
-    It "enables cost, retail prices, and app settings hosts by default" {
+    It "keeps cost and retail prices opt-in while enabling app settings hosts" {
         [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
 
-        $content | Should -Match 'IncludeCost\s*=\s*\$true'
-        $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
+        $content | Should -Match '\[switch\]\s*\$IncludeCost'
+        $content | Should -Match '\[switch\]\s*\$IncludeRetailPrices'
+        $content | Should -Match 'IncludeCost\s*=\s*\[bool\]\$IncludeCost'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\[bool\]\$IncludeRetailPrices'
         $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
     }
 

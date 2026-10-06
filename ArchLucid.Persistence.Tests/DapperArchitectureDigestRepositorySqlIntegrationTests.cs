@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Scoping;
@@ -41,7 +42,10 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
 
         await repository.CreateAsync(created, CancellationToken.None);
 
-        ArchitectureDigest? loaded = await repository.GetByIdAsync(digestId, CancellationToken.None);
+        ArchitectureDigest? loaded = await repository.GetByIdAsync(
+            new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+            digestId,
+            CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.DigestId.Should().Be(digestId);
         loaded.Title.Should().Be(created.Title);

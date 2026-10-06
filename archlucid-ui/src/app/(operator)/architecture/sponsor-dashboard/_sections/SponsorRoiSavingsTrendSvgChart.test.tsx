@@ -20,4 +20,17 @@ describe("SponsorRoiSavingsTrendSvgChart", () => {
     expect(container.querySelectorAll('[data-testid="exec-roi-trend-svg-bar"]')).toHaveLength(6);
     expect(container.firstChild).toMatchSnapshot();
   });
+
+  it("renders omitted savings as a zero-height bar instead of coercing to $0", () => {
+    const { container } = render(
+      <SponsorRoiSavingsTrendSvgChart
+        points={[{ snapshotUtc: "2026-01-15T00:00:00Z", totalEstimatedUsdSavings: null, savingsTooltipSuffix: "Amount not returned" }]}
+      />,
+    );
+
+    const bar = container.querySelector('[data-testid="exec-roi-trend-svg-bar"]');
+
+    expect(bar).toBeTruthy();
+    expect(bar?.getAttribute("height")).toBe("0");
+  });
 });

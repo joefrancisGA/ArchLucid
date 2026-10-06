@@ -134,7 +134,7 @@ export default function GovernanceFindingsQueueClient({
     isAssignedToMe,
     buyerPolishedShell,
     assignedToMeQuery,
-    assignedToMeCountQuery,
+    assignedToMeCountData,
     rows,
     loading,
     loadFailed,
@@ -313,7 +313,7 @@ export default function GovernanceFindingsQueueClient({
         onPickReviewForTriage={onPickReviewForTriage}
         onSetJobView={setJobView}
         assignedToMeCountMismatch={assignedToMeCountMismatch}
-        assignedToMeCountData={assignedToMeCountQuery.data}
+        assignedToMeCountData={assignedToMeCountData}
         assignedToMeLoadedFindingCount={assignedToMeLoadedFindingCount}
         scopeRecordProjectId={scopeRecord?.projectId}
         filterBarVisible={synopsis.filterBarVisible}

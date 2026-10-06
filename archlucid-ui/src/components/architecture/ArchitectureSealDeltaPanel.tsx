@@ -186,7 +186,7 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
     sealedReviewRunId.length > 0
       ? `${resolveSystemNotJobDeskSealedChildReviewHref(sealedReviewRunId, props.architectureId)}#run-actions`
       : null;
-  const groupedDiffs = diffsKnown ? groupDiffsBySection(delta.diffs) : new Map();
+  const groupedDiffs = diffsKnown ? groupDiffsBySection(delta.diffs) : new Map<string, DiffItem[]>();
 
   return (
     <CollapsibleSection

@@ -29,11 +29,6 @@ public sealed partial class DigestSubscriptionFacade(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope) =>
-        subscription.TenantId == scope.TenantId &&
-        subscription.WorkspaceId == scope.WorkspaceId &&
-        subscription.ProjectId == scope.ProjectId;
-
     private static bool IsSupportedChannelType(string channelType) =>
         string.Equals(channelType, DigestDeliveryChannelType.Email, StringComparison.OrdinalIgnoreCase) ||
         string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||

@@ -46,10 +46,4 @@ public sealed partial class AdvisorySchedulingController(
     IAuditService auditService)
     : ControllerBase
 {
-    private static bool MatchesScope(AdvisoryScanSchedule schedule, ScopeContext scope)
-    {
-        return schedule.TenantId == scope.TenantId &&
-               schedule.WorkspaceId == scope.WorkspaceId &&
-               schedule.ProjectId == scope.ProjectId;
-    }
 }

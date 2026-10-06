@@ -15,26 +15,30 @@ internal static class DemoRunSqlPredicates
         Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c502");
 
     /// <summary>
-    ///     Predicate for a <c>dbo.Runs</c> row alias — excludes demo/sample/showcase runs and canonical showcase ids.
+    ///     Const fragment for alias <c>r</c> so ARCH006a can statically resolve concatenated SQL.
     /// </summary>
-    internal const string ExcludeShowcaseDemoRunsForAliasR =
-        "r.IsDemoWelcomeRun = 0"
-        + " AND r.IsPublicShowcase = 0"
-        + " AND r.IsSample = 0"
-        + " AND r.ArchitectureRequestId <> N'request-contoso-demo'"
-        + " AND r.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'"
-        + " AND r.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'"
-        + " AND r.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)";
+    internal const string ExcludeShowcaseDemoRunsAliasR = """
+        r.IsDemoWelcomeRun = 0
+        AND r.IsPublicShowcase = 0
+        AND r.IsSample = 0
+        AND r.ArchitectureRequestId <> N'request-contoso-demo'
+        AND r.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'
+        AND r.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'
+        AND r.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)
+        """;
 
-    /// <summary>Same predicate as <see cref="ExcludeShowcaseDemoRunsForAliasR"/> for alias <c>rInner</c>.</summary>
-    internal const string ExcludeShowcaseDemoRunsForAliasRInner =
-        "rInner.IsDemoWelcomeRun = 0"
-        + " AND rInner.IsPublicShowcase = 0"
-        + " AND rInner.IsSample = 0"
-        + " AND rInner.ArchitectureRequestId <> N'request-contoso-demo'"
-        + " AND rInner.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'"
-        + " AND rInner.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'"
-        + " AND rInner.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)";
+    /// <summary>
+    ///     Const fragment for alias <c>rInner</c> so ARCH006a can statically resolve concatenated SQL.
+    /// </summary>
+    internal const string ExcludeShowcaseDemoRunsAliasRInner = """
+        rInner.IsDemoWelcomeRun = 0
+        AND rInner.IsPublicShowcase = 0
+        AND rInner.IsSample = 0
+        AND rInner.ArchitectureRequestId <> N'request-contoso-demo'
+        AND rInner.ArchitectureRequestId NOT LIKE N'req-contoso-demo-%'
+        AND rInner.ArchitectureRequestId NOT LIKE N'req-trial-welcome-%'
+        AND rInner.RunId NOT IN (@CanonicalShowcaseRunBaselineId, @CanonicalShowcaseRunHardenedId)
+        """;
 
     /// <summary>
     ///     Predicate for a <c>dbo.Runs</c> row alias — excludes demo/sample/showcase runs and canonical showcase ids.
@@ -44,10 +48,10 @@ internal static class DemoRunSqlPredicates
         ArgumentException.ThrowIfNullOrWhiteSpace(runsAlias);
 
         if (string.Equals(runsAlias, "r", StringComparison.Ordinal))
-            return ExcludeShowcaseDemoRunsForAliasR;
+            return ExcludeShowcaseDemoRunsAliasR;
 
         if (string.Equals(runsAlias, "rInner", StringComparison.Ordinal))
-            return ExcludeShowcaseDemoRunsForAliasRInner;
+            return ExcludeShowcaseDemoRunsAliasRInner;
 
         return
             $"{runsAlias}.IsDemoWelcomeRun = 0" +

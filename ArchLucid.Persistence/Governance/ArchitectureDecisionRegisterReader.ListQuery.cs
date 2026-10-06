@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -53,6 +54,9 @@ public sealed partial class ArchitectureDecisionRegisterReader
                       FROM dbo.GoldenManifestDecisions AS d
                       INNER JOIN dbo.GoldenManifests AS m ON m.ManifestId = d.ManifestId
                       WHERE m.TenantId = @TenantId AND m.WorkspaceId = @WorkspaceId{projectFilter}{filterSql}
+                      """
+            + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope)
+            + """
                       ORDER BY m.CreatedUtc DESC, d.SortOrder ASC;
                       """
                       + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);

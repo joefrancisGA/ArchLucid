@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -13,6 +14,7 @@ public interface IRecommendationWorkflowService
         CancellationToken ct);
 
     Task<RecommendationRecord?> ApplyActionAsync(
+        ScopeContext scope,
         Guid recommendationId,
         string userId,
         string userName,

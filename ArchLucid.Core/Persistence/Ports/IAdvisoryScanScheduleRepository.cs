@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Advisory.Scheduling;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -20,5 +21,5 @@ public interface IAdvisoryScanScheduleRepository
         Guid projectId,
         CancellationToken ct);
 
-    Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct);
+    Task<AdvisoryScanSchedule?> GetByIdAsync(ScopeContext scope, Guid scheduleId, CancellationToken ct);
 }
