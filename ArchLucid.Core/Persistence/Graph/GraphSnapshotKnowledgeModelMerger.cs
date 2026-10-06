@@ -15,7 +15,7 @@ public static class GraphSnapshotKnowledgeModelMerger
         List<GraphNode> mergedNodes = [];
         HashSet<string> mergedNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphNode modelNode in modelGraph.Nodes)
+        foreach (GraphNode modelNode in modelGraph.Nodes ?? [])
         {
             string normalizedModelNodeId = NormalizeNodeId(modelNode.NodeId);
 
@@ -26,7 +26,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             mergedNodes.Add(NormalizeNodeIdWhitespace(modelNode));
         }
 
-        foreach (GraphNode contextNode in contextGraph.Nodes)
+        foreach (GraphNode contextNode in contextGraph.Nodes ?? [])
         {
             string normalizedNodeId = NormalizeNodeId(contextNode.NodeId);
 
@@ -42,7 +42,7 @@ public static class GraphSnapshotKnowledgeModelMerger
         List<GraphEdge> mergedEdges = [];
         HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphEdge modelEdge in modelGraph.Edges)
+        foreach (GraphEdge modelEdge in modelGraph.Edges ?? [])
         {
             GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(modelEdge, canonicalNodeIdByNormalized);
             string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
@@ -54,7 +54,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             mergedEdges.Add(canonicalEdge);
         }
 
-        foreach (GraphEdge contextEdge in contextGraph.Edges)
+        foreach (GraphEdge contextEdge in contextGraph.Edges ?? [])
         {
             GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(contextEdge, canonicalNodeIdByNormalized);
             string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
@@ -66,7 +66,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             mergedEdges.Add(canonicalEdge);
         }
 
-        List<string> warnings = [.. modelGraph.Warnings, .. contextGraph.Warnings];
+        List<string> warnings = [.. modelGraph.Warnings ?? [], .. contextGraph.Warnings ?? []];
 
         return new GraphSnapshot
         {
