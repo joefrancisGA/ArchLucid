@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed all five open `(candidate)` rows (cross-workspace list default, restore vs delete pin parity, purge cutoff strict `<`, delete idempotent retry with sibling pin, recycle-bin orphan `DeletedUtc` filter); regressions `ListAsync_omits_default_project_id_when_metadata_points_at_active_project_in_another_workspace`, `RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`, `DeleteProjectAsync_returns_no_content_when_sibling_pins_soft_deleted_project_on_delete_retry`, `Purge_worker_eligibility_uses_strict_cutoff_at_displayed_purge_after_instant`; 47 scoped TenantWorkspaces tests passed.
+
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` called `EdgeType.Trim()` on null `GraphEdge.EdgeType`, crashing κ→Γ merge for malformed in-memory or deserialized edges; coalesce null edge types to empty before trim in canonicalization and edge keys; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`; scoped merger tests 10/10 Core + 7/7 KnowledgeGraph.
@@ -28102,9 +28104,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — delete allowed when sibling workspace DefaultProjectId pinned active project
 - **related-pd-tb:** none
@@ -28176,11 +28178,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — workspace `DefaultProjectId` still equals soft-deleted `scope.ProjectId` returns HTTP 400 like active default delete guard — **cheap-disproof 2026-10-06 seed hunt:** restore intentionally ignores stale default metadata; regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; 44 scoped TenantWorkspaces tests passed.
 
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — workspace row `DefaultProjectId` references an active architecture project in a different workspace (`DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace` fixture); GET `v1/tenant/workspaces`; wrong outcome would echo foreign project id in `defaultProjectId` while `projects[]` lists only caller-workspace rows.
-- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — sibling workspace `DefaultProjectId == projectId` while caller restores soft-deleted scope project (foreign pin + restore POST); wrong outcome HTTP 400 from tenant-wide default-metadata pin parity with `DeleteProjectAsync`.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — soft-deleted project `DeletedUtc` equals purge worker cutoff boundary (`ArchitectureProjectRetentionPurgeBackgroundWork` uses `DeletedUtc < cutoff` with `cutoff = UtcNow.AddDays(-retentionDays)` vs `ComputePurgeAfterUtc` display); GET recycle-bin; wrong outcome `purgeAfterUtc` implies hard purge eligibility one instant early.
-- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — tenant-wide metadata pin on soft-deleted `projectId` with operator retry DELETE on scope project (`idempotency-posture` on delete); wrong outcome HTTP 400 from default guard instead of HTTP 204 `AlreadyDeleted`.
-- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `ListSoftDeletedByTenantAsync` returns `IsDeleted=1` row with `DeletedUtc=null` (orphan SQL per `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP`); GET recycle-bin; wrong outcome row appears with computed `purgeAfterUtc` despite controller `Where(p => p.DeletedUtc.HasValue)` filter.
+2026-10-06 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; no failing production repro; 47 scoped TenantWorkspaces tests passed.
+
+- [x] (valid-no-repro) `TenantWorkspacesController.ListAsync` — workspace row `DefaultProjectId` references an active architecture project in a different workspace — **cheap-disproof 2026-10-06 thorough hunt:** `defaultProjectId` is `Guid.Empty` unless the id appears in caller-workspace `projects[]`; regression `ListAsync_omits_default_project_id_when_metadata_points_at_active_project_in_another_workspace`.
+- [x] (valid-no-repro) `TenantWorkspacesController.RestoreProjectAsync` — sibling workspace `DefaultProjectId == projectId` during restore POST — **cheap-disproof 2026-10-06 thorough hunt:** restore intentionally lacks active-default delete guard; regression `RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — `purgeAfterUtc` vs purge worker cutoff at displayed instant — **cheap-disproof 2026-10-06 thorough hunt:** worker uses `DeletedUtc < cutoff` with `cutoff = UtcNow.AddDays(-retentionDays)`; eligibility begins strictly after `ComputePurgeAfterUtc`; regression `Purge_worker_eligibility_uses_strict_cutoff_at_displayed_purge_after_instant`.
+- [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — tenant-wide metadata pin on soft-deleted `projectId` with operator DELETE retry — **cheap-disproof 2026-10-06 thorough hunt:** default guard applies only when project is still active in caller workspace; sibling pin + `AlreadyDeleted` returns HTTP 204; regression `DeleteProjectAsync_returns_no_content_when_sibling_pins_soft_deleted_project_on_delete_retry` (extends `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`).
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — orphan `IsDeleted=1` row with `DeletedUtc=null` — **cheap-disproof 2026-10-06 thorough hunt:** controller filters `Where(p => p.DeletedUtc.HasValue)` before computing schedule; regression `ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`.
 
 ---
 ## Zone: application-agents
