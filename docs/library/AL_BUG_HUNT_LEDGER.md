@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five seeded `(candidate)` rows (MUST snapshot relies on submit API fail-closed for post-answer pending; interactive MUST EOF matches admit-stage EOF without JSON envelope; admission redirect stderr-only in JSON mode matches other API `OperationFailed` paths; cooperative cancel propagates `OperationCanceledException` from `PromptRequiredAsync`; submit `status` echoed from API with `runId`/`requestId` spawn guards); regressions `RunCoreAsync_when_submit_rejects_after_must_answer_snapshot_returns_operation_failed`, `RunCoreAsync_must_question_read_line_eof_returns_operation_failed_without_json_envelope`, `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`, `PromptRequiredAsync_when_cancelled_during_re_prompt_throws_operation_canceled`, `RunCoreAsync_json_output_emits_submit_status_from_api_without_spawn_state_validation`; 37 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand` intake loop and stage partials after prior thorough hit/dry hunts closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (MUST pending snapshot without re-fetch, EOF during interactive MUST answer, semantic admission redirect JSON envelope, cancellation during `PromptRequiredAsync` re-prompt, success JSON status field trust); 32 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `core-safety-network` — re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five `(candidate)` rows (InternalLoopback profile without connect guard, DevOps integration timeout vs SSRF, resilience retry cap noise, ARM retail HttpRequestException retries, multi-cloud public catalog roots); 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound wiring tests passed (`RunAnalyzers=false`).
@@ -7599,9 +7601,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
@@ -7625,6 +7627,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 37 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): re-read intake loop and stage partials reached via `DraftNewCommand.RunCoreAsync`; no hunt-ready row promoted; seeded five new `(candidate)` rows below; 24 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; no failing repro; 28 scoped `DraftNewCommandCoreTests` passed.
@@ -7642,6 +7646,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — post-submit path omits `CliScopeResponseValidator` — **cheap-disproof 2026-10-06 thorough hunt:** `SubmitDraftResponse` carries `RunId` / `RequestId` only (no tenant/workspace draft body); draft scope is validated on create/patch/admit and MUST skip/answer before submit by design.
 - [x] (valid-no-repro) `DraftNewCommandConnectStage` — `--api-base-url` override vs cwd scope config — **cheap-disproof 2026-10-06 thorough hunt:** overridden base URL is still passed to `ConnectAsync` / `CreateApiClient`, and create-time `CliScopeResponseValidator` fails closed when the API body disagrees with configured `ARCHLUCID_TENANT_ID`; regression `RunCoreAsync_api_base_url_override_still_fails_scope_mismatch_on_create`.
 - [x] (invalid) `DraftNewCommandMustQuestionLoop` — duplicate `QuestionKey` entries in `PendingMustQuestions` — **cheap-disproof 2026-10-06 thorough hunt:** `--skip-must-questions` issues one skip per snapshotted row and idempotent skip success completes intake; regression `RunCoreAsync_skip_all_with_duplicate_pending_question_keys_completes_when_skip_is_idempotent`.
+
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` is called once and `PendingMustQuestions` is iterated from that snapshot; reachable input is a skip/answer mutation that surfaces additional MUST questions server-side before submit, leaving new pending rows unresolved while intake continues to `SubmitDraftAsync` — **cheap-disproof 2026-10-06 thorough hunt:** intake may call submit after the snapshotted loop, but the API rejects incomplete MUST sets (`409`); regression `RunCoreAsync_when_submit_rejects_after_must_answer_snapshot_returns_operation_failed` (single questions GET).
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — interactive `ReadLineAsync` EOF (`null`) during MUST answer returns `OperationFailed` without `CliJson.WriteFailureLine` (JSON mode cannot enter the loop with pending rows unless `--skip-must-questions`; piped stdin EOF mid-answer is the reachable input) — **cheap-disproof 2026-10-06 thorough hunt:** interactive EOF fail-closed parity with admit-stage prompts; regression `RunCoreAsync_must_question_read_line_eof_returns_operation_failed_without_json_envelope`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — semantic admission returns `Admitted=false` with `RedirectReason`; intake exits `OperationFailed` with stderr text only and no structured JSON failure when `--json` is enabled — **cheap-disproof 2026-10-06 thorough hunt:** JSON mode omits structured failure for API semantic `OperationFailed` paths (same as hollow submit ids); regression `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandHooks.PromptRequiredAsync` — `cancellationToken` canceled during the empty-value re-prompt loop calls `ThrowIfCancellationRequested` and may surface `OperationCanceledException` to callers instead of a deterministic `CliExitCode` from `RunCoreAsync` — **cheap-disproof 2026-10-06 thorough hunt:** cooperative cancellation propagates `OperationCanceledException` by design; regression `PromptRequiredAsync_when_cancelled_during_re_prompt_throws_operation_canceled`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — JSON success line emits `status = submit.Value.Status.ToString()` with `ok: true` without validating that the submit status matches a spawned-run terminal state; reachable input is API HTTP 200 with hollow or pre-submit enum status while `runId`/`requestId` are present — **cheap-disproof 2026-10-06 thorough hunt:** spawn contract is non-empty `runId`/`requestId` (guarded); `status` is informational from the API; regression `RunCoreAsync_json_output_emits_submit_status_from_api_without_spawn_state_validation`.
 
 - [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` (`must_questions_pending`) before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode rejects pending MUST questions before the read loop; defensive `WriteFailureLine` (`must_question_answer_required`) on whitespace-answer branch.
