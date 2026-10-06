@@ -273,6 +273,71 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph
+                {
+                    SubgraphId = "source",
+                    Label = "Source",
+                    OrderKey = 0,
+                },
+                new DiagramSubgraph
+                {
+                    SubgraphId = "application",
+                    Label = "Application",
+                    OrderKey = 1,
+                },
+            ],
+            Nodes =
+            [
+                ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+                {
+                    NodeId = $"mysql-link-{index}",
+                    Label = $"mysql-link-{index}",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "source",
+                    OrderKey = index,
+                    ExternalLinkedServiceType = "AzureMySql",
+                    ExternalFactoryName = $"adf-factory-{index}",
+                    ExternalTargetHost = $"mysql-{index}.partner.example",
+                    ExternalIntegrationRuntime = index % 2 == 0 ? "managed" : "selfHostedIr",
+                }),
+                new DiagramNode
+                {
+                    NodeId = "consumer-app",
+                    Label = "consumer-app",
+                    NodeType = "TopologyResource",
+                    SubgraphId = "application",
+                    OrderKey = 10,
+                    ArmResourceType = "Microsoft.Web/sites",
+                },
+            ],
+            Edges =
+            [
+                ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+                {
+                    FromNodeId = $"mysql-link-{index}",
+                    ToNodeId = "consumer-app",
+                    Label = "reads",
+                }),
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("4 MySQL links");
+        result.Svg.Should().Contain("Hosts mysql-0.partner.example, mysql-1.partner.example, and 2 more");
+        result.Svg.Should().Contain("Runtimes managed, selfHostedIr");
+        result.Svg.Should().NotContain("mysql-3.partner.example");
+    }
+
+    [Fact]
     public void Render_data_flow_shows_adf_link_identity_lines()
     {
         DiagramAst ast = new()

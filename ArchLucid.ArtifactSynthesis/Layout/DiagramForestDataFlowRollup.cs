@@ -160,6 +160,12 @@ internal static class DiagramForestDataFlowRollup
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();
+        List<string> targetHosts = CollectDistinctExternalValues(
+            members.SelectMany(member => member.ExternalTargetHosts),
+            members.Select(member => member.ExternalTargetHost));
+        List<string> integrationRuntimes = CollectDistinctExternalValues(
+            members.SelectMany(member => member.ExternalIntegrationRuntimes),
+            members.Select(member => member.ExternalIntegrationRuntime));
 
         return new DiagramNode
         {
@@ -173,8 +179,10 @@ internal static class DiagramForestDataFlowRollup
             ExternalLinkedServiceType = first.ExternalLinkedServiceType,
             ExternalFactoryName = factoryNames.Count == 1 ? factoryNames[0] : null,
             ExternalFactoryNames = factoryNames,
-            ExternalTargetHost = first.ExternalTargetHost,
-            ExternalIntegrationRuntime = first.ExternalIntegrationRuntime,
+            ExternalTargetHost = targetHosts.Count == 1 ? targetHosts[0] : null,
+            ExternalTargetHosts = targetHosts,
+            ExternalIntegrationRuntime = integrationRuntimes.Count == 1 ? integrationRuntimes[0] : null,
+            ExternalIntegrationRuntimes = integrationRuntimes,
             ExternalHostInKeyVault = first.ExternalHostInKeyVault,
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
@@ -191,6 +199,21 @@ internal static class DiagramForestDataFlowRollup
             DataFlowTraversalHopEvidenceDetails = [],
             NsgInboundRuleChips = [],
         };
+    }
+
+    private static List<string> CollectDistinctExternalValues(
+        IEnumerable<string> listValues,
+        IEnumerable<string?> scalarValues)
+    {
+        return listValues
+            .Concat(
+                scalarValues
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Select(value => value!.Trim()))
+            .Where(value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static string BuildMemberName(

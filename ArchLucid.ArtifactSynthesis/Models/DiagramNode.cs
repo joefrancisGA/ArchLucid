@@ -95,11 +95,25 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Target hosts for a collapsed ADF external-host rollup card.</summary>
+    public List<string> ExternalTargetHosts
+    {
+        get;
+        set;
+    } = [];
+
     public string? ExternalIntegrationRuntime
     {
         get;
         set;
     }
+
+    /// <summary>Integration runtimes for a collapsed ADF external-host rollup card.</summary>
+    public List<string> ExternalIntegrationRuntimes
+    {
+        get;
+        set;
+    } = [];
 
     public bool ExternalHostInKeyVault
     {

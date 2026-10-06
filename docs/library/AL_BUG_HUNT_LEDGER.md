@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while factory names already merged all members, so rolled-up ADF link cards hid peer hosts and runtimes; merge distinct values onto `ExternalTargetHosts` / `ExternalIntegrationRuntimes` and format rollup detail lines; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`; 640 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `PolicyPacksController.Simulate` / `SimulateBulk` and `GovernancePreviewController.Preview` still used `Trim()` + `Guid.TryParse` after `GovernanceController` policy-pack parity fix; shared `GovernanceRunIdHttpParser`; regressions `PolicyPacksControllerSimulate_accepts_run_id_with_interior_no_break_space`, `SimulateBulk_accepts_run_id_with_interior_no_break_space`, and `DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space`; 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
 
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `GovernanceController` policy-pack `Simulate` / `DryRunProposedPolicyPack` / `DryRunPolicyPack` parsed run ids with `Trim()` + `Guid.TryParse` while submit routes use `GovernanceRunIdNormalizer`, rejecting Word-pasted interior no-break space run ids; `TryParseGovernanceRunIdFromBody` + normalized ids to sealed guard and services; regressions `Simulate_accepts_run_id_with_interior_no_break_space` and `DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space`; 139 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
@@ -25432,11 +25434,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 32
+- **hunts:** 33
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 40
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — data-flow rollup dropped parallel NSG edge annotations after member collapse
+- **last-bug:** 2026-10-06 — data-flow rollup showed only first member external target host and integration runtime
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25497,6 +25499,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.Apply` — parallel edges from rolled-up members to the same neighbor with identical label/layout-only key kept only the first member's `DataFlowNsgAnnotationLabels` and `IsDataFlowNsgBlocked` — **hit 2026-10-06 seed hunt (seed→hit):** merge NSG labels, rule details, and blocked flag when deduplicating rollup edges; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`.
 
 2026-10-06 seed hunt (seed→hit): reseeded artifact-synthesis after rollup consumer-label fixes; proved data-flow rollup parallel edge dedupe dropped NSG annotations from collapsed storage members; focused filter reported 638 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up ADF external link cards copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while `ExternalFactoryNames` already merged all members, so four or more same-neighbor links hid peer hosts and runtimes on the canvas — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct hosts and runtimes onto rollup node list fields; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup external host/runtime identity loss after factory-name parity fix; focused filter reported 640 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
