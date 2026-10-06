@@ -158,7 +158,7 @@ public sealed class SupportProblemReportNotifier(
 
     private static string BuildSettingsSupportUrl(string? operatorBaseUrl)
     {
-        string? trimmedBase = string.IsNullOrWhiteSpace(operatorBaseUrl) ? null : operatorBaseUrl.Trim().TrimEnd('/');
+        string? trimmedBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
 
         return trimmedBase is null
             ? SupportProblemReportCopy.SettingsSupportPath

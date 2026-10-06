@@ -49,6 +49,14 @@ public sealed class EmailBrandingUrlsTests
     }
 
     [SkippableFact]
+    public void TryNormalizeOperatorBaseAuthority_omits_user_info()
+    {
+        string? baseUrl = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority("https://user:secret@ops.example.test");
+
+        baseUrl.Should().Be("https://ops.example.test");
+    }
+
+    [SkippableFact]
     public void TryBuildLogoImageUrl_accepts_relative_path_without_leading_slash()
     {
         string? url = EmailBrandingUrls.TryBuildLogoImageUrl("https://app.example", "logo/x.png");

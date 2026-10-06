@@ -6,13 +6,10 @@ public static class EmailBrandingUrls
     /// <summary>Default logo under the operator static site: PNG app tile.</summary>
     public const string DefaultLogoRelativePath = "/logo/icon-192.png";
 
-    /// <summary>Returns <see langword="null"/> when <paramref name = "operatorBaseUrl"/> is blank.</summary>
-    public static String? TryBuildLogoImageUrl(string? operatorBaseUrl, string relativePath = DefaultLogoRelativePath)
+    /// <summary>Returns scheme/host/port without userinfo, or <see langword="null"/> when <paramref name="operatorBaseUrl"/> is blank or invalid.</summary>
+    public static string? TryNormalizeOperatorBaseAuthority(string? operatorBaseUrl)
     {
-        ArgumentNullException.ThrowIfNull(relativePath);
         if (string.IsNullOrWhiteSpace(operatorBaseUrl))
-            return null;
-        if (string.IsNullOrWhiteSpace(relativePath))
             return null;
 
         string trimmedBase = operatorBaseUrl.Trim().TrimEnd('/');
@@ -24,7 +21,22 @@ public static class EmailBrandingUrls
             return null;
 
         UriBuilder authorityBuilder = new(absoluteUri.Scheme, absoluteUri.Host, absoluteUri.Port);
-        string sanitizedBase = authorityBuilder.Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+
+        return authorityBuilder.Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+    }
+
+    /// <summary>Returns <see langword="null"/> when <paramref name = "operatorBaseUrl"/> is blank.</summary>
+    public static String? TryBuildLogoImageUrl(string? operatorBaseUrl, string relativePath = DefaultLogoRelativePath)
+    {
+        ArgumentNullException.ThrowIfNull(relativePath);
+        if (string.IsNullOrWhiteSpace(relativePath))
+            return null;
+
+        string? sanitizedBase = TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (sanitizedBase is null)
+            return null;
+
         string rel = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
         return $"{sanitizedBase}{rel}";
     }
