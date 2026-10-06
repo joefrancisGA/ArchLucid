@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding covered fields and locals only, so auto-properties assigned unscoped SQL in instance methods (with benign `= string.Empty` initializers) still evaded ARCH006 after initializer merge; include `IPropertySymbol` in assignment scans; regression `ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method`; 24 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
 2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — `ResolveFromSymbol` returned declarator-initializer SQL before assignment folding, so fields initialized to `string.Empty` then assigned unscoped SQL in instance methods resolved only the empty initializer; scan instance/static method bodies for field assignments and merge initializer plus assignment branches; regression `ARCH006_reports_unscoped_sql_for_field_assigned_in_instance_method`; 23 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding only scanned top-level statements in the declaring block, so nested `if`/`else` assignments and constructor body field assignments to SQL members still evaded ARCH006; scan descendant simple assignments in the declaring block and instance constructor bodies; regressions `ARCH006_reports_unscoped_sql_for_local_assigned_in_nested_block` and `ARCH006_reports_unscoped_sql_for_field_assigned_in_constructor`; 22 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
@@ -5240,11 +5242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 28
-- **bugs-found:** 18
+- **hunts:** 29
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — field empty initializer masked instance-method SQL assignments for ARCH006
+- **last-bug:** 2026-10-06 — auto-property instance-method SQL assignments bypassed ARCH006 folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5261,6 +5263,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — declarator initializer resolution ran before assignment folding and short-circuited, so fields with `= string.Empty` (or other benign initializers) assigned tenant-scoped SQL in instance methods never reached ARCH006 — **hit 2026-10-06 seed hunt (seed→hit):** merge initializer and assignment branch SQL; scan ordinary instance/static methods for field assignments; regression `ARCH006_reports_unscoped_sql_for_field_assigned_in_instance_method`.
 
 2026-10-06 seed hunt (seed→hit): promoted empty-initializer short-circuit over instance-method field assignments; 23 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.TryResolveFromSimpleAssignments` — assignment folding applied to locals and fields only, so auto-properties assigned tenant-scoped SQL in instance methods were not merged with benign initializers — **hit 2026-10-06 seed hunt (seed→hit):** scan method-body assignments for `IPropertySymbol`; regression `ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method`.
+
+2026-10-06 seed hunt (seed→hit): promoted auto-property assignment gap; 24 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-01 seed hunt (seed-only): repeated the selected `RunsListClient.tsx` source review for filter disclosure, row/card activation, inspector state, and pagination; the exact focused filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
