@@ -8786,3 +8786,4 @@
 {"at":"2026-10-06T22:33:30.2715483Z","zoneId":"ui-auth-proxy","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
 {"at":"2026-10-06T22:40:39.376404Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-06T22:49:55.5345805Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
+{"at":"2026-10-06T23:02:15.1554726Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/)"]}
