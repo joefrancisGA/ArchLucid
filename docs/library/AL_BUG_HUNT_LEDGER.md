@@ -436,6 +436,8 @@
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
+2026-10-06 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: `WorkerHostDrainHostedService` only flips `IWorkerHostDrainGate` (TB-961) and does not own durable processor shutdown (`BackgroundService` `stoppingToken`); in-memory `TryGetWorkUnitAsync` retention supports `BackgroundJobTenantAccessVerifier` on terminal rows (not a re-execution path); duplicate notify on terminal SQL rows uses `TryPrepareQueuedJobAsync` `ShouldDeleteQueueMessageImmediately` (`ProcessOneMessageAsync_skips_when_ShouldDeleteQueueMessageImmediately_is_true`); `JobRunTelemetry` cooperative cancel records `exit_class=canceled` on metrics (`JobRunTelemetry_cancellation_rethrows`); reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
+
 2026-10-06 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four seeded candidates: durable enqueue notify-failure `retryCount: 0` matches always-zero insert row (`BackgroundJobRepository.CapacityInsert` INSERT, no row reuse); processor capacity-exhausted terminal deletes Azure message after `Failed` by design; in-memory shutdown terminal `Failed` remains visible via `_info` while `_workUnits` await bounded eviction; watchdog notify-failure already dual `GetAsync` cancel re-read (`RunSinglePassAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`); reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
 2026-10-06 thorough hunt (hit): `host-core-jobs` — `BackgroundJobStuckRunningWatchdogBackgroundWork` called `MarkFailedTerminalAsync` with `retryCount: 0` after reclaim notify failure, overwriting reclaimed `RetryCount`; preserve row `RetryCount`; regression `RunSinglePassAsync_preserves_reclaimed_retry_count_when_queue_notify_fails`; cheap-disproof closed enqueue cancel cleanup swallow and durable retry shutdown redelivery candidates; fixed in-memory shutdown retry when re-queue fails; 76 Host.Core + 45 focused Api background-job tests passed.
@@ -11677,9 +11679,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 30
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — watchdog notify failure reset reclaimed RetryCount to zero
 - **related-pd-tb:** none
@@ -11741,10 +11743,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
-- [ ] (candidate) `WorkerHostDrainHostedService` — cooperative drain signal vs durable `BackgroundJobQueueProcessorHostedService` in-flight `Running` claims during host shutdown (verify drain waits for processor loop exit).
-- [ ] (candidate) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — returns deserialized work units for terminal `Failed`/`Canceled` rows until eviction (re-execution or secret re-read surface).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — duplicate queue notification for an already-`Succeeded` SQL row deletes the message without re-invoking executor (stale notification vs idempotent success bookkeeping).
-- [ ] (candidate) `JobRunTelemetry` — records failure exit metrics when `OperationCanceledException` is cooperative shutdown vs executor fault (cancellation classification parity).
+- [x] (valid-no-repro) `WorkerHostDrainHostedService` — drain vs durable processor in-flight claims — **valid-no-repro 2026-10-06 thorough hunt:** drain gate signals cooperative shutdown for worker-hosted loops; `BackgroundJobQueueProcessorHostedService` stops via host `stoppingToken`, not `IWorkerHostDrainGate`.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.TryGetWorkUnitAsync` — terminal row work-unit retention — **valid-no-repro 2026-10-06 thorough hunt:** `_workUnits` supports tenant access checks (`BackgroundJobTenantAccessVerifier`); execution requires `Pending` claim in `ExecuteAsync`, not accessor reads.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — duplicate notify on `Succeeded` row — **valid-no-repro 2026-10-06 thorough hunt:** `TryPrepareQueuedJobAsync` treats terminal states as `ShouldDeleteQueueMessageImmediately` without re-running executor (idempotent stale-notification cleanup).
+- [x] (valid-no-repro) `JobRunTelemetry` — cooperative cancel vs failure metrics — **valid-no-repro 2026-10-06 thorough hunt:** `when (cancellationToken.IsCancellationRequested)` path records `exit_class=canceled` on `ContainerJobRunsTotal`; rethrows `OperationCanceledException` (`JobRunTelemetry_cancellation_rethrows`).
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
+
+- [ ] (candidate) `DurableBackgroundJobQueue.TryGetWorkUnitAsync` — deserializes `WorkUnitJson` for terminal SQL rows without state guard (parity with in-memory retention vs tenant-access expectations).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ExecuteAsync` — `OperationCanceledException` from `ReceiveMessagesAsync` when `stoppingToken` is not canceled (fault backoff vs graceful shutdown classification).
+- [ ] (candidate) `AzureStorageQueueBackgroundJobNotifySender` — notify send failure after SQL insert leaves `Pending` until processor or watchdog reclaims (enqueue vs notify ordering).
+- [ ] (candidate) `ArchLucidJobRunner` — unknown job name returns `UnknownJob` exit without duplicating `JobRunTelemetry` start log on early validation failures.
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
