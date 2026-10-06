@@ -225,6 +225,64 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
     }
 
     [Fact]
+    public async Task RunAsync_continue_budget_rejection_occurs_before_model_load()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-budget-reject",
+            RunId = Guid.NewGuid().ToString("N"),
+            ContinueFromExistingRun = true,
+            ReviewTier = ArchitectureIntelligenceReviewTier.Trial,
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "huge.md",
+                    ContentType = "text/markdown",
+                    Content = new string('x', 40_000),
+                },
+            ],
+        });
+
+        result.BudgetRejected.Should().BeTrue();
+        result.Model.Elements.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RunAsync_continue_with_unknown_run_id_fails_closed_before_cache_reuse()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        Func<Task> continueUnknown = async () => await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-unknown",
+            RunId = Guid.NewGuid().ToString("N"),
+            ContinueFromExistingRun = true,
+            DeclaredPriorities = ["Security"],
+        });
+
+        await continueUnknown.Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("*No ArchitectureIntelligence model found*");
+    }
+
+    [Fact]
     public async Task RunAsync_budget_rejection_returns_generated_run_id_when_client_omits_run_id()
     {
         ServiceCollection services = new();

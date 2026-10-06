@@ -356,6 +356,56 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_source_content_is_null_vs_empty_string()
+    {
+        ClosedLoopReasoningRequest nullContent = CreateRequest("ignored");
+        nullContent.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = null!,
+            },
+        ];
+
+        ClosedLoopReasoningRequest emptyContent = CreateRequest("ignored");
+        emptyContent.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = string.Empty,
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(nullContent).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(emptyContent).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_framing_keys_differ_only_by_casing()
+    {
+        ClosedLoopReasoningRequest lowerKey = CreateRequest("Architecture note.");
+        lowerKey.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["business-outcome"] = "Secure intake",
+        };
+
+        ClosedLoopReasoningRequest upperKey = CreateRequest("Architecture note.");
+        upperKey.FramingAnswers = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["Business-Outcome"] = "Secure intake",
+        };
+
+        ReviewCacheManifestBuilder.Build(lowerKey).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(upperKey).ContentHash);
+    }
+
+    [Fact]
     public void Build_normalizes_framing_answer_keys_and_values()
     {
         ClosedLoopReasoningRequest spaced = CreateRequest("Architecture note.");

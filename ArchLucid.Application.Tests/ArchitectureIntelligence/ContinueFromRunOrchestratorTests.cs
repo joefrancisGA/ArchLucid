@@ -326,4 +326,5 @@ public sealed class ContinueFromRunOrchestratorTests
             .ThrowAsync<InvalidOperationException>()
             .WithMessage("*No ArchitectureIntelligence model found*");
     }
+
 }
