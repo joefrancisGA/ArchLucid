@@ -4,6 +4,8 @@ import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
 
+const REVIEWS_NEW_BASELINE_WIZARD_PATH = "/architecture/reviews/new?baseline=1&path=quick-review";
+
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
  * Skips optional ZIP evidence on step 2 to keep private-beta invitee journeys within CI budget.
@@ -24,7 +26,12 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
       });
     }
 
-    await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
+    });
+
+    await page.goto(REVIEWS_NEW_BASELINE_WIZARD_PATH, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("reviews-new-path-switcher")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 20_000 });
   }).toPass({ timeout: 120_000 });
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 1 of 4/i, {
