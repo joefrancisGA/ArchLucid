@@ -91,7 +91,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
         bool includeCrossGroupFanOut = false,
-        bool includeAvdAssets = false)
+        bool includeAvdAssets = false,
+        bool includeNetworkDetails = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -151,7 +152,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                     includePrivateEndpointNodes,
                     includeRecoveryServices,
                     includeCrossGroupFanOut,
-                    includeAvdAssets),
+                    includeAvdAssets,
+                    includeNetworkDetails),
                 cancellationToken);
 
             modePreviews.Add(modePreview);
@@ -181,7 +183,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
         bool includeCrossGroupFanOut = false,
-        bool includeAvdAssets = false)
+        bool includeAvdAssets = false,
+        bool includeNetworkDetails = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -260,7 +263,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             includePrivateEndpointNodes,
             includeRecoveryServices,
             includeCrossGroupFanOut,
-            includeAvdAssets);
+            includeAvdAssets,
+            includeNetworkDetails);
 
         InfraEvidenceMermaidRenderResponse renderResponse = await TryRenderModeResponseAsync(
             snapshotId,
@@ -292,7 +296,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes = false,
         bool includeRecoveryServices = false,
         bool includeCrossGroupFanOut = false,
-        bool includeAvdAssets = false)
+        bool includeAvdAssets = false,
+        bool includeNetworkDetails = false)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -309,7 +314,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 includePrivateEndpointNodes,
                 includeRecoveryServices,
                 includeCrossGroupFanOut,
-                includeAvdAssets);
+                includeAvdAssets,
+                includeNetworkDetails);
 
         if (!mermaidResult.Succeeded || mermaidResult.Value is null)
         {
@@ -347,6 +353,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             includeRecoveryServices,
             includeCrossGroupFanOut,
             includeAvdAssets,
+            includeNetworkDetails,
             cancellationToken);
 
         if (renderedPng is null || renderedPng.Length == 0)
@@ -589,6 +596,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includeRecoveryServices,
         bool includeCrossGroupFanOut,
         bool includeAvdAssets,
+        bool includeNetworkDetails,
         CancellationToken cancellationToken)
     {
         if (string.Equals(renderResponse.LayoutEngine, "inventory-forest", StringComparison.Ordinal)
@@ -606,6 +614,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 includeRecoveryServices,
                 includeCrossGroupFanOut,
                 includeAvdAssets,
+                includeNetworkDetails,
                 cancellationToken);
 
             if (renderResult?.RepairedAst is not null)
@@ -640,6 +649,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includeRecoveryServices,
         bool includeCrossGroupFanOut,
         bool includeAvdAssets,
+        bool includeNetworkDetails,
         CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(fallbackKey))
@@ -683,7 +693,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             includePrivateEndpointNodes,
             includeRecoveryServices,
             includeCrossGroupFanOut,
-            includeAvdAssets);
+            includeAvdAssets,
+            includeNetworkDetails);
 
         return await RenderModeAsync(
             graphResult.Graph,
@@ -957,7 +968,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         bool includePrivateEndpointNodes,
         bool includeRecoveryServices,
         bool includeCrossGroupFanOut,
-        bool includeAvdAssets)
+        bool includeAvdAssets,
+        bool includeNetworkDetails = false)
     {
         bool collectionIncomplete = HasRecoveryServicesCollectionGap(snapshot);
 
@@ -965,7 +977,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             && !includeRecoveryServices
             && !collectionIncomplete
             && !includeCrossGroupFanOut
-            && !includeAvdAssets)
+            && !includeAvdAssets
+            && !includeNetworkDetails)
         {
             return options;
         }
@@ -980,6 +993,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? includePrivateEndpointNodes,
+            IncludeNetworkDetails = options?.IncludeNetworkDetails ?? includeNetworkDetails,
             IncludeRecoveryServices = options?.IncludeRecoveryServices ?? includeRecoveryServices,
             IncludeAvdAssets = options?.IncludeAvdAssets ?? includeAvdAssets,
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,

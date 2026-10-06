@@ -19,6 +19,7 @@ export const INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM = "includeNeverShow";
 export const INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM = "hideTiers";
 export const INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM = "diagramSubscription";
 export const INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM = "includePrivateEndpoints";
+export const INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM = "includeNetworkDetails";
 export const INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM = "includeRecoveryServices";
 export const INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM = "includeCrossGroupFanOut";
 export const INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM = "includeAvdAssets";
@@ -177,6 +178,10 @@ export function parseInfraDiagramsIncludePrivateEndpointsFromSearch(raw: string 
   return parseTruthyDiagramSearchParam(raw);
 }
 
+export function parseInfraDiagramsIncludeNetworkDetailsFromSearch(raw: string | null | undefined): boolean {
+  return parseTruthyDiagramSearchParam(raw);
+}
+
 export function parseInfraDiagramsIncludeRecoveryServicesFromSearch(raw: string | null | undefined): boolean {
   return parseTruthyDiagramSearchParam(raw);
 }
@@ -204,6 +209,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly hiddenExecutiveTierKeys?: readonly string[] | null;
   readonly subscriptionFilter?: string | null;
   readonly includePrivateEndpoints?: boolean | null;
+  readonly includeNetworkDetails?: boolean | null;
   readonly includeRecoveryServices?: boolean | null;
   readonly includeCrossGroupFanOut?: boolean | null;
   readonly includeAvdAssets?: boolean | null;
@@ -224,6 +230,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     hiddenExecutiveTierKeys: context.hiddenExecutiveTierKeys ?? undefined,
     subscriptionFilter: context.subscriptionFilter ?? undefined,
     includePrivateEndpoints: context.includePrivateEndpoints ?? undefined,
+    includeNetworkDetails: context.includeNetworkDetails ?? undefined,
     includeRecoveryServices: context.includeRecoveryServices ?? undefined,
     includeCrossGroupFanOut: context.includeCrossGroupFanOut ?? undefined,
     includeAvdAssets: context.includeAvdAssets ?? undefined,
@@ -246,6 +253,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly hiddenExecutiveTierKeys?: readonly string[];
     readonly subscriptionFilter?: string;
     readonly includePrivateEndpoints?: boolean;
+    readonly includeNetworkDetails?: boolean;
     readonly includeRecoveryServices?: boolean;
     readonly includeCrossGroupFanOut?: boolean;
     readonly includeAvdAssets?: boolean;
@@ -349,6 +357,14 @@ export function infraDiagramsFilterHrefFromSearch(
       params.set(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM, "1");
     } else {
       params.delete(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM);
+    }
+  }
+
+  if (patch.includeNetworkDetails !== undefined) {
+    if (patch.includeNetworkDetails) {
+      params.set(INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM, "1");
+    } else {
+      params.delete(INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM);
     }
   }
 

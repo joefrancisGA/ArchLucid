@@ -16,7 +16,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
         DiagramAst ast,
         GraphSnapshot graph,
         IReadOnlyDictionary<string, string> graphToDiagramNodeId,
-        DiagramMode mode = DiagramMode.FullSubscription)
+        DiagramMode mode = DiagramMode.FullSubscription,
+        bool retainNetworkDetailNodes = false)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graph);
@@ -75,6 +76,11 @@ internal static class InventoryDiagramNodeRelationshipApplier
                         emitPolicyEdges);
                     break;
             }
+        }
+
+        if (retainNetworkDetailNodes)
+        {
+            removedDiagramNodeIds.RemoveWhere(nodeId => IsRetainedNetworkDetail(ast, nodeId));
         }
 
         if (removedDiagramNodeIds.Count == 0)
@@ -136,6 +142,24 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         removedDiagramNodeIds.Add(connectionNode.NodeId);
         return true;
+    }
+
+    private static bool IsRetainedNetworkDetail(DiagramAst ast, string nodeId)
+    {
+        DiagramNode? node = ast.Nodes.FirstOrDefault(candidate =>
+            string.Equals(candidate.NodeId, nodeId, StringComparison.Ordinal));
+
+        if (node is null)
+        {
+            return false;
+        }
+
+        string armType = node.ArmResourceType ?? string.Empty;
+
+        return armType.Equals("Microsoft.Network/networkSecurityGroups", StringComparison.OrdinalIgnoreCase)
+            || armType.Equals("Microsoft.Network/routeTables", StringComparison.OrdinalIgnoreCase)
+            || armType.Equals("Microsoft.Network/publicIPAddresses", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryPromotePolicyNode(
