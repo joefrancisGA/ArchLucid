@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — concurrent `AcquireAsync` on one host could both pass the local `ContainsKey` gate, succeed at `TryAcquireOrRenewAsync`, and lose the `_activeHolderInstanceIds.TryAdd` race without rolling back SQL, pinning the run until TTL; release the repository row before throwing the local conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; 70 scoped ownership/orchestrator tests passed.
+
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — `ArchitectureRunExecuteOrchestrator` entered the ownership path when `IsEnabled` was true but `AcquireAsync` no-opped after options disabled, running execute without a local pin; fail closed with `EnsureExecuteOwnershipAcquiredLocally` via `IsLocallyHoldingExecuteOwnership`; regressions `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`; 69 scoped ownership/orchestrator tests passed.
 
 2026-10-06 seed hunt (seed→hit): `application-agents` — `AgentProposalStructuralPostProcessorEnricher` replaced `AgentEvidencePackage.StructuralGroundingDropLog` on quality-gate retry re-enrichment instead of appending; `AddRange` after null-coalesce; regression `EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence`; 102 scoped Application.Tests.Agents tests passed.
@@ -29355,13 +29357,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 47
-- **bugs-found:** 25
+- **hunts:** 48
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — orchestrator ran execute without local acquire pin when ownership disabled between `IsEnabled` and `AcquireAsync`
+- **last-bug:** 2026-10-06 — concurrent acquire TryAdd loser left SQL lease pinned without repository rollback
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-06 seed hunt (seed→hit): promoted concurrent local acquire race; proved two `AcquireAsync` calls on one process could both succeed at `TryAcquireOrRenewAsync` then lose `TryAdd`, throwing local conflict while leaving SQL pinned; roll back with `TryReleaseAsync` before the conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; seeded four `(candidate)` rows; 70 scoped ownership/orchestrator tests passed.
 
 2026-10-06 seed hunt (seed→hit): promoted orchestrator path without local pin after acquire no-op; proved `ArchitectureRunExecuteOrchestrator` still entered execute when `IsEnabled` was true but `AcquireAsync` no-opped after options disabled; fail closed with `EnsureExecuteOwnershipAcquiredLocally` via `IsLocallyHoldingExecuteOwnership`; regressions `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`; 69 scoped ownership/orchestrator tests passed.
 
@@ -29419,6 +29423,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal awaits the renewal task after loop cancellation; if `RenewAsync` ignores the linked token briefly, dispose can delay orchestrator `finally` release and extend the SQL pin; reachable when renewal storage is slow under cancellation.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator` — `ReleaseAsync` outcomes are not surfaced to execute callers, so a repository release failure after a successful batch can leave operators without audit signal while the local pin is cleared; reachable when `TryReleaseAsync` throws after execute completes.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — returns aggregate delete count without distinguishing repository failures from zero held rows, so shutdown drain may log success while leases remain; reachable when bulk release partially fails.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — caller cancellation during the long pre-acquire validation chain can abort before `AcquireAsync` while earlier validations already performed destructive reads on scheduled tasks in other code paths; reachable when cancellation lands mid-await between eligibility checks (selective path does not delete until owned core).
+- [x] (proven) `RunExecuteOwnershipLeaseService.AcquireAsync` — concurrent acquires on one host could both succeed at `TryAcquireOrRenewAsync` then lose `_activeHolderInstanceIds.TryAdd`, throwing local conflict without rolling back SQL — **hit 2026-10-06 seed hunt:** `TryReleaseAsync` before conflict when `TryAdd` fails; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads are intentional race guards; the existing run-deleted-immediately-before-acquire regression establishes the second read's fail-closed purpose, with no separate wrong outcome from the extra read.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations are intentional race guards; existing commit/delete/schedule-clear regressions establish the checks prevent ownership admission during transitions, with no separate wrong outcome from the repeated reads.
 - [x] (proven) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — dynamic disable between `AcquireAsync` and `BeginRenewalScope` returned a no-op scope while the lease remained held — **closed 2026-10-05** with the disabled-renew hit (`BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`).

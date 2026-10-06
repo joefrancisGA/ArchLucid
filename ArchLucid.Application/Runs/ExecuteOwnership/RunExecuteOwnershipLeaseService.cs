@@ -88,6 +88,10 @@ public sealed class RunExecuteOwnershipLeaseService(
 
             if (!_activeHolderInstanceIds.TryAdd(runId, holderInstanceId))
             {
+                await _leaseRepository
+                    .TryReleaseAsync(runId, holderInstanceId, cancellationToken)
+                    .ConfigureAwait(false);
+
                 throw new ConflictException(
                     $"Run '{runId:D}' execute is already in progress on this host instance. Wait for the in-flight execute to finish or retry on another replica.");
             }
