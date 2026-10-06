@@ -25,6 +25,30 @@ public static class EmailBrandingUrls
         return authorityBuilder.Uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
     }
 
+    /// <summary>Rebuilds an absolute URL without embedded userinfo; returns trimmed input when not absolute.</summary>
+    public static string SanitizeOperatorAbsoluteUrl(string absoluteUrl)
+    {
+        ArgumentNullException.ThrowIfNull(absoluteUrl);
+
+        string trimmed = absoluteUrl.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) || string.IsNullOrEmpty(uri.Host))
+            return trimmed;
+
+        UriBuilder builder = new(uri.Scheme, uri.Host, uri.Port)
+        {
+            Path = uri.AbsolutePath,
+        };
+
+        if (uri.Query.Length > 0)
+            builder.Query = uri.Query.StartsWith('?') ? uri.Query[1..] : uri.Query;
+
+        if (uri.Fragment.Length > 0)
+            builder.Fragment = uri.Fragment.StartsWith('#') ? uri.Fragment[1..] : uri.Fragment;
+
+        return builder.Uri.ToString();
+    }
+
     /// <summary>Returns <see langword="null"/> when <paramref name = "operatorBaseUrl"/> is blank.</summary>
     public static String? TryBuildLogoImageUrl(string? operatorBaseUrl, string relativePath = DefaultLogoRelativePath)
     {

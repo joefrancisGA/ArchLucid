@@ -1766,6 +1766,58 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     }
 
     [Fact]
+    public async Task ExecDigestEmailDispatcher_omits_user_info_from_unsubscribe_url_in_template_model()
+    {
+        ExecDigestEmailModel? capturedModel = null;
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as ExecDigestEmailModel)
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        const string unsubscribeWithUserInfo =
+            "https://user:secret@ops.example.test/v1.0/notifications/exec-digest/unsubscribe?token=signed";
+
+        bool sent = await sut.TryDispatchAsync(
+            Guid.Parse("3a3a3a3a-3a3a-3a3a-3a3a-3a3a3a3a3a3a"),
+            "2026-W40",
+            new ExecDigestComposition(
+                WeekLabel: "W40",
+                ComplianceDriftMarkdown: null,
+                CommittedManifestsInWeek: null,
+                TopManifestRuns: [],
+                FindingsDeltaSummary: null,
+                DashboardUrl: "https://example.test/d",
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
+            ["exec@example.test"],
+            unsubscribeWithUserInfo,
+            CancellationToken.None);
+
+        sent.Should().BeTrue();
+        capturedModel.Should().NotBeNull();
+        capturedModel!.UnsubscribeUrl.Should().Be(
+            "https://ops.example.test/v1.0/notifications/exec-digest/unsubscribe?token=signed");
+    }
+
+    [Fact]
     public async Task ExecDigestEmailDispatcher_throws_for_whitespace_only_dashboard_url()
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();

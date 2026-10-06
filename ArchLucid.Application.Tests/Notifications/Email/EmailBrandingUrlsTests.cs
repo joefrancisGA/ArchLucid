@@ -57,6 +57,15 @@ public sealed class EmailBrandingUrlsTests
     }
 
     [SkippableFact]
+    public void SanitizeOperatorAbsoluteUrl_omits_user_info_and_preserves_path_and_query()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(
+            "https://user:secret@ops.example.test/v1.0/notifications/exec-digest/unsubscribe?token=abc");
+
+        url.Should().Be("https://ops.example.test/v1.0/notifications/exec-digest/unsubscribe?token=abc");
+    }
+
+    [SkippableFact]
     public void TryBuildLogoImageUrl_accepts_relative_path_without_leading_slash()
     {
         string? url = EmailBrandingUrls.TryBuildLogoImageUrl("https://app.example", "logo/x.png");
