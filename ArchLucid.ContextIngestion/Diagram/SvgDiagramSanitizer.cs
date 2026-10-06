@@ -40,7 +40,11 @@ public static partial class SvgDiagramSanitizer
 
         try
         {
+            // DTDs and external entities are prohibited; schema validation is not applicable to
+            // SVG sanitization because unsafe elements and attributes are removed after parsing.
+
             using XmlReader reader = XmlReader.Create(
+                // codeql[cs/xml/missing-validation]
                 new StringReader(normalized),
                 SafeXmlReaderSettings);
 

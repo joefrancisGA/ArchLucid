@@ -75,7 +75,6 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
                 <Link
                   href={findingInspectHref(runId, findingId)}
                   className={cn("font-mono font-medium", OPERATOR_LINK.nav)}
-                  data-testid={`pre-commit-governance-block-finding-link-${findingId}`}
                 >
                   {findingId}
                 </Link>

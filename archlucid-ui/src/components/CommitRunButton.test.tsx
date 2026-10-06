@@ -232,7 +232,7 @@ describe("CommitRunButton", () => {
 
     const panel = await screen.findByTestId("pre-commit-governance-block-panel");
     expect(panel).toHaveTextContent(/approval bypass/i);
-    expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-blocked")).toHaveAttribute(
+    expect(within(panel).getByText("finding-blocked").closest("a")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-blocked-structured/findings/finding-blocked",
     );

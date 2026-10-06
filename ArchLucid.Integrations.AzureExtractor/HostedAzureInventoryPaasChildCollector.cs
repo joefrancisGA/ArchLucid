@@ -190,6 +190,9 @@ public static class HostedAzureInventoryPaasChildCollector
                 logger.LogDebug(
                     ex,
                     "Hosted Azure extractor skipped Cosmos databases for account {AccountId}.",
+                    // ARM resource IDs identify Azure control-plane objects; they are not secrets.
+
+                    // codeql[cs/cleartext-storage-of-sensitive-information]
                     accountResourceId);
             }
         }
@@ -249,6 +252,9 @@ public static class HostedAzureInventoryPaasChildCollector
                 logger.LogDebug(
                     ex,
                     "Hosted Azure extractor skipped storage containers for account {AccountId}.",
+                    // ARM resource IDs identify Azure control-plane objects; they are not secrets.
+
+                    // codeql[cs/cleartext-storage-of-sensitive-information]
                     storageAccountResourceId);
             }
         }
