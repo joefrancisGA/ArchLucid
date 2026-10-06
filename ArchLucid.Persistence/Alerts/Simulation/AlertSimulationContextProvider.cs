@@ -110,6 +110,9 @@ public sealed class AlertSimulationContextProvider(
         if (detail.Run is null || !RunMatchesCallerScope(detail.Run, scope))
             return null;
 
+        if (detail.Run.RunId != runId)
+            return null;
+
         if (detail.GoldenManifest.RunId != runId)
             return null;
 
@@ -147,6 +150,7 @@ public sealed class AlertSimulationContextProvider(
             if (comparedDetail?.GoldenManifest is not null
                 && comparedDetail.Run is not null
                 && RunMatchesCallerScope(comparedDetail.Run, scope)
+                && comparedDetail.Run.RunId == comparedToRunId.Value
                 && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
             {
                 if (skipOnSealedHashFailure)
