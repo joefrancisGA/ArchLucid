@@ -136,7 +136,7 @@ public static class GraphSnapshotKnowledgeModelMerger
             EdgeId = edge.EdgeId,
             FromNodeId = ResolveCanonicalEndpoint(edge.FromNodeId, canonicalNodeIdByNormalized),
             ToNodeId = ResolveCanonicalEndpoint(edge.ToNodeId, canonicalNodeIdByNormalized),
-            EdgeType = edge.EdgeType.Trim(),
+            EdgeType = (edge.EdgeType ?? string.Empty).Trim(),
             Label = edge.Label,
             Weight = edge.Weight,
             InferenceSource = edge.InferenceSource,
@@ -148,5 +148,5 @@ public static class GraphSnapshotKnowledgeModelMerger
     }
 
     private static string BuildEdgeKey(string fromNodeId, string toNodeId, string edgeType)
-        => $"{NormalizeNodeId(fromNodeId)}|{NormalizeNodeId(toNodeId)}|{edgeType.Trim()}";
+        => $"{NormalizeNodeId(fromNodeId)}|{NormalizeNodeId(toNodeId)}|{(edgeType ?? string.Empty).Trim()}";
 }

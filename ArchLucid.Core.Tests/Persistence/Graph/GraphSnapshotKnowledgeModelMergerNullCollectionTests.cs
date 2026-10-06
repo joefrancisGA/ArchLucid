@@ -70,4 +70,35 @@ public sealed class GraphSnapshotKnowledgeModelMergerNullCollectionTests
         merged.Edges.Should().BeEmpty();
         merged.Warnings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges()
+    {
+        GraphSnapshot contextGraph = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = "model-shared" },
+                new GraphNode { NodeId = "target", NodeType = "model", Label = "model-target" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-null-type",
+                    FromNodeId = "shared",
+                    ToNodeId = "target",
+                    EdgeType = null!,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle();
+        merged.Edges[0].EdgeType.Should().BeEmpty();
+    }
 }
