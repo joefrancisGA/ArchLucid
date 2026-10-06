@@ -242,6 +242,27 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("allows pre-auth email-otp challenge POST without CSRF when the BFF session is active", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-email-otp-challenge",
+      "v1/auth/email-otp/challenge",
+    );
+
+    expect(result.allowed).toBe(true);
+  });
+
   it("rejects bootstrap workspace mutations without a CSRF token when the BFF session is active", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",

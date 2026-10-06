@@ -48,4 +48,10 @@ describe("resolveEmailOtpPostAuthPath", () => {
   it("routes SelectWorkspace to bootstrap", () => {
     expect(resolveEmailOtpPostAuthPath("SelectWorkspace", "/")).toBe("/auth/bootstrap");
   });
+
+  it("returns the safe return path for unknown nextStep values instead of bootstrap", () => {
+    expect(resolveEmailOtpPostAuthPath("FutureBootstrapStep", "/architecture/reviews/1")).toBe(
+      "/architecture/reviews/1",
+    );
+  });
 });
