@@ -95,6 +95,19 @@ public sealed class RunRecordParametersTests
     public void Update_omits_the_created_timestamp() =>
         HasProperty(RunRecordParameters.Update(Run()), "CreatedUtc").Should().BeFalse();
 
+    /// <summary>
+    ///     The trace id is stamped after insert. The update must carry it so the artifacts-stage write stores it
+    ///     in the same statement that sets the golden manifest.
+    /// </summary>
+    [Fact]
+    public void Update_carries_otel_trace_id()
+    {
+        RunRecord run = Run();
+        run.OtelTraceId = "0123456789abcdef0123456789abcdef";
+
+        Read<string>(RunRecordParameters.Update(run), "OtelTraceId").Should().Be(run.OtelTraceId);
+    }
+
     [Fact]
     public void AnchorGuardKey_carries_only_the_row_identity()
     {

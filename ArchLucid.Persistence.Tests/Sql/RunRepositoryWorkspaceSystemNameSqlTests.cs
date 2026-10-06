@@ -527,6 +527,14 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
             "mutating update must be able to set ArchivedUtc during archive/unarchive batches.");
     }
 
+    /// <summary>
+    ///     OtelTraceId is an evidence anchor. The update must write it while GoldenManifestId is still null;
+    ///     a later change is rejected by TR_Runs_SealCommittedHeader.
+    /// </summary>
+    [Fact]
+    public void Update_persists_otel_trace_id() =>
+        RunRepositorySql.Update.Should().Contain("OtelTraceId = @OtelTraceId");
+
     [Fact]
     public void SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_archived_golden_manifests()
     {
