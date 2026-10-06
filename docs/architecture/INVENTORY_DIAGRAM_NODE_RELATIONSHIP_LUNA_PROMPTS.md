@@ -3,7 +3,7 @@
 
 # Inventory diagram node relationships — Luna prompts
 
-**Created:** 2026-09-24 · **Revised:** 2026-10-01 (NR-16) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna
+**Created:** 2026-09-24 · **Revised:** 2026-10-05 (NR-31) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna for NR-01 through NR-16. Composer 2.5 for NR-17 through NR-31.
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -27,8 +27,25 @@ Several Azure categories currently remain unconnected nodes. Some are relationsh
 | **NR-14** | [node-relationship-14-avd-off-the-plate.md](../../.cursor/prompts/node-relationship-14-avd-off-the-plate.md) | AVD-only resources and boundaries stay off the default general diagram unless Show AVD Assets is checked. Shared non-AVD infrastructure remains visible. |
 | **NR-15** | [node-relationship-15-identified-avd-stays-hidden.md](../../.cursor/prompts/node-relationship-15-identified-avd-stays-hidden.md) | A resource already identified as AVD stays off the general diagram even when it connects to shared infrastructure. That infrastructure stays. **Show AVD Assets** is the only way to put the AVD resource back. |
 | **NR-16** | [node-relationship-16-questionable-card.md](../../.cursor/prompts/node-relationship-16-questionable-card.md) | An assigned policy pack paints a questionable card yellow and a click shows the reason and the recommended action. The UHG rule for an `AVD` virtual machine that is not a collected session host is pack content, not a general diagram rule. |
+| **NR-17** | [node-relationship-17-public-ip-attachment.md](../../.cursor/prompts/node-relationship-17-public-ip-attachment.md) | A public IP attached outside `/ipConfigurations/` is Connected or Used. An unattached public IP stays missing a required link. |
+| **NR-18** | [node-relationship-18-no-resource-group-vnet-guess.md](../../.cursor/prompts/node-relationship-18-no-resource-group-vnet-guess.md) | Sharing a resource group with one virtual network does not draw a line. |
+| **NR-19** | [node-relationship-19-show-network-details.md](../../.cursor/prompts/node-relationship-19-show-network-details.md) | One **Show network details** checkbox on Full subscription shows public IPs, network security groups, route tables, and private endpoints. |
+| **NR-20** | [node-relationship-20-visible-ends.md](../../.cursor/prompts/node-relationship-20-visible-ends.md) | A stored path through hidden resources draws one line between the visible ends. |
+| **NR-21** | [node-relationship-21-hidden-public-ip-mark.md](../../.cursor/prompts/node-relationship-21-hidden-public-ip-mark.md) | A virtual machine with a hidden public IP is marked **public**. |
+| **NR-22** | [node-relationship-22-ports-on-the-visible-line.md](../../.cursor/prompts/node-relationship-22-ports-on-the-visible-line.md) | Network security group protocol and port sit on the visible line. |
+| **NR-23** | [node-relationship-23-routed-through.md](../../.cursor/prompts/node-relationship-23-routed-through.md) | A default route to a visible firewall, network virtual appliance, or VPN gateway is **Routed through {name}**. |
+| **NR-24** | [node-relationship-24-private-access.md](../../.cursor/prompts/node-relationship-24-private-access.md) | A hidden private endpoint draws **Private access** to its virtual network. |
+| **NR-25** | [node-relationship-25-sends-traffic-to.md](../../.cursor/prompts/node-relationship-25-sends-traffic-to.md) | A load balancer or Application Gateway draws **Sends traffic to** for each stored backend. |
+| **NR-26** | [node-relationship-26-connected-peering.md](../../.cursor/prompts/node-relationship-26-connected-peering.md) | Connected peering is one **Peered** line. Any other state is outline only. |
+| **NR-27** | [node-relationship-27-outside-this-subscription.md](../../.cursor/prompts/node-relationship-27-outside-this-subscription.md) | A stored target outside the snapshot is one shared **Outside this subscription** card. |
+| **NR-28** | [node-relationship-28-has-access.md](../../.cursor/prompts/node-relationship-28-has-access.md) | A role on one resource is a solid **Has access** line. Broader roles are outline only. |
+| **NR-29** | [node-relationship-29-likely-lines.md](../../.cursor/prompts/node-relationship-29-likely-lines.md) | Data Factory and Key Vault resource-group guesses are dashed **Likely** lines and still count. |
+| **NR-30** | [node-relationship-30-plate-component-count.md](../../.cursor/prompts/node-relationship-30-plate-component-count.md) | Connected components are the painted plate, dashed lines included. |
+| **NR-31** | [node-relationship-31-collect-stored-proof.md](../../.cursor/prompts/node-relationship-31-collect-stored-proof.md) | Reader collection stores linked services and single-resource role assignments. App settings stay unread. |
 
 Run **NR-01**, then **NR-02**, then **NR-03**, then **NR-04**, then **NR-05**. **NR-06** follows **NR-04**. **NR-07** follows **NR-04**. **NR-08** follows **NR-02** and **NR-07**. **NR-09** follows **NR-02** and **VN-07**. **NR-10** follows **NR-09**. **NR-11** follows **NR-05**, **NR-09**, and **NR-10**. Do not re-run NR-01 through NR-08 for that follow-on. **NR-12** follows **NR-11**. It does not build the VN-35 box and it does not ask the reader to answer. **NR-13** follows **NR-09** and does not change NR-08 data-flow annotations. **NR-14** follows the NR-06 filter already in the tree and does not add a checkbox. NR-12, NR-13, and NR-14 may run in any order after their dependencies. Do not re-run NR-01 through NR-11 for those follow-ons. **NR-15** follows **NR-14**. It removes the rule that a connection to shared infrastructure keeps an identified AVD resource on the plate. Do not re-run NR-01 through NR-14 for that follow-on. **NR-16** follows **NR-15**. It paints a yellow card from an assigned policy-pack finding and does not add a name-prefix AVD rule. Do not re-run NR-01 through NR-15 for that follow-on.
+
+**NR-17** is already written. **NR-18** is the next paste. Then **NR-19**, then **NR-20**. **NR-21** follows **NR-19**. **NR-22** and **NR-23** follow **NR-20**. **NR-24** follows **NR-19**. **NR-25** and **NR-26** follow **NR-20**. **NR-27** follows **NR-24**, **NR-25**, and **NR-26**. **NR-28** and **NR-29** follow **NR-18**. **NR-30** follows **NR-20** and **NR-29**. **NR-31** follows **NR-28** and **NR-29**. Paste one file per session.
 
 ## Evidence labels
 

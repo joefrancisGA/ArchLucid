@@ -21,16 +21,16 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
 
         ast.Nodes.Should().NotContain(node =>
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
+        ast.Nodes.Should().NotContain(node =>
+            string.Equals(node.ArmResourceType, "Microsoft.Network/virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase));
         ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
-        ast.Nodes.Should().Contain(node => string.Equals(node.Label, "app", StringComparison.Ordinal));
+        ast.Nodes.Should().Contain(node => string.Equals(node.Label, "vnet-app", StringComparison.Ordinal));
 
-        DiagramEdge? inSubnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
-        inSubnet.Should().NotBeNull();
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inSubnet!.FromNodeId && string.Equals(node.Label, "vm-app", StringComparison.Ordinal));
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inSubnet!.ToNodeId && string.Equals(node.Label, "app", StringComparison.Ordinal));
+        DiagramEdge? toVnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+            .SingleOrDefault(edge =>
+                ast.Nodes.Any(node => node.NodeId == edge.FromNodeId && node.Label == "vm-app")
+                && ast.Nodes.Any(node => node.NodeId == edge.ToNodeId && node.Label == "vnet-app"));
+        toVnet.Should().NotBeNull();
     }
 
     [Fact]
@@ -60,15 +60,8 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
+        ast.Nodes.Should().NotContain(node => string.Equals(node.Label, "data", StringComparison.Ordinal));
         ast.Nodes.Single(node => node.Label == "app").HasPrivateEndpointAccess.Should().BeTrue();
-
-        DiagramEdge? inSubnet = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
-            .SingleOrDefault(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
-        inSubnet.Should().NotBeNull();
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inSubnet!.FromNodeId && string.Equals(node.Label, "app", StringComparison.Ordinal));
-        ast.Nodes.Should().Contain(node =>
-            node.NodeId == inSubnet!.ToNodeId && string.Equals(node.Label, "data", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -76,7 +69,10 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
     {
         GraphSnapshot graph = BuildVnetSubnetGraphWithoutContainsEdge();
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.ResourceGroup,
+            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramEdge? contains = DiagramEdgeVisibility.VisibleEdges(ast.Edges)
             .SingleOrDefault(edge => string.Equals(edge.Label, "contains", StringComparison.OrdinalIgnoreCase));
@@ -97,7 +93,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             DiagramMode.ResourceGroup,
             new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
-        hidden.Nodes.Should().NotContain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
+        hidden.Nodes.Should().Contain(node => string.Equals(node.Label, "pe-sql", StringComparison.Ordinal));
 
         DiagramAst shown = compiler.Compile(
             graph,
@@ -119,6 +115,8 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-app-nic";
         const string subnetArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app/subnets/app";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app";
 
         GraphSnapshot graph = new()
         {
@@ -127,6 +125,7 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
                 BuildTopologyNode("vm-1", vmArmId, "Microsoft.Compute/virtualMachines", "vm-app"),
                 BuildTopologyNode("nic-1", nicArmId, "Microsoft.Network/networkInterfaces", "vm-app-nic"),
                 BuildTopologyNode("subnet-1", subnetArmId, "Microsoft.Network/virtualNetworks/subnets", "app"),
+                BuildTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "vnet-app"),
             ],
             Edges =
             [

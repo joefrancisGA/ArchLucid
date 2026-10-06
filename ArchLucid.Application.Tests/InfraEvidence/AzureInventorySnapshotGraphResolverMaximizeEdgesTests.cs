@@ -99,7 +99,7 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
     }
 
     [Fact]
-    public async Task TryResolveGraphAsync_places_virtual_machines_in_the_only_vnet_in_the_resource_group()
+    public async Task TryResolveGraphAsync_does_not_place_a_virtual_machine_in_the_only_vnet_in_the_resource_group()
     {
         Guid vmRow = Guid.Parse("22222222-1111-4000-8000-000000000001");
         Guid vnetRow = Guid.Parse("22222222-1111-4000-8000-000000000002");
@@ -118,9 +118,60 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
                 []));
 
         result.Succeeded.Should().BeTrue();
+        result.Graph!.Edges.Should().NotContain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryResourceGroupCollocation);
 
-        DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(result.Graph!, DiagramMode.FullSubscription);
-        FindVisibleEdge(ast, "vm-app", "vnet-app").Should().NotBeNull();
+        DiagramAst ast = new DiagramAstFromGraphCompiler().Compile(result.Graph, DiagramMode.FullSubscription);
+        FindVisibleEdge(ast, "vm-app", "vnet-app").Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryResolveGraphAsync_keeps_a_stored_network_interface_path_to_the_virtual_network()
+    {
+        Guid vmRow = Guid.Parse("22222222-1111-4000-8000-000000000011");
+        Guid nicRow = Guid.Parse("22222222-1111-4000-8000-000000000012");
+        Guid vnetRow = Guid.Parse("22222222-1111-4000-8000-000000000013");
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-app";
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/vm-app-nic";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    CreateResource(vmRow, vmArmId, "Microsoft.Compute/virtualMachines"),
+                    CreateResource(nicRow, nicArmId, "Microsoft.Network/networkInterfaces"),
+                    CreateResource(vnetRow, vnetArmId, "Microsoft.Network/virtualNetworks"),
+                ],
+                [],
+                [
+                    new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = vmArmId,
+                        ToAzureResourceId = nicArmId,
+                        RelationshipType = AzureInventoryRelationshipAssociationTypes.VmToNic,
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                        InferenceSource = GraphEdgeInferenceSources.InventoryVmNic,
+                    },
+                    new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = nicArmId,
+                        ToAzureResourceId = vnetArmId,
+                        RelationshipType = AzureInventoryRelationshipAssociationTypes.NicToSubnet,
+                        ProvenanceKind = ProvenanceKind.ObservedFact,
+                        InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+                    },
+                ]));
+
+        result.Succeeded.Should().BeTrue();
+        result.Graph!.Edges.Should().Contain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryVmNic);
+        result.Graph.Edges.Should().Contain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryNicSubnet);
+        result.Graph.Edges.Should().NotContain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryResourceGroupCollocation);
     }
 
     [Fact]
@@ -145,6 +196,30 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
         result.Succeeded.Should().BeTrue();
         result.Graph!.Edges.Should().Contain(edge =>
             edge.InferenceSource == GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred);
+    }
+
+    [Fact]
+    public async Task TryResolveGraphAsync_connects_an_app_to_the_only_key_vault_in_the_resource_group()
+    {
+        Guid appRow = Guid.Parse("33333333-1111-4000-8000-000000000011");
+        Guid vaultRow = Guid.Parse("33333333-1111-4000-8000-000000000012");
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-edw";
+        const string vaultArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv-edw";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    CreateResource(appRow, appArmId, "Microsoft.Web/sites"),
+                    CreateResource(vaultRow, vaultArmId, "Microsoft.KeyVault/vaults"),
+                ],
+                [],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        result.Graph!.Edges.Should().Contain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryAppKeyVaultRef);
     }
 
     [Fact]
@@ -179,7 +254,7 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
     }
 
     [Fact]
-    public async Task TryResolveGraphAsync_connects_nsg_to_the_only_vnet_in_the_resource_group()
+    public async Task TryResolveGraphAsync_does_not_connect_an_nsg_to_the_only_vnet_in_the_resource_group()
     {
         Guid vnetRow = Guid.Parse("55555555-1111-4000-8000-000000000001");
         Guid nsgRow = Guid.Parse("55555555-1111-4000-8000-000000000002");
@@ -198,8 +273,10 @@ public sealed class AzureInventorySnapshotGraphResolverMaximizeEdgesTests
                 []));
 
         result.Succeeded.Should().BeTrue();
-        result.Graph!.Edges.Should().Contain(edge =>
+        result.Graph!.Edges.Should().NotContain(edge =>
             edge.InferenceSource == GraphEdgeInferenceSources.InventorySubnetNsg);
+        result.Graph.Edges.Should().NotContain(edge =>
+            edge.InferenceSource == GraphEdgeInferenceSources.InventoryResourceGroupCollocation);
     }
 
     private static async Task<AzureInventorySnapshotGraphResolveResult> ResolveAsync(

@@ -19,7 +19,10 @@ public sealed class DiagramNicCollapseApplierTests
     {
         GraphSnapshot graph = BuildVmPublicIpGraph();
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.FullSubscription,
+            new DiagramAstCompileOptions { IncludeNetworkDetails = true });
 
         ast.Nodes.Should().NotContain(node =>
             string.Equals(node.ArmResourceType, "Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase));
