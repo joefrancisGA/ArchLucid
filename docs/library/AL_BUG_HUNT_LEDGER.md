@@ -166,6 +166,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-06 seed hunt (seed→hit): `agent-runtime-safety` — `ContentSafetyEnabledButUnconfiguredGuard` threw misconfiguration `InvalidOperationException` while `CancellationToken` already cancelled; `ThrowIfCancellationRequested` before fail-fast throw (parity with other guards); regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error`; seeded five follow-up candidates; 582 scoped agent-runtime-safety tests passed.
+
 2026-10-06 thorough hunt (hit): `agent-runtime-safety` — cheap-disproof closed truncation budget-at-begin and streaming-buffer candidates; invalidated `EvidenceNote.NoteType` sanitizer parity (no user-prompt reachability); `NullContentSafetyGuard` and `CircuitBreakingContentSafetyGuard` ignored cancelled tokens on pass-through / circuit-open degraded paths; cooperative cancel before allow/scrub; regressions `CheckInputAsync_when_token_cancelled_throws_operation_canceled_even_for_whitespace`, `When_circuit_open_and_token_cancelled_does_not_scrub_before_throwing`, and `TruncatePreservingSectionBounds_when_budget_cannot_fit_end_marker_strips_back_before_open_begin_marker`; 605 scoped agent-runtime-safety tests passed.
 
 2026-10-06 seed hunt (seed→hit): `agent-runtime-safety` — `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only input without honoring a cancelled token (early return before Azure SDK call); `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; 577 scoped agent-runtime-safety tests passed.
@@ -11403,6 +11405,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` honored cooperative cancellation before misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
+
 2026-10-06 thorough hunt (hit): cancel-contract parity on disabled and circuit-breaking guards; closed truncation/streaming/note-type candidates; 605 scoped agent-runtime-safety tests passed.
 
 2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard.AnalyzeAsync` returned allowed for whitespace-only scans without honoring a cancelled token; `ThrowIfCancellationRequested` before the whitespace shortcut; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`; seeded five follow-up candidates; 577 scoped agent-runtime-safety tests passed.
@@ -12275,13 +12279,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 58
+- **hunts:** 59
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 21
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — null/circuit-breaking content safety guards ignored cooperative cancellation
+- **last-bug:** 2026-10-06 — unconfigured content safety guard surfaced config error instead of cooperative cancellation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` cancel-before-misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
 
 2026-10-06 thorough hunt (hit): cancel-contract parity on `NullContentSafetyGuard` and `CircuitBreakingContentSafetyGuard`; cheap-disproof/invalid closed three seeded candidates; 605 scoped agent-runtime-safety tests passed.
 
@@ -12313,7 +12319,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` mutates evidence and request objects in place, so repeated sanitization of the same objects may nest `<untrusted_input>` wrappers and grow prompt content — cheap-disproof 2026-10-02 thorough hunt: `AgentLoopPrepareStage.PrepareAsync` builds a fresh evidence package and request, then invokes the sanitizer once; no production caller provides the required repeated-object reachability.
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
-- [x] (valid-no-repro) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — cheap-disproof 2026-10-02 thorough hunt: the guard intentionally throws a deterministic configuration error before any cancellable operation; no cancellation-contract failure was reproduced.
+- [x] (proven) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — **hit 2026-10-06 seed hunt:** misconfigured enabled-without-client hosts threw `InvalidOperationException` during cooperative shutdown instead of `OperationCanceledException`; `ThrowIfCancellationRequested` before fail-fast throw; regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error`.
+
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — method entry does not call `ThrowIfCancellationRequested` before guard scans (relies on guard/inner only).
+
+- [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — `OperationCanceledException` from the Azure SDK is excluded from `HandleSdkFailure` but may still be logged as a warning before rethrow depending on SDK behavior.
+
+- [ ] (candidate) `AgentRunHeaderPromptSanitizer.SanitizeOutsideQuarantineField` — `IsNullOrWhiteSpace` returns empty string without collapsing embedded Unicode line separators in header identifiers.
+
+- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — duplicate keys after `Trim()` collapse via case-insensitive dictionary (last-writer) without deterministic ordering signal to operators.
+
+- [ ] (candidate) `CustomerContentPromptDelimiters.AppendQuarantinedSection` — `FramingInstruction` line is trusted host text placed immediately outside begin marker (customer prose cannot spoof it, but truncation helpers must preserve it).
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
 - [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list — cheap-disproof 2026-10-02 thorough hunt: the existing fail-open scrub/audit coverage showed the intended degraded boundary and no failing repro for an uncovered denial category.
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values — cheap-disproof 2026-10-02 thorough hunt: `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` documents that tag keys are not production prompt inputs.
