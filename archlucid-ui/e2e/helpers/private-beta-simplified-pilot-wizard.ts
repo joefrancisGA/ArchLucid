@@ -1,15 +1,32 @@
 import { expect, type Page } from "@playwright/test";
 
+import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { liveE2eArchitectureDescription } from "./live-api-client";
+import { writeJwtBrowserSession } from "./live-private-beta-access";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
  * Skips optional ZIP evidence on step 2 to keep private-beta invitee journeys within CI budget.
  */
-export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promise<string> {
-  await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+export async function submitPrivateBetaSimplifiedPilotWizard(
+  page: Page,
+  options?: { readonly jwtAccessToken?: string },
+): Promise<string> {
+  const jwtAccessToken = options?.jwtAccessToken?.trim() ?? "";
 
-  await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
+  await expect(async () => {
+    if (jwtAccessToken.length > 0) {
+      await writeJwtBrowserSession(page, jwtAccessToken);
+      await injectDefaultTenantOperatorScope(page, {
+        reestablishJwtSession: false,
+        jwtAccessToken,
+        sampleWorkspaceVisitActive: false,
+      });
+    }
+
+    await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 20_000 });
+  }).toPass({ timeout: 120_000 });
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 1 of 4/i, {
     timeout: 30_000,
   });

@@ -517,7 +517,9 @@ test.describe(
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await assertLiveSeatOperatorScopeChrome(page);
 
-    const runId = await submitPrivateBetaSimplifiedPilotWizard(page);
+    const runId = await submitPrivateBetaSimplifiedPilotWizard(page, {
+      jwtAccessToken: inviteeSession.accessToken,
+    });
 
     await waitForArchitectureRunListIncludesRun(
       request,

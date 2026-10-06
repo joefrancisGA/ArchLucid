@@ -44,6 +44,10 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
   });
 
   test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page, request }) => {
+    test.skip(
+      process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1",
+      "SCIM token UI lifecycle is covered by RC release gate; skip duplicate in long JwtBearer private-beta job.",
+    );
     test.setTimeout(180_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
