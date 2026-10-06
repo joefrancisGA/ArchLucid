@@ -112,10 +112,20 @@ public sealed class RetrievalIndexingOutboxProcessor(
             detail.FindingsSnapshot is null ||
             detail.AuthorityTrace is null)
         {
-            Logger.LogWarning(
-                "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
-                entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            await CompleteProcessedEntryAsync(
+                    outbox,
+                    entry,
+                    cancellationToken,
+                    postMarkObservability: () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
+                                entry.RunId);
+                        }
+                    })
+                .ConfigureAwait(false);
 
             return;
         }
@@ -126,10 +136,20 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         if (manifestCompareDetail?.GoldenManifest is null)
         {
-            Logger.LogWarning(
-                "Skipping retrieval indexing for run {RunId}: run detail no longer found.",
-                entry.RunId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            await CompleteProcessedEntryAsync(
+                    outbox,
+                    entry,
+                    cancellationToken,
+                    postMarkObservability: () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Skipping retrieval indexing for run {RunId}: run detail no longer found.",
+                                entry.RunId);
+                        }
+                    })
+                .ConfigureAwait(false);
 
             return;
         }
@@ -141,12 +161,22 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         if (detail.GoldenManifest.ManifestId != compareManifest.ManifestId)
         {
-            Logger.LogWarning(
-                "Skipping retrieval indexing for run {RunId}: retrieval golden manifest {RetrievalManifestId} does not match manifest-compare golden manifest {CompareManifestId}.",
-                entry.RunId,
-                detail.GoldenManifest.ManifestId,
-                compareManifest.ManifestId);
-            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            await CompleteProcessedEntryAsync(
+                    outbox,
+                    entry,
+                    cancellationToken,
+                    postMarkObservability: () =>
+                    {
+                        if (Logger.IsEnabled(LogLevel.Warning))
+                        {
+                            Logger.LogWarning(
+                                "Skipping retrieval indexing for run {RunId}: retrieval golden manifest {RetrievalManifestId} does not match manifest-compare golden manifest {CompareManifestId}.",
+                                entry.RunId,
+                                detail.GoldenManifest.ManifestId,
+                                compareManifest.ManifestId);
+                        }
+                    })
+                .ConfigureAwait(false);
 
             return;
         }
@@ -191,7 +221,29 @@ public sealed class RetrievalIndexingOutboxProcessor(
             graphSnapshot,
             cancellationToken).ConfigureAwait(false);
 
+        await CompleteProcessedEntryAsync(outbox, entry, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task CompleteProcessedEntryAsync(
+        IRetrievalIndexingOutboxRepository outbox,
+        RetrievalIndexingOutboxEntry entry,
+        CancellationToken cancellationToken,
+        Action? postMarkObservability = null)
+    {
         await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            postMarkObservability?.Invoke();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            // The outbox row is already marked processed; observability must not schedule a retry.
+        }
     }
 
     protected override RetrievalIndexingOutboxProcessorOptions VerifyOptions(

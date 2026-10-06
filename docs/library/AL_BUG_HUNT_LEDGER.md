@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `host-core-coordination` — retrieval and Cosmos skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed (post-commit/export parity gap); `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
+
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — pre-finalize `TryParseRunId` and approval audit parse omitted `GovernanceRunIdNormalizer`, rejecting Word-pasted run ids with interior U+00A0 while submit accepted them; normalize before parse; regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope` and `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
 
 2026-10-05 seed hunt (seed→hit): `application-pilots` — `BuyerProofPackBuilder` emitted `isSampleRun` in `pilot-run-deltas.json` but `limitations-and-next-actions.md` only showed the demo/sample banner for `isDemoTenant`; wire `IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; 28 scoped BuyerProofPack/BoardPack/limitations tests passed.
@@ -28116,13 +28118,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 31
-- **bugs-found:** 22
+- **hunts:** 32
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — early skip warning log scheduled backoff after mark processed
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — retrieval/cosmos skip paths logged before mark-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted retrieval/cosmos skip-as-processed observability ordering after post-commit/export parity fixes; proved `LogWarning` before `MarkProcessedAsync` let failing log sinks schedule backoff on orphan skip rows; post-mark best-effort observability via `CompleteProcessedEntryAsync`; regressions on retrieval incomplete-detail skip and Cosmos missing SQL graph skip; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded at-least-once / cross-read candidates; no failing repro; scoped coordination/outbox tests passed 21 Host.Core and 31 Host.Composition.
 
@@ -28158,6 +28162,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-04 thorough hunt (dry): cheap-disproved both candidates; the export package builder converts reachable persisted-state outcomes into `RunExportPackageResult` values, while provenance materialization explicitly no-ops when the run detail lacks a manifest. No failing repro was warranted. Cached scoped tests passed 20 Host.Core and 31 Host.Composition coordination/outbox tests.
 
 ### Hypotheses
+
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` / `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` — skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so observability failures blocked skip-as-processed on orphan rows (parity gap vs post-commit/export Oct 2026-10-05 fixes) — **hit 2026-10-06 seed hunt (seed→hit):** `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`.
 
 - [x] (invalid) `PostCommitProjectionOutboxProcessor.ProcessProvenanceSnapshotMaterializationAsync` — cross-read graph/findings drift with unchanged `GoldenManifestId` — **cheap-disproof 2026-10-05 thorough hunt:** post-commit outbox rows enqueue after finalize; committed run header evidence anchors (`GraphSnapshotId`, `FindingsSnapshotId`, `GoldenManifestId`) are frozen by `TR_Runs_SealCommittedHeader` / `DATA_CONSISTENCY_MATRIX` once `GoldenManifestId` is set, so mutating snapshot pointers without manifest anchor change is not a reachable production input.
 - [x] (valid-no-repro) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` — `IndexAuthorityRunAsync` before `MarkProcessedAsync` replay — **cheap-disproof 2026-10-05 thorough hunt:** internal SQL outbox work-then-mark is at-least-once by contract (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §5); retrieval indexing must upsert/supersede on replay (`RetrievalIndexingOutboxProcessorReplayIdempotencyTests`, TB-993).
