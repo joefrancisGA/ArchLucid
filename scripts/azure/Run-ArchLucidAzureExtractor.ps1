@@ -7,9 +7,9 @@
     context exists (unless -SkipConnect), prompts for a sign-in method and subscription
     by friendly name when -SubscriptionId is omitted (unless -NonInteractive), writes
     ./archlucid-azure-package.zip by default, and delegates to Get-ArchLucidAzurePackage.ps1
-    with -IncludeCost, -IncludeRetailPrices, and -IncludeAppSettingsHosts enabled.
-    Azure CLI is signed in from the same Azure PowerShell session so cost collection can
-    succeed without a separate az login.
+    with -IncludeAppSettingsHosts enabled by default.
+    Azure CLI is signed in from the same Azure PowerShell session. Pass -IncludeCost for
+    Cost Management data or -IncludeRetailPrices for retail prices.
 
 .NOTES
     Upload the resulting ZIP manually in ArchLucid — this script never sends data to ArchLucid.
@@ -38,6 +38,12 @@ param(
 
     [Parameter(Mandatory = $false)]
     [switch] $NonInteractive,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeCost,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $IncludeRetailPrices,
 
     [Parameter(Mandatory = $false)]
     [ValidateSet("Browser", "Credential", "DeviceCode", "")]
@@ -87,6 +93,7 @@ else
     Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
 }
 Write-Host ("  Output ZIP:   {0}" -f $resolvedOutputPath)
+Write-Host ("  Cost summary: {0}" -f $(if ($IncludeCost) { "enabled" } else { "off" }))
 
 if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
 {
@@ -98,8 +105,8 @@ Write-Host ""
 [hashtable]$extractorParams = @{
     SubscriptionId = $resolvedSubscriptionId
     OutputPath = $resolvedOutputPath
-    IncludeCost = $true
-    IncludeRetailPrices = $true
+    IncludeCost = [bool]$IncludeCost
+    IncludeRetailPrices = [bool]$IncludeRetailPrices
     IncludeAppSettingsHosts = $true
 }
 
