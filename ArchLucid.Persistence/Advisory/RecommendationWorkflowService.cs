@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 namespace ArchLucid.Persistence.Advisory;
 
@@ -19,9 +21,16 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
     {
         ArgumentNullException.ThrowIfNull(plan);
 
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
         foreach (ImprovementRecommendation recommendation in plan.Recommendations)
         {
-            RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct);
+            RecommendationRecord? existing = await repository.GetByIdAsync(scope, recommendation.RecommendationId, ct);
 
             RecommendationRecord record = new()
             {
@@ -67,17 +76,20 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
 
     /// <inheritdoc />
     public async Task<RecommendationRecord?> ApplyActionAsync(
+        ScopeContext scope,
         Guid recommendationId,
         string userId,
         string userName,
         RecommendationActionRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(userId);
         ArgumentException.ThrowIfNullOrWhiteSpace(userName);
         ArgumentNullException.ThrowIfNull(request);
 
-        RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct);
+        RecommendationRecord? recommendation = await repository.GetByIdAsync(scope, recommendationId, ct);
         if (recommendation is null)
             return null;
 

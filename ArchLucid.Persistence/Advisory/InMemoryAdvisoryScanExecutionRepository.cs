@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -24,7 +26,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         _ = ct;
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId);
+            int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId && SameScope(x, execution));
             if (i >= 0)
                 _items[i] = execution;
         }
@@ -34,15 +36,17 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
 
     /// <inheritdoc />
     public Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
+        ScopeContext scope,
         Guid scheduleId,
         int take,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
         {
             List<AdvisoryScanExecution> result = _items
-                .Where(x => x.ScheduleId == scheduleId)
+                .Where(x => x.ScheduleId == scheduleId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.StartedUtc)
                 .Take(take)
                 .ToList();
@@ -50,4 +54,14 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
             return Task.FromResult<IReadOnlyList<AdvisoryScanExecution>>(result);
         }
     }
+
+    private static bool MatchesScope(AdvisoryScanExecution execution, ScopeContext scope) =>
+        execution.TenantId == scope.TenantId &&
+        execution.WorkspaceId == scope.WorkspaceId &&
+        execution.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(AdvisoryScanExecution stored, AdvisoryScanExecution incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

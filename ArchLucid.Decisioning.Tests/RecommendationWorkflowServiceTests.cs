@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Advisory.Models;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
@@ -15,6 +16,13 @@ public sealed class RecommendationWorkflowServiceTests
 {
     private readonly Mock<IRecommendationRepository> _repo = new();
     private readonly RecommendationWorkflowService _sut;
+
+    private static readonly ScopeContext TestScope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
 
     public RecommendationWorkflowServiceTests()
     {
@@ -35,7 +43,7 @@ public sealed class RecommendationWorkflowServiceTests
         Guid recId = Guid.NewGuid();
         ImprovementPlan plan = CreatePlan(recId);
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecommendationRecord?)null);
 
         RecommendationRecord? captured = null;
@@ -68,7 +76,7 @@ public sealed class RecommendationWorkflowServiceTests
             ResolutionRationale = "Approved"
         };
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
         RecommendationRecord? captured = null;
@@ -96,7 +104,7 @@ public sealed class RecommendationWorkflowServiceTests
             Status = RecommendationStatus.Proposed
         };
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
         RecommendationRecord? captured = null;
@@ -125,7 +133,7 @@ public sealed class RecommendationWorkflowServiceTests
             Status = RecommendationStatus.Proposed
         };
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
 
         _repo.Setup(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()))
@@ -137,7 +145,7 @@ public sealed class RecommendationWorkflowServiceTests
             Comment = "note"
         };
 
-        RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
+        RecommendationRecord? result = await _sut.ApplyActionAsync(TestScope, recId, "user-1", "User One", request, CancellationToken.None);
 
         Assert.NotNull(result);
         result.Status.Should().Be(expectedStatus);
@@ -151,7 +159,7 @@ public sealed class RecommendationWorkflowServiceTests
     {
         Guid recId = Guid.NewGuid();
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecommendationRecord?)null);
 
         RecommendationActionRequest request = new()
@@ -159,7 +167,7 @@ public sealed class RecommendationWorkflowServiceTests
             Action = RecommendationActionType.Accept
         };
 
-        RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
+        RecommendationRecord? result = await _sut.ApplyActionAsync(TestScope, recId, "user-1", "User One", request, CancellationToken.None);
 
         result.Should().BeNull();
         _repo.Verify(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -169,7 +177,7 @@ public sealed class RecommendationWorkflowServiceTests
     public async Task ApplyActionAsync_NullUserId_Throws()
     {
         Func<Task> act = () => _sut.ApplyActionAsync(
-            Guid.NewGuid(), null!, "User", new RecommendationActionRequest { Action = "Accept" }, CancellationToken.None);
+            TestScope, Guid.NewGuid(), null!, "User", new RecommendationActionRequest { Action = "Accept" }, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -178,7 +186,7 @@ public sealed class RecommendationWorkflowServiceTests
     public async Task ApplyActionAsync_NullUserName_Throws()
     {
         Func<Task> act = () => _sut.ApplyActionAsync(
-            Guid.NewGuid(), "user-1", null!, new RecommendationActionRequest { Action = "Accept" }, CancellationToken.None);
+            TestScope, Guid.NewGuid(), "user-1", null!, new RecommendationActionRequest { Action = "Accept" }, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -187,7 +195,7 @@ public sealed class RecommendationWorkflowServiceTests
     public async Task ApplyActionAsync_NullRequest_Throws()
     {
         Func<Task> act = () => _sut.ApplyActionAsync(
-            Guid.NewGuid(), "user-1", "User One", null!, CancellationToken.None);
+            TestScope, Guid.NewGuid(), "user-1", "User One", null!, CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
@@ -202,7 +210,7 @@ public sealed class RecommendationWorkflowServiceTests
             Status = RecommendationStatus.Proposed
         };
 
-        _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
 
         _repo.Setup(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()))
@@ -213,7 +221,7 @@ public sealed class RecommendationWorkflowServiceTests
             Action = "SomethingUnknown"
         };
 
-        RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
+        RecommendationRecord? result = await _sut.ApplyActionAsync(TestScope, recId, "user-1", "User One", request, CancellationToken.None);
 
         Assert.NotNull(result);
         result.Status.Should().Be(RecommendationStatus.Proposed);
@@ -242,7 +250,7 @@ public sealed class RecommendationWorkflowServiceTests
             ]
         };
 
-        _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecommendationRecord?)null);
 
         _repo.Setup(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()))

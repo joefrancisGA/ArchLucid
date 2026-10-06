@@ -71,7 +71,12 @@ public sealed partial class SqlFindingsSnapshotRepository
             await connection.QuerySingleOrDefaultAsync<FindingsSnapshotScopeTripleRow>(
                 new CommandDefinition(
                     FindingsSnapshotWriteSql.SelectScopeTripleForBackfill,
-                    new { snapshot.FindingsSnapshotId },
+                    new
+                    {
+                        snapshot.FindingsSnapshotId,
+                        TenantId = Guid.Empty,
+                        EmptyTenantId = Guid.Empty
+                    },
                     transaction,
                     cancellationToken: ct));
 

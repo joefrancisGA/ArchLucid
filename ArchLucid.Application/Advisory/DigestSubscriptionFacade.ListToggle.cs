@@ -23,14 +23,11 @@ public sealed partial class DigestSubscriptionFacade
     /// <inheritdoc />
     public async Task<DigestSubscriptionToggleResult> ToggleAsync(Guid subscriptionId, CancellationToken ct)
     {
-        DigestSubscription? subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, ct).ConfigureAwait(false);
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        DigestSubscription? subscription =
+            await _subscriptionRepository.GetByIdAsync(scope, subscriptionId, ct).ConfigureAwait(false);
 
         if (subscription is null)
-            return new DigestSubscriptionToggleResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        if (!MatchesScope(subscription, scope))
             return new DigestSubscriptionToggleResult { Outcome = DigestSubscriptionHttpOutcome.ResourceNotFound };
 
         subscription.IsEnabled = !subscription.IsEnabled;

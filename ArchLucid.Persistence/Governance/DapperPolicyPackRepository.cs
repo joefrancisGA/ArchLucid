@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -23,7 +25,8 @@ namespace ArchLucid.Persistence.Governance;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackRepository(
     ISqlConnectionFactory connectionFactory,
-    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory) : IPolicyPackRepository
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory,
+    IScopeContextProvider scopeContextProvider) : IPolicyPackRepository
 {
     /// <inheritdoc />
     public async Task CreateAsync(
@@ -85,7 +88,10 @@ public sealed class DapperPolicyPackRepository(
                                CurrentVersion = @CurrentVersion,
                                IsDeleted = @IsDeleted,
                                QualityDimension = @QualityDimension
-                           WHERE PolicyPackId = @PolicyPackId;
+                           WHERE PolicyPackId = @PolicyPackId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -95,6 +101,7 @@ public sealed class DapperPolicyPackRepository(
     /// <inheritdoc />
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
+        // Platform packs may be authored in a different workspace than the caller; bind tenant only.
         const string sql = """
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
@@ -102,12 +109,18 @@ public sealed class DapperPolicyPackRepository(
                                CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId = @PolicyPackId
-                             AND IsDeleted = 0;
-                           """;
+                             AND IsDeleted = 0
+                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
-            new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                PolicyPackId = policyPackId,
+                scope.TenantId,
+                EmptyTenantId = Guid.Empty
+            }, cancellationToken: ct));
     }
 
     /// <inheritdoc />

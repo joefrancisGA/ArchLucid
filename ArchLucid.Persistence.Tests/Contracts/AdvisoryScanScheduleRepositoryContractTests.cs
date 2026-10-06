@@ -1,11 +1,12 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
-[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IAdvisoryScanScheduleRepository" />.
 /// </summary>
+[Trait("Category", "Unit")]
 public abstract class AdvisoryScanScheduleRepositoryContractTests
 {
     protected virtual void SkipIfSqlServerUnavailable()
@@ -26,7 +27,15 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
 
         await repo.CreateAsync(schedule, CancellationToken.None);
 
-        AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
+        AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(
+            new ScopeContext
+            {
+                TenantId = schedule.TenantId,
+                WorkspaceId = schedule.WorkspaceId,
+                ProjectId = schedule.ProjectId,
+            },
+            schedule.ScheduleId,
+            CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.ScheduleId.Should().Be(schedule.ScheduleId);
@@ -48,7 +57,15 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         schedule.NextRunUtc = TimeProvider.System.UtcNowDateTime().AddHours(6);
         await repo.UpdateAsync(schedule, CancellationToken.None);
 
-        AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
+        AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(
+            new ScopeContext
+            {
+                TenantId = schedule.TenantId,
+                WorkspaceId = schedule.WorkspaceId,
+                ProjectId = schedule.ProjectId,
+            },
+            schedule.ScheduleId,
+            CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Name.Should().Be("Updated name");

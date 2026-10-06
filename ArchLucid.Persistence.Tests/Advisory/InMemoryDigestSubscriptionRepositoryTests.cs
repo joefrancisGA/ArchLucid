@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
@@ -14,6 +15,13 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 5, 7, 30, 0, DateTimeKind.Utc);
 
+    private static ScopeContext TestScope => new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_row()
     {
@@ -23,7 +31,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
         await repo.CreateAsync(sub, CancellationToken.None);
 
-        DigestSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
+        DigestSubscription? loaded = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.SubscriptionId.Should().Be(id);
@@ -42,7 +50,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
         await repo.UpdateAsync(next, CancellationToken.None);
 
-        DigestSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
+        DigestSubscription? loaded = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
@@ -55,7 +63,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         InMemoryDigestSubscriptionRepository repo = new();
 
         DigestSubscription? loaded =
-            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+            await repo.GetByIdAsync(TestScope, Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -116,7 +124,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
         await Task.WhenAll(tail);
 
-        DigestSubscription? gone = await repo.GetByIdAsync(firstId, CancellationToken.None);
+        DigestSubscription? gone = await repo.GetByIdAsync(TestScope, firstId, CancellationToken.None);
         gone.Should().BeNull();
 
         IReadOnlyList<DigestSubscription> scope =

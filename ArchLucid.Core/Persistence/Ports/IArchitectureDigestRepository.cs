@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Advisory.Scheduling;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -14,7 +15,7 @@ public interface IArchitectureDigestRepository
         int take,
         CancellationToken ct);
 
-    Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct);
+    Task<ArchitectureDigest?> GetByIdAsync(ScopeContext scope, Guid digestId, CancellationToken ct);
 
     Task<int> ArchiveDigestsGeneratedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 }

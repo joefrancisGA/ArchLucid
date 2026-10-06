@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -31,7 +33,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId);
+            int i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId && SameScope(x, subscription));
             if (i >= 0)
                 _items[i] = subscription;
         }
@@ -39,11 +41,12 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         return Task.CompletedTask;
     }
 
-    public Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
+    public Task<DigestSubscription?> GetByIdAsync(ScopeContext scope, Guid subscriptionId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.SubscriptionId == subscriptionId));
+            return Task.FromResult(_items.FirstOrDefault(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope)));
     }
 
     public Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
@@ -88,4 +91,14 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
             return Task.FromResult<IReadOnlyList<DigestSubscription>>(result);
         }
     }
+
+    private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope) =>
+        subscription.TenantId == scope.TenantId &&
+        subscription.WorkspaceId == scope.WorkspaceId &&
+        subscription.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(DigestSubscription stored, DigestSubscription incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

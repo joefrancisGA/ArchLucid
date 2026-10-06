@@ -22,13 +22,12 @@ public sealed partial class AdvisoryController
         RecommendationActionRequest request,
         CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
         RecommendationRecord? recommendation =
-            await _recommendationRepository.GetByIdAsync(recommendationId, cancellationToken);
+            await _recommendationRepository.GetByIdAsync(scope, recommendationId, cancellationToken);
 
         if (recommendation is null)
             return null;
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {

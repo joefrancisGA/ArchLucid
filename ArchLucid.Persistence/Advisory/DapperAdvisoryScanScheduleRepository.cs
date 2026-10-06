@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -54,7 +56,10 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
                 RunProjectSlug = @RunProjectSlug,
                 LastRunUtc = @LastRunUtc,
                 NextRunUtc = @NextRunUtc
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -126,22 +131,29 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
-    public async Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
+    public async Task<AdvisoryScanSchedule?> GetByIdAsync(ScopeContext scope, Guid scheduleId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
                 Name, CronExpression, IsEnabled,
                 CreatedUtc, LastRunUtc, NextRunUtc
             FROM dbo.AdvisoryScanSchedules
-            WHERE ScheduleId = @ScheduleId;
+            WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {
-                ScheduleId = scheduleId
+                ScheduleId = scheduleId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 }
