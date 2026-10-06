@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read `SqlRunRepository` list/graph/committed/purge partials and `RunListQueryParameters` after Oct 6 thorough hunt closed all open rows; cheap-disproof closed graph-at-time tab-prefixed slug binding parity with committed/list seeks; no hunt-ready row promoted; seeded five `(candidate)` rows; 137 scoped zone tests passed (1 SQL integration skipped, `RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows (InternalLoopback omitting connect guard by design for SAML/startup probes; DevOps integration 60s timeout not a guard bypass; resilience `MaxRetryAttempts` clamp; ARM retail retry bounded on fixed public authorities; CloudControlPlane pool tuning without tenant URL SSRF surface); regressions in `CoreSafetyNetworkPrivateNetworkThoroughHuntTests`; 32 scoped Core `PrivateNetwork` tests + 5 composition thorough-hunt tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` percent-decode loop, homoglyph inventories, and fragment/query partitioning after consecutive dry hunts; cheap-disproof closed three promotion attempts (percent-encoded `@` in path portion; safe-path `%2F` canonicalization; query `://` substring rejection is intentional whole-string check); no hunt-ready row promoted; seeded four `(candidate)` rows; 142 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -5722,13 +5724,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
+2026-10-06 seed hunt (seed-only): graph-at-time tab-prefix bind parity; seeded five candidates; 137 scoped tests (1 skipped).
+
+- [x] (valid-no-repro) `RunListQueryParameters.ForLatestGraphAtOrBefore` — tab-prefixed `authorityProjectSlug` might strip tabs unlike committed/list SQL binds — **cheap-disproof 2026-10-06 seed hunt:** normalize-only bind preserves `\t` like `ForLatestCommittedByManifestCreatedUtc`; regression `ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks`.
+- [ ] (candidate) `SqlRunRepository.List` — `ListByProjectAsync` / `ListRecentInScopeAsync` use `IAuthorityRunListConnectionFactory` while `GetByIdAsync` uses `ISqlConnectionFactory`; reachable when read-scale-out routes list queries to a lagging replica and detail reads hit primary — dashboard list vs run detail transient mismatch, not normalization parity.
+- [ ] (candidate) `SqlRunRepository.Write.Purge.HardDeleteStaleUncommittedRunsBatchAsync` — invokes `dbo.Archival_PurgeStaleUncommittedRunsBatch` without `ScopeContext` workspace/project predicates; reachable from tenant-catalog retention jobs purging stale drafts across workspaces in one batch.
+- [ ] (candidate) `SqlRunRepository.Query.ScopeExistence.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` — binds `RunListQueryParameters.ForArchitectureRequestScopeExists` while executing `SelectRepresentativeRunIdForArchitectureRequestInScope`; unused `FailedStatus` / `QualityRejectedStatus` properties on the Dapper bag — maintenance hazard if existence SQL gains predicates representative SQL does not share.
+- [ ] (candidate) `RunRecordParameters.ForOperatorGovernanceDisposition` — `Rationale` is passed through without `.Trim()` while `Decision` and `ActorUserId` trim; reachable when operators paste governance notes with accidental leading/trailing spaces into `TrySetOperatorGovernanceDispositionAsync`.
+- [ ] (candidate) `HotPathRelationalQueryShapes` — project/recent list shapes use `WITH (NOLOCK)` while scoped `SelectByScopedId` does not; reachable under concurrent archive/update when dashboard lists show rows detail get-by-id no longer returns in the same snapshot.
+
 - **id:** sql-run-repository
 - **status:** open
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06

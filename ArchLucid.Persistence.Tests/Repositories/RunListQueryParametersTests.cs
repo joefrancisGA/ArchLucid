@@ -148,6 +148,15 @@ public sealed class RunListQueryParametersTests
     }
 
     [Fact]
+    public void ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks()
+    {
+        DateTime asOfUtc = new(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+        object parameters = RunListQueryParameters.ForLatestGraphAtOrBefore(Scope(), "\tbilling", asOfUtc);
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
     public void ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require()
     {
         object parameters = RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(Scope(), "\tbilling");
