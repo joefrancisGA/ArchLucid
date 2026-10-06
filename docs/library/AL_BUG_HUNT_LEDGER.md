@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `core-safety-network` — re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five `(candidate)` rows (InternalLoopback profile without connect guard, DevOps integration timeout vs SSRF, resilience retry cap noise, ARM retail HttpRequestException retries, multi-cloud public catalog roots); 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound wiring tests passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `billing-webhooks` — cheap-disproof closed five seeded `(candidate)` rows (Marketplace action whitespace changes raw-body fingerprint with no provider contract for padded actions; non-terminal `payment_intent.*` ack without credit intentional on wallet route; shared `WebhookSigningSecret` fallback for wallet route is documented single-secret deployment; `Failed` ledger status allows provider retry without replay-guard `RememberAsync` on exception path; `IgnoredMissingTenant` replay-rejects identical payload by design—tenant fixes require a new body); regressions in `BillingMarketplaceWebhookDedupeKeyTests`, `StripeBillingProviderWalletWebhookTests`, `StripeBillingProviderCheckoutWebhookIdempotencyTests`, `AzureMarketplaceBillingProviderChangeWebhookTests`; 28 scoped billing webhook unit tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `billing-webhooks` — re-read Stripe/Marketplace controllers, wallet processor, and memory replay guard after consecutive dry hunts closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (Marketplace dedupe key vs trimmed dispatch action, wallet-route non-terminal `payment_intent.*` acks, wallet signing-secret fallback, failed-ledger retry vs replay guard, missing-tenant marketplace remember); 18 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration suites not run).
@@ -21222,13 +21224,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows below; 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): cheap-disproved all five seeded outbound-transport candidates; ITSM `ExternalIntegration` clients wire connect guard with default `AllowAutoRedirect` (redirect opens new connections that still use `OutboundHttpsConnectGuard`; webhook dry-run sets `allowAutoRedirect: false` to surface 302 to operators, not to bypass the guard); CloudControlPlane ARM/pricing clients target fixed public authorities without tenant URL input; ARM retail retry and `OutboundExternalHttpResilienceOptions` retries re-run guarded connects without bypassing TB-274; LLM batch transport uses operator-configured `AzureOpenAI:Endpoint` (deployment trust boundary, not tenant-supplied integration URL); regression assertion in `External_integration_http_clients_wire_private_network_connect_guard`; 32 scoped PrivateNetwork tests passed (`RunAnalyzers=false`).
 
@@ -21273,6 +21277,12 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy.Create` — retries `HttpRequestException` on ARM/retail clients — **invalid 2026-10-06 thorough hunt:** retry volume is not a security bypass; clients do not enable connect guard because endpoints are trusted cloud control-plane roots, not attacker-chosen hosts.
 - [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` / integration Polly retries — **cheap-disproof 2026-10-06 thorough hunt:** guarded ITSM clients re-run connect callback on each attempt; retries increase latency on blocked targets without reaching private networks.
 - [x] (valid-no-repro) `OutboundHttpSocketsHandlerProfile.LlmCompletion` / `LlmBatchCompositionModule` — LLM batch HttpClient without connect guard — **cheap-disproof 2026-10-06 thorough hunt:** `AzureOpenAI:Endpoint` is deployment operator configuration (same trust class as choosing storage endpoints), not per-tenant integration URL input guarded by TB-274 integration wiring.
+
+- [ ] (candidate) `OutboundHttpSocketsHandlerProfile.InternalLoopback` / `ConfigureArchLucidOutboundSocketsHandler` — SAML metadata and hosted startup probe `HttpClient` registrations use the InternalLoopback pool profile without `rejectPrivateNetworkConnectEndpoints: true`; reachable input is operator-configured SAML metadata HTTPS URL (preflight URL/DNS policies live outside this zone; connect-time guard is intentionally omitted on loopback-tuned handlers).
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds.DevOpsIntegration` — ITSM integration factory clients use 60s timeouts while connect guard remains opt-in on `ExternalIntegration` profile; reachable input is slow or hanging TCP to a public hostname that resolves to a private address — longer timeout increases wait, not bypass.
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions.Normalize` — `MaxRetryAttempts` clamps to 10 on integration Polly pipelines stacked atop guarded `HttpClient` handlers; reachable input is repeated connect-time rejection to a forbidden address — retries amplify failure noise without opening a private-network path.
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.Create` — Polly retries `HttpRequestException` including connect faults; ARM/retail factory clients target fixed `ArchLucidAzurePublicHttpClients` authorities, not tenant-supplied integration URLs — retries are not an SSRF bypass class for TB-274.
+- [ ] (candidate) `ArchLucidMultiCloudPublicHttpClients` + `OutboundHttpSocketsHandlerProfile.CloudControlPlane` — AWS/GCP catalog clients omit connect guard while using compile-time public pricing roots (`AwsPricingAuthority`, `GcpCloudBillingAuthority`); not the integration URL SSRF surface covered by #1928.
 
 2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
 
