@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardIntakeParams`, `resolveInitialReviewsNewActivePath`, specimen preview presentation, and track-stream hooks after picker rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (specimen preview hidden while commit probe pending, strict `baseline=1` match, unrecognized `path=` typo fallback, quick-mode track polling always on, accelerator+preset query precedence); 10 focused vitest files under `reviews/new` passed (steps, query-prefill, path-switcher-state, specimen preview).
+
 2026-10-06 thorough hunt (hit): `cli-draft-new` — proved default `PromptRequiredAsync` spun on stdin EOF and ignored injectable `ReadLineAsync`; routed prompts through `ReadLineAsync` and return `null` on EOF (fail closed in admit stage); cheap-disproof closed api-base-url whitespace (connect fails before create), answer-path scope parity (regression added), patch `ExpectedUpdatedUtc` race (operational); regressions `PromptRequiredAsync_returns_null_when_read_line_returns_null`, `RunCoreAsync_prompted_system_name_when_read_line_eof_returns_operation_failed`, `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create`, `RunCoreAsync_draft_scope_mismatch_after_answer_must_question_returns_operation_failed`; 32 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandHooks`, `DraftNewCommandArgParser`, and intake stage partials after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (EOF on `PromptRequiredAsync`, whitespace `--api-base-url`, answer-path scope parity gap, patch `ExpectedUpdatedUtc` race, `PromptRequiredAsync` vs `ReadLineAsync` seam); 28 scoped `DraftNewCommandCoreTests` passed.
@@ -30119,10 +30121,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -30237,6 +30239,14 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `useGuidedIntakeWizard.sourceArchitectureId` — a nested review route carries a whitespace-only `sourceArchitectureId` query value — `.trim()` produced an empty string and `??` prevented fallback to the nested route architecture id, so the intake lost its source-architecture linkage; **hit 2026-10-03:** use the trimmed query value only when non-empty; regression `falls back to the nested architecture id when sourceArchitectureId is blank`.
 - [x] (proven) `useNewRunWizardSteps` URL synchronization — a deep link supplies an out-of-range `step` value — the hook originally clamped the rendered step but left the invalid value in the URL; fixed 2026-10-04 by canonicalizing numeric values during initial and popstate synchronization, with regression `canonicalizes an out-of-range deep-linked step in the URL`.
 - [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — a valid example/preset query is present while the wizard is not yet on its required step — **cheap-disproof 2026-10-05 thorough hunt:** the example effect returns before setting its run-once ref unless `wizardMode === "full"` and `stepIndex === 2`; regression `applies example template prefill once after full wizard reaches step 2`.
+
+2026-10-06 seed hunt (seed-only): re-read intake param resolution, path bootstrap, specimen preview, and track polling hooks; seeded five new `(candidate)` rows below; 10 focused `reviews/new` vitest tests passed.
+
+- [ ] (candidate) `useReviewsNewSpecimenPreviewPresentation` — while `useCorePilotCommitContextQuery` is `isPending` or `isError`, both `showProminentSection` and `showHeaderLinks` are false — reachable on first paint of `/architecture/reviews/new` before the commit probe resolves (TB-2151 specimen entry points vanish during loading).
+- [ ] (candidate) `useNewRunWizardIntakeParams` — `baselineFirst` is true only when `searchParams.get("baseline") === "1"` with no trim — reachable via `?baseline=%201` or padded values where the simplified pilot (`baseline=1`) deep link does not open.
+- [ ] (candidate) `resolveInitialReviewsNewActivePath` — unrecognized `path=` values fall through to `quick-review` even when `baseline=1` / tour flags are absent — reachable from malformed marketing links such as `?path=detailed-review` that operators expect to open the full wizard.
+- [ ] (candidate) `useNewRunWizardTrackStream` — `useRunSummaryStream` stays enabled for all quick-review steps once `runId` is set (`wizardMode === "quick" ? true : stepIndex === TRACK_STEP_INDEX`) — reachable after quick-start spawns a run while the operator is still on early wizard slides (continuous polling vs track-step gating in full mode).
+- [ ] (candidate) `useNewRunWizardIntakeParams` + `useNewRunWizardQueryPrefill` — `accelerator=` and `preset=` can both be present on the same URL with precedence determined only by effect ordering in the prefill hook — reachable from composed GTM deep links on `/architecture/reviews/new` carrying both params.
 
 ---
 
