@@ -1,6 +1,10 @@
 import { expect, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
+import {
+  clickThroughBlockingOverlays,
+  dismissBlockingModalOverlays,
+} from "./dismiss-blocking-modal-overlays";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
 
@@ -38,6 +42,8 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     timeout: 30_000,
   });
 
+  await dismissBlockingModalOverlays(page);
+
   const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
 
   await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
@@ -58,20 +64,24 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     );
   }
 
-  await forward.click();
+  await clickThroughBlockingOverlays(page, forward);
 
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
     timeout: 30_000,
   });
 
-  await forward.click();
+  await dismissBlockingModalOverlays(page);
+  await clickThroughBlockingOverlays(page, forward);
 
   await expect(page.getByTestId("wizard-baseline-metrics-step")).toBeVisible({ timeout: 30_000 });
   await page.getByTestId("wizard-baseline-review-cycle-hours").fill("40");
 
-  await forward.click();
+  await dismissBlockingModalOverlays(page);
+  await clickThroughBlockingOverlays(page, forward);
 
-  await expect(page.getByRole("button", { name: "Start an architecture review" })).toBeVisible({
+  const startReview = page.getByRole("button", { name: "Start an architecture review" });
+
+  await expect(startReview).toBeVisible({
     timeout: 60_000,
   });
 
@@ -81,7 +91,8 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
-  await page.getByRole("button", { name: "Start an architecture review" }).click();
+  await dismissBlockingModalOverlays(page);
+  await clickThroughBlockingOverlays(page, startReview);
 
   const createResp = await createRespPromise;
 
