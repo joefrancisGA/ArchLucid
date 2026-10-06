@@ -8521,19 +8521,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-06 seed hunt (seed-only): reread the four picker-selected Stripe/Marketplace controllers, wallet processor, and memory replay guard after host-infra-evidence-composition dry hunt; no candidate met the same-run hunt-ready failing-repro bar; seeded five bounded candidates (wallet-route event-type rejection, marketplace outbox publish guard, wallet payment_failed telemetry-only path, replay-guard provider-name casing, replay-rejected HTTP 200 ack vs runbook 400); 18 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API integration HTTP suites not run).
 
 2026-09-13 seed hunt #2262 (seed-only): reseeded billing-webhooks with `-Hint billing` `-Refresh`; no new hunt-ready rows.
 
 2026-10-04 seed hunt (seed-only): reread the four picker-selected webhook and replay-guard paths; no new candidate met the same-run hunt-ready reachability and wrong-outcome bar. Seeded two bounded follow-ups around payload-size contract parity and multi-instance replay claims; no product code changed.
 
 ### Hypotheses
+
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` / `StripeWalletAsync` (`POST …/billing/webhooks/stripe`, `StripeBillingWebhookRoute.Wallet`) — a signed Stripe delivery whose `type` is not `payment_intent.*` is rejected with HTTP 400 after verification (`DispatchStripeWebhookEventAsync` returns false on the wallet route); reachable operator misconfiguration registering subscription/checkout events on the wallet endpoint (documented route matrix in `STRIPE_CHECKOUT.md`) causes provider retries instead of silent ignore.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` (lines 84–95) — integration outbox publish runs when `Succeeded`, `DuplicateIgnored: false`, `Returns202Accepted: false`, and `MarketplaceWebhookReceived` is set, but does not guard `DuplicateIgnored` before `TryPublishAsync`; a future provider result that sets both `MarketplaceWebhookReceived` and `DuplicateIgnored` could emit duplicate integration events from the HTTP layer.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — `payment_intent.payment_failed` only records `RecordLlmWalletRefillFailure` and returns without throwing; reachable Stripe wallet-route failure events still allow the provider ledger path to mark the webhook `Processed`, leaving refill correlation opaque to operators expecting a failed ledger row or wallet adjustment signal.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — cache keys lowercase `providerName` and `eventId`; two distinct configured provider strings that differ only by casing would share one replay namespace and could cause a later legitimate provider delivery to be treated as a replay within 24h on the same API instance.
+- [ ] (candidate) `BillingStripeWebhookController` / `BillingMarketplaceWebhookController` — `IsReplayRejected` branches return HTTP 200 `Ok()` (`BillingStripeWebhookReplayHttpTests`, `BillingMarketplaceWebhookReplayHttpTests`) while `docs/runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md` still documents HTTP 400 for `IsReplayRejected`; reachable duplicate deliveries within the in-memory guard window follow the 2xx ack contract but may confuse operators triaging replay per the runbook table.
 
 2026-10-04 seed hunt (seed-only): reread the selected Stripe and Marketplace controller paths, wallet processor, replay guard, and their focused callers. No candidate met the hunt-ready bar for a failing repro; seeded three bounded candidates around unsupported Marketplace actions, replay-key normalization of provider-supplied identifiers, and replay-guard process-local claims.
 
