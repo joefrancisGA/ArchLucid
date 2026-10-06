@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` returned `https://` and `//` URLs unchanged, so two fetched doc-index rows for the same external path with and without a trailing slash both rendered; normalize absolute URLs via `URL` pathname trailing-slash trim for merge dedupe and link `href`; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`; 31 scoped HelpDocsClient tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `mergeDocIndex` deduped fetched rows against static URLs only, so two doc-index rows for the same `/help/{slug}` path with and without a trailing slash rendered duplicate cards; track claimed normalized paths across fetched merges (except shared `/help` hub stubs); trim/normalize link `href`; regression `does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path`; 30 scoped HelpDocsClient tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewFailureTechnicalMetadataDisclosure` synced `reviewFailureTechnicalMetadataOpen` from the URL only on mount and `popstate`, so Next.js soft navigation left the technical failure `<details>` open state stale; reconcile from reactive `useSearchParams`; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event`; 38 scoped review-detail workspace vitest tests passed (5 files).
@@ -7525,11 +7527,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 26
-- **bugs-found:** 12
+- **hunts:** 27
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — fetched doc-index rows duplicated paths differing only by trailing slash
+- **last-bug:** 2026-10-06 — external https doc-index rows duplicated paths differing only by trailing slash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7611,6 +7613,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HelpDocsClient.mergeDocIndex` — fetched rows that shared the same in-app path modulo a trailing slash (e.g. `/help/compliance` vs `/help/compliance/`) both rendered when only static URL dedupe ran — **hit 2026-10-06 seed hunt (seed→hit):** track `claimedUrls` across fetched merges while preserving multiple `/help` hub stubs; regression `does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path`.
 
 2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after search trailing-slash fix; proved fetched-only doc-index path slash duplicates; 30 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `HelpDocsClient.normalizeDocIndexUrlForDedupe` — `https://` and scheme-relative URLs skipped trailing-slash normalization, so fetched doc-index rows such as `https://example.com/docs/alpha` and `https://example.com/docs/alpha/` both rendered — **hit 2026-10-06 seed hunt (seed→hit):** parse absolute URLs and trim redundant pathname slashes before `claimedUrls` dedupe; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`.
+
+2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after fetched path slash dedupe fix; proved external https trailing-slash duplicates; 31 scoped `HelpDocsClient` tests passed.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 

@@ -94,7 +94,26 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
   const trimmed = url.trim();
 
   if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return trimmed;
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+      }
+
+      if (schemeRelative) {
+        return `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
+      }
+
+      return parsed.toString();
+    } catch {
+      if (trimmed.length > 1 && trimmed.endsWith("/") && !trimmed.includes("?")) {
+        return trimmed.replace(/\/+$/, "");
+      }
+
+      return trimmed;
+    }
   }
 
   if (trimmed.length > 1 && trimmed.endsWith("/")) {

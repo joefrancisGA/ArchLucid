@@ -96,6 +96,40 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "First external doc row.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (slash variant)",
+        summary: "Same https url with trailing slash.",
+        category: "API",
+        url: "https://example.com/docs/alpha/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "External alpha (slash variant)" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path", async () => {
     const data = [
       {
