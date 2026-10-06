@@ -6600,6 +6600,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-10-06 seed hunt (seed→hit): `alert-simulation` — recent-run batch replayed duplicate `RunId` rows from `ListRunsByProjectAsync` twice, inflating `EvaluatedRunCount` and alert simulation outcomes; `DistinctBy(RunId)` after `CreatedUtc` ordering; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`; 18 scoped `AlertSimulationContextProviderTests` passed.
+
 ## Zone: alert-simulation
 
 - **id:** alert-simulation
@@ -6608,11 +6610,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 19
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
+- **hunts:** 20
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — duplicate run ids in recent-run batch doubled simulation contexts
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -6641,6 +6643,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-workspace run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1558:** `RunMatchesCallerScope` drops compare-to branch; regression `GetContextsAsync_when_compared_to_run_is_foreign_workspace_builds_primary_without_comparison`
 - [x] (valid-no-repro) explicit `comparedToRunId` with sealed-hash failure should drop comparison only — **cheap-disproof 2026-09-10 seed hunt #1558:** explicit mode fail-closed applies to compare-to manifest verification too; throws before plan generation; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`
 - [x] (invalid) recent-run batch (`runId` null) forwards `comparedToRunId` into every `BuildContextAsync` call — **cheap-disproof 2026-09-10 thorough hunt #1562:** `GetContextsAsync` recent-run sweep passes `comparedToRunId: null` into `BuildContextAsync` (line 74); baseline comparison is explicit-run-only; regression `GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`
+
+- [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` recent-run sweep — duplicate `RunId` entries from `ListRunsByProjectAsync` built multiple `AlertEvaluationContext` rows for the same run and inflated simulation counts — **hit 2026-10-06 seed hunt:** `DistinctBy(x => x.RunId)` after `OrderByDescending(CreatedUtc)`; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`; 18 scoped `AlertSimulationContextProviderTests` passed.
+
+2026-10-06 seed hunt (seed→hit): proved duplicate authority run rows doubled alert simulation contexts; 18 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-09-10 thorough hunt #1562 (dry): cheap-disproved seeded recent-run batch compare-to forwarding candidate; 17 scoped `AlertSimulationContextProviderTests` passed.
 
