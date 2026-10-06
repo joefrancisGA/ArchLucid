@@ -4,6 +4,8 @@
 
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandIntakeLoop`, connect/admit/MUST stages, hooks, and arg parser; no hunt-ready row promoted; five open `(candidate)` rows unchanged for next thorough hunt; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
+2026-10-06 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows (fragment/query `//` and `://` conservative full-string scans; query preserved by design; decode output shape for query `%2F`); seeded five follow-on `(candidate)` rows; regressions `TryNormalize_rejects_when_fragment_contains_open_redirect_substrings`, `TryNormalize_accepts_safe_path_preserving_query_without_open_redirect_substrings`, and `TryNormalize_decodes_percent_encoded_slash_in_query_portion_without_path_traversal_checks`; 151 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` (`TryNormalize`, percent-decode loop, path-only vs full-string checks); no hunt-ready row promoted for same-run proof; refreshed five `(candidate)` rows (dropped `AuthSignInRoutingController` locus outside zone `paths`); 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read architecture list SQL, null-architecture backfill queue, committed manifest ordering, sample purge SP, and graph-at-time locking; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `InMemory_count_active_runs_treats_null_legacy_status_as_active_like_sql` and `SelectLatestWithGraphAtOrBefore_omits_nolock_on_runs_table_unlike_dashboard_lists`; 140 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -5234,20 +5236,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-2026-10-06 seed hunt (seed-only): re-read guard implementation; no hunt-ready promotion; refreshed five `(candidate)` rows below; 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for fragment/query conservative scans and query `%2F` decode shape; 151 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
-2026-10-06 seed hunt (seed-only): cheap-disproof closed four prior candidates; seeded five follow-on candidates; 147 scoped tests passed.
+2026-10-06 seed hunt (seed-only): re-read guard implementation; no hunt-ready promotion; refreshed five `(candidate)` rows below; 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `TryNormalize` — lone `+` in path segments is not form-decoded to space by `Uri.UnescapeDataString` — **cheap-disproof 2026-10-06 seed hunt:** `application/x-www-form-urlencoded` `+` semantics are not the contract; JSON/query binding supplies literal `+`; regression `TryNormalize_accepts_plus_in_path_without_form_style_space_decoding`.
 - [x] (valid-no-repro) `TryNormalize` — matrix-style `;param=value` segments before `?` are not split — **cheap-disproof 2026-10-06 seed hunt:** semicolon data stays in the path string; open-redirect shapes with `//` still fail `ContainsProtocolRelativeTraversal`; regressions `TryNormalize_accepts_matrix_style_semicolon_segments_when_no_open_redirect_shape` and `TryNormalize_rejects_matrix_style_path_when_protocol_relative_slashes_appear_in_segment`.
 - [x] (valid-no-repro) `ContainsResidualEncodedTraversal` / `ContainsPercentEncodedPathSeparator` — mixed-case `%2E` parent segments after decode — **cheap-disproof 2026-10-06 seed hunt:** lowercase scan catches `%2E` / `%2e`; regression `TryNormalize_rejects_percent_encoded_dot_dot_segments_case_insensitively`.
 - [x] (invalid) `TryNormalize` — supplementary-plane slash/dot codepoints outside inventories may normalize in browsers — **invalid 2026-10-06 seed hunt:** no cited return-path producer emits plane-1+ ornamental strokes; BMP inventories plus percent-decode loop remain the guarded surface.
 
-- [ ] (candidate) `TryNormalize` — fragment-only `//` or `://` substrings reject the whole return path even when browsers navigate to the path portion only — **seed 2026-10-06:** reachable `ReturnPath` values like `/reviews#//evil` from hand-built client links.
-- [ ] (candidate) `GetPathWithoutQueryOrFragment` — path checks ignore query but `candidate.Contains("://")` scans the full string — **seed 2026-10-06:** conservative rejection when scheme delimiter appears only after `?` (see prior valid-no-repro row; follow-on for fragment-only `://`).
-- [ ] (candidate) `TryNormalize` — accepted paths return the full string including `?query` while traversal/`@` checks use `GetPathWithoutQueryOrFragment` only — **seed 2026-10-06:** reachable safe paths like `/reviews?tab=open` (query `://` payloads already rejected via full-string scan).
-- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — returns last decoded path string including query/fragment while path-only checks use `GetPathWithoutQueryOrFragment` — **seed 2026-10-06:** percent-encoded delimiters in query may change normalized output shape vs browser resolution.
-- [ ] (candidate) `ContainsDotDotSegment` — splits only on `/` so encoded or homoglyph dots inside a single segment rely on the decode/homoglyph passes — **seed 2026-10-06:** re-open only when a cited producer emits single-segment `%2e%2e` without slashes before the decode cap.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` / `candidate.Contains("://")` — fragment-only `//` or `://` substrings — **cheap-disproof 2026-10-06 seed hunt:** full-string conservative rejection by design; regression `TryNormalize_rejects_when_fragment_contains_open_redirect_substrings`.
+- [x] (valid-no-repro) `candidate.Contains("://")` — scheme delimiter only after `?` — **cheap-disproof 2026-10-06 seed hunt:** aligns with 2026-09-25 query over-rejection; regression `TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring`.
+- [x] (valid-no-repro) `TryNormalize` — returns full string including safe `?query` — **cheap-disproof 2026-10-06 seed hunt:** path-only `@` / `..` checks use `GetPathWithoutQueryOrFragment`; regression `TryNormalize_accepts_safe_path_preserving_query_without_open_redirect_substrings`.
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded slash in query decodes to literal `/` in query value — **cheap-disproof 2026-10-06 seed hunt:** not path traversal; regression `TryNormalize_decodes_percent_encoded_slash_in_query_portion_without_path_traversal_checks`.
+- [x] (valid-no-repro) `ContainsDotDotSegment` — single-segment `%2e%2e` without slashes — **cheap-disproof 2026-10-06 seed hunt:** decode + residual `%2e` scan rejects before segment split; regression `TryNormalize_rejects_percent_encoded_dot_dot_segments_case_insensitively`.
+
+- [ ] (candidate) `ContainsSlashHomoglyph` — scans the full return-path string (not `GetPathWithoutQueryOrFragment`) — reachable when marketing or analytics query values embed BMP slash homoglyphs while the path portion is a safe relative URL.
+- [ ] (candidate) `ContainsDotHomoglyph` — same full-string scan — reachable when query parameters contain dot homoglyphs that browsers do not treat as path traversal but the guard rejects outright.
+- [ ] (candidate) `ContainsControlCharacter` — scans full candidate before path partitioning — reachable when encoded control bytes appear only in the query portion after one decode pass.
+- [ ] (candidate) `TryNormalize` — `Trim()` edge whitespace only — reachable when return paths include compatibility-form characters (e.g. NBSP) inside a path segment after leading/trailing trim.
+- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%` after decode cap in query-only tails — reachable when deeply nested percent-encoding in query survives `MaxPercentDecodePasses` while the path portion is already stable.
 
 2026-10-06 seed hunt (seed-only): cheap-disproof encoded `@`, `%2F` canonicalization, and query `://` over-rejection; seeded four candidates; 142 scoped tests passed.
 
@@ -5261,7 +5269,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06

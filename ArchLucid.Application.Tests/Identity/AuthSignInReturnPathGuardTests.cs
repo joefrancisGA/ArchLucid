@@ -351,6 +351,26 @@ public sealed class AuthSignInReturnPathGuardTests
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("/reviews#//evil")]
+    [InlineData("/reviews#foo://bar")]
+    public void TryNormalize_rejects_when_fragment_contains_open_redirect_substrings(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_safe_path_preserving_query_without_open_redirect_substrings()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews?tab=open").Should().Be("/reviews?tab=open");
+    }
+
+    [Fact]
+    public void TryNormalize_decodes_percent_encoded_slash_in_query_portion_without_path_traversal_checks()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews?x=%2F").Should().Be("/reviews?x=/");
+    }
+
     [Fact]
     public void TryNormalize_accepts_plus_in_path_without_form_style_space_decoding()
     {
