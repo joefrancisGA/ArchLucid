@@ -177,10 +177,12 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
                 }
 
                 row.AutoRefillsThisUtcMonthCount++;
-                row.LastRefillUtc = TimeProvider.System.GetUtcNow();
             }
 
             row.BalanceUsd = decimal.Round(row.BalanceUsd + amountUsd, 2, MidpointRounding.AwayFromZero);
+
+            if (amountUsd > 0m)
+                row.LastRefillUtc = TimeProvider.System.GetUtcNow();
             row.Version++;
 
             AppendLedger(tenantId, LlmTenantWalletLedgerEntryTypes.Refill, amountUsd, row.BalanceUsd, stripePaymentIntentId, correlationId);

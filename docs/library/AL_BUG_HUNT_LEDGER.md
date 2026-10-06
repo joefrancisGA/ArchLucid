@@ -266,6 +266,10 @@
 
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
 
+2026-10-06 seed hunt (seed→hit): `llm-wallet` — webhook `TryCreditRefillAsync` with `incrementMonthlyAutoRefillCount: false` updated balance only and left `LastRefillUtc` null/stale after Stripe payment-intent top-ups; stamp `LastRefillUtc` on all positive refill credits; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`; 24 scoped `LlmTenantWalletServiceTests` passed.
+
+2026-10-06 seed hunt (seed→hit): `llm-wallet` — `ApplyWebhookPaymentIntentSucceededAsync` credited via `TryCreditRefillAsync` and incremented `AutoRefillsThisUtcMonthCount`, so a small Stripe top-up could exhaust the monthly auto-replenish cap (`CanAutoRefill` treats each count as a full `RefillIncrementUsd`) and block `TryAutoRefillAsync`; skip monthly refill-counter updates for webhook payment-intent credits; regression `TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`; 23 scoped `LlmTenantWalletServiceTests` passed.
+
 2026-10-05 seed hunt (seed→hit): `api-tenancy-workspaces` — `DeleteProjectAsync` returned HTTP 400 on operator-documented-safe-retry when workspace metadata still named an already soft-deleted default project; block delete only when the default project id is still active in the workspace; regression `DeleteProjectAsync_returns_no_content_when_default_project_is_already_soft_deleted_retry`; 37 scoped TenantWorkspaces tests passed.
 
 2026-10-05 thorough hunt (hit): `api-tenancy-workspaces` — `ListAsync` echoed stale `DefaultProjectId` when the workspace metadata pointed at a soft-deleted/non-active project; return `Guid.Empty` unless the default id is in the active project list; regression `ListAsync_omits_stale_default_project_id_when_default_is_not_an_active_project`; 36 scoped TenantWorkspaces tests passed.
@@ -6176,11 +6180,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 31
-- **bugs-found:** 16
+- **hunts:** 32
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — webhook payment-intent credit counted toward monthly auto-replenish cap
+- **last-bug:** 2026-10-06 — webhook top-up left LastRefillUtc stale
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6220,6 +6224,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `LlmTenantWalletConsumeRetry.CreditAdjustmentInternalAsync` — overage reconciliation credit did not enqueue auto-refill when balance remained below trigger — **hit 2026-10-05 seed hunt:** `ReconcileOverageInternalAsync` negative delta credits via `CreditAdjustmentInternalAsync` without the post-credit auto-refill enqueue that delta consume already had; regression `ReconcileOverageInternalAsync_enqueues_auto_refill_when_overage_credit_leaves_balance_below_trigger_threshold`
 - [x] (proven) `LlmTenantWalletWebhookStage.ApplyWebhookPaymentIntentSucceededAsync` — webhook payment-intent credit did not enqueue auto-refill when balance remained below trigger — **hit 2026-10-05 seed hunt:** small or partial Stripe top-ups could leave auto-replenish-enabled wallets under the refill trigger without scheduling settlement auto-refill; regression `ApplyWebhookPaymentIntentSucceededAsync_enqueues_auto_refill_when_credit_leaves_balance_below_trigger_threshold`
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` / `LlmTenantWalletWebhookStage.ApplyWebhookPaymentIntentSucceededAsync` — webhook payment-intent credits incremented `AutoRefillsThisUtcMonthCount` and blocked `TryAutoRefillAsync` under a tight monthly cap — **hit 2026-10-06 seed hunt:** `CanAutoRefill` multiplies count by `RefillIncrementUsd`, so a $5 webhook top-up consumed a full $50 cap slot; webhook credits pass `incrementMonthlyAutoRefillCount: false`; regression `TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`
+- [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — webhook payment-intent credits skipped `LastRefillUtc` when monthly auto-refill counter was not incremented — **hit 2026-10-06 seed hunt:** billing GET exposed a stale null last-refill after Stripe top-up; stamp `LastRefillUtc` on every positive refill credit; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`
+
+2026-10-06 seed hunt (seed→hit): proved webhook top-up left `LastRefillUtc` stale; 24 scoped wallet tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved webhook top-up incremented monthly auto-replenish count and blocked auto-refill; 23 scoped wallet tests passed.
 

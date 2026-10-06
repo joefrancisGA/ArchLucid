@@ -233,6 +233,28 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        DateTimeOffset before = TimeProvider.System.GetUtcNow();
+
+        bool credited = await service.ApplyWebhookPaymentIntentSucceededAsync(
+            tenantId,
+            "pi_updates_last_refill",
+            25m,
+            Guid.NewGuid(),
+            CancellationToken.None);
+
+        credited.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.LastRefillUtc.Should().NotBeNull("Stripe payment-intent credits must stamp LastRefillUtc for billing UI");
+        view.LastRefillUtc!.Value.Should().BeOnOrAfter(before).And.BeOnOrBefore(TimeProvider.System.GetUtcNow());
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap()
     {
         InMemoryLlmTenantWalletRepository repository = new();

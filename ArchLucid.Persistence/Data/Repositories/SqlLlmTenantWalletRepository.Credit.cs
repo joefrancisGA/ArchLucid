@@ -59,7 +59,8 @@ public sealed partial class SqlLlmTenantWalletRepository
                   """
                 : """
                   UPDATE dbo.LlmTenantWalletState
-                  SET BalanceUsd = @BalanceAfterUsd
+                  SET BalanceUsd = @BalanceAfterUsd,
+                      LastRefillUtc = SYSUTCDATETIME()
                   WHERE TenantId = @TenantId
                     AND RowVersion = @ExpectedRowVersion;
                   """;
