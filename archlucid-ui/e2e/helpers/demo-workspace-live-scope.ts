@@ -221,10 +221,8 @@ export async function injectDefaultTenantOperatorScope(
 
   // Register after demo-workspace init scripts in the same browser context so default scope wins
   // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
-  await writeOperatorScopeToBrowser(page, defaultScope, {
-    persistViaInitScript: true,
-    sampleWorkspaceVisitActive: false,
-  });
+  // Keep sample-visit active for dev-default scope: clearing it triggers LS-010 → /auth/bootstrap (JwtBearer CI).
+  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
 
   // Init script only runs on navigations after registration — reload once so scope is committed
   // before the first /administration/users RSC flight.
@@ -241,6 +239,20 @@ export async function injectDefaultTenantOperatorScope(
       // TB-927 asserts /me via fetchAuthMeViaProxy immediately after scope reset.
     }
   }
+}
+
+/** LS-010 can trap JwtBearer CI on /auth/bootstrap when sample-visit is cleared on dev-default scope. */
+export async function recoverFromAuthBootstrapIfNeeded(
+  page: Page,
+  targetPath: string,
+): Promise<void> {
+  if (!page.url().includes("/auth/bootstrap")) {
+    return;
+  }
+
+  await primePrivateBetaBrowserSessionIfJwtMode(page);
+  await injectDefaultTenantOperatorScope(page);
+  await page.goto(targetPath, { waitUntil: "domcontentloaded", timeout: 90_000 });
 }
 
 /**

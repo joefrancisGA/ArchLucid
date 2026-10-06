@@ -345,6 +345,7 @@ test.describe(
 
     await primePrivateBetaBrowserPage(page, accessToken);
     await injectDefaultTenantOperatorScope(page);
+    await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
 
     const me = await fetchAuthMeViaProxy(page);
     const scope = resolveScopeFromAuthMe(me, expectedScope);

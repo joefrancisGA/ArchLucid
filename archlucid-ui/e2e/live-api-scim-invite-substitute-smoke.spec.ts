@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk, primePrivateBetaBrowserSessionIfJwtMode } from "./helpers/live-private-beta-access";
-import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { injectDefaultTenantOperatorScope, recoverFromAuthBootstrapIfNeeded } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
@@ -22,15 +22,16 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     test.setTimeout(120_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
-    const scopeOptions = { reestablishJwtSession: false, jwtAccessToken: accessToken } as const;
 
     await primePrivateBetaBrowserPage(page, accessToken);
-    await injectDefaultTenantOperatorScope(page, scopeOptions);
+    await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await injectDefaultTenantOperatorScope(page, scopeOptions);
+      await injectDefaultTenantOperatorScope(page);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     }
 
     await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
@@ -46,15 +47,16 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     test.setTimeout(180_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
-    const scopeOptions = { reestablishJwtSession: false, jwtAccessToken: accessToken } as const;
 
     await primePrivateBetaBrowserPage(page, accessToken);
-    await injectDefaultTenantOperatorScope(page, scopeOptions);
+    await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
-      await injectDefaultTenantOperatorScope(page, scopeOptions);
+      await injectDefaultTenantOperatorScope(page);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     }
 
     await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
@@ -63,7 +65,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
     await expect(async () => {
       await primePrivateBetaBrowserSessionIfJwtMode(page);
-      await injectDefaultTenantOperatorScope(page, scopeOptions);
+      await injectDefaultTenantOperatorScope(page);
       const tokensList = page.waitForResponse(
         (response) =>
           response.url().includes("/api/proxy/v1/admin/scim/tokens") &&
@@ -72,6 +74,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
         { timeout: 45_000 },
       );
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
       await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
       await tokensList;
       await expect(page.getByTestId("scim-create-token")).toBeVisible({ timeout: 15_000 });

@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
+import { injectDefaultTenantOperatorScope, recoverFromAuthBootstrapIfNeeded } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
 
@@ -25,11 +25,13 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
   await injectDefaultTenantOperatorScope(page);
 
   await gotoAdminUsersTabAndWaitForMe(page);
+  await recoverFromAuthBootstrapIfNeeded(page, LIVE_ADMIN_USERS_TAB_PATH);
 
   if ((await page.getByText(/Something went wrong/i).count()) > 0) {
     await primePrivateBetaBrowserSessionIfJwtMode(page);
     await injectDefaultTenantOperatorScope(page);
     await gotoAdminUsersTabAndWaitForMe(page);
+    await recoverFromAuthBootstrapIfNeeded(page, LIVE_ADMIN_USERS_TAB_PATH);
   }
 
   await expect(page).toHaveURL(/\/administration\/users(?:[/?#]|$)/, { timeout: 90_000 });
