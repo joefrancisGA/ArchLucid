@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware.ShouldSkip` left `//health/live` (and similar double-leading-slash probe URLs) subject to TB-304 on staging-like hosts because `PathString.StartsWithSegments` did not match normalized health paths; collapse duplicate leading slashes before probe checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; cheap-disproof closed duplicate `tenant_id` claim/header parity (`Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim`, `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`) and comma-joined policy literal skip (`OnActionExecutionAsync_combined_policy_string_does_not_skip_binding_when_literal_name_differs`); 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
+
 2026-10-06 seed hunt (seed→hit): `scim-users` — `ScimUserService.PatchAsync` `ReadOptionalString` ignored non-string PATCH `displayName` replace values and kept the prior display name while PUT `ScimUserResourceParser` returns `invalidValue`; align PATCH optional strings with parser typing; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` Application unit tests passed.
 
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `RouteTenantScopeBindingFilter.HasPolicy` only inspected `AuthorizeAttribute` metadata while ASP.NET Core `AuthorizeFilter` carries policy names on `AuthorizeData`, so platform tenant deletion routes could 403 when ambient scope disagreed with route `{tenantId}`; scan `IAuthorizeData` and `AuthorizeFilter.AuthorizeData`; regression `OnActionExecutionAsync_authorize_filter_platform_deletion_policy_skips_binding`; cheap-disproof closed unknown authenticated scheme header-only skip (`ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme`) and intentional `/openapi/*` TB-304 skip for nested segments (`InvokeAsync_staging_host_skips_openapi_nested_segment_paths`); 72 scoped scope-binding unit tests passed (integration tests unavailable).
@@ -8935,11 +8937,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 53
-- **bugs-found:** 13
+- **hunts:** 54
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — `AuthorizeFilter` platform deletion policy not honored by route tenant binding skip
+- **last-bug:** 2026-10-06 — double-leading-slash health probe paths hit TB-304 on staging-like hosts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -250,6 +250,44 @@ public sealed class ScopeIdentityBindingValidatorTests
     }
 
     [SkippableFact]
+    public void Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim()
+    {
+        Guid firstTenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid secondTenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        DefaultHttpContext http = new();
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tenant_id", firstTenantId.ToString("D")));
+        identity.AddClaim(new Claim("tenant_id", secondTenantId.ToString("D")));
+        http.User = new ClaimsPrincipal(identity);
+        http.Request.Headers["x-tenant-id"] = secondTenantId.ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public void Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding()
+    {
+        Guid firstTenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid secondTenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        DefaultHttpContext http = new();
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("tenant_id", firstTenantId.ToString("D")));
+        identity.AddClaim(new Claim("tenant_id", secondTenantId.ToString("D")));
+        http.User = new ClaimsPrincipal(identity);
+        http.Request.Headers["x-tenant-id"] = firstTenantId.ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.Validate(http.User, http.Request.Headers);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme()
     {
         DefaultHttpContext http = new();
