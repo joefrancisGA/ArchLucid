@@ -8769,3 +8769,4 @@
 {"at":"2026-10-06T10:13:33.7724642Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T10:22:45.3497035Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T10:38:11.4895097Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-06T10:43:55.9950796Z","zoneId":"scim-users","outcome":"hit","productLine":"archlucid-shared"}
