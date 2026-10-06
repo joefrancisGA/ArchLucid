@@ -12,12 +12,19 @@ public static class GraphSnapshotKnowledgeModelMerger
         ArgumentNullException.ThrowIfNull(contextGraph);
         ArgumentNullException.ThrowIfNull(modelGraph);
 
-        HashSet<string> modelNodeIds = modelGraph.Nodes
-            .Select(static node => NormalizeNodeId(node.NodeId))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        List<GraphNode> mergedNodes = [];
+        HashSet<string> mergedNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
-        List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
-        HashSet<string> mergedNodeIds = new(modelNodeIds, StringComparer.OrdinalIgnoreCase);
+        foreach (GraphNode modelNode in modelGraph.Nodes)
+        {
+            string normalizedModelNodeId = NormalizeNodeId(modelNode.NodeId);
+
+            if (mergedNodeIds.Contains(normalizedModelNodeId))
+                continue;
+
+            mergedNodeIds.Add(normalizedModelNodeId);
+            mergedNodes.Add(modelNode);
+        }
 
         foreach (GraphNode contextNode in contextGraph.Nodes)
         {
@@ -32,13 +39,20 @@ public static class GraphSnapshotKnowledgeModelMerger
 
         Dictionary<string, string> canonicalNodeIdByNormalized = BuildCanonicalNodeIdLookup(mergedNodes);
 
-        List<GraphEdge> mergedEdges = modelGraph.Edges
-            .Select(edge => CanonicalizeEdgeEndpoints(edge, canonicalNodeIdByNormalized))
-            .ToList();
+        List<GraphEdge> mergedEdges = [];
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        HashSet<string> edgeKeys = mergedEdges
-            .Select(static edge => BuildEdgeKey(edge.FromNodeId, edge.ToNodeId, edge.EdgeType))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (GraphEdge modelEdge in modelGraph.Edges)
+        {
+            GraphEdge canonicalEdge = CanonicalizeEdgeEndpoints(modelEdge, canonicalNodeIdByNormalized);
+            string key = BuildEdgeKey(canonicalEdge.FromNodeId, canonicalEdge.ToNodeId, canonicalEdge.EdgeType);
+
+            if (edgeKeys.Contains(key))
+                continue;
+
+            edgeKeys.Add(key);
+            mergedEdges.Add(canonicalEdge);
+        }
 
         foreach (GraphEdge contextEdge in contextGraph.Edges)
         {

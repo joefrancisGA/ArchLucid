@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` copied model nodes and edges verbatim, leaving duplicate model nodes and edges that differed only by outer whitespace on ids/types while context-side dedupe already normalized keys; dedupe model nodes and edges by normalized identity before union; regressions `Merge_deduplicates_model_nodes_when_node_id_differs_only_by_outer_whitespace` and `Merge_deduplicates_model_edges_when_endpoints_and_type_differ_only_by_outer_whitespace`; scoped merger tests 4/4 Core + 7/7 KnowledgeGraph.
+
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — weekly Sponsor report/summary dispatchers passed malformed `https:/architecture/…` run-detail hrefs from `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` when `OperatorBaseUrl` was scheme-only (`https://`); added `EmailBrandingUrls.SanitizeOperatorNavigableUrl` to repair single-slash concat paths with operator authority; regressions `SanitizeOperatorNavigableUrl_repairs_scheme_only_concat_run_detail_url_with_operator_authority`, `SanitizeOperatorNavigableUrl_returns_relative_path_when_scheme_only_concat_has_no_repair_authority`, and `WeeklySponsorReportEmailDispatcher_repairs_scheme_only_concat_run_detail_url_using_operator_base_authority`; 65 scoped branding + digest idempotency tests passed.
 
 2026-10-06 seed hunt (seed→hit): `weekly-digest-email` — `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` copied trimmed `runDetailUrl` into template models without stripping embedded userinfo, so weekly delivery scanners that build links via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` with misconfigured `OperatorBaseUrl` leaked credentials into sponsor report `<a href>` values; sanitize with `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl`; regressions `WeeklySponsorReportEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model` and `WeeklySponsorSummaryEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model`; 54 scoped digest idempotency tests passed.
@@ -15170,17 +15172,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved duplicate model nodes/edges when ids and edge types differed only by whitespace; fixed model-side dedupe parity with context union; regressions above.
+
 - **id:** archlucid-core
 - **status:** open
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 464
+- **hunts:** 465
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 3504
+- **bugs-found:** 3505
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — `GraphSnapshotKnowledgeModelMerger` left padded model edge endpoints uncorrected
+- **last-bug:** 2026-10-06 — `GraphSnapshotKnowledgeModelMerger` duplicated whitespace-padded model nodes and edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15209,6 +15213,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — duplicate model nodes and edges when ids/types differed only by outer whitespace while context union deduped normalized keys — **hit 2026-10-06 seed hunt:** dedupe model nodes and edges before context union; regressions `Merge_deduplicates_model_nodes_when_node_id_differs_only_by_outer_whitespace` and `Merge_deduplicates_model_edges_when_endpoints_and_type_differ_only_by_outer_whitespace`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — model-graph edges kept padded `FromNodeId`/`ToNodeId` while merged nodes used trim-normalized ids — **hit 2026-10-06 seed hunt:** canonicalize model edges through the same endpoint lookup as context edges; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`.
 
