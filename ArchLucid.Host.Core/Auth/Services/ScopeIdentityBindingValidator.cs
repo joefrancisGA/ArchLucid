@@ -119,17 +119,19 @@ public static class ScopeIdentityBindingValidator
 
     private static bool RequiresBoundScopeClaimsForHeaders(string? authenticationType)
     {
-        if (string.Equals(authenticationType, "ApiKey", StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(authenticationType))
+            return false;
+
+        if (string.Equals(authenticationType, "ApiKey", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(authenticationType, "Bearer", StringComparison.Ordinal))
+        if (string.Equals(authenticationType, "Bearer", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(authenticationType, ScimBearerDefaults.AuthenticationScheme, StringComparison.Ordinal))
+        if (string.Equals(authenticationType, ScimBearerDefaults.AuthenticationScheme, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(authenticationType, "Saml2", StringComparison.Ordinal)
-            || string.Equals(authenticationType, "Saml2", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(authenticationType, "Saml2", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;

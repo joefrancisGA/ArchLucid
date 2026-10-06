@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` used ordinal `Bearer` match so principals with lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation and accepted hostile `x-tenant-id`; match ApiKey/Bearer/SCIM/SAML scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type`, `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`, and `InvokeAsync_staging_host_skips_trailing_slash_on_health_live_path` (cheap-disproof); 84 scoped Api unit tests passed (6 SQL integration tests unavailable).
+
 2026-10-06 thorough hunt (dry): `core-authority-runs` — cheap-disproof closed four open `(candidate)` rows (Committed without manifest → NotStarted by design + SQL CHECK; UTF-8 BOM dead-letter reject #1203; fractional `"5.0"` ordinal parse for in-memory callers only; unparseable legacy + golden manifest → InProgress progress-marker branch); regressions `TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal` and `ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only`; 44 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
 
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — row order stayed newest-first after browser `popstate` set committed `sort=created-asc` while `useSearchParams` still exposed default sort because `sortOrder` had no popstate listener; mirror `filterText`/`compareSelection` popstate sync for sort; regression `re-sorts rows when sort= changes via popstate before useSearchParams catches up`; 53 scoped `RunsListClient` tests passed.
@@ -8921,13 +8923,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 51
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-04 — trailing-slash `/robots.txt` and `/sitemap.xml` skip in scope guard
+- **hunts:** 52
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — lowercase `bearer` auth type skipped TB-072 header-only escalation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `ScopeIdentityBindingValidator.RequiresBoundScopeClaimsForHeaders` — lowercase `bearer` `AuthenticationType` skipped TB-072 header-only escalation so hostile `x-tenant-id` was accepted without a bound `tenant_id` claim — **hit 2026-10-06 seed hunt:** match scheme names with `OrdinalIgnoreCase`; regressions `ValidateHeaderOnlyScopeEscalation_rejects_tenant_header_without_claim_for_lowercase_bearer_auth_type` and `InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim`; 84 scoped Api unit tests passed (6 integration tests unavailable).
+
+- [ ] (candidate) `ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation` — `AuthenticationType` values outside known schemes (e.g. custom test handlers) still skip header-only guards while `HttpScopeContextProvider` may resolve scope from `x-*-id` headers on non-production hosts.
+- [ ] (candidate) `RouteTenantScopeBindingFilter.HasPolicy` — composite authorization policies that embed `PlatformTenantDeletionAuthority` without a top-level `AuthorizeAttribute.Policy` string may not skip route tenant binding.
+- [ ] (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — `/openapi` segment skip may still apply to deeply nested paths such as `/openapi/extra/segment` beyond the mapped OpenAPI document route.
+
+2026-10-06 seed hunt (seed→hit): promoted lowercase Bearer auth-type TB-072 bypass; proved and fixed; reseeded three follow-on candidates; 84 scoped Api unit tests passed (6 integration tests unavailable).
 
 2026-10-05 thorough hunt (dry): cheap-disproved five seeded `(candidate)` rows; 81 scoped Api unit tests + 7 `HttpScopeContextProvider` tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
@@ -20713,7 +20723,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON root with leading Unicode whitespace before `{` (not BOM) is rejected by `TrimStart`+brace gate while writers only emit trimmed object JSON.
 - [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative fractional whole strings such as `"-5.0"` coerce to `Committed` ordinal for in-memory callers (`TryParseWholeNumberString` allows negative finite values that floor to defined enum ordinals).
 
-2026-10-06 thorough hunt (dry): cheap-disproof closed four open candidates; reseeded three fixture/SQL-guarded follow-ons; 45 scoped Core tests passed.
+2026-10-06 thorough hunt (dry): cheap-disproof closed four open candidates; reseeded three fixture/SQL-guarded follow-ons; 44 scoped Core tests passed.
 
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` with internal whitespace (`Pipeline  DeadLetter`) fails exact match against `AgentExecutionFailureClasses.PipelineDeadLetter` — **cheap-disproof 2026-09-09 seed hunt #1473:** writers emit canonical class strings only; conservative reader fails closed; regression `IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run with golden manifest and pipeline dead-letter JSON surfaces `Complete` because `IsCommittedWithGoldenManifest` runs before dead-letter check — **cheap-disproof 2026-09-09 seed hunt #1473:** dead-letter branch precedes Complete; regression `ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete`.
