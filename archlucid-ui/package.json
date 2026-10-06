@@ -15,6 +15,7 @@
     "demo": "pwsh -File ./scripts/start-demo.ps1",
     "generate:brand-raster": "node ./scripts/generate-brand-raster.mjs",
     "generate:deferred-chunk-loaders": "node ./scripts/generate-deferred-chunk-import-loaders.mjs",
+    "generate:azure-lab": "tsx ./scripts/generate-azure-lab-inventory.ts",
     "generate:pricing": "node ./scripts/invoke-generate-pricing.mjs",
     "prebuild": "npm run generate:brand-raster",
     "clean:next-export": "node ./scripts/clean-next-export.mjs",
