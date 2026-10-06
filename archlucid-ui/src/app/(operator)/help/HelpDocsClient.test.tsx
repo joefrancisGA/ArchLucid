@@ -96,6 +96,40 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path", async () => {
+    const data = [
+      {
+        title: "Compliance guide",
+        summary: "Regulatory compliance overview.",
+        category: "Compliance",
+        url: "/help/compliance",
+      },
+      {
+        title: "Compliance guide (slash variant)",
+        summary: "Duplicate path with trailing slash.",
+        category: "Compliance",
+        url: "/help/compliance/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Compliance guide" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Compliance guide (slash variant)" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not duplicate a static quick link when fetched index repeats the path with a trailing slash", async () => {
     const data = [
       {

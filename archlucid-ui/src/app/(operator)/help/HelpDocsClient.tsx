@@ -110,23 +110,31 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
   }
 
   const seenKeys = new Set<string>();
-  const staticUrls = new Set<string>();
+  const claimedUrls = new Set<string>();
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    staticUrls.add(normalizeDocIndexUrlForDedupe(e.url));
+    claimedUrls.add(normalizeDocIndexUrlForDedupe(e.url));
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
 
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
+    const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+    const duplicateNormalizedPath =
+      normalizedUrl !== "/help" && claimedUrls.has(normalizedUrl);
 
-    if (seenKeys.has(k) || staticUrls.has(normalizeDocIndexUrlForDedupe(e.url))) {
+    if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;
     }
 
     seenKeys.add(k);
+
+    if (normalizedUrl !== "/help") {
+      claimedUrls.add(normalizedUrl);
+    }
+
     merged.push(e);
   }
 
@@ -291,7 +299,7 @@ export function HelpDocsClient() {
               {rows.map((row) => (
                 <li key={`${cat}-${row.title}-${row.url}`}>
                   <Link
-                    href={row.url}
+                    href={normalizeDocIndexUrlForDedupe(row.url.trim())}
                     className={OPERATOR_LINK.inline}
                     {...linkProps(row.url)}
                   >

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `mergeDocIndex` deduped fetched rows against static URLs only, so two doc-index rows for the same `/help/{slug}` path with and without a trailing slash rendered duplicate cards; track claimed normalized paths across fetched merges (except shared `/help` hub stubs); trim/normalize link `href`; regression `does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path`; 30 scoped HelpDocsClient tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-review-detail-workspace` — `ReviewFailureTechnicalMetadataDisclosure` synced `reviewFailureTechnicalMetadataOpen` from the URL only on mount and `popstate`, so Next.js soft navigation left the technical failure `<details>` open state stale; reconcile from reactive `useSearchParams`; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event`; 38 scoped review-detail workspace vitest tests passed (5 files).
 
 2026-10-06 seed hunt (seed→hit): `ui-help-docs` — help hub search used exact substring match on `e.url`, so a query ending in a path slash (e.g. `admin-diagnostics/`) missed static quick links whose URLs omit the trailing slash; normalize filter queries and index normalized URLs in the haystack; regression `filters entries when the search query ends with a trailing slash on the url path token`; 29 scoped HelpDocsClient tests passed.
@@ -7523,11 +7525,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 25
-- **bugs-found:** 11
+- **hunts:** 26
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — trailing-slash search queries missed url-path matches
+- **last-bug:** 2026-10-06 — fetched doc-index rows duplicated paths differing only by trailing slash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7605,6 +7607,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HelpDocsClient` filtered haystack — substring filter on raw `e.url` missed matches when the operator typed a trailing slash on a path token (`admin-diagnostics/` vs `/help/admin-diagnostics`) — **hit 2026-10-06 seed hunt (seed→hit):** `normalizeHelpHubFilterQuery` and normalized URL in haystack; regression `filters entries when the search query ends with a trailing slash on the url path token`.
 
 2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after trailing-slash static dedupe fix; proved trailing-slash search queries hid url-path matches; 29 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `HelpDocsClient.mergeDocIndex` — fetched rows that shared the same in-app path modulo a trailing slash (e.g. `/help/compliance` vs `/help/compliance/`) both rendered when only static URL dedupe ran — **hit 2026-10-06 seed hunt (seed→hit):** track `claimedUrls` across fetched merges while preserving multiple `/help` hub stubs; regression `does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path`.
+
+2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after search trailing-slash fix; proved fetched-only doc-index path slash duplicates; 30 scoped `HelpDocsClient` tests passed.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 
