@@ -238,7 +238,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     compareSelectionRef.current = next;
     setCompareSelectionState(next);
 
-    if (next.length === 0) {
+    if (next.length < 2) {
       setCompareSelectionNotice(null);
     }
   }, [urlCompareRunsRaw]);
@@ -258,6 +258,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
       compareSelectionRef.current = next;
       setCompareSelectionState(next);
+      setCompareSelectionNotice(null);
     };
 
     syncCompareSelectionFromUrl();

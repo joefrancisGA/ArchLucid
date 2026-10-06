@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-runs-list` — `compareSelectionNotice` for third-compare replacement stayed mounted after `popstate` narrowed `compareRuns` to one id while `useSearchParams` still lagged committed `window.location`; clear notice on popstate compare sync and when URL-driven selection drops below two; regression `clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`; 50 scoped `RunsListClient` tests passed.
+
 2026-10-06 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed all five open `(candidate)` rows (cross-workspace list default, restore vs delete pin parity, purge cutoff strict `<`, delete idempotent retry with sibling pin, recycle-bin orphan `DeletedUtc` filter); regressions `ListAsync_omits_default_project_id_when_metadata_points_at_active_project_in_another_workspace`, `RestoreProjectAsync_returns_no_content_when_sibling_workspace_pins_project_as_default_metadata`, `DeleteProjectAsync_returns_no_content_when_sibling_pins_soft_deleted_project_on_delete_retry`, `Purge_worker_eligibility_uses_strict_cutoff_at_displayed_purge_after_instant`; 47 scoped TenantWorkspaces tests passed.
 
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
@@ -7516,11 +7518,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 29
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 15
+- **hunts:** 30
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-05 — inspector closed on runs refresh when useSearchParams lagged committed inspectorRunId
+- **last-bug:** 2026-10-06 — stale third-compare replacement notice after popstate narrowed compareRuns
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7597,6 +7599,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 seed hunt (seed→hit): promoted committed-vs-router `inspectorRunId` lag after row activation; proved and fixed; 48 scoped `RunsListClient` tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproof closed three open candidates; 48 scoped `RunsListClient` tests passed.
+
+2026-10-06 seed hunt (seed→hit): promoted `compareSelectionNotice` persistence after browser `popstate` narrowed `compareRuns` below two selected ids; fixed `useRunsList` popstate compare sync and URL effect notice cleanup; regression `clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`; 50 scoped `RunsListClient` tests passed.
+
+- [x] (proven) `useRunsList` — third-compare `compareSelectionNotice` stayed visible after `popstate` synced `compareRuns` to a single id while `RunsListCompareSelectionBar` remained mounted — **hit 2026-10-06 seed hunt:** clear notice on popstate compare sync and when URL-driven selection length drops below two; regression `clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`; 50 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted inspectorRunId soft-navigation gap; proved and fixed; reseeded invalid deep-link and compare-notice candidates; 45 scoped `RunsListClient` tests passed.
 

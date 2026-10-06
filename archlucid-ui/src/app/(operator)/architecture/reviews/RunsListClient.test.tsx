@@ -1027,6 +1027,34 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
   });
 
+  it("clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up", () => {
+    const runB: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+    const runC: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      description: "Third review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runB.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runC.runId}`)).getByRole("checkbox"));
+
+    expect(screen.getByText(/only two reviews can be compared/i)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = `compareRuns=${sampleRun.runId}`;
+    fireEvent.popState(window);
+
+    expect(screen.queryByText(/only two reviews can be compared/i)).toBeNull();
+  });
+
   it("shows a replacement notice when a third compare checkbox is selected", () => {
     const runB: RunSummary = {
       ...sampleRun,
