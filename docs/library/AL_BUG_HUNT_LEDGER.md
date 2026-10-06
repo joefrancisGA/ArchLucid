@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — `TenantScopedSqlExpressionResolver` folded SQL only from declarator initializers, so `string sql; sql = "… dbo.Runs …";` passed to Dapper evaded ARCH006; fold simple block assignments to the same local; regression `ARCH006_reports_unscoped_sql_for_local_assigned_after_declaration`; 20 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
+
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` cleared `NsgInboundRuleChips` while parallel rollup edges already merged NSG annotations, so collapsed storage cards dropped inbound rule chips painted on members; merge distinct chips with the same three-visible-plus-remainder cap as single-node chips; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`; 643 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
 
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalHostInKeyVault` while private-endpoint access already used `members.Any`, so mixed rollup cards hid Key Vault-hosted linked services when the first member had an explicit host; `members.Any` plus a separate Key Vault detail line when hosts are also shown; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`; 642 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
@@ -5234,15 +5236,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 25
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-02 — triple-scoped table primary-key mutation bypassed ARCH006 scope binding
+- **hunts:** 26
+- **bugs-found:** 16
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — split local declaration plus assignment bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer` and focused tests; no failing repro was attempted for candidate-only rows; seeded record-declaration exemption handling as a fresh analyzer-shape candidate; 19 scoped analyzer tests passed.
+
+- [x] (proven) `TenantScopedSqlExpressionResolver.ResolveFromSymbol` — locals declared without an initializer and assigned SQL in a later statement bypassed ARCH006 static folding (declarator-initializer path only) — **hit 2026-10-06 seed hunt (seed→hit):** fold simple block assignments to the same local; regression `ARCH006_reports_unscoped_sql_for_local_assigned_after_declaration`.
+
+2026-10-06 seed hunt (seed→hit): promoted split local declaration plus assignment resolver bypass after two dry hunts; 20 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
 2026-10-01 seed hunt (seed-only): repeated the selected `RunsListClient.tsx` source review for filter disclosure, row/card activation, inspector state, and pagination; the exact focused filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 

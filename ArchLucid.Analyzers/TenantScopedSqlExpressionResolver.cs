@@ -1,3 +1,5 @@
+using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -83,9 +85,9 @@ internal static class TenantScopedSqlExpressionResolver
             yield return propertyInitializer.ToString();
         }
 
-        if (symbol is ILocalSymbol local)
+        if (symbol is not null)
         {
-            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(local, semanticModel))
+            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(symbol, semanticModel))
                 yield return assignedExpression.ToString();
         }
     }
@@ -383,13 +385,13 @@ internal static class TenantScopedSqlExpressionResolver
         ISymbol? symbol,
         SemanticModel semanticModel)
     {
-        if (symbol is not ILocalSymbol local)
+        if (symbol is not ILocalSymbol and not IFieldSymbol)
             return null;
 
         bool hasScopeHelper = false;
         List<string> branchSqlTexts = [];
 
-        foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(local, semanticModel))
+        foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(symbol, semanticModel))
         {
             SemanticModel modelForSyntax = GetSemanticModelForSyntax(assignedExpression, semanticModel);
             ResolutionResult resolution = ResolveCore(assignedExpression, modelForSyntax, visitingInterpolatedHole: false);
@@ -408,56 +410,91 @@ internal static class TenantScopedSqlExpressionResolver
     }
 
     private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressions(
-        ILocalSymbol local,
+        ISymbol symbol,
         SemanticModel semanticModel)
     {
-        SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
-
-        if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
-            yield break;
-
-        BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
-
-        if (block is null)
-            yield break;
-
-        foreach (StatementSyntax statement in block.Statements)
+        if (symbol is ILocalSymbol local)
         {
-            if (!TryGetSimpleAssignmentValue(statement, local, semanticModel, out ExpressionSyntax? assignedExpression))
+            SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+                yield break;
+
+            BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
+
+            if (block is null)
+                yield break;
+
+            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressionsInBlock(block, symbol, semanticModel))
+                yield return assignedExpression;
+
+            yield break;
+        }
+
+        if (symbol is not IFieldSymbol field)
+            yield break;
+
+        foreach (IMethodSymbol constructor in field.ContainingType.InstanceConstructors)
+        {
+            SyntaxReference? syntaxReference = constructor.DeclaringSyntaxReferences.FirstOrDefault();
+
+            if (syntaxReference?.GetSyntax() is not ConstructorDeclarationSyntax constructorDeclaration)
                 continue;
 
-            yield return assignedExpression;
+            BlockSyntax? block = constructorDeclaration.Body;
+
+            if (block is null)
+                continue;
+
+            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressionsInBlock(block, symbol, semanticModel))
+                yield return assignedExpression;
         }
     }
 
-    private static bool TryGetSimpleAssignmentValue(
-        StatementSyntax statement,
-        ILocalSymbol local,
-        SemanticModel semanticModel,
-        out ExpressionSyntax assignedExpression)
+    private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressionsInBlock(
+        BlockSyntax block,
+        ISymbol targetSymbol,
+        SemanticModel semanticModel)
     {
-        assignedExpression = null!;
+        SemanticModel modelForBlock = GetSemanticModelForSyntax(block, semanticModel);
 
-        if (statement is not ExpressionStatementSyntax expressionStatement)
-            return false;
+        foreach (AssignmentExpressionSyntax assignment in block.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+        {
+            if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression))
+                continue;
 
-        if (expressionStatement.Expression is not AssignmentExpressionSyntax assignment)
-            return false;
+            if (!TryGetAssignmentTargetSymbol(assignment.Left, modelForBlock, out ISymbol? leftSymbol))
+                continue;
 
-        if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression))
-            return false;
+            if (leftSymbol is null || !SymbolEqualityComparer.Default.Equals(leftSymbol, targetSymbol))
+                continue;
 
-        if (assignment.Left is not IdentifierNameSyntax identifier)
-            return false;
+            yield return assignment.Right;
+        }
+    }
 
-        ISymbol? leftSymbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+    private static bool TryGetAssignmentTargetSymbol(
+        ExpressionSyntax left,
+        SemanticModel semanticModel,
+        out ISymbol? targetSymbol)
+    {
+        targetSymbol = null;
 
-        if (leftSymbol is null || !SymbolEqualityComparer.Default.Equals(leftSymbol, local))
-            return false;
+        if (left is IdentifierNameSyntax identifier)
+        {
+            targetSymbol = semanticModel.GetSymbolInfo(identifier).Symbol;
 
-        assignedExpression = assignment.Right;
+            return targetSymbol is not null;
+        }
 
-        return true;
+        if (left is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } memberAccess)
+        {
+            targetSymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+
+            return targetSymbol is not null;
+        }
+
+        return false;
     }
 
     private static SemanticModel GetSemanticModelForSyntax(SyntaxNode syntax, SemanticModel semanticModel)
