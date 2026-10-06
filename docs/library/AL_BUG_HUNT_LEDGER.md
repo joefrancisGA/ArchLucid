@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `application-agents` — `AgentProposalStructuralPostProcessorEnricher` replaced `AgentEvidencePackage.StructuralGroundingDropLog` on quality-gate retry re-enrichment instead of appending; `AddRange` after null-coalesce; regression `EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence`; 102 scoped Application.Tests.Agents tests passed.
+
 2026-10-06 seed hunt (seed→hit): `application-agents` — `TopologyProposalDualModelConsensusEnricher` called `TopologyProposalConsensusMerger.Merge` on topology proposals whose `AddedServices`/`AddedDatastores`/`AddedRelationships` were null after JSON deserialize; null-coalesce collection properties before intersection and disagreement math; regression `Merge_when_primary_added_services_is_null_does_not_throw`; 101 scoped Application.Tests.Agents tests passed.
 
 2026-10-06 thorough hunt (hit): `application-agents` — `AgentArchitectureFindingEmissionGate.ApplyToResults` threw when deserialized `AgentResult.WithheldFindings` was null while withholding prose-only findings; initialize the list before append; regressions `ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result` and `EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null`; cheap-disproved consensus audit `.Count` on null merged lists (`Merge_merged_proposal_collection_properties_are_never_null`); 100 scoped Application.Tests.Agents tests passed.
@@ -28306,11 +28308,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 31
-- **bugs-found:** 29
+- **hunts:** 32
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — null topology proposal service lists crashed dual-model consensus merge
+- **last-bug:** 2026-10-06 — structural grounding drop log lost on post-execute enricher re-entry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
@@ -28367,9 +28369,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-06 thorough hunt (hit): promoted withheld-findings candidate; proved `ApplyToResults` NRE on `"withheldFindings": null` JSON; fixed with null-coalescing before append; cheap-disproved consensus audit null merged-list candidate; 100 scoped Application.Tests.Agents tests passed.
 
+2026-10-06 seed hunt (seed→hit): promoted structural grounding drop-log overwrite on quality-gate retry re-enrichment; proved prior drops were lost when the enricher ran again on the same evidence package; fixed by appending drop lines; regression `EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence`; 102 scoped Application.Tests.Agents tests passed.
+
 2026-10-06 seed hunt (seed→hit): promoted null topology collection lists on dual-model consensus path; proved `TopologyProposalConsensusMerger.Merge` NRE when `AddedServices` was null on deserialized primary proposal; fixed by null-coalescing services/datastores/relationships before intersection; regression `Merge_when_primary_added_services_is_null_does_not_throw`; seeded five follow-on `(candidate)` rows; 101 scoped Application.Tests.Agents tests passed.
 
-- (candidate) `AgentProposalStructuralPostProcessorEnricher` — `evidence.StructuralGroundingDropLog = groundingDropLog` overwrites a non-empty drop log when structural post-process runs more than once in the same evidence package instance during a long execute batch.
+- [x] (proven) `AgentProposalStructuralPostProcessorEnricher` — assignment replaced `StructuralGroundingDropLog` when enricher ran again on the same `AgentEvidencePackage` (quality-gate retry path) — **hit 2026-10-06 seed hunt:** append via `AddRange`; regression `EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence`.
 - (candidate) `TopologyProposalDualModelConsensusEnricher` — `DisagreementConfidenceMultiplier` applied twice when merge disagreements exist and calibrated confidence was already scaled by an earlier enricher pass on the same `AgentResult` reference.
 - (candidate) `EvidenceProposalPromoter.PromoteAsync` — `TryGetEvidenceProposalAsync` returns proposal JSON from enrichment overlay while base `AgentResult` row was deleted, allowing promote after run purge when enrichment row remains.
 - (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — enrichment read path re-hydrates findings stripped by emission gate when `EnrichedResultJson` predates gate ordering fix, reviving stub generation for withheld prose.
