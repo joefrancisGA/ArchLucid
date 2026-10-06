@@ -162,6 +162,11 @@ public static class GraphAzureInventoryReconciliationAnalyzer
             normalized = normalized.Replace("//", "/", StringComparison.Ordinal);
         }
 
+        while (normalized.Length > 1 && normalized.EndsWith('/'))
+        {
+            normalized = normalized[..^1];
+        }
+
         return normalized;
     }
 }

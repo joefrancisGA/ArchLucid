@@ -3667,6 +3667,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-06 seed hunt (seed→hit): promoted trailing-slash ARM `RelationshipKey` candidate; proved dual-model consensus disagreed when one relationship endpoint ended with `/` and the other did not; extended `NormalizeArmResourceId` to trim trailing slashes after duplicate-slash collapse; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation`; 999 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): promoted `TopologyProposalConsensusMerger.RelationshipKey` / `GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId` duplicate-slash ARM candidate; proved dual-model consensus disagreed when one relationship used `/subscriptions/...//resourcegroups/...` and the other used a single slash despite equivalent declared service ARM ids; fixed by collapsing repeated `/` in `NormalizeArmResourceId` (consensus + edge-mapper ARM lookups); regression `Merge_intersects_relationships_when_models_use_arm_endpoint_duplicate_slash_variation`; 998 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed duplicate `MapRelationships` candidate (duplicate ledger row of 2026-10-03 / 2026-10-05); mapper intentionally emits one edge per manifest row with identical derived `EdgeId`; `AgentTopologyProposalGraphMerge.AppendUniqueEdges` deduplicates by directed `(fromNodeId, toNodeId, edgeType)` before commit; regressions `MapRelationships_emits_parallel_edges_for_duplicate_manifest_relationship_rows` and `WithMergedTopologyProposals_does_not_duplicate_edges_when_proposal_lists_identical_relationship_twice`; 984 scoped edge-mapper/graph-merge tests passed (`RunAnalyzers=false`).
@@ -3728,11 +3730,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
-- **hunts:** 83
-- **bugs-found:** 68
+- **hunts:** 84
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — ARM resource-id duplicate slash broke topology consensus relationship intersection
+- **last-bug:** 2026-10-06 — ARM resource-id trailing slash broke topology consensus relationship intersection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
