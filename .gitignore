@@ -469,6 +469,9 @@ secrets/
 
 # Local git worktrees; staging these creates orphan gitlinks that break checkout post-steps in CI
 .worktrees/
+
+# Evergreen launcher scratch output (digest/decision/launch JSON); CI uploads it as an artifact
+.evergreen/
 !secrets/local-real-aoai.env.example
 
 # al-api (local secrets and temp screenshots)
