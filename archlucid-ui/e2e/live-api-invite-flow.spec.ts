@@ -87,6 +87,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
 
     await gotoLiveAdminUsersInvitePage(page);
+    await primePrivateBetaBrowserSessionIfJwtMode(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     await expect(invitationsTable.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });

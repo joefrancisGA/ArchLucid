@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
-import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk } from "./helpers/live-private-beta-access";
+import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv, waitForOperatorAuthMeProxyOk, primePrivateBetaBrowserSessionIfJwtMode } from "./helpers/live-private-beta-access";
 import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
@@ -67,6 +67,8 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
           response.ok(),
         { timeout: 45_000 },
       );
+      await primePrivateBetaBrowserSessionIfJwtMode(page);
+      await injectDefaultTenantOperatorScope(page);
       await page.reload({ waitUntil: "domcontentloaded" });
       await waitForOperatorAuthMeProxyOk(page);
       await tokensList;
