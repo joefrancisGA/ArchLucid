@@ -781,6 +781,38 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
 
+  it("switches inspector preview when inspectorRunId changes via popstate before useSearchParams catches up", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    const preview = screen.getByTestId("run-inspector-preview");
+    expect(preview).toBeInTheDocument();
+    expect(within(preview).getByText(sampleRun.description!)).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = `inspectorRunId=${secondRun.runId}`;
+    fireEvent.popState(window);
+
+    const refreshedRuns = [sampleRun, secondRun].map((run) => ({ ...run }));
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={refreshedRuns} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    const previewAfterPopstate = screen.getByTestId("run-inspector-preview");
+    expect(previewAfterPopstate).toBeInTheDocument();
+    expect(within(previewAfterPopstate).getByText(secondRun.description!)).toBeInTheDocument();
+    expect(within(previewAfterPopstate).queryByText(sampleRun.description!)).toBeNull();
+  });
+
   it("re-applies compare selection when compareRuns URL changes without a popstate event", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

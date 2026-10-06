@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-runs-list` — docked inspector reverted to the prior review after browser `popstate` changed committed `inspectorRunId` while `useSearchParams` still named the old id and a `runs` props refresh re-ran selection; prefer committed inspector id when it disagrees with lagging router params; regression `switches inspector preview when inspectorRunId changes via popstate before useSearchParams catches up`; 52 scoped `RunsListClient` tests passed.
+
 2026-10-06 thorough hunt (hit): `saml-jwt-bearer` — `ArchLucidSamlInboundClaimsNormalizer` left duplicate direct `tenant_id` claims from IdP assertions (same GUID twice or conflicting GUIDs) before cookie persistence; dedupe canonical GUID scope claims after promotion; regressions `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid` and `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`; cheap-disproof closed `LocalTrialJwtIssuer` `auth_time` vs `iat` claim-type parity (`HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`); 24 scoped SAML/JWT/SCIM bearer tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — docked inspector stayed open after browser `popstate` cleared committed `inspectorRunId` while `useSearchParams` still exposed the stale param; sync inspector selection from `readWindowLocationSearch()` on `popstate`; regression `closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up`; 51 scoped `RunsListClient` tests passed.
@@ -7522,11 +7524,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 31
+- **hunts:** 32
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 17
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — inspector stayed open when popstate cleared inspectorRunId before router sync
+- **last-bug:** 2026-10-06 — inspector reverted after popstate changed inspectorRunId before router sync on runs refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7611,6 +7613,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 seed hunt (seed→hit): promoted inspector close on browser back when committed `inspectorRunId` cleared before `useSearchParams` caught up; `popstate` listener syncs docked inspector from `readWindowLocationSearch()`; regression `closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up`; 51 scoped `RunsListClient` tests passed.
 
 - [x] (proven) `useRunsList` — `selectedRun` stayed open after `popstate` cleared committed `inspectorRunId` while `urlInspectorRunId` from `useSearchParams` still named the row — **hit 2026-10-06 seed hunt:** `popstate` handler applies committed inspector param before router catches up; regression `closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up`; 51 scoped `RunsListClient` tests passed.
+
+- [x] (proven) `useRunsList` — `selectedRun` snapped back to the prior review after `popstate` changed committed `inspectorRunId` while `urlInspectorRunId` still named the old id and a `runs` props refresh re-ran the selection effect — **hit 2026-10-06 seed hunt:** prefer committed `inspectorRunId` when it disagrees with lagging `useSearchParams`; regression `switches inspector preview when inspectorRunId changes via popstate before useSearchParams catches up`; 52 scoped `RunsListClient` tests passed.
+
+2026-10-06 seed hunt (seed→hit): promoted popstate inspector switch vs stale router param after runs refresh; proved and fixed; 52 scoped `RunsListClient` tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted inspectorRunId soft-navigation gap; proved and fixed; reseeded invalid deep-link and compare-notice candidates; 45 scoped `RunsListClient` tests passed.
 

@@ -286,8 +286,18 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       return;
     }
 
-    const effectiveInspectorRunId =
-      urlInspectorRunId.length > 0 ? urlInspectorRunId : committedInspectorRunId;
+    let effectiveInspectorRunId = urlInspectorRunId;
+
+    if (urlInspectorRunId.length === 0) {
+      effectiveInspectorRunId = committedInspectorRunId;
+    }
+    else if (
+      committedInspectorRunId.length > 0 &&
+      committedInspectorRunId !== urlInspectorRunId
+    ) {
+      // History navigation updates window.location before App Router searchParams catch up.
+      effectiveInspectorRunId = committedInspectorRunId;
+    }
 
     const fromUrl = safeRuns.find((run) => run.runId === effectiveInspectorRunId) ?? null;
 
