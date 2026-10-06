@@ -153,6 +153,9 @@ export function SignupForm() {
         return;
       }
 
+      registerSucceeded = true;
+      registerCompletedRef.current = true;
+
       if (values.companySize) {
         try {
           sessionStorage.setItem("archlucid_signup_company_size", values.companySize);
@@ -176,8 +179,6 @@ export function SignupForm() {
 
       recordFirstTenantFunnelEvent("signup");
       showSuccess("Organization created — check your email if verification is required.");
-      registerSucceeded = true;
-      registerCompletedRef.current = true;
       router.push(`/signup/verify?email=${encodeURIComponent(values.adminEmail)}`);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Request failed.";

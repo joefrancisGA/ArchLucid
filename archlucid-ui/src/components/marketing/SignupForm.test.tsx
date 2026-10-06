@@ -37,6 +37,47 @@ describe("SignupForm", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it("does not allow another register POST when success handling throws after a 201", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockImplementation(() => {
+      throw new Error("toast failed");
+    });
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "toast failed");
+      expect(registerFetchCount()).toBe(1);
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Creating/i }));
+
+    expect(registerFetchCount()).toBe(1);
+
+    vi.mocked(showSuccess).mockReset();
+    vi.unstubAllGlobals();
+  });
+
   it("does not fire a second register request after success before navigation", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
