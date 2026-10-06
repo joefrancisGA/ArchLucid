@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (hit): `cli-draft-new` — proved default `PromptRequiredAsync` spun on stdin EOF and ignored injectable `ReadLineAsync`; routed prompts through `ReadLineAsync` and return `null` on EOF (fail closed in admit stage); cheap-disproof closed api-base-url whitespace (connect fails before create), answer-path scope parity (regression added), patch `ExpectedUpdatedUtc` race (operational); regressions `PromptRequiredAsync_returns_null_when_read_line_returns_null`, `RunCoreAsync_prompted_system_name_when_read_line_eof_returns_operation_failed`, `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create`, `RunCoreAsync_draft_scope_mismatch_after_answer_must_question_returns_operation_failed`; 32 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandHooks`, `DraftNewCommandArgParser`, and intake stage partials after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (EOF on `PromptRequiredAsync`, whitespace `--api-base-url`, answer-path scope parity gap, patch `ExpectedUpdatedUtc` race, `PromptRequiredAsync` vs `ReadLineAsync` seam); 28 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five seeded `(candidate)` rows (JSON whitespace `--text` usage error parity with other JSON preflight gaps; MUST pending snapshot fail-closed on stale skip; submit scope gap intentional given `SubmitDraftResponse` shape; `--api-base-url` override still blocks create scope mismatch; duplicate pending keys idempotent under `--skip-must-questions`); regressions `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting`, `RunCoreAsync_skip_all_with_duplicate_pending_question_keys_completes_when_skip_is_idempotent`, `RunCoreAsync_skip_all_when_stale_pending_question_skip_fails_returns_operation_failed`, `RunCoreAsync_api_base_url_override_still_fails_scope_mismatch_on_create`; 28 scoped `DraftNewCommandCoreTests` passed.
@@ -7581,11 +7583,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 30
-- **bugs-found:** 16
-- **consecutive-dry-hunts:** 1
+- **hunts:** 31
+- **bugs-found:** 17
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-05 — admitted draft with null body crashed scope validation
+- **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7611,11 +7613,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed-only): re-read hooks/parser and intake stages; seeded five new `(candidate)` rows below; 28 scoped `DraftNewCommandCoreTests` passed.
 
-- [ ] (candidate) `DraftNewCommandHooks.PromptRequiredAsync` — default implementation loops on `Console.In.ReadLineAsync` and treats `null` (stdin EOF) like a blank line, re-prompting forever instead of failing closed — reachable when `archlucid draft new` runs non-JSON without `--system-name` / `--business-outcome` / `--text` and stdin closes mid-prompt.
-- [ ] (candidate) `DraftNewCommandArgParser.Parse` — `--api-base-url` trims to empty while `ApiBaseUrlFromArgument` remains true — reachable via `archlucid draft new --api-base-url "   "` before `DraftNewCommandConnectStage` calls `ConnectAsync` with an empty base URL.
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` path validates returned draft scope but has no focused regression mirroring `RunCoreAsync_draft_scope_mismatch_after_skip_must_question_returns_operation_failed` — reachable when an interactive MUST answer returns a cross-tenant draft body on HTTP 200.
-- [ ] (candidate) `DraftNewCommandAdmitStage` — `PatchDraftRequest.ExpectedUpdatedUtc` is copied from the create response without re-read; a concurrent draft mutation between create and patch can fail patch with a generic API error and no operator hint to refresh — reachable under parallel edits to the same draft id (operational race).
-- [ ] (candidate) `DraftNewCommandHooks` — default `PromptRequiredAsync` reads `Console.In` directly while `DraftNewCommandMustQuestionLoop` uses injectable `ReadLineAsync`, so hosts/tests that stub only `ReadLineAsync` still hit real stdin on metadata prompts — reachable from `DraftNewCommandAdmitStage` prompted `systemName` / `businessOutcome` paths.
+- [x] (proven) `DraftNewCommandHooks.PromptRequiredAsync` — stdin EOF (`ReadLineAsync` returns `null`) re-prompted forever — **hit 2026-10-06 thorough hunt:** `PromptRequiredUsingReadLineAsync` returns `null` on EOF; admit stage fails closed with `OperationFailed`; regressions `PromptRequiredAsync_returns_null_when_read_line_returns_null` and `RunCoreAsync_prompted_system_name_when_read_line_eof_returns_operation_failed`.
+- [x] (valid-no-repro) `DraftNewCommandArgParser.Parse` — whitespace-only `--api-base-url` sets empty override URL — **cheap-disproof 2026-10-06 thorough hunt:** `ConnectAsync` receives empty base URL and intake exits with `ConfigurationError` before draft create; regression `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — answer-path scope validation without dedicated regression — **cheap-disproof 2026-10-06 thorough hunt:** cross-tenant answer body fails closed like skip path; regression `RunCoreAsync_draft_scope_mismatch_after_answer_must_question_returns_operation_failed`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — patch `ExpectedUpdatedUtc` from create vs concurrent mutation — **cheap-disproof 2026-10-06 thorough hunt:** optimistic concurrency conflict is an operational race; generic patch failure is acceptable without a CLI-only refresh hint in this zone.
+- [x] (proven) `DraftNewCommandHooks` — `PromptRequiredAsync` bypassed injectable `ReadLineAsync` — **hit 2026-10-06 thorough hunt (same fix as EOF):** default prompt loop now calls `ReadLineAsync`; stubbing `ReadLineAsync` drives metadata prompts in tests.
 
 - [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--text` passes JSON preflight without `CliJson.WriteFailureLine` — **cheap-disproof 2026-10-06 thorough hunt:** fails closed in `DraftNewCommandConnectStage` with `UsageError` and stderr intent-length message (parity with `RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`, which also omits structured JSON failure for usage preflight); regression `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting`.
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — snapshotted `pending` list can drive skip for a stale `QuestionKey` — **cheap-disproof 2026-10-06 thorough hunt:** when the server rejects the stale skip (`409`), intake returns `OperationFailed` instead of continuing; regression `RunCoreAsync_skip_all_when_stale_pending_question_skip_fails_returns_operation_failed`.

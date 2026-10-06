@@ -850,6 +850,126 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task PromptRequiredAsync_returns_null_when_read_line_returns_null()
+    {
+        DraftNewCommandHooks hooks = new()
+        {
+            ReadLineAsync = (_, _) => Task.FromResult<string?>(null),
+        };
+
+        string? result = await hooks.PromptRequiredAsync("System name:", new StringWriter(), CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_prompted_system_name_when_read_line_eof_returns_operation_failed()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => CreateDraftFlowClient(),
+            ReadLineAsync = (_, _) => Task.FromResult<string?>(null),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create()
+    {
+        bool createCalled = false;
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            ApiBaseUrl = string.Empty,
+            ApiBaseUrlFromArgument = true,
+            SkipMustQuestions = true,
+        };
+
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (baseUrl, _) =>
+            {
+                baseUrl.Should().BeEmpty();
+
+                return Task.FromResult(ApiConnectionOutcome.InvalidConfiguration);
+            },
+            CreateApiClient = (_, _) =>
+            {
+                createCalled = true;
+
+                return CreateDraftFlowClient();
+            },
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.ConfigurationError);
+        createCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_draft_scope_mismatch_after_answer_must_question_returns_operation_failed()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = false,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new AnswerMustQuestionScopeMismatchHandler());
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+                CreateApiClient = (_, _) => client,
+                ReadLineAsync = (_, _) => Task.FromResult<string?>("Public data only"),
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("does not match configured CLI scope");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_api_base_url_override_still_fails_scope_mismatch_on_create()
     {
         Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
@@ -978,6 +1098,70 @@ public sealed class DraftNewCommandCoreTests
             }
 
             if (request.Method == HttpMethod.Post && path.EndsWith("/skip", StringComparison.OrdinalIgnoreCase))
+            {
+                Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+                return Json(HttpStatusCode.OK, DraftBody("Admitted", mismatchedTenantId));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class AnswerMustQuestionScopeMismatchHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.Created, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    admitted = true,
+                    status = "Admitted",
+                    draft = DraftBody("Admitted", configuredTenantId),
+                    pendingMustQuestions = Array.Empty<object>(),
+                });
+            }
+
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/answer", StringComparison.OrdinalIgnoreCase))
             {
                 Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 

@@ -9,27 +9,37 @@ internal sealed class DraftNewCommandHooks
     public Func<string, ArchLucidProjectScaffolder.ArchLucidCliConfig?, ArchLucidApiClient> CreateApiClient { get; init; } =
         (baseUrl, config) => new ArchLucidApiClient(baseUrl, config);
 
-    public Func<string, CancellationToken, Task<string?>> ReadLineAsync { get; init; } =
-        async (_, ct) =>
+    public Func<string, CancellationToken, Task<string?>> ReadLineAsync { get; init; } = ReadConsoleLineAsync;
+
+    public Func<string, TextWriter, CancellationToken, Task<string?>> PromptRequiredAsync { get; init; }
+
+    public DraftNewCommandHooks()
+    {
+        PromptRequiredAsync = PromptRequiredUsingReadLineAsync;
+    }
+
+    private async Task<string?> PromptRequiredUsingReadLineAsync(string label, TextWriter output, CancellationToken ct)
+    {
+        while (true)
         {
             ct.ThrowIfCancellationRequested();
+            await output.WriteLineAsync(label);
+            string? line = await ReadLineAsync(string.Empty, ct);
 
-            return await Console.In.ReadLineAsync(ct);
-        };
+            if (line is null)
+                return null;
 
-    public Func<string, TextWriter, CancellationToken, Task<string?>> PromptRequiredAsync { get; init; } =
-        async (label, output, ct) =>
-        {
-            while (true)
-            {
-                ct.ThrowIfCancellationRequested();
-                await output.WriteLineAsync(label);
-                string? line = await Console.In.ReadLineAsync(ct);
+            if (!string.IsNullOrWhiteSpace(line))
+                return line.Trim();
 
-                if (!string.IsNullOrWhiteSpace(line))
-                    return line.Trim();
+            await output.WriteLineAsync("A non-empty value is required.");
+        }
+    }
 
-                await output.WriteLineAsync("A non-empty value is required.");
-            }
-        };
+    private static async Task<string?> ReadConsoleLineAsync(string _, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        return await Console.In.ReadLineAsync(ct);
+    }
 }
