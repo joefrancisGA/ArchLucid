@@ -266,6 +266,8 @@
 
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
 
+2026-10-06 seed hunt (seed→hit): `ui-form-validation` — `SignupForm` `onSubmit` `finally` block reset `submitting` after a successful register response, re-enabling the primary CTA before `router.push` and allowing a duplicate `POST /api/proxy/v1/register`; keep submit locked after success and guard with `registerCompletedRef`; regression `does not fire a second register request after success before navigation`; 27 scoped SignupForm vitest tests passed.
+
 2026-10-06 seed hunt (seed→hit): `llm-wallet` — webhook `TryCreditRefillAsync` with `incrementMonthlyAutoRefillCount: false` updated balance only and left `LastRefillUtc` null/stale after Stripe payment-intent top-ups; stamp `LastRefillUtc` on all positive refill credits; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`; 24 scoped `LlmTenantWalletServiceTests` passed.
 
 2026-10-06 seed hunt (seed→hit): `llm-wallet` — `ApplyWebhookPaymentIntentSucceededAsync` credited via `TryCreditRefillAsync` and incremented `AutoRefillsThisUtcMonthCount`, so a small Stripe top-up could exhaust the monthly auto-replenish cap (`CanAutoRefill` treats each count as a full `RefillIncrementUsd`) and block `TryAutoRefillAsync`; skip monthly refill-counter updates for webhook payment-intent credits; regression `TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`; 23 scoped `LlmTenantWalletServiceTests` passed.
@@ -3914,11 +3916,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 26
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-11 — signup readiness hint mislabeled fractional team size and overlong industry Other optional-field failures
+- **hunts:** 27
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — successful signup re-enabled submit and allowed duplicate register POST
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -3976,6 +3978,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #1919 (seed-only): reseeded ui-form-validation; cheap-disproof closed fractional team size bypass as fixed in #1730; 25 scoped SignupForm tests passed.
 
 - [x] (valid-no-repro) `SignupForm` fractional `architectureTeamSize` keeps submit enabled — **cheap-disproof 2026-09-12 seed hunt #1919:** `Number.isInteger` guard (#1730).
+- [x] (proven) `SignupForm` `onSubmit` — `finally` reset `submitting` after successful register re-enabled the primary CTA before client navigation and allowed a second `POST /api/proxy/v1/register` — **hit 2026-10-06 seed hunt:** keep submit locked and ignore duplicate handler entry after success via `registerCompletedRef`; regression `does not fire a second register request after success before navigation`; 27 scoped SignupForm tests passed.
+
+2026-10-06 seed hunt (seed→hit): proved successful signup could POST register twice before navigation; 27 scoped SignupForm vitest tests passed.
+
 ---
 
 ## Zone: commit-output-integrity

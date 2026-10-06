@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ const optionalFieldLabelClass = cn("font-normal text-al-text-secondary", OPERATO
 export function SignupForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const registerCompletedRef = useRef(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -68,7 +69,12 @@ export function SignupForm() {
   const readinessMessage = deriveSignupFormReadinessMessage(values);
 
   const onSubmit = handleSubmit(async (values) => {
+    if (registerCompletedRef.current) {
+      return;
+    }
+
     setSubmitting(true);
+    let registerSucceeded = false;
 
     try {
       const payload: Record<string, unknown> = {
@@ -168,12 +174,16 @@ export function SignupForm() {
 
       recordFirstTenantFunnelEvent("signup");
       showSuccess("Organization created — check your email if verification is required.");
+      registerSucceeded = true;
+      registerCompletedRef.current = true;
       router.push(`/signup/verify?email=${encodeURIComponent(values.adminEmail)}`);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Request failed.";
       showError("Signup", message);
     } finally {
-      setSubmitting(false);
+      if (!registerSucceeded) {
+        setSubmitting(false);
+      }
     }
   });
 

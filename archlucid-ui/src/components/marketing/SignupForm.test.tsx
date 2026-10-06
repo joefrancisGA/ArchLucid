@@ -37,6 +37,48 @@ describe("SignupForm", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it("does not fire a second register request after success before navigation", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalled();
+      expect(registerFetchCount()).toBe(1);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Creating/i }));
+
+    expect(registerFetchCount()).toBe(1);
+
+    vi.unstubAllGlobals();
+  });
+
   it("submits valid payload to the same-origin proxy", async () => {
     vi.mocked(showSuccess).mockClear();
 
@@ -381,7 +423,7 @@ describe("SignupForm", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
     });
 
     vi.unstubAllGlobals();
