@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand.RunAsync` delegation and `DraftNewCommandIntakeLoop` / stage partials after picker rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (JSON whitespace `--text` gate asymmetry, MUST-question pending snapshot without re-fetch, submit success without draft-scope validation, `--api-base-url` override vs cwd scope config, duplicate pending question keys); 24 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-06 seed hunt (seed-only): `cli-terraform-evidence` — re-read `DeploymentEvidenceTerraformReference` and live `apply-saas.ps1` / reference-doc sync regressions after zone rotation; no hunt-ready row promoted; seeded five `(candidate)` rows (lexicographic sort misuse, metadata-line filtering, doc deep-link fragility, reference-table vs ps1 dual-guard wedge, orchestrator legacy annotation vs default sequence); 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed.
 
 2026-10-06 thorough hunt (dry): `technology-ledger-merge` — cheap-disproof closed five seeded `(candidate)` rows (primary-datastore vs compute chosen role isolation; sub-key trailing whitespace dedupes via outer `EvidenceRef` trim; region chosen authoritative name gate; inventory vs topology substantive name exploration; cloud-platform insert on new `ProposalId` intentional); regressions `Resolve_inserts_primary_datastore_candidate_when_compute_chosen_would_block_compute_only`, `Resolve_skips_when_outer_evidence_ref_differs_only_by_trailing_whitespace`, `Resolve_skips_region_candidate_when_region_chosen_shares_technology_name_and_has_grounding_ref`, `Resolve_keeps_topology_candidate_when_inventory_assumed_row_shares_technology_name`, `Resolve_inserts_second_cloud_platform_row_when_proposal_id_changes`; 91 scoped TechnologyLedger tests passed.
@@ -7575,10 +7577,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — admitted draft with null body crashed scope validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7598,6 +7600,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
 ### Hypotheses
+
+2026-10-06 seed hunt (seed-only): re-read intake loop and stage partials reached via `DraftNewCommand.RunCoreAsync`; no hunt-ready row promoted; seeded five new `(candidate)` rows below; 24 scoped `DraftNewCommandCoreTests` passed.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — `--text` is checked with `IntentText is null` while `--system-name` / `--business-outcome` use `IsNullOrWhiteSpace`, so whitespace-only `--text` passes JSON preflight and fails later in `DraftNewCommandConnectStage` without `CliJson.WriteFailureLine` on stdout — reachable via `archlucid --json draft new --text "   "` with the other required flags set.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `pending` is snapshotted once from `GetDraftQuestionsAsync` and the `foreach` never re-fetches; answering or skipping a MUST that collapses a sibling pending key still drives skip/answer for stale `QuestionKey` values — reachable when elicitation dependencies remove questions server-side between loop iterations.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — after `SubmitDraftAsync` the command guards hollow `runId` / `requestId` but never calls `CliScopeResponseValidator` on a draft body (submit returns `SubmitDraftResponse` only), unlike create/patch/admit and MUST skip/answer paths — reachable when a mis-scoped API returns HTTP 200 with identifiers that never re-enter draft scope checks.
+- [ ] (candidate) `DraftNewCommandConnectStage` — `--api-base-url` overrides the HTTP base URL while `CliScopeResponseValidator` still compares draft bodies to `CliCommandShared.TryLoadConfigFromCwd()` tenant scope — reachable when operators point the CLI at a staging API but keep production scope headers in the local `.archlucid` config.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — duplicate `QuestionKey` entries in `PendingMustQuestions` would invoke `SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` twice for the same key in one intake — reachable if the questions API returns repeated keys in the pending array.
 
 - [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` (`must_questions_pending`) before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode rejects pending MUST questions before the read loop; defensive `WriteFailureLine` (`must_question_answer_required`) on whitespace-answer branch.
