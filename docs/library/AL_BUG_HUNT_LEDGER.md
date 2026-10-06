@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows (CI python vs C# sync gap, em-dash delimiter, optional on-disk roots, exhaustive inventory, external list scrapers); 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed; `assert_terraform_root_ordering_sync.py` OK.
+
 2026-10-06 thorough hunt (dry): `tenant-erasure` — cheap-disproof closed four open `(candidate)` rows (corrupt offboard row without `ErasureEligibleUtc`, scheduled-only legal-hold/approve gaps, trailing-slash allowlist); regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_trailing_slash`; 49 scoped `TenantErasure` tests passed (25 Api + 19 Application + 4 Core + 1 Persistence).
 
 2026-10-06 seed hunt (seed-only): `cli-terraform-evidence` — re-read `DeploymentEvidenceTerraformReference`, `DeploymentEvidenceReportMarkdown`, and apply-saas/pilot sync tests; cheap-disproof closed four lingering interpretation/link candidates; seeded five new `(candidate)` rows (CI python guard vs C# constant, em-dash delimiter edit, optional on-disk roots); 25 scoped `DeploymentEvidenceTerraformReferenceTests` passed.
@@ -7508,9 +7510,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -7520,18 +7522,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
+
 2026-10-06 seed hunt (seed-only): reread static apply-order constant, Markdown report consumer, and live `apply-saas.ps1` / pilot / reference-doc sync regressions; cheap-disproof closed four open interpretation candidates; seeded five bounded `(candidate)` rows below. 25 scoped tests passed.
+
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — C# list can drift from `apply-saas.ps1` while `assert_terraform_root_ordering_sync.py` stays green — **cheap-disproof 2026-10-06 thorough hunt:** `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` and hosted-wave/pilot/reference-doc sync tests parse live `infra/apply-saas.ps1` and `terraform-pilot/main.tf`; C#-only drift fails Cli tests; python guard aligns pilot with apply (prerequisite for those tests).
+- [x] (valid-no-repro) Annotated evidence lines require Unicode em dash (` —`) — **cheap-disproof 2026-10-06 thorough hunt:** regression `DefaultApplyOrderRoots_annotated_lines_use_em_dash_path_delimiter` plus `DefaultApplyOrderRoots_plain_leaf_lines_are_unannotated_exact_paths`; ASCII hyphen substitution is a manual edit failure mode caught when Cli tests run.
+- [x] (invalid) `infra/terraform-sql-app` / `infra/terraform-hosted-prod` omitted from canonical twenty-line list — **cheap-disproof 2026-10-06 thorough hunt:** evidence lists hosted `$multiRootSequence` + composition + pilot per `REFERENCE_SAAS_STACK_ORDER.md`, not every `infra/terraform-*` directory (same policy as optional `terraform-otel-collector` row).
+- [x] (invalid) New `infra/terraform-*` directories can ship without updating evidence — **cheap-disproof 2026-10-06 thorough hunt:** optional add-on roots are out of scope for deployment-evidence apply order; regressions `DefaultApplyOrderRoots_lists_exactly_twenty_entries` and `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk` guard the canonical list, not repo-wide directory enumeration.
+- [x] (invalid) `DeploymentEvidenceReportMarkdown` section title misleads automated parsers — **cheap-disproof 2026-10-06 thorough hunt:** no in-repo consumer scrapes numbered lists without annotations; report emits full annotated lines and cites `REFERENCE_SAAS_STACK_ORDER.md` (prior #1768).
 
 - [x] (valid-no-repro) `DefaultApplyOrderRoots` — plain `infra/terraform` is a prefix of longer roots so prefix-matching consumers mis-rank apply order — **cheap-disproof 2026-10-06 seed hunt:** `DeploymentEvidenceReportMarkdown` emits numbered lines verbatim (no prefix match); consumption APIM ordering is edge → terraform → monitoring; regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
 - [x] (valid-no-repro) Metadata-only composition/pilot lines in the apply-order list are read as executable Terraform applies when annotations are stripped — **cheap-disproof 2026-10-06 seed hunt:** report copies full annotated strings under “Terraform roots (expected apply order)” and cites `REFERENCE_SAAS_STACK_ORDER.md`; prior #1768 closed report-execution interpretation.
 - [x] (valid-no-repro) `DocumentationRelativePath` breaks when deployment evidence Markdown is generated outside a repo checkout — **cheap-disproof 2026-10-06 seed hunt:** path is a repo-relative citation in backticks, not a resolved filesystem link; `Compose` records when `repositoryRoot` is null without asserting the doc file exists beside the output artifact.
 - [x] (valid-no-repro) Downstream deployment-evidence consumers treat every `DefaultApplyOrderRoots` line as an apply root — **cheap-disproof 2026-10-06 seed hunt:** same verbatim annotated rendering as metadata candidate; no in-repo consumer executes the list (`deployment-evidence` is probe Markdown only).
-
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — `scripts/ci/assert_terraform_root_ordering_sync.py` (`.github/workflows/ci.yml`) sync-checks pilot vs `apply-saas.ps1` only, not the C# constant; maintainers can drift the CLI evidence list while CI stays green until `ArchLucid.Cli.Tests` run; reachable via `deployment-evidence --out` Markdown “expected apply order”.
-- [ ] (candidate) Annotated evidence lines in `DeploymentEvidenceTerraformReference` rely on Unicode em dash (` —`) before notes; replacing with ASCII `-` breaks `Split(" —")` path extraction in `DeploymentEvidenceTerraformReferenceTests` and duplicates path keys; reachable on manual edit of composition/pilot/orchestrator strings.
-- [ ] (candidate) `infra/terraform-sql-app` and `infra/terraform-hosted-prod` exist on disk but are absent from `DefaultApplyOrderRoots`; deployment-evidence readers treating the twenty-line list as exhaustive hosted inventory omit optional SQL-app / hosted-prod paths documented only outside the canonical `$multiRootSequence`.
-- [ ] (candidate) `DefaultApplyOrderRoots` hardcodes twenty entries while `infra/` grows additional `terraform-*` directories; absence of an on-disk “listed only” guard (beyond optional-root policy) lets new roots ship without updating evidence until a maintainer runs Cli tests.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown` titles the section “expected apply order” while three composition roots and the pilot profile lines state “no Azure apply”; automated parsers that scrape numbered lists without annotation text could schedule metadata waves as apply steps (no in-repo parser today).
 
 - [x] (proven) Deployment evidence listed `terraform-pilot` before composition roots — fixed by reordering to hosted validate/apply sequence (composition, leaves, orchestrator legacy, pilot default profile).
 - [x] (proven) Deployment evidence omitted `infra/terraform-pilot` while listing other metadata-only composition roots — fixed by adding pilot as the first expected apply-order entry.
