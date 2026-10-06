@@ -87,8 +87,8 @@ internal static class TenantScopedSqlExpressionResolver
 
         if (symbol is not null)
         {
-            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(symbol, semanticModel))
-                yield return assignedExpression.ToString();
+            foreach (TargetAssignment targetAssignment in GetTargetAssignments(symbol, semanticModel))
+                yield return targetAssignment.Right.ToString();
         }
     }
 
@@ -410,12 +410,9 @@ internal static class TenantScopedSqlExpressionResolver
         bool hasScopeHelper = false;
         List<string> branchSqlTexts = [];
 
-        foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(symbol, semanticModel))
+        foreach (TargetAssignment targetAssignment in GetTargetAssignments(symbol, semanticModel))
         {
-            SemanticModel modelForSyntax = GetSemanticModelForSyntax(assignedExpression, semanticModel);
-            ResolutionResult resolution = ResolveCore(assignedExpression, modelForSyntax, visitingInterpolatedHole: false);
-            hasScopeHelper |= resolution.HasScopeHelperInvocation;
-            AppendDistinctBranchSqlTexts(branchSqlTexts, resolution);
+            ApplyTargetAssignment(targetAssignment, branchSqlTexts, ref hasScopeHelper);
         }
 
         if (branchSqlTexts.Count == 0)
@@ -428,7 +425,23 @@ internal static class TenantScopedSqlExpressionResolver
         return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
     }
 
-    private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressions(
+    private readonly struct TargetAssignment
+    {
+        internal TargetAssignment(bool isAddAssignment, ExpressionSyntax right, SemanticModel semanticModel)
+        {
+            IsAddAssignment = isAddAssignment;
+            Right = right;
+            SemanticModel = semanticModel;
+        }
+
+        internal bool IsAddAssignment { get; }
+
+        internal ExpressionSyntax Right { get; }
+
+        internal SemanticModel SemanticModel { get; }
+    }
+
+    private static IEnumerable<TargetAssignment> GetTargetAssignments(
         ISymbol symbol,
         SemanticModel semanticModel)
     {
@@ -444,8 +457,8 @@ internal static class TenantScopedSqlExpressionResolver
             if (block is null)
                 yield break;
 
-            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressionsInBlock(block, symbol, semanticModel))
-                yield return assignedExpression;
+            foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+                yield return targetAssignment;
 
             yield break;
         }
@@ -473,9 +486,54 @@ internal static class TenantScopedSqlExpressionResolver
             if (block is null)
                 continue;
 
-            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressionsInBlock(block, symbol, semanticModel))
-                yield return assignedExpression;
+            foreach (TargetAssignment targetAssignment in GetTargetAssignmentsInBlock(block, symbol, semanticModel))
+                yield return targetAssignment;
         }
+    }
+
+    private static void ApplyTargetAssignment(
+        TargetAssignment targetAssignment,
+        List<string> branchSqlTexts,
+        ref bool hasScopeHelper)
+    {
+        ResolutionResult rightResolution = ResolveCore(
+            targetAssignment.Right,
+            targetAssignment.SemanticModel,
+            visitingInterpolatedHole: false);
+        hasScopeHelper |= rightResolution.HasScopeHelperInvocation;
+
+        if (!targetAssignment.IsAddAssignment)
+        {
+            AppendDistinctBranchSqlTexts(branchSqlTexts, rightResolution);
+
+            return;
+        }
+
+        if (!rightResolution.IsStaticallyResolved)
+            return;
+
+        string appended = rightResolution.SqlText ?? string.Empty;
+
+        if (branchSqlTexts.Count == 0)
+        {
+            if (appended.Length > 0)
+                branchSqlTexts.Add(appended);
+
+            return;
+        }
+
+        List<string> updated = [];
+
+        foreach (string existing in branchSqlTexts)
+        {
+            string combined = existing + appended;
+
+            if (!updated.Contains(combined, StringComparer.Ordinal))
+                updated.Add(combined);
+        }
+
+        branchSqlTexts.Clear();
+        branchSqlTexts.AddRange(updated);
     }
 
     private static BlockSyntax? TryGetMethodBodyBlock(IMethodSymbol method)
@@ -491,7 +549,7 @@ internal static class TenantScopedSqlExpressionResolver
         return null;
     }
 
-    private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressionsInBlock(
+    private static IEnumerable<TargetAssignment> GetTargetAssignmentsInBlock(
         BlockSyntax block,
         ISymbol targetSymbol,
         SemanticModel semanticModel)
@@ -500,8 +558,11 @@ internal static class TenantScopedSqlExpressionResolver
 
         foreach (AssignmentExpressionSyntax assignment in block.DescendantNodes().OfType<AssignmentExpressionSyntax>())
         {
-            if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression))
+            if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression) &&
+                !assignment.IsKind(SyntaxKind.AddAssignmentExpression))
+            {
                 continue;
+            }
 
             if (!TryGetAssignmentTargetSymbol(assignment.Left, modelForBlock, out ISymbol? leftSymbol))
                 continue;
@@ -509,7 +570,10 @@ internal static class TenantScopedSqlExpressionResolver
             if (leftSymbol is null || !SymbolEqualityComparer.Default.Equals(leftSymbol, targetSymbol))
                 continue;
 
-            yield return assignment.Right;
+            yield return new TargetAssignment(
+                assignment.IsKind(SyntaxKind.AddAssignmentExpression),
+                assignment.Right,
+                modelForBlock);
         }
     }
 

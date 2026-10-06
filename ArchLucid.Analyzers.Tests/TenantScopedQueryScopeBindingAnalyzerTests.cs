@@ -295,6 +295,38 @@ public sealed class NestedBlockLocalRunsRepository
     }
 
     [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_field_built_with_compound_assignment()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class CompoundAssignmentRunsRepository
+{
+    private string unscopedRunsSql = string.Empty;
+
+    public void Load(IDbConnection connection)
+    {
+        unscopedRunsSql += "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL";
+        _ = SqlMapper.Query<int>(connection, unscopedRunsSql);
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(71, 13, 71, 62)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
     public async Task ARCH006_reports_unscoped_sql_for_auto_property_assigned_in_instance_method()
     {
         const string testCode = SharedStubs +
