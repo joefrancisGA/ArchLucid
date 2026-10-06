@@ -46,6 +46,48 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_emits_parallel_edges_for_duplicate_manifest_relationship_rows()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-1",
+            TargetId = "ds-1",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new(),
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new(),
+            },
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [relationship, relationship]);
+
+        edges.Should().HaveCount(2);
+        edges[0].EdgeId.Should().Be(edges[1].EdgeId);
+        edges.Should().OnlyContain(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first()
     {
         List<GraphNode> nodes =

@@ -328,4 +328,17 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalize_completes_for_large_multi_pass_percent_encoded_safe_path()
+    {
+        string segment = string.Concat(Enumerable.Repeat("%252541", 12_000));
+        string path = "/reviews/" + segment;
+
+        string? normalized = AuthSignInReturnPathGuard.TryNormalize(path);
+
+        normalized.Should().NotBeNull();
+        normalized.Should().StartWith("/reviews/");
+        normalized!.Length.Should().BeLessThan(path.Length);
+    }
 }

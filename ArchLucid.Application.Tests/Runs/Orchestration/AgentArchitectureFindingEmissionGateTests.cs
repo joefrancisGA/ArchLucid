@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -112,5 +114,34 @@ public sealed class AgentArchitectureFindingEmissionGateTests
         result.Findings.Should().BeEmpty();
         result.WithheldFindings.Should().ContainSingle();
         result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProvenanceHoldEmission);
+    }
+
+    [Fact]
+    public void ApplyToResults_tolerates_null_withheld_findings_on_deserialized_result()
+    {
+        const string json =
+            """
+            {
+              "taskId": "task-1",
+              "runId": "run-1",
+              "agentType": "Compliance",
+              "findings": [
+                {
+                  "classification": "DecisionGradeFinding",
+                  "message": "Prose only"
+                }
+              ],
+              "withheldFindings": null
+            }
+            """;
+
+        AgentResult? result = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+        result.Should().NotBeNull();
+
+        AgentArchitectureFindingEmissionGate.ApplyToResults([result!]);
+
+        result!.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
     }
 }
