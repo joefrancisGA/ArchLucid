@@ -492,9 +492,6 @@ internal static class InventoryDiagramExternalTargetApplier
         return IsPrivateEndpointNode(node)
             || armType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase)
             || armType.Contains("/subnets", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("routeTables", StringComparison.OrdinalIgnoreCase)
             || armId.Contains("/networkInterfaces/", StringComparison.OrdinalIgnoreCase)
             || armId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase)
             || armId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase);
