@@ -48,6 +48,129 @@ public sealed class AzureInventoryAdfPipelineFlowExtractorTests
     }
 
     [Fact]
+    public void ExtractFlows_keeps_static_input_reference_with_parameters_without_persisting_values()
+    {
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "CopyBlob",
+                    "type": "Copy",
+                    "inputs": [
+                      {
+                        "referenceName": "SrcBlob",
+                        "type": "DatasetReference",
+                        "parameters": { "folder": "secret-value" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline]);
+
+        flows.Should().ContainSingle();
+        flows[0].DatasetName.Should().Be("SrcBlob");
+        JsonSerializer.Serialize(flows[0]).Should().NotContain("secret-value");
+    }
+
+    [Fact]
+    public void ExtractFlows_reads_lookup_dataset_from_type_properties()
+    {
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "Lookup",
+                    "type": "Lookup",
+                    "typeProperties": {
+                      "dataset": { "referenceName": "LookupSet", "type": "DatasetReference" }
+                    }
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline]);
+
+        flows.Should().ContainSingle(flow =>
+            flow.DatasetName == "LookupSet"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Read);
+    }
+
+    [Fact]
+    public void ExtractFlows_reads_copy_sink_dataset_from_type_properties()
+    {
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "Copy",
+                    "type": "Copy",
+                    "typeProperties": {
+                      "sink": {
+                        "dataset": { "referenceName": "SinkSql", "type": "DatasetReference" }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline]);
+
+        flows.Should().ContainSingle(flow =>
+            flow.DatasetName == "SinkSql"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Write);
+    }
+
+    [Fact]
+    public void ExtractFlows_skips_expression_type_property_dataset_reference()
+    {
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "Lookup",
+                    "type": "Lookup",
+                    "typeProperties": {
+                      "dataset": {
+                        "referenceName": "DynamicDataset",
+                        "type": "Expression"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline]);
+
+        flows.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ExtractFlows_expands_execute_pipeline_with_static_reference()
     {
         JsonElement childPipeline = Parse("""

@@ -756,4 +756,48 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
 
         $rows | ForEach-Object { $_.databaseArmId } | Should -Not -Contain '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1/databases/master'
     }
+
+    It 'keeps static parameterized dataset references and type property fallbacks' {
+        $activity = [PSCustomObject]@{
+            name = 'Copy'
+            type = 'Copy'
+            inputs = @(
+                [PSCustomObject]@{
+                    referenceName = 'SrcBlob'
+                    type = 'DatasetReference'
+                    parameters = [PSCustomObject]@{ folder = 'secret-value' }
+                }
+            )
+            typeProperties = [PSCustomObject]@{
+                sink = [PSCustomObject]@{
+                    dataset = [PSCustomObject]@{
+                        referenceName = 'SinkSql'
+                        type = 'DatasetReference'
+                    }
+                }
+            }
+        }
+        $rows = [System.Collections.ArrayList]::new()
+        $placeholderRow = [ordered]@{ placeholder = $true }
+        [void]$rows.Add($placeholderRow)
+        $flowKeys = [System.Collections.Generic.HashSet[string]]::new()
+        [void]$flowKeys.Add('__test_sentinel__')
+
+        Add-ArchLucidAzureAdfPipelineActivityFlows `
+            -FactoryResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1' `
+            -PipelineResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1' `
+            -PipelineName 'p1' `
+            -PipelineResource $([PSCustomObject]@{ properties = [PSCustomObject]@{ activities = @($activity) } }) `
+            -PipelinesByName @{} `
+            -RemainingNestedDepth 0 `
+            -PipelineVisitStack @('p1') `
+            -Rows $rows `
+            -FlowKeys $flowKeys
+
+        [void]$rows.Remove($placeholderRow)
+        @($rows).Count | Should -Be 2
+        @($rows | ForEach-Object datasetName) | Should -Contain 'SrcBlob'
+        @($rows | ForEach-Object datasetName) | Should -Contain 'SinkSql'
+        ($rows | ConvertTo-Json -Depth 8) | Should -Not -Contain 'secret-value'
+    }
 }
