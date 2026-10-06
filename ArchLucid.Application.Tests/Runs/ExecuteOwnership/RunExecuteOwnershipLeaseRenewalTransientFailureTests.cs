@@ -74,6 +74,7 @@ public sealed class RunExecuteOwnershipLeaseRenewalTransientFailureTests
             storage.Object,
             new WorkerHostDrainGate(),
             options.Object,
-            NullLogger<RunExecuteOwnershipLeaseService>.Instance);
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
     }
 }

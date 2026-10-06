@@ -13,11 +13,15 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 
+/// <summary>
+/// Scoped lease services must share admission state. Otherwise two requests on one replica
+/// both reach SQL with the same holder id and both are treated as renewals.
+/// </summary>
 [Trait("Category", "Unit")]
-public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
+public sealed class RunExecuteOwnershipLeaseServiceSharedAdmissionTests
 {
     [Fact]
-    public async Task AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim()
+    public async Task AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease()
     {
         Guid runId = Guid.NewGuid();
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
@@ -25,21 +29,25 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
             .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+        RunExecuteOwnershipActiveHolderRegistry registry = new();
+        RunExecuteOwnershipLeaseService first = CreateSut(leases, registry);
+        RunExecuteOwnershipLeaseService second = CreateSut(leases, registry);
 
-        await sut.AcquireAsync(runId, CancellationToken.None);
+        await first.AcquireAsync(runId, CancellationToken.None);
 
-        Func<Task> secondAcquire = () => sut.AcquireAsync(runId, CancellationToken.None);
+        Func<Task> act = () => second.AcquireAsync(runId, CancellationToken.None);
 
-        await secondAcquire.Should().ThrowAsync<ConflictException>()
-            .WithMessage("*already in progress on this host instance*");
+        await act.Should().ThrowAsync<ConflictException>()
+            .WithMessage("*already in progress*");
 
         leases.Verify(
             l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
-    private static RunExecuteOwnershipLeaseService CreateSut(Mock<IRunExecuteOwnershipLeaseRepository> leases)
+    private static RunExecuteOwnershipLeaseService CreateSut(
+        Mock<IRunExecuteOwnershipLeaseRepository> leases,
+        RunExecuteOwnershipActiveHolderRegistry registry)
     {
         Mock<IHostProcessInstanceId> instance = new();
         instance.Setup(i => i.Value).Returns("instance-a");
@@ -47,16 +55,16 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
         Mock<IArchLucidStorageMode> storage = new();
         storage.Setup(s => s.IsInMemory).Returns(false);
 
-        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> optionsMonitor = new();
-        optionsMonitor.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
 
         return new RunExecuteOwnershipLeaseService(
             leases.Object,
             instance.Object,
             storage.Object,
             new WorkerHostDrainGate(),
-            optionsMonitor.Object,
+            options.Object,
             NullLogger<RunExecuteOwnershipLeaseService>.Instance,
-            new RunExecuteOwnershipActiveHolderRegistry());
+            registry);
     }
 }

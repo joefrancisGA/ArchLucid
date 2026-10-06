@@ -3685,11 +3685,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 77
-- **bugs-found:** 63
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-02 — Terraform module names containing `azurerm_` caused the parser to miss the actual resource token and drop synthetic relationship endpoints
 - **hunts:** 81
 - **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
@@ -12891,9 +12886,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PilotRunDeltaComputer` governed coverage — agent over-count keeps agent `AggregateGovernedFindingCoverage` when snapshot has stronger policy violations — **hit 2026-09-26 thorough hunt:** `ShouldPreferSnapshotGovernedCoverage` when snapshot `GovernedCount` exceeds agent; regression `ComputeAsync_WhenAgentOverCountsFindings_StillUsesSnapshotGovernedCoverageWhenStronger`.
 - [x] (invalid) `ReferenceEvidenceAdminExportService` — missing `ManifestDecisionReceiptExportBinder` vs `BuyerProofPackBuilder` receipt gate — **cheap-disproof 2026-09-26 thorough hunt:** bundle entry uses `RunExportSealedManifestHashGuard` per Wave-40; sponsor/first-value PDF paths invoked from the same service call nested builders that enforce sealed receipt verification.
 - [x] (proven) `SponsorEvidencePackService` explainability — `AnalyzeSnapshot` includes `IsMuted` rows excluded from delta severity paths — **hit 2026-09-26 thorough hunt:** filter muted findings before explainability analysis; regression `BuildAsync_excludes_muted_findings_from_explainability_trace`.
-- **hunts:** 24
-- **bugs-found:** 18
-- **last-bug:** 2026-09-26 — equal-count snapshot severity tie in sponsor material findings resolver
 2026-09-26 seed hunt (seed→hit): reseeded application-pilots; proved equal-count snapshot/agent severity tie left decision-delta on agent Warning while deltas JSON used snapshot Error; seeded governed-coverage agent-over-count, reference-evidence receipt gate, and explainability muted-finding candidates; 28 scoped BuyerProofPack/BoardPack/decision-delta tests passed.
 
 2026-09-13 seed hunt #2443 (seed-only): reseeded application-pilots; no new hunt-ready rows.
@@ -28037,7 +28029,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
 - **hunts:** 28
-- **bugs-found:** 15
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-04
@@ -30161,7 +30152,7 @@ ABQ-09 churn hotspot.
 
 2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` registered by the module; proved incremental post-materialize still ran downstream-only SecureNow engines when `IAzureInventoryDiffService.ComputeAndPersistDiffAsync` returned `Succeeded: false` for a reachable prior snapshot pair, skipping full path engines; treat diff failure like missing prior for `FullRecompute`; regression `OnSnapshotMaterializedAsync_when_diff_computation_fails_runs_full_securenow_pipeline`; 4 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
-2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods never carried forward after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_when_empty_diff_already_persisted_still_carries_forward_neighborhoods`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
+2026-10-05 seed hunt (hit): promoted `IAzureInventorySnapshotPostMaterializeCoordinator` wiring registered by the module; proved rematerialize after a persisted zero-change diff (`WasExisting: true`) skipped `CarryForwardAllAsync` because the coordinator gated carry-forward on `WasExisting: false`, leaving SecureNow neighborhoods never carried forward after coordinator retry; fixed empty-diff carry-forward guard; regression `OnSnapshotMaterializedAsync_incremental_mode_empty_existing_diff_still_carries_forward_neighborhood`; 3 post-materialize coordinator tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-05 seed hunt (hit): promoted composition-boundary candidate after prior persisted-pair consumer fix; proved `AzureInventoryDiffService.PersistEmptyDiffAsync` (reachable when snapshot headers share `ContentHashSha256` after post-materialize diff) persisted zero-change diffs without calling registered `IAzureInventoryDiffConsumer` implementations (`AuditContinuousReadinessDiffConsumer`, `SecureNowArchitectDiffConsumer`); fixed fan-out parity; regression `ComputeAndPersistDiffAsync_when_snapshots_share_content_hash_still_notifies_diff_consumers`; 3 Application diff-service tests + 12 InfraEvidenceComposition scoped tests passed (`RunAnalyzers=false`).
 

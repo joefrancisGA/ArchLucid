@@ -179,6 +179,7 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
             storage.Object,
             drainGate,
             optionsMonitor.Object,
-            NullLogger<RunExecuteOwnershipLeaseService>.Instance);
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
     }
 }

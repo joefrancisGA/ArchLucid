@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -39,7 +41,14 @@ public sealed class TenantErasureCommandService(
             return null;
 
         if (tenant.OffboardedUtc is not null)
-            return TryBuildExistingOffboardResult(tenant);
+        {
+            return await CompleteOffboardSideEffectsAsync(
+                tenant,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                cancellationToken);
+        }
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
         int days = Math.Clamp(_tenantErasureOptions.CurrentValue.QuarantineDays, 1, 3650);
@@ -52,7 +61,15 @@ public sealed class TenantErasureCommandService(
         {
             TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-            return TryBuildExistingOffboardResult(afterMiss);
+            if (afterMiss is null)
+                return null;
+
+            return await CompleteOffboardSideEffectsAsync(
+                afterMiss,
+                actorUserId,
+                actorUserName,
+                correlationId,
+                cancellationToken);
         }
 
         await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
@@ -71,7 +88,8 @@ public sealed class TenantErasureCommandService(
                 erasureEligibleUtc = eligible,
                 quarantineDays = days
             },
-            cancellationToken);
+            cancellationToken,
+            CreateOffboardAuditEventId(tenantId, now, eligible));
 
         return new TenantErasureOffboardResult(now, eligible);
     }
@@ -289,12 +307,63 @@ public sealed class TenantErasureCommandService(
         return true;
     }
 
-    private static TenantErasureOffboardResult? TryBuildExistingOffboardResult(TenantRecord? tenant)
+    /// <summary>
+    /// The offboard marker is written before suspend and audit. Retries re-attempt the
+    /// idempotent audit append even when suspension has already landed.
+    /// </summary>
+    private async Task<TenantErasureOffboardResult?> CompleteOffboardSideEffectsAsync(
+        TenantRecord tenant,
+        string actorUserId,
+        string actorUserName,
+        string? correlationId,
+        CancellationToken cancellationToken)
     {
-        if (tenant?.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
+        if (tenant.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
             return null;
 
+        if (tenant.SuspendedUtc is null)
+            await _tenantRepository.SuspendTenantAsync(tenant.Id, cancellationToken);
+
+        int quarantineDays = QuarantineDaysBetween(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+
+        await AppendPlatformAuditAsync(
+            AuditEventTypes.TenantErasureOffboarded,
+            tenant.Id,
+            actorUserId,
+            actorUserName,
+            correlationId,
+            new
+            {
+                priorOffboardedUtc = (DateTimeOffset?)null,
+                priorErasureEligibleUtc = (DateTimeOffset?)null,
+                offboardedUtc = tenant.OffboardedUtc,
+                erasureEligibleUtc = tenant.ErasureEligibleUtc,
+                quarantineDays
+            },
+            cancellationToken,
+            CreateOffboardAuditEventId(tenant.Id, tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value));
+
         return new TenantErasureOffboardResult(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+    }
+
+    private static int QuarantineDaysBetween(DateTimeOffset offboardedUtc, DateTimeOffset eligibleUtc)
+    {
+        double days = (eligibleUtc - offboardedUtc).TotalDays;
+
+        if (days < 1)
+            return 1;
+
+        return (int)Math.Round(days, MidpointRounding.AwayFromZero);
+    }
+
+    private static Guid CreateOffboardAuditEventId(
+        Guid tenantId,
+        DateTimeOffset offboardedUtc,
+        DateTimeOffset erasureEligibleUtc)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(
+            $"{AuditEventTypes.TenantErasureOffboarded}:{tenantId:N}:{offboardedUtc.UtcDateTime.Ticks}:{erasureEligibleUtc.UtcDateTime.Ticks}"));
+        return new Guid(hash.AsSpan(0, 16));
     }
 
     private static bool IsIdenticalLegalHoldRetry(TenantRecord tenant, DateTimeOffset untilUtc, string? normalizedReason)
@@ -316,11 +385,13 @@ public sealed class TenantErasureCommandService(
         string actorUserName,
         string? correlationId,
         object data,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? eventId = null)
     {
         return _platformAuditRepository.AppendAsync(
             new PlatformAuditEvent
             {
+                EventId = eventId ?? Guid.NewGuid(),
                 EventType = eventType,
                 ActorUserId = actorUserId,
                 ActorUserName = actorUserName,

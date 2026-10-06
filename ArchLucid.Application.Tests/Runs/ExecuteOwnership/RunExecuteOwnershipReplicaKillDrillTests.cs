@@ -41,7 +41,8 @@ public sealed class RunExecuteOwnershipReplicaKillDrillTests
             storage.Object,
             new WorkerHostDrainGate(),
             options.Object,
-            NullLogger<RunExecuteOwnershipLeaseService>.Instance);
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
 
         Func<Task> act = () => sut.AcquireAsync(runId, CancellationToken.None);
 

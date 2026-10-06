@@ -398,7 +398,7 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
-    public async Task TryOffboardTenantAsync_returns_existing_quarantine_without_duplicate_audit_when_already_offboarded_retry()
+    public async Task TryOffboardTenantAsync_retries_failed_audit_with_same_event_id_when_already_suspended()
     {
         Guid tenantId = Guid.NewGuid();
         DateTimeOffset now = new(2026, 10, 5, 12, 0, 0, TimeSpan.Zero);
@@ -414,7 +414,77 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             CancellationToken.None);
 
         Mock<IPlatformAuditRepository> audit = new();
+        List<Guid> auditEventIds = [];
         audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => auditEventIds.Add(auditEvent.EventId))
+            .Returns(() => auditEventIds.Count == 1
+                ? Task.FromException(new InvalidOperationException("Audit storage unavailable."))
+                : Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { QuarantineDays = 30 });
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None));
+        (await tenants.GetByIdAsync(tenantId, CancellationToken.None))!.SuspendedUtc.Should().NotBeNull();
+
+        TenantErasureOffboardResult? retry = await sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None);
+        retry.Should().NotBeNull();
+        retry!.OffboardedUtc.Should().Be(now);
+        retry.ErasureEligibleUtc.Should().Be(now.AddDays(30));
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureOffboarded),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        auditEventIds.Should().HaveCount(2);
+        auditEventIds[1].Should().Be(auditEventIds[0]);
+    }
+
+    [Fact]
+    public async Task TryOffboardTenantAsync_resumes_suspend_and_audit_when_marker_exists_without_suspension()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset offboardedUtc = new(2026, 10, 5, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset eligibleUtc = offboardedUtc.AddDays(30);
+        FakeTimeProvider clock = new(offboardedUtc);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Partial Offboard",
+            "partial-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                tenantId,
+                offboardedUtc,
+                eligibleUtc,
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        Mock<IPlatformAuditRepository> audit = new();
+        List<Guid> auditEventIds = [];
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) => auditEventIds.Add(auditEvent.EventId))
             .Returns(Task.CompletedTask);
 
         Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
@@ -426,31 +496,39 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             clock,
             options.Object);
 
-        TenantErasureOffboardResult? first = await sut.TryOffboardTenantAsync(
+        TenantErasureOffboardResult? resumed = await sut.TryOffboardTenantAsync(
             tenantId,
             "admin@example.com",
             "Admin",
             "corr",
             CancellationToken.None);
-        first.Should().NotBeNull();
-        first!.OffboardedUtc.Should().Be(now);
-        first.ErasureEligibleUtc.Should().Be(now.AddDays(30));
 
-        TenantErasureOffboardResult? retry = await sut.TryOffboardTenantAsync(
-            tenantId,
-            "admin@example.com",
-            "Admin",
-            "corr",
-            CancellationToken.None);
-        retry.Should().NotBeNull();
-        retry!.OffboardedUtc.Should().Be(first.OffboardedUtc);
-        retry.ErasureEligibleUtc.Should().Be(first.ErasureEligibleUtc);
+        resumed.Should().NotBeNull();
+        resumed!.OffboardedUtc.Should().Be(offboardedUtc);
+        resumed.ErasureEligibleUtc.Should().Be(eligibleUtc);
+        (await tenants.GetByIdAsync(tenantId, CancellationToken.None))!.SuspendedUtc.Should().NotBeNull();
 
         audit.Verify(
             a => a.AppendAsync(
                 It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureOffboarded),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        await sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None);
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e =>
+                    e.EventType == AuditEventTypes.TenantErasureOffboarded),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+        auditEventIds.Should().HaveCount(2);
+        auditEventIds[1].Should().Be(auditEventIds[0]);
     }
 
     [Fact]

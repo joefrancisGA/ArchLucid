@@ -65,6 +65,30 @@ def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
     return zones
 
 
+def duplicate_counter_zone_ids(ledger_text: str) -> list[str]:
+    """Zones whose header lists hunts or bugs-found more than once.
+
+    The picker keeps the last value and this linter keeps the first, so duplicates
+    make the two tools disagree.
+    """
+    duplicates: list[str] = []
+    parts = re.split(r"(?m)^## Zone:", ledger_text)
+
+    for part in parts:
+        id_match = FIELD_ID.search(part)
+
+        if not id_match:
+            continue
+
+        hunts_count = len(FIELD_HUNTS.findall(part))
+        bugs_count = len(FIELD_BUGS.findall(part))
+
+        if hunts_count > 1 or bugs_count > 1:
+            duplicates.append(id_match.group(1).strip())
+
+    return duplicates
+
+
 def lint_ledger(ledger_text: str) -> tuple[list[ZoneCounters], list[ZoneCounters]]:
     violations: list[ZoneCounters] = []
     retired_violations: list[ZoneCounters] = []
@@ -125,9 +149,16 @@ def main() -> int:
     ledger_text = args.ledger.read_text(encoding="utf-8")
     zones = parse_zone_counters(ledger_text)
     violations, retired = lint_ledger(ledger_text)
+    duplicates = duplicate_counter_zone_ids(ledger_text)
     print_report(zones, violations, retired)
 
-    if violations and not args.report_only:
+    if duplicates:
+        print("zones with duplicate hunts or bugs-found fields:")
+
+        for zone_id in duplicates:
+            print(f"  - {zone_id}")
+
+    if (violations or duplicates) and not args.report_only:
         return 1
 
     return 0

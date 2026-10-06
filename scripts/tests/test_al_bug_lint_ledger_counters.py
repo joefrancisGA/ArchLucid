@@ -50,6 +50,24 @@ def test_lint_fails_open_zone_with_inflated_counters() -> None:
     assert retired == []
 
 
+def test_duplicate_counter_fields_are_reported() -> None:
+    ledger = """
+## Zone: zone-open
+
+- **id:** zone-open
+- **hunts:** 5
+- **bugs-found:** 1
+- **hunts:** 6
+"""
+    assert lint_ledger.duplicate_counter_zone_ids(ledger) == ["zone-open"]
+
+
+def test_repo_ledger_has_no_duplicate_counters() -> None:
+    ledger = lint_ledger.LEDGER_PATH.read_text(encoding="utf-8")
+
+    assert lint_ledger.duplicate_counter_zone_ids(ledger) == []
+
+
 def test_repo_ledger_has_no_open_invariant_violations() -> None:
     ledger = lint_ledger.LEDGER_PATH.read_text(encoding="utf-8")
     violations, retired = lint_ledger.lint_ledger(ledger)
