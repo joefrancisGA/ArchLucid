@@ -108,7 +108,7 @@ export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_HREF = "/help/cloud-connections
 
 export const EXTRACT_UPLOAD_SCHEDULED_AGENT_HELP_LABEL = "Set up scheduled collection" as const;
 
-export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection (pilot)" as const;
+export const EXTRACT_UPLOAD_ONE_TIME_LOCAL_DISCLOSURE = "One-time local collection" as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 
