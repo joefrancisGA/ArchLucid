@@ -28075,11 +28075,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 22
-- **bugs-found:** 5
+- **hunts:** 23
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — recycle bin false purge when another workspace pins DefaultProjectId
+- **last-bug:** 2026-10-06 — delete allowed when sibling workspace DefaultProjectId pinned active project
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -28140,6 +28140,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — purge schedule used only `currentWorkspace.DefaultProjectId` while retention purge SQL skips any project id referenced on any `TenantWorkspaces` row — **hit 2026-10-06 seed hunt (seed→hit):** build tenant-wide pinned-default set from `ListWorkspacesAsync`; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`.
 
 2026-10-06 seed hunt (seed→hit): promoted cross-workspace default-metadata purge parity with `SqlArchitectureProjectRetentionPurgeService`; 42 scoped TenantWorkspaces tests passed.
+
+2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — `DeleteProjectAsync` only compared `workspace.DefaultProjectId` on the route workspace, so an active project pinned as `DefaultProjectId` on a sibling workspace could be soft-deleted while retention purge SQL still treats it as pinned; block delete when any tenant workspace metadata pins the project and it remains active in the caller workspace; regression `DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`; 43 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` — sibling workspace `DefaultProjectId` metadata pin did not block soft-delete of an active architecture project in the caller workspace — **hit 2026-10-06 seed hunt (seed→hit):** tenant-wide default-metadata pin guard before `TrySoftDeleteAsync`; regression `DeleteProjectAsync_returns_bad_request_when_another_workspace_pins_project_as_default_metadata`; 43 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
