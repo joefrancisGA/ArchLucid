@@ -1283,6 +1283,16 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void SelectLatestWithGraphAtOrBefore_omits_nolock_on_runs_table_unlike_dashboard_lists()
+    {
+        const string sql = RunRepositorySql.SelectLatestWithGraphAtOrBefore;
+
+        sql.Should().NotContain("FROM dbo.Runs WITH (NOLOCK)");
+        sql.Should().NotContain("dbo.Runs r WITH (NOLOCK)",
+            "temporal graph reads lock the Runs row; correlated warning probes may still use NOLOCK on child tables.");
+    }
+
+    [Fact]
     public void CountActiveRunsForArchitectureRequest_uses_canonical_terminal_status_names()
     {
         const string sql = RunRepositorySql.CountActiveRunsForArchitectureRequest;

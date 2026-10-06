@@ -59,6 +59,46 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void CountActiveRunsForArchitectureRequest_treats_null_legacy_status_as_active()
+    {
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should().Contain("LegacyRunStatus IS NULL");
+    }
+
+    [Fact]
+    public async Task InMemory_count_active_runs_treats_null_legacy_status_as_active_like_sql()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-null-status",
+                LegacyRunStatus = null,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        int count = await runs.CountActiveRunsForArchitectureRequestAsync(
+            scope,
+            "req-null-status",
+            CancellationToken.None);
+
+        count.Should().Be(1,
+            "uninitialized LegacyRunStatus must occupy concurrency slots until terminal status is persisted.");
+    }
+
+    [Fact]
     public async Task InMemory_exists_run_for_architecture_request_matches_padded_stored_id()
     {
         ScopeContext scope = new()
