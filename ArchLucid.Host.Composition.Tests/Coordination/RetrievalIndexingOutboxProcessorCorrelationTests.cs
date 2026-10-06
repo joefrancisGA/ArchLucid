@@ -20,6 +20,7 @@ using ArchLucid.Retrieval.Indexing;
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -457,5 +458,95 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
                 It.IsAny<GraphSnapshot>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalIndexingOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        outbox
+            .Setup(o => o.RecordBackoffAfterProcessingFailureAsync(
+                outboxId,
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
+        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
+        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RetrievalIndexingOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
+            TimeProvider.System,
+            new ThrowingWarningLogger<RetrievalIndexingOutboxProcessor>());
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private sealed class ThrowingWarningLogger<T> : ILogger<T>
+    {
+        private sealed class NullScope : IDisposable
+        {
+            public void Dispose()
+            {
+            }
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+            where TState : notnull => new NullScope();
+
+        public bool IsEnabled(LogLevel logLevel) => logLevel == LogLevel.Warning;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel == LogLevel.Warning)
+            {
+                throw new InvalidOperationException("log sink unavailable");
+            }
+        }
     }
 }

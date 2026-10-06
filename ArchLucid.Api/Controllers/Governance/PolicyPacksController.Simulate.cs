@@ -44,7 +44,7 @@ public sealed partial class PolicyPacksController
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!Guid.TryParse(request.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        if (!GovernanceRunIdHttpParser.TryParseFromBody(request.RunId, out string normalizedRunId))
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
 
         if (request.Content is null)
@@ -62,7 +62,7 @@ public sealed partial class PolicyPacksController
         {
             result = await _httpFacade.SimulateAsync(
                 request.Content,
-                request.RunId.Trim(),
+                normalizedRunId,
                 request.BlockCommitOnCritical,
                 request.BlockCommitMinimumSeverity,
                 request.ProposedPolicyPackId,
@@ -119,6 +119,8 @@ public sealed partial class PolicyPacksController
                 ProblemTypes.ValidationFailed);
         }
 
+        List<string> normalizedRunIds = new(runIds.Count);
+
         foreach (string runId in runIds)
         {
             if (string.IsNullOrWhiteSpace(runId))
@@ -131,12 +133,14 @@ public sealed partial class PolicyPacksController
             if (runIdValidation is not null)
                 return runIdValidation;
 
-            if (!Guid.TryParse(runId.Trim(), out Guid parsedRunGuid) || parsedRunGuid == Guid.Empty)
+            if (!GovernanceRunIdHttpParser.TryParseFromBody(runId, out string normalizedRunId))
             {
                 return this.BadRequestProblem(
                     "RunIds contains an invalid id.",
                     ProblemTypes.ValidationFailed);
             }
+
+            normalizedRunIds.Add(normalizedRunId);
         }
 
         IActionResult? routeIdProblem = BadRequestWhenRouteIdEmpty(policyPackId, "policyPackId");
@@ -156,7 +160,7 @@ public sealed partial class PolicyPacksController
         {
             result = await _httpFacade.SimulateBulkAsync(
                 policyPackId,
-                runIds,
+                normalizedRunIds,
                 request.BlockCommitOnCritical,
                 request.BlockCommitMinimumSeverity,
                 cancellationToken).ConfigureAwait(false);

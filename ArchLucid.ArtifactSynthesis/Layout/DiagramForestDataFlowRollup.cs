@@ -71,7 +71,7 @@ internal static class DiagramForestDataFlowRollup
         }
 
         List<DiagramEdge> resolvedEdges = [];
-        HashSet<string> emittedEdgeKeys = new(StringComparer.Ordinal);
+        Dictionary<string, DiagramEdge> resolvedEdgeByKey = new(StringComparer.Ordinal);
         foreach (DiagramEdge edge in edges)
         {
             string fromNodeId = ResolveNodeId(edge.FromNodeId, rollupByMemberId);
@@ -82,13 +82,16 @@ internal static class DiagramForestDataFlowRollup
             }
 
             string edgeKey = $"{fromNodeId}\u001f{toNodeId}\u001f{edge.Label}\u001f{edge.IsLayoutOnly}";
-            if (!emittedEdgeKeys.Add(edgeKey))
+            if (!resolvedEdgeByKey.TryGetValue(edgeKey, out DiagramEdge? existing))
             {
+                resolvedEdgeByKey[edgeKey] = CloneEdge(edge, fromNodeId, toNodeId);
                 continue;
             }
 
-            resolvedEdges.Add(CloneEdge(edge, fromNodeId, toNodeId));
+            resolvedEdgeByKey[edgeKey] = MergeParallelRollupEdges(existing, edge);
         }
+
+        resolvedEdges.AddRange(resolvedEdgeByKey.Values);
 
         return new Result(resolvedNodes, resolvedEdges);
     }
@@ -157,6 +160,12 @@ internal static class DiagramForestDataFlowRollup
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();
+        List<string> targetHosts = CollectDistinctExternalValues(
+            members.SelectMany(member => member.ExternalTargetHosts),
+            members.Select(member => member.ExternalTargetHost));
+        List<string> integrationRuntimes = CollectDistinctExternalValues(
+            members.SelectMany(member => member.ExternalIntegrationRuntimes),
+            members.Select(member => member.ExternalIntegrationRuntime));
 
         return new DiagramNode
         {
@@ -170,9 +179,11 @@ internal static class DiagramForestDataFlowRollup
             ExternalLinkedServiceType = first.ExternalLinkedServiceType,
             ExternalFactoryName = factoryNames.Count == 1 ? factoryNames[0] : null,
             ExternalFactoryNames = factoryNames,
-            ExternalTargetHost = first.ExternalTargetHost,
-            ExternalIntegrationRuntime = first.ExternalIntegrationRuntime,
-            ExternalHostInKeyVault = first.ExternalHostInKeyVault,
+            ExternalTargetHost = targetHosts.Count == 1 ? targetHosts[0] : null,
+            ExternalTargetHosts = targetHosts,
+            ExternalIntegrationRuntime = integrationRuntimes.Count == 1 ? integrationRuntimes[0] : null,
+            ExternalIntegrationRuntimes = integrationRuntimes,
+            ExternalHostInKeyVault = members.Any(member => member.ExternalHostInKeyVault),
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),
@@ -186,8 +197,53 @@ internal static class DiagramForestDataFlowRollup
             ParentAttachmentDetails = [],
             UnresolvedRelationshipDetails = [],
             DataFlowTraversalHopEvidenceDetails = [],
-            NsgInboundRuleChips = [],
+            NsgInboundRuleChips = MergeRollupNsgInboundRuleChips(members),
         };
+    }
+
+    private static List<DiagramNsgInboundRuleChip> MergeRollupNsgInboundRuleChips(
+        IReadOnlyList<DiagramNode> members)
+    {
+        const int maxVisibleChips = 3;
+        List<DiagramNsgInboundRuleChip> distinct = members
+            .SelectMany(member => member.NsgInboundRuleChips)
+            .Where(chip => !string.IsNullOrWhiteSpace(chip.Text) && !chip.Text.StartsWith("+", StringComparison.Ordinal))
+            .GroupBy(chip => chip.Text.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(group => new DiagramNsgInboundRuleChip(
+                group.Key,
+                group.Any(chip => chip.IsRisky)))
+            .OrderBy(chip => chip.Text, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (distinct.Count == 0)
+        {
+            return [];
+        }
+
+        List<DiagramNsgInboundRuleChip> chips = distinct.Take(maxVisibleChips).ToList();
+        int remainder = distinct.Count - maxVisibleChips;
+
+        if (remainder > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+        }
+
+        return chips;
+    }
+
+    private static List<string> CollectDistinctExternalValues(
+        IEnumerable<string> listValues,
+        IEnumerable<string?> scalarValues)
+    {
+        return listValues
+            .Concat(
+                scalarValues
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Select(value => value!.Trim()))
+            .Where(value => value.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static string BuildMemberName(
@@ -265,6 +321,37 @@ internal static class DiagramForestDataFlowRollup
             IsDataFlowNsgBlocked = source.IsDataFlowNsgBlocked,
             DataFlowNsgAnnotationLabels = [.. source.DataFlowNsgAnnotationLabels],
             DataFlowNsgSupportingRuleDetails = [.. source.DataFlowNsgSupportingRuleDetails],
+        };
+    }
+
+    private static DiagramEdge MergeParallelRollupEdges(DiagramEdge existing, DiagramEdge incoming)
+    {
+        List<string> mergedLabels = existing.DataFlowNsgAnnotationLabels
+            .Concat(incoming.DataFlowNsgAnnotationLabels)
+            .Where(label => !string.IsNullOrWhiteSpace(label))
+            .Select(label => label.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(label => label, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        List<string> mergedRuleDetails = existing.DataFlowNsgSupportingRuleDetails
+            .Concat(incoming.DataFlowNsgSupportingRuleDetails)
+            .Where(detail => !string.IsNullOrWhiteSpace(detail))
+            .Select(detail => detail.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        return new DiagramEdge
+        {
+            FromNodeId = existing.FromNodeId,
+            ToNodeId = existing.ToNodeId,
+            Label = existing.Label,
+            IsLayoutOnly = existing.IsLayoutOnly,
+            ProvenanceKind = existing.ProvenanceKind,
+            InferenceSource = existing.InferenceSource,
+            DeclaredConnectionId = existing.DeclaredConnectionId,
+            IsDataFlowNsgBlocked = existing.IsDataFlowNsgBlocked || incoming.IsDataFlowNsgBlocked,
+            DataFlowNsgAnnotationLabels = mergedLabels,
+            DataFlowNsgSupportingRuleDetails = mergedRuleDetails,
         };
     }
 

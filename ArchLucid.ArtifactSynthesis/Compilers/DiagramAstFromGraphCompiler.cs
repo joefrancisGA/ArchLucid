@@ -71,7 +71,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             topologyNodes = InventoryConnectionEndpointIncluder.Include(graph, topologyNodes, mode);
         }
 
-        if (!options.IncludePrivateEndpointNodes)
+        if (HidePrivateEndpointCards(mode, options))
         {
             topologyNodes = NetworkDiagramNodeFilter.ExcludePrivateEndpoints(topologyNodes);
         }
@@ -184,19 +184,14 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstExecutiveLayoutSimplifier.FlattenSparseSubgraphs(ast, mode, options);
 
-        if (!options.IncludePrivateEndpointNodes)
+        if (HidePrivateEndpointCards(mode, options))
         {
             HashSet<string> privateEndpointDiagramNodeIdsToHide = DiagramPrivateEndpointTargetAnnotator.Apply(
                 ast,
                 graph.Nodes,
                 graph.Edges,
                 nodeIdMap);
-
-            if (!options.IncludePrivateEndpointNodes)
-            {
-                DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
-            }
-
+            DiagramPrivateEndpointCanvasPruner.RemoveNodes(ast, privateEndpointDiagramNodeIdsToHide);
         }
 
         if (DiagramNicCollapseApplier.ShouldCollapseNetworkInterfaces(mode))
@@ -209,8 +204,26 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
         DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
         DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
-        InventoryDiagramNodeRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
-        InventoryDiagramParentAttachmentApplier.Apply(ast, graph, nodeIdMap);
+        bool retainNetworkDetailNodes = mode == DiagramMode.ResourceGroup
+            || (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails);
+        InventoryDiagramNodeRelationshipApplier.Apply(
+            ast,
+            graph,
+            nodeIdMap,
+            mode,
+            retainNetworkDetailNodes);
+        InventoryDiagramParentAttachmentApplier.Apply(
+            ast,
+            graph,
+            nodeIdMap,
+            retainNetworkDetailNodes);
+
+        if (mode == DiagramMode.FullSubscription && !options.IncludeNetworkDetails)
+        {
+            RemoveFullSubscriptionNetworkDetailNodes(ast);
+        }
+
+        DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramOrphanedStateApplier.Apply(
             ast,
@@ -544,12 +557,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             case DiagramMode.DataArchitecture:
                 return ApplyDataArchitectureFilter(nodes);
             case DiagramMode.FullSubscription:
-                return ApplyNetworkInterfaceCollapse(
-                    graph,
-                    mode,
-                    NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ExcludeCollapsedAccessConnectors(
-                            ExcludeExternalSourceNodes(nodes))));
+                return ApplyFullSubscriptionNodeFilter(nodes);
             case DiagramMode.ResourceGroup:
                 return FilterByResourceGroup(graph, nodes, options.ResourceGroupName);
             case DiagramMode.SelectedResources:
@@ -563,10 +571,60 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
     }
 
-    /// <summary>
-    /// Executive = all VNet / subscription / RG summary nodes followed by the always-show tiers (IDL-06).
-    /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
-    /// </summary>
+    private static void RemoveFullSubscriptionNetworkDetailNodes(DiagramAst ast)
+    {
+        HashSet<string> hiddenNodeIds = ast.Nodes
+            .Where(node => IsFullSubscriptionNetworkDetailNode(node.ArmResourceType))
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (hiddenNodeIds.Count == 0)
+        {
+            return;
+        }
+
+        ast.Nodes.RemoveAll(node => hiddenNodeIds.Contains(node.NodeId));
+        ast.Edges.RemoveAll(edge =>
+            hiddenNodeIds.Contains(edge.FromNodeId) || hiddenNodeIds.Contains(edge.ToNodeId));
+    }
+
+    private static bool IsFullSubscriptionNetworkDetailNode(string? armType)
+    {
+        if (string.IsNullOrWhiteSpace(armType))
+        {
+            return false;
+        }
+
+        return armType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase)
+            || armType.Contains("routeTables", StringComparison.OrdinalIgnoreCase)
+            || (armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+                && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool HidePrivateEndpointCards(DiagramMode mode, DiagramAstCompileOptions options)
+    {
+        if (mode == DiagramMode.ResourceGroup)
+        {
+            return false;
+        }
+
+        if (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails)
+        {
+            return false;
+        }
+
+        return !options.IncludePrivateEndpointNodes;
+    }
+
+    private static List<GraphNode> ApplyFullSubscriptionNodeFilter(List<GraphNode> nodes)
+    {
+        return NetworkDiagramNodeFilter.ExcludeSubnets(
+            NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
+                ExcludeCollapsedAccessConnectors(
+                    ExcludeExternalSourceNodes(nodes))));
+    }
+
     private static List<GraphNode> ApplyNetworkInterfaceCollapse(
         GraphSnapshot graph,
         DiagramMode mode,
@@ -580,6 +638,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         return DiagramNicCollapseApplier.IncludePublicIpsExposingVisibleOwners(graph, nodes);
     }
 
+    /// <summary>
+    /// Executive = all VNet / subscription / RG summary nodes followed by the always-show tiers (IDL-06).
+    /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
+    /// </summary>
     private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
     {
         List<GraphNode> summaryNodes = nodes

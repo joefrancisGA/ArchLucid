@@ -19,7 +19,7 @@ public sealed class SvgDiagramSourceParser : IDiagramSourceParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, DiagramSourceFormats.Svg, StringComparison.OrdinalIgnoreCase);
+        return DiagramSourceFormats.IsSvgFormat(format);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)

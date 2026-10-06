@@ -82,6 +82,13 @@ public sealed class IdentityProviderConfigurationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (!IdentityProviderProtocolParser.TryParse(request.Protocol, out TenantIdentityProtocol parsedProtocol))
+        {
+            return this.BadRequestProblem(
+                "Protocol must be oidc or saml.",
+                ProblemTypes.ValidationFailed);
+        }
+
         if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
         {
             return this.BadRequestProblem(
@@ -93,7 +100,7 @@ public sealed class IdentityProviderConfigurationController(
         IdentityProviderTestLoginResponse response = _testLoginService.Execute(
             new IdentityProviderTestLoginRequest
             {
-                Protocol = request.Protocol,
+                Protocol = IdentityProviderProtocolParser.ToWizardToken(parsedProtocol),
                 IssuerUri = canonicalIssuerUri,
                 ClaimMapping = request.ClaimMapping,
                 SampleClaimValues = request.SampleClaimValues,
@@ -135,8 +142,8 @@ public sealed class IdentityProviderConfigurationController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
-                    ActorUserId = actorId,
-                    ActorUserName = User.Identity?.Name ?? actorId,
+                    ActorUserId = record.UpdatedByActorId,
+                    ActorUserName = User.Identity?.Name ?? record.UpdatedByActorId,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
@@ -186,7 +193,30 @@ public sealed class IdentityProviderConfigurationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(record);
+        return Ok(WithCanonicalConfigurationIssuer(record));
+    }
+
+    private static TenantIdentityProviderConfigurationRecord WithCanonicalConfigurationIssuer(
+        TenantIdentityProviderConfigurationRecord record)
+    {
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(record.IssuerUri, out string canonicalIssuer)
+            || string.Equals(record.IssuerUri, canonicalIssuer, StringComparison.Ordinal))
+        {
+            return record;
+        }
+
+        return new TenantIdentityProviderConfigurationRecord
+        {
+            TenantId = record.TenantId,
+            Protocol = record.Protocol,
+            IssuerUri = canonicalIssuer,
+            MetadataXml = record.MetadataXml,
+            ClaimMappingJson = record.ClaimMappingJson,
+            KeyVaultSecretName = record.KeyVaultSecretName,
+            UpdatedUtc = record.UpdatedUtc,
+            UpdatedByActorId = record.UpdatedByActorId,
+            IsActive = record.IsActive,
+        };
     }
 
     private static IdentityProviderDiscoverResponse WithCanonicalWizardUris(IdentityProviderDiscoverResponse response)

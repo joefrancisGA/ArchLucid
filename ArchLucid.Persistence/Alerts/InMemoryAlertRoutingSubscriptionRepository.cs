@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -20,7 +21,9 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         _ = ct;
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.RoutingSubscriptionId == subscription.RoutingSubscriptionId);
+            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
+            int i = _items.FindIndex(x =>
+                x.RoutingSubscriptionId == subscription.RoutingSubscriptionId && SameScope(x, subscription));
             if (i >= 0)
                 _items[i] = subscription;
         }
@@ -28,12 +31,27 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         return Task.CompletedTask;
     }
 
-    public Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
+    public Task<AlertRoutingSubscription?> GetByIdAsync(
+        ScopeContext scope,
+        Guid routingSubscriptionId,
+        CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.RoutingSubscriptionId == routingSubscriptionId));
+            return Task.FromResult(_items.FirstOrDefault(x =>
+                x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope)));
     }
+
+    private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope) =>
+        subscription.TenantId == scope.TenantId &&
+        subscription.WorkspaceId == scope.WorkspaceId &&
+        subscription.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(AlertRoutingSubscription stored, AlertRoutingSubscription incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 
     public Task<IReadOnlyList<AlertRoutingSubscription>> ListByScopeAsync(
         Guid tenantId,

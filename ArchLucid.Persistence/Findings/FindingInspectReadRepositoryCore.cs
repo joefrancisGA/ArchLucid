@@ -70,6 +70,9 @@ internal static class FindingInspectReadRepositoryCore
 
     public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
 
+    public static string? ResolveFirstTraceRuleText(IEnumerable<string>? rulesApplied) =>
+        rulesApplied is null ? null : FilterNonBlankTrimmedStrings(rulesApplied).FirstOrDefault();
+
     public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText)
     {
         string? normalized = NormalizeInspectText(firstRuleText);

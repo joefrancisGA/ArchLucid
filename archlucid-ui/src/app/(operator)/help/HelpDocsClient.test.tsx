@@ -96,6 +96,104 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "First external doc row.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (slash variant)",
+        summary: "Same https url with trailing slash.",
+        category: "API",
+        url: "https://example.com/docs/alpha/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "External alpha (slash variant)" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched doc links when two rows differ only by a trailing slash on the same path", async () => {
+    const data = [
+      {
+        title: "Compliance guide",
+        summary: "Regulatory compliance overview.",
+        category: "Compliance",
+        url: "/help/compliance",
+      },
+      {
+        title: "Compliance guide (slash variant)",
+        summary: "Duplicate path with trailing slash.",
+        category: "Compliance",
+        url: "/help/compliance/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Compliance guide" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Compliance guide (slash variant)" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate a static quick link when fetched index repeats the path with a trailing slash", async () => {
+    const data = [
+      {
+        title: "Platform health (slash variant)",
+        summary: "Same diagnostics route with a trailing slash in doc-index.",
+        category: "Operations",
+        url: "/help/admin-diagnostics/",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Admin diagnostics" });
+
+    expect(screen.queryByRole("link", { name: "Platform health (slash variant)" })).toBeNull();
+    expect(screen.queryByText("Same diagnostics route with a trailing slash in doc-index.")).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not duplicate a doc link when fetched index uses a different title for the same url", async () => {
     const data = [
       {
@@ -217,6 +315,30 @@ describe("HelpDocsClient", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters entries when the search query ends with a trailing slash on the url path token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Admin diagnostics" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "admin-diagnostics/" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Admin diagnostics" })).toBeInTheDocument();
     });
 
     vi.unstubAllGlobals();
@@ -392,6 +514,28 @@ describe("HelpDocsClient", () => {
     expect(link).toHaveAttribute("href", "https://example.com/docs/alpha");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("surfaces a warning when the doc-index fetch succeeds but returns no entries", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(/documentation index response was empty/i)).toBeInTheDocument();
+    });
 
     vi.unstubAllGlobals();
   });

@@ -112,6 +112,57 @@ public sealed class BackgroundJobQueueProcessorHostedServiceTests
     }
 
     [Fact]
+    public async Task ProcessOneMessageAsync_leaves_message_when_prepare_returns_not_claimable()
+    {
+        Mock<QueueClient> queueClient = new();
+        Mock<IBackgroundJobRepository> repo = new();
+        Mock<IServiceScopeFactory> scopeFactory = new();
+
+        var options = new BackgroundJobsOptions { ProcessorReceiveBatchSize = 1 };
+
+        var sut = new BackgroundJobQueueProcessorHostedService(
+            NullLogger<BackgroundJobQueueProcessorHostedService>.Instance,
+            queueClient.Object,
+            repo.Object,
+            scopeFactory.Object,
+            new OperationCancellationRegistry(),
+            Options.Create(options));
+
+        using var cts = new CancellationTokenSource();
+        int pulls = 0;
+
+        queueClient.Setup(q => q.CreateIfNotExistsAsync(It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<Azure.Response>());
+
+        var queueMessage = QueuesModelFactory.QueueMessage("msg-id", "receipt", "job-claim-race", 1);
+
+        queueClient.Setup(q => q.ReceiveMessagesAsync(It.IsAny<int>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                pulls++;
+
+                if (pulls == 1)
+                    return Azure.Response.FromValue(new[] { queueMessage }, new Mock<Azure.Response>().Object);
+
+                cts.Cancel();
+                throw new OperationCanceledException(cts.Token);
+            });
+
+        repo.Setup(r => r.TryPrepareQueuedJobAsync("job-claim-race", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueuedBackgroundJobPrepareResult(false, false, false, null));
+
+        await sut.StartAsync(CancellationToken.None);
+
+        await Task.Delay(100);
+
+        queueClient.Verify(
+            q => q.DeleteMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        await sut.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
     public async Task ExecuteAsync_uses_background_jobs_options_receive_batch_size_when_pulling_messages()
     {
         const int expectedBatchSize = 9;

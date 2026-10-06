@@ -11,7 +11,7 @@ public sealed class NullContentSafetyGuard : IContentSafetyGuard
     public Task<ContentSafetyResult> CheckInputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(Allowed);
     }
@@ -19,7 +19,7 @@ public sealed class NullContentSafetyGuard : IContentSafetyGuard
     public Task<ContentSafetyResult> CheckOutputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult(Allowed);
     }

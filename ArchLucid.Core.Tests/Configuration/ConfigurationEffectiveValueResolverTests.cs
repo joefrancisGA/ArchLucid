@@ -380,7 +380,7 @@ public sealed class ConfigurationEffectiveValueResolverTests
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] =
-                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=c2VjcmV0LWtleS1tYXRlcmlhbA==",
+                "AccountEndpoint=https://acct.documents.azure.com:443/;AccountKey=placeholder-not-a-real-key",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
@@ -397,6 +397,54 @@ public sealed class ConfigurationEffectiveValueResolverTests
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
         {
             [configPath] = "Password=super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_when_access_key_is_the_only_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "AccessKey=super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_when_client_secret_is_the_only_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "ClientSecret=super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_plain_scalar_connection_string_when_api_key_is_the_only_pair()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "ApiKey=super-secret",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();

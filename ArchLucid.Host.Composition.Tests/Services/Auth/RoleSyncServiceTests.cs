@@ -34,6 +34,18 @@ public sealed class RoleSyncServiceTests
     }
 
     [Fact]
+    public void TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent()
+    {
+        const string claimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+
+        ClaimsIdentity id = new("test", "name", "role");
+        id.AddClaim(new Claim(claimType, "attacker-object-id"));
+        id.AddClaim(new Claim(claimType, "victim-object-id"));
+
+        RoleSyncService.TryDirectoryObjectKey(new ClaimsPrincipal(id)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task ApplyEntraJwtAndDirectoryOverridesAsync_without_tenant_id_leaves_role_claims()
     {
         InMemoryScimUserRepository repo = new();

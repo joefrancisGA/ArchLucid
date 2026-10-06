@@ -131,6 +131,29 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_lowercase_bearer_auth_type_rejects_x_tenant_id_header_without_claim()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "JwtUser")],
+            "bearer"));
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        string body = await ReadResponseBodyAsync(context);
+        body.Should().Contain("tenant_id claim");
+    }
+
+    [Fact]
     public async Task InvokeAsync_bearer_with_non_guid_tenant_claim_rejects_x_tenant_id_header()
     {
         DefaultHttpContext context = CreateContext();

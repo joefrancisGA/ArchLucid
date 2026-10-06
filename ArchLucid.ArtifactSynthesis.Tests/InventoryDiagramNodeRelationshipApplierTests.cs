@@ -101,7 +101,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     {
         GraphSnapshot graph = BuildRouteTableGraph(includeResolvableNextHop: true);
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/routeTables");
         ast.Edges.Should().ContainSingle(edge =>
@@ -116,7 +116,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     {
         GraphSnapshot graph = BuildRouteTableGraph(includeResolvableNextHop: false);
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.FullSubscription,
+            new DiagramAstCompileOptions { IncludeNetworkDetails = true });
 
         ast.Nodes.Should().ContainSingle(node => node.ArmResourceType == "Microsoft.Network/routeTables");
         ast.Edges.Should().NotContain(edge =>
@@ -153,7 +156,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     {
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: false);
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
         string mermaid = new MermaidDiagramRenderer().Render(ast);
 
         mermaid.Should().Contain("al-ledger-drop nsg-unattached");
@@ -172,9 +175,12 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: true);
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.ResourceGroup,
+            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
-        ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
+        ast.Nodes.Should().Contain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
         owner.NsgInboundRuleChips.Should().ContainSingle(chip => chip.Text == "in 443/TCP · Internet");
 
@@ -191,7 +197,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         GraphSnapshot graph = BuildNsgGraph(includeAssociation: true, inboundAllowRuleCount: 4, includeRiskyRdpRule: true);
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.ResourceGroup,
+            new DiagramAstCompileOptions { ResourceGroupName = "rg" });
 
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
         owner.NsgInboundRuleChips.Should().HaveCount(4);

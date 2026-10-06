@@ -132,6 +132,92 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         firstValueMarkdown.Should().Contain("**HOLD posture:**");
     }
 
+    [Fact]
+    public async Task TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail(RunId);
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = CreateSendablePilotRunDeltas(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        Mock<ISponsorReviewPacketBuilder> sponsorPacket = new();
+        sponsorPacket
+            .Setup(b => b.BuildMarkdownAsync(RunId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("# Sponsor review packet");
+
+        ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authorityMock = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authorityMock, RunId, manifestHashService);
+        authorityMock
+            .Setup(a => a.GetRunSummaryAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunSummaryDto { RunId = RunId, ProjectId = "proj", IsSample = true });
+
+        IAuthorityQueryService authorityQuery = authorityMock.Object;
+
+        FirstValueReportBuilder markdownBuilder = CreateMarkdownBuilder(
+            query.Object,
+            deltas.Object,
+            authorityQuery: authorityQuery,
+            manifestHashService: manifestHashService);
+        FirstValueReportPdfBuilder pdfBuilder = new(markdownBuilder);
+
+        (ValueReportBuilder valueReport, Mock<IScopeContextProvider> scopeProvider) =
+            CreateValueReportBuilderWithScope();
+
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PilotBaselineRecord
+                {
+                    TenantId = Scope.TenantId,
+                    BaselineHoursPerReview = 40m,
+                    BaselineReviewsPerQuarter = 12,
+                    BaselineArchitectHourlyCost = 175m,
+                    UpdatedUtc = DateTimeOffset.UtcNow,
+                });
+
+        BuyerProofPackBuilder sut = new(
+            markdownBuilder,
+            pdfBuilder,
+            sponsorPacket.Object,
+            query.Object,
+            deltas.Object,
+            valueReport,
+            scopeProvider.Object,
+            pilotBaselines.Object,
+            FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
+            authorityQuery,
+            manifestHashService);
+
+        BuyerProofPackBuildResult? result =
+            await sut.TryBuildZipAsync(RunId.ToString(), "http://localhost:5000");
+
+        result.Should().NotBeNull();
+        result!.DemoDataWarning.Should().BeTrue("sample runs must surface the same caution flag as demo tenants on pack metadata");
+
+        string manifestJson = await ReadZipEntryTextAsync(result.ZipBytes, "pack-manifest.json");
+
+        using (JsonDocument manifestDoc = JsonDocument.Parse(manifestJson))
+        {
+            manifestDoc.RootElement.GetProperty("demoDataWarning").GetBoolean().Should().BeTrue();
+        }
+
+        string deltasJson = await ReadZipEntryTextAsync(result.ZipBytes, "pilot-run-deltas.json");
+
+        using (JsonDocument deltasDoc = JsonDocument.Parse(deltasJson))
+        {
+            deltasDoc.RootElement.GetProperty("isSampleRun").GetBoolean().Should().BeTrue();
+            deltasDoc.RootElement.GetProperty("isDemoTenant").GetBoolean().Should().BeFalse();
+        }
+    }
+
     private static RoiCostEvidenceCollectionResolver CreateResolverWithStaleRunLinkedTimestamp(
         Guid runId,
         DateTime staleCollectionUtc)

@@ -2,10 +2,15 @@
 set -euo pipefail
 
 # Per-boot services: API (in-memory storage, no SQL) and the Next.js dev server.
+# Demo seed runs once at startup so the dev host has a sample architecture package.
 # Safe to rerun. Skips a service that is already answering.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_ROOT}"
+
+# shellcheck source=cloud-agent-dev-build.sh
+source "${REPO_ROOT}/scripts/cloud-agent-dev-build.sh"
+DEV_BUILD_ARGS="$(cloud_agent_dev_build_args)"
 
 export DOTNET_ROOT="${DOTNET_ROOT:-${HOME}/.dotnet}"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -35,9 +40,11 @@ ensure_session() {
   echo "Started ${name}"
 }
 
-API_CMD="cd ${REPO_ROOT} && export DOTNET_ROOT=\"\${HOME}/.dotnet\" && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${DOTNET_ROOT}:\${PATH}\" && export DOTNET_CLI_TELEMETRY_OPTOUT=1 && export DOTNET_NOLOGO=1 && export NUGET_PACKAGES=\"\${HOME}/.nuget/packages\" && export ASPNETCORE_ENVIRONMENT=Development && export ArchLucid__StorageProvider=InMemory && export ArchLucidAuth__AllowTestActorHeaders=true && export DataConsistency__InitialDelaySeconds=0 && export HostLeaderElection__Enabled=false && exec dotnet run --project ArchLucid.Api/ArchLucid.Api.csproj --no-launch-profile --urls http://127.0.0.1:5128 >>/tmp/archlucid-api.log 2>&1"
+API_CMD="cd ${REPO_ROOT} && export DOTNET_ROOT=\"\${HOME}/.dotnet\" && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${DOTNET_ROOT}:\${PATH}\" && export DOTNET_CLI_TELEMETRY_OPTOUT=1 && export DOTNET_NOLOGO=1 && export NUGET_PACKAGES=\"\${HOME}/.nuget/packages\" && export ASPNETCORE_ENVIRONMENT=Development && export ArchLucid__StorageProvider=InMemory && export ArchLucidAuth__AllowTestActorHeaders=true && export DataConsistency__InitialDelaySeconds=0 && export HostLeaderElection__Enabled=false && export Demo__Enabled=true && export Demo__SeedOnStartup=true && exec dotnet run --project ArchLucid.Api/ArchLucid.Api.csproj --no-launch-profile ${DEV_BUILD_ARGS} --urls http://127.0.0.1:5128 >>/tmp/archlucid-api.log 2>&1"
 
-UI_CMD="cd ${REPO_ROOT}/archlucid-ui && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${PATH}\" && exec npm run dev -- --hostname 0.0.0.0 --port 3000 >>/tmp/archlucid-ui.log 2>&1"
+# The package dev script forces webpack. On a 16GB Cloud Agent VM that compile grew past 13GB
+# and the OOM killer stopped the UI. Turbopack serves the same dev server near 4GB.
+UI_CMD="cd ${REPO_ROOT}/archlucid-ui && export PATH=\"\${HOME}/.local/bin:/usr/local/bin:\${PATH}\" && export NODE_OPTIONS=\"--max-old-space-size=6144\" && exec ./node_modules/.bin/next dev --hostname 0.0.0.0 --port 3000 >>/tmp/archlucid-ui.log 2>&1"
 
 ensure_session archlucid_api "${API_URL}" "${API_CMD}"
 ensure_session archlucid_ui "${UI_URL}" "${UI_CMD}"

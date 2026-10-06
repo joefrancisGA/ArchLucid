@@ -9,19 +9,23 @@ public static class FindingRemediationAssignmentOperatorLinks
         string encodedFindingId = Uri.EscapeDataString(findingId.Trim());
         string relativePath = $"/architecture/reviews/{runHex}/findings/{encodedFindingId}";
 
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is null)
             return relativePath;
 
-        return $"{operatorBaseUrl.TrimEnd('/')}{relativePath}";
+        return $"{authority}{relativePath}";
     }
 
     public static string BuildAssignedToMeQueueUrl(string? operatorBaseUrl)
     {
         const string relativePath = "/governance/findings/assigned-to-me";
 
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is null)
             return relativePath;
 
-        return $"{operatorBaseUrl.TrimEnd('/')}{relativePath}";
+        return $"{authority}{relativePath}";
     }
 }

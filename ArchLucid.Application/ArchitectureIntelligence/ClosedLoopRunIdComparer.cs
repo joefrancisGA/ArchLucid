@@ -6,7 +6,7 @@ internal static class ClosedLoopRunIdComparer
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        return runId.Replace("-", string.Empty, StringComparison.Ordinal);
+        return runId.Replace("-", string.Empty, StringComparison.Ordinal).ToLowerInvariant();
     }
 
     public static bool Equals(string left, string right)

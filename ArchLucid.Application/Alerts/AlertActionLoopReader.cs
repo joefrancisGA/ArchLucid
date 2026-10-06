@@ -16,10 +16,10 @@ public sealed class AlertActionLoopReader(IAlertRecordRepository alertRepository
     public async Task<AlertActionLoopSnapshot?> GetAsync(Guid alertId, ScopeContext scope, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        AlertRecord? alert = await _alertRepository.GetByIdAsync(alertId, cancellationToken).ConfigureAwait(false);
-        if (alert is null || alert.TenantId != scope.TenantId || alert.WorkspaceId != scope.WorkspaceId || alert.ProjectId != scope.ProjectId)
+        AlertRecord? alert = await _alertRepository.GetByIdAsync(scope, alertId, cancellationToken).ConfigureAwait(false);
+        if (alert is null)
             return null;
-        IReadOnlyList<AlertDeliveryAttempt> attempts = await _deliveryAttemptRepository.ListByAlertAsync(alertId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AlertDeliveryAttempt> attempts = await _deliveryAttemptRepository.ListByAlertAsync(scope, alertId, cancellationToken).ConfigureAwait(false);
         List<AlertDeliveryAttemptSummary> rows = attempts.Select(static a => new AlertDeliveryAttemptSummary
         {
             ChannelType = a.ChannelType,

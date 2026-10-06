@@ -8,8 +8,8 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 /// <summary>
-///     Adds same-resource-group edges when ARM association rows are missing: a single VNet
-///     places compute/data in that group, ADF talks to colocated stores, and apps use colocated vaults.
+///     Adds same-resource-group guesses when ARM association rows are missing: Data Factory to the
+///     only store, and apps to the only Key Vault. A single virtual network in the group is not a connection.
 /// </summary>
 internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
 {
@@ -31,78 +31,8 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
         foreach (IGrouping<string, AzureInventoryResourceRecord> group in byResourceGroup)
         {
             List<AzureInventoryResourceRecord> members = group.ToList();
-            AddSingleVnetPlacement(members, nodeIdByArmId, edges, edgeKeys);
             AddDataFactoryStoreEdges(members, nodeIdByArmId, edges, edgeKeys);
             AddAppKeyVaultEdges(members, nodeIdByArmId, edges, edgeKeys);
-        }
-    }
-
-    private static void AddSingleVnetPlacement(
-        IReadOnlyList<AzureInventoryResourceRecord> members,
-        Dictionary<string, string> nodeIdByArmId,
-        List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
-    {
-        List<AzureInventoryResourceRecord> vnets = members
-            .Where(member => AzureInventoryTopologyCategory.IsVirtualNetworkArmType(member.ResourceType ?? string.Empty))
-            .ToList();
-
-        if (vnets.Count != 1)
-        {
-            return;
-        }
-
-        if (!TryResolveNode(nodeIdByArmId, vnets[0].AzureResourceId, out string vnetNodeId))
-        {
-            return;
-        }
-
-        foreach (AzureInventoryResourceRecord member in members)
-        {
-            if (!IsVnetPlacedWorkload(member.ResourceType))
-            {
-                continue;
-            }
-
-            if (!TryResolveNode(nodeIdByArmId, member.AzureResourceId, out string fromNodeId))
-            {
-                continue;
-            }
-
-            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(
-                    edges,
-                    fromNodeId,
-                    vnetNodeId))
-            {
-                continue;
-            }
-
-            AzureInventorySnapshotGraphEdgeAppender.TryAdd(
-                edges,
-                edgeKeys,
-                fromNodeId,
-                vnetNodeId,
-                GraphEdgeTypes.ConnectsTo,
-                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
-                label: "in",
-                provenanceKind: ProvenanceKind.DeterministicInference.ToString());
-        }
-
-        foreach (AzureInventoryResourceRecord nsg in members.Where(member => IsNetworkSecurityGroup(member.ResourceType)))
-        {
-            if (!TryResolveNode(nodeIdByArmId, nsg.AzureResourceId, out string nsgNodeId))
-            {
-                continue;
-            }
-
-            AzureInventorySnapshotGraphEdgeAppender.TryAdd(
-                edges,
-                edgeKeys,
-                vnetNodeId,
-                nsgNodeId,
-                GraphEdgeTypes.AppliesTo,
-                GraphEdgeInferenceSources.InventorySubnetNsg,
-                provenanceKind: ProvenanceKind.DeterministicInference.ToString());
         }
     }
 
@@ -205,43 +135,6 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
             nodeIdByArmId,
             ArmResourceIdNormalizer.Normalize(azureResourceId),
             out nodeId);
-    }
-
-    private static bool IsVnetPlacedWorkload(string? resourceType)
-    {
-        if (string.IsNullOrWhiteSpace(resourceType))
-        {
-            return false;
-        }
-
-        if (AzureInventoryTopologyCategory.IsVirtualNetworkArmType(resourceType)
-            || AzureInventoryTopologyCategory.IsSubnetArmType(resourceType)
-            || resourceType.Contains("networkInterfaces", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return resourceType.Contains("virtualMachines", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Equals("Microsoft.Logic/workflows", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.Sql/servers", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.DBforMySQL", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.Cache/redis", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.Storage/storageAccounts", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.KeyVault/vaults", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.DocumentDB", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.DataFactory/factories", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.ContainerService/managedClusters", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("Microsoft.App/containerApps", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsNetworkSecurityGroup(string? resourceType)
-    {
-        return (resourceType ?? string.Empty).Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDataFactory(string? resourceType)

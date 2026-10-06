@@ -614,7 +614,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
     await waitFor(() => {
-      expect(picker).toHaveTextContent("889 resources");
+      expect(picker).toHaveTextContent("9/1/2026");
     });
     expect(picker).not.toHaveTextContent(subscriptionId);
   });
@@ -1834,5 +1834,17 @@ describe("DiagramsWorkbenchClient", () => {
       expect(screen.getByTestId("infra-diagrams-snapshot-picker")).toHaveValue("");
       expect(screen.getByTestId("infra-diagrams-mode-picker")).toHaveValue("");
     });
+  });
+
+  it("uses show network details on full subscription and honors the old private-endpoint url", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full&includePrivateEndpoints=1",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const networkDetails = await screen.findByTestId("infra-diagrams-show-network-details");
+
+    expect(networkDetails).toBeChecked();
+    expect(screen.queryByRole("checkbox", { name: "Show private endpoints" })).not.toBeInTheDocument();
   });
 });

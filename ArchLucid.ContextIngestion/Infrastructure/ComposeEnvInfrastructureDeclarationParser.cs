@@ -92,6 +92,9 @@ public sealed partial class ComposeEnvInfrastructureDeclarationParser(
                 continue;
             }
 
+            if (TryEmitComposeEnvironmentListEntry(trimmed, results, declaration, serviceName))
+                continue;
+
             Match mapMatch = EnvironmentMapEntryRegex().Match(trimmed);
 
             if (mapMatch.Success)
@@ -124,36 +127,44 @@ public sealed partial class ComposeEnvInfrastructureDeclarationParser(
                     string.IsNullOrWhiteSpace(serviceName) ? key : $"{serviceName}:{key}",
                     value,
                     fromLabel: serviceName);
-
-                continue;
-            }
-
-            Match listMatch = EnvironmentListEntryRegex().Match(trimmed);
-
-            if (listMatch.Success)
-            {
-                string entry = listMatch.Groups["entry"].Value.Trim();
-                int separatorIndex = entry.IndexOf('=');
-
-                if (separatorIndex <= 0)
-                {
-                    continue;
-                }
-
-                string key = entry[..separatorIndex].Trim();
-                string value = entry[(separatorIndex + 1)..].Trim();
-
-                UploadedConfigProposedEdgeEmitter.EmitFromStringValue(
-                    results,
-                    declaration,
-                    "compose-env",
-                    string.IsNullOrWhiteSpace(serviceName) ? key : $"{serviceName}:{key}",
-                    value,
-                    fromLabel: serviceName);
             }
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    /// <summary>
+    ///     Parses <c>- KEY=value</c> list lines before map-style regexes so URLs in values are not mistaken for <c>KEY: value</c> maps.
+    /// </summary>
+    private static bool TryEmitComposeEnvironmentListEntry(
+        string trimmed,
+        List<CanonicalObject> results,
+        InfrastructureDeclarationReference declaration,
+        string? serviceName)
+    {
+        Match listMatch = EnvironmentListEntryRegex().Match(trimmed);
+
+        if (!listMatch.Success)
+            return false;
+
+        string entry = listMatch.Groups["entry"].Value.Trim();
+        int separatorIndex = entry.IndexOf('=');
+
+        if (separatorIndex <= 0)
+            return false;
+
+        string key = entry[..separatorIndex].Trim();
+        string value = entry[(separatorIndex + 1)..].Trim();
+
+        UploadedConfigProposedEdgeEmitter.EmitFromStringValue(
+            results,
+            declaration,
+            "compose-env",
+            string.IsNullOrWhiteSpace(serviceName) ? key : $"{serviceName}:{key}",
+            value,
+            fromLabel: serviceName);
+
+        return true;
     }
 
     [GeneratedRegex(@"^(?<name>[A-Za-z0-9_.-]+):\s*$", RegexOptions.CultureInvariant)]

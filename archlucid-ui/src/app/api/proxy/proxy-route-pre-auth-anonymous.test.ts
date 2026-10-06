@@ -291,4 +291,43 @@ describe("proxy route pre-auth anonymous paths", () => {
 
     vi.useRealTimers();
   });
+
+  it("forwards core-pilot rail checklist telemetry POST when BFF session cookie is expired", async () => {
+    vi.stubEnv("ARCHLUCID_BFF_SESSION_SIGNING_SECRET", "pre-auth-core-pilot-bff-secret");
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-06T12:00:00.000Z"));
+
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    vi.setSystemTime(new Date("2026-09-07T12:00:00.000Z"));
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/diagnostics/core-pilot-rail-step", {
+      method: "POST",
+      headers: {
+        origin: "http://localhost",
+        "content-type": "application/json",
+        "content-length": "15",
+        cookie: `${BFF_SESSION_COOKIE_NAME}=${issueResult?.sessionCookieValue ?? ""}`,
+      },
+      body: '{"stepIndex":3}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "diagnostics", "core-pilot-rail-step"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
+
+    vi.useRealTimers();
+  });
 });

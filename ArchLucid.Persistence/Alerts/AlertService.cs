@@ -5,6 +5,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Alerts.Helpers;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Queries;
@@ -165,23 +166,26 @@ public sealed class AlertService(
     /// <summary>
     /// Applies acknowledge / resolve / suppress to an alert and records audit when the status changes.
     /// </summary>
+    /// <param name="scope">Tenant/workspace/project the alert must belong to.</param>
     /// <param name="alertId">Alert primary key.</param>
     /// <param name="userId">Acting user id (stored on the alert).</param>
     /// <param name="userName">Display name for the acting user.</param>
     /// <param name="request">Desired action and optional comment.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Updated alert, or <c>null</c> if <paramref name="alertId"/> was not found.</returns>
+    /// <returns>Updated alert, or <c>null</c> if <paramref name="alertId"/> was not found in <paramref name="scope"/>.</returns>
     /// <remarks>No-op (returns existing row) when action is unknown or status is unchanged.</remarks>
     public async Task<AlertRecord?> ApplyActionAsync(
+        ScopeContext scope,
         Guid alertId,
         string userId,
         string userName,
         AlertActionRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
 
-        AlertRecord? alert = await alertRepository.GetByIdAsync(alertId, ct);
+        AlertRecord? alert = await alertRepository.GetByIdAsync(scope, alertId, ct);
         if (alert is null)
             return null;
 

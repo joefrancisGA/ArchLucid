@@ -16,7 +16,7 @@ public sealed class ContentSafetyEnabledButUnconfiguredGuard : IContentSafetyGua
     public Task<ContentSafetyResult> CheckInputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         throw new InvalidOperationException(Message);
     }
@@ -24,7 +24,7 @@ public sealed class ContentSafetyEnabledButUnconfiguredGuard : IContentSafetyGua
     public Task<ContentSafetyResult> CheckOutputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;
-        _ = cancellationToken;
+        cancellationToken.ThrowIfCancellationRequested();
 
         throw new InvalidOperationException(Message);
     }

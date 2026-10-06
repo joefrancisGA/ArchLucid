@@ -104,8 +104,11 @@ public sealed class TenantErasureCommandService(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null || tenant.OffboardedUtc is null)
+        if (tenant is null)
             return false;
+
+        if (tenant.OffboardedUtc is null)
+            return true;
 
         DateTimeOffset? priorOffboarded = tenant.OffboardedUtc;
         DateTimeOffset? priorEligible = tenant.ErasureEligibleUtc;

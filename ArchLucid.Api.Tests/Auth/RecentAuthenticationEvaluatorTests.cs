@@ -128,4 +128,56 @@ public sealed class RecentAuthenticationEvaluatorTests
 
         Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal()
+    {
+        long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", epoch.ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64));
+
+        ClaimsPrincipal principal = new(identity);
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
+
+    [Fact]
+    public void TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat()
+    {
+        long staleIat = DateTimeOffset.UtcNow.AddHours(-2).ToUnixTimeSeconds();
+        long freshAuthTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        ClaimsIdentity identity = new("Bearer");
+        identity.AddClaim(new Claim("auth_time", freshAuthTime.ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64));
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Iat, staleIat.ToString()));
+
+        DateTimeOffset? instant = RecentAuthenticationEvaluator.TryGetAuthenticationInstant(new ClaimsPrincipal(identity));
+
+        Assert.NotNull(instant);
+        Assert.Equal(freshAuthTime, instant.Value.ToUnixTimeSeconds());
+    }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip()
+    {
+        long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        JwtSecurityToken token = new(
+            "https://issuer.test",
+            "api://test",
+            [
+                new Claim("auth_time", epoch.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                new Claim(
+                    JwtRegisteredClaimNames.Iat,
+                    epoch.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ClaimValueTypes.Integer64),
+            ]);
+
+        JwtSecurityTokenHandler handler = new();
+        JwtSecurityToken roundTripped = handler.ReadJwtToken(handler.WriteToken(token));
+        ClaimsPrincipal principal = new(new ClaimsIdentity(roundTripped.Claims, "Bearer"));
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
 }

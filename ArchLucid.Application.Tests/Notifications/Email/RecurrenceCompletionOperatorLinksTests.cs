@@ -30,4 +30,16 @@ public sealed class RecurrenceCompletionOperatorLinksTests
         url.Should().StartWith("/insights/compare-two-reviews?");
         url.Should().EndWith("#compare-finding-lifecycle");
     }
+
+    [Fact]
+    public void BuildCompareUrl_omits_user_info_from_operator_base_url()
+    {
+        string url = RecurrenceCompletionOperatorLinks.BuildCompareUrl(
+            "https://user:secret@ops.example.test",
+            SourceRunId,
+            TriggeredRunId);
+
+        url.Should().Be(
+            "https://ops.example.test/insights/compare-two-reviews?priorRunId=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&laterRunId=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb#compare-finding-lifecycle");
+    }
 }

@@ -148,6 +148,7 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
         string? stripePaymentIntentId,
         int utcYearMonth,
         byte[] expectedRowVersion,
+        bool incrementMonthlyAutoRefillCount = true,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -167,15 +168,21 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
             if (!RowVersionMatches(row, expectedRowVersion))
                 return Task.FromResult(LlmTenantWalletCreditResult.Conflict());
 
-            if (row.AutoRefillsThisUtcMonthYearMonth != utcYearMonth)
+            if (incrementMonthlyAutoRefillCount)
             {
-                row.AutoRefillsThisUtcMonthYearMonth = utcYearMonth;
-                row.AutoRefillsThisUtcMonthCount = 0;
+                if (row.AutoRefillsThisUtcMonthYearMonth != utcYearMonth)
+                {
+                    row.AutoRefillsThisUtcMonthYearMonth = utcYearMonth;
+                    row.AutoRefillsThisUtcMonthCount = 0;
+                }
+
+                row.AutoRefillsThisUtcMonthCount++;
             }
 
             row.BalanceUsd = decimal.Round(row.BalanceUsd + amountUsd, 2, MidpointRounding.AwayFromZero);
-            row.AutoRefillsThisUtcMonthCount++;
-            row.LastRefillUtc = TimeProvider.System.GetUtcNow();
+
+            if (amountUsd > 0m)
+                row.LastRefillUtc = TimeProvider.System.GetUtcNow();
             row.Version++;
 
             AppendLedger(tenantId, LlmTenantWalletLedgerEntryTypes.Refill, amountUsd, row.BalanceUsd, stripePaymentIntentId, correlationId);

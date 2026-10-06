@@ -93,6 +93,76 @@ public sealed class GovernanceControllerSimulateTests
     }
 
     [Fact]
+    public async Task Simulate_accepts_run_id_with_interior_no_break_space()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+        string normalizedRunId = runId.ToString("D");
+
+        PolicyPackGovernanceDryRunResult dryRunResult = new();
+        Mock<IPolicyPackHttpFacade> httpFacade = new();
+        httpFacade
+            .Setup(f => f.SimulateAsync(
+                It.IsAny<PolicyPackContentDocument>(),
+                normalizedRunId,
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PolicyPackHttpResult<PolicyPackGovernanceDryRunResult>.Success(dryRunResult));
+
+        GovernanceController sut = CreateController(policyPackHttpFacade: httpFacade.Object);
+
+        IActionResult action = await sut.Simulate(
+            new PolicyPackSimulateRequest
+            {
+                RunId = runIdWithNbsp,
+                Content = new(),
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
+    public async Task DryRunPolicyPack_accepts_evaluate_against_run_id_with_interior_no_break_space()
+    {
+        Guid policyPackId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+        string normalizedRunId = runId.ToString("D");
+
+        Mock<IPolicyPackDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                policyPackId,
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.Is<IReadOnlyList<string>>(ids => ids.Count == 1 && ids[0] == normalizedRunId),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackDryRunResponse
+            {
+                PolicyPackId = policyPackId,
+                PageSize = IPolicyPackDryRunService.DefaultPageSize,
+                Page = 1,
+            });
+
+        GovernanceController sut = CreateController(dryRunService: dryRun.Object);
+
+        IActionResult action = await sut.DryRunPolicyPack(
+            policyPackId,
+            new PolicyPackDryRunRequest { EvaluateAgainstRunIds = [runIdWithNbsp], ProposedThresholds = new Dictionary<string, string>() },
+            pageSize: null,
+            page: null,
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
+    }
+
+    [Fact]
     public async Task Simulate_returns_not_found_when_tenant_missing()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
@@ -144,6 +214,53 @@ public sealed class GovernanceControllerSimulateTests
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         httpFacade.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task DryRunProposedPolicyPack_accepts_target_run_id_with_interior_no_break_space()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+        string normalizedRunId = runId.ToString("D");
+
+        PolicyPackGovernanceDryRunResult dryRunResult = new();
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new();
+        dryRun
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                normalizedRunId,
+                It.IsAny<Guid?>(),
+                It.IsAny<bool?>(),
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dryRunResult);
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository
+            .Setup(repository => repository.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
+        tenantRepository
+            .Setup(repository => repository.ListWorkspacesAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem { WorkspaceId = Scope.WorkspaceId, Name = "default" },
+            ]);
+
+        GovernanceController sut = CreateController(
+            governanceDryRunService: dryRun.Object,
+            tenantRepository: tenantRepository.Object);
+
+        IActionResult action = await sut.DryRunProposedPolicyPack(
+            new PolicyPackGovernanceDryRunRequest
+            {
+                PolicyPackContentJson = "{}",
+                TargetRunId = runIdWithNbsp,
+            },
+            CancellationToken.None);
+
+        action.Should().BeOfType<OkObjectResult>();
+        dryRun.VerifyAll();
     }
 
     [Fact]

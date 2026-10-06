@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
-# Start a Cursor Cloud Agent via the v1 API (Composer 2.5 standard, not Fast).
+# Start a Cursor Cloud Agent via the v1 API (standard tier only; Composer 2.5 by default).
+# Model override: AL_API_MODEL=cursor-grok-4.6-high (allowlist in .cursor/rules/Model-Allowlist-Override.mdc).
 set -euo pipefail
 
 TEXT="${1:-}"
 IMAGE_PATH="${2:-}"
+MODEL="${AL_API_MODEL:-composer-2.5}"
 
 if [[ -z "$TEXT" ]]; then
-  echo "Usage: scripts/al-api.sh \"<task text>\" [absolute_image_path]" >&2
+  echo "Usage: [AL_API_MODEL=<model>] scripts/al-api.sh \"<task text>\" [absolute_image_path]" >&2
   exit 1
 fi
+
+case "$MODEL" in
+  composer-2.5|cursor-grok-4.6-high) ;;
+  *)
+    echo "AL_API_MODEL '$MODEL' is not allowlisted (composer-2.5, cursor-grok-4.6-high)." >&2
+    exit 1
+    ;;
+esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -23,6 +33,7 @@ export AL_API_TEXT="$TEXT"
 export AL_API_IMAGE_PATH="$IMAGE_PATH"
 export AL_API_CONFIG_PATH="$CONFIG_PATH"
 export AL_API_REPO_ROOT="$REPO_ROOT"
+export AL_API_MODEL="$MODEL"
 
 python3 <<'PY'
 import base64
@@ -80,12 +91,13 @@ if image_path:
         "mimeType": mime,
     }]
 
+model = os.environ["AL_API_MODEL"]
+# Only Composer exposes the fast/standard toggle as a model param; Grok tiers are separate slugs.
+model_params = [{"id": "fast", "value": "false"}] if model == "composer-2.5" else []
+
 body = {
     "prompt": prompt,
-    "model": {
-        "id": "composer-2.5",
-        "params": [{"id": "fast", "value": "false"}],
-    },
+    "model": {"id": model, "params": model_params},
     "repos": [{"url": repo_url, "startingRef": starting_ref}],
     "autoCreatePR": auto_create_pr,
     "workOnCurrentBranch": False,
@@ -112,6 +124,6 @@ print("Cloud agent started")
 print(f"  Agent: {agent['id']}")
 print(f"  Run:   {run['id']}")
 print(f"  URL:   {agent['url']}")
-print("  Model: composer-2.5 (fast=false)")
+print(f"  Model: {model} (standard tier)")
 print()
 PY

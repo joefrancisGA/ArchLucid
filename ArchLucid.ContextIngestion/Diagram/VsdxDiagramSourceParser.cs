@@ -8,7 +8,7 @@ public sealed class VsdxDiagramSourceParser : IDiagramSourceParser
 
     public bool CanParse(string format)
     {
-        return string.Equals(format, DiagramSourceFormats.Vsdx, StringComparison.OrdinalIgnoreCase);
+        return DiagramSourceFormats.IsVsdxFormat(format);
     }
 
     public DiagramParseResult Parse(DiagramSourceReference source)

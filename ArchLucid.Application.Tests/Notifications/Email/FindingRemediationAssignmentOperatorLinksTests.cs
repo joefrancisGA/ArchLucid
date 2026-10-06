@@ -28,4 +28,27 @@ public sealed class FindingRemediationAssignmentOperatorLinksTests
             .Should()
             .Be("/governance/findings/assigned-to-me");
     }
+
+    [Fact]
+    public void BuildFindingInspectUrl_omits_user_info_from_operator_base_url()
+    {
+        Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        string url = FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl(
+            "https://user:secret@ops.example.test",
+            runId,
+            "finding-1");
+
+        url.Should().Be(
+            "https://ops.example.test/architecture/reviews/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/findings/finding-1");
+    }
+
+    [Fact]
+    public void BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url()
+    {
+        string url = FindingRemediationAssignmentOperatorLinks.BuildAssignedToMeQueueUrl(
+            "https://user:secret@ops.example.test");
+
+        url.Should().Be("https://ops.example.test/governance/findings/assigned-to-me");
+    }
 }

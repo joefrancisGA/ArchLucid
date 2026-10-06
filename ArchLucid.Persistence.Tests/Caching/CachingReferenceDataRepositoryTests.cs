@@ -688,6 +688,34 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        DelayedTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        inner.ArmDelayUntilReleased();
+
+        using CancellationTokenSource cts = new();
+        Task<string?> readTask = repo.TryGetAsync(tenantId, "feature.x", cts.Token);
+
+        cts.Cancel();
+
+        Func<Task> canceledRead = async () => await readTask;
+
+        await canceledRead.Should().ThrowAsync<OperationCanceledException>();
+
+        inner.Release();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "on", CancellationToken.None);
+
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("on");
+    }
+
+    [Fact]
     public async Task HotPathCacheEviction_RemoveTenantAsync_removes_key()
     {
         Mock<IHotPathReadCache> cache = new();

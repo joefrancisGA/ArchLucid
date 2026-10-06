@@ -58,7 +58,7 @@ public sealed class LlmTenantWalletRefillStage(
                     pending.AmountUsd,
                     pending.CorrelationId,
                     pending.PaymentIntentId,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 return await FinalizeRefillCreditAsync(
                     tenantId,
@@ -99,7 +99,7 @@ public sealed class LlmTenantWalletRefillStage(
                 state.RefillIncrementUsd,
                 correlationId,
                 charge.PaymentIntentId,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return await FinalizeRefillCreditAsync(
                 tenantId,
@@ -120,7 +120,8 @@ public sealed class LlmTenantWalletRefillStage(
         decimal amountUsd,
         Guid correlationId,
         string paymentIntentId,
-        CancellationToken cancellationToken)
+        bool incrementMonthlyAutoRefillCount = true,
+        CancellationToken cancellationToken = default)
     {
         int utcYearMonth = GetUtcYearMonth();
 
@@ -136,6 +137,7 @@ public sealed class LlmTenantWalletRefillStage(
                     paymentIntentId,
                     utcYearMonth,
                     state.RowVersion,
+                    incrementMonthlyAutoRefillCount,
                     cancellationToken)
                 .ConfigureAwait(false);
 

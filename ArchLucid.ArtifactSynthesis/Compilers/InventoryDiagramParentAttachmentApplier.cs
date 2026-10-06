@@ -14,7 +14,8 @@ internal static class InventoryDiagramParentAttachmentApplier
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
-        IReadOnlyDictionary<string, string> graphToDiagramNodeId)
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        bool retainNetworkDetailNodes = false)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(graph);
@@ -82,6 +83,14 @@ internal static class InventoryDiagramParentAttachmentApplier
                 continue;
             }
 
+            // Nic collapse already drew this public IP. Folding it would delete that card and line.
+
+            if (category == InventoryDiagramParentAttachmentCategory.PublicIp
+                && (retainNetworkDetailNodes || HasPublicIpExposesEdge(ast, diagramNode.NodeId)))
+            {
+                continue;
+            }
+
             string childDetailLabel = BuildChildDetailLabel(diagramNode, category);
             InventoryDiagramEvidenceCurrency evidenceCurrencyForDetail = ReadEvidenceCurrency(graphNode);
             string formattedDetail = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrencyForDetail, childDetailLabel);
@@ -128,6 +137,16 @@ internal static class InventoryDiagramParentAttachmentApplier
         ast.Nodes.RemoveAll(node => removedDiagramNodeIds.Contains(node.NodeId));
         ast.Edges.RemoveAll(edge =>
             removedDiagramNodeIds.Contains(edge.FromNodeId) || removedDiagramNodeIds.Contains(edge.ToNodeId));
+    }
+
+    private static bool HasPublicIpExposesEdge(DiagramAst ast, string publicIpNodeId)
+    {
+        return ast.Edges.Any(edge =>
+            !edge.IsLayoutOnly
+            && (string.Equals(edge.FromNodeId, publicIpNodeId, StringComparison.Ordinal)
+                || string.Equals(edge.ToNodeId, publicIpNodeId, StringComparison.Ordinal))
+            && (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(edge.Label, "exposes", StringComparison.OrdinalIgnoreCase)));
     }
 
     private static string? ResolveFirstParentDiagramNodeId(

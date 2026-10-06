@@ -41,11 +41,13 @@ public sealed class CachingAlertRuleRepository(IAlertRuleRepository inner, IHotP
     }
 
     /// <inheritdoc />
-    public Task<AlertRule?> GetByIdAsync(Guid ruleId, CancellationToken ct)
+    public Task<AlertRule?> GetByIdAsync(ScopeContext scope, Guid ruleId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         return _hotPathReadCache.GetOrCreateAsync(
-            HotPathCacheKeys.AlertRuleById(ruleId),
-            innerCt => _inner.GetByIdAsync(ruleId, innerCt),
+            HotPathCacheKeys.AlertRuleById(scope, ruleId),
+            innerCt => _inner.GetByIdAsync(scope, ruleId, innerCt),
             ct);
     }
 

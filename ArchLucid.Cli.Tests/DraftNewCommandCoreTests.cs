@@ -154,6 +154,29 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_admit_with_null_draft_body_returns_operation_failed()
+    {
+        ArchLucidApiClient client = CreateDraftFlowClient(new NullDraftBodyOnAdmitHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("draft");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_create_with_empty_draft_id_returns_operation_failed()
     {
         ArchLucidApiClient client = CreateDraftFlowClient(new EmptyDraftIdOnCreateHandler());
@@ -1045,6 +1068,25 @@ public sealed class DraftNewCommandCoreTests
             if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
             {
                 return Json(HttpStatusCode.Created, DraftBody("Drafting", draftIdOverride: Guid.Empty));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class NullDraftBodyOnAdmitHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(HttpRequestMessage request, string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    admitted = true,
+                    status = "Admitted",
+                    draft = (object?)null,
+                    pendingMustQuestions = Array.Empty<object>(),
+                });
             }
 
             return null;

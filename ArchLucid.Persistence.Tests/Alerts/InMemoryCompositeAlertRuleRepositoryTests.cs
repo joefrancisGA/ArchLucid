@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Persistence.Alerts;
 
@@ -15,6 +16,32 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 2, 10, 0, 0, DateTimeKind.Utc);
 
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
+    [SkippableFact]
+    public async Task GetByIdAsync_returns_null_for_another_tenant()
+    {
+        InMemoryCompositeAlertRuleRepository repo = new();
+        Guid ruleId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
+        await repo.CreateAsync(BuildRule(ruleId, "mine", BaseUtc, true), CancellationToken.None);
+
+        ScopeContext otherTenant = new()
+        {
+            TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        CompositeAlertRule? loaded = await repo.GetByIdAsync(otherTenant, ruleId, CancellationToken.None);
+
+        loaded.Should().BeNull();
+    }
+
     [SkippableFact]
     public async Task CreateAsync_stores_clone_mutating_original_does_not_change_repository()
     {
@@ -25,7 +52,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         await repo.CreateAsync(rule, CancellationToken.None);
         rule.Name = "mutated";
 
-        CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
+        CompositeAlertRule? loaded = await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Name.Should().Be("v1");
     }
@@ -37,11 +64,11 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         Guid ruleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         await repo.CreateAsync(BuildRule(ruleId, "stable", BaseUtc, true), CancellationToken.None);
 
-        CompositeAlertRule? first = await repo.GetByIdAsync(ruleId, CancellationToken.None);
+        CompositeAlertRule? first = await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None);
         first.Should().NotBeNull();
         first.Name = "broken";
 
-        CompositeAlertRule? second = await repo.GetByIdAsync(ruleId, CancellationToken.None);
+        CompositeAlertRule? second = await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None);
         second.Should().NotBeNull();
         second.Name.Should().Be("stable");
     }
@@ -65,7 +92,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         await repo.CreateAsync(rule, CancellationToken.None);
         rule.Conditions[0].ThresholdValue = 99m;
 
-        CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
+        CompositeAlertRule? loaded = await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Conditions.Should().ContainSingle();
         loaded.Conditions[0].ThresholdValue.Should().Be(10m);
@@ -81,7 +108,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         CompositeAlertRule next = BuildRule(ruleId, "new", BaseUtc.AddHours(1), false);
         await repo.UpdateAsync(next, CancellationToken.None);
 
-        CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
+        CompositeAlertRule? loaded = await repo.GetByIdAsync(Scope, ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Name.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
@@ -93,7 +120,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         InMemoryCompositeAlertRuleRepository repo = new();
 
         CompositeAlertRule? loaded =
-            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+            await repo.GetByIdAsync(Scope, Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -128,7 +155,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
         list[0].Name = "mutate-list";
         CompositeAlertRule? again =
-            await repo.GetByIdAsync(Guid.Parse("50000000-0000-0000-0000-000000000002"), CancellationToken.None);
+            await repo.GetByIdAsync(Scope, Guid.Parse("50000000-0000-0000-0000-000000000002"), CancellationToken.None);
         again.Should().NotBeNull();
         again.Name.Should().Be("b");
     }

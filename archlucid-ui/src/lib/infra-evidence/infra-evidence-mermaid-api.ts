@@ -33,6 +33,7 @@ export type InfraEvidenceMermaidRenderQuery = {
   readonly seedNodeId?: string | null;
   readonly includeNeverShow?: boolean | null;
   readonly includePrivateEndpointNodes?: boolean | null;
+  readonly includeNetworkDetails?: boolean | null;
   readonly includeRecoveryServices?: boolean | null;
   readonly includeCrossGroupFanOut?: boolean | null;
   readonly includeAvdAssets?: boolean | null;
@@ -70,6 +71,10 @@ function buildMermaidQuery(params: InfraEvidenceMermaidRenderQuery): string {
 
   if (params.includePrivateEndpointNodes === true) {
     search.set("includePrivateEndpointNodes", "true");
+  }
+
+  if (params.includeNetworkDetails === true) {
+    search.set("includeNetworkDetails", "true");
   }
 
   if (params.includeRecoveryServices === true) {

@@ -13,7 +13,10 @@ import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-
 import { applyDevRoleOverrideUpstreamHeader } from "@/lib/proxy/dev-role-override-upstream";
 import { applyProductLineUpstreamHeader } from "@/lib/proxy/product-line-upstream-header";
 import { isPublicAnonymousProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
-import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
+import {
+  resolveAnonymousPublicProxyScopeHeaders,
+  resolveProxyUpstreamScopeHeaders,
+} from "@/lib/proxy-scope-resolution";
 
 export const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
 /** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
@@ -36,12 +39,15 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
     proxyPath !== undefined &&
     proxyPath.length > 0 &&
     isPublicAnonymousProxyPath(proxyPath);
-  const bearerToUse =
-    cookieBearer.length > 0
+  const bearerToUse = skipPrivilegedUpstreamAuth
+    ? browserBearer.length > 0
+      ? browserBearer
+      : ""
+    : cookieBearer.length > 0
       ? cookieBearer
       : browserBearer.length > 0
         ? browserBearer
-        : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
+        : serverBearerToken.length > 0
           ? `Bearer ${serverBearerToken}`
           : "";
   const hasBearer = bearerToUse.length > 0;
@@ -54,7 +60,17 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
     h.set("Authorization", bearerToUse);
   }
 
-  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath))) {
+  const scopeResolutionHeaders = new Headers(request.headers);
+
+  if (!skipPrivilegedUpstreamAuth && bearerToUse.length > 0) {
+    scopeResolutionHeaders.set("authorization", bearerToUse);
+  }
+
+  const scopeHeaders = skipPrivilegedUpstreamAuth
+    ? resolveAnonymousPublicProxyScopeHeaders(request.headers, proxyPath)
+    : resolveProxyUpstreamScopeHeaders(scopeResolutionHeaders, undefined, proxyPath);
+
+  for (const [k, v] of Object.entries(scopeHeaders)) {
     h.set(k, v);
   }
 

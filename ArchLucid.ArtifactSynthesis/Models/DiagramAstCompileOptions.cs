@@ -57,6 +57,16 @@ public sealed class DiagramAstCompileOptions
     }
 
     /// <summary>
+    ///     When true, Full subscription draws public IPs, network security groups, route tables, and
+    ///     private endpoints. Network interfaces and subnets stay hidden. Other modes ignore this flag.
+    /// </summary>
+    public bool IncludeNetworkDetails
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     When true, private-endpoint cards stay on the canvas. Default hides them and still uses
     ///     their hops to place remaining resources.
     /// </summary>

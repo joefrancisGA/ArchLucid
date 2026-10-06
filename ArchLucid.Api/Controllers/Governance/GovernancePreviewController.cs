@@ -76,10 +76,12 @@ public sealed partial class GovernancePreviewController(
         if (runIdProblem is not null)
             return runIdProblem;
 
-        if (!Guid.TryParse(body.RunId.Trim(), out Guid runGuid) || runGuid == Guid.Empty)
+        if (!GovernanceRunIdHttpParser.TryParseFromBody(body.RunId, out string normalizedRunId))
         {
             return this.BadRequestProblem("runId is not valid.", ProblemTypes.ValidationFailed);
         }
+
+        body.RunId = normalizedRunId;
 
         IActionResult? manifestVersionProblem =
             GovernanceApprovalRequestsHttpMapper.ValidateManifestVersion(body.ManifestVersion)

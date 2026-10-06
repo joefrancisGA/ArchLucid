@@ -59,6 +59,8 @@ public sealed class CircuitBreakingContentSafetyGuard(
         Func<string, CancellationToken, Task<ContentSafetyResult>> invokeInner,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             _contentSafetyCircuit.ThrowIfBroken();

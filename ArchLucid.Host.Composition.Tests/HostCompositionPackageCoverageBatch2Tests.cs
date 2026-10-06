@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Alerts.Simulation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Host.Composition.AzureOpenAI;
 
@@ -21,14 +22,16 @@ public sealed class HostCompositionPackageCoverageBatch2Tests
         Mock<ArchLucid.Core.Alerts.IAlertService> inner = new();
         inner.Setup(i => i.EvaluateAndPersistAsync(It.IsAny<ArchLucid.Core.Alerts.AlertEvaluationContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AlertEvaluationOutcome([], []));
-        inner.Setup(i => i.ApplyActionAsync(It.IsAny<Guid>(), "u", "n", It.IsAny<AlertActionRequest>(), It.IsAny<CancellationToken>()))
+        inner.Setup(i => i.ApplyActionAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), "u", "n", It.IsAny<AlertActionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AlertRecord?)null);
         AlertServiceDecisioningPortAdapter sut = new(inner.Object);
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         await sut.EvaluateAndPersistAsync(new ArchLucid.Core.Alerts.AlertEvaluationContext(), CancellationToken.None);
-        await sut.ApplyActionAsync(Guid.NewGuid(), "u", "n", new AlertActionRequest(), CancellationToken.None);
+        await sut.ApplyActionAsync(scope, Guid.NewGuid(), "u", "n", new AlertActionRequest(), CancellationToken.None);
 
         inner.Verify(i => i.EvaluateAndPersistAsync(It.IsAny<ArchLucid.Core.Alerts.AlertEvaluationContext>(), It.IsAny<CancellationToken>()), Times.Once);
+        inner.Verify(i => i.ApplyActionAsync(scope, It.IsAny<Guid>(), "u", "n", It.IsAny<AlertActionRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

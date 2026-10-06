@@ -58,6 +58,7 @@ import {
   INFRA_DIAGRAMS_SEED_NODE_ID_PARAM,
   INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM,
   INFRA_DIAGRAMS_HIDE_EXECUTIVE_TIERS_PARAM,
+  INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM,
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
@@ -69,6 +70,7 @@ import {
   parseInfraDiagramsCloudResourceIdFromSearch,
   parseInfraDiagramsHiddenExecutiveTierKeysFromSearchParam,
   parseInfraDiagramsIncludeNeverShowFromSearch,
+  parseInfraDiagramsIncludeNetworkDetailsFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
   parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
@@ -372,6 +374,9 @@ export function DiagramsWorkbenchClient() {
   const urlIncludePrivateEndpoints = parseInfraDiagramsIncludePrivateEndpointsFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_PRIVATE_ENDPOINTS_PARAM),
   );
+  const urlIncludeNetworkDetails = parseInfraDiagramsIncludeNetworkDetailsFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM),
+  );
   const urlIncludeRecoveryServices = parseInfraDiagramsIncludeRecoveryServicesFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM),
   );
@@ -428,6 +433,9 @@ export function DiagramsWorkbenchClient() {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
+  const [showNetworkDetails, setShowNetworkDetails] = useState(
+    urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
+  );
   const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
   const [includeCrossGroupFanOut, setIncludeCrossGroupFanOut] = useState(urlIncludeCrossGroupFanOut);
   const [showAvdAssets, setShowAvdAssets] = useState(urlIncludeAvdAssets);
@@ -485,6 +493,12 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludePrivateEndpoints]);
 
   useEffect(() => {
+    setShowNetworkDetails(
+      urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
+    );
+  }, [urlIncludeNetworkDetails, urlIncludePrivateEndpoints, urlMermaidMode]);
+
+  useEffect(() => {
     setIncludeRecoveryServices(urlIncludeRecoveryServices);
   }, [urlIncludeRecoveryServices]);
 
@@ -512,6 +526,7 @@ export function DiagramsWorkbenchClient() {
       seedNodeId?: string;
       subscriptionFilter?: string;
       includePrivateEndpoints?: boolean;
+      includeNetworkDetails?: boolean;
       includeRecoveryServices?: boolean;
       includeCrossGroupFanOut?: boolean;
       includeAvdAssets?: boolean;
@@ -1111,14 +1126,17 @@ export function DiagramsWorkbenchClient() {
       };
     }
 
+    const fullSubscription = selectedMode === "full";
+
     return {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
-      includePrivateEndpointNodes: showPrivateEndpoints,
+      includePrivateEndpointNodes: fullSubscription ? false : showPrivateEndpoints,
+      includeNetworkDetails: fullSubscription ? showNetworkDetails : false,
       includeRecoveryServices,
       includeCrossGroupFanOut,
-      ...(selectedMode === "full" && showAvdAssets ? { includeAvdAssets: true } : {}),
+      ...(fullSubscription && showAvdAssets ? { includeAvdAssets: true } : {}),
       ...executiveTierQuery,
     };
   }, [
@@ -1133,6 +1151,7 @@ export function DiagramsWorkbenchClient() {
     selectedMode,
     selectedResourceGroupName,
     showAvdAssets,
+    showNetworkDetails,
     showPrivateEndpoints,
   ]);
 
@@ -1305,6 +1324,16 @@ export function DiagramsWorkbenchClient() {
     setShowPrivateEndpoints(nextShowPrivateEndpoints);
     syncUrl({ includePrivateEndpoints: nextShowPrivateEndpoints });
   }, [showPrivateEndpoints, syncUrl]);
+
+  const handleNetworkDetailsToggle = useCallback(() => {
+    const nextShowNetworkDetails = !showNetworkDetails;
+
+    setShowNetworkDetails(nextShowNetworkDetails);
+    syncUrl({
+      includeNetworkDetails: nextShowNetworkDetails,
+      includePrivateEndpoints: false,
+    });
+  }, [showNetworkDetails, syncUrl]);
 
   const handleIncludeRecoveryServicesToggle = useCallback(() => {
     const nextIncludeRecoveryServices = !includeRecoveryServices;
@@ -2093,15 +2122,28 @@ export function DiagramsWorkbenchClient() {
           <p className={cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-bold")}>Display options</p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2">
-            <Checkbox
-              checked={showPrivateEndpoints}
-              data-testid="infra-diagrams-show-private-endpoints"
-              aria-label="Show private endpoints"
-              onCheckedChange={handlePrivateEndpointsToggle}
-            />
-            <span className={OPERATOR_TYPOGRAPHY.body}>Show private endpoints</span>
-          </label>
+          {selectedMode === "full" ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={showNetworkDetails}
+                data-testid="infra-diagrams-show-network-details"
+                aria-label="Show network details"
+                onCheckedChange={handleNetworkDetailsToggle}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Show network details</span>
+            </label>
+          ) : null}
+          {selectedMode !== "full" && !isInfraDiagramsResourceGroupMode(selectedMode) ? (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={showPrivateEndpoints}
+                data-testid="infra-diagrams-show-private-endpoints"
+                aria-label="Show private endpoints"
+                onCheckedChange={handlePrivateEndpointsToggle}
+              />
+              <span className={OPERATOR_TYPOGRAPHY.body}>Show private endpoints</span>
+            </label>
+          ) : null}
           {selectedMode !== "businessContinuity" ? (
             <label className="flex items-center gap-2">
               <Checkbox

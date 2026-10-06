@@ -71,7 +71,10 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
     {
         GraphSnapshot graph = BuildUnresolvedPublicIpGraph();
 
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
+        DiagramAst ast = compiler.Compile(
+            graph,
+            DiagramMode.FullSubscription,
+            new DiagramAstCompileOptions { IncludeNetworkDetails = true });
 
         ast.Nodes.Should().ContainSingle(node =>
             node.ArmResourceType == "Microsoft.Network/publicIPAddresses"

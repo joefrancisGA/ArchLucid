@@ -14,9 +14,11 @@ public static class RecurrenceCompletionOperatorLinks
         string relativePath =
             $"/insights/compare-two-reviews?priorRunId={priorRunId}&laterRunId={laterRunId}#{FindingLifecycleCompareAnchor}";
 
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is null)
             return relativePath;
 
-        return $"{operatorBaseUrl.TrimEnd('/')}{relativePath}";
+        return $"{authority}{relativePath}";
     }
 }

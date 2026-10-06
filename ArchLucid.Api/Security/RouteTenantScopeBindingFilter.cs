@@ -3,6 +3,7 @@ using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ArchLucid.Api.Security;
@@ -70,13 +71,34 @@ public sealed class RouteTenantScopeBindingFilter(IScopeContextProvider scopeCon
     {
         foreach (object metadata in context.ActionDescriptor.EndpointMetadata)
         {
-            if (metadata is not AuthorizeAttribute authorize)
-                continue;
-
-            if (string.Equals(authorize.Policy, policyName, StringComparison.Ordinal))
+            if (MetadataDeclaresPolicy(metadata, policyName))
                 return true;
         }
 
         return false;
     }
+
+    private static bool MetadataDeclaresPolicy(object metadata, string policyName)
+    {
+        if (metadata is IAuthorizeData authorizeData)
+            return PolicyNameMatches(authorizeData.Policy, policyName);
+
+        if (metadata is not AuthorizeFilter authorizeFilter)
+            return false;
+
+        if (authorizeFilter.AuthorizeData is null)
+            return false;
+
+        foreach (IAuthorizeData filterAuthorizeData in authorizeFilter.AuthorizeData)
+        {
+            if (PolicyNameMatches(filterAuthorizeData.Policy, policyName))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool PolicyNameMatches(string? policy, string policyName) =>
+        !string.IsNullOrEmpty(policy)
+        && string.Equals(policy, policyName, StringComparison.Ordinal);
 }

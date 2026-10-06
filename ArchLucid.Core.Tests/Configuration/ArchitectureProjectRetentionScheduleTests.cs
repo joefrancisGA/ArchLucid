@@ -27,4 +27,18 @@ public sealed class ArchitectureProjectRetentionScheduleTests
 
         purgeAfterUtc.Should().Be(deletedUtc.AddDays(30));
     }
+
+    [Fact]
+    public void Purge_worker_eligibility_uses_strict_cutoff_at_displayed_purge_after_instant()
+    {
+        DateTimeOffset deletedUtc = new(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        int retentionDays = 30;
+        DateTimeOffset purgeAfterUtc =
+            ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays);
+
+        DateTimeOffset cutoffAtDisplayedPurgeAfter = purgeAfterUtc.AddDays(-retentionDays);
+
+        (deletedUtc < cutoffAtDisplayedPurgeAfter).Should().BeFalse();
+        (deletedUtc < purgeAfterUtc.AddTicks(1).AddDays(-retentionDays)).Should().BeTrue();
+    }
 }

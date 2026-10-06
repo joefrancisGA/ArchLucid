@@ -160,7 +160,8 @@ public sealed class DapperArchitectureProjectRepository(ISqlConnectionFactory co
                                     WHERE TenantId = @TenantId
                                       AND WorkspaceId = @WorkspaceId
                                       AND Id = @ProjectId
-                                      AND IsDeleted = 1;
+                                      AND IsDeleted = 1
+                                      AND DeletedUtc IS NOT NULL;
                                     """;
 
         string? nameRow =

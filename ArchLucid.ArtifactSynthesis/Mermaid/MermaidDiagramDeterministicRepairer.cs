@@ -50,7 +50,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 ExternalFactoryName = node.ExternalFactoryName,
                 ExternalFactoryNames = node.ExternalFactoryNames.ToList(),
                 ExternalTargetHost = node.ExternalTargetHost,
+                ExternalTargetHosts = node.ExternalTargetHosts.ToList(),
                 ExternalIntegrationRuntime = node.ExternalIntegrationRuntime,
+                ExternalIntegrationRuntimes = node.ExternalIntegrationRuntimes.ToList(),
                 ExternalHostInKeyVault = node.ExternalHostInKeyVault,
                 ArmResourceGroup = node.ArmResourceGroup,
                 IncludeResourceGroupInCaption = node.IncludeResourceGroupInCaption,
@@ -63,6 +65,9 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 UnresolvedRelationshipDetails = node.UnresolvedRelationshipDetails.ToList(),
                 IsAvdCollapsedBoundary = node.IsAvdCollapsedBoundary,
                 DataFlowTraversalHopEvidenceDetails = node.DataFlowTraversalHopEvidenceDetails.ToList(),
+                NsgInboundRuleChips = node.NsgInboundRuleChips
+                    .Select(chip => new DiagramNsgInboundRuleChip(chip.Text, chip.IsRisky))
+                    .ToList(),
             });
         }
 

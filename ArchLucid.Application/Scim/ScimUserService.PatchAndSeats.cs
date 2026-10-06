@@ -35,6 +35,12 @@ public sealed partial class ScimUserService
         string externalId = ReadPatchRequiredString(core, "externalId", existing.ExternalId);
         string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
+
+        if (!core.ContainsKey("displayName") && current.ContainsKey("displayName"))
+            displayName = string.Empty;
+        else if (core.TryGetValue("displayName", out JsonElement displayNameElement))
+            displayName = ResolvePatchDisplayName(displayNameElement, displayName);
+
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
 
         bool wasActive = existing.Active;
@@ -157,11 +163,39 @@ public sealed partial class ScimUserService
         return raw.Trim();
     }
 
+    private static string? ResolvePatchDisplayName(JsonElement displayNameElement, string? parsedDisplayName)
+    {
+        if (displayNameElement.ValueKind == JsonValueKind.Null)
+            return string.Empty;
+
+        if (displayNameElement.ValueKind != JsonValueKind.String)
+            return parsedDisplayName;
+
+        string? raw = displayNameElement.GetString();
+
+        if (raw is not null && raw.Length > 0 && string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+
+        return parsedDisplayName;
+    }
+
     private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key, string? fallback)
     {
-        if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+        if (!next.TryGetValue(key, out JsonElement el))
             return fallback;
-        return el.ValueKind != JsonValueKind.String ? fallback : el.GetString();
+
+        if (el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind != JsonValueKind.String)
+            throw new ScimUserResourceParseException("invalidValue", $"'{key}' must be a string.");
+
+        string? raw = el.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return raw.Trim();
     }
 
     private static string? TryReadOptionalTrimmed(IReadOnlyDictionary<string, JsonElement> next, string key, StringComparer comparer)

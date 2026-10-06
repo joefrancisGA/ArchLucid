@@ -29,4 +29,17 @@ public sealed class NullContentSafetyGuardTests
         result.IsAllowed.Should().BeTrue();
         result.Category.Should().BeNull();
     }
+
+    [SkippableFact]
+    public async Task CheckInputAsync_when_token_cancelled_throws_operation_canceled_even_for_whitespace()
+    {
+        NullContentSafetyGuard sut = new();
+
+        using CancellationTokenSource cts = new();
+        await cts.CancelAsync();
+
+        Func<Task> act = () => sut.CheckInputAsync("   ", cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
 }

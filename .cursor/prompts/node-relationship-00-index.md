@@ -7,9 +7,9 @@
      2026-10-01: a policy-pack finding paints a yellow questionable card and a click reason.
      Do not implement from this index. -->
 
-# Inventory diagram node relationships — Luna prompt set (NR-01–NR-16)
+# Inventory diagram node relationships — prompt set (NR-01–NR-31)
 
-**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/node-relationship-*.md` file per GPT-5.6 Luna session.
+**Do not implement from this index.** Paste **one** numbered `.cursor/prompts/node-relationship-*.md` file per session. NR-01 through NR-16 were written for GPT-5.6 Luna. NR-17 through NR-31 were written for Composer 2.5. Change the Model line in a file before pasting it to a different model.
 
 Canonical wave doc: [`docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA_PROMPTS.md`](../../docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA_PROMPTS.md).
 
@@ -66,3 +66,44 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 14 | `node-relationship-14-avd-off-the-plate.md` | `nr/14-avd-off-the-plate` |
 | 15 | `node-relationship-15-identified-avd-stays-hidden.md` | `nr/15-identified-avd-stays-hidden` |
 | 16 | `node-relationship-16-questionable-card.md` | `nr/16-questionable-card` |
+| 17 | `node-relationship-17-public-ip-attachment.md` | `nr/17-public-ip-attachment` |
+| 18 | `node-relationship-18-no-resource-group-vnet-guess.md` | `nr/18-no-resource-group-vnet-guess` |
+| 19 | `node-relationship-19-show-network-details.md` | `nr/19-show-network-details` |
+| 20 | `node-relationship-20-visible-ends.md` | `nr/20-visible-ends` |
+| 21 | `node-relationship-21-hidden-public-ip-mark.md` | `nr/21-hidden-public-ip-mark` |
+| 22 | `node-relationship-22-ports-on-the-visible-line.md` | `nr/22-ports-on-the-visible-line` |
+| 23 | `node-relationship-23-routed-through.md` | `nr/23-routed-through` |
+| 24 | `node-relationship-24-private-access.md` | `nr/24-private-access` |
+| 25 | `node-relationship-25-sends-traffic-to.md` | `nr/25-sends-traffic-to` |
+| 26 | `node-relationship-26-connected-peering.md` | `nr/26-connected-peering` |
+| 27 | `node-relationship-27-outside-this-subscription.md` | `nr/27-outside-this-subscription` |
+| 28 | `node-relationship-28-has-access.md` | `nr/28-has-access` |
+| 29 | `node-relationship-29-likely-lines.md` | `nr/29-likely-lines` |
+| 30 | `node-relationship-30-plate-component-count.md` | `nr/30-plate-component-count` |
+| 31 | `node-relationship-31-collect-stored-proof.md` | `nr/31-collect-stored-proof` |
+
+## Stored connectivity (NR-17–NR-31)
+
+Owner design, 2026-10-05. Edit a numbered file before pasting. Do not implement from this section.
+
+**NR-17** is already written. Do not re-run it. **NR-18** is next.
+
+| Step | What the plate does | Prompt |
+|------|---------------------|--------|
+| **Public IP parent** | An attached public IP is Connected or Used. An unattached public IP stays missing a required link. | **NR-17** |
+| **No resource-group guess** | Sharing a resource group with one virtual network does not draw a line. | **NR-18** |
+| **Show network details** | One checkbox on Full subscription shows public IPs, network security groups, route tables, and private endpoints. Network interfaces and subnets stay on the resource-group view only. | **NR-19** |
+| **Visible ends** | A stored path through hidden resources draws one line between the visible ends. The checkbox draws the real cards instead, not both. | **NR-20** |
+| **Public mark** | A virtual machine with a hidden public IP is marked **public**. | **NR-21** |
+| **Ports** | Network security group protocol and port sit on that visible line. | **NR-22** |
+| **Default route** | `0.0.0.0/0` to a visible firewall, network virtual appliance, or VPN gateway is **Routed through {name}**. Other routes are outline only. | **NR-23** |
+| **Private access** | A hidden private endpoint draws **Private access** from the service to its virtual network. | **NR-24** |
+| **Backends** | A load balancer or Application Gateway draws **Sends traffic to**, with the stored port. | **NR-25** |
+| **Peering** | Connected peering is one **Peered** line. Any other state is outline only. | **NR-26** |
+| **Outside** | A stored target missing from the snapshot is one shared **Outside this subscription: {name}** card. | **NR-27** |
+| **Has access** | A role on one resource is a solid line. A resource-group or subscription role is outline only. | **NR-28** |
+| **Likely** | Data Factory and Key Vault resource-group guesses are dashed **Likely** lines. They count. The outline says no stored link exists yet. | **NR-29** |
+| **Count** | Connected components are the painted plate, dashed lines included. | **NR-30** |
+| **Collect** | Reader collection stores linked services and single-resource role assignments. App settings are not read. | **NR-31** |
+
+Run **18**, then **19**, then **20**. **21** follows **19**. **22** follows **20**. **23** follows **20**. **24** follows **19**. **25** and **26** follow **20**. **27** follows **24**, **25**, and **26**. **28** can follow **18**. **29** follows **18**. **30** follows **20** and **29**. **31** follows **28** and **29**, after a recollection is acceptable. Do not paste two of these in one session.

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -53,7 +55,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                 LastModifiedUtc = @LastModifiedUtc,
                 LastDeliveredUtc = @LastDeliveredUtc,
                 MetadataJson = @MetadataJson
-            WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -61,8 +66,12 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
     }
 
     /// <inheritdoc />
-    public async Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
+    public async Task<AlertRoutingSubscription?> GetByIdAsync(
+        ScopeContext scope,
+        Guid routingSubscriptionId,
+        CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT
                 RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
@@ -70,14 +79,20 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                 CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
                 LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
-            WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRoutingSubscription>(
             new CommandDefinition(sql, new
             {
-                RoutingSubscriptionId = routingSubscriptionId
+                RoutingSubscriptionId = routingSubscriptionId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

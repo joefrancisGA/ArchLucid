@@ -74,6 +74,7 @@ public sealed class ExecDigestEmailDispatcher(
 
         string normalizedDashboardUrl = composition.DashboardUrl.Trim();
         string normalizedSponsorValueReportUrl = composition.SponsorValueReportUrl.Trim();
+        string normalizedUnsubscribeUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(unsubscribeAbsoluteUrl);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
@@ -90,7 +91,7 @@ public sealed class ExecDigestEmailDispatcher(
             FindingsDeltaSummary = composition.FindingsDeltaSummary,
             DashboardUrl = normalizedDashboardUrl,
             SponsorValueReportUrl = normalizedSponsorValueReportUrl,
-            UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
+            UnsubscribeUrl = normalizedUnsubscribeUrl,
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
             RehearsalSubjectPrefix = composition.RehearsalSubjectPrefix,
             RehearsalBodyDisclaimer = composition.RehearsalBodyDisclaimer,

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -20,7 +21,9 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         _ = ct;
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId);
+            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
+            int i = _items.FindIndex(x =>
+                x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId && SameScope(x, attempt));
             if (i >= 0)
                 _items[i] = attempt;
         }
@@ -28,30 +31,49 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(Guid alertId, CancellationToken ct)
+    public Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
+        ScopeContext scope,
+        Guid alertId,
+        CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
         {
-            List<AlertDeliveryAttempt> result = _items.Where(x => x.AlertId == alertId).OrderByDescending(x => x.AttemptedUtc).ToList();
+            List<AlertDeliveryAttempt> result = _items
+                .Where(x => x.AlertId == alertId && MatchesScope(x, scope))
+                .OrderByDescending(x => x.AttemptedUtc)
+                .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
     }
 
     public Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid routingSubscriptionId,
         int take,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
         {
             List<AlertDeliveryAttempt> result = _items
-                .Where(x => x.RoutingSubscriptionId == routingSubscriptionId)
+                .Where(x => x.RoutingSubscriptionId == routingSubscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)
                 .ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
     }
+
+    private static bool MatchesScope(AlertDeliveryAttempt attempt, ScopeContext scope) =>
+        attempt.TenantId == scope.TenantId &&
+        attempt.WorkspaceId == scope.WorkspaceId &&
+        attempt.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(AlertDeliveryAttempt stored, AlertDeliveryAttempt incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

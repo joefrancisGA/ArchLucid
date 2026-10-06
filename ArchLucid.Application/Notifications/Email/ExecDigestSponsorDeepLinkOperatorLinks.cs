@@ -7,10 +7,12 @@ public static class ExecDigestSponsorDeepLinkOperatorLinks
     {
         string relativePath = $"/digest/sponsor?token={Uri.EscapeDataString(token)}";
 
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is null)
             return relativePath;
 
-        return $"{operatorBaseUrl.TrimEnd('/')}{relativePath}";
+        return $"{authority}{relativePath}";
     }
 
     public static string BuildRunCollateralUrl(string? operatorBaseUrl, string runIdHex, string token)
@@ -19,9 +21,11 @@ public static class ExecDigestSponsorDeepLinkOperatorLinks
         string relativePath =
             $"/digest/sponsor/run/{Uri.EscapeDataString(normalizedRunIdHex)}?token={Uri.EscapeDataString(token)}";
 
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        if (authority is null)
             return relativePath;
 
-        return $"{operatorBaseUrl.TrimEnd('/')}{relativePath}";
+        return $"{authority}{relativePath}";
     }
 }

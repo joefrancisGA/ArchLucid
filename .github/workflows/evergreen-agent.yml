@@ -1,0 +1,131 @@
+# Evergreen: when a trunk gate goes red, launch a Cursor Cloud Agent to repair it.
+#
+# Trigger: completion of the push-corset / private-beta / OpenAPI workflows on master and of
+# full CI on pull requests. Only `conclusion == failure` launches; `cancelled` is the
+# cancel-in-progress queue draining and is ignored. Dedupe and the daily cap live in
+# scripts/ci/evergreen (open PRs carrying `Evergreen-Fingerprint:` + today's launch cache keys).
+#
+# Recursion guard: this workflow is not in its own `workflows:` list and no gate depends on it.
+# Requires the repository secret CURSOR_API_KEY (Cursor dashboard > Integrations > API keys).
+name: Evergreen agent
+
+on:
+  workflow_run:
+    workflows:
+      - "UI typecheck on push"
+      - "Private-beta access on push"
+      - "Refresh OpenAPI v1 snapshot"
+      - "CI"
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Failed workflow run id to digest and repair
+        required: true
+        type: string
+      model:
+        description: Allowlisted model id (composer-2.5 or cursor-grok-4.6-high)
+        required: false
+        default: cursor-grok-4.6-high
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+concurrency:
+  # Serialise launches so two red runs cannot race past the dedupe check.
+  group: evergreen-agent
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  launch:
+    name: Digest, decide, launch
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build failure digest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        run: |
+          python3 scripts/ci/evergreen_launch.py digest \
+            --run-id "${RUN_ID}" \
+            --output .evergreen/digest.json
+
+      - name: Decide (scope, dedupe, daily cap)
+        id: decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX_PER_DAY: ${{ vars.EVERGREEN_MAX_PER_DAY || '6' }}
+        run: |
+          python3 scripts/ci/evergreen_launch.py decide \
+            --digest .evergreen/digest.json \
+            --max-per-day "${MAX_PER_DAY}" \
+            --output .evergreen/decision.json
+
+      - name: Require CURSOR_API_KEY
+        if: steps.decide.outputs.launch == 'true'
+        env:
+          HAS_KEY: ${{ secrets.CURSOR_API_KEY != '' }}
+        run: |
+          if [ "${HAS_KEY}" != "true" ]; then
+            echo "::error::CURSOR_API_KEY secret is not set; Evergreen cannot launch an agent."
+            exit 1
+          fi
+
+      - name: Launch Cloud Agent
+        id: launch
+        if: steps.decide.outputs.launch == 'true'
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          MODEL: ${{ inputs.model || vars.EVERGREEN_MODEL || 'cursor-grok-4.6-high' }}
+        run: |
+          python3 scripts/ci/evergreen_launch.py launch \
+            --digest .evergreen/digest.json \
+            --decision .evergreen/decision.json \
+            --model "${MODEL}" \
+            --output .evergreen/launch.json
+
+      - name: Record launch for same-day dedupe
+        if: steps.launch.outcome == 'success'
+        uses: actions/cache/save@v6
+        with:
+          path: .evergreen/launch.json
+          key: ${{ steps.decide.outputs.cache_key }}
+
+      - name: Summary
+        if: always()
+        env:
+          LAUNCH: ${{ steps.decide.outputs.launch }}
+          REASON: ${{ steps.decide.outputs.reason }}
+          FINGERPRINT: ${{ steps.decide.outputs.fingerprint }}
+          AGENT_URL: ${{ steps.launch.outputs.agent_url }}
+          SOURCE_RUN: ${{ github.event.workflow_run.html_url || inputs.run_id }}
+        run: |
+          {
+            echo "## Evergreen"
+            echo
+            echo "- Source run: ${SOURCE_RUN}"
+            echo "- Fingerprint: \`${FINGERPRINT}\`"
+            echo "- Decision: ${LAUNCH:-n/a} (${REASON:-no decision})"
+            if [ -n "${AGENT_URL}" ]; then echo "- Agent: ${AGENT_URL}"; fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload digest and decision
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: evergreen-${{ github.run_id }}
+          path: .evergreen/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -23,6 +23,7 @@ public interface ILlmTenantWalletRepository
         string? stripePaymentIntentId,
         int utcYearMonth,
         byte[] expectedRowVersion,
+        bool incrementMonthlyAutoRefillCount = true,
         CancellationToken cancellationToken = default);
 
     Task<LlmTenantWalletCreditResult> TryCreditAdjustmentAsync(

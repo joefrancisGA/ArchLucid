@@ -27,9 +27,9 @@ public sealed partial class AlertsController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
+        AlertRecord? existing = await alertRepository.GetByIdAsync(scope, alertId, ct);
 
-        if (existing is null || !MatchesScope(existing, scope))
+        if (existing is null)
             return this.NotFoundProblem(
                 $"Alert '{alertId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
@@ -40,7 +40,7 @@ public sealed partial class AlertsController
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
 
-        await alertRepository.ArchiveAsync(alertId, ct);
+        await alertRepository.ArchiveAsync(scope, alertId, ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -53,7 +53,7 @@ public sealed partial class AlertsController
             },
             ct);
 
-        AlertRecord? updated = await alertRepository.GetByIdAsync(alertId, ct);
+        AlertRecord? updated = await alertRepository.GetByIdAsync(scope, alertId, ct);
 
         return Ok(updated ?? existing);
     }
@@ -114,8 +114,8 @@ public sealed partial class AlertsController
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
-        if (existing is null || !MatchesScope(existing, scope))
+        AlertRecord? existing = await alertRepository.GetByIdAsync(scope, alertId, ct);
+        if (existing is null)
             return this.NotFoundProblem(
                 $"Alert '{alertId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
@@ -124,6 +124,7 @@ public sealed partial class AlertsController
         string userName = User.Identity?.Name ?? "unknown";
 
         AlertRecord? updated = await alertService.ApplyActionAsync(
+            scope,
             alertId,
             userId,
             userName,
@@ -171,9 +172,9 @@ public sealed partial class AlertsController
             if (!seen.Add(alertId))
                 continue;
 
-            AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
+            AlertRecord? existing = await alertRepository.GetByIdAsync(scope, alertId, ct);
 
-            if (existing is null || !MatchesScope(existing, scope))
+            if (existing is null)
             {
                 results.Add(
                     new AlertsAcknowledgeBatchItemResult
@@ -183,7 +184,7 @@ public sealed partial class AlertsController
                 continue;
             }
 
-            AlertRecord? updated = await alertService.ApplyActionAsync(alertId, userId, userName, action, ct);
+            AlertRecord? updated = await alertService.ApplyActionAsync(scope, alertId, userId, userName, action, ct);
 
             if (updated is null)
             {
@@ -200,12 +201,5 @@ public sealed partial class AlertsController
         }
 
         return Ok(new AlertsAcknowledgeBatchResponse { Results = results });
-    }
-
-    private static bool MatchesScope(AlertRecord alert, ScopeContext scope)
-    {
-        return alert.TenantId == scope.TenantId &&
-               alert.WorkspaceId == scope.WorkspaceId &&
-               alert.ProjectId == scope.ProjectId;
     }
 }

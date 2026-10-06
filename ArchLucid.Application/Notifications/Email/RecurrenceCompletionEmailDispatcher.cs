@@ -74,9 +74,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
-        string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
-            ? null
-            : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
+        string? operatorBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(emailOptions.OperatorBaseUrl);
 
         string runHex = triggeredRunId.ToString("N");
         string runDetailUrl = operatorBase is null

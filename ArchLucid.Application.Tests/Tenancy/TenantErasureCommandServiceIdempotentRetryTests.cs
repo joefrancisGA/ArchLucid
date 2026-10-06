@@ -78,6 +78,55 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 6, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Restore Org",
+            "restore-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.TryStartTenantErasureOffboardAsync(
+            tenantId,
+            now.AddDays(-1),
+            now.AddDays(29),
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        audit.Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants,
+            audit.Object,
+            clock,
+            options.Object);
+
+        (await sut.TryRestoreQuarantineAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        (await sut.TryRestoreQuarantineAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantErasureQuarantineRestored),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task TryClearLegalHoldAsync_returns_success_without_duplicate_audit_when_already_cleared_retry()
     {
         Guid tenantId = Guid.NewGuid();
