@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — recycle bin advertised `purgeAfterUtc` for soft-deleted projects still referenced as `TenantWorkspaces.DefaultProjectId` while `SqlArchitectureProjectRetentionPurgeService` excludes those rows from hard purge; set nullable `PurgeAfterUtc` when workspace default metadata pins the project; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
+
 2026-10-06 seed hunt (seed→hit): `host-core-coordination` — retrieval and Cosmos skip-as-processed paths logged `LogWarning` before `MarkProcessedAsync`, so a failing log sink escaped before skip-as-processed (post-commit/export parity gap); `CompleteProcessedEntryAsync` post-mark best-effort observability; regressions `ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure` and `ProcessPendingBatchAsync_does_not_schedule_retry_after_missing_sql_graph_skip_warning_log_failure`; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
 
 2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — pre-finalize `TryParseRunId` and approval audit parse omitted `GovernanceRunIdNormalizer`, rejecting Word-pasted run ids with interior U+00A0 while submit accepted them; normalize before parse; regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope` and `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
@@ -27655,11 +27657,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 20
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — default-project delete guard blocked idempotent retry for soft-deleted default metadata
+- **hunts:** 21
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — recycle bin false purge schedule for workspace-default soft-deletes
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -27712,6 +27714,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-05 thorough hunt (dry): cheap-disproof closed three open candidates; 40 scoped TenantWorkspaces tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted default-delete idempotent-retry hypothesis from controller read; proved stale-metadata default guard; reseeded retention clamp and cross-workspace default-metadata candidates; 37 scoped TenantWorkspaces tests passed.
+
+2026-10-06 seed hunt (seed→hit): promoted recycle-bin purge schedule parity with `SqlArchitectureProjectRetentionPurgeService` (`NOT EXISTS` on `TenantWorkspaces.DefaultProjectId`); proved `ListRecycleBinAsync` still computed `purgeAfterUtc` for soft-deleted workspace-default metadata pins; nullable `PurgeAfterUtc` on `TenantWorkspaceDeletedProjectApiDto`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`; 41 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — soft-deleted project still referenced as `TenantWorkspaces.DefaultProjectId` returned `purgeAfterUtc` while retention purge SQL never hard-deletes pinned defaults — **hit 2026-10-06 seed hunt (seed→hit):** omit purge schedule (`purgeAfterUtc: null`) when `projectId == currentWorkspace.DefaultProjectId`; regression `ListRecycleBinAsync_omits_purge_schedule_when_deleted_project_is_workspace_default_metadata`.
 
 ---
 ## Zone: application-agents

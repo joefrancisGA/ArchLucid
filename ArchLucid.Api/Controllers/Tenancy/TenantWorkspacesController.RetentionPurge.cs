@@ -58,14 +58,17 @@ public sealed partial class TenantWorkspacesController
                     {
                         DateTimeOffset deletedUtc = p.DeletedUtc!.Value;
 
+                        bool retentionPurgeScheduled = p.Id != currentWorkspace.DefaultProjectId;
+
                         return new TenantWorkspaceDeletedProjectApiDto
                         {
                             ProjectId = p.Id,
                             Name = p.Name,
                             DisplayName = p.Name,
                             DeletedUtc = deletedUtc,
-                            PurgeAfterUtc =
-                                ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays)
+                            PurgeAfterUtc = retentionPurgeScheduled
+                                ? ArchitectureProjectRetentionSchedule.ComputePurgeAfterUtc(deletedUtc, retentionDays)
+                                : null
                         };
                     })
                 .ToList()

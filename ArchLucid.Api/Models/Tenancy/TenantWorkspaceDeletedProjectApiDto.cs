@@ -33,8 +33,12 @@ public sealed class TenantWorkspaceDeletedProjectApiDto
         init;
     }
 
+    /// <summary>
+    ///     When null, retention hard-purge does not apply (for example the row is still referenced as
+    ///     <c>TenantWorkspaces.DefaultProjectId</c>).
+    /// </summary>
     [JsonPropertyName("purgeAfterUtc")]
-    public DateTimeOffset PurgeAfterUtc
+    public DateTimeOffset? PurgeAfterUtc
     {
         get;
         init;
