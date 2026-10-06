@@ -8,6 +8,7 @@ import {
   submitAdminInviteFromUsersUi,
   gotoLiveAdminUsersInvitePage,
   openPendingInvitationRevokeDialog,
+  expectRevokedInvitationRowVisible,
 } from "./helpers/live-invite-form-submit";
 import {
   createScimAdminToken,
@@ -16,7 +17,6 @@ import {
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
-import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { liveApiBase, liveE2eAdminInviteUiPlaywrightTimeoutMs } from "./helpers/live-api-client";
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
@@ -57,19 +57,11 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     const revokeDialog = page.getByRole("alertdialog");
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
 
-    const revokedRow = invitationsTable.locator("tr", { hasText: inviteEmail });
-    await expect(async () => {
-      const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
-      if (await showResolvedToggle.isVisible().catch(() => false)) {
-        const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
-        if (/show resolved invitations/i.test(toggleLabel)) {
-          await showResolvedToggle.click();
-        }
-      }
+    await expectRevokedInvitationRowVisible(page, inviteEmail);
 
-      await expect(revokedRow).toContainText("Revoked", { timeout: 5_000 });
-    }).toPass({ timeout: 60_000 });
-
+    const revokedRow = page
+      .getByTestId("settings-roles-pending-invitations-table")
+      .locator("tr", { hasText: inviteEmail });
     await expect(revokedRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
   });
 

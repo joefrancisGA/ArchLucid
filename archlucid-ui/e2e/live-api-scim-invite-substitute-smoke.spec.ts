@@ -32,7 +32,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
-    await waitForOperatorAuthMeProxyOk(page);
+    await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
 
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("scim-identity-providers-vocabulary")).toBeVisible({ timeout: 60_000 });
@@ -55,7 +55,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
     }
 
-    await waitForOperatorAuthMeProxyOk(page);
+    await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
     await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
 
@@ -70,7 +70,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
         { timeout: 45_000 },
       );
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
-      await waitForOperatorAuthMeProxyOk(page);
+      await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
       await tokensList;
       await expect(page.getByTestId("scim-create-token")).toBeVisible({ timeout: 15_000 });
     }).toPass({ timeout: 120_000 });

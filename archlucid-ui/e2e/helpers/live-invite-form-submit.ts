@@ -240,3 +240,21 @@ export async function openPendingInvitationRevokeDialog(
     await expect(page.getByRole("alertdialog")).toBeVisible({ timeout: 5_000 });
   }).toPass({ timeout: 90_000 });
 }
+
+/** Revoked invitations live in the resolved list; expand it before asserting row status. */
+export async function expectRevokedInvitationRowVisible(page: Page, inviteEmail: string): Promise<void> {
+  await expect(async () => {
+    await page.goto("/administration/users?tab=users", { waitUntil: "domcontentloaded" });
+    await dismissBlockingModalOverlays(page);
+    const showResolvedToggle = page.getByTestId("settings-roles-toggle-resolved-invitations");
+    if (await showResolvedToggle.isVisible().catch(() => false)) {
+      const toggleLabel = ((await showResolvedToggle.textContent()) ?? "").trim();
+      if (/show resolved invitations/i.test(toggleLabel)) {
+        await showResolvedToggle.click();
+      }
+    }
+    const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
+    const revokedRow = invitationsTable.locator("tr", { hasText: inviteEmail });
+    await expect(revokedRow).toContainText("Revoked", { timeout: 5_000 });
+  }).toPass({ timeout: 90_000 });
+}

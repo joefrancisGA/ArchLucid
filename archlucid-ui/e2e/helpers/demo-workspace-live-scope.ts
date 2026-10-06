@@ -212,13 +212,14 @@ export async function injectDefaultTenantOperatorScope(
   if (resolveLiveJwtMode()) {
     if (options?.reestablishJwtSession !== false) {
       await primePrivateBetaBrowserSessionIfJwtMode(page);
+      await waitForOperatorAuthMeProxyOk(page);
     } else {
       const inviteeToken = options?.jwtAccessToken?.trim() ?? "";
       if (inviteeToken.length > 0) {
         await writeJwtBrowserSession(page, inviteeToken);
       }
+      // TB-927 asserts /me via fetchAuthMeViaProxy immediately after scope reset.
     }
-    await waitForOperatorAuthMeProxyOk(page);
   }
 }
 

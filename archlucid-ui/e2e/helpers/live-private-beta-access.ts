@@ -207,7 +207,16 @@ export async function writeJwtBrowserSession(page: Page, accessToken: string): P
 }
 
 /** Waits for a successful operator `/me` via the UI proxy (JwtBearer CI access-path). */
-export async function waitForOperatorAuthMeProxyOk(page: Page, timeoutMs = 90_000): Promise<void> {
+export async function waitForOperatorAuthMeProxyOk(
+  page: Page,
+  timeoutMs = 90_000,
+  accessToken?: string,
+): Promise<void> {
+  const trimmedToken = accessToken?.trim() ?? "";
+  if (trimmedToken.length > 0) {
+    await writeJwtBrowserSession(page, trimmedToken);
+  }
+
   const matchesMe = (response: { url(): string; request(): { method(): string }; ok(): boolean }): boolean =>
     response.url().includes("/api/proxy/api/auth/me") &&
     response.request().method() === "GET" &&
@@ -225,6 +234,7 @@ export async function waitForOperatorAuthMeProxyOk(page: Page, timeoutMs = 90_00
       const response = await fetch("/api/proxy/api/auth/me", {
         method: "GET",
         credentials: "same-origin",
+        cache: "no-store",
       });
 
       return response.ok;
