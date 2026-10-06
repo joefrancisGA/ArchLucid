@@ -500,6 +500,37 @@ public sealed class InfraEvidenceCompositionModuleTests
     }
 
     [Fact]
+    public async Task InMemory_composition_operator_inferred_questionnaire_returns_empty_without_snapshot_detail()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        Guid snapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IOperatorInferredConnectionService operatorInferredService =
+            serviceScope.ServiceProvider.GetRequiredService<IOperatorInferredConnectionService>();
+
+        IReadOnlyList<OperatorInferredConnectionRecord> questionnaire =
+            await operatorInferredService.ListQuestionnaireBySnapshotAsync(
+                scope,
+                snapshotId,
+                CancellationToken.None);
+
+        questionnaire.Should().BeEmpty(
+            "InMemory NoOp repository returns no rows; empty questionnaire is the expected local-host outcome, not a DI failure");
+    }
+
+    [Fact]
     public async Task InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services()
     {
         ScopeContext scope = CreateDefaultScope();
