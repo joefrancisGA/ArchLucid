@@ -8,7 +8,7 @@
 
 ## Stop
 
-Do not build any of the following while implementing SN-QQ-01 through SN-QQ-09:
+Do not build any of the following while implementing SN-QQ-01 through SN-QQ-10:
 
 - One question per "Missing a required link" row, or a question that only asks the reader to confirm a fact the outline already states.
 - A second questionnaire panel, a second count, or a sentence that no inference questions remain.
@@ -22,5 +22,7 @@ Do not build any of the following while implementing SN-QQ-01 through SN-QQ-09:
 - SQL row-level security, a second API host, or a hidden diagrams workspace tab.
 - Flow logs, metrics, or a new collector.
 - A catch that turns a failed question-list GET into an empty queue so the banner disappears.
+- A filled banner, callout card, or red badge on the open-question count. **SN-QQ-10** uses `StatusTag` kind `needs-attention` and an outline `Review questions` button.
+- A primary `Review questions` button. **Export PNG** stays the filled action on the diagrams page.
 
 If the session is about to do one of these, stop and report which line it hit.
