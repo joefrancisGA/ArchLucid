@@ -189,6 +189,7 @@ function AlertRulesHubTabShell(props: {
     compositeRulesConfigChange,
   } = useAlertRulesHubRefresh();
   const rulesCount = tabCounts.rules;
+  const rulesCountKnown = rulesCount !== undefined;
 
   useEffect(() => {
     if (props.activeTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
@@ -201,7 +202,7 @@ function AlertRulesHubTabShell(props: {
     (id: string) => {
       const nextTab = alertRulesHubTabFromSearchParam(id);
 
-      if (nextTab === "test-alerts" && rulesCount === 0 && rulesCount !== undefined) {
+      if (nextTab === "test-alerts" && rulesCountKnown && rulesCount === 0) {
         return;
       }
 

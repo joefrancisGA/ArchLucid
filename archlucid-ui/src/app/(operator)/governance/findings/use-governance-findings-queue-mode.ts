@@ -8,6 +8,7 @@ import { useGovernanceFindingsQuery } from "@/components/governance/findings/use
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import {
+  assignedToMeCountDataOrUndefined,
   countAssignedToMeLoadedFindings,
   hasAssignedToMeCountMismatch,
   resolveGovernanceFindingsLoadFailedPreset,
@@ -85,6 +86,7 @@ export function useGovernanceFindingsQueueMode({
   const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
 
   const assignedToMeCount = assignedToMeCountQuery.data ?? rows.length;
+  const assignedToMeCountData = assignedToMeCountDataOrUndefined(assignedToMeCountQuery.data);
   const assignedToMeLoadedFindingCount = useMemo(
     () => countAssignedToMeLoadedFindings(rows),
     [rows],
@@ -93,7 +95,7 @@ export function useGovernanceFindingsQueueMode({
     isAssignedToMe,
     loading,
     loadFailed,
-    assignedToMeCountData: assignedToMeCountQuery.data,
+    assignedToMeCountData,
     assignedToMeLoadedFindingCount,
   });
 
@@ -119,6 +121,7 @@ export function useGovernanceFindingsQueueMode({
     currentJobId,
     loadFailedPreset,
     assignedToMeCount,
+    assignedToMeCountData,
     assignedToMeLoadedFindingCount,
     assignedToMeCountMismatch,
   };
