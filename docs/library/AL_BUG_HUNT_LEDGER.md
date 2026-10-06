@@ -1,5 +1,19 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 picker-scoped orchestrator/cache tests passed.
+
+2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator cache pin/coalesce, continue dual-manifest scopes, and manifest hashing after recent export-zone churn; no hunt-ready row promoted; seeded three bounded candidates (pre-pipeline baseline snapshot vs publish-stage storage fingerprint, composite pin cap mid-loop eviction, coalesced cache-hit publish policy run id); 62 scoped orchestrator/cache tests passed (`--no-build`).
+
+2026-10-05 thorough hunt (hit): `tenant-data-export` — `ArtifactExportController.RunArtifacts` list/bundle/artifact routes omitted `AuthorityLifecycleCompareExportGuard` while run ZIP export enforced it; add `EnsureManifestRunLifecycleCompleteOrConflict` after sealed-hash guards; regression `DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed `ArchitectureExportController` lifecycle gap (`RunSummaryOnePagerExportService` / `ArchitectureReviewExportService` already guard before bytes).
+
+2026-10-05 thorough hunt (hit): `tenant-data-export` — `DownloadRunExport` optional Mermaid branch loaded artifacts before `AuthorityLifecycleCompareExportGuard`; enforce lifecycle before diagram artifact/render work when `ArchLucid:MermaidCli:Enabled`; regression `DownloadRunExport_skips_mermaid_work_when_authority_lifecycle_not_complete`; cheap-disproof closed verify-lineage lifecycle parity (read-only hash attestation) and export-history controller sealed-only candidate (facade lifecycle guard).
+
+2026-10-05 seed hunt (seed→hit): `tenant-data-export` — `ArtifactExportController.DownloadRunExport` let `RunExportPackageBuilder` / `RunExportAuthorityMaterialLoader` lifecycle `ConflictException` bubble as an unhandled 500 while sibling paths map export conflicts to HTTP 409; catch `ConflictException` around `BuildAsync`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`; seeded `VerifyRunExportLineage` lifecycle parity and export-history sealed-guard-only candidates.
+
+2026-10-05 thorough hunt (hit): `tenant-data-export` — Terraform advisory download/PR omitted `AuthorityLifecycleCompareExportGuard` while blob push enforced it; `GetRunExportHistoryAsync` omitted lifecycle parity with export-record get; aligned terraform paths and history facade with `EnsureAuthorityLifecycleCompleteOrConflict` / `TryEnsureExportRunLifecycleCompleteAsync`; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`, `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`, and `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`; cheap-disproof closed unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`).
+
+2026-10-05 seed hunt (seed→hit): `persistence-identity` — expired unused email OTP challenges still counted toward hourly send rate limits (`CountRecentRequestsForRateLimitAsync` / `MatchesRecentRequestByEmail`); require active unexpired incomplete rows (`CompletedUtc IS NULL AND ExpiresUtc > nowUtc`) in SQL and shared predicates; pass `now` from `AuthRateLimitHelper`; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`; 48 `EmailOtpAuthServiceTests` + 8 `InMemoryEmailOtpChallengeRepositoryCoverageTests` passed (1 SQL integration skipped).
+
 2026-10-05 seed hunt (dry): `core-costing` — promoted sole-Azure retail+illustrative blend summary-note asymmetry; failing repro matched trunk fix already on `bugsmash` (`ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`); 421 scoped Costing tests passed; no additional commit.
 
 2026-10-05 seed hunt (seed-only): `core-tenancy-commercial` — re-read Identity/Billing/Budgeting after negation-token saturation; seeded marketplace plan-id negation reachability, ChangePlan `planId` coercion, packaging inference without billing row, and claim-mapping duplicate-value candidates; 84 scoped CommercialPackagingTierResolver/LlmMonthlySpendPlanId/MarketplaceWebhookPayloadParser tests passed; no hunt-ready rows promoted this run.
@@ -8593,6 +8607,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-10-05 thorough hunt (hit): promoted `RunArtifacts` lifecycle parity candidate; proved `ListArtifactsForRun` / `DownloadBundleForRun` / `DownloadArtifactForRun` and manifest-scoped artifact routes returned descriptors or bytes after sealed-hash guard while blob push and run ZIP export rejected lifecycle-incomplete runs; added `EnsureAuthorityLifecycleCompleteOrConflict` on all `ArtifactExportController.RunArtifacts` paths; regression `ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed `VerifyRunExportLineage` (read-only hash/anchor verification, not byte export), `GetRunExportHistory` lifecycle gap (facade `TryEnsureExportRunLifecycleCompleteAsync` already enforced), Mermaid pre-build branch (lifecycle preflight now precedes optional PNG render), and `ArchitectureExportController` summary export (`RunSummaryOnePagerExportService` enforces `AuthorityLifecycleCompareExportGuard`); 24 scoped artifact export controller tests passed.
+
+2026-10-05 seed hunt (seed→hit): reseeded run ZIP download lifecycle parity; proved `DownloadRunExport` returned ZIP after sealed-hash guard while `PushRunExportToBlob` rejected lifecycle-incomplete runs via `EnsureAuthorityLifecycleCompleteOrConflict`; aligned ZIP download with blob-push lifecycle preflight; regression `DownloadRunExport_returns_409_when_authority_lifecycle_not_complete`; 21 scoped `ArtifactExportController` export tests passed.
+
+2026-10-05 thorough hunt (hit): promoted terraform advisory export lifecycle parity candidate; proved `DownloadTerraformAdvisoryExport` and `CreateTerraformPr` returned ZIP/PR after sealed-hash checks while `PushRunExportToBlob` rejected lifecycle-incomplete runs via `EnsureAuthorityLifecycleCompleteOrConflict`; aligned terraform paths with blob-push guard order; regression `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete`; cheap-disproof closed export-history lifecycle parity (`GetRunExportHistory` is metadata listing behind `EnsureSealedManifestReadAllowedAsync`, not byte export) and unbounded history pagination (`RunExportRecordRepository.GetByRunIdAsync` uses `SqlPagingSyntax.FirstRowsOnly(500)`); 20 scoped Api export tests + 2 `RunExportQueryFacade` tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded tenant-data-export; proved whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI proof-packet career gate while int `1` already blocked; seeded terraform PR/download lifecycle parity, export-history lifecycle parity, and unbounded history pagination candidates; 30 scoped ExportBundleCareerPostureResolver tests passed.
 
 2026-09-14 seed hunt #2911 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
@@ -10398,13 +10418,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 935
-- **bugs-found:** 45
+- **hunts:** 939
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-26 — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` ignored on CLI career export gate
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — run artifact bundle/list/download omitted authority lifecycle Complete guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted `DownloadRunExport` lifecycle conflict mapping candidate from `RunExportAuthorityMaterialLoader` + `ArtifactExportController.Export.Download.cs`; proved unhandled `ConflictException` on lifecycle-incomplete runs; 3 scoped `ArtifactExportSealedManifestRuntimeConflictTests` passed.
 
 2026-09-13 seed hunt #2362 (seed-only): reseeded tenant-data-export with `-Hint tenant-data-export`; no new hunt-ready rows.
 
@@ -10500,9 +10522,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — whole-number double `1.0` for `is_sample_run` / `is_demo_tenant` not treated as true — **hit 2026-09-26 seed hunt (seed→hit):** CLI pilot-run-deltas JSON with `1.0` bypassed sample-workspace career gate while int `1` already blocked after #2351/#2355; fixed with `TryGetDouble` whole-number coercion in `TryParseJsonBoolean`; regressions `ResolveFromDeltasJson_blocks_sample_run_when_is_sample_run_whole_number_double_one` and `ResolveFromDeltasJson_blocks_sample_run_when_is_demo_tenant_whole_number_double_one`.
 
-- [ ] (candidate) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination
+- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` / `CreateTerraformPr` — omit `AuthorityLifecycleCompareExportGuard` present on blob push and compare paths — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs with committed manifest returned Terraform ZIP or opened PR while blob push returned 409; call `EnsureAuthorityLifecycleCompleteOrConflict` before sealed-hash guard; regressions `DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete` and `CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete`.
+- [x] (proven) `RunExportQueryFacade.GetRunExportHistoryAsync` — skips lifecycle guard that get/compare/replay enforce — **hit 2026-10-05 thorough hunt:** history listed export rows when `GetExportRecordAsync` returned `LineageUnverified` for incomplete lifecycle; invoke `TryEnsureExportRunLifecycleCompleteAsync` before repository load; regression `GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — unbounded history pagination — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportRecordRepository.GetByRunIdAsync` already applies `SqlPagingSyntax.FirstRowsOnly(500)` on `ORDER BY CreatedUtc DESC`.
+
+- [x] (proven) `ArtifactExportController.DownloadRunExport` — omitted `EnsureAuthorityLifecycleCompleteOrConflict` present on `PushRunExportToBlob` — **hit 2026-10-05 seed hunt (seed→hit):** lifecycle-incomplete runs with sealed golden manifest downloaded ZIP while blob push returned 409; controller preflight before package build; regression `DownloadRunExport_returns_409_when_authority_lifecycle_not_complete`.
+
+- [x] (proven) `ArtifactExportController.DownloadRunExport` / `RunExportAuthorityMaterialLoader` — lifecycle `ConflictException` from `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` not mapped to HTTP 409 — **hit 2026-10-05 seed hunt (seed→hit):** `BuildAsync` threw through `DownloadRunExport` while `MapArtifactExportSealedManifestConflict` handled returned `RunExportPackageResult.Conflict`; wrap `BuildAsync` in `catch (ConflictException)`; regression `DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409`.
+
+- [x] (valid-no-repro) `ArtifactExportController.VerifyRunExportLineage` — omits `AuthorityLifecycleCompareExportGuard` while `PushRunExportToBlob` and `DownloadRunExport` material load enforce Complete — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportLineageVerifier` is an intentional read-only sealed-hash attestation endpoint (`Match`/`Mismatch`/`NotAttested`); blocking lifecycle Complete would prevent pre-commit lineage checks while review is still in flight.
+- [x] (valid-no-repro) `ExportsController.EnsureSealedManifestReadAllowedAsync` — sealed-hash only on `GetRunExportHistory` while `GetExportRecordAsync` also enforces lifecycle — **cheap-disproof 2026-10-05 thorough hunt:** `RunExportQueryFacade.GetRunExportHistoryAsync` invokes `TryEnsureExportRunLifecycleCompleteAsync` before loading records (thorough hunt 2026-10-05); controller sealed guard is complementary, not the sole lifecycle gate.
+- [x] (proven) `ArtifactExportController.DownloadRunExport` — optional Mermaid PNG branch calls `GetRunDetailAsync` + `GetArtifactsByManifestIdAsync` before `RunExportPackageBuilder` lifecycle gate — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs still triggered artifact load (and potential Mermaid render) before `RunExportAuthorityMaterialLoader` returned 409; call `EnsureAuthorityLifecycleCompleteOrConflict` before diagram artifact work when Mermaid CLI export is enabled; regression `DownloadRunExport_skips_mermaid_work_when_authority_lifecycle_not_complete`.
+
+- [x] (proven) `ArtifactExportController.RunArtifacts` download/list paths — sealed-hash guard only — **hit 2026-10-05 thorough hunt:** lifecycle-incomplete runs listed or downloaded artifacts while run ZIP export returned 409; regressions `ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete` and `DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete`.
+- [x] (valid-no-repro) `ArchitectureExportController.ExportRunSummary` — controller sealed-hash only — **cheap-disproof 2026-10-05 thorough hunt:** `RunSummaryOnePagerExportService.GenerateMarkdownAsync` calls `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` before building markdown; controller maps `ConflictException` to 409.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — `modelfp`/`ledgerfp` snapshot from entry-time `TryLoadExistingModelAsync`/`TryLoadLedgerEntriesAsync` while improve-loop stages may persist ledger/model updates before publish `Set`; overlapping continue requests with unchanged source texts may `TryGet` hit on pre-mutation fingerprints — **seed 2026-10-05:** needs stage reachability proof that returned bytes omit post-persist ledger rows without a manifest miss on the next request.
+- [ ] (candidate) `ReviewResultCache.PinScope` / `ReviewResultCacheCompositePinScope` — `MaxDistinctPinnedStorageKeys` rejects a new pin while an improve-loop entry is only protected by a deduped composite refcount; churn at cap may evict manifest-keyed bytes before unpin flushes deferred invalidations — **seed 2026-10-05:** reachable via existing pin-cap regression fixtures; wrong outcome would be stale `TryGet` hit after tombstone flush.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult` keys policy off resolved `runId` when client supplied `RunId`, but coalesced cache hits may still carry leader `PublishedToProduct`/`PublishBlocked` mix until `ApplyAnalysisOnlyCoalescedIsolation` runs — **seed 2026-10-05:** reachable via concurrent analysis-only followers after a publish leader; needs repro beyond hunt #1226 sanitize/finalize fixes.
 
 2026-09-12 seed hunt #1814 (hit): reseeded tenant-data-export CLI bundle career gate; proved sample-workspace isSampleRun gap; 7 scoped ExportBundleCareerPostureResolver tests passed.
 
@@ -14307,15 +14344,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 925
-- **bugs-found:** 22
+- **hunts:** 926
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — expired email OTP challenges still counted toward verification rate limits
+- **last-bug:** 2026-10-05 — expired unused email OTP challenges still counted toward hourly send rate limits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-05 seed hunt (seed→hit): promoted completed-challenge hourly request-cap candidate; proved `CountRecentRequestsForRateLimitAsync` still counted successfully verified OTP rows, so `MaxCodeRequestsPerEmailPerHour = 1` blocked a second sign-in in the same hour; fixed by excluding `CompletedUtc` challenges from request-rate predicates/SQL; regressions `CountRecentRequestsByEmail_ignores_completed_challenges` and `RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one`.
+
+2026-10-05 seed hunt (seed→hit): promoted expired-challenge hourly send-rate candidate; proved `CountRecentRequestsForRateLimitAsync` still counted expired unused rows toward `MaxCodeRequestsPerEmailPerHour` after lifetime elapsed; fixed by requiring active unexpired incomplete challenges in request-rate predicates/SQL (`CompletedUtc IS NULL AND ExpiresUtc > now`); regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`.
 
 2026-10-05 seed hunt (seed→hit): promoted expired-challenge resend-cooldown candidate; proved `GetLatestRequestUtcByEmailAsync` returned `CreatedUtc` for active rows past `ExpiresUtc`, blocking new codes until `ResendCooldownSeconds` elapsed even after lifetime expiry; fixed with `IsActiveAndUnexpired` + `nowUtc` parameter; regressions `GetLatestRequestUtc_ignores_expired_active_challenges` and `RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown`.
 
@@ -14388,6 +14427,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — invalidated challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after OTP resend replaced the active challenge — **hit 2026-10-05 seed hunt:** exclude invalidated rows only when another active challenge exists for the email; regressions `CountRecentFailedVerifications_ignores_invalidated_challenges_when_replaced_by_active_challenge` and `CountRecentFailedVerifications_counts_lockout_invalidated_challenge_when_no_replacement_is_active`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail` / `CountRecentRequestsForRateLimitAsync` — completed challenges still counted toward hourly OTP request caps after successful verification — **hit 2026-10-05 seed hunt:** exclude `CompletedUtc` rows in shared predicates and SQL; regressions `CountRecentRequestsByEmail_ignores_completed_challenges` and `RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one`.
 - [x] (proven) `GetLatestRequestUtcByEmailAsync` — expired but still-active challenges still enforced resend cooldown after code lifetime elapsed — **hit 2026-10-05 seed hunt:** filter `ExpiresUtc > nowUtc`; pass `now` from `EmailOtpRequestFlow`; regressions `GetLatestRequestUtc_ignores_expired_active_challenges` and `RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown`.
+- [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail` / `CountRecentRequestsForRateLimitAsync` — expired unused challenges still counted toward `AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync` after code lifetime elapsed (blocking resend when `MaxCodeRequestsPerEmailPerHour` exhausted even though cooldown had cleared) — **hit 2026-10-05 seed hunt:** count rows only when `CompletedUtc` is set or `ExpiresUtc > nowUtc`; pass `now` from rate-limit helper; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — expired challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after `ExpiresUtc` passed — **hit 2026-10-05 seed hunt (seed→hit):** require `ExpiresUtc > nowUtc` in SQL and shared predicate; pass `now` from rate-limit helper; regression `CountRecentFailedVerifications_ignores_expired_challenges`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
@@ -28519,23 +28559,33 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-30 — cache hit reused the prior generated run identity when RunId was omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
+2026-10-05 seed hunt (seed-only): re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 scoped orchestrator/cache tests passed.
+
 2026-10-04 seed hunt (seed-only): reseeded architecture-intelligence-orchestrator; reviewed continue coalescing and cache-hit finalize paths; no new hunt-ready rows; 62 scoped tests passed.
 2026-10-04 seed hunt (seed-only): re-read orchestrator finalize, continue dual-manifest pin scope, and tombstone invalidation caps; seeded three bounded candidates; 62 scoped orchestrator/cache tests passed.
 2026-10-04 thorough hunt (dry): cheap-disproved tombstone-cap saturation (pin-cap prevents 65th pinned invalidation path; existing `AddTombstonedRunId_skips_fifo_drop` + deferred flush), continue dual-manifest race (single-threaded snapshot builds), and `Set` tombstone TOCTOU (re-check under `_evictionLock`); 62 scoped tests passed; no code changes.
 
+2026-10-05 seed hunt (seed-only): re-read orchestrator cache manifest build at request entry vs continue coalesce probes; no hunt-ready promotion; seeded baseline-snapshot vs publish-storage fingerprint, composite pin-cap eviction, and cache-hit publish-policy run-id candidates; 62 scoped tests passed.
+
 2026-09-30 seed hunt (seed-only): re-read the orchestrator/cache slice; 61 scoped tests passed; retained two concrete cache candidates for the next repro pass.
 
 ### Hypotheses
+
+- [ ] (candidate) `CreateCoalescedCacheHitResult` — sets `CacheHit`/`CacheReuseReason` on the passed `ClosedLoopReasoningResult` instance without cloning; input is any caller that hands through a cache-stored or coalesce-leader reference instead of the `TryGet` clone, which could persist `CacheHit=true` on a stored entry after a miss-path probe.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `runid=` segment keeps GUID hex casing from `ClosedLoopRunIdNormalizer` while `ClosedLoopRunIdComparer` treats run ids case-insensitively for invalidation and publish-guard equality; input is two closed-loop analysis requests whose client `RunId` differs only by hex letter casing (architecture-intelligence API run scope).
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` — `TryGet(continueManifest)` returns before reloading persisted baseline/ledger; input is a continue review on an existing run where the knowledge model or technology ledger changes after the first continue manifest was built but before cache TTL expiry (improve-loop rerun in the same worker).
+- [ ] (candidate) `ReviewResultCache.TryGet` — pinned expired entries refresh `ExpiresUtc` without re-checking manifest version fields (`PromptVersion`, `ModelVersion`, etc.) against `ArchitectureIntelligenceCacheVersions`; input is a long-lived pin scope across a deployment that bumps cache version constants while the entry body still holds prior reasoning output.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — source texts sort by `FileName` with `StringComparer.Ordinal`, so attachments whose names differ only by casing contribute separate hash segments; input is multipart closed-loop intake with `notes.md` and `Notes.md` carrying different bodies.
 
 - [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
 - [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
@@ -28560,6 +28610,10 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` / `AddTombstonedRunId` — tombstone FIFO saturation while every queued tombstone still has pinned entries — **valid-no-repro 2026-10-04 thorough hunt:** pinned invalidation already tombstones servable rows (`TryGet_misses_when_run_id_is_tombstoned_even_if_entry_is_pinned`); when a 65th distinct pin cannot be acquired (`MaxDistinctPinnedStorageKeys`), `InvalidateForRun` removes the unpinned row instead of leaving a stale hit; regression `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`.
 - [x] (invalid) `RunContinueFromExistingReviewAsync` — dual-manifest `PinScope` vs `continueManifest`-only probes with concurrent persistence mutation — **invalid 2026-10-04 thorough hunt:** `existing`/`ledgerEntries` load once and both manifests build synchronously on the same snapshots; `BuildContinueFromExistingRunCoalesceManifest` embeds `contentManifest.ContentHash`; both keys are pinned via `PinScope(continueManifest, contentManifest)`.
 - [x] (invalid) `ReviewResultCache.Set` — tombstone check before `_evictionLock` vs concurrent `InvalidateForRun` — **invalid 2026-10-04 thorough hunt:** `Set` re-checks `IsRunIdTombstonedUnlocked` inside the lock after clone/sanitize; regressions `Set_skips_insert_when_sanitized_run_id_matches_tombstone` and `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`.
+
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — `modelfp`/`ledgerfp` snapshot from entry-time `TryLoadExistingModelAsync`/`TryLoadLedgerEntriesAsync` while improve-loop stages may persist ledger/model updates before publish `Set`; overlapping continue requests with unchanged source texts may `TryGet` hit on pre-mutation fingerprints — **seed 2026-10-05:** needs stage reachability proof that returned bytes omit post-persist ledger rows without a manifest miss on the next request.
+- [ ] (candidate) `ReviewResultCache.PinScope` / `ReviewResultCacheCompositePinScope` — `MaxDistinctPinnedStorageKeys` rejects a new pin while an improve-loop entry is only protected by a deduped composite refcount; churn at cap may evict manifest-keyed bytes before unpin flushes deferred invalidations — **seed 2026-10-05:** reachable via existing pin-cap regression fixtures; wrong outcome would be stale `TryGet` hit after tombstone flush.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — `ClosedLoopCacheHitPublishGuard.ShouldApplyCacheHitPolicyOnCoalescedResult` keys policy off resolved `runId` when client supplied `RunId`, but coalesced cache hits may still carry leader `PublishedToProduct`/`PublishBlocked` mix until `ApplyAnalysisOnlyCoalescedIsolation` runs — **seed 2026-10-05:** reachable via concurrent analysis-only followers after a publish leader; needs repro beyond hunt #1226 sanitize/finalize fixes.
 
 2026-09-30 thorough hunt (hit): proved no-`RunId` analysis cache hits returned the previous generated run identity; fixed cache-hit finalization to apply the current resolved id; cheap-disproved duplicate-source reorder as a defect because source ordering has no order-independence contract; 62 scoped orchestrator/cache tests passed.
 

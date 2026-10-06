@@ -1519,6 +1519,46 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                CodeLifetimeMinutes = 5,
+                ResendCooldownSeconds = 0,
+                MaxCodeRequestsPerEmailPerHour = 1,
+            },
+            clock);
+
+        EmailOtpChallengeRequestResult firstRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "expired-hourly-cap@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(firstRequest.ChallengeId);
+        Assert.True(firstRequest.EmailDeliverySucceeded);
+
+        clock.Advance(TimeSpan.FromMinutes(6));
+
+        EmailOtpChallengeRequestResult secondRequest = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "expired-hourly-cap@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(secondRequest.ChallengeId);
+        Assert.True(secondRequest.EmailDeliverySucceeded);
+        Assert.NotEqual(firstRequest.ChallengeId, secondRequest.ChallengeId);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown()
     {
         FakeTimeProvider clock = new(DateTimeOffset.UtcNow);

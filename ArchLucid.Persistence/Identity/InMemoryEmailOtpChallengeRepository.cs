@@ -39,12 +39,13 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     public Task<int> CountRecentRequestsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail(row, normalizedEmail, sinceUtc, nowUtc));
 
         return Task.FromResult(count);
     }
@@ -52,12 +53,13 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
     public Task<int> CountRecentRequestsByClientIpHashAsync(
         string clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         int count = _byId.Values.Count(row =>
-            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc));
+            EmailOtpChallengeRepositoryCore.MatchesRecentRequestByClientIp(row, clientIpHash, sinceUtc, nowUtc));
 
         return Task.FromResult(count);
     }
@@ -66,12 +68,18 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         string normalizedEmail,
         string? clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
         return Task.FromResult(
-            EmailOtpChallengeRepositoryCore.CountRecentRequests(_byId.Values, normalizedEmail, clientIpHash, sinceUtc));
+            EmailOtpChallengeRepositoryCore.CountRecentRequests(
+                _byId.Values,
+                normalizedEmail,
+                clientIpHash,
+                sinceUtc,
+                nowUtc));
     }
 
     public Task<int> CountRecentFailedVerificationsByEmailAsync(

@@ -8801,3 +8801,12 @@
 {"at":"2026-10-05T15:46:07.0263731Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
 {"at":"2026-10-05T15:47:53.0073872Z","zoneId":"core-costing","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-05T15:55:08.3777332Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
+=======
+{"at":"2026-10-05T16:00:21.55838Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/"]}
+{"at":"2026-10-05T16:13:27.1378317Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Exports/,ArchLucid.Api/Controllers/Authority/"]}
+{"at":"2026-10-05T16:33:36.2444354Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"]}
+{"at":"2026-10-05T16:35:03.6522299Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/,ArchLucid.TestSupport/SealedManifest/"]}
+{"at":"2026-10-05T16:42:56.0393292Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs"]}
+{"at":"2026-10-05T16:49:36.4835062Z","zoneId":"tenant-data-export","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Authority/ArtifactExportController.RunArtifacts.cs"]}
+{"at":"2026-10-05T17:03:05.6983233Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs"]}
+{"at":"2026-10-05T17:03:14.5296658Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs,ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs,ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs,ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs"]}

@@ -49,6 +49,15 @@ public sealed partial class ArtifactExportController
         if (sealedHashProblem is not null)
             return sealedHashProblem;
 
+        if (manifestDetail is not null)
+        {
+            IActionResult? lifecycleProblem =
+                EnsureAuthorityLifecycleCompleteOrConflict(manifestDetail, summary.RunId);
+
+            if (lifecycleProblem is not null)
+                return lifecycleProblem;
+        }
+
         IReadOnlyList<ArtifactDescriptor> artifacts =
             await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
@@ -89,6 +98,11 @@ public sealed partial class ArtifactExportController
         if (sealedHashProblem is not null)
             return sealedHashProblem;
 
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(detail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
+
         return await ListArtifacts(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -120,6 +134,11 @@ public sealed partial class ArtifactExportController
         if (sealedHashProblem is not null)
             return sealedHashProblem;
 
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(detail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
+
         return await DownloadBundle(detail.Run.GoldenManifestId.Value, ct);
     }
 
@@ -150,6 +169,11 @@ public sealed partial class ArtifactExportController
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
+
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(detail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
 
         return await DownloadArtifact(detail.Run.GoldenManifestId.Value, artifactId, ct);
     }
@@ -187,6 +211,15 @@ public sealed partial class ArtifactExportController
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
+
+        if (manifestDetail is not null)
+        {
+            IActionResult? lifecycleProblem =
+                EnsureAuthorityLifecycleCompleteOrConflict(manifestDetail, summary.RunId);
+
+            if (lifecycleProblem is not null)
+                return lifecycleProblem;
+        }
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
@@ -233,6 +266,15 @@ public sealed partial class ArtifactExportController
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
+
+        if (manifestDetail is not null)
+        {
+            IActionResult? lifecycleProblem =
+                EnsureAuthorityLifecycleCompleteOrConflict(manifestDetail, summary.RunId);
+
+            if (lifecycleProblem is not null)
+                return lifecycleProblem;
+        }
 
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
@@ -287,6 +329,15 @@ public sealed partial class ArtifactExportController
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
+
+        if (manifestDetail is not null)
+        {
+            IActionResult? lifecycleProblem =
+                EnsureAuthorityLifecycleCompleteOrConflict(manifestDetail, summary.RunId);
+
+            if (lifecycleProblem is not null)
+                return lifecycleProblem;
+        }
 
         IReadOnlyList<SynthesizedArtifact> artifacts =
             await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);

@@ -97,7 +97,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
         isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
         openClarificationGapCount={
-          architectureCreatedHomeModel === undefined
+          architectureCreatedHomeModel === null
             ? null
             : architectureCreatedHomeModel.clarificationGaps.length
         }

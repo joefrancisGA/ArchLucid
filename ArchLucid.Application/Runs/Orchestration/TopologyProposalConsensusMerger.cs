@@ -254,10 +254,10 @@ public static class TopologyProposalConsensusMerger
 
         if (terraformEndpointIdentity is not null)
         {
-            if (endpointCanonicalMap.TryGetValue(terraformEndpointIdentity, out string? terraformCanonical))
+            if (endpointCanonicalMap.TryGetValue(trimmed, out string? terraformCanonical))
                 return terraformCanonical;
 
-            if (endpointCanonicalMap.TryGetValue(trimmed, out terraformCanonical))
+            if (endpointCanonicalMap.TryGetValue(terraformEndpointIdentity, out terraformCanonical))
                 return terraformCanonical;
 
             if (TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown(terraformEndpointIdentity, knownEndpointKeys))

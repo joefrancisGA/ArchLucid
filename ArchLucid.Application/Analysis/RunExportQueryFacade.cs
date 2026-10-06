@@ -67,6 +67,18 @@ public sealed class RunExportQueryFacade(
             }
         }
 
+        ExportRecordLoadOutcome? lifecycleOutcome =
+            await TryEnsureExportRunLifecycleCompleteAsync(runId, cancellationToken);
+
+        if (lifecycleOutcome is not null)
+        {
+            return new RunExportHistoryQueryResult
+            {
+                Outcome = lifecycleOutcome.Value,
+                MissingRunId = runId,
+            };
+        }
+
         IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
     }

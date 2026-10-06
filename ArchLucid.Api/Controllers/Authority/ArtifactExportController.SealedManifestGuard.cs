@@ -60,6 +60,9 @@ public sealed partial class ArtifactExportController
         return null;
     }
 
+    private IActionResult? EnsureManifestRunLifecycleCompleteOrConflict(RunDetailDto? runDetail, Guid runId) =>
+        runDetail is null ? null : EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
     private async Task<IActionResult?> EnsureRunSealedManifestHashOrConflictAsync(
         ScopeContext scope,
         Guid runId,

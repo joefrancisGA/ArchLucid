@@ -228,7 +228,7 @@ export function buildDigestSubscriptionReadinessSummary(
   let nextActionLabel: string | null = null;
   let nextActionHref: string | null = null;
 
-  if (scheduleCountKnown && !scheduleEnabled) {
+  if (!scheduleCountMissing && !scheduleEnabled) {
     blockingIssue = "No advisory scan schedule is enabled — digests will not be generated automatically.";
     nextActionLabel = "Configure schedule";
     nextActionHref = ADVISORY_SCANS_SCHEDULES_HREF;

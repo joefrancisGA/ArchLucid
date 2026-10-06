@@ -47,6 +47,41 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task GetRunExportHistoryAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithInProgressLifecycle(runGuid);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([CreateExportRecord()]);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.LineageUnverified);
+        result.MissingRunId.Should().Be(RunId);
+        result.Exports.Should().BeNull();
+        exportRecords.Verify(
+            r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task GetExportRecordAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete()
     {
         Guid runGuid = Guid.Parse(RunId);
