@@ -396,6 +396,28 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("surfaces a warning when the doc-index fetch succeeds but returns no entries", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(/documentation index response was empty/i)).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("keeps static quick links visible when the doc-index fetch fails", async () => {
     vi.stubGlobal(
       "fetch",

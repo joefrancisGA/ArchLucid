@@ -154,6 +154,11 @@ export function HelpDocsClient() {
         ? indexQuery.error.message
         : "Failed to load documentation index."
       : null;
+  const emptyIndexWarning =
+    indexQuery.isSuccess && indexQuery.data !== undefined && indexQuery.data.length === 0
+      ? "Documentation index response was empty."
+      : null;
+  const indexRefreshWarning = loadError ?? emptyIndexWarning;
   const entries = indexQuery.isPending
     ? null
     : mergeDocIndex(HELP_DOCS_STATIC_ENTRIES, indexQuery.data ?? null);
@@ -206,9 +211,11 @@ export function HelpDocsClient() {
         <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
         on nav items when configured.
       </p>
-      {loadError !== null ? (
+      {indexRefreshWarning !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-amber-800 dark:text-amber-200")} role="status">
-          Full documentation index could not be refreshed ({loadError}). Quick links below are always available.
+          {loadError !== null
+            ? `Full documentation index could not be refreshed (${loadError}). Quick links below are always available.`
+            : `${indexRefreshWarning} Quick links below are always available.`}
         </p>
       ) : null}
       {entries === null ? (

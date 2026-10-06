@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `ui-help-docs` — `HelpDocsClient` treated HTTP 200 with an empty `doc-index.json` array like a healthy refresh while shipped `public/doc-index.json` carries 122 entries, so operators saw static quick links only with no amber status; surface `Documentation index response was empty` when the index query succeeds with zero rows; regression `surfaces a warning when the doc-index fetch succeeds but returns no entries`; 27 scoped HelpDocsClient tests passed.
+
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `MermaidDiagramDeterministicRepairer.Repair` rebuilt nodes without `NsgInboundRuleChips` while the render pipeline repairs before `DiagramForestLayoutSvgRenderer`, so data-flow canvases dropped inbound rule chips painted on storage and NSG owner cards; copy chips on repair; regressions `Repair_keeps_nsg_inbound_rule_chips_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; 644 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
 
 2026-10-06 seed hunt (seed→hit): `tenant-scoped-analyzer` — assignment folding ignored `+=` compound assignments, so `unscopedRunsSql += "… dbo.Runs …"` after a benign initializer never contributed SQL to ARCH006 analysis; fold add-assignments by appending statically resolved right-hand fragments; regression `ARCH006_reports_unscoped_sql_for_field_built_with_compound_assignment`; 25 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
@@ -7515,11 +7517,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 22
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
-- **last-bug:** 2026-09-11 — fetched doc-index rows sharing `/help` hub url dropped when titles differ
+- **hunts:** 23
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — empty successful doc-index response hid refresh failure from operators
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7585,6 +7587,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-11 thorough hunt #1754 (dry): cheap-disproof closed Escape non-`q` param preservation and `http://` external link safety candidates; 26 scoped `HelpDocsClient` tests passed.
 
 2026-09-11 seed hunt #1753 (seed→hit): reseeded ui-help-docs after #1745; proved shared `/help` hub url merge drop; 24 scoped `HelpDocsClient` tests passed.
+
+- [x] (proven) `HelpDocsClient` — HTTP 200 with an empty documentation index (`fetchHelpDocsIndex` returns `[]` for malformed or empty payloads) left the hub on static quick links only with no refresh warning while shipped `public/doc-index.json` lists 122 topics — **hit 2026-10-06 seed hunt (seed→hit):** amber status when `isSuccess` and `data.length === 0`; regression `surfaces a warning when the doc-index fetch succeeds but returns no entries`.
+
+2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after consecutive dry hunt; proved silent empty doc-index success path; 27 scoped `HelpDocsClient` tests passed.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 
