@@ -15,9 +15,7 @@ namespace ArchLucid.Persistence.Advisory;
 /// </summary>
 /// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperAdvisoryScanExecutionRepository(
-    ISqlConnectionFactory connectionFactory,
-    IScopeContextProvider scopeContextProvider)
+public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory connectionFactory)
     : IAdvisoryScanExecutionRepository
 {
     /// <inheritdoc />
@@ -64,18 +62,21 @@ public sealed class DapperAdvisoryScanExecutionRepository(
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
+        ScopeContext scope,
         Guid scheduleId,
         int take,
         CancellationToken ct)
     {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string sql = $"""
+        PersistenceTenantScope.RequireScopedTenant(scope);
+        const string sql = """
             SELECT TOP (@Take)
                 ExecutionId, ScheduleId, TenantId, WorkspaceId, ProjectId,
                 StartedUtc, CompletedUtc, Status, ErrorMessage
             FROM dbo.AdvisoryScanExecutions
             WHERE ScheduleId = @ScheduleId
-            {PersistenceTenantScope.AndTripleWhere(scope)}
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY StartedUtc DESC;
             """;
 
@@ -85,9 +86,9 @@ public sealed class DapperAdvisoryScanExecutionRepository(
             {
                 ScheduleId = scheduleId,
                 Take = Math.Clamp(take, 1, 200),
-                ScopeTenantId = scope.TenantId,
-                ScopeWorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
 
         return result

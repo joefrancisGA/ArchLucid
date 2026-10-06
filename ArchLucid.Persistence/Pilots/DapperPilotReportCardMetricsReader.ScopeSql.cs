@@ -15,7 +15,7 @@ public sealed partial class DapperPilotReportCardMetricsReader
                 OR (r.GoldenManifestId IS NOT NULL)
             )
         """
-        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsForAliasR;
+        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsAliasR;
 
     private const string CommittedRunsScopeFilterRunsInner =
         """
@@ -28,5 +28,5 @@ public sealed partial class DapperPilotReportCardMetricsReader
                 OR (rInner.GoldenManifestId IS NOT NULL)
             )
         """
-        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsForAliasRInner;
+        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRunsAliasRInner;
 }
