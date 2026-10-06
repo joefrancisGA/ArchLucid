@@ -363,4 +363,20 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa15"),
+            LegacyRunStatus = "not-a-valid-run-status",
+            GoldenManifestId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ContextSnapshotId = null,
+        };
+
+        // SQL CK_Runs_LegacyRunStatus enum-name allowlist blocks persisted rows; progress-marker branch is intentional for fixtures.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
 }

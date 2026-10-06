@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `core-authority-runs` — cheap-disproof closed four open `(candidate)` rows (Committed without manifest → NotStarted by design + SQL CHECK; UTF-8 BOM dead-letter reject #1203; fractional `"5.0"` ordinal parse for in-memory callers only; unparseable legacy + golden manifest → InProgress progress-marker branch); regressions `TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal` and `ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only`; 45 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
+
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — row order stayed newest-first after browser `popstate` set committed `sort=created-asc` while `useSearchParams` still exposed default sort because `sortOrder` had no popstate listener; mirror `filterText`/`compareSelection` popstate sync for sort; regression `re-sorts rows when sort= changes via popstate before useSearchParams catches up`; 53 scoped `RunsListClient` tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — docked inspector reverted to the prior review after browser `popstate` changed committed `inspectorRunId` while `useSearchParams` still named the old id and a `runs` props refresh re-ran selection; prefer committed inspector id when it disagrees with lagging router params; regression `switches inspector preview when inspectorRunId changes via popstate before useSearchParams catches up`; 52 scoped `RunsListClient` tests passed.
@@ -20670,9 +20672,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
@@ -20702,10 +20704,16 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with non-empty `ContextSnapshotId` surfaces `InProgress` because progress markers run before terminal failure resolution — **cheap-disproof 2026-10-06 seed hunt:** `TryResolveTerminalFailurePhase` includes `PartiallyCompleted` and runs before progress-marker branches; regression `ResolveFromRunHeader_partially_completed_with_context_snapshot_returns_failed_not_in_progress`.
 
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId == Guid.Empty` returns `NotStarted` because `IsCommittedWithGoldenManifest` treats empty guid as absent and no in-progress legacy branch matches `Committed`.
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — JSON with leading UTF-8 BOM before `{` is rejected by the leading-brace gate even though `JsonDocument.Parse` could accept the payload after BOM trim (writers emit BOM-free JSON per #1203).
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — fractional whole-number strings such as `"5.0"` coerce to `Committed` for in-memory transition callers while list surfaces use enum names only on persisted rows (`TryParseStatus` / SQL `CK_Runs_LegacyRunStatus`).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — unparseable `LegacyRunStatus` with non-empty `GoldenManifestId` surfaces `InProgress` via progress-marker branch without validating enum name against SQL allowlist.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId == Guid.Empty` returns `NotStarted` because `IsCommittedWithGoldenManifest` treats empty guid as absent and no in-progress legacy branch matches `Committed` — **cheap-disproof 2026-10-06 thorough hunt:** SQL `dbo.Runs` CHECK prevents Committed without manifest on persisted rows; intentional for in-memory fixtures; regression `ResolveFromRunHeader_committed_without_golden_manifest_returns_not_started_for_in_memory_rows`.
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — JSON with leading UTF-8 BOM before `{` is rejected by the leading-brace gate even though `JsonDocument.Parse` could accept the payload after BOM trim — **cheap-disproof 2026-10-06 thorough hunt:** no writer emits BOM (#1203); regression `IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace`.
+- [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable.TryParseStatus` — fractional whole-number strings such as `"5.0"` coerce to `Committed` for in-memory transition callers while list surfaces use enum names only on persisted rows — **cheap-disproof 2026-10-06 thorough hunt:** intentional `TryParseWholeNumberString` parity with `"4.0"`; SQL allowlist blocks ordinals on persist; regression `TryParseStatus_parses_5_0_fractional_string_to_committed_ordinal`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — unparseable `LegacyRunStatus` with non-empty `GoldenManifestId` surfaces `InProgress` via progress-marker branch without validating enum name against SQL allowlist — **cheap-disproof 2026-10-06 thorough hunt:** SQL `CK_Runs_LegacyRunStatus` blocks persisted garbage status; progress-marker branch intentional for fixtures; regression `ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only`.
+
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId = Guid.Empty` (non-null empty guid) matches `Committed`+null NotStarted path because `IsCommittedWithGoldenManifest` rejects empty guid (same SQL CHECK as null manifest on persisted rows).
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON root with leading Unicode whitespace before `{` (not BOM) is rejected by `TrimStart`+brace gate while writers only emit trimmed object JSON.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative fractional whole strings such as `"-5.0"` coerce to `Committed` ordinal for in-memory callers (`TryParseWholeNumberString` allows negative finite values that floor to defined enum ordinals).
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed four open candidates; reseeded three fixture/SQL-guarded follow-ons; 45 scoped Core tests passed.
 
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` with internal whitespace (`Pipeline  DeadLetter`) fails exact match against `AgentExecutionFailureClasses.PipelineDeadLetter` — **cheap-disproof 2026-09-09 seed hunt #1473:** writers emit canonical class strings only; conservative reader fails closed; regression `IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run with golden manifest and pipeline dead-letter JSON surfaces `Complete` because `IsCommittedWithGoldenManifest` runs before dead-letter check — **cheap-disproof 2026-09-09 seed hunt #1473:** dead-letter branch precedes Complete; regression `ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete`.
