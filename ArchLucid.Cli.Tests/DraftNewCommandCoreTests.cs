@@ -752,6 +752,156 @@ public sealed class DraftNewCommandCoreTests
         }
     }
 
+    [Fact]
+    public async Task RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+            bool prompted = false;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = "   ",
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+                CreateApiClient = (_, _) => CreateDraftFlowClient(),
+                PromptRequiredAsync = (_, _, _) =>
+                {
+                    prompted = true;
+
+                    return Task.FromResult<string?>("should-not-prompt");
+                },
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            prompted.Should().BeFalse();
+            error.ToString().Should().Contain("at least 100 characters after trim");
+            output.ToString().Should().NotContain("\"ok\"");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_skip_all_with_duplicate_pending_question_keys_completes_when_skip_is_idempotent()
+    {
+        DuplicatePendingQuestionKeysHandler handler = new();
+        ArchLucidApiClient client = CreateDraftFlowClient(handler);
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.Success);
+        handler.SkipInvocationCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_skip_all_when_stale_pending_question_skip_fails_returns_operation_failed()
+    {
+        StaleSecondQuestionSkipFailsHandler handler = new();
+        ArchLucidApiClient client = CreateDraftFlowClient(handler);
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("must-data-classification-follow-on");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_api_base_url_override_still_fails_scope_mismatch_on_create()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+        string? capturedBaseUrl = null;
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                ApiBaseUrl = "http://staging.example/api/",
+                ApiBaseUrlFromArgument = true,
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient();
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (url, _) =>
+                {
+                    capturedBaseUrl = url;
+
+                    return Task.FromResult(ApiConnectionOutcome.Connected);
+                },
+                CreateApiClient = (url, _) =>
+                {
+                    capturedBaseUrl = url;
+
+                    return client;
+                },
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("does not match configured CLI scope");
+            capturedBaseUrl.Should().Be("http://staging.example/api");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();
@@ -915,6 +1065,125 @@ public sealed class DraftNewCommandCoreTests
                 BusinessOutcome = document.RootElement.GetProperty("businessOutcome").GetString();
 
                 return Json(HttpStatusCode.OK, DraftBody("Drafting"));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class DuplicatePendingQuestionKeysHandler : DraftFlowHandler
+    {
+        public int SkipInvocationCount
+        {
+            get;
+            private set;
+        }
+
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/skip", StringComparison.OrdinalIgnoreCase))
+            {
+                SkipInvocationCount++;
+
+                return Json(HttpStatusCode.OK, DraftBody("Admitted"));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class StaleSecondQuestionSkipFailsHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                            new
+                            {
+                                questionKey = "must-data-classification-follow-on",
+                                prompt = "Follow-on question that the server already resolved.",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/skip", StringComparison.OrdinalIgnoreCase))
+            {
+                string json = request.Content!.ReadAsStringAsync(CancellationToken.None).GetAwaiter().GetResult();
+                using JsonDocument document = JsonDocument.Parse(json);
+                string? questionKey = document.RootElement.GetProperty("questionKey").GetString();
+
+                if (string.Equals(questionKey, "must-data-classification-follow-on", StringComparison.Ordinal))
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Conflict)
+                    {
+                        Content = new StringContent(
+                            "{\"title\":\"Question is no longer pending\"}",
+                            System.Text.Encoding.UTF8,
+                            "application/json"),
+                    };
+                }
+
+                return Json(HttpStatusCode.OK, DraftBody("Admitted"));
             }
 
             return null;
