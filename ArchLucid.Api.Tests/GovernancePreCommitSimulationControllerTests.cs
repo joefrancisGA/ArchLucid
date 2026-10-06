@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -406,14 +407,21 @@ public sealed class GovernancePreCommitSimulationControllerTests
     }
 
     [Fact]
-    public async Task Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix()
+    public async Task Simulate_returns_not_found_when_run_id_has_zero_width_prefix_and_run_is_out_of_scope()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         string prefixedRunId = $"\u200B{runId:D}";
 
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
         Mock<IPreCommitGovernanceGate> gate = new(MockBehavior.Strict);
 
-        GovernancePreCommitSimulationController sut = CreateController(gate: gate.Object);
+        GovernancePreCommitSimulationController sut = CreateController(
+            gate: gate.Object,
+            runRepository: runs.Object);
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult result = await sut.SimulateAsync(
@@ -425,12 +433,39 @@ public sealed class GovernancePreCommitSimulationControllerTests
             },
             CancellationToken.None);
 
-        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
-        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
-            badRequest.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
-        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         gate.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdWithNbsp = runId.ToString("D").Insert(9, "\u00a0");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        PreFinalizeChecklistResult checklistResult = new() { ReadyToFinalize = true };
+        Mock<IPreFinalizeChecklistService> checklist = new();
+        checklist
+            .Setup(s => s.BuildAsync(runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(checklistResult);
+
+        GovernancePreCommitSimulationController sut = CreateController(
+            runRepository: runs.Object,
+            checklistService: checklist.Object,
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService());
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.GetChecklistAsync(runIdWithNbsp, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().Be(checklistResult);
     }
 
     [Fact]
@@ -587,7 +622,9 @@ public sealed class GovernancePreCommitSimulationControllerTests
         IPreFinalizeChecklistService? checklistService = null,
         IFinalizeReadinessService? finalizeReadinessService = null,
         ITenantRepository? tenantRepository = null,
-        IScopeContextProvider? scopeProvider = null)
+        IScopeContextProvider? scopeProvider = null,
+        IAuthorityQueryService? authorityQueryService = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<IScopeContextProvider> scopeMock = new();
         scopeMock.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -600,7 +637,7 @@ public sealed class GovernancePreCommitSimulationControllerTests
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? scopeMock.Object,
             tenantRepository ?? TenantExistsRepository(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            authorityQueryService ?? Mock.Of<IAuthorityQueryService>(),
+            manifestHashService ?? Mock.Of<IManifestHashService>());
     }
 }

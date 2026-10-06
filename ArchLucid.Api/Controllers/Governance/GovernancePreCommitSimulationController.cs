@@ -87,7 +87,7 @@ public sealed partial class GovernancePreCommitSimulationController(
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
+        if (!TryParseRunId(runId, out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
@@ -148,7 +148,7 @@ public sealed partial class GovernancePreCommitSimulationController(
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!TryParseRunId(runId.Trim(), out string runIdNormalized))
+        if (!TryParseRunId(runId, out string runIdNormalized))
             return this.BadRequestProblem($"Run ID '{runId.Trim()}' is not valid.", ProblemTypes.ValidationFailed);
 
         if (Guid.Parse(runIdNormalized) == Guid.Empty)
@@ -213,7 +213,7 @@ public sealed partial class GovernancePreCommitSimulationController(
         if (runIdValidation is not null)
             return runIdValidation;
 
-        if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
+        if (!TryParseRunId(body.RunId, out string runIdNormalized))
             return this.BadRequestProblem(
                 $"Run ID '{body.RunId.Trim()}' is not valid.",
                 ProblemTypes.ValidationFailed);
@@ -306,8 +306,11 @@ public sealed partial class GovernancePreCommitSimulationController(
     /// </remarks>
     private static bool TryParseRunId(string raw, out string normalizedId)
     {
-        normalizedId = raw;
+        normalizedId = GovernanceRunIdNormalizer.Normalize(raw);
 
-        return Guid.TryParse(raw, out _);
+        if (normalizedId.Length == 0)
+            return false;
+
+        return Guid.TryParse(normalizedId, out Guid parsed) && parsed != Guid.Empty;
     }
 }

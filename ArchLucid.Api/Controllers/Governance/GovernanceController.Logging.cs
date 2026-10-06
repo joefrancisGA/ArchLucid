@@ -72,11 +72,14 @@ public sealed partial class GovernanceController
         if (string.IsNullOrWhiteSpace(runId))
             return null;
 
-        runId = runId.Trim();
+        string normalizedRunId = GovernanceRunIdNormalizer.Normalize(runId);
 
-        if (Guid.TryParseExact(runId, "N", out Guid g))
+        if (normalizedRunId.Length == 0)
+            return null;
+
+        if (Guid.TryParseExact(normalizedRunId, "N", out Guid g))
             return g;
 
-        return Guid.TryParse(runId, out g) ? g : null;
+        return Guid.TryParse(normalizedRunId, out g) ? g : null;
     }
 }

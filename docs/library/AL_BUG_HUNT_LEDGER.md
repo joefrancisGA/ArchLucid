@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `api-governance-tenancy-controllers` — pre-finalize `TryParseRunId` and approval audit parse omitted `GovernanceRunIdNormalizer`, rejecting Word-pasted run ids with interior U+00A0 while submit accepted them; normalize before parse; regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope` and `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
+
 2026-10-05 seed hunt (seed→hit): `application-pilots` — `BuyerProofPackBuilder` emitted `isSampleRun` in `pilot-run-deltas.json` but `limitations-and-next-actions.md` only showed the demo/sample banner for `isDemoTenant`; wire `IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; 28 scoped BuyerProofPack/BoardPack/limitations tests passed.
 
 2026-10-05 seed hunt (seed→hit): `application-pilots` — same sample-run gap on `pack-manifest.json` `demoDataWarning` and `BuyerProofPackBuildResult.DemoDataWarning` (audit `SponsorProofPackGenerated`); unify `cautionWarning = demoWarning || isSampleRun`; regression `TryBuildZipAsync_when_sample_run_sets_caution_warning_on_manifest_and_result`; 26 scoped BuyerProofPack/BoardPack tests passed.
@@ -26078,13 +26080,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 303
-- **last-hunt:** 2026-10-05
-- **bugs-found:** 509
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
+- **hunts:** 304
+- **last-hunt:** 2026-10-06
+- **bugs-found:** 510
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-06 — pre-finalize run id parse omitted GovernanceRunIdNormalizer
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted `GovernancePreCommitSimulationController.TryParseRunId` / `GovernanceController.TryParseArchitectureRunIdForAudit` — interior no-break space (U+00A0) in run ids failed `Guid.TryParse` on pre-finalize GET/simulate while `ValidateGovernanceRouteRunId` accepted the same literal on submit; normalize via `GovernanceRunIdNormalizer` before parse (workflow parity); regressions `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`, `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`, and updated zero-width-prefix simulate test for normalize parity; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration unavailable on Linux VM).
 
 2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 
@@ -26129,6 +26133,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2298 (seed-only): reseeded api-governance-tenancy-controllers; cheap-disproof closed mutation-corrections and insights tenant preflight siblings; 128 scoped Api tests passed (25 SQL integration skipped); no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `GovernancePreCommitSimulationController.TryParseRunId` / `GetChecklistAsync` / `GetReadinessAsync` / `SimulateAsync` — interior no-break space (U+00A0) inside run id failed `Guid.TryParse` after trim-only while `ValidateGovernanceRouteRunId` on submit normalized the same literal — **hit 2026-10-06 seed hunt (seed→hit):** `GovernanceRunIdNormalizer.Normalize` in `TryParseRunId`; regression `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`.
+- [x] (proven) `GovernanceController.TryParseArchitectureRunIdForAudit` / `LogGovernanceApprovalRequestedAuditAsync` — same interior invisible separator dropped `RunId` on audit events while submit succeeded — **hit 2026-10-06 seed hunt (seed→hit):** normalize before audit parse; regression `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`.
 
 - [x] (invalid) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — **cheap-disproof 2026-10-05 thorough hunt:** production `DapperTenantRepository`, `InMemoryTenantRepository`, and `CachingTenantRepository` implement `IWorkspaceQueryTenantRepository.WorkspaceExistsAsync` or return non-null workspace lists; null is a test-double contract violation only.
 - [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — **cheap-disproof 2026-10-05 thorough hunt:** `FindingInspectReadOptions.MetadataOnly` omits typed payload only; disposition history still scope-gated via `ListHistoryAsync`; `Guid.Empty` skip is intentional when inspect has no run binding.
