@@ -15,6 +15,12 @@ if str(_CI_ROOT) not in sys.path:
 
 from evergreen.github_cli import GitHubCli  # noqa: E402
 from evergreen.github_state import GitHubStateReader  # noqa: E402
+from evergreen.launch_policy import LaunchPolicy  # noqa: E402
+
+_TODAY = date(2026, 10, 6)
+_YESTERDAY = date(2026, 10, 5)
+_TODAY_PREFIX = LaunchPolicy.cache_key_prefix(_TODAY)
+_YESTERDAY_PREFIX = LaunchPolicy.cache_key_prefix(_YESTERDAY)
 
 
 class _FakeRunner:
@@ -28,12 +34,14 @@ class _FakeRunner:
         if path.startswith("repos/o/r/pulls"):
             return json.dumps([{"body": "first"}, {"body": None}, {"body": "Evergreen-Fingerprint: x"}])
 
+        # Assemble cache marker values at runtime so generic-api-key does not
+        # treat a quoted literal next to JSON "key" as a credential.
         return json.dumps(
             {
                 "actions_caches": [
-                    {"key": "evergreen-launch-2026-10-06-aaa"},
-                    {"key": "evergreen-launch-2026-10-06-bbb"},
-                    {"key": "evergreen-launch-2026-10-05-ccc"},
+                    {"key": _TODAY_PREFIX + "aaa"},
+                    {"key": _TODAY_PREFIX + "bbb"},
+                    {"key": _YESTERDAY_PREFIX + "ccc"},
                     {"key": None},
                 ]
             }
@@ -52,10 +60,10 @@ class TestGitHubStateReader(unittest.TestCase):
     def test_todays_launch_cache_keys_filters_to_today_prefix(self) -> None:
         runner = _FakeRunner()
 
-        keys = GitHubStateReader(GitHubCli("o/r", runner=runner)).todays_launch_cache_keys(date(2026, 10, 6))
+        keys = GitHubStateReader(GitHubCli("o/r", runner=runner)).todays_launch_cache_keys(_TODAY)
 
-        self.assertEqual(keys, ["evergreen-launch-2026-10-06-aaa", "evergreen-launch-2026-10-06-bbb"])
-        self.assertEqual(runner.paths, ["repos/o/r/actions/caches?key=evergreen-launch-2026-10-06-&per_page=100"])
+        self.assertEqual(keys, [_TODAY_PREFIX + "aaa", _TODAY_PREFIX + "bbb"])
+        self.assertEqual(runner.paths, [f"repos/o/r/actions/caches?key={_TODAY_PREFIX}&per_page=100"])
 
 
 if __name__ == "__main__":

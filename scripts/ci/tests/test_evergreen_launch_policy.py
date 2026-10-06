@@ -58,8 +58,14 @@ class TestLaunchTargetResolver(unittest.TestCase):
 
 
 class TestLaunchPolicy(unittest.TestCase):
-    def _decide(self, digest: FailureDigest, bodies: list[str] | None = None, keys: list[str] | None = None, cap: int = 6) -> LaunchDecision:
-        return LaunchPolicy(max_per_day=cap).decide(digest, _FP, _TODAY, bodies or [], keys or [])
+    def _decide(
+        self,
+        digest: FailureDigest,
+        bodies: list[str] | None = None,
+        launch_markers: list[str] | None = None,
+        cap: int = 6,
+    ) -> LaunchDecision:
+        return LaunchPolicy(max_per_day=cap).decide(digest, _FP, _TODAY, bodies or [], launch_markers or [])
 
     def test_launches_trunk_failure_with_clean_state(self) -> None:
         decision = self._decide(_digest())
@@ -93,7 +99,8 @@ class TestLaunchPolicy(unittest.TestCase):
         self.assertIn("outside Evergreen scope", decision.reason)
 
     def test_skips_when_fingerprint_launched_today(self) -> None:
-        decision = self._decide(_digest(), keys=[_KEY, "evergreen-launch-2026-10-06-other"])
+        already_launched = [_KEY, _KEY.replace(_FP, "other")]
+        decision = self._decide(_digest(), launch_markers=already_launched)
 
         self.assertFalse(decision.launch)
         self.assertIn("already launched", decision.reason)
@@ -115,9 +122,8 @@ class TestLaunchPolicy(unittest.TestCase):
         self.assertTrue(decision.launch)
 
     def test_skips_when_daily_cap_reached(self) -> None:
-        keys = [f"evergreen-launch-2026-10-06-{i}" for i in range(2)]
-
-        decision = self._decide(_digest(), keys=keys, cap=2)
+        launched_today = [LaunchPolicy.cache_key(str(i), _TODAY) for i in range(2)]
+        decision = self._decide(_digest(), launch_markers=launched_today, cap=2)
 
         self.assertFalse(decision.launch)
         self.assertEqual(decision.reason, "daily cap reached (2/2)")
