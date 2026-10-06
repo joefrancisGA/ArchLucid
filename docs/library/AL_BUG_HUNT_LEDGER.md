@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (hit): `tenant-data-export` — proved `ExportsController.ReplayExportRecord` / `ReplayExportRecordMetadata` and `ArchitectureExportController.ExportRunSummary` let `CareerArtifactExportBlockedException` escape as unhandled errors while `ExportReplayService` / `RunSummaryOnePagerExportService` already enforce career gates; map to `CareerArtifactBlockedProblem` like `DocxExportController`; cheap-disproof closed compare/history metadata paths and string `"01"`/`"1.00"` sample-run variants (already coerced by `TryParseJsonBoolean`); regressions `ReplayExportRecord_returns_409_when_career_export_blocked`, `ExportRunSummary_returns_409_when_career_export_blocked`, `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`; seeded five follow-on candidates; 13 scoped export controller + career posture tests passed.
+
 2026-10-06 thorough hunt (hit): `tenant-data-export` — proved `ArtifactExportController.RunArtifacts` run and manifest-scoped list/bundle/download paths omitted `ResolveRunExportCareerPostureBlockedResultAsync` while run ZIP export blocked working-career simulator runs; aligned all RunArtifacts routes; proved CLI `is_sample_run` string `"1.0"` bypassed sample-workspace career gate while numeric `1.0` already blocked; extended `TryParseJsonBoolean` string numeric coercion; cheap-disproof closed `CompareExportRecordsSummary` career gap (markdown metadata diff after sealed-manifest/lifecycle guards, not career byte export) and blob destination obfuscated userinfo (`EmbeddedCredentialUrlGuard` already rejects); regressions `ListArtifactsForRun_returns_409_when_working_career_simulator_unlabeled`, `DownloadBundleForRun_returns_409_when_working_career_simulator_unlabeled`, `ResolveFromDeltasJson_blocks_when_is_sample_run_is_string_one_point_zero`, `TryGetRejectionReason_WhenEmbeddedCredentials_Rejects`; seeded five follow-on `(candidate)` rows; 58 scoped export/career-posture/policy tests passed.
 
 2026-10-06 seed hunt (seed-only): `commit-output-integrity` — re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after semantic-judge ordering fix and #3469 empty-trace fail-closed; no hunt-ready row promoted; seeded five `(candidate)` rows (null-header evidence/pin skip asymmetry, quality-warning rank ladder, disabled-gate empty-trace seal, Unicode task-id grouping); 93 scoped tests passed (54 Application quality-gate/orchestrator integrity, 33 Core selector, 6 architecture gate-map).
@@ -9316,6 +9318,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-10-06 thorough hunt (hit): career HTTP mapping on replay + run summary; cheap-disproof on compare/history metadata and string sample-run variants; 13 scoped tests passed.
+
 2026-10-06 thorough hunt (hit): promoted RunArtifacts + manifest artifact career-posture parity and CLI `is_sample_run` string `"1.0"` candidates; fixed; cheap-disproof closed compare-summary career and obfuscated blob userinfo candidates; 58 scoped tests passed.
 
 2026-10-06 seed hunt (seed→hit): re-read export controllers after lifecycle parity wave; promoted terraform advisory career-posture gap; proved and fixed; seeded RunArtifacts career parity and CLI boolean edge candidates below; 25 scoped export controller tests passed.
@@ -11131,11 +11135,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 941
-- **bugs-found:** 53
+- **hunts:** 942
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — RunArtifacts artifact routes omitted career posture gate; CLI string `"1.0"` sample-run bypass
+- **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11260,11 +11264,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ExportsController.CompareExportRecordsSummary` — no career artifact honesty re-check — **cheap-disproof 2026-10-06 thorough hunt:** `RunExportQueryFacade.CompareExportRecordsSummaryAsync` persists markdown diff metadata after sealed-manifest and lifecycle guards on both export-record run ids; not a career byte-export surface like run ZIP or artifact download.
 - [x] (invalid) `AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason` — obfuscated embedded credentials on Azure blob hosts — **cheap-disproof 2026-10-06 thorough hunt:** `Uri.UserInfo` is non-empty for `user:pass@` and percent-encoded userinfo variants; `EmbeddedCredentialUrlGuard` rejects before host allowlist; regressions `TryGetRejectionReason_WhenEmbeddedCredentials_Rejects`.
 
-- [ ] (candidate) `ExportsController.ReplayExportRecord` — replays export payloads after sealed-manifest guard on export-record id without `AuditExportCareerPostureGate`; reachable when operators replay a stored export record tied to a career-blocked working simulator run.
-- [ ] (candidate) `ExportsController.CompareExportRecords` (binary diff) — returns diff bytes after sealed-manifest guards without career posture check on underlying run ids; reachable when compare downloads cross-run export payloads for sample-workspace runs.
-- [ ] (candidate) `RunExportQueryFacade.GetRunExportHistoryAsync` — lists export metadata after lifecycle guard without career honesty gate; reachable when history surfaces export row counts for career-blocked runs (metadata-only vs byte export).
-- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string fractional values such as `"1.00"` or `"01"` for `is_sample_run` may bypass sample-workspace block if only `"1"` and `"1.0"` are coerced; reachable from CLI `pilot-run-deltas.json` string variants.
-- [ ] (candidate) `ArchitectureExportController` run summary / review export paths — sealed-hash and lifecycle guards without `ResolveRunExportCareerPostureBlockedResultAsync` parity with `ArtifactExportController` run ZIP export; reachable when operators download summary markdown for career-blocked simulator runs.
+- [x] (proven) `ExportsController.ReplayExportRecord` / `ReplayExportRecordMetadata` — `ExportReplayService` enforces career gate but controller only caught `ConflictException` — **hit 2026-10-06 thorough hunt:** career-blocked replay surfaced as unhandled `CareerArtifactExportBlockedException`; map to `CareerArtifactBlockedProblem`; regression `ReplayExportRecord_returns_409_when_career_export_blocked`.
+- [x] (valid-no-repro) `ExportsController.CompareExportRecords` — no career posture check — **cheap-disproof 2026-10-06 thorough hunt:** `ExportRecordDiffService.CompareAsync` returns structured metadata/request diff (`ExportRecordDiffResult`), not regenerated export bytes; sealed-manifest and lifecycle guards already run in facade.
+- [x] (valid-no-repro) `RunExportQueryFacade.GetRunExportHistoryAsync` — no career honesty gate — **cheap-disproof 2026-10-06 thorough hunt:** returns persisted `RunExportRecord` metadata rows after lifecycle guard; not a career byte-export surface like replay or run ZIP.
+- [x] (valid-no-repro) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string `"1.00"` / `"01"` for `is_sample_run` — **cheap-disproof 2026-10-06 thorough hunt:** invariant-culture whole-number string coercion after #3469/`"1.0"` fix already treats both as true; regression `ResolveFromDeltasJson_blocks_when_is_sample_run_string_coerces_to_non_zero`.
+- [x] (proven) `ArchitectureExportController.ExportRunSummary` — missing career-blocked HTTP mapping — **hit 2026-10-06 thorough hunt:** `RunSummaryOnePagerExportService` calls `CareerArtifactExportCompletenessGate` but controller only mapped `ConflictException`; regression `ExportRunSummary_returns_409_when_career_export_blocked`.
+
+- [ ] (candidate) `ExportsController.GetExportRecord` — returns export-record JSON metadata after sealed-manifest guard without career posture check; reachable when operators inspect persisted export rows for career-blocked runs (metadata read vs byte replay).
+- [ ] (candidate) `RunExportQueryFacade.ReplayExportAsync` — does not re-run lifecycle Complete guard before delegating to `ExportReplayService` when lineage/hash already verified; reachable if lifecycle regresses after export record was captured.
+- [ ] (candidate) `ArchitectureReviewExportService` / review markdown export — career gate in application service but API controller may not map `CareerArtifactExportBlockedException` to 409 on all routes (parity with `DocxExportController`).
+- [ ] (candidate) `ExportBundleCareerPostureResolver.TryParseJsonBoolean` — string values with leading/trailing whitespace around numeric tokens (`" 1 "`, `" 1.0 "`) may bypass sample-workspace block; reachable from hand-edited `pilot-run-deltas.json`.
+- [ ] (candidate) `RunsExportController` — run export listing or download helpers may omit career posture parity with `ArtifactExportController` run ZIP paths after recent RunArtifacts fixes; reachable on product routes under `/architecture/runs`.
 
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` / `ReviewCacheManifestBuilder.Build` — entry-time fingerprint snapshot — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**
 - [x] (valid-no-repro) `ReviewResultCache.PinScope` / composite pin cap — **closed 2026-10-05 thorough hunt (architecture-intelligence-orchestrator zone).**

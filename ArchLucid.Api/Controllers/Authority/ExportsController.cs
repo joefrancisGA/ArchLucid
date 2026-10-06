@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -234,6 +235,10 @@ public sealed partial class ExportsController(
         {
             return MapExportReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
@@ -282,6 +287,10 @@ public sealed partial class ExportsController(
         catch (ConflictException ex)
         {
             return MapExportReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
