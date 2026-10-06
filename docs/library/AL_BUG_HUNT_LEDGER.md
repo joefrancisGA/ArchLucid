@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` after two bugsmash commits; no hunt-ready row promoted; seeded five `(candidate)` rows (whitespace-only candidate ref with chosen present, malformed `agentTopologyProposal` ref without sub-key, proposal-id first-colon split, `Future` status dedupe participation, Unicode compatibility in technology name normalization); 76 scoped TechnologyLedger tests passed.
+
 2026-10-06 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (cancellation siblings fail-fast with deadlock via `inners.All`; wrapper chain consults nested mixed aggregate after transient SQL on inner chain; transient SQL root with mixed aggregate on `InnerException` fail-fast via `TryGetParallelPersistInners` walk; third-attempt negative jitter still positive at 2s base; outer `RetryDelay(1)` vs inner 2s backoff is intentional layered design per #1259); regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_task_canceled_siblings`, `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_operation_canceled_siblings`, `ExecuteAsync_does_not_retry_when_nested_mixed_aggregate_follows_transient_sql_on_wrapper_chain`, `ExecuteAsync_does_not_retry_when_transient_sql_wraps_mixed_parallel_persist_aggregate_on_inner_chain`, `Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive`; 64 scoped transient-retry tests passed (46 Persistence + 18 Application).
 
 2026-10-06 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after thorough dry closed all open rows; no hunt-ready row promoted; seeded five `(candidate)` rows (cancellation sibling on parallel-persist aggregate, first nested aggregate on wrapper chain, transient root `SqlException` over nested mixed aggregate, Polly jitter delay clamp, outer `RetryDelay(1)` vs inner 2s first backoff asymmetry); 59 scoped transient-retry tests passed (41 Persistence + 18 Application).
@@ -4689,13 +4691,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` / `EvidenceRefsMatch` after bugsmash churn; no hunt-ready promotion; seeded five `(candidate)` rows; 76 scoped TechnologyLedger tests passed.
+
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — same-family `Chosen` row present; agent candidate with whitespace-only `EvidenceRef` and a `TechnologyName` distinct from chosen returns null at the chosen-family gate (`HasSubstantiveEvidenceRef` false) without inserting — reachable when ledger rows are patched via `TechnologyLedgerRunCommandService` with blank grounding refs while topology seeding continues (`TechnologyLedgerTopologyProposalSeeder` passes repository rows into `Resolve`).
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — `agentTopologyProposal:{proposalId}` refs missing the `:{subKey}` segment fall back to case-insensitive full-string equality, so distinct malformed refs may dedupe incorrectly — reachable via operator-imported `TechnologyLedgerEntry.EvidenceRef` values outside mapper emission (`TechnologyLedgerTopologyProposalMapper` always emits `proposalId:subKey`).
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.TryParseAgentTopologyProposalRef` — splits `agentTopologyProposal:` remainder at the first `:` only, so proposal ids containing embedded colons mis-parse `proposalId` vs `stableSubKey` and can break dedupe parity across batches — reachable when manifest `ProposalId` strings embed colon-separated segments.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerStatus.Future` rows still participate in `EvidenceRef` / name dedupe, so roadmap entries may block topology re-seed inserts — reachable because `TechnologyLedgerTopologyProposalSeeder` supplies full `GetByRunIdAsync` row lists into `Resolve`.
+- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.NormalizeTechnologyName` — `TechnologyNamesMatch` uses `OrdinalIgnoreCase` without Unicode normalization, so labels differing only by compatibility characters (full-width digits, homoglyphs) may duplicate or fail to dedupe — reachable from pasted manifest `ServiceName` / display labels mapped into `TechnologyName`.
 
 2026-10-05 seed hunt (seed→hit): promoted case-only `ServiceId` candidate; fixed sub-key casing + scoped `EvidenceRefsMatch`; 76 scoped TechnologyLedger tests passed.
 
