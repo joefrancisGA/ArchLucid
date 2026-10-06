@@ -215,7 +215,21 @@ public sealed class InMemoryBackgroundJobQueue(
                         if (await TryRequeuePendingRetryWorkItemAsync(item))
                             continue;
 
-                        throw;
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? shutdownRetryCandidate) ||
+                            shutdownRetryCandidate.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        TryAssignUnlessCanceled(
+                            item.JobId,
+                            existing => existing with
+                            {
+                                State = BackgroundJobState.Failed,
+                                CompletedUtc = TimeProvider.System.GetUtcNow(),
+                                RetryCount = nextRetry,
+                                Error = "Retry skipped: host stopped during backoff and the job could not be re-queued."
+                            });
+
+                        continue;
                     }
 
                     if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeRequeue) ||

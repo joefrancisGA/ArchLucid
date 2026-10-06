@@ -70,10 +70,12 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
                     && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
                     continue;
 
+                int retryCount = current?.RetryCount ?? 0;
+
                 await repository.MarkFailedTerminalAsync(
                     jobId,
                     $"Queue notification failed: {ex.Message}",
-                    retryCount: 0,
+                    retryCount,
                     cancellationToken);
             }
         }
