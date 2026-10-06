@@ -4,7 +4,7 @@ import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
 
-const REVIEWS_NEW_BASELINE_WIZARD_PATH = "/architecture/reviews/new?baseline=1&path=quick-review";
+const REVIEWS_NEW_BASELINE_WIZARD_PATH = "/architecture/reviews/new?baseline=1&path=detailed";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
