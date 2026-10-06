@@ -120,6 +120,16 @@ public sealed partial class ArtifactExportController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
+
         IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
 
         if (careerBlockedResult is not null)
@@ -171,8 +181,16 @@ public sealed partial class ArtifactExportController
             }
         }
 
-        RunExportPackageResult packageResult =
-            await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
+        RunExportPackageResult packageResult;
+
+        try
+        {
+            packageResult = await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
 
         if (!packageResult.Found)
         {
@@ -221,6 +239,11 @@ public sealed partial class ArtifactExportController
             return this.NotFoundProblem(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
+
+        IActionResult? lifecycleProblem = EnsureAuthorityLifecycleCompleteOrConflict(runDetail, runId);
+
+        if (lifecycleProblem is not null)
+            return lifecycleProblem;
 
         IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(runDetail.GoldenManifest, runId.ToString("D"));
 

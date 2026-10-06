@@ -234,6 +234,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotPublicIpParentEdgeHydrator.AddMissingParentEdges(
+            snapshot,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotLogicAppConnectionHydrator.AddMissingConnectionEdges(
             snapshot,
             nodeIdByArmId,
@@ -347,7 +352,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 && property.PropertyKey.Equals("subnets", StringComparison.OrdinalIgnoreCase);
             bool isPublicIpIpConfigurationProperty =
                 resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
-                && property.PropertyKey.Equals("ipConfiguration.id", StringComparison.OrdinalIgnoreCase);
+                && (property.PropertyKey.Equals("ipConfiguration.id", StringComparison.OrdinalIgnoreCase)
+                    || property.PropertyKey.Equals("natGateway.id", StringComparison.OrdinalIgnoreCase));
 
             if (isBastionSubnetProperty || isVirtualNetworkSubnetsProperty || isPublicIpIpConfigurationProperty)
             {

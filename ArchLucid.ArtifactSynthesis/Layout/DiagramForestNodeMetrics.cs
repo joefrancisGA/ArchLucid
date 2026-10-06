@@ -9,6 +9,7 @@ public sealed record DiagramForestNodeMetrics(
     string? DataFlowTypeLine,
     IReadOnlyList<string> DataFlowDetailLines,
     string? ConsumerStatusLine,
+    string? DataFlowRollupInvitationLine,
     IReadOnlyList<string> ResourceGroupLines,
     DiagramNodeHumanCaption Caption,
     DiagramInventoryPictogramKind PictogramKind,

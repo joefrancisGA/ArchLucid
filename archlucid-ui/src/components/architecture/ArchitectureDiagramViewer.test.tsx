@@ -317,6 +317,33 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('labels a rollup focus with its member-list title', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-rollup" data-member-names="storage-a · rg-a · No consumer found|storage-b · rg-b · Used by 1"><title>6 storage accounts</title><rect class="node-card" width="80" height="20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-rollup')!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('6 storage accounts');
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-a · rg-a · No consumer found');
+      expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Showing connections for');
+    });
+  });
+
   it('focuses the named partner when a long-edge stub is clicked', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

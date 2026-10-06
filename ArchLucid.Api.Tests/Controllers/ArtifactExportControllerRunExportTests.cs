@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
@@ -154,6 +155,156 @@ public sealed class ArtifactExportControllerRunExportTests
         packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
         terraformPr.Verify(
             t => t.CreatePrAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadTerraformAdvisoryExport_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        Mock<IArtifactPackagingService> packaging = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            manifestHashService: manifestHashService);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = manifest.ManifestId,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                },
+                GoldenManifest = manifest,
+            });
+
+        IActionResult result = await sut.DownloadTerraformAdvisoryExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateTerraformPr_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+        Mock<ITerraformGitHubPrService> terraformPr = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out _,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            terraformGitHubPrService: terraformPr.Object);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+                },
+                GoldenManifest = new ManifestDocument { ManifestId = Guid.NewGuid() },
+            });
+
+        IActionResult result = await sut.CreateTerraformPr(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        terraformPr.Verify(
+            t => t.CreatePrAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadRunExport_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        Mock<IRunExportPackageBuilder> builder = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            builder.Object,
+            manifestHashService: manifestHashService);
+
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = manifest.ManifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = manifest,
+        };
+
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(
+                scope,
+                runId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(runDetail);
+
+        IActionResult result = await sut.DownloadRunExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        builder.Verify(
+            b => b.BuildAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -315,6 +466,74 @@ public sealed class ArtifactExportControllerRunExportTests
             Times.Never);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadRunExport_skips_mermaid_work_when_authority_lifecycle_not_complete()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                GoldenManifestId = manifest.ManifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = manifest,
+        };
+
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+
+        Mock<IRunExportPackageBuilder> builder = new(MockBehavior.Strict);
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucid:MermaidCli:Enabled"] = "true",
+                ["ArchLucid:Governance:PreCommitGateEnabled"] = "true",
+                ["ArchLucid:AgentOutput:QualityGate:Mode"] = "WarnOnly",
+                ["AgentExecution:Mode"] = "Simulator",
+            })
+            .Build();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out _,
+            out _,
+            scope,
+            builder.Object,
+            manifestHashService: manifestHashService,
+            configuration: configuration,
+            artifactQueryService: artifacts.Object);
+
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+
+        IActionResult result = await sut.DownloadRunExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        artifacts.Verify(
+            q => q.GetArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        builder.Verify(
+            b => b.BuildAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -539,7 +758,10 @@ public sealed class ArtifactExportControllerRunExportTests
         IArtifactPackagingService? artifactPackagingService = null,
         ITerraformGitHubPrService? terraformGitHubPrService = null,
         IManifestHashService? manifestHashService = null,
-        Mock<IRunDetailQueryService>? runDetailQueryService = null)
+        Mock<IRunDetailQueryService>? runDetailQueryService = null,
+        IConfiguration? configuration = null,
+        IArtifactQueryService? artifactQueryService = null,
+        IDiagramImageRenderer? diagramImageRenderer = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -563,7 +785,7 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        IConfiguration configuration = new ConfigurationBuilder()
+        configuration ??= new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchLucid:MermaidCli:Enabled"] = "false",
@@ -582,13 +804,40 @@ public sealed class ArtifactExportControllerRunExportTests
                 FindingCoverageSummary = new RunFindingCoverageSummary { EnginesSucceeded = 50 },
             });
 
+        authorityForExport
+            .Setup(s => s.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _, bool _) =>
+            {
+                Guid manifestId = Guid.NewGuid();
+
+                return new RunDetailDto
+                {
+                    Run = new RunRecord
+                    {
+                        RunId = runId,
+                        GoldenManifestId = manifestId,
+                        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        ManifestId = manifestId,
+                        RunId = runId,
+                        ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                    },
+                };
+            });
+
         ArtifactExportController controller = new(
-            Mock.Of<IArtifactQueryService>(),
+            artifactQueryService ?? Mock.Of<IArtifactQueryService>(),
             authority.Object,
             artifactPackagingService ?? Mock.Of<IArtifactPackagingService>(),
             scopeProvider.Object,
             audit.Object,
-            Mock.Of<ArchLucid.Core.Diagrams.IDiagramImageRenderer>(),
+            diagramImageRenderer ?? Mock.Of<IDiagramImageRenderer>(),
             configuration,
             terraformGitHubPrService ?? Mock.Of<ITerraformGitHubPrService>(),
             runExportPackageBuilder,

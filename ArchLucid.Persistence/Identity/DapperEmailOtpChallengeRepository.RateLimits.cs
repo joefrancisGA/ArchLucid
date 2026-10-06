@@ -11,6 +11,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
     public async Task<int> CountRecentRequestsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -18,7 +19,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            FROM dbo.EmailOtpChallenges
                            WHERE NormalizedEmail = @NormalizedEmail
                              AND CreatedUtc >= @SinceUtc
-                             AND CompletedUtc IS NULL;
+                             AND CompletedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -26,13 +28,19 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { NormalizedEmail = normalizedEmail, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 
     public async Task<int> CountRecentRequestsByClientIpHashAsync(
         string clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -40,7 +48,8 @@ public sealed partial class DapperEmailOtpChallengeRepository
                            FROM dbo.EmailOtpChallenges
                            WHERE ClientIpHash = @ClientIpHash
                              AND CreatedUtc >= @SinceUtc
-                             AND CompletedUtc IS NULL;
+                             AND CompletedUtc IS NULL
+                             AND ExpiresUtc > @NowUtc;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -48,7 +57,12 @@ public sealed partial class DapperEmailOtpChallengeRepository
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new { ClientIpHash = clientIpHash, SinceUtc = sinceUtc.UtcDateTime },
+                new
+                {
+                    ClientIpHash = clientIpHash,
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -56,20 +70,21 @@ public sealed partial class DapperEmailOtpChallengeRepository
         string normalizedEmail,
         string? clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
         const string batchSql = """
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges
                                 WHERE NormalizedEmail = @NormalizedEmail
-                                  AND CreatedUtc >= @SinceUtc
-                                  AND CompletedUtc IS NULL;
+                                  AND CreatedUtc >= @SinceUtc;
 
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges
                                 WHERE ClientIpHash = @ClientIpHash
                                   AND CreatedUtc >= @SinceUtc
                                   AND CompletedUtc IS NULL
+                                  AND ExpiresUtc > @NowUtc
                                   AND @ClientIpHash IS NOT NULL;
                                 """;
 
@@ -83,6 +98,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                     NormalizedEmail = normalizedEmail,
                     ClientIpHash = clientIpHash,
                     SinceUtc = sinceUtc.UtcDateTime,
+                    NowUtc = nowUtc.UtcDateTime,
                 },
                 cancellationToken: cancellationToken));
 

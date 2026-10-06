@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -27,14 +28,52 @@ public static class SealedManifestHashTestSupport
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => new RunDetailDto
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
             {
-                Run = new RunRecord { RunId = runId },
-                GoldenManifest = new ManifestDocument
+                Guid manifestId = Guid.NewGuid();
+
+                return new RunDetailDto
                 {
-                    RunId = runId,
-                    ManifestHash = hash,
-                },
+                    Run = new RunRecord
+                    {
+                        RunId = runId,
+                        GoldenManifestId = manifestId,
+                        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        ManifestId = manifestId,
+                        RunId = runId,
+                        ManifestHash = hash,
+                    },
+                };
+            });
+
+        authority
+            .Setup(query => query.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _, bool _) =>
+            {
+                Guid manifestId = Guid.NewGuid();
+
+                return new RunDetailDto
+                {
+                    Run = new RunRecord
+                    {
+                        RunId = runId,
+                        GoldenManifestId = manifestId,
+                        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        ManifestId = manifestId,
+                        RunId = runId,
+                        ManifestHash = hash,
+                    },
+                };
             });
 
         return authority.Object;

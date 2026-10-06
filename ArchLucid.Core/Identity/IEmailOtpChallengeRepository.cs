@@ -9,11 +9,13 @@ public interface IEmailOtpChallengeRepository
     Task<int> CountRecentRequestsByEmailAsync(
         string normalizedEmail,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
     Task<int> CountRecentRequestsByClientIpHashAsync(
         string clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
     /// <summary>Single round-trip read of hourly email and client-IP OTP request counts.</summary>
@@ -21,6 +23,7 @@ public interface IEmailOtpChallengeRepository
         string normalizedEmail,
         string? clientIpHash,
         DateTimeOffset sinceUtc,
+        DateTimeOffset nowUtc,
         CancellationToken cancellationToken);
 
     Task<int> CountRecentFailedVerificationsByEmailAsync(

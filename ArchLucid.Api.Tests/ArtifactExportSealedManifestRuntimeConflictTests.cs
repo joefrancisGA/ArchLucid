@@ -6,7 +6,10 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
@@ -104,6 +107,29 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
     }
 
     [Fact]
+    public async Task DownloadRunExport_maps_package_builder_thrown_ConflictException_to_409()
+    {
+        const string lifecycleConflictMessage =
+            "Compare/export blocked for run 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa': authority lifecycle phase is InProgress; pipeline must be Complete.";
+
+        Mock<IRunExportPackageBuilder> builder = new(MockBehavior.Strict);
+        builder
+            .Setup(b => b.BuildAsync(Scope, RunId, null, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ConflictException(lifecycleConflictMessage));
+
+        ArtifactExportController sut = BuildController(runExportPackageBuilder: builder.Object);
+
+        IActionResult action = await sut.DownloadRunExport(RunId, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+
+        MvcProblemDetails problem = conflict.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Detail.Should().Be(lifecycleConflictMessage);
+    }
+
+    [Fact]
     public async Task VerifyRunExportLineage_maps_verifier_ConflictException_to_409()
     {
         Mock<IRunExportLineageVerifier> verifier = new(MockBehavior.Strict);
@@ -172,6 +198,50 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
     }
 
     [Fact]
+    public async Task DownloadBundleForRun_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = RunId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = new ManifestDocument
+            {
+                ManifestId = manifestId,
+                ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+            },
+        };
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+
+        ArtifactExportController sut = BuildController(
+            authority: authority.Object,
+            artifactQueryService: artifacts.Object);
+
+        IActionResult action = await sut.DownloadBundleForRun(RunId, CancellationToken.None);
+
+        AssertSealedManifestConflict409(action);
+        artifacts.Verify(
+            q => q.GetArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ListArtifactsForRun_maps_manifest_compare_ConflictException_to_409()
     {
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
@@ -196,6 +266,49 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
                 RunId,
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(SealedConflict);
+
+        ArtifactExportController sut = BuildController(authority: authority.Object);
+
+        IActionResult action = await sut.ListArtifactsForRun(RunId, CancellationToken.None);
+
+        AssertSealedManifestConflict409(action);
+    }
+
+    [Fact]
+    public async Task ListArtifactsForRun_returns_409_when_authority_lifecycle_not_complete()
+    {
+        Guid manifestId = Guid.NewGuid();
+        ManifestDocument manifest = new()
+        {
+            ManifestId = manifestId,
+            ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+        };
+
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = RunId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit),
+            },
+            GoldenManifest = manifest,
+        };
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(runDetail);
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                Scope,
+                RunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
 
         ArtifactExportController sut = BuildController(authority: authority.Object);
 
@@ -277,7 +390,8 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         IRunExportPackageBuilder? runExportPackageBuilder = null,
         IRunExportLineageVerifier? runExportLineageVerifier = null,
         IManifestHashService? manifestHashService = null,
-        IDecisionReceiptService? decisionReceiptService = null)
+        IDecisionReceiptService? decisionReceiptService = null,
+        IArtifactQueryService? artifactQueryService = null)
     {
         IAuthorityQueryService authorityQueryService =
             authority ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun();
@@ -298,7 +412,7 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
             .Build();
 
         return new ArtifactExportController(
-            Mock.Of<IArtifactQueryService>(),
+            artifactQueryService ?? Mock.Of<IArtifactQueryService>(),
             authorityQueryService,
             Mock.Of<IArtifactPackagingService>(),
             scopeProvider.Object,
