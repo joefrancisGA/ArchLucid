@@ -327,7 +327,7 @@ async function probeAuthMeViaProxy(page: Page): Promise<{ ok: boolean; status: n
       });
       const text = await res.text();
 
-      return { ok: res.ok, status: res.status, text: text.slice(0, 400) };
+      return { ok: res.ok, status: res.status, text };
     })
     .catch(() => ({ ok: false, status: 0, text: "" }));
 }
@@ -365,7 +365,7 @@ export async function fetchAuthMeViaProxy(
     break;
   }
 
-  throw new Error(`GET /api/proxy/api/auth/me failed ${lastStatus}: ${lastText}`);
+  throw new Error(`GET /api/proxy/api/auth/me failed ${lastStatus}: ${lastText.slice(0, 400)}`);
 }
 
 /** Direct API `GET /api/auth/me` — validates JWT role claims without the UI BFF proxy (TB-927). */
