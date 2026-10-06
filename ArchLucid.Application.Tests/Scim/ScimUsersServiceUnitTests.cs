@@ -767,6 +767,38 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_replace_displayName_non_string_throws()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "displayName", "value": 1 }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimUserResourceParseException>();
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.DisplayName.Should().Be("Alice Example");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_userName_non_string_throws()
     {
         Guid tenantId = Guid.NewGuid();

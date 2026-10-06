@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `scim-users` — `ScimUserService.PatchAsync` `ReadOptionalString` ignored non-string PATCH `displayName` replace values and kept the prior display name while PUT `ScimUserResourceParser` returns `invalidValue`; align PATCH optional strings with parser typing; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` Application unit tests passed.
+
 2026-10-06 seed hunt (seed→hit): `scope-binding-middleware` — `RouteTenantScopeBindingFilter.HasPolicy` only inspected `AuthorizeAttribute` metadata while ASP.NET Core `AuthorizeFilter` carries policy names on `AuthorizeData`, so platform tenant deletion routes could 403 when ambient scope disagreed with route `{tenantId}`; scan `IAuthorizeData` and `AuthorizeFilter.AuthorizeData`; regression `OnActionExecutionAsync_authorize_filter_platform_deletion_policy_skips_binding`; cheap-disproof closed unknown authenticated scheme header-only skip (`ValidateHeaderOnlyScopeEscalation_skips_header_guard_for_unknown_authenticated_scheme`) and intentional `/openapi/*` TB-304 skip for nested segments (`InvokeAsync_staging_host_skips_openapi_nested_segment_paths`); 72 scoped scope-binding unit tests passed (integration tests unavailable).
 
 2026-10-06 thorough hunt (hit): `saml-jwt-bearer` — `RoleSyncService.TryDirectoryObjectKey` used `FindFirst` on long-form `objectidentifier` when `oid` was absent, binding SCIM role override to the first of conflicting URI claims; require exactly one distinct non-empty value; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`; cheap-disproof closed duplicate `workspace_id`/`project_id` GUID `N` vs `D` format (`Apply_collapses_duplicate_direct_workspace_id_claims_when_values_differ_only_by_guid_format`, `Apply_collapses_duplicate_direct_project_id_claims_when_values_differ_only_by_guid_format`) and cookie `auth_time` `ClaimValueTypes.Integer64` (`HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal`, `TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat`); 77 scoped SAML/JWT/SCIM bearer unit tests passed (3 SQL integration tests unavailable); 5 RoleSyncService tests passed.
@@ -8130,11 +8132,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — PATCH whitespace-only `externalId` silently ignored
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — PATCH non-string `displayName` silently ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8164,7 +8166,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `ScimUserService.PatchAsync` / `ReadPatchRequiredString` — PATCH replace `userName` with non-string JSON type — **cheap-disproof 2026-10-05 seed hunt:** non-string values throw `invalidValue` once `userName` uses `ReadPatchRequiredString`; regression `PatchAsync_replace_userName_non_string_throws`.
 
-- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with non-string JSON type keeps prior `displayName` without `invalidValue`.
+- [x] (proven) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with non-string JSON type kept prior `displayName` without `invalidValue` — **hit 2026-10-06 seed hunt:** throw `invalidValue` like `ScimUserResourceParser`; regression `PatchAsync_replace_displayName_non_string_throws`; 22 scoped `ScimUsers` unit tests passed.
+
+- [ ] (candidate) `ScimUserService.PatchAsync` / `ReadOptionalString` — PATCH replace `displayName` with whitespace-only string may persist untrimmed or ambiguous empty display names vs PUT parser trim semantics.
+- [ ] (candidate) `ScimUsersController.ListAsync` — negative `count` query is clamped only in `ScimUserService` (`Math.Clamp(count, 0, 200)`); verify controller passes through without surprising `startIndex`/`count` combinations for Entra list probes.
+- [ ] (candidate) `ScimUsersController.CreateAsync` — empty request body deserializes to default `JsonElement` instead of `invalidSyntax` before service validation.
 
 ### Hypotheses
 

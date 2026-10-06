@@ -159,9 +159,16 @@ public sealed partial class ScimUserService
 
     private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key, string? fallback)
     {
-        if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
+        if (!next.TryGetValue(key, out JsonElement el))
             return fallback;
-        return el.ValueKind != JsonValueKind.String ? fallback : el.GetString();
+
+        if (el.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (el.ValueKind != JsonValueKind.String)
+            throw new ScimUserResourceParseException("invalidValue", $"'{key}' must be a string.");
+
+        return el.GetString();
     }
 
     private static string? TryReadOptionalTrimmed(IReadOnlyDictionary<string, JsonElement> next, string key, StringComparer comparer)
