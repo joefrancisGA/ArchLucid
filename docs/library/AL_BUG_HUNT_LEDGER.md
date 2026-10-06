@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandIntakeLoop`, connect/admit/MUST stages, hooks, and arg parser; no hunt-ready row promoted; five open `(candidate)` rows unchanged for next thorough hunt; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` (`TryNormalize`, percent-decode loop, path-only vs full-string checks); no hunt-ready row promoted for same-run proof; refreshed five `(candidate)` rows (dropped `AuthSignInRoutingController` locus outside zone `paths`); 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `sql-run-repository` — re-read list vs detail connection routing, archival purge batch, governance rationale binds, existence vs representative SQL, and NOLOCK list shapes; cheap-disproof closed five stale `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ExistsRunForArchitectureRequestInScope_sql_omits_dead_letter_status_filters` and `Run_detail_read_shapes_include_warning_flags_and_governance_columns` (NOLOCK guard); 137 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -5253,7 +5255,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
@@ -7746,13 +7748,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed-only): re-read intake/connect/admit/MUST partials; no hunt-ready promotion; refreshed five `(candidate)` rows above; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
+2026-10-06 seed hunt (seed-only): re-read intake/connect/admit/MUST partials and hooks; no hunt-ready promotion; retained five open `(candidate)` rows; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
+
 - **id:** cli-draft-new
 - **status:** open
 - **impact:** low
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-06
