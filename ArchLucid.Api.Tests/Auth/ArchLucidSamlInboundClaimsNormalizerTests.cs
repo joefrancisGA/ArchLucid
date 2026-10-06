@@ -193,6 +193,37 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid()
+    {
+        Guid tenantId = ScopeIds.DefaultTenant;
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("tenant_id", tenantId.ToString("D")),
+            new Claim("tenant_id", tenantId.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.Claims.Count(static c => c.Type == "tenant_id").Should().Be(1);
+        identity.FindFirst("tenant_id")!.Value.Should().Be(tenantId.ToString("D"));
+    }
+
+    [Fact]
+    public void Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("tenant_id", Guid.NewGuid().ToString("D")),
+            new Claim("tenant_id", ScopeIds.DefaultTenant.ToString("D")));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions { Enabled = true });
+
+        identity.FindFirst("tenant_id").Should().BeNull();
+    }
+
+    [Fact]
     public void Apply_skips_ambiguous_multi_valued_scope_source_claims()
     {
         Guid firstTenantId = Guid.NewGuid();

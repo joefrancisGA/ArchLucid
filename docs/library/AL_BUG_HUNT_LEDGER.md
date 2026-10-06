@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (hit): `saml-jwt-bearer` — `ArchLucidSamlInboundClaimsNormalizer` left duplicate direct `tenant_id` claims from IdP assertions (same GUID twice or conflicting GUIDs) before cookie persistence; dedupe canonical GUID scope claims after promotion; regressions `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid` and `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`; cheap-disproof closed `LocalTrialJwtIssuer` `auth_time` vs `iat` claim-type parity (`HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`); 24 scoped SAML/JWT/SCIM bearer tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — docked inspector stayed open after browser `popstate` cleared committed `inspectorRunId` while `useSearchParams` still exposed the stale param; sync inspector selection from `readWindowLocationSearch()` on `popstate`; regression `closes the inspector when inspectorRunId is cleared via popstate before useSearchParams catches up`; 51 scoped `RunsListClient` tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-runs-list` — `compareSelectionNotice` for third-compare replacement stayed mounted after `popstate` narrowed `compareRuns` to one id while `useSearchParams` still lagged committed `window.location`; clear notice on popstate compare sync and when URL-driven selection drops below two; regression `clears compare replacement notice when compareRuns narrows to one id via popstate before useSearchParams catches up`; 50 scoped `RunsListClient` tests passed.
@@ -9046,11 +9048,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 17
-- **bugs-found:** 16
+- **hunts:** 18
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — SAML sign-in audit used first `tenant_id` claim even when later claims held the sole parseable tenant GUID
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — duplicate direct SAML `tenant_id` claims not collapsed before cookie persistence
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9112,8 +9114,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 thorough hunt (hit): fixed SAML sign-in audit tenant promotion gap; cheap-disproved duplicate-`sub` platform-user resolver candidate.
 
 - [x] (proven) `ArchLucidSaml2SignInAudit.AppendCookieSignedInAudit` — multiple `tenant_id` claims: `FindFirst` bound audit scope to the first value even when only a later claim parsed as a GUID or when GUIDs conflicted — **hit 2026-10-05 seed hunt:** require exactly one distinct parseable `tenant_id`; regressions `AppendCookieSignedInAudit_uses_parseable_tenant_id_when_an_earlier_tenant_id_claim_is_not_a_guid` and `AppendCookieSignedInAudit_omits_tenant_id_when_distinct_tenant_id_claims_disagree`
-- [ ] (candidate) `ArchLucidSamlInboundClaimsNormalizer.PromoteSingleValueIfMissing` — duplicate canonical `tenant_id` claims emitted directly by the IdP (not via configured source attributes) are never collapsed before cookie persistence — wrong outcome: scope resolution order-dependence via `FindFirst("tenant_id")` on SAML sessions; reachable when the assertion maps the tenant attribute twice onto the short `tenant_id` claim type
-- [ ] (candidate) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` and `iat` are stamped from the same clock instant but only `iat` uses `ClaimValueTypes.Integer64`; downstream step-up reads both claim types and may treat skewed string `auth_time` differently from numeric `iat` on exotic JWT serializers
+2026-10-06 thorough hunt (hit): promoted duplicate direct SAML `tenant_id` candidate; dedupe canonical GUID scope claims after inbound promotion; cheap-disproof closed trial JWT `auth_time`/`iat` claim-type parity; 24 scoped SAML/JWT/SCIM bearer tests passed.
+
+- [x] (proven) `ArchLucidSamlInboundClaimsNormalizer` — duplicate canonical `tenant_id` claims emitted directly by the IdP were never collapsed before cookie persistence — **hit 2026-10-06 thorough hunt:** `DeduplicateCanonicalGuidScopeClaims` after promotion; regressions `Apply_collapses_duplicate_direct_tenant_id_claims_with_same_guid` and `Apply_strips_conflicting_direct_tenant_id_claims_when_idp_emits_two_distinct_guids`
+- [x] (valid-no-repro) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` string claim type vs `iat` `Integer64` on trial JWTs — **cheap-disproof 2026-10-06 thorough hunt:** `RecentAuthenticationEvaluator` parses epoch seconds from JWT round-tripped `auth_time`/`iat` pair; regression `HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`
 
 2026-10-05 seed hunt (seed→hit): reseeded SAML sign-in audit multi-`tenant_id` aggregation gap; proved and fixed; added inbound normalizer duplicate-canonical-tenant and trial JWT claim-type candidates.
 

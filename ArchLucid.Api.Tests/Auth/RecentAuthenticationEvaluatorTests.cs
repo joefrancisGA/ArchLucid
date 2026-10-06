@@ -128,4 +128,27 @@ public sealed class RecentAuthenticationEvaluatorTests
 
         Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip()
+    {
+        long epoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        JwtSecurityToken token = new(
+            "https://issuer.test",
+            "api://test",
+            [
+                new Claim("auth_time", epoch.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                new Claim(
+                    JwtRegisteredClaimNames.Iat,
+                    epoch.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ClaimValueTypes.Integer64),
+            ]);
+
+        JwtSecurityTokenHandler handler = new();
+        JwtSecurityToken roundTripped = handler.ReadJwtToken(handler.WriteToken(token));
+        ClaimsPrincipal principal = new(new ClaimsIdentity(roundTripped.Claims, "Bearer"));
+
+        Assert.True(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
 }
