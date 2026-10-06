@@ -8775,3 +8775,4 @@
 {"at":"2026-10-06T21:12:50.6509085Z","zoneId":"core-safety-network","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/,ArchLucid.Core/Http/"]}
 {"at":"2026-10-06T21:17:11.6391524Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
 {"at":"2026-10-06T21:22:13.6257625Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+{"at":"2026-10-06T21:26:42.1450397Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}

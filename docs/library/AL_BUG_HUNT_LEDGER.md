@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `ui-auth-proxy` — re-read post-auth bootstrap scope helper and LK-07 guard on diagnostics allowlist after Oct 5 hit wave; cheap-disproved `mergeRegistrationScopeForProxy` GET/POST CSRF contract and active-session `first-tenant-funnel` CSRF skip (intentional anonymous diagnostics class); no hunt-ready row promoted; seeded five `(candidate)` rows; scoped auth/proxy vitest 331 passed with 3 unrelated baseline seam failures.
+
 2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` after prior seed left four `(candidate)` rows; cheap-disproof closed four promotion attempts (`+` path semantics vs form decoding, matrix `;` segments, uppercase `%2E` residual scan, supplementary-plane glyphs without cited caller); no hunt-ready row promoted; seeded five follow-on `(candidate)` rows; 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` / `EvidenceRefsMatch` after consecutive dry hunts closed all open rows; cheap-disproof closed locked `Evidence` chosen parity and tab-vs-space technology-name normalization; no hunt-ready row promoted; seeded five `(candidate)` rows; 93 scoped `TechnologyLedger` tests passed (`RunAnalyzers=false`).
@@ -11894,13 +11896,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): re-read `mergeRegistrationScopeForProxy`, `post-auth-bootstrap-api.ts`, and `enforceProxyBffSessionGuard` on `v1/diagnostics/first-tenant-funnel` after consecutive Oct 5 hits; cheap-disproved bootstrap GET CSRF omission and signed-in funnel telemetry CSRF bypass (matches `isAllowAnonymousUnscopedDiagnosticsProxyPath` contract); regressions in `proxy-fetch-registration-scope.test.ts` and `proxy-bff-session-guard.test.ts`; no hunt-ready row met failing-repro bar; seeded five bounded candidates below; scoped auth/proxy vitest 331 passed with 3 unrelated baseline seam failures in auth-domain/help/authority tests.
 
 2026-10-05 seed hunt (seed→hit): reseeded ui-auth-proxy; proved `buildProxyUpstreamHeaders` resolved operator scope from `request.headers` only, so production posture ignored HttpOnly BFF JWT claims when the browser omitted `Authorization` and attached trusted `ARCHLUCID_PROXY_*` scope instead; fixed by passing the effective upstream bearer into `resolveProxyUpstreamScopeHeaders`; regression in `proxy-upstream-headers.test.ts`; scoped auth/proxy vitest 328 passed with 3 unrelated baseline seam failures.
 
@@ -11921,6 +11925,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-02 seed hunt (seed-only): re-read the auth and proxy forwarding boundaries; seeded a prefix-based anonymous-route policy candidate; proxy-route tests passed 45 tests, while the broader auth filter had 3 unrelated baseline failures; no candidate promoted.
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — **valid-no-repro 2026-10-06 seed hunt:** GET/HEAD bootstrap status reads omit `applyBffCsrfHeader` while POST mutations attach the readable `archlucid-bff-csrf` companion when present; intentional LK-07 shape for idempotent bootstrap polls; regression `proxy-fetch-registration-scope.test.ts`.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` / `v1/diagnostics/first-tenant-funnel` — **valid-no-repro 2026-10-06 seed hunt:** active HttpOnly BFF session without CSRF header still allows POST on exact-path diagnostics allowlist (same class as `core-pilot-rail-step` and marketing bypasses); fire-and-forget funnel client omits CSRF by design; regression `allows first-tenant funnel telemetry without CSRF when the BFF session is active`.
+
+- [ ] (candidate) `post-auth-bootstrap-api.ts` `acceptPostAuthInvitation` / `selectPostAuthWorkspace` — `returnUrl` query parameter is `encodeURIComponent` forwarded to `POST /api/proxy/v1/auth/bootstrap/*` without client `isSafeReturnPath` validation; reachable when bootstrap chrome passes stored return URLs into accept/select helpers.
+- [ ] (candidate) `post-auth-bootstrap-api.ts` `fetchPostAuthBootstrapStatus` — mirrors optional `returnUrl` into `GET /api/proxy/v1/auth/bootstrap/status` query without UI safe-path gate before proxy fetch; reachable from `/auth/bootstrap` entry with `?returnUrl=` handoff.
+- [ ] (candidate) `mergeRegistrationScopeForProxy` / `applyBffCsrfHeader` — bootstrap workspace mutations call `mergeRegistrationScopeForProxy` but omit the CSRF header when the readable companion cookie is absent while HttpOnly BFF session remains (pair desync); reachable after partial cookie clear or migration glitches; LK-07 403 on `v1/auth/bootstrap/workspaces` POST.
+- [ ] (candidate) `isAllowAnonymousUnscopedDiagnosticsProxyPath` — exact-path allowlist (`core-pilot-rail-step`, `first-tenant-funnel` only); new `[AllowAnonymous]` `v1/diagnostics/*` UI fire-and-forget POST without CSRF would fail LK-07 when stale/active BFF cookie present (process risk when OpenAPI adds diagnostics telemetry).
+- [ ] (candidate) `evaluateAuthSignInRouting` (`auth-sign-in-routing-api.ts`) — pre-auth `POST /api/proxy/v1/auth/routing/evaluate` uses raw `fetch` without `mergeRegistrationScopeForProxy` scope headers; reachable when dev defaults or stale `archlucid_last_registration` scope must not influence routing evaluate body (contrast bootstrap clients).
 
 - [x] (proven) `buildProxyUpstreamHeaders` / `resolveProxyUpstreamScopeHeaders` — **hit 2026-10-05 seed hunt (seed→hit):** protected proxy calls derived scope from raw `request.headers` while upstream `Authorization` came from the HttpOnly BFF cookie, so production posture ignored JWT `tenant_id` claims and fell back to trusted `ARCHLUCID_PROXY_*` env scope; fixed by feeding the effective upstream bearer into scope resolution; regression in `proxy-upstream-headers.test.ts`.
 
