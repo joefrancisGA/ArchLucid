@@ -166,6 +166,8 @@
 
 2026-10-05 seed hunt (seed→hit): `saml-jwt-bearer` — `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` used `FindFirst("auth_time")` and failed closed when the first of multiple `auth_time` claims was unparseable even if a later claim was fresh; use the latest parseable `auth_time`; regression `HasRecentAuthentication_returns_true_when_a_later_auth_time_claim_is_parseable_even_if_first_is_garbage`; scoped SAML/JWT/SCIM bearer tests passed.
 
+2026-10-06 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` against `ArchLucid.Api/Program.cs` after the Pilot/Advanced/SaaS overlay hit; promoted Pilot-overlay parity and cheap-disproved (worker loads `appsettings.Pilot.json` when `!IsDevelopment()` before Advanced/SaaS and `AddEnvironmentVariables()`, matching API); seeded SaaS/Pilot regression gaps and post-`Build()` options-validator drift candidates; 12 scoped worker host/composition tests passed.
+
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger` copied model-graph edges verbatim while context edges were canonicalized, so padded model `FromNodeId`/`ToNodeId` values could diverge from merged node ids; canonicalize all edges via shared lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
 2026-10-06 thorough hunt (hit): `host-core-jobs` — `BackgroundJobStuckRunningWatchdogBackgroundWork` called `MarkFailedTerminalAsync` with `retryCount: 0` after reclaim notify failure, overwriting reclaimed `RetryCount`; preserve row `RetryCount`; regression `RunSinglePassAsync_preserves_reclaimed_retry_count_when_queue_notify_fails`; cheap-disproof closed enqueue cancel cleanup swallow and durable retry shutdown redelivery candidates; fixed in-memory shutdown retry when re-queue fails; 76 Host.Core + 45 focused Api background-job tests passed.
@@ -8169,13 +8171,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` startup layering vs API; cheap-disproved Pilot overlay skip candidate; seeded SaaS/Pilot regression-gap and post-`Build()` validator drift candidates; 12 scoped worker host/composition tests passed.
 
 2026-10-05 thorough hunt (dry): cheap-disproof closed hang-diagnostics logger hook and Real-mode startup log parity candidates; 12 scoped worker host/composition tests passed.
 
@@ -8186,6 +8190,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
+
+- [x] (valid-no-repro) `Program.Main` — Worker skips `appsettings.Pilot.json` for non-Development hosts so Container Apps worker revisions ignore pilot profile tuning — **cheap-disproof 2026-10-06 seed hunt:** `Program.Main` loads optional `appsettings.Pilot.json` when `!builder.Environment.IsDevelopment()` before Advanced/SaaS and a second `AddEnvironmentVariables()` (same ordering as `ArchLucid.Api/Program.cs`); `Worker_host_loads_appsettings_advanced_overlay_from_content_root` already proves post-default JSON overlays bind on the worker host.
+
+- [ ] (candidate) `Program.Main` — No regression test that `appsettings.Pilot.json` is honored for Staging/Production worker hosts (only `appsettings.Advanced.json` is covered today).
+
+- [ ] (candidate) `Program.Main` — No regression test that `appsettings.SaaS.json` is honored on the worker host (same overlay chain as Advanced).
+
+- [ ] (candidate) `Program.Main` — Worker calls `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` before `Build()` while the API re-runs `ArchLucidConfigurationRules.CollectErrors` after `Build()`; an `IValidateOptions` failure at first service resolution could still surface after a passing pre-Build snapshot without a worker-specific repro.
+
+- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline`, so SQL bootstrap failures prevent `/health/live` from being mapped in the same startup attempt (operator may misattribute probe failure to the health pipeline rather than migrations).
 
 - [x] (valid-no-repro) `Program.Main` — Worker does not call `ConsoleHangDiagnostics.UseLogger` after `Build()` unlike `ArchLucid.Api/Program.cs` — **cheap-disproof 2026-10-05 thorough hunt:** `ConsoleHangDiagnostics.Log` still emits hang breadcrumbs via the documented stderr fallback when `_logger` is unset (`ArchLucid.Core/Diagnostics/ConsoleHangDiagnostics.cs`); missing the API hook changes log routing only, not hang visibility or request/agent outcomes.
 - [x] (valid-no-repro) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation — **cheap-disproof 2026-10-05 thorough hunt:** method is informational operator confirmation only (`ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` → `AgentExecutionRules.LogInformationWhenRealModeConfigured`); worker Real-mode startup with Managed Identity already succeeds without the line (`Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`).
