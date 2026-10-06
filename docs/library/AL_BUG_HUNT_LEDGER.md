@@ -20464,15 +20464,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 18
-- **bugs-found:** 10
+- **hunts:** 19
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — pipe-delimited resource tokens under-penalized duplication parity
+- **last-bug:** 2026-10-06 — plus-delimited resource tokens under-penalized duplication parity
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Findings/` hunts.
+
+2026-10-06 seed hunt (seed→hit): `core-findings-advice` — `InsightDensityTextSimilarity.Tokenize` left plus-separated resource tokens intact so `prod+sql+db` vs `prod sql db` Jaccard 0.625 missed the 0.85 high-duplication threshold; split on `+`; regression `Jaccard_similarity_treats_plus_separated_resource_tokens_as_space_separated_peers`; 1709 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-06 seed hunt (seed→hit): `core-findings-advice` — `InsightDensityTextSimilarity.Tokenize` left pipe-separated resource tokens intact so `prod|sql|db` vs `prod sql db` Jaccard 0.625 missed the 0.85 high-duplication threshold; split on `|`; regression `Jaccard_similarity_treats_pipe_separated_resource_tokens_as_space_separated_peers`; 1708 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
@@ -20490,6 +20492,9 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — backslash-separated Windows path segments under-penalized duplication parity with `/` and `_` fixes — **hit 2026-09-10 thorough hunt #1532:** `prod\sql\db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `\`; regression in `Jaccard_similarity_treats_backslash_separated_windows_path_tokens_as_space_separated_peers`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — at-sign-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-11 seed hunt #1688 (seed→hit):** `prod@sql@db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `@`; regression in `Jaccard_similarity_treats_at_sign_separated_resource_tokens_as_space_separated_peers`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — pipe-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod|sql|db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `|`; regression in `Jaccard_similarity_treats_pipe_separated_resource_tokens_as_space_separated_peers`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — plus-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod+sql+db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `+`; regression in `Jaccard_similarity_treats_plus_separated_resource_tokens_as_space_separated_peers`
+
+2026-10-06 seed hunt (seed→hit): proved plus-delimited resource token duplication parity; 1709 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved pipe-delimited resource token duplication parity; 1708 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
