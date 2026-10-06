@@ -30419,13 +30419,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed-only): reread `InfraEvidenceCompositionModule` after worker-host dry hunt; no hunt-ready row met the same-run failing-repro bar; regressions `InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services` and `InMemory_composition_worker_role_validates_infra_evidence_post_materialize_wiring`; seeded five composition-boundary candidates below; 19 scoped InfraEvidenceComposition tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): cheap-disproved all five seeded composition-boundary candidates; drift workbench and snapshot graph resolver resolve on OpenAPI-like InMemory with `NoOpAzureInventoryDriftApprovalRepository` and snapshot repository ports (`InMemory_composition_resolves_drift_workbench_path_routing_and_snapshot_graph_boundaries`); path-routing sync no-ops when path repository is empty; audit handoff + noop finding repository is intentional local success (`InMemory_composition_audit_evaluation_finding_handoff_succeeds_with_noop_finding_repository`); `BrandedDiagramExportComposer` is stateless so singleton/scoped pairing is safe today; 17 scoped InfraEvidenceComposition tests passed (`RunAnalyzers=false`).
 
@@ -30464,6 +30466,12 @@ ABQ-09 churn hotspot.
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IOperatorInferredConnectionService` + `IInferenceQuestionnaireItemGenerator` (lines 87–89) — module registers questionnaire generation against `IOperatorInferredConnectionRepository` from storage registrars; reachable OpenAPI/InMemory `GET` questionnaire with empty snapshot may return zero items without surfacing repository misconfiguration (`InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services` pins resolve only).
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditHybridEvidenceQueryService` + `IAuditEvidencePackageExportService` (lines 63–64) — hybrid manual+automated evidence reads depend on audit snapshot repositories outside the module; reachable package export with manual-only rows may omit hybrid query paths when storage registrar omits hybrid tables (no failing repro on full InMemory graph today).
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ICloudResourceAuditLineageResolver` (line 119) — hub lineage blocks call `IAuditEvidenceSnapshotRepository` while hub identity uses `ICloudResourceIdentityDirectory`; reachable hub query after inventory materialize without audit snapshots may return empty lineage instead of explicit unavailable (`CloudResourceAuditLineageResolverTests` cover resolver; composition graph regression added).
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAzureInventorySnapshotPostMaterializeCoordinator` + `IAzureInventoryDiffConsumer` (lines 101–113) — coordinator skips diff fan-out when `subscriptionId` is null/whitespace (`AzureInventorySnapshotPostMaterializeCoordinator` lines 45–66) so registered diff consumers never run for subscription-less materialized headers even though consumers are registered; reachable multi-subscription capture with missing header subscription id (composition registers consumers; orchestration locus is coordinator).
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `Configure<GraphvizOptions>` vs `new MermaidDiagramReadabilityThresholds()` (lines 37–50) — Graphviz layout honors `ArchLucid:Graphviz` appsettings while mermaid readability thresholds stay hard-coded singleton defaults; reachable operator tuning via Advanced JSON affects graphviz only (`InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service` covers DI injection, not appsettings binding).
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `ISecureNowQuestionDispositionService` — the newly registered SecureNow question API can resolve in one storage mode but fail with HTTP 500 when a hosting composition omits `ISecureNowQuestionDispositionRepository`; **disproved 2026-10-04 thorough hunt:** InMemory registers `NoOpSecureNowQuestionDispositionRepository`, SQL registers `SqlSecureNowQuestionDispositionRepository`, and both full storage graphs validate on build; `InMemory_storage_full_composition_validates_on_build` and `Sql_storage_full_composition_validates_on_build` cover the reachable host modes.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / cloud-resource hub services — the module registers hub consumers while identity-directory wiring is supplied by separate storage registrars; a host that composes the capability without a storage provider could expose a reachable hub request as a DI failure instead of a controlled unavailable response. **Disproved 2026-10-04 thorough hunt:** the InMemory composition supplies `InMemoryCloudResourceIdentityDirectory`, the full graph validates, and `InMemory_composition_cloud_resource_hub_resolves_upserted_identity` resolves the hub and returns the upserted resource.

@@ -7,8 +7,10 @@ using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -495,6 +497,65 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         serviceScope.ServiceProvider.GetRequiredService<IBrandAssetService>()
             .Should().BeOfType<BrandAssetService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IOperatorInferredConnectionService>()
+            .Should().BeOfType<OperatorInferredConnectionService>();
+        serviceScope.ServiceProvider.GetRequiredService<IInferenceQuestionnaireItemGenerator>()
+            .Should().BeOfType<InferenceQuestionnaireItemGenerator>();
+        serviceScope.ServiceProvider.GetRequiredService<ISecureNowQuestionDispositionService>()
+            .Should().BeOfType<SecureNowQuestionDispositionService>();
+        serviceScope.ServiceProvider.GetRequiredService<ICloudResourceAuditLineageResolver>()
+            .Should().BeOfType<CloudResourceAuditLineageResolver>();
+        serviceScope.ServiceProvider.GetRequiredService<IAuditHybridEvidenceQueryService>()
+            .Should().BeOfType<AuditHybridEvidenceQueryService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_worker_role_validates_infra_evidence_post_materialize_wiring()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        configuration["Hosting:Role"] = "Worker";
+
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IAzureInventorySnapshotPostMaterializeCoordinator>()
+            .Should().BeOfType<AzureInventorySnapshotPostMaterializeCoordinator>();
+        serviceScope.ServiceProvider.GetServices<IAzureInventoryDiffConsumer>()
+            .Select(consumer => consumer.GetType())
+            .Should()
+            .Contain(typeof(AuditContinuousReadinessDiffConsumer))
+            .And.Contain(typeof(SecureNowArchitectDiffConsumer));
     }
 
     [Fact]
