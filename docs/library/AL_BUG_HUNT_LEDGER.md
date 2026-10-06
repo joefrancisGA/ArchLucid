@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `commit-output-integrity` — re-read `CommitOutputIntegrityService`, `RealCommitAgentOutputQualityGateEvaluator`, and `AgentExecutionTraceLatestPerTaskSelector` after semantic-judge ordering fix and #3469 empty-trace fail-closed; no hunt-ready row promoted; seeded five `(candidate)` rows (null-header evidence/pin skip asymmetry, quality-warning rank ladder, disabled-gate empty-trace seal, Unicode task-id grouping); 93 scoped tests passed (54 Application quality-gate/orchestrator integrity, 33 Core selector, 6 architecture gate-map).
+
 2026-10-06 seed hunt (seed→hit): `tenant-data-export` — promoted terraform advisory career-posture parity; proved `DownloadTerraformAdvisoryExport` / `CreateTerraformPr` omitted `ResolveRunExportCareerPostureBlockedResultAsync` while run ZIP download and blob push enforced `AuditExportCareerPostureGate`; aligned terraform paths; regressions `DownloadTerraformAdvisoryExport_returns_409_when_working_career_simulator_unlabeled` and `CreateTerraformPr_returns_409_when_working_career_simulator_unlabeled`; seeded five follow-on `(candidate)` rows; 17 `ArtifactExportControllerRunExportTests` + 8 picker-filter export tests passed.
 
 2026-10-06 thorough hunt (dry): `worker-host` — cheap-disproof closed four seeded `(candidate)` rows (Pilot/SaaS overlay regression gaps closed with parity tests; post-`Build()` `CollectErrors` vs `IValidateOptions` drift not reproduced—worker pre-`Build()` `ValidateOrThrow` uses same `CollectErrors` and existing fail-fast tests cover options resolution; schema bootstrap before health pipeline remains intentional liveness semantics); regressions `Worker_host_loads_appsettings_saas_overlay_from_content_root`, `Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root`; 14 scoped worker host/composition tests passed.
@@ -4096,10 +4098,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
@@ -4162,7 +4164,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-05 thorough hunt (dry): retested three open candidates — `(invalid)` missing-`TaskId` `AgentType` whitespace/casing split (`AgentType` is an enum; key is `agent:{AgentType}` per #578); `(valid-no-repro)` judge-before-unsupported-hold ordering required by ADR 0099 (`ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureTests.As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; hold must evaluate post-judge bands); `(valid-no-repro)` `QualityRejected`+`Accepted` duplicate losing to clean `Accepted` sibling is intentional #1330/#1624 upsert-drift policy (`GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`). Scoped tests passed 54 Application quality-gate, 33 Core selector, 13 AS-099/gate-map architecture tests (100 total). No code changes.
 
+2026-10-06 seed hunt (seed-only): re-read integrity service, PilotStrict quality-gate evaluator, and latest-per-task selector after consecutive dry hunts; no mechanism-backed row met hunt-ready reachability in the same run; seeded five `(candidate)` follow-ups below; 93 scoped zone tests passed.
+
 ### Hypotheses
+
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingEvidenceReferentialIntegrityValidator.GetBlockingReasons` runs only when `GetByIdAsync` returns a non-null header inside the Guid branch, so a parseable `runId` with a missing header row could skip evidence referential integrity while other gates still run (reachable: commit orchestration passes a loaded run while a concurrent delete/null fetch returns before integrity).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `CommitCreateTimePinIntegrityEvaluator` is skipped when `headerForPins` is null in the Guid branch even though `CommitArchitectureVersionPinIntegrityEvaluator` already enforced version pins on an earlier fetch (reachable: inconsistent `IRunRepository.GetByIdAsync` results between pin and create-time pin blocks).
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityWarning=true` without `RecordedQualityGateOutcome` stays rank 0 while `RecordedQualityGateOutcome.Warned` is rank 2; upsert-drift duplicate rows where warning patch lands before recorded snapshot patch may prefer Warned over warning-flagged unevaluated siblings on same `AttemptIndex` (reachable: `AgentExecutionTraceQueryPatchCore.ApplyQualityWarningPatch` vs `TryApplyQualityGateRecordedSnapshotPatch` ordering on duplicate rows).
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — #3469 empty-trace fail-closed is gated on `Enabled && PilotStrict`; Real runs with tenant-disabled gate return empty for `traces=[]`, allowing seal without agent traces when structural/lifecycle gates pass (reachable: `AgentOutputQualityGateOptionsResolver` tenant `AgentOutputQualityGateMode` / enabled overrides).
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — trimmed `TaskId` grouping uses `StringComparer.OrdinalIgnoreCase` without Unicode compatibility normalization, so NFC/NFD-equivalent task ids may split latest-per-task groups while upsert `SharesRunTaskAgent` treats them as distinct literals (reachable: intl/IDN task ids copied into agent traces).
 
 - [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` `AgentType` whitespace/casing split — **cheap-disproof 2026-10-05 thorough hunt:** `AgentType` on `AgentExecutionTrace` is `AgentType` enum, not free text; missing-task grouping is intentional `agent:{AgentType}` retry chaining (#578); extra groups only add fail-closed PilotStrict coverage.
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` before `UnsupportedSemanticSupportFinalizeHoldEvaluator` — **cheap-disproof 2026-10-05 thorough hunt:** ADR 0099 ratchet requires judge before hold so TB-1228 evaluates post-judge bands; architecture regressions `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist` and `As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; mid-batch overlay persist failure is not a reachable wrong seal outcome in these files.
