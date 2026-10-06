@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `TrialLifecycleEmailDispatcher.CombineUrl` built trial getting-started/welcome links from raw `OperatorBaseUrl`, embedding `user:password@` userinfo while logo URLs were authority-normalized; fixed with `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority`; regression `DispatchAsync_omits_user_info_from_operator_base_url_in_trial_welcome_link`; 151 scoped notifications/digest tests passed.
+
 2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — division slash (U+2215), fullwidth solidus (U+FF0F), fraction slash (U+2044), hyphenation point (U+2027), inverted undertie (U+2054), and Hangul filler (U+3164) between phrase words still blocked `managed identity` matching; map paste-style slash and invisible filler separators to ASCII space while preserving ASCII `/` for compound slugs; regressions `HasManagedIdentityConstraint_returns_true_when_division_slash_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_fullwidth_solidus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hangul_filler_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_slash_forms_compound_slug`; 886 scoped RequestConstraint tests passed.
 
 2026-10-06 seed hunt (seed→hit): `core-requests-constraints` — fullwidth hyphen-minus (U+FF0D) and hyphen bullet (U+2043) between phrase words still blocked `managed identity` matching while en/em dash punctuation was already normalized; map `UnicodeCategory.DashPunctuation` except ASCII `-` plus U+2043 to ASCII space; regressions `HasManagedIdentityConstraint_returns_true_when_fullwidth_hyphen_minus_splits_phrase`, `HasManagedIdentityConstraint_returns_true_when_hyphen_bullet_splits_phrase`, `HasManagedIdentityConstraint_returns_false_when_ascii_hyphen_forms_compound_slug`; 882 scoped RequestConstraint tests passed.
@@ -25412,19 +25414,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 58
-- **bugs-found:** 42
+- **hunts:** 59
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — operator base userinfo leaked into finding remediation assignment links
+- **last-bug:** 2026-10-06 — operator base userinfo leaked into trial lifecycle welcome links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted ledger candidate `TrialLifecycleEmailDispatcher.CombineUrl`; proved raw `OperatorBaseUrl` userinfo reached first-run getting-started links; fixed dispatcher base URL with `TryNormalizeOperatorBaseAuthority`; 151 scoped notifications/digest tests passed.
+
+- [x] (proven) `TrialLifecycleEmailDispatcher.CombineUrl` — raw `OperatorBaseUrl` userinfo leaked into trial welcome/getting-started links — **hit 2026-10-06 seed hunt (seed→hit):** `TryNormalizeOperatorBaseAuthority` before `CombineUrl`; regression `DispatchAsync_omits_user_info_from_operator_base_url_in_trial_welcome_link`.
 
 2026-10-06 seed hunt (seed→hit): reseeded notifications-pipeline after commit-sponsor link fix; promoted finding-remediation operator deep links; proved `FindingRemediationAssignmentOperatorLinks` still embedded `OperatorBaseUrl` userinfo in inspect/queue URLs while logos were authority-normalized; fixed link builder + dispatcher; 150 scoped notifications/digest tests passed.
 
 - [x] (proven) `FindingRemediationAssignmentOperatorLinks` / `FindingRemediationAssignmentEmailDispatcher` — raw `OperatorBaseUrl` userinfo leaked into finding inspect and assigned-to-me queue links — **hit 2026-10-06 seed hunt (seed→hit):** `TryNormalizeOperatorBaseAuthority` in link builder and dispatcher; regressions `BuildFindingInspectUrl_omits_user_info_from_operator_base_url`, `BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url`, and `TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links`.
-
-- [ ] (candidate) `TrialLifecycleEmailDispatcher.CombineUrl` — `OperatorBaseUrl` with `user:pass@host` concatenated into trial welcome links (`/welcome`) while `TryBuildLogoImageUrl` strips userinfo; reachable when admin mailbox resolves and trial trigger gate passes.
 
 2026-10-03 seed hunt (seed-only): reseeded notifications-pipeline across digest subscription CRUD/attempts, webhook delivery, and email dispatch; no hunt-ready defect survived cheap-disproof. Scoped Application notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured. Seeded retry-idempotency, webhook DNS-rebind, and duplicate digest-id query candidates for later proof.
 2026-10-03 thorough hunt (dry): cheap-disproved all four notification candidates; no failing repro or source change emerged. Notifications webhook tests passed; API and Application test builds were blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before test execution.
