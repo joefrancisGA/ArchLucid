@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-erasure` — `TenantErasureQuarantineMiddleware.Skip` used raw `PathString.StartsWithSegments`, so duplicate-slash tenant erasure lifecycle URLs (`/v1/tenant//erasure/approve`) failed the `/v1/tenant/erasure` allowlist and returned `403` while quarantined; normalize collapsed duplicate slashes before skip checks; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`; 46 scoped `TenantErasure` tests passed (24 Api + 18 Application + 4 Core).
+
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — concurrent `AcquireAsync` on one host could both pass the local `ContainsKey` gate, succeed at `TryAcquireOrRenewAsync`, and lose the `_activeHolderInstanceIds.TryAdd` race without rolling back SQL, pinning the run until TTL; release the repository row before throwing the local conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; 70 scoped ownership/orchestrator tests passed.
 
 2026-10-06 seed hunt (seed→hit): `run-execute-ownership` — `ArchitectureRunExecuteOrchestrator` entered the ownership path when `IsEnabled` was true but `AcquireAsync` no-opped after options disabled, running execute without a local pin; fail closed with `EnsureExecuteOwnershipAcquiredLocally` via `IsLocallyHoldingExecuteOwnership`; regressions `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` and `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`; 69 scoped ownership/orchestrator tests passed.
@@ -5316,13 +5318,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 266
-- **bugs-found:** 489
+- **hunts:** 267
+- **bugs-found:** 490
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — quarantine restore safe-retry returned false after successful restore
+- **last-bug:** 2026-10-06 — duplicate-slash erasure lifecycle paths blocked by quarantine allowlist mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted duplicate-slash erasure lifecycle allowlist; proved offboarded tenants received `403` on `/v1/tenant//erasure/approve` because `StartsWithSegments` did not match normalized paths; collapse duplicate slashes in `NormalizeRequestPath` before skip checks; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`; seeded four `(candidate)` rows; 46 scoped `TenantErasure` tests passed.
 
 2026-10-06 seed hunt (seed→hit): promoted quarantine-restore operator safe-retry parity with `TryClearLegalHoldAsync`; proved `TryRestoreQuarantineAsync` returned `false` on sequential retry after a successful restore (`OffboardedUtc` already null), surfacing admin `409 Conflict` instead of idempotent `204`; return success when quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`; 45 scoped `TenantErasure` tests passed (18 Application + 23 Api + 4 Core).
 
@@ -5349,6 +5353,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — `TryBuildExistingOffboardResult` returns `null` when `OffboardedUtc` is set but `ErasureEligibleUtc` is missing, surfacing admin `409` on operator safe-retry for partially persisted quarantine rows; reachable only after out-of-band catalog corruption (not normal offboard SQL).
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects tenants blocked only by past-due `TenantErasureRequestedUtc` without `OffboardedUtc`, so tenant-admin legal hold on `/v1/tenant/erasure/legal-hold` returns `409` while middleware still blocks other APIs; reachable when scheduled-erasure-only quarantine rows exist outside the offboard command path.
+- [ ] (candidate) `TenantErasureQuarantineMiddleware` — trailing slash on allowlisted erasure routes (`/v1/tenant/erasure/approve/`) may fail `StartsWithSegments` parity and block lifecycle calls unless normalized; reachable when clients or proxies append trailing slashes.
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — returns `false` when `OffboardedUtc` is null even if `TenantErasureRequestedUtc` is past due, so scheduled-only quarantine tenants cannot approve erasure through the allowlisted tenant route without an offboard transition.
+- [x] (proven) `TenantErasureQuarantineMiddleware.Skip` — duplicate-slash tenant erasure lifecycle paths did not match `/v1/tenant/erasure` allowlist and were blocked with `403` during quarantine — **hit 2026-10-06 seed hunt:** `NormalizeRequestPath` collapses duplicate slashes before skip checks; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_duplicate_slashes_in_path`.
 - [x] (proven) `TenantErasureCommandService.TryRestoreQuarantineAsync` — operator safe-retry after a successful restore returned `false` because `OffboardedUtc` was already null, unlike concurrent-restore miss path and `TryClearLegalHoldAsync` idempotency — **hit 2026-10-06 seed hunt (seed→hit):** return success when erasure quarantine is already cleared; regression `TryRestoreQuarantineAsync_returns_success_without_duplicate_audit_when_already_restored_retry`.
 - [x] (proven) `TenantErasureCommandService.NormalizeLegalHoldReason` / `IsIdenticalLegalHoldRetry` — legal-hold reasons differing only by internal whitespace duplicated `TenantErasureLegalHoldSet` audits on operator safe-retry — **hit 2026-10-05 seed hunt (seed→hit):** collapse internal whitespace when normalizing reasons; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_reason_differs_only_by_internal_whitespace`.
 - [x] (proven) `TenantErasureCommandService.IsIdenticalLegalHoldRetry` — `LegalHoldUntilUtc` compared with `==` so the same instant with a different `DateTimeOffset` offset duplicated legal-hold audits on retry — **hit 2026-10-05 seed hunt:** compare `UtcDateTime`; regression `TrySetLegalHoldAsync_returns_success_without_duplicate_audit_when_until_utc_differs_only_by_offset`.
