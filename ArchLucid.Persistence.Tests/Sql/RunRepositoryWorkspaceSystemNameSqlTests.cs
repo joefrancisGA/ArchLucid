@@ -369,6 +369,40 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_list_by_project_does_not_match_tab_prefixed_seek_when_stored_slug_is_unpadded()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "claims api",
+                Description = "unpadded slug",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            "\tclaims api",
+            10,
+            CancellationToken.None);
+
+        listed.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task InMemory_matches_padded_project_id_for_list_by_project()
     {
         ScopeContext scope = new()
