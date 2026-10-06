@@ -242,6 +242,31 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("rejects bootstrap workspace mutations without a CSRF token when the BFF session is active", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-bootstrap-workspaces-csrf",
+      "v1/auth/bootstrap/workspaces",
+    );
+
+    expect(result.allowed).toBe(false);
+
+    if (!result.allowed) {
+      expect(result.response.status).toBe(403);
+    }
+  });
+
   it("rejects operator client-error telemetry without a CSRF token when the BFF session is active", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",

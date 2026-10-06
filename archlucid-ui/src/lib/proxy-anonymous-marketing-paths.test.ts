@@ -33,6 +33,7 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isPublicAnonymousProxyPath("v1/diagnostics/core-pilot-rail-step")).toBe(true);
     expect(isPublicAnonymousProxyPath("v1/diagnostics/first-tenant-funnel")).toBe(true);
     expect(isPublicAnonymousProxyPath("v1/diagnostics/client-error")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/diagnostics/trial-upgrade-nudge/shown")).toBe(false);
     expect(isAnonymousMarketingProxyPath("v1/diagnostics/first-tenant-funnel")).toBe(false);
   });
 });
