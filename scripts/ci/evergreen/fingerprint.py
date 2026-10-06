@@ -14,6 +14,8 @@ _GITLEAKS_RULE = re.compile(r"^RuleID:\s+(\S+)", re.IGNORECASE)
 # Volatile fragments that would otherwise make every run look like a new root cause.
 _RUNNER_PATH = re.compile(r"/home/runner/work/[^/]+/[^/]+/")
 _HEX_SHA = re.compile(r"\b[0-9a-f]{7,40}\b")
+# Log-line clocks such as "11:40AM" or "13:05:22.123"; the AM/PM marker alone would otherwise split keys.
+_CLOCK = re.compile(r"\b\d{1,2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:\s*[AP]M\b)?", re.IGNORECASE)
 _NUMBERS = re.compile(r"\d+")
 
 
@@ -68,5 +70,6 @@ class FingerprintCalculator:
     @staticmethod
     def normalise(line: str) -> str:
         without_paths: str = _RUNNER_PATH.sub("", line)
-        without_shas: str = _HEX_SHA.sub("SHA", without_paths)
+        without_clocks: str = _CLOCK.sub("TIME", without_paths)
+        without_shas: str = _HEX_SHA.sub("SHA", without_clocks)
         return _NUMBERS.sub("N", without_shas).strip().lower()

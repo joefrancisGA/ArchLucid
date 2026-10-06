@@ -82,6 +82,14 @@ class TestFingerprintCalculator(unittest.TestCase):
             "x.cs at sha line n",
         )
 
+    def test_log_clock_times_do_not_split_keys(self) -> None:
+        calculator = FingerprintCalculator()
+        morning = _job("gitleaks", ["11:40AM WRN leaks found: 7", "RuleID:      generic-api-key"])
+        afternoon = _job("gitleaks", ["12:58PM WRN leaks found: 3", "RuleID:      generic-api-key"])
+
+        self.assertEqual(calculator.compute(_digest([morning])), calculator.compute(_digest([afternoon])))
+        self.assertEqual(FingerprintCalculator.normalise("13:05:22.123 build failed"), "time build failed")
+
     def test_job_signatures_are_sorted_unique_and_capped(self) -> None:
         job = _job("build", ["z Error: 1", "a Error: 2", "a Error: 2", ""])
 
