@@ -46,6 +46,16 @@ internal static class DraftNewCommandAdmitStage
 
         Guid draftId = created.Value.DraftId;
 
+        if (draftId == Guid.Empty)
+        {
+            await error.WriteLineAsync(
+                "Error creating draft: API returned success but no draftId. The intake was not started.");
+
+            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error, error);
+
+            return (null, CliExitCode.OperationFailed);
+        }
+
         if (!CliExecutionContext.JsonOutput)
             await output.WriteLineAsync($"DraftId: {draftId}");
 
@@ -61,7 +71,7 @@ internal static class DraftNewCommandAdmitStage
             if (promptedName is null)
                 return (null, CliExitCode.OperationFailed);
 
-            systemName = promptedName;
+            systemName = promptedName.Trim();
         }
 
         string businessOutcome = options.BusinessOutcome?.Trim() ?? string.Empty;
@@ -76,7 +86,21 @@ internal static class DraftNewCommandAdmitStage
             if (promptedOutcome is null)
                 return (null, CliExitCode.OperationFailed);
 
-            businessOutcome = promptedOutcome;
+            businessOutcome = promptedOutcome.Trim();
+        }
+
+        if (systemName.Length == 0)
+        {
+            await error.WriteLineAsync("System name is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
+        }
+
+        if (businessOutcome.Length == 0)
+        {
+            await error.WriteLineAsync("Business outcome is required and cannot be blank after trim.");
+
+            return (null, CliExitCode.UsageError);
         }
 
         PatchDraftRequest patch = new()

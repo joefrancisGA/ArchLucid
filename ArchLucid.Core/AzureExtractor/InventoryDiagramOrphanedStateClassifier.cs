@@ -204,22 +204,32 @@ public static class InventoryDiagramOrphanedStateClassifier
                 $"parent resource {parentName} no longer exists");
         }
 
+        string? associatedResourceId = null;
+
         if (graphNode.Properties.TryGetValue("ipConfiguration.id", out string? ipConfigurationId)
             && !string.IsNullOrWhiteSpace(ipConfigurationId))
         {
-            string? associatedResourceId = TryResolveAssociatedResourceFromIpConfiguration(ipConfigurationId);
+            associatedResourceId =
+                AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(ipConfigurationId);
+        }
 
-            if (!string.IsNullOrWhiteSpace(associatedResourceId))
+        if (string.IsNullOrWhiteSpace(associatedResourceId)
+            && graphNode.Properties.TryGetValue("natGateway.id", out string? natGatewayId)
+            && !string.IsNullOrWhiteSpace(natGatewayId))
+        {
+            associatedResourceId = ArmResourceIdNormalizer.Normalize(natGatewayId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(associatedResourceId))
+        {
+            if (IsArmIdResolvableIncludingAncestor(associatedResourceId, armIdToGraphNode))
             {
-                if (IsArmIdResolvableIncludingAncestor(associatedResourceId, armIdToGraphNode))
-                {
-                    return null;
-                }
-
-                string parentName = ReadResourceName(associatedResourceId, "parent resource");
-                return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"parent resource {parentName} no longer exists");
+                return null;
             }
+
+            string parentName = ReadResourceName(associatedResourceId, "parent resource");
+            return InventoryDiagramConnectionStateResult.Orphaned(
+                $"parent resource {parentName} no longer exists");
         }
 
         return InventoryDiagramConnectionStateResult.Orphaned(
@@ -874,19 +884,6 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         return null;
-    }
-
-    private static string? TryResolveAssociatedResourceFromIpConfiguration(string ipConfigurationId)
-    {
-        string normalized = ipConfigurationId.Trim();
-        int ipConfigurationsIndex = normalized.IndexOf("/ipConfigurations/", StringComparison.OrdinalIgnoreCase);
-
-        if (ipConfigurationsIndex <= 0)
-        {
-            return null;
-        }
-
-        return normalized[..ipConfigurationsIndex];
     }
 
     private static string? ReadHydratedEndpoint(IReadOnlyDictionary<string, string> properties, string propertyKey)

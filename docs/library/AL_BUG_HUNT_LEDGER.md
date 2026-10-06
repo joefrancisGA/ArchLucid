@@ -1,5 +1,49 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved prompted system name that trims to empty still PATCHed draft metadata; validate non-blank `systemName`/`businessOutcome` after prompt trim (parity with `DraftNewCommandConnectStage` intent length gate); regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`; 23 scoped `DraftNewCommandCoreTests` passed.
+
+2026-10-05 seed hunt (seed→hit): `cli-draft-new` — proved `CreateDraftAsync` HTTP 200 with `draftId=00000000-0000-0000-0000-000000000000` still ran patch/admit/submit; guard hollow `DraftId` in `DraftNewCommandAdmitStage` after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`; 22 scoped `DraftNewCommandCoreTests` passed.
+
+2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved Unicode line separator (U+2028) embedded in configured key material still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `LineSeparator` and `ParagraphSeparator`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
+2026-10-05 seed hunt (seed→hit): `api-key-auth` — proved embedded ASCII tab (U+0009) in configured `AdminKey` still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip `UnicodeCategory.Control` characters; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
+2026-10-05 seed hunt (seed→hit): `api-key-auth` — promoted duplicate `X-Api-Key` header candidate; first header value that normalizes to empty (e.g. lone U+200B) stopped `ExtractProvidedApiKey` before later valid values; skip normalized-empty segments like whitespace-only; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; 65 scoped ApiKey auth/settings unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
+2026-10-05 thorough hunt (dry): `scope-binding-middleware` — cheap-disproved all five open `(candidate)` rows (over-broad `/internal/` skip lacks a reachable tenant route today; duplicate `tenant_id` claims fall back to `ScopeSource.Default` and TB-304 fail-closed before header steering; authorized health routes return TB-304 403 before 401 by design; ITSM webhook `{tenantId}` binding is `[AllowUnscopedRoute]` plus facade contract; identity binding before `IAllowAnonymous` is intentional); regressions `GetCurrentScope_ignores_later_parseable_tenant_id_when_first_claim_is_non_guid` and `InvokeAsync_staging_host_rejects_unauthenticated_health_detailed_before_authorization`; 81 scoped Api unit tests + 7 `HttpScopeContextProvider` tests passed (6 SQL integration tests unavailable).
+
+2026-10-05 seed hunt (seed-only): `scope-binding-middleware` — re-read `ScopeIdentityBindingMiddleware`, `ScopeResolutionGuardMiddleware`, and `RouteTenantScopeBindingFilter` after recent Api churn; cheap-disproof closed segment-boundary health probe impostors (`/health/livefoo`, `/health/readyx`, `/health/versionextra`), trailing-slash public probes (`/health/live/`, `/health/ready/`, `/health/version/`), and EnableApiExplorer `GET /scalar/v1` TB-304 fail-closed on staging-like hosts; seeded five mechanism-backed `(candidate)` rows; 80 scoped unit tests passed (6 `ScopeIdentityBindingIntegrationTests` failed — no SQL Server in cloud VM).
+
+2026-10-05 thorough hunt (hit): `cli-draft-new` — closed five seeded `(candidate)` rows (three proven, two cheap-disproof/invalid); JSON pending MUST questions fail fast with `must_questions_pending` before `ReadLineAsync`, submit guards hollow `requestId`, admit stage trims prompted metadata; regressions `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`, `RunCoreAsync_submit_without_request_id_returns_operation_failed`, `RunCoreAsync_prompted_system_name_is_trimmed_before_patch`; 21 scoped `DraftNewCommandCoreTests` passed.
+
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — promoted case-only `ServiceId` candidate; proved `StableTopologyIdentitySubKey` lowercasing plus case-insensitive `EvidenceRefsMatch` collapsed `Svc-A` vs `svc-a` into one topology ref; preserve manifest sub-key casing and compare `agentTopologyProposal` sub-keys ordinally while keeping proposal-id segment case-insensitive; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`; cheap-disproved ResolveRegion slug and blank-`ProposalId` collision candidates; 76 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved list-order ordinal in `BuildMissingManifestIdSubKey` changed `agentTopologyProposal:*` refs when `AddedServices` order changed on topology re-seed, so `HasMatchingProposal` missed duplicates and merge policy inserted extra compute rows; key missing manifest ids by `ServiceType`/`DatastoreType` plus `RuntimePlatform` instead of list ordinal; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (dry): `technology-ledger-merge` — promoted missing-`ServiceId` slug-collision hypothesis; failing repro matched trunk `BuildMissingManifestIdSubKey` fix already on `bugsmash`; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved whitespace `ManifestService.ServiceId` fell back to `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` into identical `agentTopologyProposal:*` refs; use `StableTopologyIdentitySubKey` plus ordinal `BuildMissingManifestIdSubKey` when ids are missing; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`; 74 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): `technology-ledger-merge` — proved `TechnologyLedgerTopologyProposalMapper.Slug` collapsed distinct `ManifestService.ServiceId` values (`foo bar` vs `foo-bar`) into identical `agentTopologyProposal:*` refs so merge policy dropped the second compute candidate; use lossless `StableTopologyIdentitySubKey` for manifest ids; regression `MapCandidates_distinct_service_ids_that_slug_collide_both_survive_merge_policy`; cheap-disproved five open `(candidate)` rows; 73 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and `TechnologyLedgerRunCommandService` chosen demotion; closed two stale multiple-`Chosen` `FirstOrDefault` candidates as invalid; seeded five new `(candidate)` rows; 72 scoped TechnologyLedger tests passed (`--no-build`).
+
+2026-10-05 thorough hunt (dry): `tenant-settings-sql` — cheap-disproved all five open `(candidate)` rows (oversize `SettingKey` without repository guard, duplicate-row SQL fault, legacy whitespace `SettingValue` orphan rows, unbounded `CacheGenerations`, worker-catalog `ISqlConnectionFactory` mis-registration); 35 scoped TenantSettings/SqlTenantSettings tests passed (`--no-build`).
+
+2026-10-05 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommand` wrapper plus `DraftNewCommandIntakeLoop` / `DraftNewCommandAdmitStage` / `DraftNewCommandMustQuestionLoop` stages; no hunt-ready promotion; seeded five `(candidate)` rows; 16 scoped `DraftNewCommandCoreTests` passed (`--no-build`).
+
+2026-10-05 seed hunt (seed-only): `tenant-settings-sql` — re-read `SqlTenantSettingsRepository` and `CachingTenantSettingsRepository`; no row met hunt-ready bar for promotion; seeded five mechanism-backed `(candidate)` rows below; 35 scoped TenantSettings/SqlTenantSettings tests passed (`--no-build` on Linux VM).
+
+2026-10-05 thorough hunt (dry): `api-governance-tenancy-controllers` — cheap-disproved five open `(candidate)` rows (null `ListWorkspacesAsync` contract violation, metadata-only disposition `Guid.Empty` guard skip, reviews-awaiting-action per-row sealed guard omission, pre-commit invisible-prefix run ids, tenant workspace list tenant-wide project load); regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Governance/Tenancy controller unit tests passed (17 SQL integration fixtures unavailable on Linux VM).
+
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but `observedOutcome` claimed verified `HTTP 200; foreign runId absent` because verified-absent shortcut ignored non-2xx field codes; gate with `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline deny-status replay false-failed when `observedStatusCode` was omitted but `observedOutcome` was `HTTP 404` because `ResolveDenyReplayVerdict` evaluated `observedStatusCode ?? 0` instead of `ResolveObservedStatusCode`; regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner.ResolveExcludeReplayVerdict` to honor verified-absent outcome copy before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-10-05 seed hunt (seed→hit): `cli-tenant-isolation` — offline exclude-run-id replay false-passed when `observedStatusCode` was 200 but `observedOutcome` recorded `HTTP 404; foreign runId absent`; `ResolveExcludeReplayVerdict` worst-of merge (inverse mismatch); regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
+
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read orchestrator cache-hit finalize, continue dual-manifest pin scope, manifest hashing, and review-cache tombstone/pin eviction; no hunt-ready row promoted; seeded five mechanism-backed candidates; 62 picker-scoped orchestrator/cache tests passed.
 
 2026-10-05 seed hunt (seed-only): `architecture-intelligence-orchestrator` — re-read closed-loop orchestrator cache pin/coalesce, continue dual-manifest scopes, and manifest hashing after recent export-zone churn; no hunt-ready row promoted; seeded three bounded candidates (pre-pipeline baseline snapshot vs publish-stage storage fingerprint, composite pin cap mid-loop eviction, coalesced cache-hit publish policy run id); 62 scoped orchestrator/cache tests passed (`--no-build`).
@@ -3547,13 +3591,17 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 35
+- **hunts:** 37
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-02
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
+
+2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows; no hunt-ready repro; 35 scoped tests passed (`--no-build`).
+
+2026-10-05 seed hunt (seed-only): re-read `SqlTenantSettingsRepository` / `CachingTenantSettingsRepository`; no hunt-ready promotion; seeded five `(candidate)` rows in Hypotheses; 35 scoped TenantSettings tests passed (`--no-build`).
 
 2026-09-12 seed hunt #2133 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows.
 
@@ -3562,6 +3610,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingKey` longer than migration `173` `NVARCHAR(128)` without repository length guard — **cheap-disproof 2026-10-05 thorough hunt:** every `ITenantSettingsRepository.UpsertAsync` caller uses `TenantSettingKeys` constants, `{constant}.{workspaceId:D}` suffixes, or short provisioning literals; `Longest_known_production_setting_key_fits_migration_nvarchar_128_limit` bounds audited keys; no HTTP or attacker-controlled arbitrary setting-key surface in zone paths.
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` throws on duplicate `(TenantId, SettingKey)` rows — **cheap-disproof 2026-10-05 thorough hunt:** migration `173` `PK_TenantSettings`; duplicate rows require out-of-contract manual catalog inserts (sibling row #1262 / #3602); not a product code path.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` — whitespace-only `SettingValue` rows read absent but remain stored — **cheap-disproof 2026-10-05 thorough hunt:** intentional read normalization (`string.IsNullOrWhiteSpace` → null); `UpsertAsync` rejects whitespace values; legacy direct-SQL rows are ops data hygiene, not a repository defect (parity with prior #3598 row).
+- [x] (invalid) `CachingTenantSettingsRepository` — static `CacheGenerations` never evicted per `(tenantId, settingKey)` slot — **cheap-disproof 2026-10-05 thorough hunt:** process-lifetime metadata retention by design (#1262); generation bumps preserve read correctness for live tenants; unbounded growth is resource retention, not stale-read bug.
+- [x] (invalid) `SqlTenantSettingsRepository` + `ISqlConnectionFactory` — worker-catalog factory mis-registration — **cheap-disproof 2026-10-05 thorough hunt:** `SqlTenantSettingsRepositoryConnectionFactoryContractTests` requires `ISqlConnectionFactory` and excludes `IBackgroundWorkerSqlConnectionFactory` on the constructor; wrong catalog is host DI/deployment misconfiguration outside repository logic (PD-003 disposition).
 
 - [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired Î“Ã‡Ã¶ `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
@@ -4274,13 +4328,31 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 36
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-09-27 — locked ungrounded authoritative chosen blocked distinct topology refs sharing display name
+- **hunts:** 42
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): promoted case-only `ServiceId` candidate; fixed sub-key casing + scoped `EvidenceRefsMatch`; 76 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): proved order-dependent missing-id subkey on topology re-seed; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`; 75 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (dry): convergent missing-`ServiceId` slug-collision repro; trunk already fixed; seeded five `(candidate)` rows; 74 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): proved whitespace `ServiceId` name-slug fallback collision; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`; 74 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed→hit): proved manifest `ServiceId` slug collision; cheap-disproved five open `(candidate)` rows; 73 scoped TechnologyLedger tests passed.
+
+2026-10-05 seed hunt (seed-only): closed multiple-`Chosen` `FirstOrDefault` candidates as invalid (`TechnologyLedgerRunCommandService` demotes prior chosen rows); seeded five replacement `(candidate)` rows; 72 scoped tests passed (`--no-build`).
+
+- [x] (valid-no-repro) `TechnologyLedgerTopologyProposalMapper.ResolveRegion` / region row — `AzureArmRegion` values that `Slug` collapses (`East US` vs `east-us`) share one region ref — **cheap-disproof 2026-10-05 seed hunt:** intentional single Region row per proposal; `ResolveRegion` returns first non-empty region only; slug collapse applies to equivalent spellings of the same region label, not conflicting multi-region proposals.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper.StableTopologyIdentitySubKey` / `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — manifest `ServiceId` values differing only by case (`Svc-A` vs `svc-a`) collapsed to one `agentTopologyProposal:*` ref — **hit 2026-10-05 seed hunt (seed→hit):** preserve sub-key casing; case-sensitive sub-key compare for `agentTopologyProposal` refs; regression `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper.MapCandidates` — whitespace-only `ServiceId` slug-colliding `ServiceName` pair — **hit 2026-10-05 seed hunt (parallel):** `BuildMissingManifestIdSubKey`; regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
+- [x] (valid-no-repro) `TechnologyLedgerTopologyProposalMapper.CreateCandidate` — blank `proposal.ProposalId` forces `"unknown"` in every `agentTopologyProposal:unknown:*` ref — **cheap-disproof 2026-10-05 seed hunt:** distinct services still carry distinct manifest sub-keys; only identical sub-keys across batches should dedupe via merge policy.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — proposal-id segment case-insensitive dedupe — **cheap-disproof 2026-10-05 seed hunt:** intentional idempotent re-seed per `Resolve_skips_when_evidence_ref_matches_case_insensitively`; sub-key segment now case-sensitive for `agentTopologyProposal` refs.
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its callers; duplicate-chosen and provider/name merge scenarios were not reachable through a production caller in this repository, so no candidate or hunt-ready row was added. No test execution was claimed.
 
@@ -4288,8 +4360,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its duplicate/provider-family/locked-choice gates; no new reachable mechanism-backed candidate emerged; 72 scoped TechnologyLedger tests passed.
 
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — `existingRows` containing multiple `Chosen` entries for the candidate role with the matching authoritative row after the first entry — `FirstOrDefault` examines only one chosen row, so a later matching chosen technology may be missed and the agent candidate may be inserted; reachability is the seeder's repository-provided full `GetByRunIdAsync` row list.
-- [ ] (candidate) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — the first chosen row for a role is an agent-proposed cold-start row while a later chosen row is an authoritative user/evidence row with the same provider family and technology name — `FirstOrDefault` evaluates only the non-authoritative row and can admit a candidate that the later authoritative row should suppress; reachability is the same persisted per-run ledger row list returned by `GetByRunIdAsync`.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — multiple `Chosen` rows per role — `FirstOrDefault` ignores later authoritative chosen — **cheap-disproof 2026-10-05 seed hunt:** `TechnologyLedgerRunCommandService.PatchAsync` demotes other `Chosen` rows to `Alternative` when promoting a new chosen entry; topology seeder refreshes `GetByRunIdAsync` after each insert; unsupported persisted state.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — cold-start `AgentProposed` chosen listed before authoritative user chosen — **cheap-disproof 2026-10-05 seed hunt:** same single-chosen-per-role contract; constructed multi-chosen lists are not returned by production repositories.
+
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — missing `ServiceId` subkey used list ordinal (`-m0`/`-m1`), so reordering `AddedServices` on topology re-seed changed `agentTopologyProposal:*` refs and duplicate compute rows inserted — **hit 2026-10-05 seed hunt (seed→hit):** `BuildMissingServiceManifestIdSubKey` / `BuildMissingDatastoreManifestIdSubKey` keyed by manifest type plus `RuntimePlatform`; regression `MapCandidates_missing_service_ids_reseed_with_reordered_services_dedupes_via_merge_policy`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — whitespace `ManifestService.ServiceId` used `Slug(ServiceName)`, collapsing `foo bar` vs `foo-bar` service names into identical `agentTopologyProposal:*` refs — **hit 2026-10-05 seed hunt (seed→hit):** lossless name subkey for missing ids (later stabilized by type/platform disambiguators); regression `MapCandidates_whitespace_service_ids_with_slug_colliding_names_both_survive_merge_policy`.
+- [x] (proven) `TechnologyLedgerTopologyProposalMapper` / `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — distinct `ManifestService.ServiceId` values that `Slug` collapsed to the same subkey (`foo bar` vs `foo-bar`) produced identical `agentTopologyProposal:*` refs so the second topology service was dropped — **hit 2026-10-05 seed hunt (seed→hit):** `StableTopologyIdentitySubKey` for manifest ids; regression `MapCandidates_distinct_service_ids_that_slug_collide_both_survive_merge_policy`.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` rows still participate in `EvidenceRef` dedupe — **cheap-disproof 2026-10-05 seed hunt:** intentional idempotent topology re-seed; stable `agentTopologyProposal:*` identity should not duplicate ledger rows after operator demotion.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.NormalizeTechnologyName` — punctuation vs whitespace variants — **cheap-disproof 2026-10-05 seed hunt:** distinct normalized technology names remain distinct ledger labels by design.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.EvidenceRefsMatch` — internal whitespace in refs — **cheap-disproof 2026-10-05 seed hunt:** mapper emits refs without interior spaces; padded refs are out-of-contract manual/import paths.
+- [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — locked ungrounded chosen vs `Alternative` name dedupe — **cheap-disproof 2026-10-05 seed hunt:** covered by `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref` and cold-start distinct-ref regressions.
+- [x] (invalid) `TechnologyLedgerAgentProposalMergePolicy.SharesProviderFamilyGate` — future `CloudProvider` values — **cheap-disproof 2026-10-05 seed hunt:** `CloudProvider` enum is closed (`None`, `Azure`, `Aws`, `Gcp` only).
 
 2026-10-03 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy.Resolve` and its seeder tests; no single candidate met the full hunt-ready bar for a failing repro because the ledger contract does not establish that multiple `Chosen` rows for one role are a supported persisted state; retained two concrete multiple-chosen-row candidates; 72 scoped TechnologyLedger tests passed.
 
@@ -6740,10 +6821,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but outcome claimed verified `HTTP 200; foreign runId absent`; fixed verified-absent trust gating; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id replay — `observedStatusCode` 503 with verified `HTTP 200; foreign runId absent` outcome false-passed — **hit 2026-10-05 seed hunt:** `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`.
+
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-failed when `observedStatusCode` was omitted but `observedOutcome` was `HTTP 404` (`ResolveDenyReplayVerdict` used `?? 0` instead of `ResolveObservedStatusCode`); regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`; 52 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` deny-status manifest replay — missing `observedStatusCode` with `HTTP 404` outcome false-failed — **hit 2026-10-05 seed hunt:** `ResolveDenyReplayVerdict` uses `ResolveObservedStatusCode` for field evaluation; regression `RunOffline_PassesDenyStatusProbeWhenManifestOmitsStatusCodeButObservedOutcomeIs404`.
+
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay SKIPped when `observedStatusCode` was 404 but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` (deny replay already merged status/outcome; exclude path did not); fixed with `ResolveExcludeReplayVerdict`; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`; 51 scoped TenantIsolationNegativeTestRunner tests passed.
+
+2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 200 but `observedOutcome` recorded `HTTP 404; foreign runId absent`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome` (covered by `ResolveExcludeReplayVerdict` worst-of merge); 52 scoped tests passed.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id manifest replay — `observedStatusCode` 404 with verified `HTTP 200; foreign runId absent` outcome SKIPped — **hit 2026-10-05 seed hunt:** `ResolveExcludeReplayVerdict` honors verified-absent outcome before worst-of merge; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithVerifiedAbsentOutcome`.
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id manifest replay — `observedStatusCode` 200 with `HTTP 404; foreign runId absent` outcome false-passed — **hit 2026-10-05 seed hunt:** `ResolveExcludeReplayVerdict` worst-of status field and parsed outcome; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeDisagreesWithObservedHttp404Outcome`.
+
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline deny-status replay false-passed when `observedStatusCode` was 404 but `observedOutcome` still recorded `HTTP 200`; fixed `TenantIsolationNegativeTestOfflineRunner` to merge deny verdicts from status code and outcome text (fail-closed worst of Pass/Skip/Fail); regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`; 50 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — deny-status `observedStatusCode` 404 with `HTTP 200` outcome false-passed — **hit 2026-10-04 seed hunt:** `ResolveDenyReplayVerdict` worst-of status code and parsed outcome; regression `RunOffline_FailsDenyStatusProbeWhenManifestStatusCodeDisagreesWithObservedHttp200Outcome`.
-
 2026-10-04 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline manifest replay SKIPped exclude-run-id probes when manifest `verdict` was `skip` but `observedOutcome` recorded verified `HTTP 200; foreign runId absent`; fixed `TenantIsolationNegativeTestOfflineRunner` to derive exclude verdicts from observed status/outcome only (removed manifest skip short-circuit; scan-incomplete SKIP still comes from observed copy); regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`; 49 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` manifest replay — exclude-run-id manifest `verdict: skip` with verified absent list outcome SKIPped — **hit 2026-10-04 seed hunt:** derive exclude probes from observed status/outcome instead of manifest skip; regression `RunOffline_PassesExcludeRunIdProbeWhenManifestMarksSkipButObservedOutcomeIsVerifiedAbsent`.
@@ -6788,11 +6883,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 40
-- **bugs-found:** 21
+- **hunts:** 43
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — offline deny replay ignored HTTP 200 outcome when status code was 404
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -6922,19 +7017,35 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 22
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-04 — MUST-question skip/answer scope validation parity
+- **hunts:** 26
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — whitespace-only prompted system name still PATCHed metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 seed hunt (seed→hit): whitespace-only prompted system name; non-blank metadata validation in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`; 23 scoped core tests passed.
+
+2026-10-05 seed hunt (seed→hit): hollow `draftId` on successful create; guard in `DraftNewCommandAdmitStage`; regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`; 22 scoped core tests passed.
+
+2026-10-05 thorough hunt (hit): closed five seeded `(candidate)` rows; `must_questions_pending` JSON fail-fast; 21 scoped core tests passed.
+
+2026-10-05 seed hunt (seed-only): re-read `DraftNewCommand.RunAsync` → `DraftNewCommandIntakeLoop.RunCoreAsync` and stage partials; no row met hunt-ready bar; seeded five mechanism-backed `(candidate)` rows below; 16 scoped core tests passed (`--no-build`).
 
 2026-09-13 seed hunt #2276 (seed-only): reseeded cli-draft-new with `-Hint cli draft`; no new hunt-ready rows.
 
 2026-09-12 seed hunt #2084 (seed-only): reseeded cli-draft-new; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `DraftNewCommandMustQuestionLoop` — `--json` with pending MUST questions still called `ReadLineAsync` when `--skip-must-questions` omitted — **hit 2026-10-05 thorough hunt:** fail closed with `CliJson.WriteFailureLine` (`must_questions_pending`) before interactive read; regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — empty MUST answer JSON failure line — **cheap-disproof 2026-10-05 thorough hunt:** JSON mode rejects pending MUST questions before the read loop; defensive `WriteFailureLine` (`must_question_answer_required`) on whitespace-answer branch.
+- [x] (invalid) `DraftNewCommandMustQuestionLoop` — skip/answer `Value == null` on HTTP 200 — **cheap-disproof 2026-10-05 thorough hunt:** `ArchLucidApiClient.SkipDraftQuestionAsync` / `AnswerDraftQuestionAsync` map empty bodies to `DraftApiResult.Fail`.
+- [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` not trimmed before PATCH — **hit 2026-10-05 thorough hunt:** `.Trim()` on hook results; regressions `RunCoreAsync_prompted_system_name_is_trimmed_before_patch` and `RunCoreAsync_prompted_metadata_values_are_trimmed_before_patch`.
+- [x] (proven) `DraftNewCommandIntakeLoop` — hollow submit `requestId` still emitted success JSON — **hit 2026-10-05 thorough hunt:** mirror `runId` guard; regressions `RunCoreAsync_submit_without_request_id_returns_operation_failed` and `RunCoreAsync_json_output_submit_without_request_id_does_not_emit_ok_true`.
+- [x] (proven) `DraftNewCommandAdmitStage` — hollow `draftId` on successful create still advanced patch/admit — **hit 2026-10-05 seed hunt:** `CreateDraftAsync` success with `Guid.Empty` draftId continued intake; guard after create (parity with hollow `runId`/`requestId`); regression `RunCoreAsync_create_with_empty_draft_id_returns_operation_failed`.
+- [x] (proven) `DraftNewCommandAdmitStage` — prompted `systemName` / `businessOutcome` that trim to empty still PATCHed — **hit 2026-10-05 seed hunt:** interactive prompt could return whitespace-only text; fail closed with `UsageError` after trim (parity with connect-stage intent validation); regression `RunCoreAsync_prompted_whitespace_only_system_name_returns_usage_error`.
 
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
 - [x] (proven) Command reports success when the API returned a hollow success — **hit 2026-08-24:** submit returned HTTP 200 with empty `runId` and the command still printed success; now fails with `OperationFailed`; regression in `RunCoreAsync_submit_without_run_id_returns_operation_failed`
@@ -8060,6 +8171,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
+2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
+2026-10-05 seed hunt (seed→hit): embedded tab in configured key material broke auth while admin snapshot still showed configured; strip `UnicodeCategory.Control` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
+2026-10-05 seed hunt (seed→hit): `ExtractProvidedApiKey` returned normalized-empty first duplicate `X-Api-Key` value (U+200B) without trying later headers; aligned with blank-first skip; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`; 65 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
+
 2026-09-28 seed hunt #55 (seed→hit): reseeded api-key-auth; proved `AdminKey` pasted with embedded zero-width space (U+200B) still showed configured in admin snapshot while `MatchesAnyCommaSeparatedKey` compared against material that still contained the invisible character and rejected the visible key; extended `ApiKeyMaterialNormalizer` to remove invisible key-material characters anywhere in the segment (not only leading/trailing); regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`, `GetSnapshot_treats_zero_width_non_joiner_only_admin_slot_as_unconfigured`; 53 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` failed fixture setup — no SQL Server in cloud VM).
 
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded no-break space (U+00A0) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** `SpaceSeparator` paste artifacts were not stripped after Cf normalization; fixed by removing non-ASCII space separators while preserving ordinary spaces; regressions `When_admin_key_config_has_embedded_no_break_space_still_authenticates`, `Normalize_strips_embedded_no_break_space_from_key_material`, `GetSnapshot_treats_no_break_space_only_admin_slot_as_unconfigured`.
@@ -8068,6 +8185,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded bidi embedding/override marks (U+202A–U+202E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** embedding marks were outside the invisible set; fixed by adding `\u202A`–`\u202E`; regressions `When_admin_key_config_has_embedded_left_to_right_embedding_still_authenticates`, `Normalize_strips_embedded_left_to_right_embedding_from_key_material`, `GetSnapshot_treats_left_to_right_embedding_only_readonly_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded left-to-right mark (U+200E) in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-10-04 seed hunt:** bidi marks were outside the invisible set; fixed by adding `\u200E`/`\u200F`; regressions `When_admin_key_config_has_embedded_left_to_right_mark_still_authenticates`, `Normalize_strips_embedded_left_to_right_mark_from_key_material`, `GetSnapshot_treats_left_to_right_mark_only_admin_slot_as_unconfigured`.
 - [x] (proven) `ApiKeyMaterialNormalizer` left embedded zero-width space in configured key segments so authentication failed while admin settings still showed the slot configured — **hit 2026-09-28 seed hunt #55:** normalization only trimmed invisible characters at segment edges; fixed by stripping the full invisible set throughout each segment; regressions `When_admin_key_config_has_embedded_zero_width_space_still_authenticates`, `Normalize_strips_embedded_zero_width_space_from_key_material`.
+- [x] (proven) `ExtractProvidedApiKey` stopped at first duplicate `X-Api-Key` header when normalization emptied invisible-only paste (e.g. U+200B) — **hit 2026-10-05 seed hunt:** parity with whitespace-only first header skip was missing after `ApiKeyMaterialNormalizer` expansion; regressions `When_enabled_true_and_duplicate_api_key_headers_skip_invisible_only_first_value`, `When_allow_test_actor_headers_and_duplicate_actor_name_headers_skip_invisible_only_first_value`.
+- [x] (proven) `ApiKeyMaterialNormalizer` left embedded ASCII tab (U+0009) in configured key segments — **hit 2026-10-05 seed hunt:** spreadsheet paste artifacts are `UnicodeCategory.Control` and were not stripped; fixed by stripping control characters while preserving ordinary spaces; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`.
 
 2026-09-27 seed hunt #54 (seed→hit): reseeded api-key-auth; proved zero-width space (U+200B) only `ReadOnlyKey` still showed configured in admin snapshot and Append rotate while auth rejected all keys; extended `ApiKeyMaterialNormalizer` to trim invisible key-material characters (BOM + ZWSP family); regressions `GetSnapshot_treats_zero_width_space_only_readonly_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_readonly_slot_is_zero_width_space_only`, `When_readonly_key_config_is_only_zero_width_space_returns_invalid_key`; 51 scoped ApiKey auth/settings unit tests passed (`AdminApiKeySettingsEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -8081,11 +8200,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 71
-- **bugs-found:** 18
+- **hunts:** 73
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — embedded no-break space (U+00A0) in configured API key material broke authentication
+- **last-hunt:** 2026-10-05
+- **last-bug:** 2026-10-05 — embedded tab in configured API key material broke authentication
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8393,13 +8512,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 49
+- **hunts:** 51
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-05
 - **last-bug:** 2026-10-04 — trailing-slash `/robots.txt` and `/sitemap.xml` skip in scope guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproved five seeded `(candidate)` rows; 81 scoped Api unit tests + 7 `HttpScopeContextProvider` tests passed (6 integration tests failed — no SQL Server in cloud VM).
+
+2026-10-05 seed hunt (seed-only): re-read scope-binding middleware and route tenant filter; cheap-disproof closed health probe impostor prefixes, trailing-slash live/ready/version probes, and `/scalar` explorer TB-304 fail-closed; seeded five `(candidate)` rows below; 80 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
 2026-10-04 seed hunt (hit): promoted trailing-slash crawler-hint skip candidate; `IsRootOrCrawlerHintPath` required exact path match so `/robots.txt/` hit TB-304 on staging-like hosts; fixed by trimming trailing slashes before case-insensitive compare; regression `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths`; 80 scoped unit tests passed (6 integration tests failed — no SQL Server in cloud VM).
 
@@ -8515,6 +8638,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RouteTenantScopeBindingFilter.HasPolicy` misses `PlatformTenantDeletionAuthority` when policy is filter-only — **cheap-disproof 2026-10-04 seed hunt:** tenant deletion uses class-level `[Authorize(Policy = ArchLucidPolicies.PlatformTenantDeletionAuthority)]` on `AdminTenantsController`; regression `OnActionExecutionAsync_platform_lifecycle_policy_skips_binding`.
 - [x] (proven) `ScopeResolutionGuardMiddleware` case-sensitive `/robots.txt` and `/sitemap.xml` skip — **hit 2026-10-04:** `path is "/robots.txt" or "/sitemap.xml"` rejected mixed-case crawler requests with 403 on staging-like hosts; fixed with `OrdinalIgnoreCase` equality; regression `InvokeAsync_staging_host_skips_public_crawler_hint_paths_case_insensitive`.
 - [x] (proven) `ScopeResolutionGuardMiddleware` trailing-slash `/robots.txt` and `/sitemap.xml` skip — **hit 2026-10-04:** exact path equality rejected `/robots.txt/` with 403 on staging-like hosts; `IsRootOrCrawlerHintPath` trims trailing slash before compare; regression `InvokeAsync_staging_host_skips_trailing_slash_on_crawler_hint_paths`.
+- [x] (valid-no-repro) `IsPublicHealthProbePath` segment-boundary impostors (`/health/livefoo`, `/health/readyx`, `/health/versionextra`) skip TB-304 — **cheap-disproof 2026-10-05 seed hunt:** `PathString.StartsWithSegments` requires segment boundaries (parity with `/openapifoo` fix); falsify attempts expected 403 on staging-like default scope.
+- [x] (valid-no-repro) Trailing-slash public probes (`/health/live/`, `/health/ready/`, `/health/version/`) rejected by TB-304 — **cheap-disproof 2026-10-05 seed hunt:** `StartsWithSegments` accepts trailing slash on mapped probe paths; falsify attempts expected skip on staging-like hosts.
+- [x] (valid-no-repro) `DeveloperExperience:EnableApiExplorer` anonymous `GET /scalar/v1` blocked by TB-304 on staging-like hosts — **cheap-disproof 2026-10-05 seed hunt:** unlike `/openapi`, Scalar/Swagger are operator DX surfaces; fail-closed default scope before `IAllowAnonymous` is intentional (peer middleware skips erasure/trial gates only).
+- [x] (invalid) `ScopeResolutionGuardMiddleware.ShouldSkip` over-broad `/internal/` substring skip — **cheap-disproof 2026-10-05 thorough hunt:** no shipped tenant-facing route template embeds `internal` as a path segment; all `Contains("/internal/")` hits are `v1/internal/*` operator bases (`ApiV1Routes`, `InternalCrossTenantAnalyticsController`, etc.); hypothetical artifact-slug route is not reachable in the selected source.
+- [x] (valid-no-repro) Duplicate `tenant_id` claims with a leading non-GUID value — **cheap-disproof 2026-10-05 thorough hunt:** `FindFirst` + failed `Guid.TryParse` yields `ScopeSource.Default` and TB-304 403 on production-like hosts; hostile `x-tenant-id` steering is blocked by `ValidateHeaderOnlyScopeEscalation`; JSON API authenticates `DefaultAuthenticateScheme` Bearer/ApiKey (not SAML cookie sessions with `division-east` + GUID duplicates); regression `GetCurrentScope_ignores_later_parseable_tenant_id_when_first_claim_is_non_guid`.
+- [x] (valid-no-repro) Unauthenticated `GET /health/detailed` / `GET /health/diagnostics` returns TB-304 403 before 401 — **cheap-disproof 2026-10-05 thorough hunt:** `IsPublicHealthProbePath` intentionally skips only anonymous public probes (`PipelineExtensions.HealthDocs.cs` maps detailed/diagnostics with `RequireAuthorization`); fail-closed scope rejection precedes authorization middleware; regression `InvokeAsync_staging_host_rejects_unauthenticated_health_detailed_before_authorization`.
+- [x] (invalid) `RouteTenantScopeBindingFilter` vs ITSM webhook `{tenantId}` — **cheap-disproof 2026-10-05 thorough hunt:** `ItsmInboundWebhooksController` is `[AllowUnscopedRoute]` by contract so shared-secret inbound webhooks are not JWT-scoped; tenant binding is enforced in `IItsmInboundWebhookFacade.ProcessAsync`, outside this filter's locus.
+- [x] (invalid) `ScopeIdentityBindingMiddleware` runs before `IAllowAnonymous` scope-guard skip — **cheap-disproof 2026-10-05 thorough hunt:** TB-072 requires claim/header agreement for authenticated principals even on routes that later skip TB-304; hypothetical anonymous probe that accepts Bearer with hostile headers is not mapped in `PipelineExtensions.HealthDocs.cs` or controller surface today.
 
 ---
 
@@ -25741,13 +25872,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 302
+- **hunts:** 303
 - **last-hunt:** 2026-10-05
 - **bugs-found:** 509
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-09-28 — governance sealed-manifest guard skipped zero-width-prefixed run ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-05 thorough hunt (dry): cheap-disproved all five seeded `(candidate)` rows after re-reading Governance/Tenancy controller and facade paths; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`; 138 scoped Api unit tests passed (17 SQL integration constructor failures on Linux VM).
 
 2026-10-05 seed hunt (seed-only): re-read `ArchLucid.Api/Controllers/Governance/*` and `ArchLucid.Api/Controllers/Tenancy/*` despite the retired mega-zone ledger path; no row met the hunt-ready bar for promotion. Scoped filter `GovernanceController|TenancyController` reported 137 passed and 17 failures from default Moq `ListWorkspacesAsync` returning null (production `DapperTenantRepository` / `InMemoryTenantRepository` return non-null lists). Seeded five mechanism-backed `(candidate)` rows below.
 
@@ -25791,11 +25924,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — `.Any()` throws `ArgumentNullException` and governance/tenancy reads return HTTP 500 instead of workspace-not-found; reachable only when a custom repository implementation violates the contract (production Dapper/in-memory paths return empty lists).
-- [ ] (candidate) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — sealed-manifest guard is skipped before `ListHistoryAsync` while sibling register GETs run per-row guards; input is OpenAPI `GET /governance/stickiness/findings/{findingId}/dispositions` for a finding whose metadata projection omits run id.
-- [ ] (candidate) `GovernanceStickinessController.GetReviewsAwaitingAction` — response recurrence rows carry `SourceRunId` / `RunId` distinct from the latest committed run sealed by `EnsureRegistersSealedManifestAllowedAsync(null)` — endpoint does not call `EnsureRegisterRunsSealedManifestAllowedAsync` on returned run ids (sibling risk/decision register GETs do).
-- [ ] (candidate) `GovernancePreCommitSimulationController.TryParseRunId` — accepts trimmed body `runId` via `Guid.TryParse` without `GovernanceRunIdNormalizer.Normalize`, while sibling promotion/approval routes normalize before sealed-manifest guards; input is OpenAPI `POST` synthetic simulation with the same invisible-prefix run id shapes blocked elsewhere.
-- [ ] (candidate) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync(scope.TenantId)` loads every active project in the tenant before filtering to `scope.WorkspaceId` in the response DTO — input is authenticated `GET /tenant/workspaces` in a multi-workspace tenant (wrong outcome: foreign workspace project names briefly considered server-side; needs proof of observable harm).
+- [x] (invalid) `TenantWorkspaceScopePreflight.WorkspaceExistsAsync` — `ITenantRepository.ListWorkspacesAsync` returns null — **cheap-disproof 2026-10-05 thorough hunt:** production `DapperTenantRepository`, `InMemoryTenantRepository`, and `CachingTenantRepository` implement `IWorkspaceQueryTenantRepository.WorkspaceExistsAsync` or return non-null workspace lists; null is a test-double contract violation only.
+- [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect returns `finding.RunId == Guid.Empty` — **cheap-disproof 2026-10-05 thorough hunt:** `FindingInspectReadOptions.MetadataOnly` omits typed payload only; disposition history still scope-gated via `ListHistoryAsync`; `Guid.Empty` skip is intentional when inspect has no run binding.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetReviewsAwaitingAction` — response recurrence rows carry uncommitted `RunId` / `SourceRunId` — **cheap-disproof 2026-10-05 thorough hunt:** TB-263 endpoint intentionally lists executed-but-uncommitted recurrence runs; `EnsureRegistersSealedManifestAllowedAsync` guards latest committed posture; per-row run guard would block the product surface (sibling registers list committed rows only).
+- [x] (invalid) `GovernancePreCommitSimulationController.TryParseRunId` — invisible-prefix `runId` bypasses sealed-manifest guard — **cheap-disproof 2026-10-05 thorough hunt:** `SimulateAsync`/`GetChecklistAsync` call `ValidateGovernanceRunId` then `Guid.TryParse` on trim; `\u200B`-prefixed ids fail parse with HTTP 400 before sealed guard; regression `Simulate_returns_validation_failed_when_run_id_has_zero_width_prefix`.
+- [x] (invalid) `TenantWorkspacesController.ListAsync` — tenant-wide project load before workspace filter — **cheap-disproof 2026-10-05 thorough hunt:** HTTP response includes only `scope.WorkspaceId` projects (`TenantWorkspacesListResponse` single workspace); no cross-workspace names or ids are returned to the caller.
 
 - [x] (proven) `PolicyPacksController.Publish` / `PolicyPacksAppService.TryPublishVersionAsync` — cross-tenant publish: caller scope tenant B + pack id owned by tenant A → HTTP 200 and version row upserted (reads already 404 on scope mismatch; publish omitted tenant/workspace/project check)
 - [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
@@ -28559,7 +28692,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-05

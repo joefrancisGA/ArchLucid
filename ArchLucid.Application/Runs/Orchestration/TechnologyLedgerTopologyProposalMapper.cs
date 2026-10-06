@@ -33,7 +33,9 @@ public static class TechnologyLedgerTopologyProposalMapper
             string technologyName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
                 ? datastore.RuntimePlatform.ToString()
                 : datastore.DatastoreName;
-            string subKey = Slug(string.IsNullOrWhiteSpace(datastore.DatastoreId) ? technologyName : datastore.DatastoreId);
+            string subKey = string.IsNullOrWhiteSpace(datastore.DatastoreId)
+                ? BuildMissingDatastoreManifestIdSubKey(technologyName, datastore.DatastoreType, datastore.RuntimePlatform)
+                : StableTopologyIdentitySubKey(datastore.DatastoreId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.PrimaryDatastore, technologyName, family, proposalId, subKey, utcNow));
         }
 
@@ -43,7 +45,9 @@ public static class TechnologyLedgerTopologyProposalMapper
             string technologyName = string.IsNullOrWhiteSpace(service.ServiceName)
                 ? service.RuntimePlatform.ToString()
                 : service.ServiceName;
-            string subKey = Slug(string.IsNullOrWhiteSpace(service.ServiceId) ? technologyName : service.ServiceId);
+            string subKey = string.IsNullOrWhiteSpace(service.ServiceId)
+                ? BuildMissingServiceManifestIdSubKey(technologyName, service.ServiceType, service.RuntimePlatform)
+                : StableTopologyIdentitySubKey(service.ServiceId);
             candidates.Add(CreateCandidate(runId, TechnologyLedgerRole.ComputeRuntime, technologyName, family, proposalId, subKey, utcNow));
         }
 
@@ -135,5 +139,39 @@ public static class TechnologyLedgerTopologyProposalMapper
     {
         string trimmed = value.Trim();
         return trimmed.Length == 0 ? "unknown" : trimmed.ToLowerInvariant().Replace(" ", "-", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Lossless sub-key for manifest identity (ids or fallback display names) so distinct values are not collapsed
+    ///     (e.g. <c>foo bar</c> vs <c>foo-bar</c>, or <c>Svc-A</c> vs <c>svc-a</c>) before merge-policy dedupe.
+    /// </summary>
+    private static string StableTopologyIdentitySubKey(string manifestId)
+    {
+        string trimmed = manifestId.Trim();
+
+        if (trimmed.Length == 0)
+            return "unknown";
+
+        return trimmed;
+    }
+
+    private static string BuildMissingDatastoreManifestIdSubKey(
+        string technologyName,
+        DatastoreType datastoreType,
+        RuntimePlatform runtimePlatform)
+    {
+        string identitySubKey = StableTopologyIdentitySubKey(technologyName);
+
+        return $"{identitySubKey}-m{(int)datastoreType}-{(int)runtimePlatform}";
+    }
+
+    private static string BuildMissingServiceManifestIdSubKey(
+        string technologyName,
+        ServiceType serviceType,
+        RuntimePlatform runtimePlatform)
+    {
+        string identitySubKey = StableTopologyIdentitySubKey(technologyName);
+
+        return $"{identitySubKey}-m{(int)serviceType}-{(int)runtimePlatform}";
     }
 }

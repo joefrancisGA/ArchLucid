@@ -78,7 +78,17 @@ internal static class DraftNewCommandIntakeLoop
             return CliExitCode.OperationFailed;
         }
 
-        string requestId = submit.Value.RequestId;
+        string requestId = submit.Value.RequestId?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(requestId))
+        {
+            await error.WriteLineAsync(
+                "Error submitting draft: API returned success but no requestId. The review was not spawned.");
+
+            CliOperatorHints.WriteAfterApiFailure(submit.HttpStatusCode, submit.Error, error);
+
+            return CliExitCode.OperationFailed;
+        }
 
         if (!CliExecutionContext.JsonOutput)
         {

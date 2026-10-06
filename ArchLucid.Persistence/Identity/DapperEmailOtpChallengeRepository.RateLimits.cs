@@ -77,9 +77,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges
                                 WHERE NormalizedEmail = @NormalizedEmail
-                                  AND CreatedUtc >= @SinceUtc
-                                  AND CompletedUtc IS NULL
-                                  AND ExpiresUtc > @NowUtc;
+                                  AND CreatedUtc >= @SinceUtc;
 
                                 SELECT COUNT(1)
                                 FROM dbo.EmailOtpChallenges

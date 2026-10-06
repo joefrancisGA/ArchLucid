@@ -28,6 +28,9 @@ public sealed class DiagramForestLayoutSvgRendererTests
         onScreen.Succeeded.Should().BeTrue(onScreen.Error);
         onScreen.Svg.Should().Contain("5 storage accounts");
         onScreen.Svg.Should().Contain("0 used · 5 no consumer found");
+        onScreen.Svg.Should().Contain("Click to list the 5");
+        onScreen.Svg.Should().NotContain("> [1] <");
+        onScreen.Svg.Should().Contain("cursor=\"pointer\"");
         onScreen.Svg.Should().Contain("data-member-ids");
         XDocument onScreenDocument = XDocument.Parse(onScreen.Svg!);
         onScreenDocument
@@ -45,6 +48,8 @@ public sealed class DiagramForestLayoutSvgRendererTests
             });
 
         export.Succeeded.Should().BeTrue(export.Error);
+        export.Svg.Should().Contain(">5 storage accounts<");
+        export.Svg.Should().NotContain("[1] 5 storage accounts");
         export.Svg.Should().Contain("storage-0 ·");
         export.Svg.Should().Contain("storage-4 ·");
     }

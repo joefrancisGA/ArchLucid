@@ -194,6 +194,13 @@ function Add-ArchLucidSecurityInventoryResourceProperties
             {
                 $Properties["ipConfiguration.id"] = $ipConfigurationId
             }
+
+            [string]$natGatewayId = "$( $AzResource.Properties.natGateway.id )".Trim()
+
+            if (-not ([string]::IsNullOrWhiteSpace($natGatewayId)))
+            {
+                $Properties["natGateway.id"] = $natGatewayId
+            }
         }
         catch
         {
@@ -1317,8 +1324,11 @@ function Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts
 
         [string]$resourceId = "$( $fact.resourceId )".Trim()
         [string]$ipConfigurationId = "$( $fact.ipConfigurationId )".Trim()
+        [string]$natGatewayId = "$( $fact.natGatewayId )".Trim()
 
-        if ([string]::IsNullOrWhiteSpace($resourceId) -or [string]::IsNullOrWhiteSpace($ipConfigurationId))
+        if ([string]::IsNullOrWhiteSpace($resourceId) -or
+            ([string]::IsNullOrWhiteSpace($ipConfigurationId) -and
+             [string]::IsNullOrWhiteSpace($natGatewayId)))
         {
             continue
         }
@@ -1337,7 +1347,16 @@ function Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts
 
         if (-not ($resource.properties.ContainsKey('ipConfiguration.id')))
         {
-            $resource.properties['ipConfiguration.id'] = $ipConfigurationId
+            if (-not [string]::IsNullOrWhiteSpace($ipConfigurationId))
+            {
+                $resource.properties['ipConfiguration.id'] = $ipConfigurationId
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($natGatewayId) -and
+            -not ($resource.properties.ContainsKey('natGateway.id')))
+        {
+            $resource.properties['natGateway.id'] = $natGatewayId
         }
     }
 }
@@ -1405,12 +1424,17 @@ function Resolve-ArchLucidAssociatedResourceFromIpConfiguration([string] $IpConf
 {
     if ([string]::IsNullOrWhiteSpace($IpConfigurationId)) { return $null }
 
-    [string]$normalized = $IpConfigurationId.Trim()
-    [int]$index = $normalized.IndexOf("/ipConfigurations/", [System.StringComparison]::OrdinalIgnoreCase)
+    [string[]]$segments = $IpConfigurationId.Trim().Trim('/') -split '/'
 
-    if ($index -le 0) { return $null }
+    for ($index = $segments.Count - 2; $index -ge 1; $index--)
+    {
+        if ($segments[$index].EndsWith('ipConfigurations', [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            return '/' + (($segments[0..($index - 1)]) -join '/')
+        }
+    }
 
-    return $normalized.Substring(0, $index)
+    return $null
 }
 
 function Get-ArchLucidAzureFederatedCredentialCompanionRows
