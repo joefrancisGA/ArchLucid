@@ -66,7 +66,7 @@ public sealed class AlertSimulationContextProvider(
             .ListRunsByProjectAsync(scope, string.IsNullOrWhiteSpace(runProjectSlug) ? "default" : runProjectSlug.Trim(), take, ct)
             ;
 
-        foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc))
+        foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc).DistinctBy(x => x.RunId))
         {
             AlertEvaluationContext? context = await BuildContextAsync(
                 scope,
