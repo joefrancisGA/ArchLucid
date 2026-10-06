@@ -82,6 +82,12 @@ internal static class TenantScopedSqlExpressionResolver
         {
             yield return propertyInitializer.ToString();
         }
+
+        if (symbol is ILocalSymbol local)
+        {
+            foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(local, semanticModel))
+                yield return assignedExpression.ToString();
+        }
     }
 
     private static ResolutionResult ResolveCore(
@@ -326,6 +332,11 @@ internal static class TenantScopedSqlExpressionResolver
         if (fromInitializer is not null)
             return fromInitializer;
 
+        ResolutionResult? fromAssignment = TryResolveFromSimpleAssignments(symbol, semanticModel);
+
+        if (fromAssignment is not null)
+            return fromAssignment;
+
         if (expression is MemberAccessExpressionSyntax member &&
             (string.Equals(member.Name.Identifier.Text, "ScopeWhereClause", StringComparison.Ordinal) ||
              string.Equals(member.Name.Identifier.Text, "RunChildScopeWhereClause", StringComparison.Ordinal)) &&
@@ -366,6 +377,87 @@ internal static class TenantScopedSqlExpressionResolver
         }
 
         return null;
+    }
+
+    private static ResolutionResult? TryResolveFromSimpleAssignments(
+        ISymbol? symbol,
+        SemanticModel semanticModel)
+    {
+        if (symbol is not ILocalSymbol local)
+            return null;
+
+        bool hasScopeHelper = false;
+        List<string> branchSqlTexts = [];
+
+        foreach (ExpressionSyntax assignedExpression in GetSimpleAssignmentExpressions(local, semanticModel))
+        {
+            SemanticModel modelForSyntax = GetSemanticModelForSyntax(assignedExpression, semanticModel);
+            ResolutionResult resolution = ResolveCore(assignedExpression, modelForSyntax, visitingInterpolatedHole: false);
+            hasScopeHelper |= resolution.HasScopeHelperInvocation;
+            AppendDistinctBranchSqlTexts(branchSqlTexts, resolution);
+        }
+
+        if (branchSqlTexts.Count == 0)
+        {
+            return hasScopeHelper
+                ? new ResolutionResult(null, false, true)
+                : null;
+        }
+
+        return new ResolutionResult(branchSqlTexts[0], true, hasScopeHelper, branchSqlTexts);
+    }
+
+    private static IEnumerable<ExpressionSyntax> GetSimpleAssignmentExpressions(
+        ILocalSymbol local,
+        SemanticModel semanticModel)
+    {
+        SyntaxReference? syntaxReference = local.DeclaringSyntaxReferences.FirstOrDefault();
+
+        if (syntaxReference?.GetSyntax() is not VariableDeclaratorSyntax declarator)
+            yield break;
+
+        BlockSyntax? block = declarator.FirstAncestorOrSelf<BlockSyntax>();
+
+        if (block is null)
+            yield break;
+
+        foreach (StatementSyntax statement in block.Statements)
+        {
+            if (!TryGetSimpleAssignmentValue(statement, local, semanticModel, out ExpressionSyntax? assignedExpression))
+                continue;
+
+            yield return assignedExpression;
+        }
+    }
+
+    private static bool TryGetSimpleAssignmentValue(
+        StatementSyntax statement,
+        ILocalSymbol local,
+        SemanticModel semanticModel,
+        out ExpressionSyntax assignedExpression)
+    {
+        assignedExpression = null!;
+
+        if (statement is not ExpressionStatementSyntax expressionStatement)
+            return false;
+
+        if (expressionStatement.Expression is not AssignmentExpressionSyntax assignment)
+            return false;
+
+        if (!assignment.IsKind(SyntaxKind.SimpleAssignmentExpression))
+            return false;
+
+        if (assignment.Left is not IdentifierNameSyntax identifier)
+            return false;
+
+        ISymbol? leftSymbol = semanticModel.GetSymbolInfo(identifier).Symbol;
+
+        if (leftSymbol is null || !SymbolEqualityComparer.Default.Equals(leftSymbol, local))
+            return false;
+
+        assignedExpression = assignment.Right;
+
+        return true;
     }
 
     private static SemanticModel GetSemanticModelForSyntax(SyntaxNode syntax, SemanticModel semanticModel)
