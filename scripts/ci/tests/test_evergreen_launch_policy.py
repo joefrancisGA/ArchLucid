@@ -93,8 +93,8 @@ class TestLaunchPolicy(unittest.TestCase):
         self.assertIn("outside Evergreen scope", decision.reason)
 
     def test_skips_when_fingerprint_launched_today(self) -> None:
-        # Build the second id via cache_key so a mixed-entropy literal is not adjacent to
-        # ``keys=`` / ``_KEY`` — gitleaks generic-api-key matches that identifier shape.
+        # Build the second id via cache_key so a high-entropy literal is not adjacent to
+        # ``_KEY,`` — gitleaks generic-api-key matches ``key, "<mixed-entropy>"``.
         other_today = LaunchPolicy.cache_key("other", _TODAY)
 
         decision = self._decide(_digest(), keys=[_KEY, other_today])
