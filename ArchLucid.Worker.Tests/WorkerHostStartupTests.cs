@@ -72,6 +72,63 @@ public sealed class WorkerHostStartupTests
     }
 
     [Fact]
+    public void Worker_host_skips_pilot_overlay_in_development_from_content_root()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-pilot-dev-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            const string economyDeployment = "gpt-pilot-economy";
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.Pilot.json"),
+                $$"""
+                {
+                  "ArchLucid": {
+                    "AgentModelTiers": {
+                      "EconomyDeploymentName": "{{economyDeployment}}"
+                    }
+                  }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseEnvironment(Environments.Development);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["ArchLucid:AgentModelTiers:EconomyDeploymentName"].Should().BeNull();
+        }
+        finally
+        {
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
+    [Fact]
     public void Worker_host_loads_appsettings_pilot_overlay_when_not_development_from_content_root()
     {
         WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
@@ -127,6 +184,88 @@ public sealed class WorkerHostStartupTests
             {
                 // Best-effort temp cleanup on shared CI hosts.
             }
+        }
+    }
+
+    [Fact]
+    public void Worker_host_leaves_modern_max_payload_unset_when_advanced_carries_legacy_context_ingestion_only()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-legacy-payload-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            const string legacyMaxPayloadBytes = "77777";
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.Advanced.json"),
+                $$"""
+                {
+                  "ArchLucid": {
+                    "ContextIngestion": {
+                      "MaxPayloadBytes": {{legacyMaxPayloadBytes}}
+                    }
+                  }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["ArchLucid:ContextIngestion:MaxPayloadBytes"].Should().Be(legacyMaxPayloadBytes);
+            configuration[ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey].Should().BeNull();
+        }
+        finally
+        {
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
+    [Fact]
+    public void Worker_host_starts_in_testing_when_archlucid_auth_mode_unset()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseEnvironment("Testing");
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            snapshot.Restore();
         }
     }
 

@@ -8771,3 +8771,4 @@
 {"at":"2026-10-06T17:33:02.903317Z","zoneId":"tenant-settings-sql","outcome":"dry","productLine":"archlucid-shared","paths":["@(ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs,ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs)"]}
 {"at":"2026-10-06T17:40:59.8758118Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Tenancy/TenantCostSettingsController.cs,ArchLucid.Api.Tests/TenantCostSettingsControllerTests.cs)"]}
 {"at":"2026-10-06T17:46:03.7485793Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
+{"at":"2026-10-06T17:49:49.0064243Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}

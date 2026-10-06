@@ -8564,13 +8564,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-06 thorough hunt (dry): cheap-disproof closed all five open `(candidate)` rows; regressions `Worker_host_skips_pilot_overlay_in_development_from_content_root`, `Worker_host_leaves_modern_max_payload_unset_when_advanced_carries_legacy_context_ingestion_only`, and `Worker_host_starts_in_testing_when_archlucid_auth_mode_unset`; reaffirmed post-`Build()` `CollectErrors` parity via existing `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`; 17 scoped worker host/composition tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs` vs `ArchLucid.Api/Program.cs` startup chain; no row met hunt-ready bar for promotion (worker health-only pipeline has no `ContextIngestionMaxPayloadMiddleware`; `ArchitectureRunCreationConfigurationBridge` is API-scoped); cheap-disproof reaffirmed post-`Build()` `CollectErrors` gap and `AuthSafetyGuard` omission are intentional for worker role; 14 scoped worker host/composition tests passed.
 
@@ -8586,11 +8588,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge.Apply` (`ArchLucid.Api/Program.cs` ~71) while shared `/app` `appsettings.Advanced.json` may still carry `ArchLucid:ContextIngestion:MaxPayloadBytes`; `ContextIngestionRules.Collect` validates the legacy flat key but `IConfiguration[ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey]` stays unset until bridged (API-only bridge today).
-- [ ] (candidate) `Program.Main` — Worker omits `AuthSafetyGuard.GuardAllDevelopmentBypasses` (`ArchLucid.Api/Program.cs` ~97) before application services; reachable Staging worker with unset `ArchLucidAuth:Mode` passes `ValidateOrThrow` while the API host throws `AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage` (`UseArchLucidWorkerPipeline` documents no API auth stack).
-- [ ] (candidate) `Program.Main` — No regression proving `appsettings.Pilot.json` is skipped when `IHostEnvironment.IsDevelopment()` (`Program.cs` lines 21–27 gate Pilot on `!IsDevelopment()`; pilot overlay test uses `Testing` environment).
-- [ ] (candidate) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.CollectErrors` after `Build()` (`ArchLucid.Api/Program.cs` ~184–191); reachable worker-only `IOptions`/`IValidateOptions` failure after pre-`Build()` `ValidateOrThrow` snapshot (prior dry hunt closed generic drift without worker-specific repro).
-- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics.LogIfEnabled` runs before `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` (`Program.cs` ~73–79); operator diagnostics snapshot may omit post-bootstrap configuration state when migrations mutate seed flags.
+- [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge.Apply` — **cheap-disproof 2026-10-06 thorough hunt:** legacy `ArchLucid:ContextIngestion:MaxPayloadBytes` binds from Advanced JSON but modern `ArchitectureRunCreation:MaxPayloadBytes` stays unset on worker; no worker host code reads `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` (`ContextIngestionMaxPayloadMiddleware` is API-only); regression `Worker_host_leaves_modern_max_payload_unset_when_advanced_carries_legacy_context_ingestion_only`.
+- [x] (valid-no-repro) `Program.Main` — Worker omits `AuthSafetyGuard.GuardAllDevelopmentBypasses` — **cheap-disproof 2026-10-06 thorough hunt:** `Testing` host with unset `ArchLucidAuth:Mode` passes `ValidateOrThrow` and builds (`Worker_host_starts_in_testing_when_archlucid_auth_mode_unset`); intentional because `UseArchLucidWorkerPipeline` exposes health/metrics without API authentication registration.
+- [x] (valid-no-repro) `Program.Main` — Pilot overlay skipped in Development — **cheap-disproof 2026-10-06 thorough hunt:** `!IsDevelopment()` gate; regression `Worker_host_skips_pilot_overlay_in_development_from_content_root`.
+- [x] (valid-no-repro) `Program.Main` — Worker omits post-`Build()` `ArchLucidConfigurationRules.CollectErrors` — **cheap-disproof 2026-10-06 thorough hunt:** `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens` still fails at `factory.Services` with the same `CollectErrors` message as pre-`Build()` `ValidateOrThrow`; no worker-only validator drift repro.
+- [x] (valid-no-repro) `Program.Main` — `StartupConfigurationDiagnostics` before schema bootstrap — **cheap-disproof 2026-10-06 thorough hunt:** `StartupConfigurationDiagnostics` reads `IConfiguration` facts only; `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` mutates SQL/demo data, not configuration keys surfaced in the startup snapshot; no wrong operator outcome established.
 
 - [x] (proven) `Program.Main` — Worker host omitted Pilot/Advanced/SaaS JSON overlays loaded by the API host — **hit 2026-10-05 seed hunt:** shared Docker `/app` publishes Advanced/SaaS JSON for the API while worker `Program.cs` only read default `appsettings*.json`; added the same optional overlay chain and post-overlay `AddEnvironmentVariables`; regression `Worker_host_loads_appsettings_advanced_overlay_from_content_root`.
 
