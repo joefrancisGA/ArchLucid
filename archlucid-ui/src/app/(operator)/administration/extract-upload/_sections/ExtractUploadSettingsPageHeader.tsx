@@ -8,12 +8,10 @@ import {
   PageContextualHelpButton,
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
-import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { EXTRACT_UPLOAD_PAGE_SHORTCUTS } from "@/lib/extract-upload-page-shortcuts";
 import {
   EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
@@ -93,10 +91,6 @@ export function ExtractUploadSettingsPageHeader(
       actions={
         buyerPolishedShell ? null : (
           <div className="flex flex-wrap items-center gap-2">
-            <PageShortcutsDisclosure
-              testId="extract-upload-page-shortcuts"
-              entries={EXTRACT_UPLOAD_PAGE_SHORTCUTS}
-            />
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           </div>
         )

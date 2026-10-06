@@ -20,6 +20,7 @@ import {
   resolveShortcutDescription,
   type ShortcutEntry,
 } from "@/lib/shortcut-registry";
+import { HELP_PAGE_SHORTCUT_GROUPS, type HelpPageShortcutEntry } from "@/lib/page-shortcut-groups";
 import {
   keyboardShortcutsSectionHrefFromSearch,
   parseKeyboardShortcutsSectionFromSearch,
@@ -86,6 +87,46 @@ function ShortcutTable({
           >
             <div className="font-medium text-neutral-800 dark:text-neutral-100" role="cell">
               <ShortcutComboKbd combo={entry.key} />
+            </div>
+            <div className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="cell">
+              {entry.description}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PageShortcutTable({
+  entries,
+  caption,
+}: {
+  readonly entries: readonly HelpPageShortcutEntry[];
+  readonly caption: string;
+}): React.ReactElement | null {
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2">
+      <h4 className={cn("font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {caption}
+      </h4>
+      <div
+        className={cn("grid gap-2 rounded-md border border-neutral-200/80 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-900/30", OPERATOR_TYPOGRAPHY.body)}
+        role="table"
+        aria-label={caption}
+      >
+        {entries.map((entry) => (
+          <div
+            key={`${entry.key ?? entry.id}-${entry.label}`}
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] items-start gap-3 border-b border-neutral-200/60 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-600/60"
+            role="row"
+          >
+            <div className="font-medium text-neutral-800 dark:text-neutral-100" role="cell">
+              {entry.key ?? entry.label}
             </div>
             <div className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="cell">
               {entry.description}
@@ -263,6 +304,21 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-2">
             <ShortcutTable entries={REVIEW_DETAIL_PAGE_SHORTCUTS} caption="Review page" />
+          </CollapsibleContent>
+        </Collapsible>
+      ) : null}
+      {HELP_PAGE_SHORTCUT_GROUPS.length > 0 ? (
+        <Collapsible>
+          <CollapsibleTrigger
+            type="button"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            Show page shortcuts
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2">
+            {HELP_PAGE_SHORTCUT_GROUPS.map((group) => (
+              <PageShortcutTable key={group.label} caption={group.label} entries={group.entries} />
+            ))}
           </CollapsibleContent>
         </Collapsible>
       ) : null}
