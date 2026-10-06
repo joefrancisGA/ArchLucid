@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent `ExportOnly`→`Deleted` lifecycle transitions returned `false` for atomic-transition losers while `TrialStatus` was already `Deleted`, duplicating audit risk on retries; extended idempotent re-read to the hard-purge transition path via `IsAdvancementAlreadyAppliedAsync`; regression `TryAdvanceTenantAsync_concurrent_deleted_transition_returns_success_without_duplicate_audit_when_race_loses_atomic_transition`; 142 scoped tenancy tests passed.
+
 2026-10-06 seed hunt (seed→hit): `application-tenancy-lifecycle` — concurrent `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` calls returned `false` for atomic-transition losers while the target `TrialStatus` was already persisted; re-read tenant after `TryRecordTrialLifecycleTransitionAsync` miss and return idempotent success without duplicate audit; regression `TryAdvanceTenantAsync_concurrent_requests_return_success_without_duplicate_audit_when_race_loses_atomic_transition`; 141 scoped tenancy tests passed.
 
 2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — weekly digest delivery scanners built exec/sponsor `unsubscribeUrl` from raw `OperatorBaseUrl` userinfo and `ExecDigestEmailDispatcher` copied it into template models; added `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` and sanitize unsubscribe hrefs at dispatch; regressions `SanitizeOperatorAbsoluteUrl_omits_user_info_and_preserves_path_and_query` and `ExecDigestEmailDispatcher_omits_user_info_from_unsubscribe_url_in_template_model`; 156 scoped notifications/digest tests passed.
@@ -28275,13 +28277,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 42
-- **bugs-found:** 28
+- **hunts:** 43
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — concurrent trial lifecycle transition losers returned false after atomic miss
+- **last-bug:** 2026-10-06 — concurrent ExportOnly→Deleted transition losers returned false after atomic miss
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): reseeded trial lifecycle after Active→Expired idempotency fix; proved `ExportOnly`→`Deleted` transition path still returned `false` on atomic miss; shared `IsAdvancementAlreadyAppliedAsync` helper; 142 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — concurrent `ExportOnly`→`Deleted` transition losers returned `false` while `TrialStatus` was already `Deleted` — **hit 2026-10-06 seed hunt (seed→hit):** idempotent re-read on hard-purge transition path; regression `TryAdvanceTenantAsync_concurrent_deleted_transition_returns_success_without_duplicate_audit_when_race_loses_atomic_transition`.
 
 2026-10-06 seed hunt (seed→hit): reseeded trial lifecycle automation after erasure idempotency fixes; proved concurrent `TryAdvanceTenantAsync` losers returned `false` despite `TrialStatus` already at the target state; fixed idempotent re-read; 141 scoped tenancy tests passed.
 
