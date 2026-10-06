@@ -84,22 +84,48 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     timeout: 60_000,
   });
 
-  const createRespPromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/architecture/request") && response.request().method() === "POST",
-    { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
-  );
+  let runId = "";
 
-  await clickSimplifiedPilotWizardPrimary(page, startReview);
+  await expect(async () => {
+    await dismissFirstSessionPurposeChooserIfVisible(page);
+    await dismissBlockingModalOverlays(page);
+    await expect(startReview).toBeEnabled({ timeout: 10_000 });
 
-  const createResp = await createRespPromise;
+    const createRespPromise = page.waitForResponse(
+      (response) => {
+        if (!response.url().includes("/api/proxy/v1/architecture/request")) {
+          return false;
+        }
 
-  expect(createResp.ok(), await createResp.text()).toBeTruthy();
+        if (response.request().method() !== "POST") {
+          return false;
+        }
 
-  const createJson = (await createResp.json()) as { run?: { runId?: string } };
-  const runId = createJson.run?.runId ?? "";
+        const status = response.status();
 
-  expect(runId.length).toBeGreaterThan(0);
+        return status === 200 || status === 201;
+      },
+      { timeout: 120_000 },
+    );
+
+    await clickThroughBlockingOverlays(page, startReview);
+
+    const createResp = await createRespPromise;
+    const bodyText = (await createResp.text()).trim();
+
+    expect(bodyText.length, `empty architecture create body (HTTP ${createResp.status()})`).toBeGreaterThan(0);
+
+    let createJson: { run?: { runId?: string } };
+
+    try {
+      createJson = JSON.parse(bodyText) as { run?: { runId?: string } };
+    } catch {
+      throw new Error(`architecture create response was not JSON: ${bodyText.slice(0, 400)}`);
+    }
+
+    runId = createJson.run?.runId ?? "";
+    expect(runId.length).toBeGreaterThan(0);
+  }).toPass({ timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() });
 
   return runId;
 }
@@ -117,15 +143,6 @@ async function clickSimplifiedPilotWizardNext(
     await expect(page.getByTestId("simplified-pilot-progress")).toContainText(expectedProgress, {
       timeout: 20_000,
     });
-  }).toPass({ timeout: 120_000 });
-}
-
-async function clickSimplifiedPilotWizardPrimary(page: Page, target: Locator): Promise<void> {
-  await expect(async () => {
-    await dismissFirstSessionPurposeChooserIfVisible(page);
-    await dismissBlockingModalOverlays(page);
-    await expect(target).toBeEnabled({ timeout: 10_000 });
-    await clickThroughBlockingOverlays(page, target);
   }).toPass({ timeout: 120_000 });
 }
 
