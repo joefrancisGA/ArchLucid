@@ -17,6 +17,38 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipLeaseRenewalScopeTests
 {
     [Fact]
+    public void TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        RunExecuteOwnershipLeaseService service = CreateService(leases);
+
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions
+        {
+            Enabled = true,
+            LeaseDurationSeconds = 15,
+            HeartbeatRenewIntervalSeconds = 0,
+        });
+
+        Mock<IArchLucidStorageMode> storage = new();
+        storage.Setup(s => s.IsInMemory).Returns(false);
+
+        using CancellationTokenSource executeCts = new();
+
+        RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
+            service,
+            storage.Object,
+            options.Object,
+            runId,
+            executeCts,
+            NullLogger.Instance);
+
+        scope.Should().NotBeNull(
+            "heartbeat interval math must clamp sub-minimum lease durations before computing renewIntervalSeconds");
+    }
+
+    [Fact]
     public async Task BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease()
     {
         Guid runId = Guid.NewGuid();

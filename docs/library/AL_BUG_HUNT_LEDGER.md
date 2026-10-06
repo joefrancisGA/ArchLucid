@@ -29332,13 +29332,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-05 — release dropped pinned holder before repository release, breaking retry after transient failure when process instance id rotated
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-06 seed hunt (seed-only): re-read `ArchitectureRunExecuteOrchestrator`, `RunExecuteOwnershipLeaseService`, and `RunExecuteOwnershipLeaseRenewalScope`; cheap-disproved `RunExecuteOwnershipLeaseRenewalScope.TryBegin` sub-minimum lease interval upper-bound panic (`LeaseDurationSeconds` is clamped to 30 before `renewIntervalSeconds` math); regression `TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum`; no new hunt-ready row promoted; 63 scoped ownership/orchestrator tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted release pin-order candidate; proved `ReleaseAsync` removed the pinned holder from `_activeHolderInstanceIds` before `TryReleaseAsync`, so a transient release failure after `IHostProcessInstanceId` rotation retried with the wrong holder and left the SQL lease pinned; fixed by clearing the pin only after a successful repository release; regression `ReleaseAsync_when_repository_throws_and_process_instance_rotates_retry_still_targets_original_holder`; 61 scoped ownership/orchestrator tests passed.
 
@@ -29409,7 +29411,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `RunExecuteOwnershipLeaseService.IsEnabled` — separate option reads within one acquire/renew/release operation can make a single operation change behavior mid-flight; reachable when `IOptionsMonitor<RunExecuteOwnershipLeaseOptions>` reloads during an ownership call.
 - [x] (proven) `RunExecuteOwnershipLeaseService.ReleaseAsync` / `ReleaseAllHeldByThisInstanceAsync` — runtime disable before finalization caused release to return immediately, retaining a lease acquired while ownership was enabled — **hit 2026-10-05 seed hunt:** release and shutdown drain invoke the repository on SQL storage even when `Enabled` is false; regressions `ReleaseAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage` and `ReleaseAllHeldByThisInstanceAsync_when_ownership_disabled_still_invokes_repository_on_sql_storage`.
 - (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — the first immediate renewal can use a different enabled/lease-duration configuration than acquisition and silently skip or shorten the heartbeat; reachable during an options reload immediately after acquisition.
-- (candidate) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — interval clamping to `leaseDurationSeconds - 1` can produce a non-positive upper bound for invalid runtime lease options before duration clamping is applied; reachable through malformed options reload values.
+- [x] (invalid) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — interval clamping to `leaseDurationSeconds - 1` can produce a non-positive upper bound for invalid runtime lease options before duration clamping is applied — **cheap-disproof 2026-10-06 seed hunt:** `TryBegin` clamps `LeaseDurationSeconds` to `[30, 3600]` before computing `renewIntervalSeconds`; regression `TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum`.
 - [x] (proven) `RunExecuteOwnershipLeaseService.AcquireAsync` / `ReleaseAsync` — changing `IHostProcessInstanceId` between acquire and release prevented conditional cleanup — **hit 2026-10-05 seed hunt:** pin holder instance id at successful acquire for renew/release and multi-holder shutdown drain; regression `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
