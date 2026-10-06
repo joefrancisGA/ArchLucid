@@ -22,6 +22,7 @@ import {
   revokeAdminUserInvite,
   stubEmptyArchitectureDraftListRoute,
   validateInvitationToken,
+  waitForOperatorAuthMeProxyOk,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
