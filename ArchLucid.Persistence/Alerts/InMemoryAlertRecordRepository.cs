@@ -1,3 +1,5 @@
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
@@ -27,7 +29,10 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.AlertId == alert.AlertId);
+            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
+            int i = _items.FindIndex(x =>
+                x.AlertId == alert.AlertId &&
+                AlertRecordRepositoryCore.MatchesScope(x, alert.TenantId, alert.WorkspaceId, alert.ProjectId));
             if (i >= 0)
                 _items[i] = alert;
         }
@@ -36,12 +41,13 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
     }
 
     /// <inheritdoc />
-    public Task ArchiveAsync(Guid alertId, CancellationToken ct)
+    public Task ArchiveAsync(ScopeContext scope, Guid alertId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            AlertRecord? match = _items.FirstOrDefault(x => x.AlertId == alertId);
+            AlertRecord? match = FindInScope(scope, alertId);
 
             if (match is not null)
                 AlertRecordRepositoryCore.ApplyArchive(match, TimeProvider.System.UtcNowDateTime());
@@ -50,12 +56,20 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         return Task.CompletedTask;
     }
 
-    public Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
+    /// <inheritdoc />
+    public Task<AlertRecord?> GetByIdAsync(ScopeContext scope, Guid alertId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.AlertId == alertId));
+            return Task.FromResult(FindInScope(scope, alertId));
     }
+
+    /// <summary>Caller must hold <see cref="_gate" />.</summary>
+    private AlertRecord? FindInScope(ScopeContext scope, Guid alertId) =>
+        _items.FirstOrDefault(x =>
+            x.AlertId == alertId &&
+            AlertRecordRepositoryCore.MatchesScope(x, scope.TenantId, scope.WorkspaceId, scope.ProjectId));
 
     public Task<AlertRecord?> GetOpenByDeduplicationKeyAsync(
         Guid tenantId,

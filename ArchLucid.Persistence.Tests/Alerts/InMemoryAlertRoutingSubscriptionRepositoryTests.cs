@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Alerts;
 
@@ -15,6 +16,13 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 1, 8, 0, 0, DateTimeKind.Utc);
 
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_subscription()
     {
@@ -24,7 +32,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
 
         await repo.CreateAsync(sub, CancellationToken.None);
 
-        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Scope, id, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.RoutingSubscriptionId.Should().Be(id);
@@ -36,8 +44,29 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
 
-        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(
+            Scope,
+            Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
             CancellationToken.None);
+
+        loaded.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetByIdAsync_returns_null_for_another_tenant()
+    {
+        InMemoryAlertRoutingSubscriptionRepository repo = new();
+        Guid id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
+        await repo.CreateAsync(BuildSubscription(id, true, BaseUtc, "a@b.com"), CancellationToken.None);
+
+        ScopeContext otherTenant = new()
+        {
+            TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(otherTenant, id, CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -53,7 +82,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
 
         await repo.UpdateAsync(next, CancellationToken.None);
 
-        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Scope, id, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -20,8 +21,8 @@ public interface IAlertRecordRepository
     /// <summary>Updates lifecycle fields after acknowledge/resolve/suppress.</summary>
     Task UpdateAsync(AlertRecord alert, CancellationToken ct);
 
-    /// <summary>Returns a row by primary key regardless of scope (callers often verify scope separately).</summary>
-    Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct);
+    /// <summary>Returns a row by primary key within <paramref name="scope" />; <c>null</c> when missing or out of scope.</summary>
+    Task<AlertRecord?> GetByIdAsync(ScopeContext scope, Guid alertId, CancellationToken ct);
 
     /// <summary>
     ///     Finds the newest open or acknowledged alert for the deduplication key within the scope (used to suppress duplicate
@@ -34,8 +35,8 @@ public interface IAlertRecordRepository
         string deduplicationKey,
         CancellationToken ct);
 
-    /// <summary>Marks an alert as archived (hidden from default listings).</summary>
-    Task ArchiveAsync(Guid alertId, CancellationToken ct);
+    /// <summary>Marks an alert in <paramref name="scope" /> as archived (hidden from default listings).</summary>
+    Task ArchiveAsync(ScopeContext scope, Guid alertId, CancellationToken ct);
 
     /// <summary>Lists recent alerts for the scope, optionally filtered by <paramref name="status" />.</summary>
     Task<IReadOnlyList<AlertRecord>> ListByScopeAsync(

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -46,7 +48,10 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
                 Status = @Status,
                 ErrorMessage = @ErrorMessage,
                 RetryCount = @RetryCount
-            WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId;
+            WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -55,13 +60,18 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
+        ScopeContext scope,
         Guid alertId,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT TOP 200 *
             FROM dbo.AlertDeliveryAttempts
             WHERE AlertId = @AlertId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -69,21 +79,29 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
         IEnumerable<AlertDeliveryAttempt> result = await connection.QueryAsync<AlertDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
-                AlertId = alertId
+                AlertId = alertId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
         return result.ToList();
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid routingSubscriptionId,
         int take,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT TOP (@Take) *
             FROM dbo.AlertDeliveryAttempts
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY AttemptedUtc DESC;
             """;
 
@@ -94,7 +112,10 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
                 new
                 {
                     RoutingSubscriptionId = routingSubscriptionId,
-                    Take = take
+                    Take = take,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
                 },
                 cancellationToken: ct));
         return result.ToList();

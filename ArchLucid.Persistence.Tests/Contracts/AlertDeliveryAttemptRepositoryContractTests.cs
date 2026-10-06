@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -60,11 +61,42 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         await repo.CreateAsync(first, CancellationToken.None);
         await repo.CreateAsync(second, CancellationToken.None);
 
-        IReadOnlyList<AlertDeliveryAttempt> list = await repo.ListByAlertAsync(alertId, CancellationToken.None);
+        IReadOnlyList<AlertDeliveryAttempt> list =
+            await repo.ListByAlertAsync(ScopeOf(tenantId, workspaceId, projectId), alertId, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].AlertDeliveryAttemptId.Should().Be(second.AlertDeliveryAttemptId);
         list[1].AlertDeliveryAttemptId.Should().Be(first.AlertDeliveryAttemptId);
+    }
+
+    [SkippableFact]
+    public async Task ListByAlert_from_another_scope_returns_empty()
+    {
+        SkipIfSqlServerUnavailable();
+        Guid alertId = Guid.NewGuid();
+        Guid subscriptionId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        await EnsureDeliveryAttemptParentsExistAsync(
+            alertId,
+            subscriptionId,
+            tenantId,
+            workspaceId,
+            projectId,
+            CancellationToken.None);
+
+        IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
+
+        await repo.CreateAsync(
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        IReadOnlyList<AlertDeliveryAttempt> list =
+            await repo.ListByAlertAsync(ScopeOf(tenantId, workspaceId, Guid.NewGuid()), alertId, CancellationToken.None);
+
+        list.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -94,7 +126,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
         await repo.UpdateAsync(attempt, CancellationToken.None);
 
-        IReadOnlyList<AlertDeliveryAttempt> list = await repo.ListByAlertAsync(alertId, CancellationToken.None);
+        IReadOnlyList<AlertDeliveryAttempt> list =
+            await repo.ListByAlertAsync(ScopeOf(tenantId, workspaceId, projectId), alertId, CancellationToken.None);
 
         list.Should().ContainSingle();
         list[0].Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
@@ -132,13 +165,24 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         await repo.CreateAsync(b, CancellationToken.None);
         await repo.CreateAsync(c, CancellationToken.None);
 
-        IReadOnlyList<AlertDeliveryAttempt> list =
-            await repo.ListBySubscriptionAsync(subscriptionId, 2, CancellationToken.None);
+        IReadOnlyList<AlertDeliveryAttempt> list = await repo.ListBySubscriptionAsync(
+            ScopeOf(tenantId, workspaceId, projectId),
+            subscriptionId,
+            2,
+            CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].AlertDeliveryAttemptId.Should().Be(c.AlertDeliveryAttemptId);
         list[1].AlertDeliveryAttemptId.Should().Be(b.AlertDeliveryAttemptId);
     }
+
+    private static ScopeContext ScopeOf(Guid tenantId, Guid workspaceId, Guid projectId) =>
+        new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
 
     private static AlertDeliveryAttempt NewAttempt(
         Guid alertId,

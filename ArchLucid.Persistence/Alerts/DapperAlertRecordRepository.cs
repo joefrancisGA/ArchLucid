@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -37,26 +39,43 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     }
 
     /// <inheritdoc />
-    public async Task ArchiveAsync(Guid alertId, CancellationToken ct)
+    public async Task ArchiveAsync(ScopeContext scope, Guid alertId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(
             AlertRecordRepositoryCore.ArchiveSql,
-            new { AlertId = alertId, LastUpdatedUtc = TimeProvider.System.UtcNowDateTime() },
+            new
+            {
+                AlertId = alertId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                LastUpdatedUtc = TimeProvider.System.UtcNowDateTime()
+            },
             cancellationToken: ct));
     }
 
-    public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
+    /// <inheritdoc />
+    public async Task<AlertRecord?> GetByIdAsync(ScopeContext scope, Guid alertId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         string sql = $"""
             SELECT {AlertRecordRepositoryCore.SelectColumns}
             FROM dbo.AlertRecords
-            WHERE AlertId = @AlertId;
+            WHERE AlertId = @AlertId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
-            new CommandDefinition(sql, new { AlertId = alertId }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new { AlertId = alertId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />

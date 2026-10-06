@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Connections;
@@ -22,6 +23,7 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
         Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         Guid ruleId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         AlertRule rule = new()
         {
@@ -41,7 +43,7 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
 
         await repository.CreateAsync(rule, CancellationToken.None);
 
-        AlertRule? loaded = await repository.GetByIdAsync(ruleId, CancellationToken.None);
+        AlertRule? loaded = await repository.GetByIdAsync(scope, ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Name.Should().Be("SQL integration rule");
         loaded.ThresholdValue.Should().Be(42.5m);
@@ -49,7 +51,7 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
         rule.Name = "SQL integration rule (updated)";
         await repository.UpdateAsync(rule, CancellationToken.None);
 
-        AlertRule? afterUpdate = await repository.GetByIdAsync(ruleId, CancellationToken.None);
+        AlertRule? afterUpdate = await repository.GetByIdAsync(scope, ruleId, CancellationToken.None);
         afterUpdate.Should().NotBeNull();
         afterUpdate.Name.Should().Be("SQL integration rule (updated)");
 

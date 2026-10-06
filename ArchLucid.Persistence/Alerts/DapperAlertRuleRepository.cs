@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -50,29 +52,40 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
                 IsEnabled = @IsEnabled,
                 TargetChannelType = @TargetChannelType,
                 MetadataJson = @MetadataJson
-            WHERE RuleId = @RuleId;
+            WHERE RuleId = @RuleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, rule, cancellationToken: ct));
     }
 
-    public async Task<AlertRule?> GetByIdAsync(Guid ruleId, CancellationToken ct)
+    /// <inheritdoc />
+    public async Task<AlertRule?> GetByIdAsync(ScopeContext scope, Guid ruleId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT
                 RuleId, TenantId, WorkspaceId, ProjectId,
                 Name, RuleType, Severity, ThresholdValue, IsEnabled,
                 TargetChannelType, MetadataJson, CreatedUtc
             FROM dbo.AlertRules
-            WHERE RuleId = @RuleId;
+            WHERE RuleId = @RuleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRule>(
             new CommandDefinition(sql, new
             {
-                RuleId = ruleId
+                RuleId = ruleId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
     }
 

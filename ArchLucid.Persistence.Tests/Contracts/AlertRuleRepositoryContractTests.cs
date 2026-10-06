@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -13,6 +14,14 @@ public abstract class AlertRuleRepositoryContractTests
     private static readonly Guid TenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
     private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
     private static readonly Guid ProjectId = Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0");
+
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     protected abstract IAlertRuleRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
@@ -48,7 +57,7 @@ public abstract class AlertRuleRepositoryContractTests
 
         await repo.CreateAsync(rule, CancellationToken.None);
 
-        AlertRule? loaded = await repo.GetByIdAsync(rule.RuleId, CancellationToken.None);
+        AlertRule? loaded = await repo.GetByIdAsync(Scope, rule.RuleId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.RuleId.Should().Be(rule.RuleId);
@@ -67,9 +76,51 @@ public abstract class AlertRuleRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
 
-        AlertRule? result = await repo.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
+        AlertRule? result = await repo.GetByIdAsync(Scope, Guid.NewGuid(), CancellationToken.None);
 
         result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetById_from_another_scope_returns_null()
+    {
+        SkipIfSqlServerUnavailable();
+        IAlertRuleRepository repo = CreateRepository();
+        AlertRule rule = CreateRule();
+
+        await repo.CreateAsync(rule, CancellationToken.None);
+
+        ScopeContext otherProject = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.NewGuid(),
+        };
+
+        AlertRule? result = await repo.GetByIdAsync(otherProject, rule.RuleId, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task Update_from_another_scope_does_not_modify_row()
+    {
+        SkipIfSqlServerUnavailable();
+        IAlertRuleRepository repo = CreateRepository();
+        AlertRule rule = CreateRule();
+
+        await repo.CreateAsync(rule, CancellationToken.None);
+
+        AlertRule foreignCopy = CreateRule(rule.RuleId);
+        foreignCopy.ProjectId = Guid.NewGuid();
+        foreignCopy.Name = "Hijacked";
+
+        await repo.UpdateAsync(foreignCopy, CancellationToken.None);
+
+        AlertRule? after = await repo.GetByIdAsync(Scope, rule.RuleId, CancellationToken.None);
+
+        after.Should().NotBeNull();
+        after.Name.Should().Be(rule.Name);
     }
 
     [SkippableFact]
@@ -87,7 +138,7 @@ public abstract class AlertRuleRepositoryContractTests
 
         await repo.UpdateAsync(rule, CancellationToken.None);
 
-        AlertRule? after = await repo.GetByIdAsync(rule.RuleId, CancellationToken.None);
+        AlertRule? after = await repo.GetByIdAsync(Scope, rule.RuleId, CancellationToken.None);
 
         after.Should().NotBeNull();
         after.Name.Should().Be("Updated name");

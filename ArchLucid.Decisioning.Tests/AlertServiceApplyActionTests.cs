@@ -1,5 +1,6 @@
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -24,6 +25,13 @@ namespace ArchLucid.Decisioning.Tests;
 [Trait("Category", "Unit")]
 public sealed class AlertServiceApplyActionTests
 {
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     // ──────────────────────────────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────────────────────────────
@@ -52,7 +60,7 @@ public sealed class AlertServiceApplyActionTests
             .Returns(Task.CompletedTask);
 
         alertRepo
-            .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByIdAsync(Scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingAlert);
 
         alertRepo
@@ -116,6 +124,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, _) = Build(existingAlert: null);
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             Guid.NewGuid(), "user1", "User One",
             new AlertActionRequest { Action = AlertActionType.Acknowledge },
             CancellationToken.None);
@@ -136,6 +145,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, Mock<IAuditService> audit) = Build(alert);
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             alertId, "user1", "User One",
             new AlertActionRequest { Action = "DeleteIt" },
             CancellationToken.None);
@@ -159,6 +169,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, Mock<IAuditService> audit) = Build(alert);
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             alertId, "user1", "User One",
             new AlertActionRequest { Action = AlertActionType.Acknowledge },
             CancellationToken.None);
@@ -180,6 +191,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, Mock<IAuditService> audit) = Build(OpenAlert(alertId));
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             alertId, "user1", "User One",
             new AlertActionRequest { Action = AlertActionType.Acknowledge, Comment = "noted" },
             CancellationToken.None);
@@ -204,6 +216,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, Mock<IAuditService> audit) = Build(OpenAlert(alertId));
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             alertId, "user1", "User One",
             new AlertActionRequest { Action = AlertActionType.Resolve },
             CancellationToken.None);
@@ -228,6 +241,7 @@ public sealed class AlertServiceApplyActionTests
         (AlertService sut, Mock<IAlertRecordRepository> repo, Mock<IAuditService> audit) = Build(OpenAlert(alertId));
 
         AlertRecord? result = await sut.ApplyActionAsync(
+            Scope,
             alertId, "user1", "User One",
             new AlertActionRequest { Action = AlertActionType.Suppress },
             CancellationToken.None);

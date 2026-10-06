@@ -49,14 +49,20 @@ internal static class AlertRecordRepositoryCore
             AcknowledgedByUserId = @AcknowledgedByUserId,
             AcknowledgedByUserName = @AcknowledgedByUserName,
             ResolutionComment = @ResolutionComment
-        WHERE AlertId = @AlertId;
+        WHERE AlertId = @AlertId
+          AND TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId;
         """;
 
     public const string ArchiveSql = """
         UPDATE dbo.AlertRecords
         SET IsArchived = 1,
             LastUpdatedUtc = @LastUpdatedUtc
-        WHERE AlertId = @AlertId;
+        WHERE AlertId = @AlertId
+          AND TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId;
         """;
 
     public const string InboxSummarySql = """

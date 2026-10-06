@@ -1,3 +1,6 @@
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -6,8 +9,10 @@ namespace ArchLucid.Persistence.Alerts;
 
 public sealed partial class DapperCompositeAlertRuleRepository
 {
-    public async Task<CompositeAlertRule?> GetByIdAsync(Guid compositeRuleId, CancellationToken ct)
+    /// <inheritdoc />
+    public async Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sqlRule = """
             SELECT
                 CompositeRuleId, TenantId, WorkspaceId, ProjectId,
@@ -15,14 +20,20 @@ public sealed partial class DapperCompositeAlertRuleRepository
                 SuppressionWindowMinutes, CooldownMinutes, ReopenDeltaThreshold,
                 DedupeScope, TargetChannelType, CreatedUtc
             FROM dbo.CompositeAlertRules
-            WHERE CompositeRuleId = @CompositeRuleId;
+            WHERE CompositeRuleId = @CompositeRuleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         CompositeAlertRule? rule = await connection.QueryFirstOrDefaultAsync<CompositeAlertRule>(
             new CommandDefinition(sqlRule, new
             {
-                CompositeRuleId = compositeRuleId
+                CompositeRuleId = compositeRuleId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
 
         if (rule is null)

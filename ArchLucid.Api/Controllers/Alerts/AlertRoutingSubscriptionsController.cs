@@ -142,13 +142,9 @@ public sealed class AlertRoutingSubscriptionsController(
         Guid routingSubscriptionId,
         CancellationToken ct = default)
     {
-        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(subscription, scope))
+        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(scope, routingSubscriptionId, ct);
+        if (subscription is null)
             return this.NotFoundProblem(
                 $"Routing subscription '{routingSubscriptionId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
@@ -181,28 +177,20 @@ public sealed class AlertRoutingSubscriptionsController(
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.",
-                ProblemTypes.ResourceNotFound);
-
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        if (!MatchesScope(subscription, scope))
+        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(scope, routingSubscriptionId, ct);
+        if (subscription is null)
             return this.NotFoundProblem(
                 $"Routing subscription '{routingSubscriptionId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<AlertDeliveryAttempt> attempts =
-            await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId,
-                Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
+            await attemptRepository.ListBySubscriptionAsync(
+                scope,
+                routingSubscriptionId,
+                Math.Clamp(take, 1, PaginationDefaults.MaxPageSize),
+                ct);
         return Ok(attempts);
-    }
-
-    private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope)
-    {
-        return subscription.TenantId == scope.TenantId &&
-               subscription.WorkspaceId == scope.WorkspaceId &&
-               subscription.ProjectId == scope.ProjectId;
     }
 
     private static bool IsOutboundWebhookChannel(string channelType)

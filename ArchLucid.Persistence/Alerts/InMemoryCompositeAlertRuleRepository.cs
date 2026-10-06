@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -22,7 +23,12 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.CompositeRuleId == rule.CompositeRuleId);
+            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
+            int i = _items.FindIndex(x =>
+                x.CompositeRuleId == rule.CompositeRuleId &&
+                x.TenantId == rule.TenantId &&
+                x.WorkspaceId == rule.WorkspaceId &&
+                x.ProjectId == rule.ProjectId);
             if (i >= 0)
                 _items[i] = CompositeAlertRuleRepositoryCore.CloneRule(rule);
         }
@@ -30,12 +36,15 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         return Task.CompletedTask;
     }
 
-    public Task<CompositeAlertRule?> GetByIdAsync(Guid compositeRuleId, CancellationToken ct)
+    public Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
         {
-            CompositeAlertRule? found = _items.FirstOrDefault(x => x.CompositeRuleId == compositeRuleId);
+            CompositeAlertRule? found = CompositeAlertRuleRepositoryCore
+                .FilterByScope(_items, scope.TenantId, scope.WorkspaceId, scope.ProjectId)
+                .FirstOrDefault(x => x.CompositeRuleId == compositeRuleId);
             return Task.FromResult(found is null ? null : CompositeAlertRuleRepositoryCore.CloneRule(found));
         }
     }

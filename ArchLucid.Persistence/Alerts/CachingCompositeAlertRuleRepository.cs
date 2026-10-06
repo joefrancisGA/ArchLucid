@@ -42,11 +42,13 @@ public sealed class CachingCompositeAlertRuleRepository(
     }
 
     /// <inheritdoc />
-    public Task<CompositeAlertRule?> GetByIdAsync(Guid compositeRuleId, CancellationToken ct)
+    public Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         return _hotPathReadCache.GetOrCreateAsync(
-            HotPathCacheKeys.CompositeAlertRuleById(compositeRuleId),
-            innerCt => _inner.GetByIdAsync(compositeRuleId, innerCt),
+            HotPathCacheKeys.CompositeAlertRuleById(scope, compositeRuleId),
+            innerCt => _inner.GetByIdAsync(scope, compositeRuleId, innerCt),
             ct);
     }
 
