@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `FindingRemediationAssignmentOperatorLinks` and `FindingRemediationAssignmentEmailDispatcher` concatenated raw `OperatorBaseUrl` userinfo into finding inspect and assigned-queue hrefs; normalize via `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` in link builder and dispatcher; regressions `BuildFindingInspectUrl_omits_user_info_from_operator_base_url`, `BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url`, and `TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links`; 150 scoped notifications/digest tests passed.
+
+2026-10-06 seed hunt (seed→hit): `notifications-pipeline` — `CommitSponsorEmailNotifier` and sibling notification dispatchers built operator review/support links from raw `OperatorBaseUrl`, embedding `user:password@` userinfo into outbound email hrefs; added `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority` and wired commit-sponsor, recurrence-completion, and support-problem notifiers; regressions `TryNormalizeOperatorBaseAuthority_omits_user_info` and `NotifyAfterCommitAsync_omits_user_info_from_operator_base_url_in_review_link`; 136 scoped Application Notifications.Email tests passed.
+
 2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `ApiKey=` effective values on non-sensitive paths leaked because credential pair detection omitted `ApiKey=` from scalar and semicolon-delimited checks; centralize connection-string pair markers and include `ApiKey=`; regression `Resolve_redacts_plain_scalar_connection_string_when_api_key_is_the_only_pair`; 1066 scoped Configuration tests passed (Release, no-build filter).
 
 2026-10-06 seed hunt (seed→hit): `core-configuration-summary` — single-pair `ClientSecret=` effective values on non-sensitive paths leaked because `LooksLikeEmbeddedConnectionString` omitted OAuth-style `ClientSecret=` from leading-pair and semicolon-delimited credential marker detection; regression `Resolve_redacts_plain_scalar_connection_string_when_client_secret_is_the_only_pair`; 1065 scoped Configuration tests passed (Release, no-build filter).
@@ -25396,18 +25400,28 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 56
-- **bugs-found:** 40
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-09-27 — exec digest and sibling dispatchers used padded OperatorBaseUrl for logo URLs
+- **hunts:** 58
+- **bugs-found:** 42
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — operator base userinfo leaked into finding remediation assignment links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): reseeded notifications-pipeline after commit-sponsor link fix; promoted finding-remediation operator deep links; proved `FindingRemediationAssignmentOperatorLinks` still embedded `OperatorBaseUrl` userinfo in inspect/queue URLs while logos were authority-normalized; fixed link builder + dispatcher; 150 scoped notifications/digest tests passed.
+
+- [x] (proven) `FindingRemediationAssignmentOperatorLinks` / `FindingRemediationAssignmentEmailDispatcher` — raw `OperatorBaseUrl` userinfo leaked into finding inspect and assigned-to-me queue links — **hit 2026-10-06 seed hunt (seed→hit):** `TryNormalizeOperatorBaseAuthority` in link builder and dispatcher; regressions `BuildFindingInspectUrl_omits_user_info_from_operator_base_url`, `BuildAssignedToMeQueueUrl_omits_user_info_from_operator_base_url`, and `TryDispatchAsync_omits_user_info_from_operator_base_url_in_finding_links`.
+
+- [ ] (candidate) `TrialLifecycleEmailDispatcher.CombineUrl` — `OperatorBaseUrl` with `user:pass@host` concatenated into trial welcome links (`/welcome`) while `TryBuildLogoImageUrl` strips userinfo; reachable when admin mailbox resolves and trial trigger gate passes.
 
 2026-10-03 seed hunt (seed-only): reseeded notifications-pipeline across digest subscription CRUD/attempts, webhook delivery, and email dispatch; no hunt-ready defect survived cheap-disproof. Scoped Application notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured. Seeded retry-idempotency, webhook DNS-rebind, and duplicate digest-id query candidates for later proof.
 2026-10-03 thorough hunt (dry): cheap-disproved all four notification candidates; no failing repro or source change emerged. Notifications webhook tests passed; API and Application test builds were blocked by unrelated repository-wide ARCH006/ARCH006a analyzer errors before test execution.
 
 2026-10-03 thorough hunt (dry): rechecked the four notification candidates; duplicate digest IDs are deduplicated by the repository query and response mapping, email ledger races preserve at-most-once reservation semantics, and the retry-idempotency and DNS-rebind lenses lacked a falsifiable same-run contract/repro in the scoped files. Notification tests passed 141/141 and DigestSubscriptions controller unit tests passed 11/11; 2 SQL-backed authorization tests could not run because no SQL Server was configured.
+
+2026-10-06 seed hunt (seed→hit): reseeded notifications-pipeline after shared logo userinfo fix; proved commit-sponsor and recurrence/support notifiers still concatenated raw `OperatorBaseUrl` userinfo into review and settings links; fixed via `TryNormalizeOperatorBaseAuthority`; 136 scoped Application Notifications.Email tests passed.
+
+- [x] (proven) `CommitSponsorEmailNotifier` / `RecurrenceCompletionEmailDispatcher` / `SupportProblemReportNotifier` — raw `OperatorBaseUrl` userinfo (`https://user:secret@host`) leaked into outbound email review/support links while logo URLs were already authority-normalized — **hit 2026-10-06 seed hunt (seed→hit):** `EmailBrandingUrls.TryNormalizeOperatorBaseAuthority`; regressions `TryNormalizeOperatorBaseAuthority_omits_user_info` and `NotifyAfterCommitAsync_omits_user_info_from_operator_base_url_in_review_link`.
 
 2026-09-27 seed hunt #52 (seed→hit): reseeded notifications-pipeline after #51 summary logo fix; proved `ExecDigestEmailDispatcher`, `RecurrenceCompletionEmailDispatcher`, `FindingRemediationAssignmentEmailDispatcher`, and `TrialLifecycleEmailDispatcher` still passed padded `OperatorBaseUrl` into branding/operator links (`TrimEnd('/')` only); fixed with `Trim().TrimEnd('/')` parity and `EmailBrandingUrls.TryBuildLogoImageUrl` leading-whitespace trim; regressions `ExecDigestEmailDispatcher_trims_padded_operator_base_url_in_logo_image_url` and `TryBuildLogoImageUrl_trims_leading_and_trailing_whitespace_on_base`; 141 scoped Application notifications/digest tests passed.
 

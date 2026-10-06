@@ -65,9 +65,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
-        string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
-            ? null
-            : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
+        string? operatorBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(emailOptions.OperatorBaseUrl);
 
         string trimmedFindingId = findingId.Trim();
         string trimmedTitle = string.IsNullOrWhiteSpace(findingTitle) ? trimmedFindingId : findingTitle.Trim();
