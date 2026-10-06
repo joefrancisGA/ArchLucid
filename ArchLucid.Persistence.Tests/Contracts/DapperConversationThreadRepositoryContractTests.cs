@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -20,6 +21,8 @@ public sealed class DapperConversationThreadRepositoryContractTests(SqlServerPer
 
     protected override IConversationThreadRepository CreateRepository()
     {
-        return new DapperConversationThreadRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        return new DapperConversationThreadRepository(
+            new TestSqlConnectionFactory(fixture.ConnectionString),
+            new EmptyPersistenceScopeContextProvider());
     }
 }

@@ -39,16 +39,18 @@ Describe "Run-SecureNowAzureExtractor.ps1" {
         $PSModuleAutoLoadingPreference = $script:previousModuleAutoLoadingPreference
     }
 
-    It "enables cost, retail prices, and app settings hosts by default" {
+    It "keeps cost and retail prices opt-in while enabling app settings hosts" {
         [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
 
-        $content | Should -Match 'IncludeCost\s*=\s*\(-not \$SkipCost\)'
-        $content | Should -Match 'IncludeRetailPrices\s*=\s*\$true'
+        $content | Should -Match '\[switch\]\s*\$IncludeCost'
+        $content | Should -Match '\[switch\]\s*\$IncludeRetailPrices'
+        $content | Should -Match 'IncludeCost\s*=\s*\(\[bool\]\$IncludeCost\s*-and\s*-not\s*\[bool\]\$SkipCost\)'
+        $content | Should -Match 'IncludeRetailPrices\s*=\s*\[bool\]\$IncludeRetailPrices'
         $content | Should -Match 'IncludeAppSettingsHosts\s*=\s*\$true'
         $content | Should -Match 'CostTimeoutSeconds\s*=\s*\$CostTimeoutSeconds'
     }
 
-    It "offers an explicit switch to skip optional cost collection" {
+    It "keeps an explicit switch to force cost collection off" {
         [string]$content = Get-Content -LiteralPath $script:quickStartScript -Raw
 
         $content | Should -Match '\[switch\]\s*\$SkipCost'

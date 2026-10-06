@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -33,7 +35,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
+            int i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId && SameScope(x, schedule));
             if (i >= 0)
                 _items[i] = schedule;
         }
@@ -86,10 +88,21 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
     }
 
     /// <inheritdoc />
-    public Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
+    public Task<AdvisoryScanSchedule?> GetByIdAsync(ScopeContext scope, Guid scheduleId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.ScheduleId == scheduleId));
+            return Task.FromResult(_items.FirstOrDefault(x => x.ScheduleId == scheduleId && MatchesScope(x, scope)));
     }
+
+    private static bool MatchesScope(AdvisoryScanSchedule schedule, ScopeContext scope) =>
+        schedule.TenantId == scope.TenantId &&
+        schedule.WorkspaceId == scope.WorkspaceId &&
+        schedule.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(AdvisoryScanSchedule stored, AdvisoryScanSchedule incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
@@ -51,12 +53,13 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
     }
 
     /// <inheritdoc />
-    public Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
+    public Task<ArchitectureDigest?> GetByIdAsync(ScopeContext scope, Guid digestId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            ArchitectureDigest? d = _items.FirstOrDefault(x => x.DigestId == digestId);
+            ArchitectureDigest? d = _items.FirstOrDefault(x => x.DigestId == digestId && MatchesScope(x, scope));
             return Task.FromResult(d is { ArchivedUtc: not null } ? null : d);
         }
     }
@@ -77,4 +80,9 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
 
         return Task.FromResult(count);
     }
+
+    private static bool MatchesScope(ArchitectureDigest digest, ScopeContext scope) =>
+        digest.TenantId == scope.TenantId &&
+        digest.WorkspaceId == scope.WorkspaceId &&
+        digest.ProjectId == scope.ProjectId;
 }

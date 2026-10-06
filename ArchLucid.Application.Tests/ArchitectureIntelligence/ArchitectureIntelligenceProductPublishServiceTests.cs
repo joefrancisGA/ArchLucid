@@ -140,8 +140,13 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
             return Task.CompletedTask;
         }
 
-        public Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct) =>
-            Task.FromResult<RecommendationRecord?>(null);
+        public Task<RecommendationRecord?> GetByIdAsync(ScopeContext scope, Guid recommendationId, CancellationToken ct)
+        {
+            _ = scope;
+            _ = recommendationId;
+            _ = ct;
+            return Task.FromResult<RecommendationRecord?>(null);
+        }
 
         public Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
             Guid tenantId,

@@ -244,6 +244,13 @@ export function countAssignedToMeLoadedFindings(
   return rows.filter((row) => row.recordKind === "finding").length;
 }
 
+/** Count query data is null when the API payload is not a finite number. */
+export function assignedToMeCountDataOrUndefined(
+  value: number | null | undefined,
+): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 export function hasAssignedToMeCountMismatch(options: {
   readonly isAssignedToMe: boolean;
   readonly loading: boolean;

@@ -1,13 +1,14 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
-[Trait("Category", "Unit")]
 
 /// <summary>
 ///     Shared contract assertions for <see cref="IArchitectureDigestRepository" />.
 ///     Subclass once with an InMemory implementation and once with Dapper + SQL Server
 ///     to guarantee both behave identically.
 /// </summary>
+[Trait("Category", "Unit")]
 public abstract class ArchitectureDigestRepositoryContractTests
 {
     private const int SeededDigestsForScopeTakeContract = 5;
@@ -15,6 +16,13 @@ public abstract class ArchitectureDigestRepositoryContractTests
     private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
     private static readonly Guid WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
     private static readonly Guid ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3");
+    private static ScopeContext DigestScope => new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     protected abstract IArchitectureDigestRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
@@ -49,7 +57,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
 
         await repo.CreateAsync(digest, CancellationToken.None);
 
-        ArchitectureDigest? loaded = await repo.GetByIdAsync(digest.DigestId, CancellationToken.None);
+        ArchitectureDigest? loaded = await repo.GetByIdAsync(DigestScope, digest.DigestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.DigestId.Should().Be(digest.DigestId);
@@ -69,7 +77,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
 
-        ArchitectureDigest? result = await repo.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
+        ArchitectureDigest? result = await repo.GetByIdAsync(DigestScope, Guid.NewGuid(), CancellationToken.None);
 
         result.Should().BeNull();
     }

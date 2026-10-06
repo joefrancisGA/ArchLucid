@@ -2,7 +2,9 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -16,7 +18,8 @@ namespace ArchLucid.Persistence.Governance;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackChangeLogRepository(
     ISqlConnectionFactory connectionFactory,
-    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory)
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IPolicyPackChangeLogRepository
 {
     /// <inheritdoc />
@@ -91,16 +94,24 @@ public sealed class DapperPolicyPackChangeLogRepository(
                                PreviousValue, NewValue, SummaryText
                            FROM dbo.PolicyPackChangeLog
                            WHERE PolicyPackId = @PolicyPackId
+                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob + """
                            ORDER BY ChangedUtc DESC;
                            """;
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         await using SqlConnection connection =
             await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new { PolicyPackId = policyPackId, MaxRows = maxRows },
+                new
+                {
+                    PolicyPackId = policyPackId,
+                    MaxRows = maxRows,
+                    scope.TenantId,
+                    EmptyTenantId = Guid.Empty
+                },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return rows.ToList();
@@ -122,6 +133,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
                                PreviousValue, NewValue, SummaryText
                            FROM dbo.PolicyPackChangeLog
                            WHERE TenantId = @TenantId
+                             AND ChangedUtc IS NOT NULL
                            ORDER BY ChangedUtc DESC;
                            """;
 

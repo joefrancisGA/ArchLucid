@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
@@ -16,6 +17,13 @@ public sealed class InMemoryRecommendationRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 3, 9, 0, 0, DateTimeKind.Utc);
 
+    private static ScopeContext TestScope => new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     [SkippableFact]
     public async Task UpsertAsync_inserts_new_row_and_GetByIdAsync_returns_it()
     {
@@ -25,7 +33,7 @@ public sealed class InMemoryRecommendationRepositoryTests
 
         await repo.UpsertAsync(rec, CancellationToken.None);
 
-        RecommendationRecord? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
+        RecommendationRecord? loaded = await repo.GetByIdAsync(TestScope, id, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.RecommendationId.Should().Be(id);
         loaded.PriorityScore.Should().Be(5);
@@ -58,7 +66,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         InMemoryRecommendationRepository repo = new();
 
         RecommendationRecord? loaded =
-            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+            await repo.GetByIdAsync(TestScope, Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -78,10 +86,10 @@ public sealed class InMemoryRecommendationRepositoryTests
         Guid newest = Guid.Parse("60000000-0000-0000-0000-000000050000");
         await repo.UpsertAsync(Minimal(newest, RunId, 0, BaseUtc.AddHours(100)), CancellationToken.None);
 
-        RecommendationRecord? removed = await repo.GetByIdAsync(firstId, CancellationToken.None);
+        RecommendationRecord? removed = await repo.GetByIdAsync(TestScope, firstId, CancellationToken.None);
         removed.Should().BeNull();
 
-        RecommendationRecord? tail = await repo.GetByIdAsync(newest, CancellationToken.None);
+        RecommendationRecord? tail = await repo.GetByIdAsync(TestScope, newest, CancellationToken.None);
         tail.Should().NotBeNull();
     }
 

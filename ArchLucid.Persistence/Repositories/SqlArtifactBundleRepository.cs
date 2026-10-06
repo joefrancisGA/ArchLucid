@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -27,7 +28,8 @@ namespace ArchLucid.Persistence.Repositories;
 public sealed partial class SqlArtifactBundleRepository(
     ISqlConnectionFactory connectionFactory,
     IArtifactBlobStore blobStore,
-    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IArtifactBundleRepository
+    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions,
+    IScopeContextProvider scopeContextProvider) : IArtifactBundleRepository
 {
     public async Task<ArtifactBundle?> GetByManifestIdAsync(
         ScopeContext scope,
@@ -152,15 +154,18 @@ public sealed partial class SqlArtifactBundleRepository(
                                TenantId, WorkspaceId, ProjectId,
                                BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
                            FROM dbo.ArtifactBundles
-                           WHERE BundleId = @BundleId;
-                           """;
+                           WHERE BundleId = @BundleId
+                           """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
             new CommandDefinition(
                 sql,
                 new
                 {
-                    BundleId = bundleId
+                    BundleId = bundleId,
+                    scope.TenantId,
+                    EmptyTenantId = Guid.Empty
                 },
                 transaction,
                 cancellationToken: ct));

@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Alerts;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
@@ -52,7 +53,7 @@ public sealed class PersistencePackageCoverageBatch6Tests
         await sut.CreateAsync(second, CancellationToken.None);
 
         IReadOnlyList<AdvisoryScanExecution> listed =
-            await sut.ListByScheduleAsync(scheduleId, take: 10, CancellationToken.None);
+            await sut.ListByScheduleAsync(new ScopeContext(), scheduleId, take: 10, CancellationToken.None);
 
         listed.Should().HaveCount(2);
         listed[0].ExecutionId.Should().Be(second.ExecutionId);
@@ -60,7 +61,7 @@ public sealed class PersistencePackageCoverageBatch6Tests
         first.Status = "Completed";
         await sut.UpdateAsync(first, CancellationToken.None);
 
-        listed = await sut.ListByScheduleAsync(scheduleId, take: 10, CancellationToken.None);
+        listed = await sut.ListByScheduleAsync(new ScopeContext(), scheduleId, take: 10, CancellationToken.None);
         listed.Single(x => x.ExecutionId == first.ExecutionId).Status.Should().Be("Completed");
     }
 

@@ -1,3 +1,5 @@
+import type { RunRetrievalGroundingScoreSummary } from "@/types/agent-forensics";
+
 /** Per-trace citation coverage — not review-wide completeness (UU-407, UU-501). */
 export function formatRunRetrievalCitationCoverage(citationCoverage: number | null | undefined): string {
   if (citationCoverage === null || citationCoverage === undefined || Number.isNaN(citationCoverage)) {
@@ -18,7 +20,7 @@ export function formatRunRetrievalCitationCoverage(citationCoverage: number | nu
 
 export function formatRunRetrievalGroundingScoresLabel(
   scoreMetadataMalformed: boolean,
-  scoreSummaries: ReadonlyArray<{ chunkId: string; score: number | null | undefined }>,
+  scoreSummaries: readonly RunRetrievalGroundingScoreSummary[],
 ): string {
   if (scoreMetadataMalformed) {
     return "degraded";

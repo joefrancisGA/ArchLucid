@@ -18,4 +18,8 @@ describe("run-retrieval-grounding-display", () => {
   it("labels empty scores as not scored", () => {
     expect(formatRunRetrievalGroundingScoresLabel(false, [])).toBe("Not scored");
   });
+
+  it("labels optional scores without requiring the score field", () => {
+    expect(formatRunRetrievalGroundingScoresLabel(false, [{ chunkId: "chunk-1" }])).toBe("chunk-1");
+  });
 });

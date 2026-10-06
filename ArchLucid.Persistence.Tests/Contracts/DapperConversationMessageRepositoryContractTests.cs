@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -19,13 +20,15 @@ public sealed class DapperConversationMessageRepositoryContractTests(SqlServerPe
 
     protected override IConversationMessageRepository CreateRepository()
     {
-        return new DapperConversationMessageRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        return new DapperConversationMessageRepository(
+            new TestSqlConnectionFactory(fixture.ConnectionString),
+            new EmptyPersistenceScopeContextProvider());
     }
 
     protected override async Task EnsureThreadExistsAsync(ConversationThread thread)
     {
         DapperConversationThreadRepository threads =
-            new(new TestSqlConnectionFactory(fixture.ConnectionString));
+            new(new TestSqlConnectionFactory(fixture.ConnectionString), new EmptyPersistenceScopeContextProvider());
 
         await threads.CreateAsync(thread, CancellationToken.None);
     }

@@ -1,4 +1,6 @@
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -26,7 +28,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         _ = ct;
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId);
+            int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId && SameScope(x, attempt));
             if (i >= 0)
                 _items[i] = attempt;
         }
@@ -35,14 +37,16 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     }
 
     public Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
+        ScopeContext scope,
         Guid digestId,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             List<DigestDeliveryAttempt> result = _items
-                .Where(x => x.DigestId == digestId)
+                .Where(x => x.DigestId == digestId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(ListByDigestCap)
                 .ToList();
@@ -84,15 +88,17 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
     }
 
     public Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid subscriptionId,
         int take,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         lock (_gate)
         {
             List<DigestDeliveryAttempt> result = _items
-                .Where(x => x.SubscriptionId == subscriptionId)
+                .Where(x => x.SubscriptionId == subscriptionId && MatchesScope(x, scope))
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)
                 .ToList();
@@ -100,4 +106,14 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);
         }
     }
+
+    private static bool MatchesScope(DigestDeliveryAttempt attempt, ScopeContext scope) =>
+        attempt.TenantId == scope.TenantId &&
+        attempt.WorkspaceId == scope.WorkspaceId &&
+        attempt.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(DigestDeliveryAttempt stored, DigestDeliveryAttempt incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 }

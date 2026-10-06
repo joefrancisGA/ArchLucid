@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -48,7 +50,10 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
                 Status = @Status,
                 ResultJson = @ResultJson,
                 ErrorMessage = @ErrorMessage
-            WHERE ExecutionId = @ExecutionId;
+            WHERE ExecutionId = @ExecutionId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -57,16 +62,21 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
+        ScopeContext scope,
         Guid scheduleId,
         int take,
         CancellationToken ct)
     {
+        PersistenceTenantScope.RequireScopedTenant(scope);
         const string sql = """
             SELECT TOP (@Take)
                 ExecutionId, ScheduleId, TenantId, WorkspaceId, ProjectId,
                 StartedUtc, CompletedUtc, Status, ErrorMessage
             FROM dbo.AdvisoryScanExecutions
             WHERE ScheduleId = @ScheduleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
             ORDER BY StartedUtc DESC;
             """;
 
@@ -75,7 +85,10 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
-                Take = Math.Clamp(take, 1, 200)
+                Take = Math.Clamp(take, 1, 200),
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId
             }, cancellationToken: ct));
 
         return result

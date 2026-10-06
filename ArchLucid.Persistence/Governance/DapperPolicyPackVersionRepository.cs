@@ -1,7 +1,9 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -20,7 +22,8 @@ namespace ArchLucid.Persistence.Governance;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackVersionRepository(
     ISqlConnectionFactory connectionFactory,
-    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory)
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IPolicyPackVersionRepository
 {
     /// <inheritdoc />
@@ -50,11 +53,20 @@ public sealed class DapperPolicyPackVersionRepository(
             const string scopeSql = """
                                     SELECT TenantId, WorkspaceId, ProjectId
                                     FROM dbo.PolicyPacks
-                                    WHERE PolicyPackId = @PolicyPackId;
-                                    """;
+                                    WHERE PolicyPackId = @PolicyPackId
+                                    """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
             PolicyPackScopeTriple? hdr = await conn.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
-                new CommandDefinition(scopeSql, new { version.PolicyPackId }, transaction,
+                new CommandDefinition(
+                    scopeSql,
+                    new
+                    {
+                        version.PolicyPackId,
+                        scope.TenantId,
+                        EmptyTenantId = Guid.Empty
+                    },
+                    transaction,
                     cancellationToken: ct));
 
             if (hdr is null)
@@ -165,11 +177,20 @@ public sealed class DapperPolicyPackVersionRepository(
             const string packScopeSql = """
                                         SELECT TenantId, WorkspaceId, ProjectId
                                         FROM dbo.PolicyPacks
-                                        WHERE PolicyPackId = @PolicyPackId;
-                                        """;
+                                        WHERE PolicyPackId = @PolicyPackId
+                                        """ + PersistenceTenantScope.AndTenantIdOrTrustedJob;
 
+            ScopeContext requestScope = scopeContextProvider.GetCurrentScope();
             PolicyPackScopeTriple? packScope = await connection.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
-                new CommandDefinition(packScopeSql, new { PolicyPackId = policyPackId }, transaction,
+                new CommandDefinition(
+                    packScopeSql,
+                    new
+                    {
+                        PolicyPackId = policyPackId,
+                        requestScope.TenantId,
+                        EmptyTenantId = Guid.Empty
+                    },
+                    transaction,
                     cancellationToken: ct));
 
             if (packScope is null)
