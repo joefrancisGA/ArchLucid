@@ -1,5 +1,3 @@
-{"at":"2026-09-06T21:04:34.5684293Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-06T21:09:04.3880625Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T23:19:44.6480636Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T23:24:36.9141856Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-06T23:29:46.03416Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8773,3 +8771,4 @@
 {"at":"2026-10-06T20:52:44.0025652Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T20:56:30.0484676Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-06T21:02:58.3534273Z","zoneId":"cli-draft-new","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-06T21:09:46.1492329Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}

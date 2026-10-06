@@ -148,6 +148,28 @@ public sealed class AuthSignInReturnPathGuardTests
     }
 
     [Theory]
+    [InlineData("/user%40evil.example/phish")]
+    [InlineData("/user%2540evil.example/phish")]
+    public void TryNormalize_rejects_percent_encoded_at_sign_in_path_portion(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_decodes_percent_encoded_slash_in_safe_paths()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews%2F1").Should().Be("/reviews/1");
+    }
+
+    [Theory]
+    [InlineData("/reviews?next=//evil.example")]
+    [InlineData("/?return=//evil.example")]
+    public void TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
     [InlineData("/\u2216\u2216evil.example")]
     [InlineData("/%E2%88%96%E2%88%96evil.example")]
     [InlineData("/\u29F7\u29F7evil.example")]

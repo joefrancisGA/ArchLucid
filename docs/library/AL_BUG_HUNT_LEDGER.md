@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `auth-return-path` — re-read `AuthSignInReturnPathGuard` percent-decode loop, homoglyph inventories, and fragment/query partitioning after consecutive dry hunts; cheap-disproof closed three promotion attempts (percent-encoded `@` in path portion; safe-path `%2F` canonicalization; query `://` substring rejection is intentional whole-string check); no hunt-ready row promoted; seeded four `(candidate)` rows; 142 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 thorough hunt (dry): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows (JSON connect/submit/create `OperationFailed` paths intentionally stderr-only without `ok:true`, parity with patch/admission; JSON whitespace-only `--system-name` caught by `IsNullOrWhiteSpace` preflight; cooperative cancel during MUST `ReadLineAsync` propagates `OperationCanceledException` by design); regressions `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope`, `RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled`, `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true`; seeded five follow-on `(candidate)` rows; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted MIME `; charset=utf-8` on `SourceTexts.ContentType` splitting review cache `ContentHash` from bare types; strip parameters via `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on `(candidate)` rows; 83 scoped orchestrator/cache tests passed (`RunAnalyzers=false`).
@@ -5161,13 +5163,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
+2026-10-06 seed hunt (seed-only): cheap-disproof encoded `@`, `%2F` canonicalization, and query `://` over-rejection; seeded four candidates; 142 scoped tests passed.
+
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded `@` (`%40`, `%2540`) in path portion might bypass literal `@` checks — **cheap-disproof 2026-10-06 seed hunt:** decode loop re-runs `ContainsAtSignInPath`; regression `TryNormalize_rejects_percent_encoded_at_sign_in_path_portion`.
+- [x] (valid-no-repro) `TryNormalize` — returns decoded slash for `%2F` in otherwise safe paths (canonicalization vs opaque round-trip) — **cheap-disproof 2026-10-06 seed hunt:** intentional normalization; regression `TryNormalize_decodes_percent_encoded_slash_in_safe_paths`.
+- [x] (valid-no-repro) `TryNormalize` — open-redirect payloads only in query (`?next=//evil`) might accept safe path portion while ignoring query — **valid-no-repro 2026-10-06 seed hunt:** whole candidate string `Contains("://")` rejects conservatively; regression `TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring`; aligns with 2026-09-25 query `://` over-rejection row.
+- [ ] (candidate) `TryNormalize` — supplementary-plane slash/dot codepoints outside `IsSlashHomoglyph` / `IsDotHomoglyph` inventories may normalize in browsers — **seed 2026-10-06:** BMP inventory exhausted; plane-1+ ornamental strokes not yet scanned.
+- [ ] (candidate) `TryNormalize` — lone `+` in path segments is not form-decoded to space by `Uri.UnescapeDataString` (differs from `application/x-www-form-urlencoded` returnUrl parsers) — **seed 2026-10-06:** reachable pasted return paths from legacy portals.
+- [ ] (candidate) `TryNormalize` — matrix-style `;param=value` segments before `?` are not split (path includes semicolon data) — **seed 2026-10-06:** re-open only if a cited caller treats `;` as segment delimiter.
+- [ ] (candidate) `ContainsResidualEncodedTraversal` — decode-cap exit with benign residual `%` on safe paths vs attacker `%2e` tail — **seed 2026-10-06:** parity between `ContainsTrailingPercentAfterDecodeCap` and mixed-case `%2E` encodings after eight passes.
+
 - **id:** auth-return-path
 - **status:** open
 - **impact:** high
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
