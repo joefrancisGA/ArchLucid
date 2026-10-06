@@ -1,10 +1,7 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
-import {
-  clickThroughBlockingOverlays,
-  dismissBlockingModalOverlays,
-} from "./dismiss-blocking-modal-overlays";
+import { dismissBlockingModalOverlays } from "./dismiss-blocking-modal-overlays";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { writeJwtBrowserSession } from "./live-private-beta-access";
 
@@ -42,9 +39,8 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     timeout: 30_000,
   });
 
-  await dismissBlockingModalOverlays(page);
-
-  const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
+  const wizard = page.getByTestId("simplified-pilot-wizard");
+  const nextButton = wizard.getByRole("button", { name: /^Next$/ });
 
   await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
 
@@ -64,22 +60,18 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     );
   }
 
-  await clickThroughBlockingOverlays(page, forward);
+  await description.press("Tab");
 
-  await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
-    timeout: 30_000,
-  });
+  await clickSimplifiedPilotWizardNext(page, nextButton, /step 2 of 4/i);
 
-  await dismissBlockingModalOverlays(page);
-  await clickThroughBlockingOverlays(page, forward);
+  await clickSimplifiedPilotWizardNext(page, nextButton, /step 3 of 4/i);
 
   await expect(page.getByTestId("wizard-baseline-metrics-step")).toBeVisible({ timeout: 30_000 });
   await page.getByTestId("wizard-baseline-review-cycle-hours").fill("40");
 
-  await dismissBlockingModalOverlays(page);
-  await clickThroughBlockingOverlays(page, forward);
+  await clickSimplifiedPilotWizardNext(page, nextButton, /step 4 of 4/i);
 
-  const startReview = page.getByRole("button", { name: "Start an architecture review" });
+  const startReview = wizard.getByRole("button", { name: "Start an architecture review" });
 
   await expect(startReview).toBeVisible({
     timeout: 60_000,
@@ -91,8 +83,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
-  await dismissBlockingModalOverlays(page);
-  await clickThroughBlockingOverlays(page, startReview);
+  await clickSimplifiedPilotWizardPrimary(page, startReview);
 
   const createResp = await createRespPromise;
 
@@ -104,6 +95,31 @@ export async function submitPrivateBetaSimplifiedPilotWizard(
   expect(runId.length).toBeGreaterThan(0);
 
   return runId;
+}
+
+async function clickSimplifiedPilotWizardNext(
+  page: Page,
+  nextButton: Locator,
+  expectedProgress: RegExp,
+): Promise<void> {
+  await expect(async () => {
+    await dismissBlockingModalOverlays(page);
+    await expect(nextButton).toBeEnabled({ timeout: 10_000 });
+    await nextButton.scrollIntoViewIfNeeded();
+    await nextButton.click({ timeout: 15_000 });
+    await expect(page.getByTestId("simplified-pilot-progress")).toContainText(expectedProgress, {
+      timeout: 15_000,
+    });
+  }).toPass({ timeout: 90_000 });
+}
+
+async function clickSimplifiedPilotWizardPrimary(page: Page, target: Locator): Promise<void> {
+  await expect(async () => {
+    await dismissBlockingModalOverlays(page);
+    await expect(target).toBeEnabled({ timeout: 10_000 });
+    await target.scrollIntoViewIfNeeded();
+    await target.click({ timeout: 15_000 });
+  }).toPass({ timeout: 90_000 });
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
