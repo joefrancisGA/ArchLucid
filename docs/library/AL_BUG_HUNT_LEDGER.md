@@ -26819,15 +26819,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 308
+- **hunts:** 309
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 513
+- **bugs-found:** 514
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — homepage settings audit used display name as ActorUserId
+- **last-bug:** 2026-10-06 — cost settings audit/persist used display name as ActorUserId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-06 seed hunt (seed→hit): promoted `TenantCostSettingsController.PutAsync` — audit and `UpdatedByActorId` used `User.Identity?.Name` as `ActorUserId`/`ActorUserName` (homepage-settings parity); inject `IActorContext`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; seeded five `(candidate)` audit-actor parity siblings below; 11 cost-settings + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
 2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
+- [x] (proven) `TenantCostSettingsController.PutAsync` — audit `ActorUserId` and `UpdatedByActorId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for stable id; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
+- [ ] (candidate) `TenantSponsorDigestPreferencesController.PutAsync` — `AuditEvent.ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` (`TenantSponsorDigestPreferencesController.cs` ~183) while `CorePilotTeamChecklistController` uses `IActorContext.GetActorId()`; reachable `PUT /v1/tenant/sponsor-digest-preferences`.
+- [ ] (candidate) `TenantExecDigestPreferencesController.PutAsync` — same dual-name audit mapping (`TenantExecDigestPreferencesController.cs` ~183); reachable `PUT /v1/tenant/exec-digest-preferences`.
+- [ ] (candidate) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` on baseline put paths (`TenantBaselineController.Put.cs` ~91, 136, 177, 218); reachable tenant baseline PUT routes under `v1/tenant/baseline`.
+- [ ] (candidate) `TenantTrialController` — trial lifecycle calls pass `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable trial admin POST routes.
+- [ ] (candidate) `TenantErasureLegalHoldController` — legal-hold approve/release audit uses `user.Identity?.Name ?? "unknown"` for actor fields (`TenantErasureLegalHoldController.cs` ~79, 122); reachable erasure legal-hold routes under tenant erasure API.
 
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — approval ids need run-id invisible-char normalizer — **cheap-disproof 2026-10-06 seed hunt:** `approvalRequestId` values are opaque workflow strings (e.g. `apr-…`), not governance run GUID literals.
