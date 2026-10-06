@@ -2,30 +2,36 @@ import {
   isAzureExtractorDemoScenarioId,
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
+import {
+  isAzureLabDemoScenarioId,
+  type AzureLabDemoScenarioId,
+} from "@/lib/azure-lab-inventory-demo-scenarios";
 
 export const EXTRACT_UPLOAD_PATH = "/administration/extract-upload" as const;
 
 export const EXTRACT_UPLOAD_DEMO_SCENARIO_PARAM = "demoScenario";
 
+export type ExtractUploadDemoScenarioId = AzureExtractorDemoScenarioId | AzureLabDemoScenarioId;
+
 export function parseExtractUploadDemoScenarioFromSearch(
   raw: string | null | undefined,
-): AzureExtractorDemoScenarioId | null {
+): ExtractUploadDemoScenarioId | null {
   if (raw === null || raw === undefined) {
     return null;
   }
 
   const trimmed = raw.trim();
 
-  if (!isAzureExtractorDemoScenarioId(trimmed)) {
+  if (!isAzureExtractorDemoScenarioId(trimmed) && !isAzureLabDemoScenarioId(trimmed)) {
     return null;
   }
 
-  return trimmed;
+  return trimmed as ExtractUploadDemoScenarioId;
 }
 
 export function extractUploadDemoScenarioHrefFromSearch(
   currentSearch: string,
-  scenarioId: AzureExtractorDemoScenarioId | null,
+  scenarioId: ExtractUploadDemoScenarioId | null,
   pathname: string = EXTRACT_UPLOAD_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
