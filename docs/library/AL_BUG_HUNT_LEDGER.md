@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `tenant-erasure` — promoted dot-segment erasure lifecycle allowlist parity; proved `/v1/tenant/erasure/./approve` and `/v1/tenant/./erasure/approve` returned `403` during quarantine because `NormalizeRequestPath` collapsed duplicate slashes only; normalize `.` / `..` path segments before `Skip`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five follow-on `(candidate)` rows; 50 scoped `TenantErasure` tests passed (26 Api + 19 Application + 4 Core + 1 Persistence).
+
 2026-10-06 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five seeded `(candidate)` rows (`Accepted`+`QualityRejected` dual-flag on winning row still blocks via existing evaluator test; non-Guid `runId` blocked by `CommitArchitectureVersionPinIntegrityEvaluator` before quality gate; TB-1228 unsupported-band hold is PilotStrict-only (not WarnOnly); full-width digit task-id split mirrors zero-width fail-closed semantics; `Mixed`/`Fallback` structural guard blocks before trace quality evaluation); regressions `GetBlockingReasonsAsync_returns_invalid_run_id_before_repository_calls_for_non_guid`, `Applies_is_false_when_warn_only_even_with_unsupported_hold_flag_on`, `Select_when_task_ids_differ_only_by_full_width_digits_form_separate_groups`, `GetBlockingReasons_when_full_width_task_id_group_has_rejected_latest_still_blocks`, `GetBlockingReasons_when_mixed_or_fallback_blocks_before_downstream_integrity_evaluators`; seeded five follow-on candidates; 97 scoped zone tests passed (`RunAnalyzers=false`).
 
 2026-10-06 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five seeded `(candidate)` rows (`WarnOnly` empty traces bypass intentional before #3469 empty-trace branch; warning-only duplicate wins after sibling `QualityRejected` cleared via `ApplyQualityRejectedPatch` is non-blocking by design; header delete TOCTOU between pin and evidence fetches is operational race; zero-width task-id split still fail-closed per visible group; negative `AttemptIndex` cannot supersede attempt 0); regressions `GetBlockingReasons_when_warn_only_mode_with_empty_traces_returns_empty`, `GetBlockingReasons_when_winning_duplicate_quality_warning_only_does_not_block_after_sibling_quality_rejected_cleared`, `Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups`, `GetBlockingReasons_when_zero_width_task_id_splits_groups_still_blocks_rejected_visible_group`, `Select_when_negative_attempt_index_does_not_win_over_attempt_zero`; seeded five follow-on candidates; 95 scoped zone tests passed (`RunAnalyzers=false`).
@@ -5404,13 +5406,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 268
-- **bugs-found:** 490
-- **consecutive-dry-hunts:** 1
+- **hunts:** 269
+- **bugs-found:** 491
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — duplicate-slash erasure lifecycle paths blocked by quarantine allowlist mismatch
+- **last-bug:** 2026-10-06 — dot-segment erasure lifecycle paths blocked by quarantine allowlist mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-06 seed hunt (seed→hit): promoted dot-segment erasure lifecycle allowlist; proved offboarded tenants received `403` on `/v1/tenant/erasure/./approve` because `Skip` compared raw dot segments; collapse `.`/`..` segments in `NormalizeRequestPath`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five `(candidate)` rows; 50 scoped `TenantErasure` tests passed.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded `(candidate)` rows; no failing repro. 49 scoped `TenantErasure` tests passed.
 
@@ -5440,6 +5444,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2076 (seed-only): reseeded tenant-erasure; 8 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` / `Skip` — dot-segment tenant erasure lifecycle paths (`/v1/tenant/erasure/./approve`) did not match `/v1/tenant/erasure` allowlist and returned `403` during quarantine — **hit 2026-10-06 seed hunt:** collapse `.` and `..` segments after duplicate-slash normalization; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`.
+
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization; reachable only when reverse proxies forward `\` in `PathString.Value`.
+- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approves erasure without requiring `ErasureEligibleUtc <= now`; reachable via `POST /v1/tenant/erasure/approve` immediately after offboard (`TenantErasureLegalHoldController.ApproveErasureAsync`); hard purge still gated by `TenantErasureEligibility.IsEligibleForScheduledHardPurge`.
+- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` with `requireErasureQuarantine: false` — platform `AdminTenantsController.SetTenantErasureLegalHoldPlatformAsync` can set future legal hold on tenants not in erasure quarantine; reachable via `POST /v1/admin/tenants/{id}/erasure/legal-hold`.
+- [ ] (candidate) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — operator safe-retry re-appends `TenantErasureOffboarded` audit with deterministic `CreateOffboardAuditEventId` when suspension already landed; reachable via repeated `TryOffboardTenantAsync` after successful offboard (audit dedupe depends on repository).
+- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded dot segments (`%2e%2e`) in path may not decode before allowlist compare; reachable when clients send encoded traversal segments (depends on Kestrel path decoding order).
 
 - [x] (invalid) `TenantErasureCommandService.TryOffboardTenantAsync` / `CompleteOffboardSideEffectsAsync` — `OffboardedUtc` set without `ErasureEligibleUtc` returns `null` (admin `409`) on retry — **cheap-disproof 2026-10-06 thorough hunt:** `TryStartTenantErasureOffboardAsync` always sets both timestamps (SQL + in-memory); partial rows are out-of-band catalog corruption only, not a reachable production offboard path.
 - [x] (invalid) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects past-due `TenantErasureRequestedUtc`-only rows while middleware blocks other APIs — **cheap-disproof 2026-10-06 thorough hunt:** duplicate of #6972; scheduled-only quarantine without `OffboardedUtc` is not written by tenant-erasure command or repository paths in this zone.

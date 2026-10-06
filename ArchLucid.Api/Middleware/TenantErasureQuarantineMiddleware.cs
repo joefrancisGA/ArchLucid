@@ -23,7 +23,29 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
         while (value.Contains("//", StringComparison.Ordinal))
             value = value.Replace("//", "/", StringComparison.Ordinal);
 
-        return new PathString(value);
+        string[] segments = value.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        List<string> normalizedSegments = [];
+
+        foreach (string segment in segments)
+        {
+            if (segment == ".")
+                continue;
+
+            if (segment == "..")
+            {
+                if (normalizedSegments.Count > 0)
+                    normalizedSegments.RemoveAt(normalizedSegments.Count - 1);
+
+                continue;
+            }
+
+            normalizedSegments.Add(segment);
+        }
+
+        if (normalizedSegments.Count == 0)
+            return new PathString("/");
+
+        return new PathString("/" + string.Join('/', normalizedSegments));
     }
 
     private static bool Skip(PathString path)
