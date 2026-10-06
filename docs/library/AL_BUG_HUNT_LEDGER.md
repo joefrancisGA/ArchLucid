@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 thorough hunt (dry): `ui-claim-discipline-policy` — cheap-disproved five seeded candidates (authentication-sign-in and contact-support TOC/anchor parity via `AuthenticationSignInHelpEvidenceOrientationStrip` / `ContactSupportHelpEvidenceOrientationStrip` heading ids; admin-diagnostics omit defensive; comparison-replay filtered TOC; `HelpTopicMarkdownView` claim TOC props unreachable); no wrong-omit hit; 26 scoped `claim-discipline-policy` tests passed.
+
 2026-10-06 seed hunt (seed-only): `ui-claim-discipline-policy` — re-read `claim-discipline-policy.ts` and live help/admin guide mounts after candidate exhaustion; no hunt-ready row promoted; seeded five `(candidate)` rows (authentication-sign-in and contact-support TOC/anchor parity, admin-diagnostics omit vs operator orientation, comparison-replay header anchor gap, dead `HelpTopicMarkdownView` claim TOC props); 26 scoped `claim-discipline-policy` tests passed.
 
 2026-10-06 thorough hunt (dry): `ui-claim-discipline-policy` — cheap-disproved five seeded candidates (comparison-replay/repeat-review filtered TOC without orphan links; subprocessors/security-trust header-anchor + TOC parity already covered by help topic regressions; integration-readiness dual omit with header `IntegrationReadinessHelpClaimDisciplineStrip` owning claim); no wrong-omit hit; 26 scoped `claim-discipline-policy` tests passed.
@@ -30313,9 +30315,9 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 16
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — report-a-problem help omitted operator-only claim band
 - **related-pd-tb:** none
@@ -30348,6 +30350,8 @@ ABQ-09 churn hotspot.
 2026-10-06 thorough hunt (dry): cheap-disproved five open candidates; 26 scoped tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read zone after candidate exhaustion; seeded five new candidates; 26 scoped tests passed.
+
+2026-10-06 thorough hunt (dry): cheap-disproved five open candidates; 26 scoped tests passed.
 
 2026-10-03 thorough hunt (dry): cheap-disproved the help alias candidate because the live GCP help route uses the same canonical `cloud-connections-gcp` slug in the registry and policy; found no actual alternate heading ID in the omitted-guide callers; and found strip slugs are static registry values rather than URL-derived strings, so whitespace/trailing-slash input was not reachable. The focused policy suite passed 11 tests.
 
@@ -30392,11 +30396,11 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `HelpSubprocessorsGuideView` / `subprocessors-help` — **invalid 2026-10-06 thorough hunt:** intentional append-without-resolve because `SubprocessorsHelpClaimDisciplineStrip` exposes `SUBPROCESSORS_HELP_CLAIM_HEADING_ID`; regression `anchors claim discipline heading id for subprocessors TOC scroll targets` in `HelpTopicSubprocessors.test.tsx`
 - [x] (invalid) `HelpSecurityTrustGuideView` / `security-trust-help` — **invalid 2026-10-06 thorough hunt:** header strip anchors `SECURITY_TRUST_HELP_CLAIM_HEADING_ID`; regression in `HelpTopicSecurityTrust.test.tsx`; not a missing-`resolveGuideHeadingsForStrip` defect
 - [x] (invalid) `IntegrationReadinessHelpEvidenceOrientationStrip` / `integration-readiness-help` vs `help-integration-readiness` — **invalid 2026-10-06 thorough hunt:** both slugs omitted; operator claim on `IntegrationReadinessHelpClaimDisciplineStrip`; bottom `IntegrationReadinessHelpEvidenceOrientationStrip` claim suppressed; unused `HelpIntegrationReadinessClaimOrientationStrip` is sources-only; `HelpTopicIntegrationReadiness.test.tsx` covers live route
-- [ ] (candidate) `HelpAuthenticationSignInGuideView` / `authentication-sign-in-help` — operator `/help/authentication-sign-in` builds TOC with `appendHelpClaimDisciplineTocHeadings(..., AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID)` and no `resolveGuideHeadingsForStrip`; scroll-spy depends on `AuthenticationSignInHelpEvidenceOrientationStrip` keeping that heading id on the bottom claim band (`slug="authentication-sign-in-help"`, not omitted)
-- [ ] (candidate) `HelpContactSupportGuideView` / `contact-support-help` — `/help/contact-support` appends `CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID` to static `CONTACT_SUPPORT_HELP_GUIDE_HEADINGS` for TOC; `ContactSupportHelpEvidenceOrientationStrip` is the sole claim owner (`contact-support-help` not in `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`)
-- [ ] (candidate) `HelpAdminDiagnosticsGuideView` / `admin-diagnostics-help` — `admin-diagnostics-help` is in `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` while operator `/help/admin-diagnostics` uses page-orientation aside (not claim-discipline band) and buyer-polished header fold only; `HelpAdminDiagnosticsSourcesOrientationStrip` is sources-only with no `stripSlug` claim callout
-- [ ] (candidate) `ComparisonReplayHelpClaimDisciplineStrip` / `comparison-replay-help` — operator `/help/comparison-replay` renders plain `help-comparison-replay-claim-discipline-strip` without `COMPARISON_REPLAY_HELP_CLAIM_HEADING_ID` while `HelpComparisonReplayGuideView` filters claim TOC via `resolveGuideHeadingsForStrip("comparison-replay-help", …)`
-- [ ] (candidate) `HelpTopicMarkdownView` / `claimDisciplineTocHeadingId` — claim TOC append runs only when both `evidenceOrientation` and `claimDisciplineTocHeadingId` props are set; no resolver caller passes `evidenceOrientation` today (`HelpTopicCatchallResidualView` sets `catchallResidualBuyerChrome` only), so markdown-topic claim TOC policy is unreachable until a route wires orientation strips through this view
+- [x] (invalid) `HelpAuthenticationSignInGuideView` / `authentication-sign-in-help` — **invalid 2026-10-06 thorough hunt:** `AuthenticationSignInHelpEvidenceOrientationStrip` passes `claimHeadingId={AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID}`; slug not omitted; TOC scroll-spy target matches bottom claim band
+- [x] (invalid) `HelpContactSupportGuideView` / `contact-support-help` — **invalid 2026-10-06 thorough hunt:** `ContactSupportHelpEvidenceOrientationStrip` uses `CONTACT_SUPPORT_HELP_CLAIM_HEADING_ID` with `contact-support-help` not in omit set; sole claim owner pattern is intentional
+- [x] (invalid) `HelpAdminDiagnosticsGuideView` / `admin-diagnostics-help` — **invalid 2026-10-06 thorough hunt:** no registry orientation strip passes `admin-diagnostics-help` with a claim prop on `/help/admin-diagnostics`; omit entry is defensive; operator uses page-orientation aside and buyer-polished header fold only
+- [x] (valid-no-repro) `ComparisonReplayHelpClaimDisciplineStrip` / `comparison-replay-help` — **valid-no-repro 2026-10-06 thorough hunt:** `resolveGuideHeadingsForStrip` removes claim TOC rows so plain header strip without anchor does not create broken scroll targets today; `HelpTopicComparisonReplay.test.tsx` asserts omitted bottom claim
+- [x] (invalid) `HelpTopicMarkdownView` / `claimDisciplineTocHeadingId` — **invalid 2026-10-06 thorough hunt:** `evidenceOrientation` prop is never passed by any caller; unreachable wiring is not a production wrong-outcome bug in `claim-discipline-policy.ts`
 - [x] (invalid) `AuthenticationSignInHelpEvidenceOrientationStrip` / `authentication-sign-in-help` — registry slug `authentication-sign-in`; buyer-polished folds claim into header while omit set lacks alias — **invalid 2026-10-05 thorough hunt:** operator shell shows claim once in orientation strip (no `*ClaimDisciplineStrip` duplicate); buyer-polished already omits orientation strip; adding omit without operator claim strip would remove required copy
 - [x] (invalid) `system-health` vs `help-system-health` — operator workspace strips use `system-health` slug while omit set keys `help-system-health` — **invalid 2026-10-05 thorough hunt:** `/help/system-health` orientation strip passes `help-system-health` (omitted; claim strip owns copy); `/administration/system-health` orientation strip is sources-only on `system-health` with no claim prop
 - [x] (proven) `shouldOmitClaimDisciplineBand` / `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — live orientation strips pass legacy ids (`evidence-trail-help`, `glossary-help`, `pilot-guide-help`, `help-path-chooser-bottom`, `evidence-trail`, `connect-gcp-securely-help`) while omit set keys canonical `help-*` / registry slugs, so `resolveClaimDisciplineForStrip` still surfaced duplicate claim bands — **hit 2026-10-05 seed hunt:** alias map in omit resolution; regressions in `claim-discipline-policy.test.ts` and evidence-trail, glossary, pilot-guide orientation strip tests
