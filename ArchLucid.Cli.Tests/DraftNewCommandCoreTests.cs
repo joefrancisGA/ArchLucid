@@ -1506,6 +1506,193 @@ public sealed class DraftNewCommandCoreTests
         }
     }
 
+    [Fact]
+    public async Task RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Unreachable),
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.ApiUnavailable);
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new SubmitConflictHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error submitting draft");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "   ",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = ConnectedHooks();
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            error.ToString().Should().Contain("--system-name");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled()
+    {
+        using CancellationTokenSource cancellation = new();
+        int readCount = 0;
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = false,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new PendingMustQuestionsHandler());
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            ReadLineAsync = (_, ct) =>
+            {
+                readCount++;
+
+                if (readCount == 1)
+                {
+                    cancellation.Cancel();
+                    ct.ThrowIfCancellationRequested();
+                }
+
+                return Task.FromResult<string?>("never");
+            },
+        };
+
+        Func<Task> act = async () =>
+            await DraftNewCommand.RunCoreAsync(
+                options,
+                hooks,
+                new StringWriter(),
+                new StringWriter(),
+                cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new CreateDraftFailureHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error creating draft");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();
@@ -1526,6 +1713,48 @@ public sealed class DraftNewCommandCoreTests
         };
 
         return new ArchLucidApiClient(http);
+    }
+
+    private sealed class CreateDraftFailureHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    Content = new StringContent(
+                        "{\"title\":\"Draft service unavailable\"}",
+                        System.Text.Encoding.UTF8,
+                        "application/json"),
+                };
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class SubmitConflictHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Conflict)
+                {
+                    Content = new StringContent(
+                        "{\"title\":\"Submit rejected\"}",
+                        System.Text.Encoding.UTF8,
+                        "application/json"),
+                };
+            }
+
+            return null;
+        }
     }
 
     private sealed class SubmitRejectsAfterMustAnswerHandler : DraftFlowHandler
