@@ -20,7 +20,6 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
-import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildAdvisoryTerraformResourceSnippet } from "@/lib/infra-evidence/build-advisory-terraform-resource-snippet";
@@ -41,7 +40,6 @@ import {
   INFRA_TERRAFORM_CLOUD_RESOURCE_ID_PARAM,
   INFRA_TERRAFORM_SNAPSHOT_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-terraform-filter-url";
-import { TERRAFORM_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-terraform-page-shortcuts";
 import {
   fetchCachedInfraEvidenceResourceHub,
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
@@ -450,12 +448,6 @@ export function TerraformWorkbenchClient() {
         {scopeStatusBadge}
         <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
       </div>
-      {isUnscoped ? (
-        <PageShortcutsDisclosure
-          testId="infra-terraform-page-shortcuts"
-          entries={TERRAFORM_WORKBENCH_PAGE_SHORTCUTS}
-        />
-      ) : null}
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <ShortcutHint shortcut="F1" /> page help; <ShortcutHint shortcut="Ctrl+K" /> search;{" "}
         {isUnscoped ? (

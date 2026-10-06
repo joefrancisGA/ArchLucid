@@ -12,7 +12,7 @@ export function resolveExtractUploadPackageSteps(input: {
   return [
     {
       id: "upload",
-      label: "Upload architecture package",
+      label: "Upload Azure inventory package",
       complete: uploadComplete,
     },
     {

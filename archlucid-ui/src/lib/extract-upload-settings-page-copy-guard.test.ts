@@ -7,6 +7,8 @@ import {
 } from "@/lib/extract-upload-settings-page-copy-guard";
 import {
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
+  extractUploadAdvancedCommandDisclosureSummary,
+  extractUploadScriptDownloadLabel,
 } from "@/lib/extract-upload-settings-page-copy";
 
 describe("extract-upload-settings-page-copy guard", () => {
@@ -25,5 +27,12 @@ describe("extract-upload-settings-page-copy guard", () => {
     expect(EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL).toMatch(/packager script/i);
     expect(EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL).toMatch(/azure example/i);
     expect(EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL).not.toMatch(/Get-ArchLucidAzurePackage/i);
+  });
+
+  it("removes Azure example qualifiers from SecureNow copy", () => {
+    expect(extractUploadAdvancedCommandDisclosureSummary("security")).toBe(
+      "Advanced: full inventory packager command",
+    );
+    expect(extractUploadScriptDownloadLabel("security")).toBe("Download packager script");
   });
 });

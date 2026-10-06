@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -36,6 +36,15 @@ describe("KeyboardShortcutsTabContent", () => {
 
     expect(captions[0]).toBe("Command palette");
     expect(captions).toContain("Common");
+  });
+
+  it("documents page shortcuts in the Help surface", () => {
+    render(<KeyboardShortcutsTabContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Show page shortcuts" }));
+
+    expect(screen.getByRole("table", { name: "Extract & upload" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Terraform mapping" })).toBeInTheDocument();
   });
 
   it("lists architecture desk shortcuts before navigation when Working mode is active (AO-43)", () => {
