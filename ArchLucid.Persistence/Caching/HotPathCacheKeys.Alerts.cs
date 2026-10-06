@@ -28,10 +28,12 @@ public static partial class HotPathCacheKeys
         return $"{Prefix}ar-en:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}";
     }
 
-    /// <summary>Single alert rule by id.</summary>
-    public static string AlertRuleById(Guid ruleId)
+    /// <summary>Single alert rule by id, keyed per scope so a cached row never answers another scope's lookup.</summary>
+    public static string AlertRuleById(ScopeContext scope, Guid ruleId)
     {
-        return $"{Prefix}ar:{ruleId:N}";
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}ar:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{ruleId:N}";
     }
 
     /// <summary>Scope revision stamp for composite alert-rule list caches.</summary>
@@ -58,9 +60,11 @@ public static partial class HotPathCacheKeys
         return $"{Prefix}car-en:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:r{revision}";
     }
 
-    /// <summary>Single composite alert rule by id.</summary>
-    public static string CompositeAlertRuleById(Guid compositeRuleId)
+    /// <summary>Single composite alert rule by id, keyed per scope so a cached row never answers another scope's lookup.</summary>
+    public static string CompositeAlertRuleById(ScopeContext scope, Guid compositeRuleId)
     {
-        return $"{Prefix}car:{compositeRuleId:N}";
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}car:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{compositeRuleId:N}";
     }
 }

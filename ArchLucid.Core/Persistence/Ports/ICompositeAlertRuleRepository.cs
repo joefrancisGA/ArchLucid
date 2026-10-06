@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -19,8 +20,8 @@ public interface ICompositeAlertRuleRepository
     /// <summary>Replaces rule metadata and condition set (typical pattern: delete conditions then re-insert).</summary>
     Task UpdateAsync(CompositeAlertRule rule, CancellationToken ct);
 
-    /// <summary>Loads one rule with conditions populated.</summary>
-    Task<CompositeAlertRule?> GetByIdAsync(Guid compositeRuleId, CancellationToken ct);
+    /// <summary>Loads one rule (with conditions) within <paramref name="scope" />; <c>null</c> when missing or out of scope.</summary>
+    Task<CompositeAlertRule?> GetByIdAsync(ScopeContext scope, Guid compositeRuleId, CancellationToken ct);
 
     /// <summary>All composite rules in scope.</summary>
     Task<IReadOnlyList<CompositeAlertRule>> ListByScopeAsync(

@@ -1,4 +1,5 @@
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Persistence.Alerts;
 
@@ -16,6 +17,13 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
 
+    private static readonly ScopeContext Scope = new()
+    {
+        TenantId = TenantId,
+        WorkspaceId = WorkspaceId,
+        ProjectId = ProjectId,
+    };
+
     [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_same_row()
     {
@@ -25,11 +33,55 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
         await repo.CreateAsync(alert, CancellationToken.None);
 
-        AlertRecord? loaded = await repo.GetByIdAsync(alertId, CancellationToken.None);
+        AlertRecord? loaded = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.AlertId.Should().Be(alertId);
         loaded.DeduplicationKey.Should().Be("k1");
+    }
+
+    [SkippableFact]
+    public async Task GetByIdAsync_from_another_tenant_returns_null()
+    {
+        InMemoryAlertRecordRepository repo = new();
+        Guid alertId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
+        await repo.CreateAsync(BuildAlert(alertId, AlertStatus.Open, BaseUtc, "k1"), CancellationToken.None);
+
+        ScopeContext otherTenant = new()
+        {
+            TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        AlertRecord? loaded = await repo.GetByIdAsync(otherTenant, alertId, CancellationToken.None);
+
+        loaded.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task ArchiveAsync_only_archives_within_scope()
+    {
+        InMemoryAlertRecordRepository repo = new();
+        Guid alertId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaac");
+        await repo.CreateAsync(BuildAlert(alertId, AlertStatus.Open, BaseUtc, "k1"), CancellationToken.None);
+
+        ScopeContext otherProject = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+        };
+
+        await repo.ArchiveAsync(otherProject, alertId, CancellationToken.None);
+        AlertRecord? untouched = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
+        untouched.Should().NotBeNull();
+        untouched.IsArchived.Should().BeFalse();
+
+        await repo.ArchiveAsync(Scope, alertId, CancellationToken.None);
+        AlertRecord? archived = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
+        archived.Should().NotBeNull();
+        archived.IsArchived.Should().BeTrue();
     }
 
     [SkippableFact]
@@ -45,7 +97,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
         await repo.UpdateAsync(updated, CancellationToken.None);
 
-        AlertRecord? loaded = await repo.GetByIdAsync(alertId, CancellationToken.None);
+        AlertRecord? loaded = await repo.GetByIdAsync(Scope, alertId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Status.Should().Be(AlertStatus.Resolved);
         loaded.Title.Should().Be("updated");
@@ -72,7 +124,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
         await Task.WhenAll(tail);
 
-        AlertRecord? gone = await repo.GetByIdAsync(firstId, CancellationToken.None);
+        AlertRecord? gone = await repo.GetByIdAsync(Scope, firstId, CancellationToken.None);
         gone.Should().BeNull();
 
         IReadOnlyList<AlertRecord> scope =

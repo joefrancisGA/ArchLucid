@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -23,8 +24,8 @@ public interface IAlertRoutingSubscriptionRepository
     /// </summary>
     Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct);
 
-    /// <summary>Loads by id (scope check left to callers when needed).</summary>
-    Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct);
+    /// <summary>Loads by id within <paramref name="scope" />; <c>null</c> when missing or out of scope.</summary>
+    Task<AlertRoutingSubscription?> GetByIdAsync(ScopeContext scope, Guid routingSubscriptionId, CancellationToken ct);
 
     /// <summary>All subscriptions in scope, newest first.</summary>
     Task<IReadOnlyList<AlertRoutingSubscription>> ListByScopeAsync(

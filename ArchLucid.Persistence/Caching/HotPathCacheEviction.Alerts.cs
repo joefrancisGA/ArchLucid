@@ -17,7 +17,7 @@ public static partial class HotPathCacheEviction
         await BumpRevisionAsync(cache, HotPathCacheKeys.AlertRuleListScopeRevision(scope), ct);
 
         if (ruleId is { } id)
-            await cache.RemoveAsync(HotPathCacheKeys.AlertRuleById(id), ct);
+            await cache.RemoveAsync(HotPathCacheKeys.AlertRuleById(scope, id), ct);
     }
 
     /// <summary>Bumps composite alert-rule scope revision and removes the single-rule key when known.</summary>
@@ -33,6 +33,6 @@ public static partial class HotPathCacheEviction
         await BumpRevisionAsync(cache, HotPathCacheKeys.CompositeAlertRuleListScopeRevision(scope), ct);
 
         if (compositeRuleId is { } id)
-            await cache.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleById(id), ct);
+            await cache.RemoveAsync(HotPathCacheKeys.CompositeAlertRuleById(scope, id), ct);
     }
 }

@@ -83,7 +83,10 @@ public sealed partial class DapperCompositeAlertRuleRepository
                 ReopenDeltaThreshold = @ReopenDeltaThreshold,
                 DedupeScope = @DedupeScope,
                 TargetChannelType = @TargetChannelType
-            WHERE CompositeRuleId = @CompositeRuleId;
+            WHERE CompositeRuleId = @CompositeRuleId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
             """;
 
         const string deleteConditions = """

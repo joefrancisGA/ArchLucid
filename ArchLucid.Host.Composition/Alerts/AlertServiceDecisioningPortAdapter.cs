@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Host.Composition.Alerts;
 
@@ -17,10 +18,11 @@ internal sealed class AlertServiceDecisioningPortAdapter(ArchLucid.Core.Alerts.I
         _inner.EvaluateAndPersistAsync(context, ct);
 
     public Task<AlertRecord?> ApplyActionAsync(
+        ScopeContext scope,
         Guid alertId,
         string userId,
         string userName,
         AlertActionRequest request,
         CancellationToken ct) =>
-        _inner.ApplyActionAsync(alertId, userId, userName, request, ct);
+        _inner.ApplyActionAsync(scope, alertId, userId, userName, request, ct);
 }

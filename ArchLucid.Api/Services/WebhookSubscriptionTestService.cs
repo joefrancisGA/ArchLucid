@@ -32,17 +32,11 @@ public sealed class WebhookSubscriptionTestService(
         Guid routingSubscriptionId,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
         AlertRoutingSubscription? subscription =
-            await _subscriptionRepository.GetByIdAsync(routingSubscriptionId, cancellationToken);
+            await _subscriptionRepository.GetByIdAsync(scope, routingSubscriptionId, cancellationToken);
 
         if (subscription is null)
-        {
-            return NotFound($"Routing subscription '{routingSubscriptionId}' was not found.");
-        }
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        if (!MatchesScope(subscription, scope))
         {
             return NotFound(
                 $"Routing subscription '{routingSubscriptionId}' was not found in the current scope.");
@@ -123,12 +117,5 @@ public sealed class WebhookSubscriptionTestService(
         return channelType is AlertRoutingChannelType.TeamsWebhook
             or AlertRoutingChannelType.SlackWebhook
             or AlertRoutingChannelType.OnCallWebhook;
-    }
-
-    private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope)
-    {
-        return subscription.TenantId == scope.TenantId &&
-               subscription.WorkspaceId == scope.WorkspaceId &&
-               subscription.ProjectId == scope.ProjectId;
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -30,7 +31,8 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int i = _items.FindIndex(x => x.RuleId == rule.RuleId);
+            // Mirrors the SQL UPDATE, which matches on the row key plus the entity's own scope triple.
+            int i = _items.FindIndex(x => x.RuleId == rule.RuleId && SameScope(x, rule));
             if (i >= 0)
                 _items[i] = rule;
         }
@@ -38,12 +40,21 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         return Task.CompletedTask;
     }
 
-    public Task<AlertRule?> GetByIdAsync(Guid ruleId, CancellationToken ct)
+    public Task<AlertRule?> GetByIdAsync(ScopeContext scope, Guid ruleId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.RuleId == ruleId));
+            return Task.FromResult(_items.FirstOrDefault(x => x.RuleId == ruleId && MatchesScope(x, scope)));
     }
+
+    private static bool MatchesScope(AlertRule rule, ScopeContext scope) =>
+        rule.TenantId == scope.TenantId && rule.WorkspaceId == scope.WorkspaceId && rule.ProjectId == scope.ProjectId;
+
+    private static bool SameScope(AlertRule stored, AlertRule incoming) =>
+        stored.TenantId == incoming.TenantId &&
+        stored.WorkspaceId == incoming.WorkspaceId &&
+        stored.ProjectId == incoming.ProjectId;
 
     public Task<IReadOnlyList<AlertRule>> ListByScopeAsync(
         Guid tenantId,

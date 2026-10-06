@@ -58,11 +58,11 @@ public sealed class AlertsControllerArchiveTests
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         Mock<IAlertRecordRepository> records = new();
-        records.SetupSequence(r => r.GetByIdAsync(alertId, It.IsAny<CancellationToken>()))
+        records.SetupSequence(r => r.GetByIdAsync(Scope, alertId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing)
             .ReturnsAsync(archived);
 
-        records.Setup(r => r.ArchiveAsync(alertId, It.IsAny<CancellationToken>()))
+        records.Setup(r => r.ArchiveAsync(Scope, alertId, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IAlertService> alertService = new();
@@ -124,7 +124,7 @@ public sealed class AlertsControllerArchiveTests
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         Mock<IAlertRecordRepository> records = new();
-        records.Setup(r => r.GetByIdAsync(alertId, It.IsAny<CancellationToken>()))
+        records.Setup(r => r.GetByIdAsync(Scope, alertId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
         Mock<IAlertService> alertService = new();

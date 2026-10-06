@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
 using ArchLucid.Contracts.Alerts.Delivery;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Ports;
 
@@ -20,13 +21,15 @@ public interface IAlertDeliveryAttemptRepository
     /// <summary>Updates status, error message, and retry count after send completes or fails.</summary>
     Task UpdateAsync(AlertDeliveryAttempt attempt, CancellationToken ct);
 
-    /// <summary>Delivery history for a single alert, newest first.</summary>
+    /// <summary>Delivery history for a single alert in <paramref name="scope" />, newest first.</summary>
     Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
+        ScopeContext scope,
         Guid alertId,
         CancellationToken ct);
 
-    /// <summary>Recent attempts for a subscription (e.g. health / debugging).</summary>
+    /// <summary>Recent attempts for a subscription in <paramref name="scope" /> (e.g. health / debugging).</summary>
     Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
+        ScopeContext scope,
         Guid routingSubscriptionId,
         int take,
         CancellationToken ct);
