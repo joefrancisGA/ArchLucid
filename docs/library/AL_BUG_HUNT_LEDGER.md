@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `orchestrator-transient-retry` — top-level `AggregateException` with wrapper inners used `inners.All(SqlTransientDetector.IsTransient)`, so a nested mixed parallel-persist aggregate behind `InvalidOperationException` retried on the first nested inner only; flatten nested aggregates per top-level inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
+
 2026-10-06 seed hunt (seed→hit): `api-tenancy-workspaces` — `ListRecycleBinAsync` omitted purge schedule only when the current workspace pinned `DefaultProjectId`, but `SqlArchitectureProjectRetentionPurgeService` excludes purge when any `TenantWorkspaces` row pins the project; align recycle-bin `purgeAfterUtc` with tenant-wide default metadata pins; regression `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata`; 42 scoped TenantWorkspaces tests passed.
 
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.Apply` deduplicated parallel edges from rolled-up members but kept only the first member's NSG annotation labels and blocked flag; merge labels, rule details, and `IsDataFlowNsgBlocked` on duplicate rollup edge keys; regression `Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members`; 638 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
@@ -4530,11 +4532,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 29
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — nested wrapper aggregate mixed transient/permanent retry order asymmetry
+- **hunts:** 30
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-06
+- **last-bug:** 2026-10-06 — top-level aggregate wrapper inners skipped nested mixed parallel-persist aggregate flatten
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4632,6 +4634,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `OrchestratorTransientDbRetry` Polly delay vs outer `RetryBudget` — **cheap-disproof 2026-10-05 thorough hunt:** intentional layered retry; minimum inner backoff sum remains below `RetryBudget`; regression `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`.
 
 2026-10-05 seed hunt (seed-only): reseeded orchestrator-transient-retry after nested-wrapper hit; cheap-disproof closed wrapper-nested aggregate retry gap; added empty-nested-aggregate masking, helper delay misuse, and inner/outer budget interaction candidates.
+
+- [x] (proven) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — top-level `AggregateException` whose sole inner is `InvalidOperationException` wrapping a mixed nested `AggregateException(deadlock, permanent SqlException)` retried because `inners.All(SqlTransientDetector.IsTransient)` only walked each wrapper's `InnerException` chain and saw the first nested aggregate inner — **hit 2026-10-06 seed hunt:** apply nested parallel-persist flatten per top-level aggregate inner via `IsParallelPersistAggregateInnerRetriable`; regression `ExecuteAsync_does_not_retry_mixed_aggregate_nested_inside_wrapper_when_top_level_is_also_aggregate`
+
+2026-10-06 seed hunt (seed→hit): promoted top-level aggregate + nested mixed parallel-persist candidate; 56 scoped transient-retry tests passed (38 Persistence + 18 Application).
 
 ---
 
