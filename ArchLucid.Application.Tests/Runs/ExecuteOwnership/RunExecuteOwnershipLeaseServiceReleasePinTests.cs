@@ -56,7 +56,8 @@ public sealed class RunExecuteOwnershipLeaseServiceReleasePinTests
             storage.Object,
             new WorkerHostDrainGate(),
             optionsMonitor.Object,
-            NullLogger<RunExecuteOwnershipLeaseService>.Instance);
+            NullLogger<RunExecuteOwnershipLeaseService>.Instance,
+            new RunExecuteOwnershipActiveHolderRegistry());
     }
 
     private sealed class HolderTrackingLeaseRepository : IRunExecuteOwnershipLeaseRepository
