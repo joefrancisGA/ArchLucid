@@ -197,8 +197,38 @@ internal static class DiagramForestDataFlowRollup
             ParentAttachmentDetails = [],
             UnresolvedRelationshipDetails = [],
             DataFlowTraversalHopEvidenceDetails = [],
-            NsgInboundRuleChips = [],
+            NsgInboundRuleChips = MergeRollupNsgInboundRuleChips(members),
         };
+    }
+
+    private static List<DiagramNsgInboundRuleChip> MergeRollupNsgInboundRuleChips(
+        IReadOnlyList<DiagramNode> members)
+    {
+        const int maxVisibleChips = 3;
+        List<DiagramNsgInboundRuleChip> distinct = members
+            .SelectMany(member => member.NsgInboundRuleChips)
+            .Where(chip => !string.IsNullOrWhiteSpace(chip.Text) && !chip.Text.StartsWith("+", StringComparison.Ordinal))
+            .GroupBy(chip => chip.Text.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(group => new DiagramNsgInboundRuleChip(
+                group.Key,
+                group.Any(chip => chip.IsRisky)))
+            .OrderBy(chip => chip.Text, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (distinct.Count == 0)
+        {
+            return [];
+        }
+
+        List<DiagramNsgInboundRuleChip> chips = distinct.Take(maxVisibleChips).ToList();
+        int remainder = distinct.Count - maxVisibleChips;
+
+        if (remainder > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+        }
+
+        return chips;
     }
 
     private static List<string> CollectDistinctExternalValues(

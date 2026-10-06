@@ -166,4 +166,54 @@ public sealed class DiagramForestDataFlowRollupTests
         DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
         rollup.ExternalHostInKeyVault.Should().BeTrue("any member with Key Vault host should surface on the rollup card");
     }
+
+    [Fact]
+    public void Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members()
+    {
+        const string consumerId = "consumer-app";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"storage-{index}",
+                Label = $"storage-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "storage",
+                OrderKey = index,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                NsgInboundRuleChips =
+                [
+                    new DiagramNsgInboundRuleChip($"in {443 + index}/TCP · Internet", index == 0),
+                ],
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "app",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"storage-{index}",
+                ToNodeId = consumerId,
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.NsgInboundRuleChips.Select(chip => chip.Text)
+            .Should()
+            .BeEquivalentTo(
+                ["in 443/TCP · Internet", "in 444/TCP · Internet", "in 445/TCP · Internet", "+1"],
+                options => options.WithStrictOrdering());
+        rollup.NsgInboundRuleChips.Single(chip => chip.Text == "in 443/TCP · Internet").IsRisky.Should().BeTrue();
+    }
 }

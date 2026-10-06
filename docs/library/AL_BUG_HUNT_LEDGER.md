@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` cleared `NsgInboundRuleChips` while parallel rollup edges already merged NSG annotations, so collapsed storage cards dropped inbound rule chips painted on members; merge distinct chips with the same three-visible-plus-remainder cap as single-node chips; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`; 643 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
+
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalHostInKeyVault` while private-endpoint access already used `members.Any`, so mixed rollup cards hid Key Vault-hosted linked services when the first member had an explicit host; `members.Any` plus a separate Key Vault detail line when hosts are also shown; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`; 642 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
 
 2026-10-06 seed hunt (seed→hit): `artifact-synthesis` — `DiagramForestDataFlowRollup.CreateRollupNode` copied only the first member's `ExternalTargetHost` and `ExternalIntegrationRuntime` while factory names already merged all members, so rolled-up ADF link cards hid peer hosts and runtimes; merge distinct values onto `ExternalTargetHosts` / `ExternalIntegrationRuntimes` and format rollup detail lines; regressions `Apply_rollup_node_lists_all_distinct_external_target_hosts` and `Render_data_flow_rollup_card_lists_all_distinct_external_target_hosts`; 640 scoped ArtifactSynthesis tests passed (14 pre-existing diagram expectation failures, 2 skipped Terraform tests).
@@ -25436,11 +25438,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 34
+- **hunts:** 35
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 42
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — data-flow rollup dropped Key Vault host indicator when first member had explicit host
+- **last-bug:** 2026-10-06 — data-flow rollup dropped NSG inbound rule chips from collapsed members
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -25509,6 +25511,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` / `DiagramForestCanvasLabelContext.BuildDataFlowDetailLines` — rolled-up ADF link cards copied only the first member's `ExternalHostInKeyVault` and treated Key Vault as mutually exclusive with explicit host lines, hiding Key Vault-hosted peers when the first member listed a hostname — **hit 2026-10-06 seed hunt (seed→hit):** `members.Any` for Key Vault flag and show `Host in Key Vault` alongside merged host lines; regressions `Apply_rollup_node_surfaces_key_vault_when_any_member_stores_host_in_key_vault` and `Render_data_flow_rollup_card_surfaces_key_vault_when_any_member_uses_key_vault_host`.
 
 2026-10-06 seed hunt (seed→hit): promoted rollup Key Vault host indicator loss on mixed explicit-host / Key Vault members; focused filter reported 642 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
+- [x] (proven) `DiagramForestDataFlowRollup.CreateRollupNode` — rolled-up storage (and other) cards replaced member `NsgInboundRuleChips` with an empty list while edge dedupe already merged NSG annotations, hiding inbound rule chips on the collapsed canvas card — **hit 2026-10-06 seed hunt (seed→hit):** merge distinct member chips with max-three-visible plus remainder overflow; regression `Apply_rollup_node_merges_nsg_inbound_rule_chips_from_all_members`.
+
+2026-10-06 seed hunt (seed→hit): promoted rollup NSG inbound chip loss after edge-annotation merge fix; focused filter reported 643 passed, 14 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-09-12 thorough hunt #1847 (hit): proved inventory.json omitted `RequirementCoverageItem.IsMandatory` while markdown/DOCX exposed mandatory flag post-#1534; fixed `InventoryArtifactGenerator` + `InventoryItem.IsMandatory`; 213 scoped ArtifactSynthesis tests passed.
 
