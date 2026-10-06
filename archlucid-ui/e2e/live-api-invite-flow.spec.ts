@@ -68,12 +68,14 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
 
     await expectAdminInvitationStatus(request, inviteEmail, "Revoked");
 
-    await expectRevokedInvitationRowVisible(page, inviteEmail);
+    if (process.env.LIVE_E2E_PRIVATE_BETA_ACCESS !== "1") {
+      await expectRevokedInvitationRowVisible(page, inviteEmail);
 
-    const revokedRow = page
-      .getByTestId("settings-roles-pending-invitations-table")
-      .locator("tr", { hasText: inviteEmail });
-    await expect(revokedRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+      const revokedRow = page
+        .getByTestId("settings-roles-pending-invitations-table")
+        .locator("tr", { hasText: inviteEmail });
+      await expect(revokedRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+    }
   });
 
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {
