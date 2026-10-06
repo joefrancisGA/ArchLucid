@@ -266,6 +266,8 @@
 
 2026-10-05 thorough hunt (dry): `api-tenancy-workspaces` — cheap-disproof closed retention max clamp, cross-workspace default-metadata delete parity, and tenant-wide active-project load candidates; regressions `ListAsync_clamps_retention_days_to_maximum_when_configuration_exceeds_schedule_max`, `ListRecycleBinAsync_clamps_retention_days_and_purge_schedule_when_configuration_exceeds_schedule_max`, `DeleteProjectAsync_allows_delete_when_workspace_default_metadata_points_at_active_project_in_another_workspace`; 40 scoped TenantWorkspaces tests passed.
 
+2026-10-06 seed hunt (seed→hit): `ui-form-validation` — `serializeFirstTouchHeader` (`btoa`) threw on non-Latin1 UTM values in `archlucid.firstTouch.v1`, aborting signup before `fetch`; omit `x-archlucid-first-touch` when encoding fails; regression `still posts register when first-touch cookie contains non-Latin1 UTM values`; 31 scoped SignupForm vitest tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ui-form-validation` — `buildSignupRegisterPayload` used `Number.isFinite` only for optional `architectureTeamSize`, so fractional values (e.g. `3.5`) could reach `POST /v1/register` when submit shaping diverged from `signupFormSchema`; require whole-number 1–10,000 in payload builder; regression `omits non-integer optional architecture team size from the register payload builder`; 30 scoped SignupForm vitest tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ui-form-validation` — after HTTP 201, `showSuccess` ran before `registerCompletedRef` was set, so a throwing toast cleared the in-flight gate and allowed a second register POST; commit success before post-success UI (`registerCompletedRef` immediately after `res.ok`); regression `does not allow another register POST when success handling throws after a 201`; 29 scoped SignupForm vitest tests passed.
@@ -3922,11 +3924,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 30
-- **bugs-found:** 8
+- **hunts:** 31
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — register payload builder sent fractional architecture team size
+- **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -3988,6 +3990,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` `onSubmit` — rapid double-click before `submitting` re-render could start two parallel register fetches — **hit 2026-10-06 seed hunt:** synchronous `registerInFlightRef` gate at handler entry; regression `does not fire a second register request on rapid double-click before submitting state updates`; 28 scoped SignupForm vitest tests passed.
 - [x] (proven) `SignupForm` `onSubmit` — HTTP 201 followed by throwing `showSuccess` left completion refs unset so `finally` cleared in-flight and a second register POST could run — **hit 2026-10-06 seed hunt:** set `registerCompletedRef` immediately after `res.ok` before session storage, funnel telemetry, toast, or navigation; regression `does not allow another register POST when success handling throws after a 201`; 29 scoped SignupForm vitest tests passed.
 - [x] (proven) `SignupForm` `buildSignupRegisterPayload` — optional `architectureTeamSize` used `Number.isFinite` only, so fractional strings (e.g. `3.5`) were serialized into the register JSON despite `RegistrationRequestBaselineValidator` requiring integers — **hit 2026-10-06 seed hunt:** integer + 1–10,000 guard in shared payload builder used by `onSubmit`; regression `omits non-integer optional architecture team size from the register payload builder`; 30 scoped SignupForm vitest tests passed.
+- [x] (proven) `SignupForm` `onSubmit` — `serializeFirstTouchHeader` (`btoa`) threw on non-Latin1 characters in marketing first-touch cookie (e.g. emoji `utm_campaign`), surfacing `showError` and never calling `POST /api/proxy/v1/register` — **hit 2026-10-06 seed hunt:** try/catch around header serialization and omit attribution header on encode failure; regression `still posts register when first-touch cookie contains non-Latin1 UTM values`; 31 scoped SignupForm vitest tests passed.
+
+2026-10-06 seed hunt (seed→hit): proved emoji/non-Latin1 first-touch cookie blocked signup; 31 scoped SignupForm vitest tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved register payload builder could emit fractional architecture team size; 30 scoped SignupForm vitest tests passed.
 
