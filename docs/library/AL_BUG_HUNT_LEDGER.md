@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`, `omits surface keys when optional counts are NaN`, `clamps negative nav badge counts to zero`, and `uses alertId preview for alerts when title is omitted`; reaffirmed pin-only favorite hydrate in `hydrates local storage when server watermark is newer`; 47 scoped operator vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; reaffirmed `ChangePlan_ga_off_skips_ledger_change_plan` (`Returns202Accepted`), and `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; reaffirmed empty-server-`updatedAtUtc` hydrate policy, local operator scope headers, alert whitespace preview, and explicit server recents wipe; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
@@ -31163,7 +31165,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 40 · **Bugs found:** 34 · **Consecutive dry hunts:** 12
+**Hunts:** 41 · **Bugs found:** 34 · **Consecutive dry hunts:** 13
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`, `omits surface keys when optional counts are NaN`, `clamps negative nav badge counts to zero`, and `uses alertId preview for alerts when title is omitted`; 47 scoped operator vitest tests passed.
+
+- [x] (valid-no-repro) `applyWorkingWorkspaceContinuityFromServer` — leaves local synced watermark unchanged when server `updatedAtUtc` is empty after hydrate — **cheap-disproof 2026-10-07 seed hunt #41:** skip `writeLocalSyncedAtUtc` when trimmed server timestamp empty; regression `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`.
+- [x] (valid-no-repro) `deriveAttentionSurfaceCounts` — omits surface keys when optional counts are `NaN` — **cheap-disproof 2026-10-07 seed hunt #41:** `normalizeOptionalCount` treats non-finite as omitted; regression `omits surface keys when optional counts are NaN`.
+- [x] (valid-no-repro) `deriveAttentionSurfaceCounts` — clamps negative nav badge counts to zero — **cheap-disproof 2026-10-07 seed hunt #41:** `Math.max(0, Math.trunc(value))`; regression `clamps negative nav badge counts to zero`.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — `alerts` uses `alertId` when `title` is omitted — **cheap-disproof 2026-10-07 seed hunt #41:** intentional `?? alertId` fallback; regression `uses alertId preview for alerts when title is omitted`.
+- [x] (valid-no-repro) `toFavoriteReviewRows` — retains pin-only favorite rows (runId + pinnedAt, no title) on server hydrate — **cheap-disproof 2026-10-07 seed hunt #41:** optional title branch; regression `hydrates local storage when server watermark is newer` (pin-only favorite row).
+
+- [ ] (candidate) `readOperatorScopeFromStorage` — returns null when `localStorage` JSON is invalid — locus: `JSON.parse` catch (`operator-scope-storage.ts` ~70–100); input: non-object JSON string under `archlucid_operator_scope_v1`.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — returns input unchanged when `excludedRunIds` is empty — locus: early return ~50–52 (`home-attention-dedup.ts`); input: `home-attention-dedup.test.ts` empty exclusion list.
+- [ ] (candidate) `listHomeAttentionPreviewExcludedRunIds` — omits rail items whose id prefix does not yield a run id — locus: `runIdFromUnfinishedWorkRailItem` ~8–25; input: malformed `review-in-progress:` id with empty suffix.
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — returns false when server `updatedAtUtc` parses older than local watermark — locus: `Date.parse` comparison ~157; input: paired with `hydrates local storage when server watermark is newer`.
+- [ ] (candidate) `buildWorkingWorkspaceContinuityPayload` — omits undefined optional favorite fields from PUT payload — locus: spread mapping ~117–123; input: local pin with title-only omits `architectureId` key (`buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

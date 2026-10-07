@@ -106,6 +106,21 @@ describe("resolveAttentionPartitionPreview", () => {
     expect(preview).not.toBe("run-await");
   });
 
+  it("uses alertId preview for alerts when title is omitted", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "alerts",
+      topUnfinishedItem: null,
+      assignedFindingTitle: null,
+      topAwaitingApproval: null,
+      topAlert: {
+        alertId: "alert-queue-9",
+      } as AlertRecord,
+      runs: [],
+    });
+
+    expect(preview).toBe("alert-queue-9");
+  });
+
   it("returns empty preview when alert title is whitespace-only", () => {
     const preview = resolveAttentionPartitionPreview({
       partition: "alerts",
