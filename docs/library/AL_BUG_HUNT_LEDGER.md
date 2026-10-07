@@ -5788,7 +5788,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 51 · **Bugs found:** 22 · **Consecutive dry hunts:** 5
+**Hunts:** 52 · **Bugs found:** 22 · **Consecutive dry hunts:** 5
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 176 scoped tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `TryNormalize` — U+200C/U+200D (ZWNJ/ZWJ) inside path segments mirror ZWSP acceptance — **cheap-disproof 2026-10-07 seed hunt #52:** format characters are not control/homoglyph; regression `TryNormalize_accepts_zwnj_and_zwj_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — single-dot path segments (`/foo/./bar`) are not collapsed before return — **cheap-disproof 2026-10-07 seed hunt #52:** no traversal shape; client routers may collapse; regression `TryNormalize_accepts_single_dot_path_segments_without_collapsing`.
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded ZWSP (`%E2%80%8B`) decodes to accepted in-path separator — **cheap-disproof 2026-10-07 seed hunt #52:** intentional decode normalization; regression `TryNormalize_decodes_percent_encoded_zwsp_in_path_segment`.
+- [x] (valid-no-repro) `ContainsControlCharacter` — NUL only in fragment (`/reviews#%00note`) may decode without path-portion scan — **cheap-disproof 2026-10-07 seed hunt #52:** full-string decode loop rejects decoded NUL; regression `TryNormalize_rejects_percent_encoded_nul_in_fragment_after_decode`.
+- [x] (valid-no-repro) `TryNormalize` — no explicit max-length budget on return paths — **cheap-disproof 2026-10-07 seed hunt #52:** guard targets open-redirect shapes; Kestrel/request limits bound wire size; regression `TryNormalize_accepts_long_safe_relative_path_without_explicit_guard_length_cap` (2048-char segment).
+
+- [ ] (candidate) `TryNormalize` — U+2060 WORD JOINER and U+FEFF-adjacent format characters inside path segments mirror ZWSP/ZWNJ acceptance — locus: format-char gap vs homoglyph inventories; input: `/reviews\u2060/1` from pasted Office/HTML copy.
+- [ ] (candidate) `TryNormalizeRelativePath` — `candidate.Contains('\\')` scans the full return string so backslash only in fragment rejects otherwise safe paths — locus: `TryNormalizeRelativePath` ~37; input: `/reviews#notes\share` from Windows file-share fragments.
+- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — returns decoded `normalized` tail while callers persist raw `returnPath` query values — locus: `AuthSignInRoutingController` + `PostAuthBootstrapController.SanitizeReturnPath`; input: `/reviews%2F1` bookmarked before and after sign-in routing JSON.
+- [ ] (candidate) `ContainsSlashHomoglyph` — vertical tab or other C1 controls encoded as `%1B` only in query bypass pre-decode `ContainsControlCharacter` when hex decodes after first pass — locus: decode ordering in `TryNormalize`; input: `/reviews?x=%1B` (ESC) marketing query tails.
+- [ ] (candidate) `TryNormalize` — bidi embedding marks (U+202A/U+202C) inside path segments pass scans and may reorder display without changing stored bytes — locus: no bidi strip; input: `/reviews\u202A/evil\u202C` copied from RTL subject lines.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 170 scoped tests passed (`RunAnalyzers=false`).
 
@@ -5797,12 +5811,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ContainsAtSignInPath` — ignores `@` homoglyphs in fragment — **cheap-disproof 2026-10-07 seed hunt #51:** path-portion userinfo guard by design; fullwidth commercial-at in fragment is not path; regression `TryNormalize_accepts_fullwidth_commercial_at_in_fragment_not_path_portion` (parity `TryNormalize_accepts_at_sign_in_query_or_fragment_not_path`).
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — accepts lone `/` without further canonicalization — **cheap-disproof 2026-10-07 seed hunt #51:** intentional home return path; regression `TryNormalize_accepts_safe_relative_paths` (`"/"` inline).
 - [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — `ContainsTrailingPercentAfterDecodeCap` rejects any remaining `%` — **cheap-disproof 2026-10-07 seed hunt #51:** conservative rejection when decode leaves malformed `%` tail in query (`50%off`); regression `TryNormalize_rejects_benign_query_percent_literal_when_decode_leaves_malformed_escape` (over-rejection acceptable vs open redirect).
-
-- [ ] (candidate) `TryNormalize` — U+200C/U+200D (ZWNJ/ZWJ) inside path segments mirror ZWSP acceptance — locus: `ContainsControlCharacter` / homoglyph inventories; input: `/reviews\u200C/1` bookmarked from rich-text copy.
-- [ ] (candidate) `TryNormalizeRelativePath` — single-dot path segments (`/foo/./bar`) are not collapsed before return — locus: no `.` segment normalization; input: `/signin/./dashboard` from legacy router links.
-- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — percent-encoded ZWSP (`%E2%80%8B`) decodes to accepted in-path separator — locus: decode loop + ZWSP acceptance; input: `/reviews%E2%80%8B/1`.
-- [ ] (candidate) `ContainsControlCharacter` — NUL only in fragment (`/reviews#%00note`) may decode without path-portion scan — locus: fragment after `#` excluded from `GetPathWithoutQueryOrFragment`; input: percent-encoded NUL in marketing fragment tails.
-- [ ] (candidate) `TryNormalize` — no explicit max-length budget on return paths — locus: `TryNormalize` accepts arbitrarily long safe relative strings; input: megabyte `returnPath` query on sign-in redirect endpoints.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 166 scoped tests passed (`RunAnalyzers=false`).
 
@@ -5847,7 +5855,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07

@@ -504,4 +504,39 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/reviews?pct=50%25off").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/reviews\u200C/1")]
+    [InlineData("/reviews\u200D/1")]
+    public void TryNormalize_accepts_zwnj_and_zwj_inside_path_segment_without_open_redirect_shape(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_single_dot_path_segments_without_collapsing()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/signin/./dashboard").Should().Be("/signin/./dashboard");
+    }
+
+    [Fact]
+    public void TryNormalize_decodes_percent_encoded_zwsp_in_path_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews%E2%80%8B/1").Should().Be("/reviews\u200B/1");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_percent_encoded_nul_in_fragment_after_decode()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews#%00note").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_long_safe_relative_path_without_explicit_guard_length_cap()
+    {
+        string segment = string.Concat(Enumerable.Repeat('a', 2048));
+        string path = "/reviews/" + segment;
+
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
 }
