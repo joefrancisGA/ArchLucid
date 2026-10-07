@@ -1,4 +1,3 @@
-{"at":"2026-09-07T20:19:55.1441511Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-07T20:25:17.6338887Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-07T20:30:24.5686488Z","zoneId":"tenant-settings-sql","outcome":"dry"}
 {"at":"2026-09-07T20:35:40.584658Z","zoneId":"sql-run-repository","outcome":"hit"}
@@ -8808,3 +8807,4 @@
 {"at":"2026-10-07T20:04:59.8434273Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"at":"2026-10-07T20:12:06.837462Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"at":"2026-10-07T20:17:15.0970308Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
+{"at":"2026-10-07T20:22:49.7812567Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
