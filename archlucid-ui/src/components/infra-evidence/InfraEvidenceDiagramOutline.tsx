@@ -81,11 +81,20 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
   }
 }
 
-function resolveUnknownNodeReason(node: InfraEvidenceMermaidOutlineNode): string {
+function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   const details = node.unresolvedRelationshipDetails ?? [];
 
   if (details.length > 0) {
     return details.join(" ");
+  }
+
+  const questionableReason = node.questionableReason?.trim() ?? "";
+  const questionableAction = node.questionableAction?.trim() ?? "";
+
+  if (questionableReason.length > 0) {
+    return questionableAction.length > 0
+      ? `${questionableReason} Recommended action: ${questionableAction}`
+      : questionableReason;
   }
 
   const separatorIndex = node.label.indexOf(" · ");
@@ -320,7 +329,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
-                    {resolveUnknownNodeReason(node)}
+                    {resolveNodeProblem(node)}
                   </td>
                 ) : null}
                 {showNeighborhoodActions ? (

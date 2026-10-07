@@ -211,7 +211,7 @@ export function useSponsorWorkspaceHealthDashboard(): UseSponsorWorkspaceHealthD
       (typeof criticalRaw90 === "number" && Number.isFinite(criticalRaw90) ? criticalRaw90 : 0);
 
     const onTimePct =
-      sla.onTimeDecisionRate === null ? " — " : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
+      sla.onTimeDecisionRate === null ? "Rate not returned" : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
 
     const blockCountLabel = blocked30d.exact
       ? String(blocked30d.count)

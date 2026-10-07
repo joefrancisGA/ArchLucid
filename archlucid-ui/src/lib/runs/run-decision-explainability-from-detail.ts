@@ -122,9 +122,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
           return {
             pipeline: readString(record.pipeline) ?? "authority",
             decisionId: readString(record.decisionId) ?? "unknown",
-            category: readString(record.category) ?? " — ",
+            category: readString(record.category) ?? "Category not returned",
             title: readString(record.title) ?? "Untitled decision",
-            selectedOption: readString(record.selectedOption) ?? " — ",
+            selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
             rationale: readString(record.rationale) ?? "",
             confidence: readFiniteNumber(record.confidence),
             confidenceSource: readString(record.confidenceSource),
@@ -201,8 +201,8 @@ export function resolveRunDecisionExplainabilityFromDetail(
     authorityRuleAudit = {
       pipeline: readString(record.pipeline) ?? "authority",
       decisionTraceId: readGuid(record.decisionTraceId),
-      ruleSetId: readString(record.ruleSetId) ?? " — ",
-      ruleSetVersion: readString(record.ruleSetVersion) ?? " — ",
+      ruleSetId: readString(record.ruleSetId) ?? "Rule set id not returned",
+      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version not returned",
       appliedRuleIds: readStringArray(record.appliedRuleIds),
       acceptedFindingIds: readStringArray(record.acceptedFindingIds),
       rejectedFindingIds: readStringArray(record.rejectedFindingIds),
@@ -223,7 +223,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
               return {
                 templateId,
-                templateVersion: readString(prompt.templateVersion) ?? " — ",
+                templateVersion: readString(prompt.templateVersion) ?? "Template version not returned",
                 agentType: readString(prompt.agentType),
               };
             })

@@ -64,7 +64,7 @@ export function resolveHealthcareClaimsPolicyRuleRows(
             ruleName: rule.title.trim().length > 0 ? rule.title : humanizeRuleKey(rule.id),
             severity: rule.severity,
             requirement: rule.description,
-            evidenceExpected: rule.evidenceHints.length > 0 ? rule.evidenceHints.join(", ") : " — ",
+            evidenceExpected: rule.evidenceHints.length > 0 ? rule.evidenceHints.join(", ") : "No evidence hint recorded",
           })),
           rulesSourceQualifier: enforcedQualifier(options.packEnabled),
         };
@@ -78,7 +78,7 @@ export function resolveHealthcareClaimsPolicyRuleRows(
           ruleName: humanizeRuleKey(key),
           severity: "Low",
           requirement: "Compliance rule defined in published pack content.",
-          evidenceExpected: " — ",
+          evidenceExpected: "No evidence hint recorded",
         })),
         rulesSourceQualifier: `${enforcedQualifier(options.packEnabled) ?? ""} Severity is not specified in pack metadata.`,
       };

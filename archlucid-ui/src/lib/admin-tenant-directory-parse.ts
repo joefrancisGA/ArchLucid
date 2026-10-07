@@ -119,8 +119,8 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
 
     const userId = rawUserId.trim();
 
-    const displayName = typeof record.displayName === "string" ? record.displayName : typeof record.name === "string" ? record.name : " — ";
-    const email = typeof record.email === "string" ? record.email : " — ";
+    const displayName = typeof record.displayName === "string" ? record.displayName : typeof record.name === "string" ? record.name : "Not returned";
+    const email = typeof record.email === "string" ? record.email : "Not returned";
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority;
     const authorityLabel =
@@ -128,7 +128,7 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
         ? role
         : typeof rank === "number" && Number.isFinite(rank)
           ? `Rank ${rank}`
-          : " — ";
+          : "Authority not returned";
     const rankNumber = typeof rank === "number" && Number.isFinite(rank) ? rank : undefined;
 
     rows.push({ userId, displayName, email, authorityLabel, authorityRank: rankNumber });
@@ -175,7 +175,7 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
     const credentialId = rawCredentialId.trim();
 
     const displayName = typeof record.displayName === "string" ? record.displayName : typeof record.name === "string" ? record.name : typeof record.label === "string" ? record.label : "API key";
-    const hint = typeof record.maskedKey === "string" ? record.maskedKey : typeof record.keyHint === "string" ? record.keyHint : typeof record.hint === "string" ? record.hint : typeof record.preview === "string" ? record.preview : " — ";
+    const hint = typeof record.maskedKey === "string" ? record.maskedKey : typeof record.keyHint === "string" ? record.keyHint : typeof record.hint === "string" ? record.hint : typeof record.preview === "string" ? record.preview : "Hint not returned";
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority ?? record.appRole;
     const authorityLabel =
@@ -183,7 +183,7 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
         ? role
         : typeof rank === "number" && Number.isFinite(rank)
           ? `Rank ${rank}`
-          : " — ";
+          : "Authority not returned";
 
     const rankNumber = typeof rank === "number" && Number.isFinite(rank) ? rank : undefined;
 
