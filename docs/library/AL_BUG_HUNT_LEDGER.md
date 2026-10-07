@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs`, `WorkerHostPipelineExtensions`, and worker/API startup ordering; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` vs `ArchLucid.Api/Program.cs` and `WorkerHostPipelineExtensions`; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 thorough hunt (dry): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; regression `EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit`; reaffirmed `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`, `TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write`, and prior MERGE `UpdatedUtc` audit-touch row; seeded five follow-on `(candidate)` rows; 55 scoped tenant-settings tests passed (`SqlTenantSettingsRepository`, `TenantSettings_`, `InMemoryTenantSettings`, `RunAnalyzers=false`).
@@ -9552,7 +9554,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 31 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+**Hunts:** 32 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): re-read worker startup vs API host; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+
+- [x] (valid-no-repro) `Program.Main` — `AddArchLucidOpenTelemetry` registers before `ValidateOrThrow` so `Observability:*` failures surface as OTel DI exceptions — **cheap-disproof 2026-10-07 seed hunt:** `ObservabilityRules.CollectPrometheus` runs in `ValidateOrThrow` before `Build()`; regression `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials` asserts `*Prometheus*` at `factory.Services`.
+- [x] (valid-no-repro) `Program.Main` — worker omits explicit `builder.Services.AddHealthChecks()` before composition — **cheap-disproof 2026-10-07 seed hunt:** `DataHealthJobsCompositionModule` calls `AddHealthChecks()` during `AddArchLucidApplicationServices`; regressions `Worker_host_health_live_returns_ok_when_pipeline_is_mapped` and `Worker_host_health_ready_returns_anonymous_summary_json`.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — `UseExceptionHandler` before `MapHealthChecks` returns problem+json for health faults — **cheap-disproof 2026-10-07 seed hunt:** no reachable failing repro; summary health endpoints return JSON without exception text (`Worker_host_health_root_returns_summary_json_without_exception_text`).
+- [x] (invalid) `Program.Main` — `WorkerProcessHostingRoleConfiguration.Apply` before `AzureOpenAiEnvironmentConfigurationBridge.Apply` breaks env alias binding — **cheap-disproof 2026-10-07 seed hunt:** role injection does not gate bridge keys; regression `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`.
+- [x] (valid-no-repro) `Program.Main` — worker omits post-`Build()` `CollectErrors` pass — **cheap-disproof 2026-10-07 seed hunt:** duplicate of 2026-10-06 closure; `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens` still fails with `*ArchLucid configuration is invalid*` at pre-`Build()` `ValidateOrThrow`.
+
+- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` may honor `Demo:SaaSGuestSeedEnabled` from SaaS overlay on headless worker revisions — locus: `Program.cs` ~79; input: `appsettings.SaaS.json` sets `Demo:SaaSGuestSeedEnabled=true` with SQL storage.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — `SecurityHeadersMiddleware` applies CSP/HSTS-style headers to anonymous `GET /metrics` when Prometheus is enabled — locus: `WorkerHostPipelineExtensions.cs` ~27–93; input: `Observability:Prometheus:Enabled=true` with valid scrape credentials.
+- [ ] (candidate) `Program.Main` — `AddHttpContextAccessor` registers per-request scope plumbing on a host whose only HTTP surface is health/metrics — locus: `Program.cs` ~52–54; input: background hosted service resolves `IHttpContextAccessor.HttpContext` during job execution.
+- [ ] (candidate) `Program.Main` — `ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent` emits before schema bootstrap so operators see legacy-key warnings before SQL migration connectivity failures — locus: `Program.cs` ~65–79; input: legacy `ArchLucid:Product` section plus invalid SQL connection string.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — `TraceResponseHeaderMiddleware` adds trace headers to `/health/live` responses that strict ingress probes treat as non-2xx body mismatches — locus: `WorkerHostPipelineExtensions.cs` ~26; input: orchestrator probe with exact body match policy.
 
 2026-10-07 seed hunt (seed-only): re-read worker startup vs API host; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
@@ -9561,12 +9577,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `UseArchLucidWorkerPipeline` — `PrometheusScrapeAuthMiddleware` runs before `UseOpenTelemetryPrometheusScrapingEndpoint` so unauthenticated scrape attempts still hit exporter wiring — **cheap-disproof 2026-10-07 seed hunt:** middleware doc requires auth ahead of scraping; failed basic auth returns 401 without calling `_next`; regression `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials` covers misconfiguration at build.
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` before `UseArchLucidWorkerPipeline` delays mapping `/health/live` until migrations complete — **cheap-disproof 2026-10-07 seed hunt:** duplicate of 2026-10-06/2026-10-07 closures; bootstrap-before-pipeline is intentional for SQL-backed workers.
 - [x] (valid-no-repro) `Program.Main` — `ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored` on worker with no interactive SDK surface — **cheap-disproof 2026-10-07 seed hunt:** duplicate of 2026-10-07 thorough hunt row; advisory only with fail-closed post-configure override.
-
-- [ ] (candidate) `Program.Main` — `AddArchLucidOpenTelemetry` registers before `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` so `Observability:*` failures may surface as OTel DI exceptions instead of unified `CollectErrors` text — locus: `Program.cs` ~55–61; input: Prometheus enabled without scrape credentials (`Observability:Prometheus:Enabled=true`).
-- [ ] (candidate) `Program.Main` — worker omits explicit `builder.Services.AddHealthChecks()` that API calls before `AddArchLucidApplicationServices` — locus: `ArchLucid.Worker/Program.cs` vs `ArchLucid.Api/Program.cs` ~84; input: `/health/ready` predicate tags depend on composition-only registration.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — `UseExceptionHandler` is registered before `MapHealthChecks` so unhandled exceptions on health routes may emit problem+json instead of health writer output — locus: `WorkerHostPipelineExtensions.cs` ~28–110; input: fault injected in a ready-tagged health check delegate.
-- [ ] (candidate) `Program.Main` — `WorkerProcessHostingRoleConfiguration.Apply` runs before `AzureOpenAiEnvironmentConfigurationBridge.Apply` while API applies bridges immediately after env layering — locus: `Program.cs` ~41–43; input: `Hosting__Role` unset with `AZURE_OPENAI_DEPLOYMENT_NAME` env alias only.
-- [ ] (candidate) `Program.Main` — worker omits post-`Build()` `ArchLucidConfigurationRules.CollectErrors` pass present on API after `ConsoleHangDiagnostics.UseLogger` — locus: `Program.cs` ~63–71 vs `ArchLucid.Api/Program.cs` ~184–191; input: configuration error detectable only after first `IServiceProvider` resolution.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name` and `Worker_host_starts_when_startup_configuration_summary_logging_is_disabled`; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
@@ -9582,7 +9592,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
