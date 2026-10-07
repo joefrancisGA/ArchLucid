@@ -358,6 +358,22 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
     }
 
     [Fact]
+    public void OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize()
+    {
+        OutboundExternalHttpResilienceOptions options = new();
+
+        options.MinimumThroughput.Should().Be(8);
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize()
+    {
+        OutboundExternalHttpResilienceOptions options = new();
+
+        options.SamplingDurationSeconds.Should().Be(30);
+    }
+
+    [Fact]
     public void OutboundHttpClientTimeoutSeconds_internal_diagnostics_budget_is_ten_seconds()
     {
         OutboundHttpClientTimeoutSeconds.InternalDiagnostics.Should().Be(10);
@@ -395,6 +411,39 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         sendCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(() =>
+        {
+            sendCount++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        sendCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections()
+    {
+        using SocketsHttpHandler handler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(handler, OutboundHttpSocketsHandlerProfile.InternalLoopback);
+
+        handler.EnableMultipleHttp2Connections.Should().BeFalse();
+    }
+
+    [Fact]
+    public void OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds()
+    {
+        OutboundHttpClientTimeoutSeconds.ExternalIntegration.Should().Be(30);
     }
 
     [Fact]

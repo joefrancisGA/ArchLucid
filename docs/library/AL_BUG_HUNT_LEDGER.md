@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize`, `OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize`, `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`, `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`, and `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`; 72 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`, `omits surface keys when optional counts are NaN`, `clamps negative nav badge counts to zero`, and `uses alertId preview for alerts when title is omitted`; reaffirmed pin-only favorite hydrate in `hydrates local storage when server watermark is newer`; 47 scoped operator vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; reaffirmed `ChangePlan_ga_off_skips_ledger_change_plan` (`Returns202Accepted`), and `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
@@ -22841,13 +22843,27 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize`, `OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize`, `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`, `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`, and `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`; 72 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — default `MinimumThroughput` is `8` before `Normalize` — **cheap-disproof 2026-10-07 seed hunt #28:** breaker sampling floor; regression `OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize`.
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — default `SamplingDurationSeconds` is `30` before `Normalize` — **cheap-disproof 2026-10-07 seed hunt #28:** sliding window default; regression `OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize`.
+- [x] (valid-no-repro) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `404 Not Found` is not retried — **cheap-disproof 2026-10-07 seed hunt #28:** client-error no-retry posture; regression `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`.
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` sets `EnableMultipleHttp2Connections` to `false` — **cheap-disproof 2026-10-07 seed hunt #28:** loopback profile tuning; regression `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`.
+- [x] (valid-no-repro) `OutboundHttpClientTimeoutSeconds` — `ExternalIntegration` constant is `30` seconds — **cheap-disproof 2026-10-07 seed hunt #28:** integration client budget; regression `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`.
+
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `BreakDurationSeconds` is `60` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~24).
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — `CircuitBreakerEnabled` defaults to `true` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~12).
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `401 Unauthorized` is not retried — locus: `ShouldRetryHttpResponse` 4xx exclusion; input: mirror `does_not_retry_http_400_bad_request`.
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `InternalLoopbackProbe` constant is `15` seconds — locus: `InternalLoopbackProbe` (`OutboundHttpClientTimeoutSeconds.cs` ~12).
+- [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — rejects dotted IPv4 with leading-zero octal private encoding — locus: encoding guard (`PrivateNetworkAddressGuard.cs`); input: `PrivateNetworkAddressGuardEncodingTests` theory `0177.0.0.1`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 67 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
