@@ -148,6 +148,50 @@ describe("SignupForm", () => {
     expect(payload.industryVerticalOther).toBeUndefined();
   });
 
+  it("signupFormSchema rejects zero optional architecture team size", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "0",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("omits zero optional architecture team size from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "0",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
+  it("signupFormSchema accepts leading plus optional architecture team size", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "+5",
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("serializes leading plus optional architecture team size as five in the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "+5",
+    });
+
+    expect(payload.architectureTeamSize).toBe(5);
+  });
+
   it("signupFormSchema accepts 1e4 optional architecture team size at the upper bound", () => {
     const parsed = signupFormSchema.safeParse({
       adminEmail: "ops@example.com",
@@ -607,6 +651,124 @@ describe("SignupForm", () => {
       expect(pushMock).toHaveBeenCalledWith(expect.stringContaining("/signup/verify?email="));
     });
 
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is empty", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 201 })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");
+
+    expect(registrationWrite).toBeDefined();
+    const stored = JSON.parse(String(registrationWrite![1])) as Record<string, unknown>;
+    expect(stored.adminEmail).toBe("ops@example.com");
+    expect(stored.organizationName).toBe("Contoso Trial Org");
+    expect(stored.tenantId).toBeUndefined();
+
+    setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("shows organization created success toast when register response was already provisioned", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            wasAlreadyProvisioned: true,
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalledWith(
+        "Organization created — check your email if verification is required.",
+      );
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("persists trimmed required fields in archlucid_last_registration after successful register", async () => {
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "  ops@example.com  " } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "  Ops User  " } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "  Contoso Trial Org  " } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");
+
+    expect(registrationWrite).toBeDefined();
+    const stored = JSON.parse(String(registrationWrite![1])) as Record<string, unknown>;
+    expect(stored.adminEmail).toBe("ops@example.com");
+    expect(stored.organizationName).toBe("Contoso Trial Org");
+    expect(stored.tenantId).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    setItemSpy.mockRestore();
     vi.unstubAllGlobals();
   });
 

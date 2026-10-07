@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`wasAlreadyProvisioned: true` still uses generic organization-created success copy — evaluation idempotent re-register is not duplicate-org `409`; `"0"` team size rejected on UI path and omitted in payload builder bypass; `"+5"` parses via `Number()` like `1e3`; `handleSubmit` zod trim aligns `archlucid_last_registration` with register payload; empty `201` body still completes signup without tenant ids in session); regressions `shows organization created success toast when register response was already provisioned`, `signupFormSchema rejects zero optional architecture team size`, `omits zero optional architecture team size from the register payload builder`, `signupFormSchema accepts leading plus optional architecture team size`, `serializes leading plus optional architecture team size as five in the register payload builder`, `persists trimmed required fields in archlucid_last_registration after successful register`, and `still navigates after 201 when register response body is empty`; seeded five follow-on `(candidate)` rows; 61 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`showSuccess` throw before `router.push` leaves tenant committed with `registerCompletedRef` set — duplicate POST blocked; leading-zero `"010"` parses to decimal 10 by design; post-success `finally` intentionally keeps `registerInFlightRef` true so submit stays locked; empty-string `industryVertical` omits vertical keys even when `industryVerticalOther` populated; Unicode local-part email blocked by zod `.email()` before verify redirect); regressions `surfaces signup error when success toast throws after successful register`, `signupFormSchema accepts leading-zero optional architecture team size as decimal ten`, `serializes leading-zero optional architecture team size as ten in the register payload builder`, `omits industry vertical from the register payload builder when industry is an empty string`, `signupFormSchema rejects unicode local-part email before verify redirect`, and `keeps submit disabled for unicode local-part email`; seeded five follow-on `(candidate)` rows; 54 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five seeded `(candidate)` rows (foreign `WorkspaceId` on recommendation rows filtered like project drift; composite `DecideAsync` is intentional dry-run suppression read; `DistinctBy` after `OrderByDescending` is the dedup fix not a defect; synthesized empty findings path is intentional manifest-bound simulation; controller `409` mapping is thin wrapper over provider throw documented on explicit compare-to sealed-hash failure); regression `GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope`; reaffirmed `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`, `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, and `SimulateAsync_CompositeRule_WhenMatched_UsesSuppressionPolicyDecision`; seeded five follow-on `(candidate)` rows; 34 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
@@ -4288,6 +4290,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for `wasAlreadyProvisioned` toast, zero/`+5` team size, session trim parity, and empty `201` body; 61 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for success-toast throw UX, leading-zero team size, empty industry enum, and zod EAI gate; 54 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; post-success navigation throw UX, `1e4` team size, schema-bypass `companySize`, `200` ok gate, and production funnel non-throw; 48 scoped SignupForm vitest tests passed.
@@ -4304,9 +4308,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4412,11 +4416,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — omits `industryVertical` when set to empty string with `industryVerticalOther` populated — **cheap-disproof 2026-10-07 thorough hunt:** falsy enum guard omits keys; regression `omits industry vertical from the register payload builder when industry is an empty string`.
 - [x] (invalid) `SignupForm` verify redirect — `encodeURIComponent` on email with Unicode local-part (EAI) after zod accepts internationalized address — **cheap-disproof 2026-10-07 thorough hunt:** zod `.email()` rejects `üser@example.com` before submit; regressions `signupFormSchema rejects unicode local-part email before verify redirect` and `keeps submit disabled for unicode local-part email`.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows fresh-organization `showSuccess` copy — locus: `showSuccess` after `res.ok` (`SignupForm.tsx` ~192).
-- [ ] (candidate) `buildSignupRegisterPayload` — optional `architectureTeamSize` `"0"` omitted silently instead of rejected — locus: `t > 0` guard in builder vs `superRefine` `n <= 0` on UI path.
-- [ ] (candidate) `signupFormSchema` — `architectureTeamSize` with leading plus (`"+5"`) parses via `Number()` to valid integer — locus: `superRefine` `Number(arch)` (`signup-schema.ts` ~49).
-- [ ] (candidate) `SignupForm` `sessionStorage` `archlucid_last_registration` — stores form `adminEmail`/`organizationName` from submit values while JSON body uses trimmed zod output only on required fields in payload — locus: `sessionStorage.setItem` block (`SignupForm.tsx` ~179–186).
-- [ ] (candidate) `SignupForm` `onSubmit` — `res.text()` then empty body with `201` leaves `body` null but still navigates without persisting tenant ids in session — locus: parse block + success path (`SignupForm.tsx` ~142–148).
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows fresh-organization `showSuccess` copy — **cheap-disproof 2026-10-07 thorough hunt:** generic success copy is intentional for all `res.ok` signups; duplicate org remains `409`; regression `shows organization created success toast when register response was already provisioned`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — optional `architectureTeamSize` `"0"` omitted silently instead of rejected — **cheap-disproof 2026-10-07 thorough hunt:** UI `superRefine` rejects zero; builder omits non-positive on direct-call bypass; regressions `signupFormSchema rejects zero optional architecture team size` and `omits zero optional architecture team size from the register payload builder`.
+- [x] (valid-no-repro) `signupFormSchema` — `architectureTeamSize` with leading plus (`"+5"`) parses via `Number()` to valid integer — **cheap-disproof 2026-10-07 thorough hunt:** intentional `Number()` parity with scientific notation; regressions `signupFormSchema accepts leading plus optional architecture team size` and `serializes leading plus optional architecture team size as five in the register payload builder`.
+- [x] (valid-no-repro) `SignupForm` `sessionStorage` `archlucid_last_registration` — stores form `adminEmail`/`organizationName` from submit values while JSON body uses trimmed zod output only on required fields in payload — **cheap-disproof 2026-10-07 thorough hunt:** `handleSubmit` supplies zod-trimmed values to both payload builder and session write; regression `persists trimmed required fields in archlucid_last_registration after successful register`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `res.text()` then empty body with `201` leaves `body` null but still navigates without persisting tenant ids in session — **cheap-disproof 2026-10-07 thorough hunt:** `res.ok` gates success; session enrichment is best-effort; regression `still navigates after 201 when register response body is empty`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `201` JSON with only `wasAlreadyProvisioned: true` and no `tenantId` still writes `archlucid_last_registration` without workspace/project ids — locus: spread `body` into session JSON (`SignupForm.tsx` ~179–186).
+- [ ] (candidate) `buildSignupRegisterPayload` — optional `architectureTeamSize` with interior whitespace (`" 5 "`) omitted when trim happens only in `superRefine` input path — locus: `teamTrim` in builder vs zod-trimmed submit values.
+- [ ] (candidate) `SignupForm` `onSubmit` — non-JSON `201` with whitespace-only body treated as empty text and skips tenant id session merge — locus: `text.length > 0` before `JSON.parse` (`SignupForm.tsx` ~145–148).
+- [ ] (candidate) `signupFormSchema` — `adminDisplayName` / `organizationName` padded with interior double spaces kept after `.trim()` on submit — locus: zod `.trim()` collapses ends only (`signup-schema.ts` ~30–38).
+- [ ] (candidate) `SignupForm` verify redirect — `encodeURIComponent` on email after zod trim when local-part contains `=` sign — locus: `router.push` query (`SignupForm.tsx` ~193); depends on zod `.email()` accepting `=` in local-part.
 
 ---
 
