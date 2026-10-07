@@ -43,6 +43,19 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task HasSeenAsync_returns_true_after_TryClaimAsync_before_RememberAsync()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool claimed = await sut.TryClaimAsync(TenantA, "Jira", "delivery-in-flight", CancellationToken.None);
+        bool seen = await sut.HasSeenAsync(TenantA, "Jira", "delivery-in-flight", CancellationToken.None);
+
+        claimed.Should().BeTrue();
+        seen.Should().BeTrue("in-flight claims are tracked in the claimed-keys map before RememberAsync");
+    }
+
+    [Fact]
     public async Task TryClaimAsync_only_first_concurrent_caller_wins()
     {
         using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });

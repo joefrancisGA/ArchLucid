@@ -1196,6 +1196,11 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         second.ReplayIgnored.Should().BeTrue();
         second.DurableAuditEvent.Should().NotBeNull();
         second.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationItsmInboundWebhookReplayIgnored);
+        using (JsonDocument replayAudit = JsonDocument.Parse(second.DurableAuditEvent.DataJson!))
+        {
+            replayAudit.RootElement.GetProperty("detail").GetProperty("issueKey").GetString().Should().Be("KEY-1");
+        }
+
         correlations.Verify(
             c => c.UpdateHumanReviewStatusForFindingAsync(
                 TenantA,

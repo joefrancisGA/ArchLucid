@@ -21,6 +21,65 @@ public sealed class ItsmInboundWebhookFacadeTests
     private const string SharedSecret = "test-inbound-secret";
 
     [Fact]
+    public async Task ProcessAsync_returns_unauthorized_when_vendor_token_is_null()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = null,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_returns_validation_failed_when_body_is_not_json_after_secret_verified()
+    {
+        const string body = "not-json";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.ValidationFailed);
+        result.Message.Should().Contain("Malformed");
+    }
+
+    [Fact]
     public async Task ProcessAsync_returns_unauthorized_when_unscoped_and_deployment_wide_secrets_disabled()
     {
         const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";

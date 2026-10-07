@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (missing vendor token 401, replay dedupe ack contract, in-flight HasSeen, malformed JSON validation, replay-ignored audit detail); seeded five follow-on `(candidate)` rows; 72 scoped `ItsmInboundWebhook` tests passed (62 Application + 10 Persistence).
+
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (whitespace delivery id fallback, tenant missing inbound secret 401, empty mapped human review guard, synthetic replay id per status, unscoped correlation lookup); seeded five follow-on `(candidate)` rows; 68 scoped `ItsmInboundWebhook` tests passed (59 Application + 9 Persistence).
 
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows (project list vs keyset take ceilings, caching first-page take keys, detail EXISTS vs list join warning hydration, in-memory project take defaults, unpaged TOP vs keyset Fetch); seeded five follow-on `(candidate)` rows; 170 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -13231,7 +13233,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 26 · **Bugs found:** 19 · **Consecutive dry hunts:** 4
+**Hunts:** 27 · **Bugs found:** 19 · **Consecutive dry hunts:** 5
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `ProcessAsync_returns_unauthorized_when_vendor_token_is_null`, `Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation`, `HasSeenAsync_returns_true_after_TryClaimAsync_before_RememberAsync`, `ProcessAsync_returns_validation_failed_when_body_is_not_json_after_secret_verified`, and `CreateReplayIgnoredAudit_includes_issue_key_in_detail_for_synthetic_replay_ids`; seeded five follow-on `(candidate)` rows; 72 scoped `ItsmInboundWebhook` tests passed (62 Application + 10 Persistence).
+
+- [x] (valid-no-repro) `ItsmInboundWebhooksController.ProcessAsync` — missing vendor token headers bind null `VendorToken` and return HTTP 401 — **cheap-disproof 2026-10-07 seed hunt #27:** secure-compare fails closed; regression `ProcessAsync_returns_unauthorized_when_vendor_token_is_null`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — failed `TryClaimReplayAsync` returns `Accepted=true` with replay-ignored audit — **cheap-disproof 2026-10-07 seed hunt #27:** intentional vendor-friendly dedupe contract; regression `Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation`.
+- [x] (invalid) `MemoryCacheItsmInboundWebhookReplayGuard.HasSeenAsync` — in-flight `TryClaimAsync` reports `HasSeen=false` until `RememberAsync` — **cheap-disproof 2026-10-07 seed hunt #27:** claimed keys map marks events seen immediately; regression `HasSeenAsync_returns_true_after_TryClaimAsync_before_RememberAsync`.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — malformed JSON after shared-secret verification — **cheap-disproof 2026-10-07 seed hunt #27:** `TryParseWebhookJson` returns validation-failed without throwing; regression `ProcessAsync_returns_validation_failed_when_body_is_not_json_after_secret_verified` (API integration `InboundWebhookPipelineOrderIntegrationTests` covers HTTP 400).
+- [x] (invalid) `ItsmInboundWebhookSyncSupport.CreateReplayIgnoredAudit` — replay-ignored audits omit external issue key for synthetic delivery ids — **cheap-disproof 2026-10-07 seed hunt #27:** `detail` carries `issueKey`/`externalKey` via `CreateStatusPayload`; regressions `CreateReplayIgnoredAudit_includes_issue_key_in_detail_for_synthetic_replay_ids` and replay audit assertion on `Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation`.
+
+- [ ] (candidate) `ItsmInboundWebhooksController.ProcessAsync` — legacy `X-ArchLucid-Signature` header is accepted when primary webhook signature header is absent; reachable when operators configure only the legacy header name in vendor docs.
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryVerifyWebhookSecurity` — empty-string vendor token fails secure-compare with HTTP 401 indistinguishable from wrong non-empty token.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `ReleaseReplayAsync` on disposition/human-review failure may allow a concurrent retry to claim before the first worker finishes rollback paths.
+- [ ] (candidate) `ItsmInboundJiraPayloadReader.TryRead` — issue keys with internal Unicode whitespace normalize differently than SQL correlation keys stored without normalization.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.RememberAsync` — overwrites in-flight claim token via `AddOrUpdate` when a slow worker calls `RememberAsync` while another delivery is still processing the same event id.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `Resolve_treats_whitespace_only_delivery_id_as_absent_for_synthetic_fallback`, `ProcessAsync_returns_unauthorized_when_tenant_scoped_and_inbound_secret_missing`, `Jira_when_mapper_returns_mapped_true_with_empty_human_review_returns_not_accepted_without_audit`, `Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs`, and `TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null`; seeded five follow-on `(candidate)` rows; 68 scoped `ItsmInboundWebhook` tests passed (59 Application + 9 Persistence).
 
