@@ -358,6 +358,38 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_outer_whitespace_on_variation_selector_task_id_chains_with_unpadded_variation_key()
+    {
+        AgentExecutionTrace trimmedBase = new()
+        {
+            TraceId = "trace-base",
+            TaskId = " manifest-task ",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace variationOnly = new()
+        {
+            TraceId = "trace-fe0f",
+            TaskId = "manifest-task\uFE0F",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace paddedVariation = new()
+        {
+            TraceId = "trace-padded-fe0f",
+            TaskId = " manifest-task\uFE0F ",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([trimmedBase, variationOnly, paddedVariation]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-base", "trace-padded-fe0f"]);
+    }
+
+    [Fact]
     public void Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups()
     {
         AgentExecutionTrace visibleTask = new()
