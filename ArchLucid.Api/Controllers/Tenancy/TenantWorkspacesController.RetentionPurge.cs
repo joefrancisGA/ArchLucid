@@ -38,7 +38,8 @@ public sealed partial class TenantWorkspacesController
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<ArchitectureProjectRecord> deleted =
-            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken);
+            await _architectureProjectRepository.ListSoftDeletedByTenantAsync(scope.TenantId, cancellationToken)
+            ?? Array.Empty<ArchitectureProjectRecord>();
 
         int retentionDays =
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
