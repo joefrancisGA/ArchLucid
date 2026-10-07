@@ -125,14 +125,14 @@ Track these funnel milestones using the existing invitation, audit, run, and
 export records; do not add a parallel counter until the existing event cannot
 answer the question:
 
-| Milestone | Minimum dimensions |
+| Milestone | Audit/event mapping | Minimum dimensions |
 | --- | --- |
-| Invited | tenant, workspace, actor, invite result, UTC |
-| Accepted | invite/user reference, actor, UTC |
-| Signed in | tenant/workspace scope, auth result, correlation id |
-| Run created | `runId`, project, execution mode, correlation id |
-| Finalized | `runId`, `GoldenManifestId`, status, UTC |
-| Exported | `runId`, artifact/export kind, response status, UTC |
+| Invited | `Admin.UserInvitationCreated` | tenant, workspace, actor, invite result, UTC |
+| Accepted | `Admin.UserInvitationAccepted` | invite/user reference, actor, UTC |
+| Signed in | auth correlation record; no durable audit event is currently mapped | tenant/workspace scope, auth result, correlation id |
+| Run created | `Architecture.RunCreated` | `runId`, project, execution mode, correlation id |
+| Finalized | `ManifestFinalized` / `Run.CommitCompleted` | `runId`, `GoldenManifestId`, status, UTC |
+| Exported | `RunExported` / `Export.DownloadSucceeded` | `runId`, artifact/export kind, response status, UTC |
 
 Use [`TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md) and the first-tenant funnel telemetry
 implementation as the mapping reference. A report is useful when it includes a
@@ -166,6 +166,13 @@ Before sending an invitee, sponsor, or landing-page copy change, compare it
 with [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md)
 and [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md).
 
+Run the repository checks before recording a green claim review:
+
+```bash
+python3 scripts/ci/check_buyer_claim_drift.py
+python3 scripts/ci/check_claim_evidence_consistency.py
+```
+
 Allowed language includes committed review evidence, labeled execution mode,
 self-assessed security posture, and source-classified ROI. Do not imply CPA SOC
 2, a published third-party pen test, a named reference customer, guaranteed
@@ -176,6 +183,20 @@ and deletion policy, who can access it, execution mode, committed manifest
 reference, and the support/correlation references. The trust-center and
 procurement pack remain the source of truth for legal terms, privacy, DPA,
 subprocessors, and retention; this kit does not create an assurance claim.
+
+### Spend-freeze verification
+
+Record the configuration revision and one controlled response for both API and
+worker before inviting more than the named pilot operators:
+
+```text
+API:     AgentExecution__Mode=Simulator
+Worker:  AgentExecution__Mode=Simulator
+Expected: the controlled create/execute response reports Simulator and a
+          correlation id; no Real reservation is created.
+```
+
+If either surface cannot be switched independently, the cut is `NO-GO`.
 
 ## Cut-freeze rule
 
@@ -200,6 +221,29 @@ For every cut, retain:
 - spend-freeze verification and configuration revision;
 - first-week funnel export and open support references;
 - claim-boundary review result and any owner-only blockers.
+
+### RC34 evidence snapshot
+
+The last completed RC34 witness on 2026-10-07 was:
+
+| Evidence | Run |
+| --- | --- |
+| UI typecheck, OpenAPI, beta-readiness, gitleaks, and push corset | `37642959507` |
+| JwtBearer private-beta access path | `37642959086` |
+| RC release gate | `37642959088` |
+
+For a new cut, replace these run ids with the current SHA's runs. A green RC34
+run is not a staging Gate 1 witness; retain `UNKNOWN` until
+`ship-gate-evidence/{runId}/` exists.
+
+When a current Real artifact is available, verify its age and attach the
+generated report to the cut record:
+
+```bash
+python3 scripts/ci/report_real_mode_evidence_freshness.py \
+  --strict \
+  --markdown-out artifacts/release/real-mode-evidence-freshness.md
+```
 
 This kit makes Cursor-owned work repeatable. It does not close Gate 1,
 G-REAL-06, G-REAL-07, M-07, M-09, G-REAL-09, or G-REAL-08 without the required
