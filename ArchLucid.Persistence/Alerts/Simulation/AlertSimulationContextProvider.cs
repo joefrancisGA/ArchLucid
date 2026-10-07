@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Advisory.Learning;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
@@ -189,9 +190,10 @@ public sealed class AlertSimulationContextProvider(
             scope,
             runId);
 
-        RecommendationLearningProfile? learning = await recommendationLearningService
-            .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
-            ;
+        RecommendationLearningProfile? learning = FilterLearningProfileForSimulationScope(
+            await recommendationLearningService
+                .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct),
+            scope);
 
         return new AlertEvaluationContext
         {
@@ -241,5 +243,20 @@ public sealed class AlertSimulationContextProvider(
                 && record.ProjectId == scope.ProjectId
                 && record.RunId == runId)
             .ToList();
+
+    private static RecommendationLearningProfile? FilterLearningProfileForSimulationScope(
+        RecommendationLearningProfile? profile,
+        ScopeContext scope)
+    {
+        if (profile is null)
+            return null;
+
+        if (profile.TenantId != scope.TenantId
+            || profile.WorkspaceId != scope.WorkspaceId
+            || profile.ProjectId != scope.ProjectId)
+            return null;
+
+        return profile;
+    }
 
 }
