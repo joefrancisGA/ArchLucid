@@ -1114,6 +1114,41 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeNull();
     }
 
+    [Theory]
+    [InlineData('\u3000')]
+    [InlineData('\u2007')]
+    public void Resolve_skips_when_technology_names_differ_only_by_unicode_space_separators(char separator)
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = $"Azure{separator}SQL";
+        chosen.EvidenceRef = "inventory:sql";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_candidate_when_alternative_row_has_substantive_ref_with_distinct_topology_ref()
+    {
+        TechnologyLedgerEntry alternative = CreateCandidate(CloudProvider.Azure);
+        alternative.Status = TechnologyLedgerStatus.Alternative;
+        alternative.TechnologyName = "Azure SQL";
+        alternative.EvidenceRef = "inventory:sql-alt";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [alternative])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
     [Fact]
     public void Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator()
     {

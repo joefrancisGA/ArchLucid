@@ -5248,6 +5248,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+**Hunts:** 54 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_technology_names_differ_only_by_unicode_space_separators` and `Resolve_keeps_candidate_when_alternative_row_has_substantive_ref_with_distinct_topology_ref`; 102 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `NormalizeTechnologyName` — ideographic space / figure space variants (`U+3000`, `U+2007`) may or may not collapse identically to ASCII space — **cheap-disproof 2026-10-07 seed hunt #54:** `string.Split` whitespace rules collapse both to `Azure SQL`; regression `Resolve_skips_when_technology_names_differ_only_by_unicode_space_separators` (parity tab/NBSP rows).
+- [x] (invalid) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` row with substantive `EvidenceRef` and matching `TechnologyName` still dedupes a second grounded candidate with a different ref — **cheap-disproof 2026-10-07 seed hunt #54:** dual-substantive name dedupe requires `EvidenceRefsMatch`; regression `Resolve_keeps_candidate_when_alternative_row_has_substantive_ref_with_distinct_topology_ref`.
+- [x] (valid-no-repro) `Resolve` locked authoritative gate — `HasSubstantiveEvidenceRef(chosen.EvidenceRef)` false with `IsLocked` may allow same-family same-name inserts — **cheap-disproof 2026-10-07 seed hunt #54:** intentional post-#28 behavior; regression `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`.
+- [x] (valid-no-repro) `EvidenceRefsMatch` — malformed refs without `:` tail fall back to case-insensitive whole-string equality — **cheap-disproof 2026-10-07 seed hunt #54:** intentional delimiter fallback; regression `Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`.
+- [x] (valid-no-repro) `SharesProviderFamilyGate` — concrete provider candidate against `CloudProvider.None` chosen inserts exploration rows — **cheap-disproof 2026-10-07 seed hunt #54:** intentional cross-provider exploration; regression `Resolve_inserts_assumed_on_provider_conflict`.
+
+- [ ] (candidate) `NormalizeTechnologyName` — does not apply Unicode NFKC so fullwidth Latin letters (`Ａzure SQL` vs `Azure SQL`) remain distinct labels — locus: trim + whitespace split only; input: imported manifest display names with fullwidth homoglyphs.
+- [ ] (candidate) `Resolve` — non-authoritative `TechnologyLedgerSource.AgentProposed` locked `Chosen` may still suppress candidates via `HasMatchingProposal` before authoritative gate — locus: `HasMatchingProposal` precedes chosen branch; input: cold-start locked agent-proposed chosen sharing topology name.
+- [ ] (candidate) `TryParseAgentTopologyProposalRef` — proposal id or sub-key with leading/trailing whitespace after prefix split may bypass structured match and fall back to case-insensitive whole-string dedupe — locus: `EvidenceRefsMatch` trim + parser; input: `agentTopologyProposal: p1 :svc` vs `agentTopologyProposal:p1:svc`.
+- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerRole` mismatch allows duplicate `EvidenceRef` strings across roles in one merge batch — locus: role filter ~62–63; input: same topology ref proposed for ComputeRuntime and Region roles.
+- [ ] (candidate) `ShouldTreatAsDuplicateByName` — substantive existing + whitespace-only candidate ref returns false (line 94–95) but dual-whitespace-only pair returns true — locus: ungrounded branch ~100; input: replay ingest with empty-ref assumed rows sharing display name.
+
 2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for ordinal sub-key casing, substantive/ungrounded name dedupe, Future status dedupe, and middle-dot display separators; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read merge policy partials; no hunt-ready promotion; five open `(candidate)` rows unchanged; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
@@ -5261,12 +5277,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ShouldTreatAsDuplicateByName` substantive existing + ungrounded candidate — **cheap-disproof 2026-10-06 seed hunt:** intentional name-level dedupe blocks duplicate labels once a grounded row exists; regression `Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name`.
 - [x] (valid-no-repro) `NormalizeTechnologyName` exotic separators — **cheap-disproof 2026-10-06 seed hunt:** NBSP collapses; punctuation separators such as middle dot (`U+00B7`) remain distinct display tokens; regression `Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator`.
 - [x] (valid-no-repro) `HasMatchingProposal` + `TechnologyLedgerStatus.Future` — **cheap-disproof 2026-10-06 seed hunt:** ref dedupe by design (`Resolve_skips_when_future_row_shares_evidence_ref`); distinct substantive refs with matching names still insert (`Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs`).
-
-- [ ] (candidate) `NormalizeTechnologyName` — ideographic space / figure space variants (`U+3000`, `U+2007`) may or may not collapse identically to ASCII space before `TechnologyNamesMatch`; reachable when imported manifest display names embed CJK or typographic spacing.
-- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` row with substantive `EvidenceRef` and matching `TechnologyName` still dedupes a second grounded candidate with a different ref when `ShouldTreatAsDuplicateByName` returns true for dual-ungrounded pairs only — re-open when a cited producer emits substantive alternative + distinct topology ref collision.
-- [ ] (candidate) `Resolve` locked authoritative gate — `HasSubstantiveEvidenceRef(chosen.EvidenceRef)` false with `IsLocked` may allow same-family same-name inserts that operators expected frozen; reachable when locked inventory chosen rows lack grounding refs (regression family `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`).
-- [ ] (candidate) `EvidenceRefsMatch` — malformed refs without `:` tail fall back to case-insensitive whole-string equality (`Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`); reachable when proposal ids differ only by casing without `agentTopologyProposal:` prefix structure.
-- [ ] (candidate) `SharesProviderFamilyGate` — concrete provider candidate against `CloudProvider.None` chosen inserts exploration rows even when `TechnologyNamesMatch` and refs collide at name layer; reachable during cloud-neutral inventory chosen + concrete provider topology re-ingest (see `Resolve_inserts_assumed_on_provider_conflict` family).
 
 - [x] (valid-no-repro) `NormalizeTechnologyName` — NBSP vs ASCII space internal separators — **valid-no-repro 2026-10-06 seed hunt:** whitespace collapse matches tab/space parity; regression `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — whitespace-only authoritative chosen `TechnologyName` — **valid-no-repro 2026-10-06 seed hunt:** empty normalized chosen label does not block distinct display-name candidates; regression `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`.
@@ -5285,10 +5295,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — case-only ServiceId collapsed distinct agentTopologyProposal EvidenceRefs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
