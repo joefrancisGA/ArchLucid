@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows (full-string slash/dot/control scans and query-only `%` after decode cap are conservative by design; NBSP inside path segments is not an open-redirect class); regressions `TryNormalize_rejects_when_query_contains_slash_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_query_contains_dot_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_decoded_query_contains_control_character`, `TryNormalize_accepts_nbsp_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_when_query_retains_percent_after_decode_cap`; seeded five follow-on `(candidate)` rows; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` startup ordering, `WorkerProcessHostingRoleConfiguration`, and `UseArchLucidWorkerPipeline` health mapping after four consecutive dry hunts; no hunt-ready row promoted; regressions `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role` and `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; seeded five follow-on `(candidate)` rows; 19 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — re-read golden-manifest exclude binds, architecture list locking vs dashboard NOLOCK lists, dashboard warning hydration vs in-memory denormalized flags, keyset cursor validation, and sample purge SP scope; cheap-disproof closed five seeded `(candidate)` rows; regressions `InMemory_get_committed_run_by_golden_manifest_treats_empty_exclude_run_id_as_non_exclusion`, `SelectCommittedRunIdByGoldenManifestId_excludes_run_id_via_sql_not_nullable_optional`, `ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads`, `InMemory_list_recent_in_scope_retains_stored_warning_flags_without_findings_aggregate_model`, `RunsListRecentInScopeNoLock_hydrates_warning_flags_from_left_join_aggregates`, and `SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract`; seeded five follow-on `(candidate)` rows; 165 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -5382,6 +5384,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for fragment/query conservative scans and query `%2F` decode shape; 151 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read guard implementation; no hunt-ready promotion; refreshed five `(candidate)` rows below; 147 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -5397,11 +5401,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded slash in query decodes to literal `/` in query value — **cheap-disproof 2026-10-06 seed hunt:** not path traversal; regression `TryNormalize_decodes_percent_encoded_slash_in_query_portion_without_path_traversal_checks`.
 - [x] (valid-no-repro) `ContainsDotDotSegment` — single-segment `%2e%2e` without slashes — **cheap-disproof 2026-10-06 seed hunt:** decode + residual `%2e` scan rejects before segment split; regression `TryNormalize_rejects_percent_encoded_dot_dot_segments_case_insensitively`.
 
-- [ ] (candidate) `ContainsSlashHomoglyph` — scans the full return-path string (not `GetPathWithoutQueryOrFragment`) — reachable when marketing or analytics query values embed BMP slash homoglyphs while the path portion is a safe relative URL.
-- [ ] (candidate) `ContainsDotHomoglyph` — same full-string scan — reachable when query parameters contain dot homoglyphs that browsers do not treat as path traversal but the guard rejects outright.
-- [ ] (candidate) `ContainsControlCharacter` — scans full candidate before path partitioning — reachable when encoded control bytes appear only in the query portion after one decode pass.
-- [ ] (candidate) `TryNormalize` — `Trim()` edge whitespace only — reachable when return paths include compatibility-form characters (e.g. NBSP) inside a path segment after leading/trailing trim.
-- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%` after decode cap in query-only tails — reachable when deeply nested percent-encoding in query survives `MaxPercentDecodePasses` while the path portion is already stable.
+- [x] (valid-no-repro) `ContainsSlashHomoglyph` — scans the full return-path string (not `GetPathWithoutQueryOrFragment`) — **cheap-disproof 2026-10-07 seed hunt:** conservative rejection when query embeds BMP slash homoglyphs; not browser path traversal; regression `TryNormalize_rejects_when_query_contains_slash_homoglyph_conservative_full_string_scan`.
+- [x] (valid-no-repro) `ContainsDotHomoglyph` — same full-string scan — **cheap-disproof 2026-10-07 seed hunt:** query dot homoglyphs rejected by design; regression `TryNormalize_rejects_when_query_contains_dot_homoglyph_conservative_full_string_scan`.
+- [x] (valid-no-repro) `ContainsControlCharacter` — scans full candidate before path partitioning — **cheap-disproof 2026-10-07 seed hunt:** decoded tab/LF in query rejected; regression `TryNormalize_rejects_when_decoded_query_contains_control_character`.
+- [x] (valid-no-repro) `TryNormalize` — `Trim()` edge whitespace only — **cheap-disproof 2026-10-07 seed hunt:** NBSP inside a path segment is accepted without open-redirect shape; regression `TryNormalize_accepts_nbsp_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — `%` after decode cap in query-only tails — **cheap-disproof 2026-10-07 seed hunt:** trailing `%` after eight decode passes rejects even when path is stable; regression `TryNormalize_rejects_when_query_retains_percent_after_decode_cap`.
+
+- [ ] (candidate) `TryNormalizeRelativePath` — `StartsWith("/")` after `Trim()` only — reachable when sign-in return URLs are copied with a leading U+FEFF (ZWNBSP) before the slash so the guard returns null before homoglyph checks.
+- [ ] (candidate) `ContainsSlashHomoglyph` — full-string scan — reachable when analytics fragments embed BMP slash homoglyphs (`/reviews#campaign=\uFF0F`) while the path portion is otherwise safe.
+- [ ] (candidate) `ContainsDotHomoglyph` — full-string scan — reachable when hash fragments embed dot homoglyph pairs that are not path `..` segments (`/reviews#label=\uFF0E\uFF0E`).
+- [ ] (candidate) `ContainsControlCharacter` — post-decode scan — reachable when `%7F` (DEL) appears in the path portion after `Uri.UnescapeDataString` (`/reviews/%7Fsegment`).
+- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — multi-pass decode — reachable when a slash homoglyph is percent-encoded only in the fragment tail and becomes literal only after the second decode pass (`/safe#%EF%BC%8F`).
 
 2026-10-06 seed hunt (seed-only): cheap-disproof encoded `@`, `%2F` canonicalization, and query `://` over-rejection; seeded four candidates; 142 scoped tests passed.
 
@@ -5415,10 +5425,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
