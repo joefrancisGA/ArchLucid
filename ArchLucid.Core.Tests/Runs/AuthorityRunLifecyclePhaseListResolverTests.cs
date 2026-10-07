@@ -398,6 +398,21 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_unparseable_legacy_status_with_context_snapshot_returns_in_progress_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa25"),
+            LegacyRunStatus = "not-a-valid-run-status",
+            ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only()
     {
         RunRecord header = new()

@@ -142,4 +142,26 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         result.IsAllowed.Should().BeFalse();
         result.TargetStatus.Should().Be(ArchitectureRunStatus.Created);
     }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_waiting_for_results()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.WaitingForResults,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.WaitingForResults);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_created()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Created,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Created);
+    }
 }
