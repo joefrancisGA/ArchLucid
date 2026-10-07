@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-operator-lib` — cheap-disproof closed five seeded `(candidate)` rows (`??` after `trim()` treats whitespace-only awaiting-approval and alert titles as present empty strings, not missing ids; scope change clears recents without auto-PUT of empty IH-066 continuity; empty server `updatedAtUtc` intentionally hydrates over a local watermark; `readOperatorScopeFromStorage` re-parses when `localStorage` raw JSON changes in-tab; client `updatedAtUtc` uses ISO clock at build time with server last-write-wins); regressions `returns empty preview when alert title is whitespace-only`, `hydrates when server omits updatedAtUtc even if local watermark exists`, `readOperatorScopeFromStorage_reflects_direct_localStorage_writes_in_the_same_tab`, and `writeOperatorScopeToStorage_clears_recent_views_but_not_favorite_pins`; reaffirmed `returns empty preview when awaiting-approval name is whitespace-only`; seeded five follow-on `(candidate)` rows; 27 scoped regressions in continuity, scope-storage, and attention-preview tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — re-read `working-workspace-continuity-sync`, `resolveAttentionPartitionPreview`, and scope-change cache clears after HOM reconciliation commits; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (IH-066 continuity sync watermark is user-global and intentionally survives `writeOperatorScopeToStorage`; unfinished-work preview skips archived runs before `buyerFacingReviewTitleFromSummary`; whitespace-only awaiting-approval `name` yields empty preview because `trim()` returns `""` before `?? runId`; explicit server continuity hydrates when local watermark absent; offline reconnect invalidates via shared helper); regressions `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`, `skips archived runs when falling back to the first active run title`, `returns empty preview when awaiting-approval name is whitespace-only`, and `hydrates from server when local continuity watermark is absent`; seeded five follow-on `(candidate)` rows; 646 scoped `src/lib/operator/` vitest tests passed (48 pre-existing failures elsewhere in the same path filter).
 
 2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five seeded `(candidate)` rows (`reloadOnChange` on overlay JSON is standard configuration reload semantics without a worker-specific stale-options repro; distinct `ArchLucid.Worker` OpenTelemetry `service.name` is intentional per executable; operational-error capture uses default scope context on anonymous health paths by design; content-safety fail-open advisory is warn-only and covered in `ArchLucid.Host.Core.Tests`; `WebApplicationFactory` `UseSetting` is not deployment env precedence — operators use `Demo__*` / `Hosting__*` after `AddEnvironmentVariables()`); regression `Worker_host_web_host_use_setting_does_not_beat_saas_overlay_from_content_root`; reaffirmed `Worker_host_environment_variables_override_saas_overlay_from_content_root`; seeded five follow-on `(candidate)` rows; 29 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -30309,7 +30311,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 646 scoped `src/lib/operator/` vitest tests passed (48 pre-existing failures in the same path filter).
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 27 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
 - **id:** ui-operator-lib
 - **status:** open
@@ -30317,9 +30319,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
@@ -30384,11 +30386,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — refuses first explicit server payload when local watermark missing — **cheap-disproof 2026-10-07 seed hunt:** absent local watermark hydrates; regression `hydrates from server when local continuity watermark is absent`.
 - [x] (valid-no-repro) `retryOperatorOfflineConnection` — offline retry must scope invalidation to operator home queries only — **cheap-disproof 2026-10-07 seed hunt:** TB-2214 helper intentionally calls unfiltered `invalidateQueries()` or reload; regression `invalidates queries when a query client is available` in `operator-offline-reconnect.test.ts`.
 
-- [ ] (candidate) `resolveAttentionPartitionPreview` — `awaiting-approval` and `alerts` partitions return empty string when title/name is whitespace-only instead of falling back to `runId` / `alertId`.
-- [ ] (candidate) `persistWorkingWorkspaceContinuityToServer` — tenant switch clears local pins/recents but does not push an empty continuity payload, so user-global server continuity may retain prior-tenant favorites until the next explicit PUT.
-- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — empty server `updatedAtUtc` always hydrates and may overwrite local pins when the API omits a watermark.
-- [ ] (candidate) `readOperatorScopeFromStorage` — parse cache keyed on raw JSON may serve stale scope if another tab mutates `archlucid_operator_scope_v1` without dispatching `storage` events in the same document.
-- [ ] (candidate) `buildWorkingWorkspaceContinuityPayload` — uses `new Date().toISOString()` for `updatedAtUtc` on every build, so rapid PUTs may reorder against server clocks on slow networks.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — `awaiting-approval` and `alerts` partitions return empty string when title/name is whitespace-only instead of falling back to `runId` / `alertId` — **cheap-disproof 2026-10-07 thorough hunt:** `?.trim() ?? id` treats `""` as a resolved value; regressions `returns empty preview when awaiting-approval name is whitespace-only` and `returns empty preview when alert title is whitespace-only`.
+- [x] (valid-no-repro) `persistWorkingWorkspaceContinuityToServer` — tenant switch clears local pins/recents but does not push an empty continuity payload — **cheap-disproof 2026-10-07 thorough hunt:** IH-066 explicit PUT only; scope change clears recents via `clearOperatorRecentViewsStorage` but leaves favorite pins until the operator mutates them; regression `writeOperatorScopeToStorage_clears_recent_views_but_not_favorite_pins`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — empty server `updatedAtUtc` always hydrates and may overwrite local pins when the API omits a watermark — **cheap-disproof 2026-10-07 thorough hunt:** intentional explicit-hydrate path when server omits watermark; regression `hydrates when server omits updatedAtUtc even if local watermark exists`.
+- [x] (valid-no-repro) `readOperatorScopeFromStorage` — parse cache keyed on raw JSON may serve stale scope if another tab mutates `archlucid_operator_scope_v1` — **cheap-disproof 2026-10-07 thorough hunt:** in-tab `localStorage` writes change raw JSON and invalidate cache; cross-tab uses `storage` listener; regression `readOperatorScopeFromStorage_reflects_direct_localStorage_writes_in_the_same_tab`.
+- [x] (valid-no-repro) `buildWorkingWorkspaceContinuityPayload` — uses `new Date().toISOString()` for `updatedAtUtc` on every build, so rapid PUTs may reorder against server clocks on slow networks — **cheap-disproof 2026-10-07 thorough hunt:** client watermark is advisory; server `updatedAtUtc` comparison in `shouldHydrateWorkingWorkspaceContinuityFromServer` is authoritative; reaffirmed `builds payload from local pins and recents`.
+
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `assigned-to-me` returns raw `assignedFindingTitle` without trim, so whitespace-only governance titles may render as blank partition previews.
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — empty `recentViewEntries` resets to `createEmptyRecentViewsState()` and may wipe locally cached recents even when favorites hydrate from the same payload.
+- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — signed-in dedicated-workspace bootstrap may write cookies from registration scope before operator `localStorage` scope is hydrated on cold load.
+- [ ] (candidate) `refreshOperatorScopeFromCrossTabStorage` — invalidates home runs caches on sibling-tab scope writes but does not await in-flight TanStack queries before consumers read stale rows.
+- [ ] (candidate) `toFavoriteReviewRows` — drops favorite rows when `pinnedAtUtc` is whitespace-only, silently shrinking continuity PUT payloads.
 
 2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
 

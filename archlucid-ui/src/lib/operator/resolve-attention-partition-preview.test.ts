@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveAttentionPartitionPreview } from "@/lib/operator/resolve-attention-partition-preview";
+import type { AlertRecord } from "@/types/alerts";
 
 describe("resolveAttentionPartitionPreview", () => {
   it("prefers the top unfinished-work rail item title", () => {
@@ -68,6 +69,22 @@ describe("resolveAttentionPartitionPreview", () => {
         name: "   ",
       },
       topAlert: null,
+      runs: [],
+    });
+
+    expect(preview).toBe("");
+  });
+
+  it("returns empty preview when alert title is whitespace-only", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "alerts",
+      topUnfinishedItem: null,
+      assignedFindingTitle: null,
+      topAwaitingApproval: null,
+      topAlert: {
+        alertId: "alert-1",
+        title: "   ",
+      } as AlertRecord,
       runs: [],
     });
 

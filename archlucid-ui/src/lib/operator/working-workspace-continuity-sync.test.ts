@@ -45,12 +45,27 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
     expect(payload.favoriteReviews).toHaveLength(1);
     expect(payload.recentViewEntries).toHaveLength(1);
     expect(payload.updatedAtUtc).toBeTruthy();
+    expect(Date.parse(payload.updatedAtUtc)).not.toBeNaN();
   });
 
   it("hydrates from server when local continuity watermark is absent", () => {
     expect(
       shouldHydrateWorkingWorkspaceContinuityFromServer(
         { favoriteReviews: [], recentViewEntries: [], updatedAtUtc: "2026-09-13T09:00:00Z" },
+        true,
+      ),
+    ).toBe(true);
+  });
+
+  it("hydrates when server omits updatedAtUtc even if local watermark exists", () => {
+    window.localStorage.setItem(
+      WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY,
+      "2026-09-13T12:00:00Z",
+    );
+
+    expect(
+      shouldHydrateWorkingWorkspaceContinuityFromServer(
+        { favoriteReviews: [], recentViewEntries: [], updatedAtUtc: "" },
         true,
       ),
     ).toBe(true);
