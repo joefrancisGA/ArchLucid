@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 74 · **Bugs found:** 12 · **Consecutive dry hunts:** 7
+**Hunts:** 75 · **Bugs found:** 12 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_task_id_contains_nbsp_does_not_chain_with_ascii_hyphen_task`; 104 scoped zone tests passed (61 Application + 43 Core).
+
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Real PilotStrict with zero traces always blocks even when structural mode commit guard already passed — **cheap-disproof 2026-10-07 seed hunt #75:** intentional fail-closed proof of quality-gate evaluation; regression `GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason`.
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_qualityGateOptionsResolver.Resolve` snapshot reused for unsupported-band hold after `_semanticSupportBandFinalizeJudge.ApplyAsync` — **cheap-disproof 2026-10-07 seed hunt #75:** single `Resolve` per commit request; resolver is not invoked twice; hypothetical mid-request config flip is not a reachable caller contract in these files.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `DecisionGradeFindingProvenanceValidator` runs before `_finalizeQualityGate` so scorecard-blocking findings may still pass provenance — **cheap-disproof 2026-10-07 seed hunt #75:** intentional TB-2321 ordering (`CommitOutputIntegrityGateMapArchitectureTests`); provenance shape and scorecard dimensions are separate gates.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — outer whitespace trimmed on `TaskId` but inner NBSP (U+00A0) preserved may split retry chains — **cheap-disproof 2026-10-07 seed hunt #75:** distinct task keys are correct (no silent merge); regression `Select_when_task_id_contains_nbsp_does_not_chain_with_ascii_hyphen_task`.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — lifecycle `Complete` check uses in-memory `run.GoldenManifestId` before trace quality gate — **cheap-disproof 2026-10-07 seed hunt #75:** orchestrator must pass consistent `ArchitectureRun` DTO; regression `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`; stale in-memory header is outside selector/evaluator scope.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityWarning=true` on latest-per-task trace does not block PilotStrict commit — locus: evaluator loop ~39–49; input: latest trace Warned with `QualityRejected=false`.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` still ranks as rejected sibling — locus: rank ~36–38; input: upsert-drift duplicate rows at same attempt.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` unions persisted acks after provenance gate — locus: ordering ~172–183; input: assumption gate sees only request-body ids if union ran later (it does not).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` trace load precedes architecture-version pin failure — locus: ~121–136; input: pin mismatch still throws after traces loaded (perf-only).
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Fallback structural mode returns empty reasons here but `StructuralExecutionModeCommitGuard` blocks earlier in service — locus: mode guard ~21–22; input: direct evaluator call with Fallback mode and rejected traces.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_task_id_dotless_i_and_latin_capital_i_remain_distinct_tasks`; 103 scoped zone tests passed (61 Application + 42 Core).
 

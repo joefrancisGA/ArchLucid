@@ -243,6 +243,34 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_id_contains_nbsp_does_not_chain_with_ascii_hyphen_task()
+    {
+        DateTime sharedUtc = new(2026, 10, 7, 18, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace asciiTask = new()
+        {
+            TraceId = "trace-ascii",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace nbspTask = new()
+        {
+            TraceId = "trace-nbsp",
+            TaskId = "task\u00A01",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([asciiTask, nbspTask]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-ascii", "trace-nbsp"]);
+    }
+
+    [Fact]
     public void Select_when_task_id_is_whitespace_only_chains_with_missing_task_id()
     {
         DateTime sharedUtc = new(2026, 8, 1, 10, 0, 0, DateTimeKind.Utc);
