@@ -1,4 +1,3 @@
-{"at":"2026-09-07T05:06:31.8363741Z","zoneId":"api-policy-packs","outcome":"hit"}
 {"at":"2026-09-07T05:15:06.2214805Z","zoneId":"api-governance-stickiness","outcome":"hit"}
 {"at":"2026-09-07T05:24:14.2629131Z","zoneId":"api-tenancy-workspaces","outcome":"hit"}
 {"at":"2026-09-07T05:33:43.3536213Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit"}
@@ -8762,3 +8761,4 @@
 {"at":"2026-10-07T04:44:36.4713111Z","zoneId":"commit-output-integrity","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T04:51:34.8584646Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
 {"at":"2026-10-07T05:01:58.3652498Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-07T05:06:55.9664047Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
