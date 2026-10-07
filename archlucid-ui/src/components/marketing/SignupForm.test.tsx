@@ -1213,6 +1213,75 @@ describe("SignupForm", () => {
     expect(parsed.success).toBe(false);
   });
 
+  it("shows raw html error body when register response is not json", async () => {
+    vi.mocked(showError).mockClear();
+
+    const html = "<html><body>Gateway timeout</body></html>";
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(html, { status: 502, headers: { "Content-Type": "text/html" } })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", html);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows synthetic message when register error response body is empty", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 503 })));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Request failed (503)");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("omits optional architecture team size above 10000 from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "10001",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
+  it("signupFormSchema rejects alphabetic optional architecture team size", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "abc",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("encodes subdomain work email once in the verify redirect query", async () => {
     pushMock.mockClear();
 

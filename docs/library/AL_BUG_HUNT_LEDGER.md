@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` error and success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `shows raw html error body when register response is not json`, `shows synthetic message when register error response body is empty`, `omits optional architecture team size above 10000 from the register payload builder`, and `signupFormSchema rejects alphabetic optional architecture team size`; reaffirmed `navigates to verify on HTTP 200 when register response is ok`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit path, `buildSignupRegisterPayload`, and first-touch header encoding; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `shows raw response text when server detail is not a string`, `shows server detail string from HTTP 429 register responses`, `omits negative zero optional architecture team size from the register payload builder`, and `signupFormSchema rejects negative zero optional architecture team size`; reaffirmed `still posts register when first-touch cookie contains non-Latin1 UTM values` and `does not fire a second register request on rapid double-click before submitting state updates`; seeded five follow-on `(candidate)` rows; 76 scoped SignupForm vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 166 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -4350,6 +4352,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 seed hunt (seed-only): re-read `SignupForm` error/success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON HTML error body surfaces raw markup in `showError` — **cheap-disproof 2026-10-07 seed hunt:** intentional `text` fallback when `JSON.parse` fails; regression `shows raw html error body when register response is not json`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — empty `res.text()` on non-ok uses synthetic `Request failed (${status})` — **cheap-disproof 2026-10-07 seed hunt:** `text ||` guard by design; regression `shows synthetic message when register error response body is empty`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — `architectureTeamSize` above 10_000 omitted without error when builder called without zod — **cheap-disproof 2026-10-07 seed hunt:** fail-closed omit at API boundary; UI path blocked by `signupFormSchema`; regression `omits optional architecture team size above 10000 from the register payload builder`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `200` with JSON success body still runs verify redirect — **cheap-disproof 2026-10-07 seed hunt:** intentional `res.ok` gate; reaffirmed `navigates to verify on HTTP 200 when register response is ok`.
+- [x] (valid-no-repro) `SignupForm` optional team-size input — pasted non-numeric text until change validation runs — **cheap-disproof 2026-10-07 seed hunt:** `type="number"` does not admit alphabetic input in test env; `signupFormSchema` rejects `"abc"` when set; regression `signupFormSchema rejects alphabetic optional architecture team size`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `409` duplicate-org branch returns before `finally` resets in-flight state but still clears gate — locus: early `return` after `showError` (`SignupForm.tsx` ~151–154, ~197–201).
+- [ ] (candidate) `SignupForm` `onSubmit` — `catch` path surfaces raw `Error.message` from `fetch`/`router.push` without redaction — locus: outer catch (`SignupForm.tsx` ~194–196).
+- [ ] (candidate) `buildSignupRegisterPayload` — fractional team size like `3.5` omitted in builder while zod blocks submit on normal path — locus: `Number.isInteger` guard (`SignupForm.tsx` ~59).
+- [ ] (candidate) `SignupForm` success path — `recordFirstTenantFunnelEvent` runs even when `showSuccess` throws after `registerCompletedRef` set — locus: ordering before toast (`SignupForm.tsx` ~191–192).
+- [ ] (candidate) `SignupForm` — `companySize` sessionStorage write skipped when value falsy after successful register — locus: `if (values.companySize)` (`SignupForm.tsx` ~170–175).
+
 2026-10-07 seed hunt (seed-only): re-read `SignupForm` submit path, payload builder, and first-touch header encoding; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 76 scoped SignupForm vitest tests passed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-ok JSON body with `detail` as object/array falls back to raw `res.text()` — **cheap-disproof 2026-10-07 seed hunt:** TB-2005 string `detail` gate; non-string uses full response text; regression `shows raw response text when server detail is not a string`.
@@ -4357,12 +4373,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — `architectureTeamSize` `"-0"` parses to zero and is omitted — **cheap-disproof 2026-10-07 seed hunt:** `t > 0` guard in builder and `n <= 0` in `signupFormSchema`; regressions `omits negative zero optional architecture team size from the register payload builder` and `signupFormSchema rejects negative zero optional architecture team size`.
 - [x] (valid-no-repro) `SignupForm` — `serializeFirstTouchHeader` throws so register POST omits attribution header silently — **cheap-disproof 2026-10-07 seed hunt:** intentional inner try/catch; reaffirmed `still posts register when first-touch cookie contains non-Latin1 UTM values`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `registerInFlightRef` early return before `submitting` re-render — **cheap-disproof 2026-10-07 seed hunt:** synchronous in-flight gate blocks duplicate POST; reaffirmed `does not fire a second register request on rapid double-click before submitting state updates`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — non-JSON HTML error body surfaces raw markup in `showError` when `JSON.parse` fails — locus: `text` fallback after parse catch (`SignupForm.tsx` ~142–161).
-- [ ] (candidate) `SignupForm` `onSubmit` — empty `res.text()` on non-ok response uses synthetic `Request failed (${status})` copy — locus: `text ||` guard (`SignupForm.tsx` ~157–161).
-- [ ] (candidate) `buildSignupRegisterPayload` — `architectureTeamSize` above 10_000 omitted without error when builder called without zod — locus: `t <= 10_000` ceiling only (`SignupForm.tsx` ~59).
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `200` with JSON success body still runs verify redirect (not strict `201`) — locus: `res.ok` gate (`SignupForm.tsx` ~157–167).
-- [ ] (candidate) `SignupForm` optional team-size input — pasted non-numeric text in `type="number"` field until change validation runs — locus: uncontrolled string via `register("architectureTeamSize")` (`SignupForm.tsx` ~292–299).
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `shows server detail string from HTTP 500 register responses`, `omits company size from the register payload builder when value is undefined`, `signupFormSchema rejects negative optional architecture team size`, `keeps submit disabled for negative optional architecture team size`, and `encodes subdomain work email once in the verify redirect query`; reaffirmed `recordFirstTenantFunnelEvent` after sessionStorage quota failure; 72 scoped SignupForm vitest tests passed.
 
@@ -4392,7 +4402,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
