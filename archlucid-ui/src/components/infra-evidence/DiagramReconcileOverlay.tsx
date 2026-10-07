@@ -36,9 +36,9 @@ function paintMatches(
     }
 
     const style = resolveDiagramReconcileOverlayStyle(match.matchKind);
-    node.querySelectorAll("rect, polygon").forEach((shape) => {
-      shape.setAttribute("stroke", style.stroke);
-      shape.setAttribute("stroke-width", style.strokeWidth);
+    node.querySelectorAll<SVGElement>("rect, polygon, circle, ellipse, path").forEach((shape) => {
+      shape.style.setProperty("stroke", style.stroke, "important");
+      shape.style.setProperty("stroke-width", style.strokeWidth, "important");
     });
   });
 
