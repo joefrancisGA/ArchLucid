@@ -4,11 +4,15 @@ using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.InfraEvidence.Branding;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
+using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
+using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
@@ -21,6 +25,7 @@ using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -920,6 +925,204 @@ public sealed class InfraEvidenceCompositionModuleTests
         explorerPage.Items.Should().ContainSingle();
         explorerPage.Items[0].CloudResourceId.Should().Be(upserted.CloudResourceId);
         explorerPage.Items[0].ExternalResourceId.Should().Be(upserted.ExternalResourceIdNormalized);
+    }
+
+    [Fact]
+    public async Task InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        string rationale = new('x', FindingDispositionValidation.MinimumRationaleLength);
+        DateTime utcNow = DateTime.UtcNow;
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IOperationalSecurityExceptionService exceptionService =
+            serviceScope.ServiceProvider.GetRequiredService<IOperationalSecurityExceptionService>();
+        IOperationalSecurityExceptionRepository exceptionRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IOperationalSecurityExceptionRepository>();
+
+        OperationalSecurityExceptionCreateResult createResult = await exceptionService.CreateAsync(
+            scope,
+            new OperationalSecurityExceptionCreateRequest
+            {
+                CloudResourceId = Guid.NewGuid(),
+                OwnerActorKeys = ["owner-1"],
+                Rationale = rationale,
+                ExpirationUtc = utcNow.AddDays(30),
+                RequestedByActorKey = "requester",
+                ApprovedByActorKey = "approver",
+            },
+            CancellationToken.None);
+
+        createResult.Succeeded.Should().BeTrue();
+        createResult.ExceptionId.Should().NotBe(Guid.Empty);
+
+        OperationalSecurityExceptionRecord? stored = await exceptionRepository.TryGetByIdAsync(
+            scope.TenantId,
+            createResult.ExceptionId!.Value,
+            CancellationToken.None);
+
+        stored.Should().BeNull(
+            "InMemory NoOpOperationalSecurityExceptionRepository is intentional local durability; API success matches handoff noop pattern");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ISecurityEvidencePathInspectorQueryService inspector =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathInspectorQueryService>();
+        ISecurityEvidencePathRankQueryService rankQuery =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathRankQueryService>();
+
+        PagedResponse<SecurityEvidencePathSummaryResponse> list =
+            await inspector.ListPathsAsync(scope, snapshotId: null, pathKind: null, confidenceBand: null, cloudResourceId: null, page: 1, pageSize: 10, CancellationToken.None);
+
+        list.Items.Should().BeEmpty();
+        list.TotalCount.Should().Be(0);
+
+        SecurityEvidencePathDetailResponse? missingDetail =
+            await inspector.TryGetPathDetailAsync(scope, Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), CancellationToken.None);
+
+        missingDetail.Should().BeNull();
+
+        SecurityEvidencePathRankedPageResponse ranked =
+            await rankQuery.ListRankedPathsAsync(scope, snapshotId: null, page: 1, pageSize: 10, CancellationToken.None);
+
+        ranked.Items.Should().BeEmpty();
+        ranked.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditEvidencePackageExportService exportService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditEvidencePackageExportService>();
+
+        AuditEvidencePackageExportResult exportResult = await exportService.TryExportAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            CancellationToken.None);
+
+        exportResult.Succeeded.Should().BeFalse();
+        exportResult.ErrorMessage.Should().Contain("Assessment not found");
+        exportResult.ZipContent.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IRemediationPatternMatcherService matcher =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationPatternMatcherService>();
+
+        RemediationPatternMatchEvaluationResult missingFinding = await matcher.MatchFindingAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            CancellationToken.None);
+
+        missingFinding.Succeeded.Should().BeFalse();
+        missingFinding.ErrorMessage.Should().Contain("not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ITenantBrandingService brandingService =
+            serviceScope.ServiceProvider.GetRequiredService<ITenantBrandingService>();
+        ITenantBrandingProfileRepository brandingRepository =
+            serviceScope.ServiceProvider.GetRequiredService<ITenantBrandingProfileRepository>();
+        TenantBrandingResolvedProfileCache brandingCache =
+            serviceScope.ServiceProvider.GetRequiredService<TenantBrandingResolvedProfileCache>();
+
+        (await brandingService.GetCompanyDisplayNameAsync(scope.TenantId, CancellationToken.None))
+            .Should().Be(ProductBrandingDefaults.CompanyDisplayName);
+
+        brandingCache.TryGet(scope.TenantId, out _).Should().BeTrue();
+
+        DateTime utcNow = DateTime.UtcNow;
+        await brandingRepository.InsertAsync(
+            new TenantBrandingProfileRecord
+            {
+                BrandingProfileId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                CompanyDisplayName = "Activated Tenant Brand",
+                BrandingStatus = BrandingProfileStatus.Active,
+                Version = 1,
+                CreatedUtc = utcNow,
+                UpdatedUtc = utcNow,
+                CreatedBy = "operator",
+                UpdatedBy = "operator",
+            },
+            CancellationToken.None);
+
+        (await brandingService.GetCompanyDisplayNameAsync(scope.TenantId, CancellationToken.None))
+            .Should().Be("Activated Tenant Brand");
     }
 
     [Fact]

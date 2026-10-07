@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows on InMemory full graph; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read in-flight required-field snapshot, dismiss vs draft note UI, toggle a11y wiring, form POST via fetch, and cancel button type; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read in-flight form snapshot, a11y toggle, HTML5 submit gate, success CTA styling, and padded detail display; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `snapshots optional note in the POST body at submit start even if the field changes during flight`, `does not expose aria-expanded on the request access toggle button`, `posts empty required fields when native constraint validation is bypassed`, `uses outline styling for back to sign in on the success view`, and reaffirmed `renders padded technical detail copy without an extra blank helper block`; seeded five follow-on `(candidate)` rows; 57 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -32018,6 +32020,22 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
+**Hunts:** 33 · **Bugs found:** 6 · **Consecutive dry hunts:** 6
+
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `IOperationalSecurityExceptionService` — InMemory noop exception repository reports create success without durable row — **cheap-disproof 2026-10-07 thorough hunt:** intentional local durability like finding handoff noop; regression `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`.
+- [x] (valid-no-repro) Path inspector vs rank queries — inconsistent empty vs not-found on empty repository — **cheap-disproof 2026-10-07 thorough hunt:** list/rank return empty pages; detail returns null; regression `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`.
+- [x] (valid-no-repro) `IAuditEvidencePackageExportService` — empty archive without insufficient-evidence signal — **cheap-disproof 2026-10-07 thorough hunt:** missing assessment fails before zip build; regression `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`.
+- [x] (valid-no-repro) `IRemediationPatternMatcherService` — zero patterns silently skip suggestions — **cheap-disproof 2026-10-07 thorough hunt:** missing finding fails closed; empty pattern catalog yields explicit `NoMatch` when evaluated; regression `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`.
+- [x] (valid-no-repro) Tenant branding admin vs resolved cache — admin writes skip cache invalidation — **cheap-disproof 2026-10-07 thorough hunt:** `TenantBrandingProfileRepositoryWithCacheInvalidation` decorates InMemory/SQL repos; regression `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IOperationalSecurityFindingIngestService` (line 67) — InMemory noop finding repository may accept ingest payloads without durable finding rows.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidenceSnapshotCollectionService` (line 57) — snapshot collection on empty inventory may succeed without collected selector evidence.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecurityEvidencePathExplanationService` (line 81) — explanation query on unknown path id may diverge from inspector `TryGetPathDetailAsync` null shape.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IRemediationInstanceService` (line 92) — instance creation on InMemory without patterns may return success without durable instance rows.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IInfraEvidenceAskGroundingService` (line 122) — sparse identifiers on InMemory may return insufficient-evidence without distinguishing misconfiguration from empty graph.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_peel_catalog_provider_seeds_on_first_read_without_bootstrapper_host`, `InMemory_composition_manual_evidence_submit_fails_when_assessment_missing`, `InMemory_composition_remediation_prioritization_and_waves_return_empty_without_data`, `InMemory_composition_explorer_lists_hub_upserted_cloud_resource_identity`, and `InfraEvidenceCompositionModule_registers_single_scoped_carry_forward_service`; seeded five follow-on `(candidate)` rows; 30 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 25 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
@@ -32028,9 +32046,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
@@ -32089,12 +32107,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IRemediationPrioritizationService` + `IRemediationWaveService` (lines 95–96) — prioritization/wave queries on miscomposed hosts return empty summaries instead of a controlled unavailable signal — **cheap-disproof 2026-10-07 thorough hunt:** empty ranking and wave list are expected InMemory noop-repo behavior; regression `InMemory_composition_remediation_prioritization_and_waves_return_empty_without_data`.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `ICloudResourceExplorerQueryService` (line 120) — explorer grid queries without a prior hub upsert may diverge from `ICloudResourceEvidenceHubService` identity resolution on the same `CloudResourceId` — **cheap-disproof 2026-10-07 thorough hunt:** explorer and hub share `ICloudResourceIdentityDirectory`; regression `InMemory_composition_explorer_lists_hub_upserted_cloud_resource_identity`.
 - [x] (invalid) `InfraEvidenceCompositionModule.Register` / `SecureNowArchitectPathCarryForwardService` concrete registration (line 74) — future interface extraction could split carry-forward instances across coordinator and neighborhood runner if decorators are added only to one registration site — **invalid 2026-10-07 thorough hunt:** hypothetical future decorator split; coordinator uses neighborhood runner; single scoped registration today (`InfraEvidenceCompositionModule_registers_single_scoped_carry_forward_service`).
-
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IOperationalSecurityExceptionService` (line 83) — InMemory noop exception repository may let exception workflows report success without durable exception rows.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecurityEvidencePathInspectorQueryService` + `ISecurityEvidencePathRankQueryService` (lines 79–80) — empty path repository may return inconsistent empty vs not-found shapes across inspector and rank queries.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidencePackageExportService` (line 64) — package export on InMemory without collected snapshots may emit an empty archive without an explicit insufficient-evidence signal.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IRemediationPatternMatcherService` (line 91) — pattern matcher on InMemory with zero patterns may silently skip remediation suggestions for open findings.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ITenantBrandingAdminService` + `ITenantBrandingService` (lines 127–128) — admin branding writes may not invalidate `TenantBrandingResolvedProfileCache` when only `ITenantBrandingCacheInvalidator` is injected elsewhere.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IOperatorInferredConnectionService` + `IInferenceQuestionnaireItemGenerator` (lines 87–89) — empty questionnaire on InMemory without snapshot detail — **cheap-disproof 2026-10-06 thorough hunt:** `ListQuestionnaireBySnapshotAsync` returns `[]` when repository has no rows (`InMemory_composition_operator_inferred_questionnaire_returns_empty_without_snapshot_detail`); not a misconfiguration signal.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAuditHybridEvidenceQueryService` + `IAuditEvidencePackageExportService` (lines 63–64) — hybrid export wiring — **cheap-disproof 2026-10-06 thorough hunt:** full InMemory `AddArchLucidApplicationServices` validates on build and resolves both services (`InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services`); no reachable export omission on composed host.
