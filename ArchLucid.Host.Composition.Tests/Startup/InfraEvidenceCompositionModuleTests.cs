@@ -8,6 +8,7 @@ using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
+using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
@@ -38,6 +39,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -587,6 +589,128 @@ public sealed class InfraEvidenceCompositionModuleTests
             .Should()
             .Contain(typeof(AuditContinuousReadinessDiffConsumer))
             .And.Contain(typeof(SecureNowArchitectDiffConsumer));
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations()
+    {
+        ServiceCollection services = [];
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+
+        Type[] selectorTypes =
+        [
+            typeof(InventoryAuditEvidenceSelector),
+            typeof(IdentityAuditEvidenceSelector),
+            typeof(RbacAuditEvidenceSelector),
+            typeof(NetworkAuditEvidenceSelector),
+            typeof(DataAuditEvidenceSelector),
+            typeof(LoggingAuditEvidenceSelector),
+            typeof(GovernanceAuditEvidenceSelector),
+            typeof(PostureAuditEvidenceSelector),
+            typeof(ResilienceAuditEvidenceSelector),
+        ];
+
+        foreach (Type selectorType in selectorTypes)
+        {
+            services.Should().Contain(
+                descriptor => descriptor.ImplementationType == selectorType,
+                $"{selectorType.Name} should be registered for audit evidence collection");
+        }
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_configure_graphviz_options_binds_configuration_section()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ArchLucid:Graphviz:Enabled"] = "false" })
+            .Build();
+
+        ServiceCollection services = [];
+        services.AddOptions();
+        InfraEvidenceCompositionModule.Register(services, configuration);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<IOptions<GraphvizOptions>>().Value.Enabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_tenant_branding_cache_invalidator_aliases_resolved_profile_cache()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        TenantBrandingResolvedProfileCache brandingCache =
+            serviceScope.ServiceProvider.GetRequiredService<TenantBrandingResolvedProfileCache>();
+        ITenantBrandingCacheInvalidator invalidator =
+            serviceScope.ServiceProvider.GetRequiredService<ITenantBrandingCacheInvalidator>();
+
+        ReferenceEquals(brandingCache, invalidator).Should().BeTrue(
+            "module wires ITenantBrandingCacheInvalidator to the same singleton cache instance");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_securenow_path_engine_cluster()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IPrivilegePathEngine>()
+            .Should().BeOfType<PrivilegePathEngine>();
+        serviceScope.ServiceProvider.GetRequiredService<IFourRealityDriftEngine>()
+            .Should().BeOfType<FourRealityDriftEngine>();
+        serviceScope.ServiceProvider.GetRequiredService<ISecureNowArchitectNeighborhoodRunner>()
+            .Should().BeOfType<SecureNowArchitectNeighborhoodRunner>();
+        serviceScope.ServiceProvider.GetRequiredService<SecureNowArchitectPathCarryForwardService>()
+            .Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_audit_continuous_readiness_service()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IAuditContinuousReadinessService>()
+            .Should().BeOfType<AuditContinuousReadinessService>();
+        serviceScope.ServiceProvider.GetRequiredService<IOperationalSecurityFindingIngestService>()
+            .Should().BeOfType<OperationalSecurityFindingIngestService>();
     }
 
     [Fact]

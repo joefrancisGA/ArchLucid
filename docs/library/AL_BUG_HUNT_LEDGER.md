@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `host-infra-evidence-composition` — re-read `InfraEvidenceCompositionModule` audit selector fan-out, SecureNow path engines, tenant branding cache invalidator alias, and `Configure<GraphvizOptions>`; cheap-disproof closed five composition-boundary promotion attempts; regressions `InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations`, `InfraEvidenceCompositionModule_configure_graphviz_options_binds_configuration_section`, `InMemory_composition_tenant_branding_cache_invalidator_aliases_resolved_profile_cache`, `InMemory_composition_resolves_securenow_path_engine_cluster`, and `InMemory_composition_resolves_audit_continuous_readiness_service`; seeded five follow-on `(candidate)` rows; 25 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read `AuthCallbackAccessPanel` submit path, honeypot field, and `technicalDetail` rendering; cheap-disproof closed five seeded mechanisms (429/400 generic errors, honeypot 204 success, form state on toggle, HTML escaped as text); regressions `shows generic submit error when the API returns rate limited`, `shows generic submit error when the API returns validation_failed`, `shows success when honeypot website field is filled and API returns 204`, `retains form values when the request form is toggled closed and reopened`, and `renders technical detail as plain text without interpreting HTML`; seeded five follow-on `(candidate)` rows; 15 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five open `(candidate)` rows (plain-HTTP `ASPNETCORE_URLS` disables HTTPS redirection for probes; in-memory `Hosting:Role=Worker` default is intentional; post-`Build()` warning-only logging matches API error vs warning split; `HttpScopeContextProvider` uses ambient/defaults off the HTTP thread; worker `/health/ready` summary JSON is documented vs API diagnostics); regressions `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`, `Worker_host_health_ready_returns_anonymous_summary_json`, `Worker_scope_provider_uses_defaults_without_http_context`, and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`; reaffirmed `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role`; 23 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -31227,16 +31229,18 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 25 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
 - **id:** host-infra-evidence-composition
 - **status:** open
 - **impact:** medium
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -31282,6 +31286,18 @@ ABQ-09 churn hotspot.
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / audit evidence selectors (lines 103–111) — missing selector implementation breaks registry descriptor count — **cheap-disproof 2026-10-07 seed hunt:** module registers all nine selector types; regression `InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations`.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `Configure<GraphvizOptions>` (line 37) — appsettings `ArchLucid:Graphviz` ignored when only module `Register` runs — **cheap-disproof 2026-10-07 seed hunt:** `IOptions<GraphvizOptions>` binds section; regression `InfraEvidenceCompositionModule_configure_graphviz_options_binds_configuration_section`.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `TenantBrandingResolvedProfileCache` + `ITenantBrandingCacheInvalidator` (lines 124–126) — invalidator resolves a different singleton than the cache — **cheap-disproof 2026-10-07 seed hunt:** factory alias returns same instance; regression `InMemory_composition_tenant_branding_cache_invalidator_aliases_resolved_profile_cache`.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / SecureNow path engine cluster (lines 68–78) — InMemory host fails `ValidateOnBuild` resolving engines — **cheap-disproof 2026-10-07 seed hunt:** full graph resolves privilege/drift/neighborhood/carry-forward services; regression `InMemory_composition_resolves_securenow_path_engine_cluster`.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAuditContinuousReadinessService` + `IOperationalSecurityFindingIngestService` (lines 67, 99) — diff consumer wiring without readiness service — **cheap-disproof 2026-10-07 seed hunt:** both services resolve on OpenAPI-like InMemory; regression `InMemory_composition_resolves_audit_continuous_readiness_service`.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `DiagramPeelCatalogBootstrapper` (line 52) — scoped bootstrapper without hosted startup may leave SQL peel catalog empty until first repository read seeds defaults.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditManualEvidenceSubmissionService` (line 62) — manual evidence submission on InMemory with noop audit repositories may report success without durable artifact linkage.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IRemediationPrioritizationService` + `IRemediationWaveService` (lines 95–96) — prioritization/wave queries on miscomposed hosts return empty summaries instead of a controlled unavailable signal.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ICloudResourceExplorerQueryService` (line 120) — explorer grid queries without a prior hub upsert may diverge from `ICloudResourceEvidenceHubService` identity resolution on the same `CloudResourceId`.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `SecureNowArchitectPathCarryForwardService` concrete registration (line 74) — future interface extraction could split carry-forward instances across coordinator and neighborhood runner if decorators are added only to one registration site.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IOperatorInferredConnectionService` + `IInferenceQuestionnaireItemGenerator` (lines 87–89) — empty questionnaire on InMemory without snapshot detail — **cheap-disproof 2026-10-06 thorough hunt:** `ListQuestionnaireBySnapshotAsync` returns `[]` when repository has no rows (`InMemory_composition_operator_inferred_questionnaire_returns_empty_without_snapshot_detail`); not a misconfiguration signal.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAuditHybridEvidenceQueryService` + `IAuditEvidencePackageExportService` (lines 63–64) — hybrid export wiring — **cheap-disproof 2026-10-06 thorough hunt:** full InMemory `AddArchLucidApplicationServices` validates on build and resolves both services (`InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services`); no reachable export omission on composed host.
