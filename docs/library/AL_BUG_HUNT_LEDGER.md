@@ -13672,6 +13672,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: security-analyzers
 
+2026-10-07 thorough hunt #26 (hit): proved `RequireAuthorizationAnalyzer` treated public `[NonAction]` helpers as qualifying declared actions and skipped inherited unauthorized scans; cheap-disproved four candidates (dynamic `LogAsync`, delegate audit path, file-scoped `using` alias, custom `HttpMethod` subclass `Verbs` property); seeded five new `(candidate)` rows; 76 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt #25 (hit): proved `HttpMethodAttributeDeclaresMutatingVerb` ignored `Method`/`Methods` named attribute properties; cheap-disproved four follow-on candidates (referenced-base `HttpMethod`, inherited AL0001 gate, global-using alias, cast `LogAsync`); seeded five new `(candidate)` rows; 71 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-07 thorough hunt #24 (hit): proved `MethodHasTrackedVerbAttribute` ignored `HttpMethodAttribute` mutating verbs; cheap-disproved four seeded candidates; seeded five follow-on `(candidate)` rows; 66 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -13684,11 +13686,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 25
-- **bugs-found:** 23
+- **hunts:** 26
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — AL0003 missed HttpMethodAttribute named Method/Methods properties
+- **last-bug:** 2026-10-07 — AL0001 skipped inherited actions when derived only declared `[NonAction]` helpers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13768,11 +13770,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `global using` alias bypass — **cheap-disproof 2026-10-07 thorough hunt #25:** `IAliasSymbol.Target` resolves to `ClaimsPrincipal` on parameter usage; regression `Reports_ClaimsPrincipal_parameter_when_type_is_global_using_alias`.
 - [x] (invalid) `MutatingControllerAuditAnalyzer.InvocationMatchesAuditInterfaceSemantic` — cast `IAuditService` callee gap — **cheap-disproof 2026-10-07 thorough hunt #25:** `GetSymbolInfo` resolves `LogAsync` on cast receiver; regression `AL0003_is_absent_when_LogAsync_is_called_through_IAuditService_cast`.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.InvocationMatchesAuditInterfaceSemantic` — `LogAsync` through `dynamic` audit receiver may not bind callee symbol — locus: `GetSymbolInfo` on `InvocationExpressionSyntax` (`MutatingControllerAuditAnalyzer.cs` ~617–627); input: `[HttpPost]` action with `await ((dynamic)auditService).LogAsync(...)`; wrong outcome: false-positive AL0003 when audit call exists but dynamic invocation has no `IMethodSymbol`.
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `Func<AuditEvent, CancellationToken, Task>` field invoked instead of `LogAsync` name may bypass audit detection — locus: `InvocationMatchesAuditInterfaceSemantic` name gate (`MutatingControllerAuditAnalyzer.cs`); input: private delegate field named `WriteAudit` calling same semantics; wrong outcome: AL0003 when equivalent audit path uses non-`LogAsync` member (design boundary).
-- [ ] (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — inherited scan may miss referenced-base public actions when derived type declares only non-action public helpers — locus: `hasQualifyingPublicMethods` set before `NonAction` skip (`RequireAuthorizationAnalyzer.cs` ~112–117); input: derived controller with public `[NonAction]` helper and referenced-base unauthenticated GET; wrong outcome: inherited GET never scanned because gate flipped true on NonAction member.
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `using` alias at file scope (non-global) for banned type — locus: `AnalyzeIdentifierName` alias resolution (`TenantIdentityBoundaryAnalyzer.cs` ~114–115); input: `using P = System.Security.Claims.ClaimsPrincipal;` then parameter `P user`; wrong outcome: ARCH001 silent if file-scoped alias differs from global-using path.
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — mutating verb only in custom `HttpMethodAttribute` subclass property not forwarded to `Method`/`Methods` — locus: `NamedArguments` filter (`MutatingControllerAuditAnalyzer.cs`); input: test-stub attribute subclass exposing `Verbs` property; wrong outcome: AL0003 silent when framework-specific property names carry POST.
+- [x] (invalid) `MutatingControllerAuditAnalyzer.InvocationMatchesAuditInterfaceSemantic` — `dynamic` `LogAsync` callee binding — **cheap-disproof 2026-10-07 thorough hunt #26:** dynamic dispatch is not statically resolved; AL0003 remains expected; regression `AL0003_reports_when_HttpPost_action_uses_dynamic_LogAsync_because_audit_is_not_statically_resolved`.
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — delegate field audit path bypasses `LogAsync` name gate — **cheap-disproof 2026-10-07 thorough hunt #26:** intentional static-analysis boundary; AL0003 still reports; regression `AL0003_reports_when_HttpPost_action_audits_through_delegate_instead_of_LogAsync`.
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — public `[NonAction]` helpers blocked inherited unauthorized scans — **hit 2026-10-07 thorough hunt #26:** `hasQualifyingPublicMethods` flipped before `NonAction` skip; fixed with `hasDeclaredQualifyingApiActions` / `hasAnyDeclaredPublicMethods`; regression `Reports_inherited_unauthorized_action_when_derived_declares_only_public_NonAction_helper`.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — file-scoped `using` alias bypass — **cheap-disproof 2026-10-07 thorough hunt #26:** `IAliasSymbol.Target` resolves on parameter usage; regression `Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias`.
+- [x] (invalid) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — custom subclass `Verbs` property — **cheap-disproof 2026-10-07 thorough hunt #26:** non-`Method`/`Methods` properties are outside the framework attribute contract; regression `AL0003_does_not_track_custom_HttpMethod_subclass_verbs_property`.
+
+- [ ] (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — `InheritsFromControllerBase` may fail when controller bases come from a different compilation than `GetTypeByMetadataName("ControllerBase")` — locus: `InheritsFromControllerBase` symbol equality (`RequireAuthorizationAnalyzer.cs`); input: derived Api controller inheriting shared-library `ControllerBase` stub in analyzer tests; wrong outcome: inherited AL0001 scans never run in multi-assembly test harnesses (production NuGet refs may differ).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `await auditService?.LogAsync(...)` conditional access may not match audit invocation — locus: `InvocationExpressionSyntax` descendant walk (`MutatingControllerAuditAnalyzer.cs`); input: null-conditional `LogAsync` call inside `[HttpPost]` action; wrong outcome: false-positive AL0003 when audit exists via conditional access.
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `global::System.Security.Claims.ClaimsPrincipal` qualified syntax may duplicate or miss diagnostics — locus: qualified-name pruning (`TenantIdentityBoundaryAnalyzer.cs` ~64–71); input: parameter typed with fully qualified global alias to banned type; wrong outcome: ARCH001 silent on rightmost identifier.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — inherited scan may duplicate AL0001 for the same inherited action on both abstract base and concrete derived — locus: inherited diagnostic location uses derived type location while message names base method (`RequireAuthorizationAnalyzer.cs` ~177–188); input: shared base with unauthorized GET and derived with only `[NonAction]` helper; wrong outcome: duplicate diagnostics per concrete controller (noise / review fatigue).
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `nameof(LogAsync)` or method group reference should not count as audit — locus: `InvocationMatchesAuditInterfaceSemantic` (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` action passing `auditService.LogAsync` without invoking; wrong outcome: false-negative AL0003 if invocation matcher broadens to method groups.
 
 ---
 

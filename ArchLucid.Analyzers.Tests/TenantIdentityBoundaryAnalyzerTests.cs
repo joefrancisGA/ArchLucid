@@ -87,6 +87,33 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Principal = System.Security.Claims.ClaimsPrincipal;
+
+    public sealed class Handler
+    {
+        void M({|#0:Principal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(4, 46, 4, 61)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(8, 16, 8, 25)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
+  }
+
+  [Fact]
   public async Task Reports_ClaimsPrincipal_parameter_when_type_is_global_using_alias()
   {
     const string testCode = """

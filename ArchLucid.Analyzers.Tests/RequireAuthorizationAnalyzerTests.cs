@@ -87,6 +87,49 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_inherited_unauthorized_action_when_derived_declares_only_public_NonAction_helper()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SharedUnauthenticatedGetController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+
+    public sealed class DerivedWithNonActionHelperOnlyController : SharedUnauthenticatedGetController
+    {
+        [NonAction]
+        public IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expectedOnBase = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(42, 30, 42, 42)
+            .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        DiagnosticResult expectedOnDerived = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(45, 25, 45, 65)
+            .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedOnBase, expectedOnDerived },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_inherited_unauthorized_action_when_derived_declares_authorized_action()
     {
         MetadataReference sharedControllerReference = BuildSharedUnauthenticatedGetControllerReference();

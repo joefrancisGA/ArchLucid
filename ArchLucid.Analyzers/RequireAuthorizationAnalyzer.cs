@@ -87,7 +87,8 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
         bool foundPublicApiAction = false;
         bool reportedAnyMethod = false;
-        bool hasQualifyingPublicMethods = false;
+        bool hasAnyDeclaredPublicMethods = false;
+        bool hasDeclaredQualifyingApiActions = false;
 
         foreach (ISymbol member in symbol.GetMembers())
         {
@@ -109,13 +110,14 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (method.AssociatedSymbol is not null)
                 continue;
 
-            hasQualifyingPublicMethods = true;
+            hasAnyDeclaredPublicMethods = true;
 
             if (nonActionAttribute is not null &&
                 (SymbolHasAttribute(method, nonActionAttribute) ||
                  MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
                 continue;
 
+            hasDeclaredQualifyingApiActions = true;
             foundPublicApiAction = true;
 
             if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
@@ -143,7 +145,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
-        if (!hasQualifyingPublicMethods)
+        if (!hasDeclaredQualifyingApiActions)
         {
             for (INamedTypeSymbol? baseType = symbol.BaseType;
                  baseType is not null &&
@@ -163,7 +165,6 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                         continue;
                     }
 
-                    hasQualifyingPublicMethods = true;
                     foundPublicApiAction = true;
 
                     if (SymbolHasAuthorizeOrAllowAnonymous(inheritedMethod, authorizeAttribute, allowAnonymousAttribute) ||
@@ -194,7 +195,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         if (reportedAnyMethod || foundPublicApiAction)
             return;
 
-        if (!hasQualifyingPublicMethods)
+        if (!hasAnyDeclaredPublicMethods)
         {
             Location? typeLocation = symbol.Locations.FirstOrDefault();
 
