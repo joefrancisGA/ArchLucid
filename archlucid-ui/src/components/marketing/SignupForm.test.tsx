@@ -65,6 +65,28 @@ describe("SignupForm", () => {
     expect(payload.architectureTeamSize).toBe(10_000);
   });
 
+  it("omits empty company size string from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      companySize: "",
+    });
+
+    expect(payload.companySize).toBeUndefined();
+  });
+
+  it("serializes scientific notation optional architecture team size when it parses to a whole number", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "1e3",
+    });
+
+    expect(payload.architectureTeamSize).toBe(1000);
+  });
+
   it("passes through padded required fields when the register payload builder is called directly", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "  ops@example.com  ",
@@ -497,6 +519,60 @@ describe("SignupForm", () => {
     expect(showSuccess).not.toHaveBeenCalled();
     expect(pushMock).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still allows register retry after duplicate organization conflict", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    let registerAttempt = 0;
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url !== "/api/proxy/v1/register") {
+        throw new Error(`Unexpected fetch URL: ${url}`);
+      }
+
+      registerAttempt += 1;
+
+      if (registerAttempt === 1) {
+        return new Response("", { status: 409 });
+      }
+
+      return new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "That organization name is already registered.");
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(registerFetchCount()).toBe(2);
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith(expect.stringContaining("/signup/verify?email="));
+    });
 
     vi.unstubAllGlobals();
   });
