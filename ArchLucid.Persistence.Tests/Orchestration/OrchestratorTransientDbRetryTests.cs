@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Reflection;
 
 using ArchLucid.Application.Runs.Orchestration;
@@ -1652,6 +1653,139 @@ public sealed class OrchestratorTransientDbRetryTests
             CancellationToken.None);
 
         attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_does_not_retry_aggregate_with_deadlock_and_task_canceled_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                return Task.FromException<int>(
+                    new AggregateException(deadlock, new TaskCanceledException("parallel task canceled")));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_invalid_cast_exception_wrapper()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidCastException(
+                    "parallel persist failed",
+                    new AggregateException(deadlock, fkViolation));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidCastException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_invalid_cast_when_permanent_sql_is_listed_first()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidCastException(
+                    "parallel persist failed",
+                    new AggregateException(fkViolation, deadlock));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidCastException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_void_and_generic_overloads_match_attempt_counts_for_nested_all_transient_aggregate()
+    {
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException nested = new(deadlock, SqlExceptionTestFactory.Create(1204));
+        int voidAttempts = 0;
+        int genericAttempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                voidAttempts++;
+
+                if (voidAttempts == 1)
+                    throw new AggregateException(nested);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                genericAttempts++;
+
+                if (genericAttempts == 1)
+                    throw new AggregateException(nested);
+
+                return Task.FromResult(1);
+            },
+            CancellationToken.None);
+
+        voidAttempts.Should().Be(2);
+        genericAttempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_bare_socket_exception()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new SocketException((int)SocketError.ConnectionReset);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SocketException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_non_transient_sql_wrapping_socket_exception()
+    {
+        int attempts = 0;
+        SqlException sqlWithSocketInner = SqlExceptionTestFactory.Create(50000);
+        SetInnerException(sqlWithSocketInner, new SocketException((int)SocketError.ConnectionReset));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw sqlWithSocketInner;
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(1);
     }
 
     [SkippableFact]

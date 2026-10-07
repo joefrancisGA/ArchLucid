@@ -215,6 +215,23 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void Snapshot_conflict_outer_poll_and_attempt_delay_totals_each_stay_below_retry_budget()
+    {
+        TimeSpan interPollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
     public void Layered_outer_delays_and_inner_polly_backoff_are_not_one_serial_chain()
     {
         TimeSpan interAttemptDelayTotal = Enumerable
