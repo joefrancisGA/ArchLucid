@@ -69,6 +69,18 @@ public sealed class ItsmInboundJiraPayloadReaderTests
     }
 
     [Fact]
+    public void TryRead_rejects_issue_key_with_internal_zero_width_space()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PR\u200bOJ-1","fields":{"status":{"name":"Done"}}}}""");
+
+        Action act = () => new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        act.Should().Throw<ItsmInboundPayloadValidationException>()
+            .Which.ReasonCode.Should().Be("issue_key_invalid_format");
+    }
+
+    [Fact]
     public void TryRead_trims_whitespace_from_issue_key_before_format_validation()
     {
         using JsonDocument document = JsonDocument.Parse(

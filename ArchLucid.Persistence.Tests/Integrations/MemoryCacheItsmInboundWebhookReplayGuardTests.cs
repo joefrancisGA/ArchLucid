@@ -154,6 +154,20 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task RememberAsync_is_not_required_for_inbound_hot_path_claim_dedupe_after_TryClaim()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool claimed = await sut.TryClaimAsync(TenantA, "Jira", "delivery-claim-only", CancellationToken.None);
+        bool duplicate = await sut.TryClaimAsync(TenantA, "Jira", "delivery-claim-only", CancellationToken.None);
+
+        claimed.Should().BeTrue();
+        duplicate.Should().BeFalse();
+        (await sut.HasSeenAsync(TenantA, "Jira", "delivery-claim-only", CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task RememberAsync_after_TryClaim_blocks_second_claim_without_releasing_first()
     {
         using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });

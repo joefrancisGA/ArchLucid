@@ -1073,6 +1073,42 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_releases_replay_claim_when_human_review_update_throws_after_claim()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-77", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-throw" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-throw",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("human review store unavailable"));
+        Mock<IItsmInboundWebhookReplayGuard> replayGuard = new();
+        replayGuard
+            .Setup(g => g.TryClaimAsync(TenantA, "Jira", It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions(), replayGuard: replayGuard);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-77","fields":{"status":{"name":"Done"}}}}""");
+
+        Func<Task> act = async () => await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        replayGuard.Verify(
+            g => g.ReleaseAsync(TenantA, "Jira", It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_without_disposition_map_leaves_disposition_sync_skipped_in_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

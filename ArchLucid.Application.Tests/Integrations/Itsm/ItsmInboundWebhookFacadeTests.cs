@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Application.Integrations.Itsm;
@@ -19,6 +20,68 @@ namespace ArchLucid.Application.Tests.Integrations.Itsm;
 public sealed class ItsmInboundWebhookFacadeTests
 {
     private const string SharedSecret = "test-inbound-secret";
+
+    [Fact]
+    public async Task ProcessAsync_returns_unauthorized_when_vendor_token_is_empty_string()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, CreateSyncService());
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = string.Empty,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_accepts_legacy_x_archlucid_signature_raw_hex_when_hmac_required()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+        string hex = ComputeHmacSha256LowerHex(SharedSecret, body);
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+            RequireBodyHmacSignature = true,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookSyncService sync = CreateSyncService();
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+                HmacSignature = hex,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().NotBe(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
 
     [Fact]
     public async Task ProcessAsync_returns_unauthorized_when_vendor_token_is_null()
@@ -273,5 +336,12 @@ public sealed class ItsmInboundWebhookFacadeTests
             new ItsmInboundServiceNowStatusMapper());
 
         return new ItsmInboundWebhookSyncService(jiraProcessor, serviceNowProcessor);
+    }
+
+    private static string ComputeHmacSha256LowerHex(string secret, string body)
+    {
+        byte[] mac = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(body));
+
+        return Convert.ToHexString(mac).ToLowerInvariant();
     }
 }
