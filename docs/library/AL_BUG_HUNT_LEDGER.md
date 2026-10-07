@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read `AuthCallbackAccessPanel` submit path, honeypot field, and `technicalDetail` rendering; cheap-disproof closed five seeded mechanisms (429/400 generic errors, honeypot 204 success, form state on toggle, HTML escaped as text); regressions `shows generic submit error when the API returns rate limited`, `shows generic submit error when the API returns validation_failed`, `shows success when honeypot website field is filled and API returns 204`, `retains form values when the request form is toggled closed and reopened`, and `renders technical detail as plain text without interpreting HTML`; seeded five follow-on `(candidate)` rows; 15 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five open `(candidate)` rows (plain-HTTP `ASPNETCORE_URLS` disables HTTPS redirection for probes; in-memory `Hosting:Role=Worker` default is intentional; post-`Build()` warning-only logging matches API error vs warning split; `HttpScopeContextProvider` uses ambient/defaults off the HTTP thread; worker `/health/ready` summary JSON is documented vs API diagnostics); regressions `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`, `Worker_host_health_ready_returns_anonymous_summary_json`, `Worker_scope_provider_uses_defaults_without_http_context`, and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`; reaffirmed `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role`; 23 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows (full-string slash/dot/control scans and query-only `%` after decode cap are conservative by design; NBSP inside path segments is not an open-redirect class); regressions `TryNormalize_rejects_when_query_contains_slash_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_query_contains_dot_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_decoded_query_contains_control_character`, `TryNormalize_accepts_nbsp_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_when_query_retains_percent_after_decode_cap`; seeded five follow-on `(candidate)` rows; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -8357,16 +8359,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 15 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 - **id:** ui-auth-callback
 - **status:** open
 - **impact:** low
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-09-30
+- **consecutive-dry-hunts:** 5
+- **last-hunt:** 2026-10-07
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -8387,6 +8391,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Success panel omits a sign-in recovery link — **cheap-disproof 2026-09-10 seed hunt #1587:** success view renders `AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION` → `/auth/signin`; regression `shows back-to-sign-in recovery only after a successful submit`.
 
 2026-09-10 seed hunt #1587 (seed-only): reseeded ui-auth-callback after 2026-08-17 dry hunt; cheap-disproof closed API/network error handling, optional-field null trim, cancel/toggle form UX, and success recovery link; 10 scoped `AuthCallbackAccessPanel` tests passed.
+
+- [x] (valid-no-repro) `onSubmit` — `429 rate_limited` from `POST /api/access-requests` — **cheap-disproof 2026-10-07 seed hunt:** non-409 failures use `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR`; regression `shows generic submit error when the API returns rate limited`.
+- [x] (valid-no-repro) `onSubmit` — `400 validation_failed` responses — **cheap-disproof 2026-10-07 seed hunt:** server validation messages are not surfaced; generic submit error by design; regression `shows generic submit error when the API returns validation_failed`.
+- [x] (valid-no-repro) `onSubmit` — non-empty honeypot `websiteUrl` with `204` — **cheap-disproof 2026-10-07 seed hunt:** aligns with `route.ts` honeypot short-circuit; regression `shows success when honeypot website field is filled and API returns 204`.
+- [x] (valid-no-repro) `showForm` toggle — prior field values persist when form is collapsed and reopened — **cheap-disproof 2026-10-07 seed hunt:** stateful form is intentional; regression `retains form values when the request form is toggled closed and reopened`.
+- [x] (valid-no-repro) `technicalDetail` prop — HTML-like strings in callback failure copy — **cheap-disproof 2026-10-07 seed hunt:** React text node escaping; regression `renders technical detail as plain text without interpreting HTML`.
+
+- [ ] (candidate) `onSubmit` — treats any `response.ok` (including `200`) as success without reading a JSON error envelope in the body.
+- [ ] (candidate) `FatalPageReportProblemSupportRow` — report payload uses `AUTH_CALLBACK_ACCESS_HEADING` only and never includes `technicalDetail` from props.
+- [ ] (candidate) `onSubmit` — required `name` / `workEmail` / `company` / `roleTitle` are posted without client-side trim (server `parseAccessRequestBody` trims; operator may only see generic error on whitespace-only values).
+- [ ] (candidate) `onSubmit` — `204 No Content` success path ignores response body shape (no confirmation id or correlation token for support follow-up).
+- [ ] (candidate) Cancel control — hides the form and clears `errorMessage` but does not reset `form` field state when the operator reopens the request flow.
 
 ---
 
