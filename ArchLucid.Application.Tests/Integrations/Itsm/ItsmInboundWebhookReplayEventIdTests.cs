@@ -53,6 +53,17 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
     }
 
     [Fact]
+    public void Resolve_uses_explicit_colon_delimited_delivery_id_as_authoritative_replay_key()
+    {
+        const string explicitId = "vendor:Jira:KEY-1:Done";
+
+        string id = ItsmInboundWebhookReplayEventId.Resolve(explicitId, "Jira", "KEY-1", "Done");
+
+        id.Should().Be(explicitId);
+        id.Should().NotBe(ItsmInboundWebhookReplayEventId.BuildSynthetic("Jira", "KEY-1", "Done"));
+    }
+
+    [Fact]
     public void Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs()
     {
         string first = ItsmInboundWebhookReplayEventId.Resolve(null, "Jira", "KEY-1", "Done");

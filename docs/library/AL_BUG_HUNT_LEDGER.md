@@ -6067,9 +6067,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
@@ -13243,7 +13243,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 28 · **Bugs found:** 19 · **Consecutive dry hunts:** 6
+**Hunts:** 29 · **Bugs found:** 19 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookReplayEventIdTests`, `WebhookSecretsTests`, `ItsmInboundWebhookSyncServiceTests`, `ItsmInboundServiceNowStatusMapperTests`; 78 scoped `ItsmInboundWebhook` tests passed (67 Application + 11 Persistence).
+
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — colon-delimited explicit delivery ids — **cheap-disproof 2026-10-07 seed hunt #29:** explicit trimmed delivery id is authoritative even when shape resembles synthetic tuple; regression `Resolve_uses_explicit_colon_delimited_delivery_id_as_authoritative_replay_key`.
+- [x] (valid-no-repro) `WebhookSecrets.TimestampWithinSkew` — ±skew boundary — **cheap-disproof 2026-10-07 seed hunt #29:** inclusive `deltaSeconds <= skewSeconds`; regressions `TimestampWithinSkew_accepts_timestamp_exactly_at_skew_boundary_inclusive` and `TimestampWithinSkew_rejects_timestamp_one_second_beyond_skew_boundary`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — payload UTF-8 count at `MaxInboundWebhookPayloadUtf8Bytes` — **cheap-disproof 2026-10-07 seed hunt #29:** guard rejects only when count **exceeds** limit; regression `Jira_payload_at_byte_limit_passes_size_guard_and_resolves_correlation` (pairs with `Jira_payload_over_byte_limit_is_rejected_with_payload_rejected_audit`).
+- [x] (invalid) `ItsmInboundServiceNowPayloadReader` / mapper — leading-zero state `"06"` — **cheap-disproof 2026-10-07 seed hunt #29:** `int.TryParse` maps `"06"` like `"6"`; regression `MapToHumanReview_treats_leading_zero_numeric_states_via_integer_parse`.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — `SizeLimit` eviction during slow worker — **cheap-disproof 2026-10-07 seed hunt #29:** post-eviction callback is claim-token generation-safe; regression family `Delayed_eviction_callback_does_not_remove_a_reclaimed_event` plus release/reclaim races in `MemoryCacheItsmInboundWebhookReplayGuardTests`.
+
+- [ ] (candidate) `ItsmInboundWebhooksController.ResolveDeliveryId` — when both `X-ArchLucid-Webhook-Delivery-Id` and `X-Atlassian-Webhook-Identifier` are present, ArchLucid header wins without merging — locus: `ResolveDeliveryId` ~138–146; input: conflicting ids for same POST.
+- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryReadServiceNowKeys` — numeric JSON `incident_state` without string `state` may populate `AlternateStatusValue` while primary `state` is absent — locus: key reader; input: `{ "sys_id": "...", "incident_state": 6 }` only.
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryVerifyWebhookSecurity` — `sha256=` prefixed HMAC vs legacy raw hex both accepted but `VendorToken` still required from `X-Jira-Token` — locus: `IsValidHmacSha256Signature` prefix branch; reachable when operators configure only legacy signature docs.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — tenant-scoped `authenticatedTenantId` mismatch vs correlation row tenant may still ack without mutation when correlation lookup is unscoped — locus: `TryResolveCorrelationAsync`; input: global route webhook with row for another tenant (contract depends on repository uniqueness).
+- [ ] (candidate) `ItsmInboundJiraPayloadReader.TryReadJiraStatusName` — status names with only whitespace after trim fail `TryRead` before mapper sees empty human review guard — locus: `string.IsNullOrWhiteSpace(statusNameRaw)` ~43–44; input: `"   "` status name in `issue.fields.status.name`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ItsmInboundWebhookFacadeTests`, `ItsmInboundJiraPayloadReaderTests`, `ItsmInboundWebhookSyncServiceTests`, and `MemoryCacheItsmInboundWebhookReplayGuardTests`; 76 scoped `ItsmInboundWebhook` tests passed (65 Application + 11 Persistence).
 
@@ -13252,12 +13266,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline` — `ReleaseReplayAsync` after failure vs concurrent retry — **cheap-disproof 2026-10-07 seed hunt #28:** exception path releases the claim once; post-release concurrent `TryClaimAsync` still admits only one winner; regressions `Jira_releases_replay_claim_when_human_review_update_throws_after_claim` and `TryClaimAsync_after_ReleaseAsync_only_one_concurrent_caller_wins`.
 - [x] (valid-no-repro) `ItsmInboundJiraPayloadReader.TryRead` — issue keys with internal Unicode format characters — **cheap-disproof 2026-10-07 seed hunt #28:** only outer trim; embedded ZWSP fails `JiraIssueKeyRegex` with `issue_key_invalid_format` instead of correlating under a visually similar key; regression `TryRead_rejects_issue_key_with_internal_zero_width_space`.
 - [x] (invalid) `MemoryCacheItsmInboundWebhookReplayGuard.RememberAsync` — `AddOrUpdate` overwrites in-flight claim tokens on inbound hot path — **cheap-disproof 2026-10-07 seed hunt #28:** Application inbound pipeline never calls `RememberAsync`; `TryClaimAsync` alone blocks duplicates until release or eviction; regression `RememberAsync_is_not_required_for_inbound_hot_path_claim_dedupe_after_TryClaim`.
-
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` — explicit delivery ids containing `:` characters may collide visually with `BuildSynthetic` `provider:key:status` tokens when vendors reuse colon-delimited shapes — locus: `Resolve` trim branch ~21–24; input: delivery id `Jira:KEY-1:Done` vs synthetic fallback for the same tuple.
-- [ ] (candidate) `WebhookSecrets.TimestampWithinSkew` — timestamps exactly `WebhookTimestampSkewSeconds` from `TimeProvider` may be accepted or rejected depending on floating-point `TotalSeconds` rounding — locus: `TimestampWithinSkew` delta compare; input: payload at ±skew boundary.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `inboundPayloadUtf8ByteCount` equal to `MaxInboundWebhookPayloadUtf8Bytes` vs `Max+1` may diverge on whether correlation lookup runs — locus: early payload guard ~63–67; input: byte count at TB-967 limit.
-- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryRead` — string `state` values with leading zeros (`"06"`) may fail numeric map lookups while vendor UI shows state `6` — locus: state parsing + `ItsmInboundServiceNowStatusMapper` config keys.
-- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard` — cache entry eviction under `SizeLimit` pressure during a slow inbound worker may clear an in-flight claim before `ReleaseReplayAsync`, allowing a overlapping delivery to mutate — locus: `CreateEntryOptions` post-eviction callback; input: contrived eviction between claim and audit (see `Delayed_eviction_callback_does_not_remove_a_reclaimed_event`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `ProcessAsync_returns_unauthorized_when_vendor_token_is_null`, `Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation`, `HasSeenAsync_returns_true_after_TryClaimAsync_before_RememberAsync`, `ProcessAsync_returns_validation_failed_when_body_is_not_json_after_secret_verified`, and `CreateReplayIgnoredAudit_includes_issue_key_in_detail_for_synthetic_replay_ids`; seeded five follow-on `(candidate)` rows; 72 scoped `ItsmInboundWebhook` tests passed (62 Application + 10 Persistence).
 

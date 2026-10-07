@@ -699,6 +699,28 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_payload_at_byte_limit_passes_size_guard_and_resolves_correlation()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
+
+        const string json = """{"issue":{"key":"KK-1","fields":{"status":{"name":"Done"}}}}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(
+            doc.RootElement,
+            CancellationToken.None,
+            ItsmInboundWebhookSyncService.MaxInboundWebhookPayloadUtf8Bytes);
+
+        r.Accepted.Should().BeTrue();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync("Jira", "KK-1", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_payload_over_byte_limit_is_rejected_with_payload_rejected_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
