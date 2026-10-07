@@ -72,6 +72,33 @@ describe("SignupForm", () => {
     expect(payload.industryVerticalOther).toBeUndefined();
   });
 
+  it("includes trimmed industry vertical other in the register payload builder when industry is Other", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      industryVertical: "Other",
+      industryVerticalOther: "  Custom vertical  ",
+    });
+
+    expect(payload.industryVertical).toBe("Other");
+    expect(payload.industryVerticalOther).toBe("Custom vertical");
+  });
+
+  it("signupFormSchema trims padded required email on parse", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "  ops@example.com  ",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(parsed.success).toBe(true);
+
+    if (parsed.success) {
+      expect(parsed.data.adminEmail).toBe("ops@example.com");
+    }
+  });
+
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
     const message = deriveSignupFormReadinessMessage({
       adminEmail: "not-an-email",
@@ -549,6 +576,9 @@ describe("SignupForm", () => {
     vi.mocked(showError).mockClear();
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
+
+    const funnelSpy = vi.spyOn(firstTenantFunnelTelemetry, "recordFirstTenantFunnelEvent");
+
     vi.mocked(showSuccess).mockImplementation(() => {
       throw new Error("toast failed");
     });
@@ -573,11 +603,13 @@ describe("SignupForm", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
 
     await waitFor(() => {
+      expect(funnelSpy).toHaveBeenCalledWith("signup");
       expect(showError).toHaveBeenCalledWith("Signup", "toast failed");
       expect(pushMock).not.toHaveBeenCalled();
       expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
     });
 
+    funnelSpy.mockRestore();
     vi.mocked(showSuccess).mockReset();
     vi.unstubAllGlobals();
   });
@@ -1401,6 +1433,32 @@ describe("SignupForm", () => {
     await waitFor(() => {
       expect(showSuccess).toHaveBeenCalled();
       expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is a JSON array", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[1]", { status: 201, headers: { "Content-Type": "application/json" } })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
     });
 
     vi.unstubAllGlobals();

@@ -4442,7 +4442,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 44 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 45 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 90 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with JSON array body (`[1]`) cast as tenant result without validation — **cheap-disproof 2026-10-07 seed hunt #45:** `res.ok` drives success; regression `still navigates after 201 when register response body is a JSON array`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — includes trimmed `industryVerticalOther` when `industryVertical` is `Other` — **cheap-disproof 2026-10-07 seed hunt #45:** trim before include; regression `includes trimmed industry vertical other in the register payload builder when industry is Other`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` runs before `showSuccess` so toast throw still records funnel — **cheap-disproof 2026-10-07 seed hunt #45:** ordering by design; regression `surfaces signup error when success toast throws after successful register` asserts funnel before toast failure.
+- [x] (valid-no-repro) `signupFormSchema` — padded required emails pass after trim on submit values — **cheap-disproof 2026-10-07 seed hunt #45:** zod `.trim()` on email; regression `signupFormSchema trims padded required email on parse`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-ok JSON with numeric `detail` falls back to raw response text — **cheap-disproof 2026-10-07 seed hunt #45:** string `detail` gate; regression `shows raw response text when server detail is not a string`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — register `fetch` sends `Accept: application/json` — locus: headers object (`SignupForm.tsx` ~121–124).
+- [ ] (candidate) `buildSignupRegisterPayload` — includes `companySize` enum when operator selects a range — locus: `if (values.companySize)` (`SignupForm.tsx` ~50–52).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body does not navigate (non-ok for empty success) — locus: `res.ok` without JSON body (`SignupForm.tsx` ~142–165); **note:** `204` is `ok` — verify behavior.
+- [ ] (candidate) `signupFormSchema` — whitespace-only organization name fails after trim — locus: `.trim().min(1)` (`signup-schema.ts` ~35–38).
+- [ ] (candidate) `buildSignupRegisterPayload` — omits `architectureTeamSize` key when optional field is empty string — locus: `teamTrim.length > 0` guard (`SignupForm.tsx` ~54–61).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 87 scoped SignupForm vitest tests passed.
 
@@ -4451,12 +4465,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — non-numeric `architectureTeamSize` like `abc` omitted when builder called without zod — **cheap-disproof 2026-10-07 seed hunt #44:** fail-closed omit; UI blocked by schema; regressions `omits alphabetic optional architecture team size from the register payload builder` and `signupFormSchema rejects alphabetic optional architecture team size`.
 - [x] (valid-no-repro) `SignupForm` — success path leaves primary button label on `Creating…` until navigation unmounts — **cheap-disproof 2026-10-07 seed hunt #44:** intentional anti-double-submit UX; regression `keeps Creating label on the submit button after successful register until navigation`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON object in `201` body (`{tenantId:`) still succeeds — **cheap-disproof 2026-10-07 seed hunt #44:** parse failure yields null body but `res.ok` drives success; regression `still navigates after 201 when register response body is malformed JSON`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON array body (`[1]`) cast as tenant result without validation — locus: `JSON.parse` + success path (`SignupForm.tsx` ~145–193).
-- [ ] (candidate) `buildSignupRegisterPayload` — includes trimmed `industryVerticalOther` when `industryVertical` is `Other` — locus: trim + include branch (`SignupForm.tsx` ~68–73).
-- [ ] (candidate) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` runs before `showSuccess` so toast throw still records funnel — locus: ordering (`SignupForm.tsx` ~191–192).
-- [ ] (candidate) `signupFormSchema` — padded required emails pass after trim on submit values — locus: `.trim().email()` on fields (`signup-schema.ts` ~29–38).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-ok JSON with numeric `detail` falls back to raw response text — locus: string `detail` gate (`SignupForm.tsx` ~157–161).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 83 scoped SignupForm vitest tests passed.
 
@@ -4524,7 +4532,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
