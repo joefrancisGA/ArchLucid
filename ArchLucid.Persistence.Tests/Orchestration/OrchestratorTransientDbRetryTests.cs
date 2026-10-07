@@ -14,6 +14,26 @@ namespace ArchLucid.Persistence.Tests.Orchestration;
 public sealed class OrchestratorTransientDbRetryTests
 {
     [SkippableFact]
+    public async Task ExecuteAsync_retries_sql_lock_resource_error_1204()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(1204);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_sql_lock_timeout_error_1222()
     {
         int attempts = 0;

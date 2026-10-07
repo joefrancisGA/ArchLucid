@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Connections;
 ///     Shared by <c>SqlConnectionHealthCheck</c> and <c>ResilientSqlConnectionFactory</c>.
 /// </summary>
 /// <remarks>
-///     Error numbers: <c>-2</c> = timeout; <c>1205</c> = deadlock victim; <c>1222</c> = lock request timeout (safe to retry when the UoW rolled back);
+///     Error numbers: <c>-2</c> = timeout; <c>1204</c> = lock resource pressure; <c>1205</c> = deadlock victim; <c>1222</c> = lock request timeout (safe to retry when the UoW rolled back);
 ///     <c>40613</c> / <c>40645</c> = Azure SQL DB unavailable; <c>40197</c> / <c>40501</c> = service / elastic pool capacity pressure;
 ///     <c>49918–49920</c> = Azure throttling; <c>10928</c> / <c>10929</c> = resource throttling;
 ///     <c>233</c> / <c>10053</c> / <c>10054</c> / <c>10060</c> = network-layer connection failures under CI SQL pressure.
@@ -24,6 +24,7 @@ public static class SqlTransientDetector
             return false;
 
         return ex.Number is -2
+            or 1204
             or 1205
             or 1222
             or 233
