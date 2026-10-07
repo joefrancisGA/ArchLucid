@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `topology-proposal-merge` — re-read merge gate, graph merge, endpoint index, edge mapper, terraform source-id heuristics, and consensus merger; no hunt-ready row promoted; seeded five `(candidate)` rows; 1,612 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; regressions `GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload` and `SimulateAsync_CompositeRule_DoesNotInvokeSimpleEvaluator_WhenSimpleRuleAlsoPresentOnRequest`; reaffirmed `GetContextsAsync_excludes_learning_profile_outside_caller_scope`, `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing`, and `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` and 8 scoped `RuleSimulationServiceTests` passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` error and success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `shows raw html error body when register response is not json`, `shows synthetic message when register error response body is empty`, `omits optional architecture team size above 10000 from the register payload builder`, and `signupFormSchema rejects alphabetic optional architecture team size`; reaffirmed `navigates to verify on HTTP 200 when register response is ok`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
@@ -998,6 +1000,14 @@
 2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
 
 ## Zone: topology-proposal-merge
+
+2026-10-07 seed hunt (seed-only): re-read orchestration merge sources listed in zone `paths`; no hunt-ready row promoted; seeded five `(candidate)` rows below; 1,612 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
+
+- [ ] (candidate) `TopologyProposalConsensusMerger.ResolveServiceIdentity` — dual-model intersection uses `ServiceId` when set but ignores `ServiceName` drift on the other model when ids differ only by synthetic versus manifest label — locus: `ServiceKey` (`TopologyProposalConsensusMerger.cs` ~222–234); input: primary `ServiceName` label, secondary `svc-{label}` with empty `ServiceId`.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — `EdgeId` `agent-rel-{from}-{to}-{edgeType}` collides when `ReadsFrom` and `WritesTo` both map to `ConnectsTo` between the same resolved nodes — locus: `MapRelationshipType` + edge id (`TopologyProposalRelationshipEdgeMapper.cs` ~38–48).
+- [ ] (candidate) `AgentTopologyProposalGraphMerge.AppendUniqueEdges` — dedupe key ignores `Label`/semantic relationship type so a surviving `ReadsFrom` blocks a later `WritesTo` manifest edge — locus: `AppendUniqueEdges` (`AgentTopologyProposalGraphMerge.cs` ~255+).
+- [ ] (candidate) `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` — relationships referencing only `svc-`/`ds-` endpoints drop when `PreRegisterDeclaredProposalEndpointKeys` did not run for a non-topology agent ordering — locus: `FilterGreenfieldProposals` (`AgentTopologyProposalMergeGate.Greenfield.cs`); input: empty `graph.Nodes` with Cost agent proposal before Topology agent.
+- [ ] (candidate) `TopologyProposalConsensusMerger.Merge` — `disagreementCount` sums primary and secondary surplus separately so duplicate-only-on-secondary relationship rows inflate the human-review warning without changing intersection cardinality — locus: disagreement arithmetic (`TopologyProposalConsensusMerger.cs` ~40–48).
 
 2026-10-05 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` did not ARM-normalize relationship endpoints, so dual-model proposals agreeing on the same edge with equivalent ARM resource ids differing only by casing failed consensus intersection; ARM-normalized keys when endpoints are known via `EndpointKeyIsKnownViaArmNormalization`; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_casing_variation`; cheap-disproof closed ReadsFrom+WritesTo `ConnectsTo` collapse as intentional graph projection (manifest relationships remain distinct); 1,602 scoped topology merge + consensus tests passed.
 
@@ -3802,8 +3812,8 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 1607
-- **last-hunt:** 2026-10-05
+- **hunts:** 1608
+- **last-hunt:** 2026-10-07
 - **bugs-found:** 977
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-05 — consensus intersection ignored label versus synthetic relationship endpoints
