@@ -203,4 +203,29 @@ public sealed class CommitRunTransientRetryPolicyTests
             .BeFalse(
                 "authority commit loop may still run one more attempt while inner Polly backoff remains bounded by RetryBudget");
     }
+
+    [Fact]
+    public void Layered_outer_delays_and_inner_polly_backoff_are_not_one_serial_chain()
+    {
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan interPollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
+
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+
+        (interAttemptDelayTotal + interPollDelayTotal + minimumInnerRetryDelays)
+            .Should()
+            .BeGreaterThan(CommitRunTransientRetryPolicy.RetryBudget,
+                "authority commit applies outer attempt/poll delays and inner orchestrator Polly backoff in separate layers, not as one additive sleep chain");
+    }
 }

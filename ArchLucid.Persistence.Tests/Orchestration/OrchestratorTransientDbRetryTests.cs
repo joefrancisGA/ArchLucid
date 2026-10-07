@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Reflection;
 
 using ArchLucid.Application.Runs.Orchestration;
@@ -1444,6 +1445,89 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<SqlException>();
 
         attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_does_not_retry_non_transient_sql_unique_constraint_violation()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                return Task.FromException<int>(SqlExceptionTestFactory.Create(2627));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_aggregate_lists_type_initialization_exception_wrapping_transient_sql()
+    {
+        int attempts = 0;
+        SqlException transientUnavailable = SqlExceptionTestFactory.Create(40613);
+        TypeInitializationException typeInitialization = new("ArchLucid.TestSupport.SimulatedType", transientUnavailable);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(typeInitialization, deadlock);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_sql_unavailable_when_aggregate_inner_is_http_request_exception_wrapper()
+    {
+        int attempts = 0;
+        SqlException unavailable = SqlExceptionTestFactory.Create(40613);
+        HttpRequestException httpWrapper = new("azure sql gateway", unavailable);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(httpWrapper);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_after_successful_recovery_from_transient_sql()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(1205);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
     }
 
     [SkippableFact]
