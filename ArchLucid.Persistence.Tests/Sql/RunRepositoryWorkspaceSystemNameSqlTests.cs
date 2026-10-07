@@ -2464,4 +2464,126 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
             .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
     }
+
+    [Fact]
+    public async Task InMemory_list_with_null_architecture_id_clears_warning_projection_flags_like_sql_backfill_select()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = Guid.NewGuid().ToString("D"),
+                HasWarnings = true,
+                HasGovernanceWarnings = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListWithNullArchitectureIdAsync(scope, 10, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].HasWarnings.Should().BeFalse();
+        listed[0].HasGovernanceWarnings.Should().BeFalse();
+        listed[0].ArchitectureRequestId.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void ListWithNullArchitectureId_backfill_select_omits_run_list_warning_joins()
+    {
+        const string backfillProjection = """
+                                            RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                   PackageOrigin, ArchitectureId, ArchitectureVersionId, ArchitectureRequestId,
+                                                   KnowledgeModelId, CreatedUtc, UpdatedUtc, ArchivedUtc, LegacyRunStatus,
+                                                   CurrentManifestVersion, GoldenManifestId
+                                            """;
+
+        backfillProjection.Should().NotContain("HasWarnings");
+        backfillProjection.Should().NotContain("HasGovernanceWarnings");
+        backfillProjection.Should().NotContain("CreatedByUserId");
+        backfillProjection.Should().NotContain("RowVersion");
+    }
+
+    [Fact]
+    public void RunsListRecentInScopeOffsetNoLock_uses_run_id_tie_break_for_stable_pages_under_timestamp_ties()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void ListByArchitectureId_inline_select_omits_created_by_user_id_like_lightweight_projection()
+    {
+        const string architectureListProjection = """
+                                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                         PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                         ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                                  """;
+
+        architectureListProjection.Should().NotContain("CreatedByUserId");
+    }
+
+    [Fact]
+    public async Task InMemory_get_latest_committed_run_id_by_architecture_version_id_returns_null_for_empty_version()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        Guid? result = await runs.GetLatestCommittedRunIdByArchitectureVersionIdAsync(
+            scope,
+            Guid.Empty,
+            CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_architecture_id_omits_row_version_like_sql_lightweight_select()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                RowVersion = [1, 2, 3, 4, 5, 6, 7, 8],
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByArchitectureIdAsync(scope, architectureId, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].RowVersion.Should().BeNull();
+    }
 }

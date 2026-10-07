@@ -70,6 +70,7 @@ public sealed partial class InMemoryRunRepository
             .OrderBy(run => run.CreatedUtc)
             .ThenBy(run => run.RunId)
             .Take(take)
+            .Select(RunRepositoryCore.ForNullArchitectureBackfillListProjection)
             .ToList();
 
         return Task.FromResult<IReadOnlyList<RunRecord>>(runs);
