@@ -1363,6 +1363,50 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_aggregate_lists_reflection_type_load_with_transient_loader_exceptions()
+    {
+        int attempts = 0;
+        SqlException deadlockInLoaderList = SqlExceptionTestFactory.Create(1205);
+        ReflectionTypeLoadException reflectionLoad = new(
+            Array.Empty<Type>(),
+            new Exception[] { deadlockInLoaderList });
+        SqlException siblingDeadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(reflectionLoad, siblingDeadlock);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_retries_deadlock_when_top_level_aggregate_nests_transient_only_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException nested = new(deadlock, SqlExceptionTestFactory.Create(1204));
+
+        await OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(nested);
+
+                return Task.FromResult(1);
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_deadlock_when_top_level_aggregate_nests_transient_only_aggregate()
     {
         int attempts = 0;
