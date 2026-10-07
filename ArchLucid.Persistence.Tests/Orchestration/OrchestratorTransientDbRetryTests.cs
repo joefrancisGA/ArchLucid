@@ -1135,6 +1135,79 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_two_empty_aggregate_shells_precede_mixed_parallel_persist_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException mixed = new(deadlock, fkViolation);
+        AggregateException emptyShellTwo = new AggregateException();
+        AggregateException emptyShellOne = new AggregateException();
+        SetInnerException(emptyShellTwo, mixed);
+        SetInnerException(emptyShellOne, emptyShellTwo);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("parallel persist failed", emptyShellOne);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_top_level_aggregate_inner_is_nested_aggregate_with_only_transient_sql_inners()
+    {
+        int attempts = 0;
+        SqlException firstDeadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException secondDeadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    throw new AggregateException(
+                        new AggregateException(firstDeadlock, secondDeadlock));
+                }
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_bare_transient_sql_sibling_pairs_with_wrapped_mixed_nested_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException bareTransient = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(
+                    bareTransient,
+                    new InvalidOperationException(
+                        "parallel persist failed",
+                        new AggregateException(deadlock, fkViolation)));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
     {
         int attempts = 0;

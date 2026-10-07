@@ -184,4 +184,15 @@ public sealed class CommitRunTransientRetryPolicyTests
 
         minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
     }
+
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                11,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse(
+                "authority commit loop may still run one more attempt while inner Polly backoff remains bounded by RetryBudget");
+    }
 }
