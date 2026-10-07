@@ -19,6 +19,7 @@ import {
   AUTH_CALLBACK_ACCESS_HEADING,
   AUTH_CALLBACK_ACCESS_SUBMIT_ERROR,
   AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL,
+  AUTH_CALLBACK_ACCESS_SUCCESS_BODY,
   AUTH_CALLBACK_ACCESS_SUCCESS_TITLE,
 } from "@/lib/auth/access-request-copy";
 
@@ -664,6 +665,94 @@ describe("AuthCallbackAccessPanel", () => {
     fireEvent.click(screen.getByTestId("auth-callback-request-access"));
 
     expect(screen.queryByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("dismisses the form via request access toggle while submit is in flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("auth-callback-access-form")).not.toBeInTheDocument();
+    });
+
+    resolveFetch?.(new Response(null, { status: 204 }));
+    await waitFor(() => {
+      expect(screen.queryByTestId("auth-callback-access-success")).not.toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("retains a prior submit error when the request form is toggled closed without cancel", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ error: "send_failed" }, { status: 502 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("mentions asynchronous follow-up on the success view", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 204 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUCCESS_BODY)).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 
