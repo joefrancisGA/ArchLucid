@@ -699,7 +699,27 @@ public sealed class DiagramForestVnetFrameLayoutTests
             .Descendants().Any(element =>
                 element.Name.LocalName == "neighborhood"
                 && element.Attribute("kind")?.Value == "shared-services").Should().BeTrue();
-        XElement metadata = svg.Descendants().First(element =>
+    }
+
+    [Fact]
+    public void Render_neighborhood_metadata_distinguishes_key_and_recovery_vaults()
+    {
+        string vnetArmId = "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app";
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet", "app-vnet", vnetArmId, "rg-app"),
+                Subnet("subnet", vnetArmId, "app", "rg-app"),
+                Workload("key-vault", "key-vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+                Workload("recovery-vault", "recovery-vault-app", "Microsoft.RecoveryServices/vaults", "rg-app"),
+            ],
+            [
+                Cited("key-vault", "subnet"),
+                Cited("recovery-vault", "subnet"),
+            ]);
+
+        XDocument svg = Render(ast);
+        XElement metadata = svg.Descendants().Single(element =>
             element.Attribute("id")?.Value == "diagram-neighborhoods");
         metadata.Descendants().Any(element =>
             element.Name.LocalName == "type"
