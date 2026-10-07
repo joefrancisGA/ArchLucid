@@ -54,7 +54,47 @@ public sealed class DraftNewCommandCoreTests
             int exit = await DraftNewCommand.RunAsync(["--text"]);
 
             exit.Should().Be(CliExitCode.UsageError);
-            capturedOut.ToString().Should().Contain("--text");
+            capturedOut.ToString().Should().Contain("Missing value for --text");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_missing_system_name_flag_value_returns_usage_error()
+    {
+        StringWriter capturedOut = new();
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(capturedOut);
+            int exit = await DraftNewCommand.RunAsync(["--system-name"]);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            capturedOut.ToString().Should().Contain("Missing value for --system-name");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_missing_business_outcome_flag_value_returns_usage_error()
+    {
+        StringWriter capturedOut = new();
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(capturedOut);
+            int exit = await DraftNewCommand.RunAsync(["--business-outcome"]);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            capturedOut.ToString().Should().Contain("Missing value for --business-outcome");
         }
         finally
         {
@@ -66,14 +106,49 @@ public sealed class DraftNewCommandCoreTests
     public async Task RunCoreAsync_short_intent_text_returns_usage_error()
     {
         DraftNewCommandOptions options = new() { IntentText = "short" };
-        DraftNewCommandHooks hooks = ConnectedHooks();
+        bool connectCalled = false;
+        bool clientCreated = false;
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) =>
+            {
+                connectCalled = true;
+
+                return Task.FromResult(ApiConnectionOutcome.Connected);
+            },
+            CreateApiClient = (_, _) =>
+            {
+                clientCreated = true;
+
+                return CreateDraftFlowClient();
+            },
+        };
         StringWriter output = new();
         StringWriter error = new();
 
         int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
 
         exit.Should().Be(CliExitCode.UsageError);
-        error.ToString().Should().Contain("at least 100 characters");
+        connectCalled.Should().BeTrue("connect runs before intent length validation in connect stage");
+        clientCreated.Should().BeFalse();
+        error.ToString().Should().Contain("at least 100 characters after trim");
+    }
+
+    [Fact]
+    public void Options_parse_duplicate_text_flag_uses_last_value()
+    {
+        const string firstIntent =
+            "First intent that is long enough to pass validation when mistakenly treated as authoritative for draft new intake.";
+        const string secondIntent =
+            "Second intent that is long enough to pass validation and should win when --text is specified twice on the CLI.";
+
+        DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(
+            ["--text", firstIntent, "--text", secondIntent],
+            out string? error);
+
+        error.Should().BeNull();
+        options.Should().NotBeNull();
+        options!.IntentText.Should().Be(secondIntent);
     }
 
     [Fact]
