@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `MemoryCacheBillingWebhookReplayGuardTests`, `BillingMarketplaceWebhookDedupeKeyTests`, and `LlmTenantWalletStripeWebhookProcessorTests`; 55 scoped billing webhook unit tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 62 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
 2026-10-07 thorough hunt (dry): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows on InMemory full graph; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
@@ -9865,13 +9867,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `MemoryCacheBillingWebhookReplayGuardTests`, `BillingMarketplaceWebhookDedupeKeyTests`, and `LlmTenantWalletStripeWebhookProcessorTests`; 55 scoped billing webhook unit tests passed (41 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — duplicate delivery when prior ledger row is `Failed` re-enters handler without `ReplayRejected` — **cheap-disproof 2026-10-07 seed hunt #61:** intentional Stripe retry after handler failure; regression `HandleWebhookAsync_wallet_retries_processor_when_prior_ledger_status_is_failed`.
+- [x] (valid-no-repro) `HandleWalletPaymentIntentEventAsync` — wallet refill without `correlation_id` metadata still credits when idempotency insert wins — **cheap-disproof 2026-10-07 seed hunt #61:** synthetic correlation is audit-only; regression reaffirmed `HandleWebhookAsync_wallet_without_correlation_metadata_passes_non_empty_correlation_to_processor`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` — always adds `_claimedKeys` entry even when replacing cache value — **cheap-disproof 2026-10-07 seed hunt #61:** `TryAdd` blocks duplicate `TryRegisterEventAsync`; regression `RememberAsync_then_TryRegisterEventAsync_returns_false_for_same_event`.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` — `payment_intent.payment_failed` records failure telemetry without wallet credit — **cheap-disproof 2026-10-07 seed hunt #61:** failure path never calls wallet credit; regressions `ProcessPaymentIntentEventAsync_payment_failed_does_not_credit_wallet` and `ProcessPaymentIntentEventAsync_payment_failed_ignores_missing_tenant_metadata_without_wallet_call`.
+- [x] (valid-no-repro) `BillingMarketplaceWebhookDedupeKey.Build` — SHA-256 fingerprint includes raw `action` substring without normalization — **cheap-disproof 2026-10-07 seed hunt #61:** dedupe key embeds caller-supplied action verbatim; regressions `Build_embeds_raw_action_without_trim_so_whitespace_variants_differ` and `Build_uses_action_argument_verbatim_even_when_json_body_action_differs`.
+
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` returns HTTP `200 Ok` without body — locus: early return (`BillingStripeWebhookController.cs` ~65–66).
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — `DuplicateIgnored` returns HTTP `200 Ok` — locus: duplicate branch (`BillingMarketplaceWebhookController.cs` ~97–98).
+- [ ] (candidate) `StripeBillingProvider.DispatchStripeWebhookEventAsync` — Stripe connectivity probe events short-circuit as handled — locus: `IsStripeConnectivityEvent` (`StripeBillingProvider.Webhook.cs` ~101, ~272).
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — replay retention window is `24` hours — locus: `Retention` constant (`MemoryCacheBillingWebhookReplayGuard.cs` ~12).
+- [ ] (candidate) `StripeBillingProvider` wallet route — non-`payment_intent.*` event types reject before wallet dispatch — locus: wallet route guard (`StripeBillingProvider.Webhook.cs` ~106–107).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests` and `BillingWebhookLedgerReplayPolicyTests`; 61 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -9880,12 +9896,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `StripeBillingProvider.HandleWalletPaymentIntentEventAsync` — passes raw `tenant_id` metadata string to processor after validating trimmed `Guid` — **cheap-disproof 2026-10-07 seed hunt #60:** processor trims; regression `HandleWebhookAsync_wallet_passes_raw_padded_tenant_id_metadata_to_processor`.
 - [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard` — post-eviction callback removes `_claimedKeys` after TTL — **cheap-disproof 2026-10-07 seed hunt #60:** bounded in-process window; SQL ledger remains cross-instance dedupe; `Compact` retains claim (`TryRegisterEventAsync_blocks_duplicate_while_claimed_key_retained_after_cache_compact`).
 - [x] (invalid) `BillingStripeWebhookController.StripeWalletAsync` — `checkout.session.completed` mis-posted to wallet route — **cheap-disproof 2026-10-07 seed hunt #60:** operator misconfiguration; provider rejects non-`payment_intent.*` on wallet route without `Processed` ledger; regression `HandleWebhookAsync_wallet_route_rejects_checkout_session_completed_without_ledger_processed`.
-
-- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — duplicate delivery when prior ledger row is `Failed` re-enters handler without `ReplayRejected` — locus: `BillingWebhookLedgerReplayPolicy.ShouldRejectDuplicateLedgerEntry` (`BillingWebhookLedgerReplayPolicy.cs` ~8–10).
-- [ ] (candidate) `HandleWalletPaymentIntentEventAsync` — wallet refill without `correlation_id` metadata still credits when idempotency insert wins — locus: synthetic `Guid.NewGuid()` correlation (`StripeBillingProvider.Webhook.cs` ~208–211).
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` — always adds `_claimedKeys` entry even when replacing cache value — locus: `TryAdd` before `Set` (`MemoryCacheBillingWebhookReplayGuard.cs` ~44–46).
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — `payment_intent.payment_failed` records failure telemetry without wallet credit — locus: failure branch (`LlmTenantWalletStripeWebhookProcessor.cs` ~44+).
-- [ ] (candidate) `BillingMarketplaceWebhookDedupeKey.Build` — SHA-256 fingerprint includes raw `action` substring without normalization — locus: dedupe key builder (`BillingMarketplaceWebhookDedupeKey.cs`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `LlmTenantWalletStripeWebhookProcessorTests`, and `MemoryCacheBillingWebhookReplayGuardTests`; 39 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
 

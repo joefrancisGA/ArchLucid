@@ -195,4 +195,18 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
         registered.Should().BeTrue();
         seen.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task RememberAsync_then_TryRegisterEventAsync_returns_false_for_same_event()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        await sut.RememberAsync("stripe", "evt_remember_claim", CancellationToken.None);
+        bool secondClaim = await sut.TryRegisterEventAsync("stripe", "evt_remember_claim", CancellationToken.None);
+        bool seen = await sut.HasSeenAsync("stripe", "evt_remember_claim", CancellationToken.None);
+
+        secondClaim.Should().BeFalse();
+        seen.Should().BeTrue();
+    }
 }

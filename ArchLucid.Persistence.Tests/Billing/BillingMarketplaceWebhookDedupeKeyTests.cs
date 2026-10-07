@@ -48,4 +48,17 @@ public sealed class BillingMarketplaceWebhookDedupeKeyTests
 
         compactKey.Should().NotBe(spacedKey);
     }
+
+    [Fact]
+    public void Build_uses_action_argument_verbatim_even_when_json_body_action_differs()
+    {
+        const string body = """{"action":"Renew","subscriptionId":"sub-1"}""";
+
+        string suspendKey = BillingMarketplaceWebhookDedupeKey.Build("sub-1", "Suspend", body);
+        string renewKey = BillingMarketplaceWebhookDedupeKey.Build("sub-1", "Renew", body);
+
+        suspendKey.Should().StartWith("sub-1|Suspend|");
+        renewKey.Should().StartWith("sub-1|Renew|");
+        suspendKey.Should().NotBe(renewKey);
+    }
 }
