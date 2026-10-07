@@ -219,4 +219,70 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
         blocked.IsAllowed.Should().BeFalse();
         blocked.BlockReason.Should().Be("blocked");
     }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_Normalize_preserves_circuit_breaker_enabled_flag()
+    {
+        OutboundExternalHttpResilienceOptions disabled = new() { CircuitBreakerEnabled = false, MaxRetryAttempts = 99 };
+        disabled.Normalize();
+
+        disabled.CircuitBreakerEnabled.Should().BeFalse();
+        disabled.MaxRetryAttempts.Should().Be(10);
+
+        OutboundExternalHttpResilienceOptions enabled = new() { CircuitBreakerEnabled = true };
+        enabled.Normalize();
+
+        enabled.CircuitBreakerEnabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_retries_http_429_too_many_requests()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(async () =>
+        {
+            sendCount++;
+
+            if (sendCount < 2)
+                return new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        sendCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_Normalize_clamps_sampling_duration_seconds_lower_bound_to_five()
+    {
+        OutboundExternalHttpResilienceOptions options = new() { SamplingDurationSeconds = 1 };
+        options.Normalize();
+
+        options.SamplingDurationSeconds.Should().Be(5);
+    }
+
+    [Fact]
+    public void ArchLucidMultiCloudPublicHttpClients_exposes_distinct_factory_client_names()
+    {
+        ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName.Should().Be("ArchLucid.AwsPublicPricing");
+        ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName.Should().Be("ArchLucid.GcpCloudBillingCatalog");
+        ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName.Should()
+            .NotBe(ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_llm_completion_uses_longer_pooled_connection_lifetime_than_integration()
+    {
+        using SocketsHttpHandler llmHandler = new();
+        using SocketsHttpHandler integrationHandler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(llmHandler, OutboundHttpSocketsHandlerProfile.LlmCompletion);
+        OutboundSocketsHttpHandlerSettings.Apply(integrationHandler, OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        llmHandler.PooledConnectionLifetime.Should().BeGreaterThan(integrationHandler.PooledConnectionLifetime);
+    }
 }
