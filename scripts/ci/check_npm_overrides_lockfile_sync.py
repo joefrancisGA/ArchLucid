@@ -33,9 +33,19 @@ def collect_string_overrides(overrides: object) -> dict[str, str]:
     return pinned
 
 
-def lockfile_resolved_version(packages: dict[str, Any], package_name: str) -> str | None:
-    entry = packages.get(f"node_modules/{package_name}")
+def lockfile_package_key_matches(lockfile_key: str, package_name: str) -> bool:
+    """True when a lockfile packages key is this package at any nest depth.
 
+    npm lockfile v2/v3 records hoisted copies as ``node_modules/foo`` and nested
+    copies as ``node_modules/parent/node_modules/foo`` when a parent cannot share
+    the hoisted tree. Overrides still pin those nested copies.
+    """
+    suffix = f"node_modules/{package_name}"
+
+    return lockfile_key == suffix or lockfile_key.endswith(f"/{suffix}")
+
+
+def lockfile_entry_version(entry: object) -> str | None:
     if not isinstance(entry, dict):
         return None
 
@@ -45,6 +55,23 @@ def lockfile_resolved_version(packages: dict[str, Any], package_name: str) -> st
         return None
 
     return str(version)
+
+
+def lockfile_resolved_versions(packages: dict[str, Any], package_name: str) -> list[str]:
+    versions: list[str] = []
+
+    for lockfile_key, entry in packages.items():
+        if not lockfile_package_key_matches(lockfile_key, package_name):
+            continue
+
+        version = lockfile_entry_version(entry)
+
+        if version is None:
+            continue
+
+        versions.append(version)
+
+    return versions
 
 
 def check_prefix(prefix: Path) -> list[str]:
@@ -86,9 +113,9 @@ def check_prefix(prefix: Path) -> list[str]:
     overrides = collect_string_overrides(package_json.get("overrides"))
 
     for package_name, expected_version in sorted(overrides.items()):
-        resolved_version = lockfile_resolved_version(packages, package_name)
+        resolved_versions = lockfile_resolved_versions(packages, package_name)
 
-        if resolved_version is None:
+        if not resolved_versions:
             errors.append(
                 f"{package_name}: override pins {expected_version} but lockfile has no "
                 f"node_modules/{package_name} entry; run npm install in {prefix.name}/ and commit package-lock.json",
@@ -96,10 +123,14 @@ def check_prefix(prefix: Path) -> list[str]:
 
             continue
 
-        if resolved_version != expected_version:
+        mismatched = sorted(
+            {version for version in resolved_versions if version != expected_version},
+        )
+
+        if mismatched:
             errors.append(
                 f"{package_name}: package.json override is {expected_version} but "
-                f"package-lock.json resolves {resolved_version}; run npm install in {prefix.name}/ and commit package-lock.json",
+                f"package-lock.json resolves {', '.join(mismatched)}; run npm install in {prefix.name}/ and commit package-lock.json",
             )
 
     return errors
