@@ -606,6 +606,67 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("clears honeypot websiteUrl when cancel closes the form", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ error: "send_failed" }, { status: 502 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "https://spam.example" } });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.getByLabelText("Website")).toHaveValue("");
+    expect(screen.getByLabelText("Work email")).toHaveValue("jordan@fabrikam.com");
+    vi.unstubAllGlobals();
+  });
+
+  it("does not surface stale submit error after collapsing the form during an in-flight POST", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    resolveFetch?.(Response.json({ error: "send_failed" }, { status: 502 }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("auth-callback-access-form")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.queryByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
   it("omits technical detail paragraph when technicalDetail is blank", () => {
     render(<AuthCallbackAccessPanel technicalDetail="" />);
 

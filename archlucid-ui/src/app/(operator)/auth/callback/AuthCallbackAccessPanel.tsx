@@ -66,6 +66,15 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
     setSubmitting(false);
   }
 
+  function clearAccessRequestHoneypotField(): void {
+    setForm((current) => ({ ...current, websiteUrl: "" }));
+  }
+
+  function dismissAccessRequestForm(): void {
+    invalidateInFlightSubmit();
+    clearAccessRequestHoneypotField();
+  }
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
 
@@ -163,7 +172,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
           onClick={() => {
             setShowForm((open) => {
               if (open) {
-                invalidateInFlightSubmit();
+                dismissAccessRequestForm();
               }
 
               return !open;
@@ -308,7 +317,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
               size="sm"
               disabled={submitting}
               onClick={() => {
-                invalidateInFlightSubmit();
+                dismissAccessRequestForm();
                 setShowForm(false);
                 setErrorMessage(null);
               }}
