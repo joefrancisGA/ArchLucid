@@ -396,4 +396,52 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_partially_completed_with_golden_manifest_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa16"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Terminal failure resolution precedes golden-manifest progress-marker branch.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_ready_for_commit_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa17"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_created_with_golden_manifest_only_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa18"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Created is not an in-progress legacy status; non-empty GoldenManifestId still marks InProgress for fixture rows.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
 }

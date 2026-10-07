@@ -112,6 +112,8 @@
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after snapshot-conflict hit emptied open rows; cheap-disproof closed promotion (`AggregateException` with parallel `IOException` inners wrapping `1205` already retries via `IsParallelPersistAggregateInnerRetriable` + `SqlTransientDetector` inner walk); no hunt-ready row promoted; seeded five `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
+2026-10-07 seed hunt (seed-only): `core-authority-runs` — re-read list lifecycle resolver and pipeline dead-letter JSON reader; cheap-disproof closed three promotion attempts (terminal `PartiallyCompleted` before golden-manifest progress marker; dead-letter before `ReadyForCommit` in-progress branch; `Created`+manifest-only uses progress-marker branch); seeded five `(candidate)` rows; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (HTTP 400 OTP mapping asymmetry, `expired_code` forward-compat copy, HEAD CSRF safe-method class, trial-status out-of-zone); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 thorough hunt (hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted snapshot/RCSI update conflict class (`3960`/`41301`/`41302`) while orchestrator retried lock-class errors; `IsSnapshotOrUpdateConflict`; regressions `ExecuteAsync_retries_sql_snapshot_update_conflict_error_3960` and `ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate`; cheap-disproof closed three other `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
@@ -21922,13 +21924,21 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): re-read `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` ordering and `RunAuthorityPipelineDeadLetterDetection` after picker open rows emptied; cheap-disproof closed three promotion attempts; seeded five `(candidate)` rows below; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
+
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — negative `schemaVersion` (e.g. `-1`) rejected like `0` via `TryReadSupportedSchemaVersion`; reachable only if a writer emits sub-minimum negative versions without SQL row guard.
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` with pipeline dead-letter JSON surfaces indistinguishable `Failed` on list/export (dead-letter branch precedes terminal failure); reachable when operators need dead-letter vs quality-reject badge parity on authority lists.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — signed numeric ordinal strings such as `"+5"` fail parse while unsigned `"5"` coerces to `Committed` for in-memory transition callers; reachable on hand-edited legacy status strings in tests/fixtures only (SQL enum-name allowlist on persist).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `WaitingForResults` with stale non-empty `GoldenManifestId` and no `ContextSnapshotId` surfaces `InProgress` via manifest progress-marker after in-progress legacy branch; reachable when coordination leaves orphan manifest id on active wait rows.
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` using all-lowercase `pipelinedeadletter` without canonical casing; reachable from hand-edited `LastFailureReason` JSON if case-insensitive compare regresses.
 
 2026-10-06 seed hunt (seed-only): reseeded core-authority-runs; cheap-disproof closed `PartiallyCompleted` + `ContextSnapshotId` in-progress mask candidate; added four new `(candidate)` rows; 43 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
 
@@ -21953,6 +21963,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks — **disproved 2026-09-08 (#1304):** `FailedRunRetryAdmission` retains stale snapshots by design; both legacy-status and progress-marker branches yield `InProgress`, matching `RunOperationProjector` Running; detail uses stage-based `AuthorityRunLifecyclePhaseResolver` outside zone paths (#1202); no list/export wrong outcome (`ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress`)
 
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with non-empty `ContextSnapshotId` surfaces `InProgress` because progress markers run before terminal failure resolution — **cheap-disproof 2026-10-06 seed hunt:** `TryResolveTerminalFailurePhase` includes `PartiallyCompleted` and runs before progress-marker branches; regression `ResolveFromRunHeader_partially_completed_with_context_snapshot_returns_failed_not_in_progress`.
+
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with non-empty `GoldenManifestId` surfaces `InProgress` via manifest progress-marker — **cheap-disproof 2026-10-07 seed hunt:** terminal failure resolution includes `PartiallyCompleted` and precedes golden-manifest branch; regression `ResolveFromRunHeader_partially_completed_with_golden_manifest_returns_failed_not_in_progress`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ReadyForCommit` with pipeline dead-letter JSON surfaces `InProgress` because in-progress legacy branch runs before dead-letter check — **cheap-disproof 2026-10-07 seed hunt:** `IsDeadLettered` is first; regression `ResolveFromRunHeader_ready_for_commit_with_pipeline_dead_letter_returns_failed_not_in_progress`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Created` with only `GoldenManifestId` returns `NotStarted` because `Created` is not an in-progress legacy status — **cheap-disproof 2026-10-07 seed hunt:** golden-manifest progress-marker branch yields `InProgress` for fixture rows; regression `ResolveFromRunHeader_created_with_golden_manifest_only_returns_in_progress_not_not_started`.
 
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Committed` with `GoldenManifestId == Guid.Empty` returns `NotStarted` because `IsCommittedWithGoldenManifest` treats empty guid as absent and no in-progress legacy branch matches `Committed` — **cheap-disproof 2026-10-06 thorough hunt:** SQL `dbo.Runs` CHECK prevents Committed without manifest on persisted rows; intentional for in-memory fixtures; regression `ResolveFromRunHeader_committed_without_golden_manifest_returns_not_started_for_in_memory_rows`.
 - [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — JSON with leading UTF-8 BOM before `{` is rejected by the leading-brace gate even though `JsonDocument.Parse` could accept the payload after BOM trim — **cheap-disproof 2026-10-06 thorough hunt:** no writer emits BOM (#1203); regression `IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace`.
