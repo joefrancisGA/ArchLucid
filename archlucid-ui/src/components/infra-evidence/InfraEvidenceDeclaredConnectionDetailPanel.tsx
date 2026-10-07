@@ -106,7 +106,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Provenance</dt>
-          <dd className="m-0">{formatSecurityEvidenceProvenanceKindLabel("HumanAssertion")}</dd>
+          <dd className="m-0">
+            {matchedConnection == null
+              ? "Provenance was not stored"
+              : formatSecurityEvidenceProvenanceKindLabel("HumanAssertion")}
+          </dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="text-al-text-secondary">Rationale</dt>

@@ -48,6 +48,8 @@ function stringOrDefault(value: unknown, fallback = ""): string {
 }
 
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
+  const questionText = stringOrDefault(raw.questionText).trim();
+
   return {
     dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
     snapshotId: stringOrDefault(raw.snapshotId),
@@ -57,7 +59,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     source: stringOrDefault(raw.source),
     scopeKind: stringOrDefault(raw.scopeKind),
     status: typeof raw.status === "string" ? raw.status : null,
-    questionText: stringOrDefault(raw.questionText),
+    questionText: questionText.length > 0 ? questionText : "Question text was not stored",
     resourceType: stringOrDefault(raw.resourceType),
     resourceName: stringOrDefault(raw.resourceName),
     reasonText: stringOrDefault(raw.reasonText),

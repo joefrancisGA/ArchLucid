@@ -167,10 +167,18 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
 
           {labels !== null ? (
             <div className="flex flex-wrap items-center gap-2">
-              {labels.severityLabel ? <SeverityTag severity={labels.severityLabel} /> : null}
+              {labels.severityLabel ? (
+                <SeverityTag severity={labels.severityLabel} />
+              ) : (
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Severity was not stored
+                </span>
+              )}
               {labels.statusLabel ? (
                 <StatusTag kind={findingStatusTagKind(labels.statusLabel)} label={labels.statusLabel} />
-              ) : null}
+              ) : (
+                <StatusTag kind="neutral" label="Status was not stored" />
+              )}
               {inspectPayload !== null ? (
                 <FindingClassificationChip
                   classification={resolveFindingInspectExportClassification(inspectPayload)}

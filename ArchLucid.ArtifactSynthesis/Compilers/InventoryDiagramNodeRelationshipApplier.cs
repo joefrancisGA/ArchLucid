@@ -675,7 +675,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
     {
         string endpoint1Name = ReadResourceName(endpoint1ArmId);
         string endpoint2Name = ReadResourceName(endpoint2ArmId);
-        string typeLabel = string.IsNullOrWhiteSpace(connectionType) ? "connection" : connectionType.Trim();
+        string typeLabel = string.IsNullOrWhiteSpace(connectionType)
+            ? "Relationship was not stored"
+            : connectionType.Trim();
 
         return $"{typeLabel}: {endpoint1Name} ↔ {endpoint2Name}";
     }

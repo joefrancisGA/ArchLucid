@@ -68,6 +68,9 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     });
 
     expect(result.synthesised).toBe(true);
+    expect(result.sentence).toContain(
+      "Assembled from stored rule and evidence fields, not a stored explanation.",
+    );
     expect(result.sentence).toContain('Policy rule "PHI minimization at intake"');
     expect(result.sentence).toContain("3 cited evidence references");
     expect(result.sentence).toContain("High severity finding");

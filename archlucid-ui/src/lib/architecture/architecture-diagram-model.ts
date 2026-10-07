@@ -228,7 +228,7 @@ function addFlowEdges(
         ? endpoints.label
         : trailingEdgeLabel.length > 0
           ? trailingEdgeLabel
-          : "data flow";
+          : "Relationship was not stored";
 
       edges.push({
         id: `edge_${edgeIndex}`,
@@ -251,7 +251,7 @@ function addFlowEdges(
           id: `edge_${edgeIndex}`,
           sourceId: endpoints.sourceId,
           targetId: endpoints.targetId,
-          label: endpoints.label.length > 0 ? endpoints.label : "data flow",
+          label: endpoints.label.length > 0 ? endpoints.label : "Relationship was not stored",
           provenance: flowSection.provenance,
           removed: false,
         });
