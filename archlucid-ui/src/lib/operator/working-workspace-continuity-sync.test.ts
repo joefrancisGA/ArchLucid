@@ -222,4 +222,14 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
 
     expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toEqual([]);
   });
+
+  it("drops favorite rows when runId is whitespace-only", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [{ runId: "   ", pinnedAtUtc: "2026-09-13T12:00:00Z" }],
+      recentViewEntries: [],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toEqual([]);
+  });
 });

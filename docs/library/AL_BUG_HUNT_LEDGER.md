@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; reaffirmed empty-server-`updatedAtUtc` hydrate policy, local operator scope headers, alert whitespace preview, and explicit server recents wipe; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `uses runId preview for awaiting-approval when name is omitted` and `clears local favorites when server continuity sends empty favoriteReviews`; reaffirmed sticky-demo scope guard, first explicit hydrate without local watermark, and `builds payload from local pins and recents`; 40 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; regressions `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen`, `Referenced_terraform_root_directories_match_python_ordering_guard_scope`, and `DefaultApplyOrderRoots_hardcoded_leaf_fixture_matches_live_apply_saas_multiRootSequence`; reaffirmed `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly`, `DefaultApplyOrderRoots_contains_no_duplicate_paths`, and `Compose_terraform_root_list_uses_contiguous_one_based_indices`; seeded five follow-on `(candidate)` rows; 45 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -31145,7 +31147,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 39 · **Bugs found:** 34 · **Consecutive dry hunts:** 11
+**Hunts:** 40 · **Bugs found:** 34 · **Consecutive dry hunts:** 12
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — treats empty server `updatedAtUtc` as always-hydrate even when local watermark exists — **cheap-disproof 2026-10-07 seed hunt #40:** explicit hydrate when server omits timestamp (IH-066); regression `hydrates when server omits updatedAtUtc even if local watermark exists`.
+- [x] (valid-no-repro) `getEffectiveBrowserProxyScopeHeaders` — local operator scope wins when all ids set — **cheap-disproof 2026-10-07 seed hunt #40:** intentional localStorage priority; regression `getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet`.
+- [x] (invalid) `resolveAttentionPartitionPreview` — `alerts` partition uses `alertId` when title whitespace-only — **cheap-disproof 2026-10-07 seed hunt #40:** `title?.trim()` yields `""` before `?? alertId`; regression `returns empty preview when alert title is whitespace-only`.
+- [x] (valid-no-repro) `toFavoriteReviewRows` — drops rows with empty `runId` on server hydrate — **cheap-disproof 2026-10-07 seed hunt #40:** fail-closed omit for malformed continuity rows; regression `drops favorite rows when runId is whitespace-only`.
+- [x] (valid-no-repro) `applyWorkingWorkspaceContinuityFromServer` — persists empty recent-view schema when server sends no recents — **cheap-disproof 2026-10-07 seed hunt #40:** IH-066 explicit hydrate overwrites device recents; regression `clears local recents when server continuity payload omits recent view entries`.
+
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — leaves local synced watermark unchanged when server `updatedAtUtc` is empty after hydrate — locus: `writeLocalSyncedAtUtc` guard ~172–176; input: hydrate with `updatedAtUtc: ""` while local watermark set.
+- [ ] (candidate) `deriveAttentionSurfaceCounts` — omits surface keys when optional counts are `NaN` — locus: `normalizeOptionalCount` ~15–17; input: `unfinishedWorkRailCount: Number.NaN`.
+- [ ] (candidate) `deriveAttentionSurfaceCounts` — clamps negative nav badge counts to zero — locus: `Math.max(0, Math.trunc(value))` ~19; input: `alertsOpenCount: -3`.
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `alerts` uses `alertId` when `title` is omitted — locus: `?? topAlert?.alertId` ~45–46; input: `topAlert` with `alertId` only.
+- [ ] (candidate) `toFavoriteReviewRows` — retains pin-only favorite rows (runId + pinnedAt, no title) on server hydrate — locus: return `{ runId, pinnedAt }` ~77; input: server row without title/architectureId.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `uses runId preview for awaiting-approval when name is omitted`, `clears local favorites when server continuity sends empty favoriteReviews`; 40 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
