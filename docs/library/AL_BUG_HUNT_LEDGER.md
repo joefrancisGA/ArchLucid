@@ -5788,6 +5788,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
+**Hunts:** 51 · **Bugs found:** 22 · **Consecutive dry hunts:** 5
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 170 scoped tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `TryNormalize` — zero-width space (U+200B) inside path segments passes homoglyph and control scans — **cheap-disproof 2026-10-07 seed hunt #51:** format character is not control/homoglyph; no open-redirect shape; regression `TryNormalize_accepts_zero_width_space_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `ContainsDotDotSegment` — uses `GetPathWithoutQueryOrFragment` only — **cheap-disproof 2026-10-07 seed hunt #51:** `..` literals confined to fragment are not path traversal; regression `TryNormalize_accepts_dot_dot_literal_only_in_fragment_not_path_segments`.
+- [x] (valid-no-repro) `ContainsAtSignInPath` — ignores `@` homoglyphs in fragment — **cheap-disproof 2026-10-07 seed hunt #51:** path-portion userinfo guard by design; fullwidth commercial-at in fragment is not path; regression `TryNormalize_accepts_fullwidth_commercial_at_in_fragment_not_path_portion` (parity `TryNormalize_accepts_at_sign_in_query_or_fragment_not_path`).
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — accepts lone `/` without further canonicalization — **cheap-disproof 2026-10-07 seed hunt #51:** intentional home return path; regression `TryNormalize_accepts_safe_relative_paths` (`"/"` inline).
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — `ContainsTrailingPercentAfterDecodeCap` rejects any remaining `%` — **cheap-disproof 2026-10-07 seed hunt #51:** conservative rejection when decode leaves malformed `%` tail in query (`50%off`); regression `TryNormalize_rejects_benign_query_percent_literal_when_decode_leaves_malformed_escape` (over-rejection acceptable vs open redirect).
+
+- [ ] (candidate) `TryNormalize` — U+200C/U+200D (ZWNJ/ZWJ) inside path segments mirror ZWSP acceptance — locus: `ContainsControlCharacter` / homoglyph inventories; input: `/reviews\u200C/1` bookmarked from rich-text copy.
+- [ ] (candidate) `TryNormalizeRelativePath` — single-dot path segments (`/foo/./bar`) are not collapsed before return — locus: no `.` segment normalization; input: `/signin/./dashboard` from legacy router links.
+- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — percent-encoded ZWSP (`%E2%80%8B`) decodes to accepted in-path separator — locus: decode loop + ZWSP acceptance; input: `/reviews%E2%80%8B/1`.
+- [ ] (candidate) `ContainsControlCharacter` — NUL only in fragment (`/reviews#%00note`) may decode without path-portion scan — locus: fragment after `#` excluded from `GetPathWithoutQueryOrFragment`; input: percent-encoded NUL in marketing fragment tails.
+- [ ] (candidate) `TryNormalize` — no explicit max-length budget on return paths — locus: `TryNormalize` accepts arbitrarily long safe relative strings; input: megabyte `returnPath` query on sign-in redirect endpoints.
+
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 166 scoped tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `TryNormalizeRelativePath` — leading U+FEFF before `/` — **cheap-disproof 2026-10-07 seed hunt:** path does not start with `/` after trim; safe rejection; regression `TryNormalize_rejects_when_leading_byte_order_mark_precedes_slash`.
@@ -5795,12 +5811,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ContainsDotHomoglyph` — dot homoglyph pairs in fragment — **cheap-disproof 2026-10-07 seed hunt:** not path `..` segments but still rejected; regression `TryNormalize_rejects_when_fragment_contains_dot_homoglyph_conservative_full_string_scan`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%7F` (DEL) in path segment — **cheap-disproof 2026-10-07 seed hunt:** post-decode control rejection; regression `TryNormalize_rejects_percent_encoded_del_control_character_in_path_segment`.
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded slash homoglyph in fragment — **cheap-disproof 2026-10-07 seed hunt:** decode loop re-runs homoglyph checks; regression `TryNormalize_rejects_when_fragment_decodes_to_slash_homoglyph_after_percent_decode`.
-
-- [ ] (candidate) `TryNormalize` — zero-width space (U+200B) inside path segments passes homoglyph and control scans — reachable when bookmarked return URLs copy invisible separators (`/reviews\u200B/1`).
-- [ ] (candidate) `ContainsDotDotSegment` — uses `GetPathWithoutQueryOrFragment` only — reachable when `..` appears solely after `#` (`/reviews#section=..`) while path portion stays safe.
-- [ ] (candidate) `ContainsAtSignInPath` — ignores `@` in fragment — reachable when marketing fragments embed commercial-at homoglyphs (`/reviews#owner=\uFF20`) that full-string `@` scan does not partition.
-- [ ] (candidate) `TryNormalizeRelativePath` — accepts lone `/` without further canonicalization — reachable when sign-in flows round-trip root return paths.
-- [ ] (candidate) `ContainsResidualEncodedTraversal` — `ContainsTrailingPercentAfterDecodeCap` rejects any remaining `%` — reachable when benign query values intentionally retain percent literals after eight decode passes (`/reviews?pct=50%25off`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
@@ -5837,7 +5847,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07

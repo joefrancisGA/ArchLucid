@@ -480,4 +480,28 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/safe#%EF%BC%8F").Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalize_accepts_zero_width_space_inside_path_segment_without_open_redirect_shape()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews\u200B/1").Should().Be("/reviews\u200B/1");
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_dot_dot_literal_only_in_fragment_not_path_segments()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews#section=..").Should().Be("/reviews#section=..");
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_fullwidth_commercial_at_in_fragment_not_path_portion()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews#owner=\uFF20").Should().Be("/reviews#owner=\uFF20");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_benign_query_percent_literal_when_decode_leaves_malformed_escape()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews?pct=50%25off").Should().BeNull();
+    }
 }
