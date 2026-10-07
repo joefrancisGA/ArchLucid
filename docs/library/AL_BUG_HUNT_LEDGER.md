@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive dry hunt emptied open rows; no hunt-ready row promoted; seeded five `(candidate)` rows; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
+
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (chained populated aggregates on inner chain, empty-shell flatten sibling, jitter span positivity, concurrent `ExecuteAsync` isolation, bounded policy delay indices); regressions `ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate`, `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`, `ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers`, and `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices`; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after empty-shell chain hit; cheap-disproof closed promotion (top-level `AggregateException` with empty sibling flattens away so transient SQL inner still retries); no hunt-ready row promoted; seeded five `(candidate)` rows; 74 scoped transient-retry tests passed (56 Persistence + 18 Application).
