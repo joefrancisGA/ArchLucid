@@ -1,5 +1,3 @@
-{"at":"2026-09-07T00:12:53.071057Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-07T00:16:59.3802282Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T00:21:07.9861768Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T00:24:58.8982386Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T00:29:25.656445Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8787,3 +8785,4 @@
 {"at":"2026-10-06T23:54:08.252256Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
 {"at":"2026-10-07T00:00:33.3161571Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-07T00:12:17.9955929Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
+{"at":"2026-10-07T00:17:03.6400064Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
