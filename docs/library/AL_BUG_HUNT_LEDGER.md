@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; regression `EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit`; reaffirmed `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`, `TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write`, and prior MERGE `UpdatedUtc` audit-touch row; seeded five follow-on `(candidate)` rows; 55 scoped tenant-settings tests passed (`SqlTenantSettingsRepository`, `TenantSettings_`, `InMemoryTenantSettings`, `RunAnalyzers=false`).
+
 2026-10-07 thorough hunt (dry): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; regressions `returns assigned finding title verbatim without trim for assigned-to-me partition`, `clears local recents when server continuity payload omits recent view entries`, and `drops favorite rows when pinnedAtUtc is whitespace-only`; reaffirmed `getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers` and `refreshes dependent client state from cross-tab storage without rewriting storage`; seeded five follow-on `(candidate)` rows; 32 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five open `(candidate)` rows (duplicate TOCTOU header/pin rows, intentional Simulator bypass, Warned-over-rejected duplicate policy, caller `GoldenManifestId` parity, lone `QualityRejected`+`Accepted` drift); reaffirmed `GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`, `Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace`, `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`, and `GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application quality-gate + 39 Core selector, `RunAnalyzers=false`).
@@ -4214,6 +4216,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
+**Hunts:** 43 · **Bugs found:** 7 · **Consecutive dry hunts:** 5
+
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 55 scoped tenant-settings tests passed.
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SqlResilientOperationExecutor` retry advances `UpdatedUtc` twice within one logical upsert — **cheap-disproof 2026-10-07 thorough hunt:** successful retry after transient deadlock replays MERGE audit touch by design; extends 2026-10-07 `UpdatedUtc` on matched UPDATE row.
+- [x] (invalid) `CachingTenantSettingsRepository` — hybrid TTL expiry repopulates stale generation-stamped cache entry — **cheap-disproof 2026-10-07 thorough hunt:** `BuildCacheKey` embeds current `CacheGenerations` counter; TTL eviction reloads via `GetOrCreateAsync` at the live generation; regression `TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write`.
+- [x] (invalid) `TenantSettingsWriteGuard.EnsureSettingValueLength` — supplementary-plane characters exceed `NVARCHAR(512)` while `Trim().Length` is 512 — **cheap-disproof 2026-10-07 thorough hunt:** SQL Server `NVARCHAR` length counts UTF-16 code units matching .NET `string.Length`; regression `EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit`.
+- [x] (invalid) `SqlTenantSettingsRepository.DeleteCoreAsync` — concurrent upsert loses to delete without transaction — **cheap-disproof 2026-10-07 thorough hunt:** last-writer SQL semantics; wrapper generation bumps and write-in-flight bypass expose latest committed value; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`.
+- [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — missing read-time `Trim()` vs SQL — **cheap-disproof 2026-10-07 thorough hunt:** duplicate of 2026-10-06 row; `UpsertAsync` stores trimmed values and rejects whitespace-only writes; no production path seeds interior-whitespace-only in-memory rows.
+
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingValue.Trim()` on write vs `value.Trim()` on read hides interior whitespace legacy rows from operator settings consumers — locus: asymmetric trim (`SqlTenantSettingsRepository.cs` ~68 vs ~107).
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — `TenantSettingCacheEntry.IsPresent=false` negative cache survives hybrid TTL expiry when generation unchanged — locus: `GetOrCreateAsync` miss slot (`CachingTenantSettingsRepository.cs` ~43–44).
+- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — accepts JSON with `\u0000` embedded within the 512 trim budget — locus: length guard without scalar validation (`TenantSettingsWriteGuard.cs`).
+- [ ] (candidate) `SqlTenantSettingsRepository` — `SqlResilientOperationExecutor` surfaces `OperationCanceledException` as retry-eligible transient failure — locus: `ExecuteAsync` policy vs `CancellationToken` on MERGE (`SqlTenantSettingsRepository.cs` ~33–36).
+- [ ] (candidate) `InMemoryTenantSettingsRepository` — concurrent `UpsertAsync`/`DeleteAsync` on same slot without generation stamps can serve stale reads in dev-only stacks — locus: `ConcurrentDictionary` last-writer (`InMemoryTenantSettingsRepository.cs`).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget`, `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`, and `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`; seeded five follow-on `(candidate)` rows; 54 scoped tenant-settings tests passed.
 
 - **id:** tenant-settings-sql
@@ -4222,9 +4240,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
@@ -4261,12 +4279,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — cancel during cold load plus concurrent upsert generation advance — **cheap-disproof 2026-10-07 thorough hunt:** post-cancel `TryGetAsync` still reads wrapper upsert; extends #1178; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`.
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` — read `value.Trim()` vs legacy interior whitespace rows — **cheap-disproof 2026-10-07 thorough hunt:** intentional read normalization; `UpsertAsync` rejects whitespace-only writes; legacy direct-SQL rows are ops hygiene (parity #4139 / #3598).
 - [x] (invalid) `TenantSettingKeyNormalizer.Normalize` — workspace-suffixed key hex casing — **cheap-disproof 2026-10-07 thorough hunt:** `ToLowerInvariant` is intentional; production keys use `{constant}.{workspaceId:D}`; regression `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`.
-
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SqlResilientOperationExecutor` retries transient SQL on MERGE so a single logical upsert can advance `UpdatedUtc` more than once — locus: `ExecuteAsync` wrapper; input: deadlock on `dbo.TenantSettings` MERGE; wrong outcome: duplicate audit timestamps within one caller attempt; mechanism: executor replay vs idempotent MERGE semantics.
-- [ ] (candidate) `CachingTenantSettingsRepository` — `HybridHotPathReadCache` absolute expiration evicts generation-stamped keys while `CacheGenerations` counter remains, so a stale hybrid entry could be repopulated at an old generation — locus: `BuildCacheKey` + TTL; input: upsert, TTL expiry without wrapper write; wrong outcome: serve pre-expiry miss after SQL row exists; mechanism: TTL vs generation bump ordering.
-- [ ] (candidate) `TenantSettingsWriteGuard` — accepts `settingValue` whose `Trim()` length is 512 but UTF-16 scalar counts exceed `NVARCHAR(512)` for supplementary-plane characters — locus: `EnsureSettingValueLength`; input: surrogate-pair-heavy JSON within 512 `Length`; wrong outcome: SQL truncation or MERGE failure; mechanism: .NET char length vs SQL NVARCHAR length (production keys are ASCII JSON today).
-- [ ] (candidate) `SqlTenantSettingsRepository.DeleteCoreAsync` — DELETE succeeds while concurrent `UpsertAsync` on same normalized key is in flight — locus: MERGE vs DELETE ordering without transaction; input: parallel delete/upsert wrappers; wrong outcome: row absent after upsert wins; mechanism: last-writer SQL race (caller orchestration).
-- [ ] (candidate) `InMemoryTenantSettingsRepository.TryGetAsync` — does not apply `value.Trim()` on read so dev stacks diverge from SQL interior-whitespace normalization — locus: in-memory read path; input: legacy whitespace-padded value seeded only in tests; wrong outcome: parity gap vs `SqlTenantSettingsRepository`; mechanism: in-memory store returns raw string.
 
 - [x] (valid-no-repro) `HybridHotPathReadCache.GetOrCreateAsync` + `CachingTenantSettingsRepository.TryGetAsync` — cancellation during inner factory — **cheap-disproof 2026-10-05 thorough hunt:** canceled cold-cache `TryGetAsync` does not block post-upsert reads; regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`.
 - [x] (invalid) `CachingTenantSettingsRepository.TryGetAsync` — negative cache survives out-of-band `dbo.TenantSettings` mutation — **cheap-disproof 2026-10-05 thorough hunt:** read-through cache by design; wrapper upsert/delete bumps generation; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write` (parity #1359).

@@ -109,6 +109,18 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit()
+    {
+        string value = string.Concat(Enumerable.Repeat("😀", 256));
+
+        value.Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength);
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(value);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void Serialized_allowed_engine_set_with_twelve_aliases_fits_migration_setting_value_limit()
     {
         List<string> aliasIds = Enumerable
