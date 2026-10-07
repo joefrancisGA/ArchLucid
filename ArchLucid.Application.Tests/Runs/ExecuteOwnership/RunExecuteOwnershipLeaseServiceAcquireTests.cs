@@ -92,7 +92,7 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
 
         try
         {
-            await firstAcquire.ConfigureAwait(false);
+            await firstAcquire;
         }
         catch (Exception ex)
         {
@@ -101,7 +101,7 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
 
         try
         {
-            await secondAcquire.ConfigureAwait(false);
+            await secondAcquire;
         }
         catch (Exception ex)
         {
