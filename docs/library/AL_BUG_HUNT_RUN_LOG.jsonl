@@ -1,4 +1,3 @@
-{"at":"2026-09-07T10:27:42.1768503Z","zoneId":"api-tenancy-workspaces","outcome":"dry"}
 {"at":"2026-09-07T10:34:29.3465945Z","zoneId":"quick-scan-distributed-concurrency","outcome":"hit"}
 {"at":"2026-09-07T10:40:11.0761927Z","zoneId":"quick-scan-distributed-concurrency","outcome":"dry"}
 {"at":"2026-09-07T10:49:29.1529949Z","zoneId":"run-execute-ownership","outcome":"hit"}
@@ -8763,3 +8762,4 @@
 {"at":"2026-10-07T10:09:30.3118792Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T10:20:16.7928597Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T10:24:19.8436406Z","zoneId":"ui-operator-lib","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T10:33:49.0034061Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
