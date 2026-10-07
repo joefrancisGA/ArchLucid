@@ -16,5 +16,14 @@ export function useHelpDocsIndexQuery() {
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,
+    refetchOnMount: (query) => {
+      const data = query.state.data;
+
+      if (Array.isArray(data) && data.length === 0) {
+        return "always";
+      }
+
+      return true;
+    },
   });
 }

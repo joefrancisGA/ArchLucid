@@ -139,6 +139,29 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
   return decodedPath;
 }
 
+function docIndexMergeDedupeKey(url: string): string {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+      }
+
+      parsed.pathname = decodeDocIndexPathForDedupe(parsed.pathname);
+
+      return `https://${parsed.host}${parsed.pathname}`;
+    } catch {
+      return normalizeDocIndexUrlForDedupe(url);
+    }
+  }
+
+  return normalizeDocIndexUrlForDedupe(url);
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -149,16 +172,16 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    claimedUrls.add(normalizeDocIndexUrlForDedupe(e.url));
+    claimedUrls.add(docIndexMergeDedupeKey(e.url));
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
 
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
-    const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+    const mergeDedupeKey = docIndexMergeDedupeKey(e.url);
     const duplicateNormalizedPath =
-      normalizedUrl !== "/help" && claimedUrls.has(normalizedUrl);
+      mergeDedupeKey !== "/help" && claimedUrls.has(mergeDedupeKey);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;
@@ -166,8 +189,8 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
     seenKeys.add(k);
 
-    if (normalizedUrl !== "/help") {
-      claimedUrls.add(normalizedUrl);
+    if (mergeDedupeKey !== "/help") {
+      claimedUrls.add(mergeDedupeKey);
     }
 
     merged.push(e);

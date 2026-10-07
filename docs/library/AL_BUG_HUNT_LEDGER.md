@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `ui-help-docs` — `mergeDocIndex` compared `https://` and `//` outbound urls as distinct `claimedUrls` keys and `useHelpDocsIndexQuery` cached successful empty arrays across remounts within `staleTime`; canonical `docIndexMergeDedupeKey` for absolute hosts and `refetchOnMount: 'always'` when cached data is `[]`; cheap-disproof closed three other seeded `(candidate)` rows (Unicode category labels still dedupe via shared path key, hash-only search tokens match raw `e.url`, Escape clear does not emit `/help?`); regressions `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`, `does not duplicate fetched rows when category labels differ only by Unicode normalization`, `filters rows when the search query matches only the hash fragment on the doc-index url`, `clears search via Escape without leaving a bare question mark in the help hub url`, and `refetches the doc-index after remount when the prior response was an empty array`; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-07 thorough hunt (hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` kept `https://` query/hash and raw percent-encoding in dedupe keys, so outbound doc-index rows duplicated for utm-only variants and `/help/foo` vs `/help/%66oo`; strip search/hash on absolute URLs and `decodeURI` path segments before `claimedUrls` membership; cheap-disproof closed three other seeded `(candidate)` rows (filter still matches doc-index urls that include `?`, debounced `q` sync preserves non-`q` params, large-index filter correctness vs localize memoization); regressions `does not duplicate fetched external doc links when two rows differ only by query string on the same https url`, `does not duplicate fetched doc links when two rows differ only by percent-encoding on the same path`, `filters rows when the search query includes query-string tokens present on the doc-index url`, `preserves non-q URL parameters when debounced search sync updates q`, and `filters a large fetched doc-index by title without dropping unrelated rows when localize is identity`; seeded five follow-on `(candidate)` rows; 42 scoped `HelpDocsClient` vitest tests passed.
 
 2026-10-07 thorough hunt (hit): `ui-help-docs` — `normalizeDocIndexUrlForDedupe` left query/hash on relative operator paths, so fetched doc-index rows such as `/architecture/reviews?tab=active` duplicated static `/architecture/reviews`; strip `?` and `#` before trailing-slash trim for relative paths; cheap-disproof closed four other seeded `(candidate)` rows (lone `/` filter breadth, debounced `q` sync on unrelated param churn, whitespace-padded external `linkProps` parity, category anchor slug not in haystack); regressions `does not duplicate a static quick link when fetched index repeats the path with only a query string`, `does not duplicate a static quick link when fetched index repeats the path with only a hash fragment`, `matches every quick link when the filter token is a lone slash`, `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged`, `classifies external doc links consistently when url has surrounding whitespace`, and `does not match Getting Started rows when search uses only the category anchor slug`; seeded five follow-on `(candidate)` rows; 37 scoped `HelpDocsClient` vitest tests passed.
@@ -8325,7 +8327,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
-2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved absolute-url query/hash and percent-encoding dedupe gaps; seeded five follow-on `(candidate)` rows; 42 scoped `HelpDocsClient` vitest tests passed.
+2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved scheme-relative vs https dedupe and empty doc-index cache remount gaps; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
 
 - **id:** ui-help-docs
 - **status:** open
@@ -8333,11 +8335,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 30
-- **bugs-found:** 15
+- **hunts:** 31
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — https and percent-encoded doc-index paths duplicated in merge dedupe
+- **last-bug:** 2026-10-07 — https vs scheme-relative dedupe and empty doc-index cache on remount
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8436,11 +8438,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `helpHubSearchHrefFromSearch` — debounced sync may drop non-`q` parameters when the operator types a new filter after landing on `/help?tab=…&q=…` — **cheap-disproof 2026-10-07 thorough hunt:** `URLSearchParams` preserves other keys; regression `preserves non-q URL parameters when debounced search sync updates q`.
 - [x] (valid-no-repro) `HelpDocsClient` — `localize()` is invoked per filter pass without memoizing per entry, so large merged indexes may stutter on each keystroke — **cheap-disproof 2026-10-07 thorough hunt:** functional correctness holds on ~120-row index; perf memoization is optional UX, not a defect; regression `filters a large fetched doc-index by title without dropping unrelated rows when localize is identity`.
 
-- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — scheme-relative `//host/path?query` rows may still render distinct cards from `https://host/path` when doc-index mixes schemes for the same outbound destination.
-- [ ] (candidate) `mergeDocIndex` — duplicate `category|title|url` keys with different Unicode normalization (composed vs decomposed category labels) may bypass `seenKeys` and render twice; reachable when doc-index categories include NFC/NFD variants.
-- [ ] (candidate) `HelpDocsClient` filtered haystack — searching for a hash fragment token present only in `e.url` may fail when the relative path dedupe strips `#` from `normalizedUrl` and the operator query omits the raw url substring; reachable when doc-index rows use in-page anchors in urls.
-- [ ] (candidate) `helpHubClearSearchHrefFromSearch` — clearing search via Escape may leave a bare `?` when non-`q` params were already absent but `q` was the only param removed inconsistently; reachable on `/help?q=` edge navigation.
-- [ ] (candidate) `useHelpDocsIndexQuery` — stale cached empty array from a prior failed fetch may suppress refreshed doc-index rows until gc window expires; reachable when operators recover from transient 500 on `/doc-index.json`.
+- [x] (proven) `normalizeDocIndexUrlForDedupe` / `mergeDocIndex` — scheme-relative `//host/path` rows rendered distinct cards from `https://host/path` when doc-index mixed schemes — **hit 2026-10-07 thorough hunt:** `docIndexMergeDedupeKey` canonicalizes absolute outbound urls to `https://host/path` for `claimedUrls`; regression `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`.
+- [x] (valid-no-repro) `mergeDocIndex` — duplicate `category|title|url` keys with different Unicode normalization (composed vs decomposed category labels) may bypass `seenKeys` and render twice — **cheap-disproof 2026-10-07 thorough hunt:** shared path still collapses via `claimedUrls`; regression `does not duplicate fetched rows when category labels differ only by Unicode normalization`.
+- [x] (valid-no-repro) `HelpDocsClient` filtered haystack — searching for a hash fragment token present only in `e.url` may fail when the relative path dedupe strips `#` from `normalizedUrl` — **cheap-disproof 2026-10-07 thorough hunt:** raw `e.url` remains in haystack; regression `filters rows when the search query matches only the hash fragment on the doc-index url`.
+- [x] (valid-no-repro) `helpHubClearSearchHrefFromSearch` — clearing search via Escape may leave a bare `?` when `q` was the only param — **cheap-disproof 2026-10-07 thorough hunt:** empty `URLSearchParams` yields `/help`; regression `clears search via Escape without leaving a bare question mark in the help hub url`.
+- [x] (proven) `useHelpDocsIndexQuery` — stale cached empty array from a prior successful empty response suppressed refreshed doc-index rows on remount within `staleTime` — **hit 2026-10-07 thorough hunt:** `refetchOnMount: 'always'` when cached data is `[]`; regression `refetches the doc-index after remount when the prior response was an empty array`.
+
+- [ ] (candidate) `docIndexMergeDedupeKey` — `http://` and `https://` rows for the same host/path may still dedupe as distinct outbound cards when doc-index mixes schemes on the same marketing link.
+- [ ] (candidate) `mergeDocIndex` — rows that share a merge dedupe key but use different `http://` vs `https://` href strings may render the second row when titles differ only by tracking suffix; reachable when doc-index alternates schemes across duplicate titles.
+- [ ] (candidate) `HelpDocsClient` — successful empty doc-index responses still show the amber empty warning even after a remount refetch populates rows until the first fetch settles; reachable on slow networks when operators read the warning as current state.
+- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — uppercase percent-encoding (`%2F`) in relative paths may bypass `decodeURI` dedupe against lowercase `%2f` variants; reachable when doc-index paths mix encoding case.
+- [ ] (candidate) `helpHubSearchHrefFromSearch` — setting `q` to whitespace-only may delete the param via `trim()` while the controlled input still shows spaces until the next URL sync effect; reachable when operators paste padded queries.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 
