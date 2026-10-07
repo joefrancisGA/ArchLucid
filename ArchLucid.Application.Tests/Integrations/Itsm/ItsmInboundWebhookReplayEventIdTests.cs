@@ -31,4 +31,16 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
 
         id.Should().Be("Jira:KEY-1:Done");
     }
+
+    [Fact]
+    public void Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback()
+    {
+        string id = ItsmInboundWebhookReplayEventId.Resolve(
+            "arch-delivery-42",
+            "Jira",
+            "KEY-1",
+            "Done");
+
+        id.Should().Be("arch-delivery-42");
+    }
 }

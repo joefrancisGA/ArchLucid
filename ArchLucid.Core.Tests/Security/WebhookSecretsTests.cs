@@ -83,6 +83,17 @@ public sealed class WebhookSecretsTests
             .BeTrue();
     }
 
+    [Fact]
+    public void TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled()
+    {
+        WebhookSecrets.TimestampWithinSkew(
+                TimeProvider.System.GetUtcNow(),
+                "not-unix-seconds",
+                120)
+            .Should()
+            .BeFalse();
+    }
+
     private static string ComputeHmacHex(string secret, string body)
     {
         byte[] key = System.Text.Encoding.UTF8.GetBytes(secret);

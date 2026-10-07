@@ -111,6 +111,21 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task RememberAsync_after_TryClaim_blocks_second_claim_without_releasing_first()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool claimed = await sut.TryClaimAsync(TenantA, "Jira", "delivery-remember", CancellationToken.None);
+        await sut.RememberAsync(TenantA, "Jira", "delivery-remember", CancellationToken.None);
+        bool duplicate = await sut.TryClaimAsync(TenantA, "Jira", "delivery-remember", CancellationToken.None);
+
+        claimed.Should().BeTrue();
+        duplicate.Should().BeFalse();
+        (await sut.HasSeenAsync(TenantA, "Jira", "delivery-remember", CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Delayed_eviction_callback_does_not_remove_a_reclaimed_event()
     {
         List<PostEvictionCallbackRegistration> callbacks = [];

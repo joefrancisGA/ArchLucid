@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (delivery-id precedence, malformed timestamp skew, empty human-review trim, RememberAsync claim interaction, unscoped 401 ambiguity); seeded five follow-on `(candidate)` rows; 61 scoped `ItsmInboundWebhook` tests passed (53 Application + 8 Persistence).
+
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — re-read inbound controller, facade, JSON readers, pipeline, and replay guard; cheap-disproof closed five promotion attempts (Jira key trim, uppercase sys_id, synthetic replay trim, provider case dedupe, array JSON root); seeded five follow-on `(candidate)` rows; 56 scoped `ItsmInboundWebhook` tests passed (49 Application + 7 Persistence).
 
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows (TaskCanceled aggregate sibling, InvalidCast mixed nested aggregate ordering, outer poll/attempt delay sums vs `RetryBudget`, void/generic overload parity, socket transport without transient SQL); regressions `ExecuteAsync_generic_overload_does_not_retry_aggregate_with_deadlock_and_task_canceled_siblings`, `ExecuteAsync_does_not_retry_mixed_aggregate_behind_invalid_cast_exception_wrapper`, `Snapshot_conflict_outer_poll_and_attempt_delay_totals_each_stay_below_retry_budget`, `ExecuteAsync_void_and_generic_overloads_match_attempt_counts_for_nested_all_transient_aggregate`, and `ExecuteAsync_does_not_retry_bare_socket_exception`; seeded five follow-on `(candidate)` rows; 111 scoped transient-retry tests passed (86 Persistence + 25 Application).
@@ -13213,7 +13215,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 23 · **Bugs found:** 19 · **Consecutive dry hunts:** 2
+**Hunts:** 24 · **Bugs found:** 19 · **Consecutive dry hunts:** 3
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback`, `TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled`, `ProcessAsync_returns_unauthorized_when_timestamp_skew_enabled_and_header_is_malformed`, `MapToHumanReview_returns_unmapped_when_configured_enum_value_is_whitespace_only`, `RememberAsync_after_TryClaim_blocks_second_claim_without_releasing_first`, and `ProcessAsync_returns_unauthorized_when_unscoped_and_deployment_wide_secrets_disabled`; seeded five follow-on `(candidate)` rows; 61 scoped `ItsmInboundWebhook` tests passed (53 Application + 8 Persistence).
+
+- [x] (invalid) `ItsmInboundWebhooksController.ResolveDeliveryId` — ArchLucid delivery header vs Atlassian identifier precedence — **cheap-disproof 2026-10-07 seed hunt #24:** explicit delivery id is authoritative for replay keys; controller prefers `X-ArchLucid-Webhook-Delivery-Id` by design; regression `Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback`.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — malformed timestamp treated as absent — **cheap-disproof 2026-10-07 seed hunt #24:** non-numeric values fail `TimestampWithinSkew` and return HTTP unauthorized; whitespace-only headers still skip optional skew; regressions `TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled` and `ProcessAsync_returns_unauthorized_when_timestamp_skew_enabled_and_header_is_malformed`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — mapped human review trims to empty without rejected audit — **cheap-disproof 2026-10-07 seed hunt #24:** configured maps ignore whitespace-only enum values; mappers return `mapped: false` before pipeline empty-string guard; regression `MapToHumanReview_returns_unmapped_when_configured_enum_value_is_whitespace_only`.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.RememberAsync` — `AddOrUpdate` evicts in-flight `TryClaimAsync` token — **cheap-disproof 2026-10-07 seed hunt #24:** `RememberAsync` keeps dedupe while blocking duplicate claims; regression `RememberAsync_after_TryClaim_blocks_second_claim_without_releasing_first` (generation-safe eviction covered by `Delayed_eviction_callback_does_not_remove_a_reclaimed_event`).
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade` — unscoped routes cannot distinguish missing deployment secret from wrong vendor token — **cheap-disproof 2026-10-07 seed hunt #24:** both surface HTTP 401 by design when deployment-wide secrets are disabled; regression `ProcessAsync_returns_unauthorized_when_unscoped_and_deployment_wide_secrets_disabled`.
+
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryVerifyWebhookSecurity` — `RequireBodyHmacSignature` enabled with valid vendor token but missing `X-ArchLucid-Signature` may still reach JSON parse when HMAC is disabled in test config only.
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — whitespace-only `X-ArchLucid-Timestamp` skips skew validation while malformed non-whitespace values reject; operators may misconfigure clocks thinking blank timestamps are rejected.
+- [ ] (candidate) `ItsmInboundTenantConnectorCredentialResolver` — tenant-scoped Jira route with ServiceNow connector secret configured returns 401 without indicating provider mismatch.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — missing correlation row returns `Accepted=true` with null audit so vendors cannot distinguish orphan keys from successful no-ops.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.HasSeenAsync` — `ReleaseAsync` followed immediately by concurrent `TryClaimAsync` from two workers may both observe `HasSeen=false` before either claim wins.
 
 2026-10-07 seed hunt (seed-only): re-read `ItsmInboundWebhooksController`, `ItsmInboundWebhookFacade`, JSON readers, process pipeline, and `MemoryCacheItsmInboundWebhookReplayGuard`; no hunt-ready row promoted; cheap-disproof closed five promotion attempts; regressions `TryRead_trims_whitespace_from_issue_key_before_format_validation`, `TryRead_accepts_uppercase_hex_sys_id`, `BuildSynthetic_trims_provider_external_key_and_status`, `TryClaimAsync_treats_provider_name_case_variants_as_same_claim`, and `TryGetPropertyCaseInsensitive_returns_false_when_root_is_json_array`; seeded five follow-on `(candidate)` rows; 56 scoped `ItsmInboundWebhook` tests passed (49 Application + 7 Persistence).
 
@@ -13223,21 +13239,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — provider name casing bypasses replay dedupe — **cheap-disproof 2026-10-07 seed hunt #23:** `BuildCacheKey` lowercases provider; regression `TryClaimAsync_treats_provider_name_case_variants_as_same_claim`.
 - [x] (valid-no-repro) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — JSON array webhook roots throw during property lookup — **cheap-disproof 2026-10-07 seed hunt #23:** non-object roots return false without throwing; regression `TryGetPropertyCaseInsensitive_returns_false_when_root_is_json_array` (array root rejection covered by `TryRead_rejects_non_object_json_without_throwing`).
 
-- [ ] (candidate) `ItsmInboundWebhooksController.ResolveDeliveryId` — when both `X-ArchLucid-Webhook-Delivery-Id` and `X-Atlassian-Webhook-Identifier` are present, controller always prefers ArchLucid header even if Atlassian id is fresher for Jira dedupe.
-- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — malformed `X-ArchLucid-Timestamp` header when skew is enabled may be treated as absent instead of unauthorized.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — mapped human review that trims to empty string returns `Accepted=false` with null audit (line 117–119) without `unknown_status` rejected audit.
-- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.RememberAsync` — `AddOrUpdate` replaces an in-flight `TryClaimAsync` claim token so a prior entry eviction callback could clear an active processing claim.
-- [ ] (candidate) `ItsmInboundWebhookFacade` — unscoped routes with `AllowDeploymentWideWebhookSecrets=false` return HTTP 401 without distinguishing missing tenant connector config from wrong vendor token.
-
 - **id:** itsm-inbound-webhooks
 - **status:** open
 - **impact:** high
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
