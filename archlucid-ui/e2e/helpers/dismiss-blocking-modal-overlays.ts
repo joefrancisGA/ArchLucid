@@ -55,3 +55,16 @@ export async function clickThroughBlockingOverlays(
   await dismissBlockingModalOverlays(page);
   await target.click({ timeout: 15_000, force: true });
 }
+
+/** Opens a dialog from a control without Escaping after the click (which would close the new dialog). */
+export async function clickControlThatOpensDialog(
+  page: Page,
+  target: Locator,
+  dialog: Locator,
+): Promise<void> {
+  await dismissBlockingModalOverlays(page);
+  // A closing Radix backdrop still intercepts hits after data-state leaves "open"; force-click
+  // skips Playwright's actionability check and can land on that overlay instead of the control.
+  await target.click({ timeout: 15_000 });
+  await dialog.waitFor({ state: "visible", timeout: 15_000 });
+}

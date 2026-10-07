@@ -51,7 +51,65 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
     await waitFor(() => {
       expect(showError).toHaveBeenCalled();
     });
+    expect(sendAdminUserInvitation).toHaveBeenCalledTimes(1);
     expect(sendAdminUserInvitation).toHaveBeenCalledWith("reviewer@example.com", "Reader", "");
+    expect(showSuccess).not.toHaveBeenCalled();
+  });
+
+  it("sends only one invite when click and native form submit race", async () => {
+    let releaseInvite!: (result: { ok: false; reason: "http_error" }) => void;
+    const inviteGate = new Promise<{ ok: false; reason: "http_error" }>((resolve) => {
+      releaseInvite = resolve;
+    });
+    vi.mocked(sendAdminUserInvitation).mockReturnValue(inviteGate);
+
+    render(<SettingsRolesInvitePanel />);
+
+    fireEvent.change(screen.getByTestId("settings-roles-invite-email"), {
+      target: { value: "reviewer@example.com" },
+    });
+
+    const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
+
+    if (hiddenSelect === null) {
+      throw new Error("expected hidden role select");
+    }
+
+    fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+    fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
+    fireEvent.submit(screen.getByTestId("settings-roles-invite-form"));
+    releaseInvite({ ok: false, reason: "http_error" });
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalled();
+    });
+    expect(sendAdminUserInvitation).toHaveBeenCalledTimes(1);
+    expect(showSuccess).not.toHaveBeenCalled();
+  });
+
+  it("does not send an invite when the email fails native form validation", async () => {
+    vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
+
+    render(<SettingsRolesInvitePanel />);
+
+    fireEvent.change(screen.getByTestId("settings-roles-invite-email"), {
+      target: { value: "not-an-email" },
+    });
+
+    const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
+
+    if (hiddenSelect === null) {
+      throw new Error("expected hidden role select");
+    }
+
+    fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+    fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("settings-roles-invite-email")).toHaveValue("not-an-email");
+    });
+    expect(sendAdminUserInvitation).not.toHaveBeenCalled();
+    expect(showError).not.toHaveBeenCalled();
     expect(showSuccess).not.toHaveBeenCalled();
   });
 
@@ -152,6 +210,7 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
         "Invitation sent to reviewer@example.com. Copy the accept link from Pending invitations if you need to share it manually.",
       );
     });
+    expect(sendAdminUserInvitation).toHaveBeenCalledTimes(1);
     expect(onInviteSent).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",

@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
+import { clickControlThatOpensDialog } from "./helpers/dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
 import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
@@ -63,8 +63,10 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       await expect(existingDialog).toBeHidden({ timeout: 15_000 });
     }
 
+    const createDialog = page.getByRole("alertdialog");
+
     try {
-      await clickThroughBlockingOverlays(page, page.getByTestId("scim-create-token"));
+      await clickControlThatOpensDialog(page, page.getByTestId("scim-create-token"), createDialog);
     } catch (error) {
       const scimResponse = await request.get(`${liveApiBase}/v1/admin/scim/tokens`).catch(() => null);
       const scimStatus = scimResponse === null ? "unreachable" : String(scimResponse.status());
@@ -73,7 +75,6 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       );
     }
 
-    const createDialog = page.getByRole("alertdialog");
     await expect(createDialog).toBeVisible({ timeout: 15_000 });
     await createDialog.getByRole("button", { name: SCIM_CREATE_DIALOG_CONFIRM }).click();
 
