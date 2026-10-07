@@ -205,6 +205,16 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void Naive_serial_product_of_max_attempts_and_inner_polly_backoff_exceeds_retry_budget_by_design()
+    {
+        TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
+        TimeSpan naiveSerialWorstCase = TimeSpan.FromTicks(
+            minimumInnerRetryDelays.Ticks * CommitRunTransientRetryPolicy.MaxAttempts);
+
+        naiveSerialWorstCase.Should().BeGreaterThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
     public void Layered_outer_delays_and_inner_polly_backoff_are_not_one_serial_chain()
     {
         TimeSpan interAttemptDelayTotal = Enumerable

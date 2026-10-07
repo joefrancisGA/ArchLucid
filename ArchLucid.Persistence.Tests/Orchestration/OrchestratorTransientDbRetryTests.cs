@@ -1549,6 +1549,112 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_aggregate_lists_type_initialization_with_permanent_sql_beside_deadlock()
+    {
+        int attempts = 0;
+        SqlException permanentViolation = SqlExceptionTestFactory.Create(2627);
+        TypeInitializationException typeInitialization = new("ArchLucid.TestSupport.SimulatedType", permanentViolation);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(typeInitialization, deadlock);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_aggregate_sole_inner_is_http_request_without_sql()
+    {
+        int attempts = 0;
+        HttpRequestException httpOnly = new("gateway timeout with no sql inner");
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(httpOnly);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_reflection_type_load_inner_exception_wraps_transient_sql()
+    {
+        int attempts = 0;
+        SqlException transientUnavailable = SqlExceptionTestFactory.Create(40613);
+        ReflectionTypeLoadException reflectionLoad = new(Array.Empty<Type>(), Array.Empty<Exception>());
+        SetInnerException(reflectionLoad, transientUnavailable);
+        SqlException siblingDeadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(reflectionLoad, siblingDeadlock);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_type_initialization_hides_mixed_nested_aggregate()
+    {
+        int attempts = 0;
+        SqlException permanentViolation = SqlExceptionTestFactory.Create(2627);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException nestedMixed = new AggregateException(permanentViolation, deadlock);
+        TypeInitializationException typeInitialization = new("ArchLucid.TestSupport.SimulatedType", nestedMixed);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(typeInitialization);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_type_initialization_hides_nested_all_transient_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException nestedTransient = new AggregateException(deadlock, SqlExceptionTestFactory.Create(1204));
+        TypeInitializationException typeInitialization = new("ArchLucid.TestSupport.SimulatedType", nestedTransient);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(typeInitialization);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public void Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive()
     {
         TimeSpan baseDelay = TimeSpan.FromSeconds(2);
