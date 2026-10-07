@@ -140,6 +140,8 @@
 
 2026-10-07 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows (full-string slash/dot/control scans and query-only `%` after decode cap are conservative by design; NBSP inside path segments is not an open-redirect class); regressions `TryNormalize_rejects_when_query_contains_slash_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_query_contains_dot_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_decoded_query_contains_control_character`, `TryNormalize_accepts_nbsp_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_when_query_retains_percent_after_decode_cap`; seeded five follow-on `(candidate)` rows; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
+2026-10-07 thorough hunt (dry): `ui-review-intake-wizards` — cheap-disproof closed five stale duplicate `(candidate)` rows at zone tail plus five follow-on `(candidate)` rows; regressions in `use-new-run-wizard-intake-params`, `use-new-run-wizard-query-prefill`, `use-new-run-wizard-track-stream`, `use-new-run-wizard-submit`, `reviews-new-path-switcher-state`, and `use-first-pilot-intake-submit` tests; scoped `reviews/new` vitest 132 passed with 71 pre-existing baseline failures.
+
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` startup ordering, `WorkerProcessHostingRoleConfiguration`, and `UseArchLucidWorkerPipeline` health mapping after four consecutive dry hunts; no hunt-ready row promoted; regressions `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role` and `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; seeded five follow-on `(candidate)` rows; 19 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — re-read project list warning hydration, keyset `HasMore` probe clamps, authority run-list vs primary detail routing, and detail `NOLOCK` shape; cheap-disproof closed five seeded `(candidate)` rows; regressions `InMemory_list_by_project_retains_stored_warning_flags_without_findings_aggregate_model`, `RunsListByProjectNoLock_hydrates_warning_flags_from_left_join_aggregates`, `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`, `FromProbedRows_at_max_clamped_page_size_does_not_report_has_more_when_probe_row_is_absent`, `SqlRunRepository_list_paths_use_authority_run_list_factory_while_get_by_id_uses_primary`, `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`, and `Run_detail_select_omits_nolock_while_project_list_shape_uses_nolock`; seeded five follow-on `(candidate)` rows; 235 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -31610,6 +31612,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows and reconciled five stale duplicate open rows at zone tail; seeded five new `(candidate)` rows; scoped reviews/new vitest 132 passed with 71 pre-existing baseline failures.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in wizard hook tests; scoped reviews/new vitest 126 passed with 71 pre-existing baseline failures.
 
 - [x] (valid-no-repro) `useNewRunWizardQueryPrefill` / `deeplinkPolicyPackId` — **cheap-disproof 2026-10-07 thorough hunt:** governance deep links intentionally set `policyReferences` without client catalog lookup; create-run gates/API validate; regression `prefills policyReferences from deeplink policyPackId without client-side catalog validation`.
@@ -31618,11 +31622,17 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useNewRunWizardTrackStream` — **cheap-disproof 2026-10-07 thorough hunt:** full wizard polls run summary only on `TRACK_STEP_INDEX`; quick mode keeps polling on every step after spawn; regression `disables summary polling in full wizard before the track step when a run id already exists`.
 - [x] (valid-no-repro) `useNewRunWizardSubmit` / `clearWizardSession` — **cheap-disproof 2026-10-07 thorough hunt:** session storage clear runs before `uploadPendingEvidence` but pending files live in hook state and upload still awaits; regression `awaits pending evidence upload after clearing wizard session storage`.
 
-- [ ] (candidate) `useNewRunWizardQueryPrefill` — `zeroConfigDemo` prefill marks `zeroConfigAppliedRef` before the operator reaches evidence steps; reachable when `zeroConfig=1` loads while `wizardMode` is still `quick` and bundled sample evidence is not visible until switching to full wizard.
-- [ ] (candidate) `useGuidedIntakeWizard` — `intakeStep` URL can remain set while `path` query is not `guided-intake`; reachable from bookmarked URLs that combine `intakeStep=2` with detailed-wizard `path=` values until `ReviewsNewPathSwitcher` clears params.
-- [ ] (candidate) `useNewRunWizardClient` — active `runId` from quick-start persists when switching to full wizard via path switcher; reachable when track polling is disabled until the operator navigates back to the pipeline slide in full mode.
-- [ ] (candidate) `useFirstPilotIntakeSubmit` — mirrors `useNewRunWizardSubmit` session clear ordering before post-create uploads; reachable when first-pilot pending evidence upload fails after `clearWizardSession` on success path.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — `pendingRestore` resume prompt can overlap policy-pack deeplink `policyReferences` prefill; reachable when session restore accepts stale wizard values after governance deep link sets pack id.
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` / `zeroConfigDemo` — **cheap-disproof 2026-10-07 thorough hunt #41:** zero-config effect forces `persistWizardMode("full")` and applies bundled evidence immediately even when hook starts in quick mode; regression `applies zero-config demo prefill while wizard mode is still quick`.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` / orphan `intakeStep` with `path=detailed` — **cheap-disproof 2026-10-07 thorough hunt #41:** `buildReviewsNewPathHref` may preserve `intakeStep` until `ReviewsNewPathSwitcher.selectPath` clears guided-intake params; disclosure tests already cover clearing on path switch; regression `preserves orphan intakeStep when only path is rewritten until path switcher clears it`.
+- [x] (valid-no-repro) `useNewRunWizardClient` / `useNewRunWizardTrackStream` — **cheap-disproof 2026-10-07 thorough hunt #41:** full wizard intentionally disables run-summary polling until `TRACK_STEP_INDEX` even when a quick-start `runId` persists; regression `disables summary polling when wizard switches from quick to full before the track step`.
+- [x] (valid-no-repro) `useFirstPilotIntakeSubmit` — **cheap-disproof 2026-10-07 thorough hunt #41:** quick-start path clears session only after post-create upload attempt (unlike full wizard ordering); regression `clears wizard session after post-create evidence upload attempt finishes`.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` / policy deeplink — **cheap-disproof 2026-10-07 thorough hunt #41:** template session restore uses `WIZARD_SESSION_IDS.reviewsNewTemplates` while governance `packId` prefill is immediate `setValue`; no shared run-once ref; resume prompt gated by `useReviewsNewSuppressWizardResumePrompt` separately from policy prefill.
+
+- [ ] (candidate) `useNewRunWizardPendingEvidence` — pending file handles survive `clearWizardSession` on full wizard submit because uploads read hook state, not session storage; reachable when operators retry evidence upload after a failed post-create upload on the track step.
+- [ ] (candidate) `useNewRunWizardQueryPrefill` — `policyPackPrefillAppliedRef` blocks a later corrected `packId` query change in the same mounted wizard; reachable when governance links are edited client-side without remounting `NewRunWizardClient`.
+- [ ] (candidate) `useGuidedIntakeWizard` — deep-linked `intakeStep=2` on guided-intake mount still clamps confirm UI but leaves URL non-canonical until operator navigates steps; reachable from bookmarked confirm URLs (distinct from LLM inference disable on step 2).
+- [ ] (candidate) `useNewRunWizardSteps` — `wizardMode=quick` with active `runId` and `step` deep link may show track UI on a non-track step index until mode switch; reachable when quick-start spawn coincides with a bookmarked `step=` param.
+- [ ] (candidate) `deriveWizardPolicyPackCloudMismatch` — deeplink `packId` prefill can set `policyReferences` before cloud provider fields hydrate, briefly surfacing mismatch copy on submit; reachable when specialty `cloud=` query arrives one render after `packId` prefill.
 
 2026-10-07 seed hunt (seed-only): re-read reviews/new submit, prefill, track, and guided-intake inference hooks; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused vitest tests passed.
 
@@ -31632,9 +31642,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
@@ -31761,11 +31771,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `useNewRunWizardTrackStream` — quick-review polls on every step after spawn — **cheap-disproof 2026-10-06 thorough hunt:** quick-start track UI expects live summary while the operator remains on early slides; full wizard gates polling to `TRACK_STEP_INDEX` by design; regression `keeps summary polling enabled on every quick-review step after a run is spawned`.
 - [x] (valid-no-repro) `useNewRunWizardIntakeParams` + `useNewRunWizardQueryPrefill` — accelerator and preset on one URL — **cheap-disproof 2026-10-06 thorough hunt:** preset effect explicitly yields when `acceleratorPackId !== null` (comment: accelerator is more specific); regression `applies accelerator prefill and skips preset when both query params are present`.
 
-- [ ] (candidate) `useNewRunWizardIntakeParams` / `useNewRunWizardQueryPrefill` — any non-empty trimmed `policyPackId` query value is written into `policyReferences` via `setValue` without catalog validation; reachable from governance/policy-pack deep links that carry a typo or retired pack id (`POLICY_PACK_ID_QUERY_PARAM` on `/architecture/reviews/new`).
-- [ ] (candidate) `useGuidedIntakeClarificationInference` — LLM clarification inference runs only when `step === 1`, so a deep-linked `intakeStep=2` confirm URL can skip suggested answers while the brief still looks complete; reachable from bookmarked guided-intake URLs that omit the clarifications slide.
-- [ ] (candidate) `guided-intake-example-template-prefill-once` — session-scoped `guidedIntakeExampleTemplatePrefillAppliedIds` blocks a second `template=` example prefill without a hard navigation; reachable when an operator opens two different example-request links in the same browser tab session.
-- [ ] (candidate) `useNewRunWizardTrackStream` — `useRunSummaryStream` disables polling when `wizardMode` switches from quick to full until `stepIndex === TRACK_STEP_INDEX`; reachable when a spawned quick-start run stays open while the operator switches to the detailed wizard path mid-session.
-- [ ] (candidate) `useNewRunWizardSubmit` — `clearWizardSession()` runs immediately after a successful create, before `uploadPendingEvidence` finishes; reachable when pending document/inventory evidence upload fails after the run id is assigned on the track step.
+- [x] (valid-no-repro) `useNewRunWizardIntakeParams` / `useNewRunWizardQueryPrefill` — governance `packId` deep link — **cheap-disproof 2026-10-07 thorough hunt #41 (reconciled duplicate row):** API/create gates validate packs; regressions `exposes trimmed packId from governance deep links without catalog validation` and `prefills policyReferences from deeplink policyPackId without client-side catalog validation`.
+- [x] (valid-no-repro) `useGuidedIntakeClarificationInference` — **cheap-disproof 2026-10-07 thorough hunt #41 (reconciled duplicate row):** inference disabled when `step !== 1`; regression `disables LLM clarification inference when intakeStep deep link skips the clarifications slide`.
+- [x] (invalid) `guided-intake-example-template-prefill-once` — **invalid 2026-10-07 thorough hunt #41 (reconciled duplicate row):** per-template session guard; regression `still prefills a different example template id in the same browser session`.
+- [x] (valid-no-repro) `useNewRunWizardTrackStream` — **cheap-disproof 2026-10-07 thorough hunt #41 (reconciled duplicate row):** full-mode polling gated to track step; regression `disables summary polling when wizard switches from quick to full before the track step`.
+- [x] (valid-no-repro) `useNewRunWizardSubmit` / `clearWizardSession` — **cheap-disproof 2026-10-07 thorough hunt #41 (reconciled duplicate row):** pending evidence awaited after clear; regression `awaits pending evidence upload after clearing wizard session storage` and `still awaits pending evidence upload when upload fails after clearWizardSession`.
 
 ---
 

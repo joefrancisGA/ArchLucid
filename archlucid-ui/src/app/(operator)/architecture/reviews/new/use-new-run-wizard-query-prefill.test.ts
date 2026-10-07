@@ -108,6 +108,35 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
   });
 
+  it("applies zero-config demo prefill while wizard mode is still quick", async () => {
+    const persistWizardMode = vi.fn();
+    const onPendingEvidenceFileChange = vi.fn();
+    const showToast = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          zeroConfigDemo: true,
+          zeroConfigSelection: { platform: "aws", tier: "tier1" },
+        },
+        stepIndex: 0,
+        wizardMode: "quick",
+        reset: vi.fn(),
+        setValue: vi.fn(),
+        goToStep: vi.fn(),
+        persistWizardMode,
+        onPendingEvidenceFileChange,
+        showToast,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(persistWizardMode).toHaveBeenCalledWith("full");
+      expect(onPendingEvidenceFileChange).toHaveBeenCalled();
+    });
+  });
+
   it("prefills policyReferences from deeplink policyPackId without client-side catalog validation", async () => {
     const setValue = vi.fn();
 

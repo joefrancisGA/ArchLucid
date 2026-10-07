@@ -72,4 +72,26 @@ describe("useNewRunWizardSubmit", () => {
     expect(uploadPendingEvidence).toHaveBeenCalledWith("run-abc");
     expect(callOrder).toEqual(["clear", "upload"]);
   });
+
+  it("still awaits pending evidence upload when upload fails after clearWizardSession", async () => {
+    const uploadPendingEvidence = vi.fn(async () => {
+      throw new Error("upload failed");
+    });
+
+    executeWizardFormCreateRun.mockResolvedValueOnce({ ok: true, runId: "run-abc" });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardSubmit(
+        buildOptions({
+          uploadPendingEvidence,
+        }),
+      ),
+    );
+
+    await expect(act(async () => {
+      await result.current.submitRun();
+    })).rejects.toThrow("upload failed");
+
+    expect(uploadPendingEvidence).toHaveBeenCalledWith("run-abc");
+  });
 });

@@ -7,6 +7,8 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => useSearchParams(),
 }));
 
+import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
+
 import { useNewRunWizardIntakeParams } from "./use-new-run-wizard-intake-params";
 
 describe("useNewRunWizardIntakeParams", () => {
@@ -24,5 +26,15 @@ describe("useNewRunWizardIntakeParams", () => {
     const { result } = renderHook(() => useNewRunWizardIntakeParams());
 
     expect(result.current.baselineFirst).toBe(false);
+  });
+
+  it("exposes trimmed packId from governance deep links without catalog validation", () => {
+    useSearchParams.mockReturnValue(
+      new URLSearchParams(`${POLICY_PACK_ID_QUERY_PARAM}=retired-pack-typo`),
+    );
+
+    const { result } = renderHook(() => useNewRunWizardIntakeParams());
+
+    expect(result.current.deeplinkPolicyPackId).toBe("retired-pack-typo");
   });
 });
