@@ -409,13 +409,8 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 continue;
             }
 
-            if (reference.TryGetProperty("parameters", out JsonElement parametersElement)
-                && parametersElement.ValueKind is JsonValueKind.Object
-                && parametersElement.EnumerateObject().Any())
-            {
-                continue;
-            }
-
+            // Parameter bags on DatasetReference often hold folder paths or secrets.
+            // Keep the static referenceName and never copy parameters onto the flow row.
             string? datasetName = TryReadString(reference, "referenceName");
 
             if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(datasetName))
