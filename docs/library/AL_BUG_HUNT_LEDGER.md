@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`; reaffirmed `HasSeenAsync_treats_event_id_case_variants_as_same_event`, `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`, and `HandleWebhookAsync_in_flight_received_event_returns_replay_without_replaying_mutation`; 59 scoped billing webhook unit tests passed (45 Persistence + 14 Application, `RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests` and `MemoryCacheBillingWebhookReplayGuardTests`; reaffirmed `BillingStripeWebhookReplayHttpTests`, `BillingWebhookHandleResult_Duplicate_and_AcceptedDeferred_set_flags`, and `HandleWebhookAsync_wallet_route_rejects_checkout_session_completed_without_ledger_processed`; 57 scoped billing webhook unit tests passed (43 Persistence + 14 Application, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 67 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
@@ -9871,13 +9873,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`; 59 scoped billing webhook unit tests passed (45 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
+- [x] (valid-no-repro) `StripeBillingProvider.ResolveWebhookSigningSecret` — wallet route prefers `WalletWebhookSigningSecret` over shared `WebhookSigningSecret` — **cheap-disproof 2026-10-07 seed hunt #63:** dedicated wallet secret verification; regression `HandleWebhookAsync_wallet_verifies_signature_with_wallet_specific_signing_secret`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — lowercases provider name and event id segments — **cheap-disproof 2026-10-07 seed hunt #63:** case-insensitive dedupe; regression reaffirmed `HasSeenAsync_treats_event_id_case_variants_as_same_event` and `HasSeenAsync_treats_provider_name_case_variants_as_same_event`.
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` — blank `payment_intent_id` returns without wallet service call — **cheap-disproof 2026-10-07 seed hunt #63:** early return guard; regression reaffirmed `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`.
+- [x] (valid-no-repro) `BillingWebhookLedgerReplayPolicy` — `Received` ledger status blocks duplicate insert — **cheap-disproof 2026-10-07 seed hunt #63:** in-flight ledger replay rejection; regression reaffirmed `HandleWebhookAsync_in_flight_received_event_returns_replay_without_replaying_mutation` (`StripeBillingProviderCheckoutWebhookIdempotencyTests`).
+- [x] (invalid) `StripeBillingProvider` wallet route — `invoice.payment_failed` is rejected as unhandled on wallet route — **cheap-disproof 2026-10-07 seed hunt #63:** subscription invoice events belong on subscription route; regression `HandleWebhookAsync_wallet_route_rejects_invoice_payment_failed_without_ledger_processed`.
+
+- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — `RememberAsync` runs only after successful `MarkWebhookProcessedAsync` — locus: success path (`StripeBillingProvider.Webhook.cs` ~83–84).
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — rejects whitespace-only `eventId` via `ThrowIfNullOrWhiteSpace` — locus: argument guard (`MemoryCacheBillingWebhookReplayGuard.cs` ~26–27).
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — `Returns202Accepted` maps to HTTP `202 Accepted` — locus: deferred branch (`BillingMarketplaceWebhookController.cs` ~100–101).
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — trims outer whitespace on `payment_intent_id` before wallet credit — locus: `paymentIntentId.Trim()` (`LlmTenantWalletStripeWebhookProcessor.cs` ~24).
+- [ ] (candidate) `StripeBillingProvider.ResolveWebhookSigningSecret` — subscription route prefers `SubscriptionWebhookSigningSecret` over shared secret — locus: `ResolveWebhookSigningSecret` (`StripeBillingProvider.Webhook.cs` ~285–290).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests` and `MemoryCacheBillingWebhookReplayGuardTests`; 57 scoped billing webhook unit tests passed (43 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -9886,12 +9902,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `StripeBillingProvider.DispatchStripeWebhookEventAsync` — Stripe connectivity probe events short-circuit as handled — **cheap-disproof 2026-10-07 seed hunt #62:** `ping` handled without wallet dispatch; regression `HandleWebhookAsync_wallet_ping_succeeds_without_wallet_processor_dispatch`.
 - [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard` — replay retention window is `24` hours — **cheap-disproof 2026-10-07 seed hunt #62:** bounded in-process window; regression `Retention_window_is_twenty_four_hours`.
 - [x] (invalid) `StripeBillingProvider` wallet route — non-`payment_intent.*` event types reject before wallet dispatch — **cheap-disproof 2026-10-07 seed hunt #62:** operator misconfiguration guard; regression reaffirmed `HandleWebhookAsync_wallet_route_rejects_checkout_session_completed_without_ledger_processed`.
-
-- [ ] (candidate) `StripeBillingProvider.ResolveWebhookSigningSecret` — wallet route prefers `WalletWebhookSigningSecret` over shared `WebhookSigningSecret` — locus: `ResolveWebhookSigningSecret` (`StripeBillingProvider.Webhook.cs` ~276–284).
-- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — lowercases provider name and event id segments — locus: `BuildCacheKey` (`MemoryCacheBillingWebhookReplayGuard.cs` ~98–99).
-- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — blank `payment_intent_id` returns without wallet service call — locus: early return (`LlmTenantWalletStripeWebhookProcessor.cs` ~21–22).
-- [ ] (candidate) `BillingWebhookLedgerReplayPolicy` — `Received` ledger status blocks duplicate insert — locus: `ShouldRejectDuplicateLedgerEntry` (`BillingWebhookLedgerReplayPolicy.cs` ~8–10).
-- [ ] (candidate) `StripeBillingProvider` wallet route — `invoice.payment_failed` is rejected as unhandled on wallet route — locus: wallet `payment_intent.*` prefix guard (`StripeBillingProvider.Webhook.cs` ~106–107).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `MemoryCacheBillingWebhookReplayGuardTests`, `BillingMarketplaceWebhookDedupeKeyTests`, and `LlmTenantWalletStripeWebhookProcessorTests`; 55 scoped billing webhook unit tests passed (41 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
