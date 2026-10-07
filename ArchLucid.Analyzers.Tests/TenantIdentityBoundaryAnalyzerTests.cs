@@ -87,6 +87,38 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_ClaimsPrincipal_parameter_when_type_is_global_using_alias()
+  {
+    const string testCode = """
+global using Principal = System.Security.Claims.ClaimsPrincipal;
+
+namespace N
+{
+    public sealed class Handler
+    {
+        void M({|#0:Principal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(1, 49, 1, 64)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(7, 16, 7, 25)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics = { expectedAliasTarget, expectedParameter },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_ClaimsPrincipal_in_inner_layer_assembly()
   {
     const string testCode = """

@@ -445,18 +445,30 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     {
         foreach (TypedConstant constructorArgument in attributeDataScoped.ConstructorArguments)
         {
-            if (ConstructorArgumentContainsMutatingHttpMethod(constructorArgument))
+            if (TypedConstantContainsMutatingHttpMethod(constructorArgument))
+                return true;
+        }
+
+        foreach (KeyValuePair<string, TypedConstant> namedArgument in attributeDataScoped.NamedArguments)
+        {
+            if (!string.Equals(namedArgument.Key, "Method", StringComparison.Ordinal) &&
+                !string.Equals(namedArgument.Key, "Methods", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (TypedConstantContainsMutatingHttpMethod(namedArgument.Value))
                 return true;
         }
 
         return false;
     }
 
-    private static bool ConstructorArgumentContainsMutatingHttpMethod(TypedConstant constructorArgument)
+    private static bool TypedConstantContainsMutatingHttpMethod(TypedConstant typedConstant)
     {
-        if (constructorArgument.Kind == TypedConstantKind.Array)
+        if (typedConstant.Kind == TypedConstantKind.Array)
         {
-            foreach (TypedConstant element in constructorArgument.Values)
+            foreach (TypedConstant element in typedConstant.Values)
             {
                 if (element.Value is string method && IsMutatingHttpMethodName(method))
                     return true;
@@ -465,7 +477,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        if (constructorArgument.Value is string singleMethod && IsMutatingHttpMethodName(singleMethod))
+        if (typedConstant.Value is string singleMethod && IsMutatingHttpMethodName(singleMethod))
             return true;
 
         return false;

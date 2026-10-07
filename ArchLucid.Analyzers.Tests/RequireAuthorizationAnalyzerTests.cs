@@ -1,5 +1,10 @@
+using System.Collections.Immutable;
+
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Testing;
 
 namespace ArchLucid.Analyzers.Tests;
@@ -79,6 +84,44 @@ namespace N
         };
 
         await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_inherited_unauthorized_action_when_derived_declares_authorized_action()
+    {
+        MetadataReference sharedControllerReference = BuildSharedUnauthenticatedGetControllerReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AspNetCoreStubs +
+                    """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class DerivedWithAuthorizedPostController : Shared.Controllers.SharedUnauthenticatedGetController
+    {
+        [Authorize]
+        [HttpPost]
+        public IActionResult Post() => Ok();
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedControllerReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new RequireAuthorizationAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.DoesNotContain(
+            diagnostics,
+            diagnostic => diagnostic.Id == Al0001Descriptor.Rule.Id);
     }
 
     [Fact]
@@ -598,4 +641,40 @@ namespace N
 
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
+
+    private static MetadataReference BuildSharedUnauthenticatedGetControllerReference()
+    {
+        CSharpCompilation compilation = CSharpCompilation.Create(
+            "Shared.Controllers",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AspNetCoreStubs +
+                    """
+
+namespace Shared.Controllers
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class SharedUnauthenticatedGetController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult InheritedGet() => Ok();
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences(),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        using MemoryStream image = new();
+        EmitResult emit = compilation.Emit(image);
+        Assert.True(emit.Success, string.Join(Environment.NewLine, emit.Diagnostics));
+
+        return MetadataReference.CreateFromImage(image.ToArray());
+    }
+
+    private static IEnumerable<MetadataReference> TrustedPlatformReferences() =>
+        ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty)
+            .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(path => MetadataReference.CreateFromFile(path));
 }
