@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Sql;
 
@@ -62,6 +64,7 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
 
+        sql.Should().Contain(RunListWarningFlagSql.LeftJoinAggregates);
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
@@ -278,7 +281,7 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Run_detail_read_shapes_include_warning_flags_and_governance_columns()
     {
-        RunRepositorySql.SelectByScopedId.Should().NotContain("WITH (NOLOCK)");
+        RunRepositorySql.SelectByScopedId.Should().NotContain("FROM dbo.Runs WITH (NOLOCK)");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectCoreColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
@@ -334,5 +337,28 @@ public sealed class HotPathRelationalQueryShapeTests
             section.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
 
         return (CountCommaSeparatedTokens(columns), CountCommaSeparatedTokens(values));
+    }
+
+    [Fact]
+    public void SqlRunRepository_list_paths_use_authority_run_list_factory_while_get_by_id_uses_primary()
+    {
+        string listSource = ReadRepoSource("ArchLucid.Persistence/Repositories/SqlRunRepository.List.cs");
+        string byIdSource = ReadRepoSource("ArchLucid.Persistence/Repositories/SqlRunRepository.Query.ById.cs");
+
+        listSource.Should().Contain("authorityRunListConnectionFactory.CreateOpenConnectionAsync");
+        byIdSource.Should().Contain("connectionFactory.CreateOpenConnectionAsync");
+        byIdSource.Should().Contain("RunRepositorySql.SelectByScopedId");
+    }
+
+    private static string ReadRepoSource(string relativePath, [CallerFilePath] string? callerFilePath = null)
+    {
+        string testsSqlDir = Path.GetDirectoryName(callerFilePath)
+                             ?? throw new InvalidOperationException("Caller path unavailable.");
+        string repoRoot = Path.GetFullPath(Path.Combine(testsSqlDir, "..", ".."));
+        string fullPath = Path.Combine(repoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        File.Exists(fullPath).Should().BeTrue($"expected repository source at '{fullPath}'");
+
+        return File.ReadAllText(fullPath);
     }
 }

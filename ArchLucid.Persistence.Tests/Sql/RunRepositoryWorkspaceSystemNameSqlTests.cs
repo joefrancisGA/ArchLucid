@@ -2792,6 +2792,110 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_list_by_project_retains_stored_warning_flags_without_findings_aggregate_model()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                HasWarnings = true,
+                HasGovernanceWarnings = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(scope, "billing", 10, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].HasWarnings.Should().BeTrue();
+        listed[0].HasGovernanceWarnings.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RunsListByProjectNoLock_hydrates_warning_flags_from_left_join_aggregates()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain(RunListWarningFlagSql.LeftJoinAggregates);
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings");
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime anchor = TimeProvider.System.UtcNowDateTime();
+        Guid olderRunId = Guid.NewGuid();
+        Guid newerRunId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = olderRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                HasWarnings = true,
+                HasGovernanceWarnings = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = anchor.AddMinutes(-5),
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = newerRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = anchor,
+            },
+            CancellationToken.None);
+
+        RunListPage first = await runs.ListByProjectKeysetAsync(scope, "billing", null, null, 1, CancellationToken.None);
+        RunListPage second = await runs.ListByProjectKeysetAsync(
+            scope,
+            "billing",
+            first.Items[0].CreatedUtc,
+            first.Items[0].RunId,
+            1,
+            CancellationToken.None);
+
+        second.Items.Should().ContainSingle();
+        second.Items[0].RunId.Should().Be(olderRunId);
+        second.Items[0].HasWarnings.Should().BeTrue();
+        second.Items[0].HasGovernanceWarnings.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Run_detail_select_omits_nolock_while_project_list_shape_uses_nolock()
+    {
+        RunRepositorySql.SelectByScopedId.Should().NotContain("FROM dbo.Runs WITH (NOLOCK)");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
+    }
+
+    [Fact]
     public void SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract()
     {
         const string samplePurgeProcedure = """

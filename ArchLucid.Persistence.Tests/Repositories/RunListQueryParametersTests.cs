@@ -80,6 +80,25 @@ public sealed class RunListQueryParametersTests
             .Should()
             .Be(RunPagination.ClampTake(25) + 1);
 
+    [Fact]
+    public void ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned() =>
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 5_000),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+
+    [Fact]
+    public void ForProjectList_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
     [Theory]
     [InlineData(-10, 0)]
     [InlineData(0, 0)]
