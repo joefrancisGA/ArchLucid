@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive lock-class SQL hits (`1204`/`1222`); no hunt-ready row promoted; seeded five `(candidate)` rows (snapshot/update-conflict codes, IOException-only wrapper chain, reconcile poll budget, deep aggregate walk, negative delay misuse); 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
+
 2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted SQL `1204` (lock resource pressure; SQL Server asks to rerun when fewer active users) while orchestrator retried `1205`/`1222`; regression `ExecuteAsync_retries_sql_lock_resource_error_1204`; 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
 
 2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted SQL `1222` (lock request timeout) while orchestrator Polly retry retried `1205` deadlock; classify `1222` transient; regression `ExecuteAsync_retries_sql_lock_timeout_error_1222`; 65 scoped transient-retry tests passed (47 Persistence + 18 Application).
@@ -5009,7 +5011,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
@@ -5148,6 +5150,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-07 seed hunt (seed→hit): promoted SQL lock-resource `1204` gap after `1222` hit; 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
 
 - [x] (proven) `OrchestratorTransientDbRetry` / `SqlTransientDetector` — SQL error `1204` (lock resource pressure) not classified transient while other lock-class errors retried — **hit 2026-10-07 seed hunt (seed→hit):** add `1204` to transient set; regression `ExecuteAsync_retries_sql_lock_resource_error_1204`.
+
+2026-10-07 seed hunt (seed-only): re-read orchestrator transient retry after lock-class SQL hits; no new hunt-ready defect; seeded five `(candidate)` rows; 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
+
+- [ ] (candidate) `SqlTransientDetector` (consumed by `OrchestratorTransientDbRetry`) — SQL snapshot/update conflict errors `3960` / `41301` / `41302` under RCSI/snapshot isolation not classified transient while lock-class `1204`/`1205`/`1222` retry; reachable on concurrent authority commit under Azure SQL snapshot conflicts.
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `IOException` wrapper with transient `SqlException` inner and no `AggregateException` (single-repo persist, not parallel `Task.WhenAll`); `SqlTransientDetector` inner walk vs parallel-persist aggregate rules divergence.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryBudget` — authority commit reconcile poll loop (`ManifestReconcilePollAttempts` × `ManifestReconcilePollDelay`) can consume wall clock before outer `IsExhausted` check on unique-key path; client sees `ConflictException` while polls still running.
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — only the first `AggregateException` on an `InnerException` chain is flattened; a second nested parallel-persist aggregate deeper on the same chain is ignored (repository throw-site shape TBD).
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — negative `attempt` or `poll` inputs return negative `TimeSpan` (no guard); misuse by a future caller could stall or fault `Task.Delay` (authority loop starts at 1 today).
 
 ---
 
