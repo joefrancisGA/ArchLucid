@@ -108,6 +108,34 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
   });
 
+  it("prefills policyReferences from deeplink policyPackId without client-side catalog validation", async () => {
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          deeplinkPolicyPackId: "retired-pack-typo",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["retired-pack-typo"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+  });
+
   it("applies accelerator prefill and skips preset when both query params are present", async () => {
     const reset = vi.fn<UseFormReset<WizardFormValues>>();
 

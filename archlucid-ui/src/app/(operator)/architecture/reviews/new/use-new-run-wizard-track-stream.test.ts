@@ -60,4 +60,21 @@ describe("useNewRunWizardTrackStream", () => {
       retryToken: 0,
     });
   });
+
+  it("disables summary polling in full wizard before the track step when a run id already exists", () => {
+    useRunSummaryStream.mockClear();
+
+    renderHook(() =>
+      useNewRunWizardTrackStream({
+        runId: "run-123",
+        wizardMode: "full",
+        stepIndex: 0,
+      }),
+    );
+
+    expect(useRunSummaryStream).toHaveBeenCalledWith("run-123", {
+      enabled: false,
+      retryToken: 0,
+    });
+  });
 });

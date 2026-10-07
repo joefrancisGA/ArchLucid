@@ -112,6 +112,8 @@
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after snapshot-conflict hit emptied open rows; cheap-disproof closed promotion (`AggregateException` with parallel `IOException` inners wrapping `1205` already retries via `IsParallelPersistAggregateInnerRetriable` + `SqlTransientDetector` inner walk); no hunt-ready row promoted; seeded five `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
+2026-10-07 thorough hunt (dry): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows (policy-pack deeplink prefill; intakeStep=2 clarification inference; per-template example prefill guard; full-wizard track polling gate; submit session clear before evidence upload); regressions in `use-new-run-wizard-query-prefill.test.ts`, `use-guided-intake-clarification-inference.test.ts`, `use-guided-intake-brief-form.test.ts`, `use-new-run-wizard-track-stream.test.ts`, and `use-new-run-wizard-submit.test.ts`; scoped reviews/new vitest 126 passed with 71 pre-existing baseline failures.
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (negative schemaVersion; quality-reject vs dead-letter both `Failed`; `+5` ordinal parse; orphan golden manifest on `WaitingForResults`; lowercase `pipelinedeadletter`); seeded five follow-on `(candidate)` rows; regressions in `RunAuthorityPipelineDeadLetterDetectionTests`, `ArchitectureRunStatusTransitionTableCoercionTests`, and `AuthorityRunLifecyclePhaseListResolverTests`; 53 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (verify 5xx→`delivery_failed` shared mapper; `too_many_attempts` forward-compat only; resend cooldown UX vs server 429; Turnstile challenge on pre-auth anonymous proxy without BFF CSRF; livelihood replay CSRF peek/consume gap); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
@@ -31173,6 +31175,20 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in wizard hook tests; scoped reviews/new vitest 126 passed with 71 pre-existing baseline failures.
+
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` / `deeplinkPolicyPackId` — **cheap-disproof 2026-10-07 thorough hunt:** governance deep links intentionally set `policyReferences` without client catalog lookup; create-run gates/API validate; regression `prefills policyReferences from deeplink policyPackId without client-side catalog validation`.
+- [x] (valid-no-repro) `useGuidedIntakeClarificationInference` — **cheap-disproof 2026-10-07 thorough hunt:** LLM inference is enabled only on clarifications slide (`step === 1`); bookmarked `intakeStep=2` URLs skip auto-suggest by design; `ReviewsNewPathSwitcher` clears orphan `intakeStep` when switching paths; regression `disables LLM clarification inference when intakeStep deep link skips the clarifications slide`.
+- [x] (invalid) `guided-intake-example-template-prefill-once` — **invalid 2026-10-07 thorough hunt:** session guard is per `template.id`; a different `example=` link still prefills in the same tab session; regression `still prefills a different example template id in the same browser session`.
+- [x] (valid-no-repro) `useNewRunWizardTrackStream` — **cheap-disproof 2026-10-07 thorough hunt:** full wizard polls run summary only on `TRACK_STEP_INDEX`; quick mode keeps polling on every step after spawn; regression `disables summary polling in full wizard before the track step when a run id already exists`.
+- [x] (valid-no-repro) `useNewRunWizardSubmit` / `clearWizardSession` — **cheap-disproof 2026-10-07 thorough hunt:** session storage clear runs before `uploadPendingEvidence` but pending files live in hook state and upload still awaits; regression `awaits pending evidence upload after clearing wizard session storage`.
+
+- [ ] (candidate) `useNewRunWizardQueryPrefill` — `zeroConfigDemo` prefill marks `zeroConfigAppliedRef` before the operator reaches evidence steps; reachable when `zeroConfig=1` loads while `wizardMode` is still `quick` and bundled sample evidence is not visible until switching to full wizard.
+- [ ] (candidate) `useGuidedIntakeWizard` — `intakeStep` URL can remain set while `path` query is not `guided-intake`; reachable from bookmarked URLs that combine `intakeStep=2` with detailed-wizard `path=` values until `ReviewsNewPathSwitcher` clears params.
+- [ ] (candidate) `useNewRunWizardClient` — active `runId` from quick-start persists when switching to full wizard via path switcher; reachable when track polling is disabled until the operator navigates back to the pipeline slide in full mode.
+- [ ] (candidate) `useFirstPilotIntakeSubmit` — mirrors `useNewRunWizardSubmit` session clear ordering before post-create uploads; reachable when first-pilot pending evidence upload fails after `clearWizardSession` on success path.
+- [ ] (candidate) `NewRunWizardTemplateRestore` — `pendingRestore` resume prompt can overlap policy-pack deeplink `policyReferences` prefill; reachable when session restore accepts stale wizard values after governance deep link sets pack id.
+
 2026-10-07 seed hunt (seed-only): re-read reviews/new submit, prefill, track, and guided-intake inference hooks; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused vitest tests passed.
 
 - **id:** ui-review-intake-wizards
@@ -31181,9 +31197,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
