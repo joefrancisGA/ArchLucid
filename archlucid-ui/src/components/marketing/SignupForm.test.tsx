@@ -77,6 +77,28 @@ describe("SignupForm", () => {
     expect(payload.companySize).toBeUndefined();
   });
 
+  it("omits company size from the register payload builder when value is undefined", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      companySize: undefined,
+    });
+
+    expect(payload).not.toHaveProperty("companySize");
+  });
+
+  it("signupFormSchema rejects negative optional architecture team size", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "-1",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("serializes scientific notation optional architecture team size when it parses to a whole number", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "ops@example.com",
@@ -623,6 +645,8 @@ describe("SignupForm", () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
 
+    const funnelSpy = vi.spyOn(firstTenantFunnelTelemetry, "recordFirstTenantFunnelEvent");
+
     const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new DOMException("QuotaExceededError", "QuotaExceededError");
     });
@@ -658,8 +682,10 @@ describe("SignupForm", () => {
     await waitFor(() => {
       expect(showSuccess).toHaveBeenCalled();
       expect(pushMock).toHaveBeenCalledWith(expect.stringContaining("/signup/verify?email="));
+      expect(funnelSpy).toHaveBeenCalledWith("signup");
     });
 
+    funnelSpy.mockRestore();
     setItemSpy.mockRestore();
     vi.unstubAllGlobals();
   });
@@ -1084,6 +1110,76 @@ describe("SignupForm", () => {
     });
 
     vi.unstubAllGlobals();
+  });
+
+  it("shows server detail string from HTTP 500 register responses", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ detail: "Internal provisioning failure." }, { status: 500 }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Internal provisioning failure.");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("encodes subdomain work email once in the verify redirect query", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@mail.example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40mail.example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps submit disabled for negative optional architecture team size", async () => {
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByLabelText(/Architecture team size/i), { target: { value: "-1" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
   });
 
   it("shows a toast when register fetch throws", async () => {

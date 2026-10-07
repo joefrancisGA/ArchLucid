@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five open `(candidate)` rows (HTTP `500` `detail` string routed to `showError` by design; undefined `companySize` omits JSON key; funnel telemetry after sessionStorage quota errors is intentional post-success analytics; `"-1"` team size blocked by `n <= 0` superRefine; subdomain email uses single `encodeURIComponent`); regressions `shows server detail string from HTTP 500 register responses`, `omits company size from the register payload builder when value is undefined`, `signupFormSchema rejects negative optional architecture team size`, `keeps submit disabled for negative optional architecture team size`, and `encodes subdomain work email once in the verify redirect query`; reaffirmed funnel call when `sessionStorage.setItem` throws; seeded five follow-on `(candidate)` rows; 72 scoped SignupForm vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `LlmTenantWalletStripeWebhookProcessorTests`, and `MemoryCacheBillingWebhookReplayGuardTests`; scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `LlmTenantWalletStripeWebhookProcessorTests`, `MemoryCacheBillingWebhookReplayGuardTests`, and `BillingMarketplaceWebhookDedupeKeyTests`; scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
@@ -4340,6 +4342,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `shows server detail string from HTTP 500 register responses`, `omits company size from the register payload builder when value is undefined`, `signupFormSchema rejects negative optional architecture team size`, `keeps submit disabled for negative optional architecture team size`, and `encodes subdomain work email once in the verify redirect query`; reaffirmed `recordFirstTenantFunnelEvent` after sessionStorage quota failure; 72 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `500` with JSON `detail` string surfaces raw server text in `showError` — **cheap-disproof 2026-10-07 thorough hunt:** TB-2005 routes async/server failures to toast; regression `shows server detail string from HTTP 500 register responses`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — `companySize` undefined vs omitted when select reset to Prefer not to say — **cheap-disproof 2026-10-07 thorough hunt:** falsy guard omits key for `undefined` and `""`; regression `omits company size from the register payload builder when value is undefined`.
+- [x] (valid-no-repro) `SignupForm` — `recordFirstTenantFunnelEvent` after sessionStorage writes when quota fails — **cheap-disproof 2026-10-07 thorough hunt:** signup already succeeded; analytics must not block navigation; reaffirmed in `still navigates when sessionStorage.setItem throws during success handling`.
+- [x] (valid-no-repro) `signupFormSchema` — `architectureTeamSize` `"-1"` rejected by `Number()` superRefine — **cheap-disproof 2026-10-07 thorough hunt:** `n <= 0` guard; regressions `signupFormSchema rejects negative optional architecture team size` and `keeps submit disabled for negative optional architecture team size`.
+- [x] (valid-no-repro) `SignupForm` verify redirect — `ops@mail.example.com` encoded without double-encoding `%40` — **cheap-disproof 2026-10-07 thorough hunt:** single `encodeURIComponent` on full address; regression `encodes subdomain work email once in the verify redirect query`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — non-ok JSON body with `detail` as object/array falls back to raw `res.text()` instead of structured validation summary — locus: typeof `detail` string guard (`SignupForm.tsx` ~157–161).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `429` rate-limit response uses same toast path as `500` without retry-after hint — locus: shared `!res.ok` branch.
+- [ ] (candidate) `buildSignupRegisterPayload` — `architectureTeamSize` `"-0"` parses to zero and is omitted without schema rejection when builder called directly — locus: `t > 0` integer guard only in builder.
+- [ ] (candidate) `SignupForm` — `readFirstTouchCookie` present but `serializeFirstTouchHeader` throws so register POST omits attribution header silently — locus: inner try/catch (`SignupForm.tsx` ~128–133).
+- [ ] (candidate) `SignupForm` `onSubmit` — `registerInFlightRef` early return on second click before `setSubmitting(true)` visible leaves button enabled for one frame — locus: guard at start of `handleSubmit` callback (`SignupForm.tsx` ~109–112).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for idempotent session payload, team-size trim, whitespace `201` body, interior name spaces, and equals-sign email gate; 67 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for `wasAlreadyProvisioned` toast, zero/`+5` team size, session trim parity, and empty `201` body; 61 scoped SignupForm vitest tests passed.
@@ -4360,9 +4376,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4479,12 +4495,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON `201` with whitespace-only body treated as empty text and skips tenant id session merge — **cheap-disproof 2026-10-07 thorough hunt:** parse failure tolerates success; same class as empty body; regression `still navigates after 201 when register response body is whitespace only`.
 - [x] (valid-no-repro) `signupFormSchema` — `adminDisplayName` / `organizationName` padded with interior double spaces kept after `.trim()` on submit — **cheap-disproof 2026-10-07 thorough hunt:** intentional zod trim semantics; regression `signupFormSchema keeps interior double spaces in required name fields after trim`.
 - [x] (invalid) `SignupForm` verify redirect — `encodeURIComponent` on email after zod trim when local-part contains `=` sign — **cheap-disproof 2026-10-07 thorough hunt:** zod `.email()` rejects `a=b@c.com` before submit; regressions `signupFormSchema rejects email local-part containing equals sign` and `keeps submit disabled for email local-part containing equals sign`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `500` with JSON `detail` string surfaces raw server text in `showError` without redaction — locus: non-ok branch (`SignupForm.tsx` ~157–164).
-- [ ] (candidate) `buildSignupRegisterPayload` — `companySize` undefined vs omitted when select reset to Prefer not to say — locus: `if (values.companySize)` guard.
-- [ ] (candidate) `SignupForm` — `recordFirstTenantFunnelEvent` invoked after sessionStorage writes so quota failure still records funnel — locus: ordering after `setItem` try blocks (`SignupForm.tsx` ~178–191).
-- [ ] (candidate) `signupFormSchema` — `architectureTeamSize` negative string `"-1"` rejected by `Number()` superRefine — locus: `n <= 0` guard (`signup-schema.ts` ~63).
-- [ ] (candidate) `SignupForm` verify redirect — email with subdomain `ops@mail.example.com` encoded without double-encoding `%40` — locus: single `encodeURIComponent` on full address (`SignupForm.tsx` ~193).
 
 ---
 
