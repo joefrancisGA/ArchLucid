@@ -15,6 +15,13 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "/architecture/reviews/1")).toBe("/architecture/reviews/1");
   });
 
+  it("prefers explicit safe returnUrl over consumed OIDC return for Complete", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/saved-return");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "/architecture/reviews/1")).toBe("/architecture/reviews/1");
+    expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects open redirects for Complete", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
   });

@@ -13382,7 +13382,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 63 · **Bugs found:** 35 · **Consecutive dry hunts:** 5
+**Hunts:** 64 · **Bugs found:** 35 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `operator-session-clear.test.ts`, `email-otp-post-auth.test.ts`, `email-otp-api.test.ts`, `post-auth-bootstrap-api.test.ts`, and `proxy.test.ts`; scoped auth/proxy vitest 257 passed with 3 unrelated baseline seam failures.
+
+- [x] (valid-no-repro) `clearOperatorSessionForExpiry` — email OTP / invitation `sessionStorage` survives idle expiry — **cheap-disproof 2026-10-07 seed hunt #64:** operator expiry intentionally clears OIDC + scope only; sign-in re-entry owns OTP hygiene; regression `does not clear email OTP or invitation sessionStorage (operator expiry clears OIDC/scope only)`.
+- [x] (valid-no-repro) `resolveEmailOtpPostAuthPath` — `Complete` with both `returnUrl` arg and consumed OIDC return — **cheap-disproof 2026-10-07 seed hunt #64:** explicit safe `returnUrl` wins after single `consumePostSignInReturnUrl` read; regression `prefers explicit safe returnUrl over consumed OIDC return for Complete`.
+- [x] (valid-no-repro) `requestEmailOtpChallenge` — omits `mergeRegistrationScopeForProxy` with stale operator scope in `localStorage` — **cheap-disproof 2026-10-07 seed hunt #64:** pre-auth anonymous OTP POST must not forward tenant scope headers; regression `does not forward stale operator scope headers on challenge POST (pre-auth anonymous proxy)`.
+- [x] (valid-no-repro) `fetchPostAuthBootstrapStatus` vs `acceptPostAuthInvitation` `returnUrl` encoding — **cheap-disproof 2026-10-07 seed hunt #64:** `URLSearchParams` and manual `encodeURIComponent` produce the same query for safe paths with `?` segments; regression `encodes returnUrl on status GET the same way as acceptPostAuthInvitation manual encoding`.
+- [x] (valid-no-repro) `proxy.ts` demo-run alias `308` redirect — **cheap-disproof 2026-10-07 seed hunt #64:** `nextUrl.clone()` preserves search when pathname is rewritten; regression `preserves query string when rewriting /runs alias paths`.
+
+- [ ] (candidate) `persistIdleDeskRestoreBeforeSessionClear` — idle timeout may snapshot a return path while `archlucid_email_otp_*` session keys remain, restoring desk context into a half-finished OTP code step — locus: `operator-session-clear.ts` + `idle-desk-restore.ts`; input: idle during verify step.
+- [ ] (candidate) `resolveBootstrapCompletePath` — consumes OIDC return before checking explicit `returnUrl` arg (same ordering as post-auth helper) may drop API-provided return when stale session key exists — locus: `email-otp-post-auth.ts` ~29–35.
+- [ ] (candidate) `verifyEmailOtpCode` — raw `fetch` without `mergeRegistrationScopeForProxy` mirrors challenge POST; stale `localStorage` operator scope must not reach verify endpoint — locus: `email-otp-api.ts` ~79–87.
+- [ ] (candidate) `selectPostAuthWorkspace` — `returnUrl` query built via manual `encodeURIComponent` while status poll uses `URLSearchParams`; parity for workspace select with embedded `+` in safe return paths — locus: `post-auth-bootstrap-api.ts` ~139.
+- [ ] (candidate) `decideHostGateRedirect` runs before demo alias in `proxy.ts`; marketing-host `/runs/{alias}` may 307 to app origin with query intact but never reach alias canonicalization on the marketing host — locus: `proxy.ts` ordering ~11–28; input: split-site bookmark on public origin.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-session.test.ts`, `sign-in-page-copy.test.ts`, `invitation-validation-api.test.ts`, `post-auth-bootstrap-api.test.ts`, and `host-gate.test.ts`; scoped auth/proxy vitest 252 passed with 3 unrelated baseline seam failures.
 
@@ -13391,12 +13405,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `validateInvitationToken` — `encodeURIComponent` on validate GET — **cheap-disproof 2026-10-07 seed hunt #63:** plus signs encode as `%2B` on the wire; regression `encodes plus signs in invitation tokens for the validate GET query string` (query parsing before `storeInvitationToken` remains invite-page concern).
 - [x] (valid-no-repro) `fetchPostAuthBootstrapStatus` — proxy `502` with non-JSON body — **cheap-disproof 2026-10-07 seed hunt #63:** intentional LK-07 fail-closed `bootstrap_status_failed` without proxy-problem correlation surfacing; regression `throws bootstrap_status_failed on proxy 502 before attempting to parse a non-JSON body`.
 - [x] (valid-no-repro) `decideHostGateRedirect` — `returnUrl` on marketing-host sign-in bookmarks — **cheap-disproof 2026-10-07 seed hunt #63:** `pathAndQuery` preserves search on operator paths; regression `preserves returnUrl on marketing-host /auth/signin redirects via pathAndQuery`.
-
-- [ ] (candidate) `clearOperatorSessionForExpiry` — idle timeout path in `operator-session-clear.ts` clears OIDC/scope but does not call `clearEmailOtpChallengeSession` or `clearInvitationToken`, leaving pre-auth sessionStorage keys on shared sign-in devices.
-- [ ] (candidate) `resolveEmailOtpPostAuthPath` — `nextStep` `Complete` returns `safeReturn` without re-consuming `consumePostSignInReturnUrl` ordering when both `returnUrl` arg and OIDC stored return are present — locus: `email-otp-post-auth.ts` ~7–19; input: bootstrap-complete with stale OIDC return key.
-- [ ] (candidate) `requestEmailOtpChallenge` — omits `mergeRegistrationScopeForProxy` while bootstrap helpers attach registration scope headers — locus: raw `fetch` ~43–50; reachable when stale operator scope remains in `localStorage` during anonymous challenge POST (parity with invitation validate forwarding tests).
-- [ ] (candidate) `fetchPostAuthBootstrapStatus` — `returnUrl` query encoding uses `URLSearchParams` while `acceptPostAuthInvitation` builds `returnUrl` via manual `encodeURIComponent` — locus: `post-auth-bootstrap-api.ts` ~53–63 vs ~117; input: return paths containing `&` or `+` segments.
-- [ ] (candidate) `proxy.ts` demo-run alias `308` redirect clones `nextUrl` pathname only — verify query string survives when `demoRunAliasRedirectDestinationPath` fires on marketing/app host with tracking query params on `/runs/{alias}`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
 
@@ -13430,9 +13438,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none

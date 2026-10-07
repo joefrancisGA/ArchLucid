@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
+import { OPERATOR_SCOPE_STORAGE_KEY } from "@/lib/operator/operator-scope-storage";
 import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 
 describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
@@ -53,6 +54,38 @@ describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
     const result = await requestEmailOtpChallenge("operator@example.com", null);
 
     expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("does not forward stale operator scope headers on challenge POST (pre-auth anonymous proxy)", async () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: "11111111-1111-1111-1111-111111111111",
+        workspaceId: "22222222-2222-2222-2222-222222222222",
+        projectId: "33333333-3333-3333-3333-333333333333",
+        workspaceLabel: "w",
+        projectLabel: "p",
+      }),
+    );
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Sent.",
+        ssoRequired: false,
+        challengeId: "ch-1",
+      }),
+    });
+
+    await requestEmailOtpChallenge("operator@example.com", null);
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+
+    expect(headers.get("x-tenant-id")).toBeNull();
+    expect(headers.get("x-workspace-id")).toBeNull();
+    localStorage.clear();
   });
 
   it("forwards botChallengeToken on challenge POST without BFF CSRF headers (pre-auth anonymous proxy)", async () => {

@@ -29,6 +29,30 @@ describe("fetchPostAuthBootstrapStatus", () => {
     await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
   });
 
+  it("encodes returnUrl on status GET the same way as acceptPostAuthInvitation manual encoding", async () => {
+    const returnUrl = "/architecture/reviews?filter=open";
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        destination: "Complete",
+        pendingInvitations: [],
+        workspaces: [],
+        canCreateWorkspace: false,
+      }),
+    });
+
+    await fetchPostAuthBootstrapStatus(returnUrl);
+    await acceptPostAuthInvitation("inv-1", null, returnUrl);
+
+    const statusUrl = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+    const acceptUrl = String(vi.mocked(fetch).mock.calls[1]?.[0]);
+    const expectedQuery = `returnUrl=${encodeURIComponent(returnUrl)}`;
+
+    expect(statusUrl).toContain(expectedQuery);
+    expect(acceptUrl).toContain(expectedQuery);
+  });
+
   it("throws bootstrap_status_failed on proxy 502 before attempting to parse a non-JSON body", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response("upstream gateway timeout", { status: 502, headers: { "Content-Type": "text/plain" } }),
