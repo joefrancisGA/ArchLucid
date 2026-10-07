@@ -33,18 +33,29 @@ def collect_string_overrides(overrides: object) -> dict[str, str]:
     return pinned
 
 
-def lockfile_resolved_version(packages: dict[str, Any], package_name: str) -> str | None:
-    entry = packages.get(f"node_modules/{package_name}")
+def lockfile_package_key_matches(lockfile_key: str, package_name: str) -> bool:
+    suffix = f"node_modules/{package_name}"
+    return lockfile_key == suffix or lockfile_key.endswith("/" + suffix)
 
-    if not isinstance(entry, dict):
-        return None
 
-    version = entry.get("version")
+def lockfile_resolved_versions(packages: dict[str, Any], package_name: str) -> list[str]:
+    versions: list[str] = []
 
-    if version is None:
-        return None
+    for key, entry in packages.items():
+        if not isinstance(key, str) or not isinstance(entry, dict):
+            continue
 
-    return str(version)
+        if not lockfile_package_key_matches(key, package_name):
+            continue
+
+        version = entry.get("version")
+
+        if version is None:
+            continue
+
+        versions.append(str(version))
+
+    return versions
 
 
 def check_prefix(prefix: Path) -> list[str]:
@@ -86,9 +97,9 @@ def check_prefix(prefix: Path) -> list[str]:
     overrides = collect_string_overrides(package_json.get("overrides"))
 
     for package_name, expected_version in sorted(overrides.items()):
-        resolved_version = lockfile_resolved_version(packages, package_name)
+        resolved_versions = sorted(set(lockfile_resolved_versions(packages, package_name)))
 
-        if resolved_version is None:
+        if not resolved_versions:
             errors.append(
                 f"{package_name}: override pins {expected_version} but lockfile has no "
                 f"node_modules/{package_name} entry; run npm install in {prefix.name}/ and commit package-lock.json",
@@ -96,10 +107,12 @@ def check_prefix(prefix: Path) -> list[str]:
 
             continue
 
-        if resolved_version != expected_version:
+        unexpected = [version for version in resolved_versions if version != expected_version]
+
+        if unexpected:
             errors.append(
                 f"{package_name}: package.json override is {expected_version} but "
-                f"package-lock.json resolves {resolved_version}; run npm install in {prefix.name}/ and commit package-lock.json",
+                f"package-lock.json resolves {', '.join(unexpected)}; run npm install in {prefix.name}/ and commit package-lock.json",
             )
 
     return errors
