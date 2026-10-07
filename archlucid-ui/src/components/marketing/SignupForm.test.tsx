@@ -1338,6 +1338,100 @@ describe("SignupForm", () => {
     expect(parsed.success).toBe(false);
   });
 
+  it("omits alphabetic optional architecture team size from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "abc",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
+  it("shows fixed duplicate organization toast when register returns 409 with JSON detail", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ detail: "Organization slug collision from server." }, { status: 409 }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "That organization name is already registered.");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps Creating label on the submit button after successful register until navigation", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is malformed JSON", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("{tenantId:", { status: 201, headers: { "Content-Type": "application/json" } })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("encodes subdomain work email once in the verify redirect query", async () => {
     pushMock.mockClear();
 

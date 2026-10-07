@@ -4442,7 +4442,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 43 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 44 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 87 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with JSON literal `null` body still navigates to verify — **cheap-disproof 2026-10-07 seed hunt #44:** `res.ok` success path tolerates null JSON; regression `still navigates after 201 when register response body is JSON null`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `409` with JSON `detail` string still shows fixed duplicate-org toast — **cheap-disproof 2026-10-07 seed hunt #44:** dedicated 409 branch by design; regression `shows fixed duplicate organization toast when register returns 409 with JSON detail`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — non-numeric `architectureTeamSize` like `abc` omitted when builder called without zod — **cheap-disproof 2026-10-07 seed hunt #44:** fail-closed omit; UI blocked by schema; regressions `omits alphabetic optional architecture team size from the register payload builder` and `signupFormSchema rejects alphabetic optional architecture team size`.
+- [x] (valid-no-repro) `SignupForm` — success path leaves primary button label on `Creating…` until navigation unmounts — **cheap-disproof 2026-10-07 seed hunt #44:** intentional anti-double-submit UX; regression `keeps Creating label on the submit button after successful register until navigation`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — malformed JSON object in `201` body (`{tenantId:`) still succeeds — **cheap-disproof 2026-10-07 seed hunt #44:** parse failure yields null body but `res.ok` drives success; regression `still navigates after 201 when register response body is malformed JSON`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON array body (`[1]`) cast as tenant result without validation — locus: `JSON.parse` + success path (`SignupForm.tsx` ~145–193).
+- [ ] (candidate) `buildSignupRegisterPayload` — includes trimmed `industryVerticalOther` when `industryVertical` is `Other` — locus: trim + include branch (`SignupForm.tsx` ~68–73).
+- [ ] (candidate) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` runs before `showSuccess` so toast throw still records funnel — locus: ordering (`SignupForm.tsx` ~191–192).
+- [ ] (candidate) `signupFormSchema` — padded required emails pass after trim on submit values — locus: `.trim().email()` on fields (`signup-schema.ts` ~29–38).
+- [ ] (candidate) `SignupForm` `onSubmit` — non-ok JSON with numeric `detail` falls back to raw response text — locus: string `detail` gate (`SignupForm.tsx` ~157–161).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 83 scoped SignupForm vitest tests passed.
 
@@ -4451,12 +4465,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — **cheap-disproof 2026-10-07 seed hunt:** fail-closed trim guard; UI blocked by `signupFormSchema`; regression `omits whitespace-only industry vertical other from the register payload builder when industry is Other`.
 - [x] (valid-no-repro) `SignupForm` — `registerInFlightRef` stays true after success so duplicate POST is blocked — **cheap-disproof 2026-10-07 seed hunt:** intentional anti-double-submit; regression `does not fire a second register request after success before navigation`.
 - [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — first zod issue may not match visible field when multiple optional errors exist — **cheap-disproof 2026-10-07 seed hunt:** required-field email issues precede optional `Other` industry; regression `deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON literal `null` body still navigates to verify — locus: `JSON.parse('null')` yields null tenant payload (`SignupForm.tsx` ~142–149, ~178–186).
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `409` with JSON `detail` string still shows fixed duplicate-org toast — locus: status branch before `!res.ok` (`SignupForm.tsx` ~151–154).
-- [ ] (candidate) `buildSignupRegisterPayload` — non-numeric `architectureTeamSize` like `abc` omitted when builder called without zod — locus: `Number.isFinite` guard (`SignupForm.tsx` ~56–61).
-- [ ] (candidate) `SignupForm` — success path leaves primary button label on `Creating…` until navigation unmounts — locus: `submitting` not cleared when `registerSucceeded` (`SignupForm.tsx` ~197–201).
-- [ ] (candidate) `SignupForm` `onSubmit` — malformed JSON object in `201` body (`{tenantId:`) surfaces error toast instead of success — locus: `JSON.parse` catch sets `body` null while `res.ok` (`SignupForm.tsx` ~145–165).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
@@ -4516,7 +4524,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
