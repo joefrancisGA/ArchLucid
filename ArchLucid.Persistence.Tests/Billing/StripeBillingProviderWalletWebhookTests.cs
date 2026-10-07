@@ -282,14 +282,14 @@ public sealed class StripeBillingProviderWalletWebhookTests
     result.Succeeded.Should().BeTrue();
     walletProcessor.Verify(
       p => p.ProcessPaymentIntentEventAsync(
-        It.IsAny<string>(),
-        It.IsAny<string>(),
+        "payment_intent.created",
+        "pi_created_only",
         It.IsAny<string?>(),
-        It.IsAny<long>(),
+        2500,
         It.IsAny<string?>(),
         It.IsAny<Guid>(),
         It.IsAny<CancellationToken>()),
-      Times.Never);
+      Times.Once);
   }
 
   [Fact]

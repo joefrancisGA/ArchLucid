@@ -30,4 +30,22 @@ public sealed class BillingMarketplaceWebhookDedupeKeyTests
 
         keyTrimmed.Should().NotBe(keyPaddedSubscription);
     }
+
+    [Fact]
+    public void Build_fingerprint_changes_when_raw_json_whitespace_outside_action_differs()
+    {
+        const string subscriptionId = "sub-1";
+        const string compactBody = """{"action":"Suspend","subscriptionId":"sub-1"}""";
+        const string spacedBody = """
+            {
+              "action": "Suspend",
+              "subscriptionId": "sub-1"
+            }
+            """;
+
+        string compactKey = BillingMarketplaceWebhookDedupeKey.Build(subscriptionId, "Suspend", compactBody);
+        string spacedKey = BillingMarketplaceWebhookDedupeKey.Build(subscriptionId, "Suspend", spacedBody);
+
+        compactKey.Should().NotBe(spacedKey);
+    }
 }

@@ -183,6 +183,41 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        Guid tenantId = Guid.NewGuid();
+
+        walletService
+            .Setup(s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_negative_amount",
+                -1.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_negative_amount",
+            tenantId.ToString("D"),
+            amountCents: -100,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_negative_amount",
+                -1.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting()
     {
         Mock<ILlmTenantWalletService> walletService = new();
