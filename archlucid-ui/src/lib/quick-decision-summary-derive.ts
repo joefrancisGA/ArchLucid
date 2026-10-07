@@ -5,6 +5,8 @@ export {
   firstRecommendationSentence,
   severityBadgeLabel,
   severityKindFromNumericValue,
+  compareFindingSeverity,
+  hasFindingSeverityAtLeast,
   type FindingHumanReviewStatusDisplay,
   normalizeFindingHumanReviewStatus,
   humanReviewStatusDisplay,

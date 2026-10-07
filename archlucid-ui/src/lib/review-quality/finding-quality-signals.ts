@@ -1,5 +1,6 @@
 import { resolveFindingProvenance } from "@/lib/findings/finding-provenance-display";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { hasFindingSeverityAtLeast } from "@/lib/quick-decision-severity-labels";
 
 function combinedFindingText(finding: QuickDecisionFinding): string {
   return `${finding.title}\n${finding.recommendation}\n${finding.aiReasoning.reasoningTrace}`;
@@ -115,7 +116,7 @@ export function isCannotDetermineReviewFinding(finding: QuickDecisionFinding): b
 
   const provenance = provenanceForFinding(finding);
 
-  if (provenance.grounding !== "Ungrounded" || finding.severityValue < 2) {
+  if (provenance.grounding !== "Ungrounded" || !hasFindingSeverityAtLeast(finding.severityValue, 2)) {
     return false;
   }
 

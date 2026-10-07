@@ -37,7 +37,7 @@ function readTypedRecord(payload: FindingInspectPayload): Record<string, unknown
   return typed as Record<string, unknown>;
 }
 
-function severityValueFromInspectPayload(payload: FindingInspectPayload): number {
+function severityValueFromInspectPayload(payload: FindingInspectPayload): number | null {
   const typed = readTypedRecord(payload);
 
   if (typed !== null) {
@@ -54,7 +54,7 @@ function severityValueFromInspectPayload(payload: FindingInspectPayload): number
     return coerceArchitectureFindingSeverity(label);
   }
 
-  return 0;
+  return null;
 }
 
 function wireJsonFromInspectPayload(payload: FindingInspectPayload): string {

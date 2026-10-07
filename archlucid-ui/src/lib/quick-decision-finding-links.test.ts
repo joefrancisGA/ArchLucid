@@ -44,6 +44,10 @@ describe("quickDecisionRecommendationSnippet", () => {
 });
 
 describe("quickDecisionWorkItemSeverityLabel", () => {
+  it("labels missing severity explicitly", () => {
+    expect(quickDecisionWorkItemSeverityLabel(null)).toBe("Severity was not stored");
+  });
+
   it("maps the numeric severity scale to work-item wording", () => {
     expect(quickDecisionWorkItemSeverityLabel(4)).toBe("High");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("High");

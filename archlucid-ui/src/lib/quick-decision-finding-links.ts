@@ -19,7 +19,11 @@ export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding
 }
 
 /** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */
-export function quickDecisionWorkItemSeverityLabel(severityValue: number): string {
+export function quickDecisionWorkItemSeverityLabel(severityValue: number | null): string {
+  if (severityValue === null) {
+    return "Severity was not stored";
+  }
+
   if (severityValue >= 3) {
     return "High";
   }

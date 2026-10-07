@@ -6,6 +6,7 @@ import {
   type FindingProvenanceOrigin,
 } from "@/lib/findings/finding-provenance-display";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export type FindingTrustTriageBand =
   | "deterministic-rule"
@@ -135,5 +136,5 @@ export function compareFindingsByTrustThenSeverity(
     return leftPenalty - rightPenalty;
   }
 
-  return right.severityValue - left.severityValue || left.findingOrder - right.findingOrder;
+  return compareFindingSeverity(left.severityValue, right.severityValue) || left.findingOrder - right.findingOrder;
 }

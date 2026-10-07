@@ -5,6 +5,7 @@ import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidence
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -29,7 +30,7 @@ function topFindings(findings: readonly QuickDecisionFinding[]): readonly QuickD
   return [...findings]
     .filter((finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding))
     .sort((a, b) => {
-      const severityDelta = b.severityValue - a.severityValue;
+      const severityDelta = compareFindingSeverity(a.severityValue, b.severityValue);
 
       if (severityDelta !== 0) {
         return severityDelta;
