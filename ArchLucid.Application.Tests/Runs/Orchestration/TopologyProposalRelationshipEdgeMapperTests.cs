@@ -162,7 +162,7 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
-    public void MapRelationships_collapses_reads_from_and_writes_to_to_single_connects_to_edge()
+    public void MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes()
     {
         List<GraphNode> nodes =
         [
