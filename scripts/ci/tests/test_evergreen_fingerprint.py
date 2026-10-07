@@ -82,6 +82,17 @@ class TestFingerprintCalculator(unittest.TestCase):
             "x.cs at sha line n",
         )
 
+    def test_family_ignores_error_text_but_not_workflow_branch_or_jobs(self) -> None:
+        calculator = FingerprintCalculator()
+        base = calculator.family(_digest([_job("build", [_ARCH_A])]))
+
+        self.assertEqual(len(base), 12)
+        self.assertEqual(base, calculator.family(_digest([_job("build", ["totally different error"], steps=["test"])])))
+        self.assertEqual(base, calculator.family(_digest([_job("build", [_ARCH_A]), _job("build", [_ARCH_B])])))
+        self.assertNotEqual(base, calculator.family(_digest([_job("other", [_ARCH_A])])))
+        self.assertNotEqual(base, calculator.family(_digest([_job("build", [_ARCH_A])], branch="bugsmash")))
+        self.assertNotEqual(base, calculator.family(_digest([_job("build", [_ARCH_A])], workflow="CI")))
+
     def test_log_clock_times_do_not_split_keys(self) -> None:
         calculator = FingerprintCalculator()
         morning = _job("gitleaks", ["11:40AM WRN leaks found: 7", "RuleID:      generic-api-key"])

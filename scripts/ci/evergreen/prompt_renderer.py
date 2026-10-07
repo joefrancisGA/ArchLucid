@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from evergreen.failure_digest import FailedJob, FailureDigest
+from evergreen import markers
+from evergreen.failure_digest import FailureDigest
+from evergreen.failure_sections import failed_jobs_section
+from evergreen.lane import Lane
 from evergreen.launch_policy import LaunchDecision
 from evergreen.launch_target import DeliveryMode
 
@@ -22,6 +25,22 @@ _DELIVERY_INSTRUCTIONS: dict[DeliveryMode, str] = {
     ),
 }
 
+# Lane-specific scope, spelled out in the SOP sections named here.
+_LANE_INSTRUCTIONS: dict[Lane, str] = {
+    Lane.TRUNK_GATE: "This is a trunk gate. Follow SOP Phases 0-6 as written.",
+    Lane.SCHEDULED: (
+        "This is a **scheduled** workflow (nightly or weekly) that failed on trunk. Follow the SOP section "
+        "'Scheduled lane': first decide whether the failure is a flake or infrastructure outage (re-dispatch "
+        "once; if it passes, report flake and stop), and never loosen a threshold, baseline or schedule to go green."
+    ),
+    Lane.BUGSMASH: "This is the `bugsmash` branch. Follow SOP Phases 0-6 in push mode.",
+    Lane.DEPENDABOT: (
+        "This is a **Dependabot** dependency-update branch. Follow the SOP section 'Dependabot lane': adapt the "
+        "code to the upgrade, never revert, pin, ignore or override the dependency to get green, and escalate "
+        "with a PR comment when the upgrade needs a product decision."
+    ),
+}
+
 
 class PromptRenderer:
     """Fill the Markdown template; the template owns the wording, this class owns the data."""
@@ -31,6 +50,7 @@ class PromptRenderer:
 
     def render(self, digest: FailureDigest, decision: LaunchDecision) -> str:
         mode: DeliveryMode = DeliveryMode(decision.delivery_mode)
+        lane: Lane = Lane(decision.lane or Lane.TRUNK_GATE.value)
         return self._template.format(
             repository=digest.repository,
             workflow_name=digest.workflow_name,
@@ -40,9 +60,13 @@ class PromptRenderer:
             head_sha=digest.head_sha,
             pull_request_line=self._pull_request_line(digest),
             fingerprint=decision.fingerprint,
+            family=decision.family,
+            marker_lines=markers.render(decision.fingerprint, decision.family),
+            lane=lane.value,
+            lane_instructions=_LANE_INSTRUCTIONS[lane],
             delivery_mode=mode.value,
             starting_ref=decision.starting_ref,
-            failed_jobs_section=self._failed_jobs_section(digest.failed_jobs),
+            failed_jobs_section=failed_jobs_section(digest.failed_jobs),
             delivery_instructions=_DELIVERY_INSTRUCTIONS[mode].format(starting_ref=decision.starting_ref),
         )
 
@@ -53,13 +77,3 @@ class PromptRenderer:
 
         numbers: str = ", ".join(f"#{n}" for n in digest.pull_request_numbers)
         return f" (pull request {numbers})"
-
-    @classmethod
-    def _failed_jobs_section(cls, jobs: list[FailedJob]) -> str:
-        return "\n\n".join(cls._failed_job_block(job) for job in jobs)
-
-    @staticmethod
-    def _failed_job_block(job: FailedJob) -> str:
-        steps: str = ", ".join(job.failed_steps) if job.failed_steps else "(no step recorded)"
-        excerpt: str = "\n".join(job.error_lines) if job.error_lines else "(no error lines captured)"
-        return f"### Job: {job.name}\n\nFailed steps: {steps}\nJob log: {job.url}\n\n```text\n{excerpt}\n```"

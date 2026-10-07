@@ -41,6 +41,9 @@ _JOBS = {
 
 
 def _fake_gh(args: Sequence[str]) -> str:
+    if args[:3] == ["api", "--method", "POST"]:
+        return json.dumps({"html_url": f"https://github.com/o/r/posted/{args[3].rsplit('/', 1)[-1]}"})
+
     path: str = args[-1]
 
     if path.endswith("/jobs?per_page=100"):
@@ -53,7 +56,19 @@ def _fake_gh(args: Sequence[str]) -> str:
         )
 
     if "/pulls?" in path:
-        return json.dumps([{"body": "nothing"}])
+        return json.dumps([{"number": 1, "title": "unrelated", "body": "nothing", "state": "open"}])
+
+    if "/issues?" in path or "/comments" in path:
+        return json.dumps([])
+
+    if "/actions/runs?" in path:
+        return json.dumps({"workflow_runs": [{"id": 500, "name": "CI"}]})
+
+    if path.endswith("/runs/500/jobs?per_page=100"):
+        return json.dumps({"jobs": [{"name": "Security: gitleaks (secret scan)", "conclusion": "failure"}]})
+
+    if args[:3] == ["api", "--method", "POST"]:
+        return json.dumps({"html_url": f"https://github.com/o/r/posted/{path.rsplit('/', 1)[-1]}"})
 
     if "/actions/caches?" in path:
         return json.dumps({"actions_caches": []})
@@ -101,7 +116,11 @@ class TestEvergreenLaunchCli(unittest.TestCase):
         self.assertEqual(decision["delivery_mode"], "pull_request")
         outputs = self._github_output()
         self.assertEqual(outputs["launch"], "true")
+        self.assertEqual(outputs["report"], "false")
+        self.assertEqual(outputs["lane"], "trunk_gate")
+        self.assertEqual(outputs["delivery_mode"], "pull_request")
         self.assertEqual(outputs["fingerprint"], decision["fingerprint"])
+        self.assertEqual(len(decision["family"]), 12)
         self.assertTrue(outputs["cache_key"].startswith("evergreen-launch-"))
 
         captured: dict[str, Any] = {}
@@ -139,10 +158,107 @@ class TestEvergreenLaunchCli(unittest.TestCase):
         self.assertEqual(payload["repos"], [{"url": "https://github.com/o/r", "startingRef": "master"}])
         self.assertTrue(payload["autoCreatePR"])
         self.assertIn(f"Evergreen-Fingerprint: {decision['fingerprint']}", payload["prompt"]["text"])
+        self.assertIn(f"Evergreen-Family: {decision['family']}", payload["prompt"]["text"])
         launch = json.loads(self.launch_path.read_text(encoding="utf-8"))
         self.assertEqual(launch["agent_id"], "bc_9")
         self.assertEqual(launch["cache_key"], decision["cache_key"])
         self.assertEqual(self._github_output()["agent_url"], "https://cursor.com/agents/bc_9")
+
+    def _write_digest(self, **overrides: Any) -> None:
+        digest = {
+            **_RUN,
+            "repository": "o/r",
+            "workflow_name": "CI",
+            "run_id": 1,
+            "run_url": "https://github.com/o/r/actions/runs/1",
+            "head_branch": "master",
+            "head_sha": "s",
+            "pull_request_numbers": [],
+            "failed_jobs": [{"name": "Security: gitleaks (secret scan)", "failed_steps": [], "error_lines": [], "url": "j"}],
+            **overrides,
+        }
+        self.digest_path.write_text(json.dumps(digest), encoding="utf-8")
+
+    def _decide(self, *extra: str) -> dict[str, Any]:
+        code = self._run(
+            ["--repository", "o/r", "decide", "--digest", str(self.digest_path), "--output", str(self.decision_path), *extra]
+        )
+        self.assertEqual(code, 0)
+        return json.loads(self.decision_path.read_text(encoding="utf-8"))
+
+    def test_decide_reports_a_report_only_workflow(self) -> None:
+        self._write_digest(workflow_name="Stryker (scheduled)", event="schedule")
+
+        decision = self._decide()
+
+        self.assertFalse(decision["launch"])
+        self.assertTrue(decision["report"])
+        outputs = self._github_output()
+        self.assertEqual(outputs["report"], "true")
+        self.assertEqual(outputs["launch"], "false")
+        self.assertEqual(outputs["lane"], "scheduled")
+
+    def test_decide_honours_the_disabled_lanes_switch(self) -> None:
+        self._write_digest(head_branch="dependabot/npm/x")
+
+        decision = self._decide("--disabled-lanes", "dependabot")
+
+        self.assertFalse(decision["launch"])
+        self.assertIn("disabled", decision["reason"])
+
+    def test_decide_rejects_an_unknown_lane_name(self) -> None:
+        self._write_digest()
+
+        with self.assertRaisesRegex(SystemExit, "unknown lane"):
+            self._decide("--disabled-lanes", "nonsense")
+
+    def test_decide_launches_dependabot_when_trunk_is_green_and_skips_when_it_is_red(self) -> None:
+        self._write_digest(head_branch="dependabot/npm/x", failed_jobs=[{"name": "other job", "failed_steps": [], "error_lines": [], "url": "j"}])
+        self.assertTrue(self._decide()["launch"])
+        self.assertEqual(self._github_output()["delivery_mode"], "push_to_branch")
+
+        self._write_digest(head_branch="dependabot/npm/x")
+        skipped = self._decide()
+
+        self.assertFalse(skipped["launch"])
+        self.assertIn("already failing on trunk", skipped["reason"])
+
+    def test_report_opens_an_issue_and_exposes_its_url(self) -> None:
+        self._write_digest(workflow_name="Stryker (scheduled)", event="schedule")
+        self._decide()
+
+        code = self._run(
+            ["--repository", "o/r", "report", "--digest", str(self.digest_path), "--decision", str(self.decision_path), "--output", str(self.launch_path)]
+        )
+
+        self.assertEqual(code, 0)
+        self.assertEqual(self._github_output()["issue_url"], "https://github.com/o/r/posted/issues")
+        self.assertEqual(json.loads(self.launch_path.read_text(encoding="utf-8"))["issue_url"], "https://github.com/o/r/posted/issues")
+
+    def test_report_refuses_when_decision_is_not_a_report(self) -> None:
+        self._write_digest()
+        self._decide()
+
+        with self.assertRaisesRegex(SystemExit, "do not report"):
+            self._run(
+                ["--repository", "o/r", "report", "--digest", str(self.digest_path), "--decision", str(self.decision_path), "--output", str(self.launch_path)]
+            )
+
+    def test_announce_comments_on_the_pull_request(self) -> None:
+        self._write_digest(head_branch="dependabot/npm/x", pull_request_numbers=[77])
+        self._decide()
+        self.launch_path.write_text(json.dumps({"url": "https://cursor.com/agents/bc_1"}), encoding="utf-8")
+
+        with mock.patch("evergreen.github_cli.run_gh", side_effect=_fake_gh) as gh:
+            with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": str(self.output_path)}, clear=False):
+                code = evergreen_launch.main(
+                    ["--repository", "o/r", "announce", "--digest", str(self.digest_path), "--decision", str(self.decision_path), "--launch", str(self.launch_path)]
+                )
+
+        self.assertEqual(code, 0)
+        posted = [call.args[0] for call in gh.call_args_list if call.args[0][:3] == ["api", "--method", "POST"]]
+        self.assertEqual([args[3] for args in posted], ["repos/o/r/issues/77/comments"])
+        self.assertTrue(any("Evergreen-Fingerprint:" in arg for arg in posted[0]))
 
     def test_launch_refuses_when_decision_is_skip(self) -> None:
         self.digest_path.write_text(json.dumps({**_RUN, "repository": "o/r", "workflow_name": "W", "run_id": 1, "run_url": "u", "head_branch": "master", "head_sha": "s"}), encoding="utf-8")
