@@ -1,5 +1,3 @@
-using ArchLucid.Persistence.Scoping;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Collection(nameof(SqlServerPersistenceCollection))]
@@ -15,7 +13,6 @@ public sealed class DapperAdvisoryScanScheduleRepositoryContractTests(SqlServerP
     protected override IAdvisoryScanScheduleRepository CreateRepository()
     {
         return new DapperAdvisoryScanScheduleRepository(
-            new TestSqlConnectionFactory(fixture.ConnectionString),
-            new EmptyPersistenceScopeContextProvider());
+            new TestSqlConnectionFactory(fixture.ConnectionString));
     }
 }
