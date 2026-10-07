@@ -45,14 +45,14 @@ Checks from **`.NET: full regression (SQL)`** through **`Containers: Docker buil
 
 ### Live ruleset (do not guess from JSON alone)
 
-GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **intended** list in [`.github/rulesets/golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) is five contexts. Live ruleset **`Golden cohort real-LLM gate`** (id `21654724`) still needs an owner apply of the fifth check after a green `master` push produces `CI: beta-readiness wiring guards`:
+GitHub cannot apply rulesets from files in the repo. The intended list in [`.github/rulesets/golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) is five contexts. As of 2026-10-07, live ruleset **`Golden cohort real-LLM gate`** (id `21654724`) is active on `master`/`main` and already contains all five contexts:
 
 - `cohort-real-llm-gate`
 - `Security: gitleaks (secret scan)`
 - `.NET: fast core (corset)` — PR/full CI corset job name in `ci.yml` (use this exact string in the live ruleset; do not substitute the push-only sibling below)
 - `.NET: push corset (build + fast core Core/Decisioning)` — sibling job on `ui-typecheck-on-push.yml` for `master`/`main` push only
 - `Operator UI: typecheck (blocking)`
-- `CI: beta-readiness wiring guards` — **add in GitHub** (JSON already lists it; live ruleset may lag)
+- `CI: beta-readiness wiring guards`
 
 **Not in the five-check JSON** (do not pretend the live ruleset requires them):
 
@@ -61,7 +61,7 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 
-**RC34 witness (2026-09-21):** run `35552946125` on SHA `f37771635f` produced a **green** `CI: beta-readiness wiring guards` job (gitleaks and typecheck also green). The live ruleset still targets `master`/`main`, so apply the fifth check after the same job is green on the default branch (GitHub autocomplete already knows the check name). **Do not** apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) until JwtBearer has a green `master` run.
+**RC34 witness (2026-10-07):** completed run `37642959507` on SHA `5396261f3d` produced green gitleaks, typecheck, OpenAPI, beta-readiness, and push-corset jobs; private-beta JwtBearer run `37642959086` was also green. The live ruleset still targets `master`/`main`, so the private-beta addon remains an owner decision after a green `master` JwtBearer run. **Do not** apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) until that condition is met.
 
 Dry-run (does not mutate GitHub): inspect the JSON, then run the script only as an owner with `gh` admin. Confirm the payload still lists exactly the five contexts in `golden-cohort-gate-required-check.json` before PATCHing.
 

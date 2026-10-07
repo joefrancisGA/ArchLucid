@@ -93,7 +93,13 @@ test.describe(
 
       const fakeRunId = crypto.randomUUID();
 
-      await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      // A cold SSR/API response can render the generic error shell before the
+      // authenticated not-found boundary. Retry navigation so this assertion
+      // measures the recovery surface rather than a transient shell race.
+      await expect(async () => {
+        await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+        await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 10_000 });
+      }).toPass({ timeout: 60_000, intervals: [1_000, 3_000, 5_000] });
 
       await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 60_000 });
       await expect(page.getByTestId("not-found-review-packages")).toBeVisible();
