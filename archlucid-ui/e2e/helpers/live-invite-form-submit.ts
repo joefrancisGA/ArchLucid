@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page, type Request } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
@@ -145,23 +145,36 @@ export async function submitAdminInviteFromUsersUi(
 
   await expect(submitButton).toBeEnabled({ timeout: 15_000 });
   await dismissBlockingModalOverlays(page);
+
+  const inviteRequestMatcher = (url: string, method: string): boolean =>
+    url.includes("/api/proxy/v1/admin/users/invite") && method === "POST";
+
   const inviteResponsePromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/admin/users/invite") &&
-      response.request().method() === "POST",
+    (response) => inviteRequestMatcher(response.url(), response.request().method()),
     { timeout: 90_000 },
   );
+  // Observe the waiter immediately so a fail-fast throw cannot leave its timeout unhandled.
+  void inviteResponsePromise.catch(() => undefined);
 
-  await clickThroughBlockingOverlays(page, submitButton, { force: true });
+  const invitePostStarted = await startAdminInvitePost(page, inviteForm, submitButton);
+
+  if (!invitePostStarted) {
+    throw new Error(
+      `Admin invite UI for ${email} did not start Invite POST after submit. url=${page.url()}`,
+    );
+  }
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
+
   try {
     const inviteResponse = await inviteResponsePromise;
     inviteResponseStatus = inviteResponse.status();
     inviteResponseBody = await inviteResponse.text();
   } catch {
-    // Fall through to UI assertions when the build surfaces only toast + seeded rows.
+    throw new Error(
+      `Admin invite UI for ${email} Invite POST did not complete within 90s after submit. url=${page.url()}`,
+    );
   }
 
   const pendingRow = page.locator("tr", { hasText: email });
@@ -173,12 +186,67 @@ export async function submitAdminInviteFromUsersUi(
       conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
     ]);
   } catch {
-    const inviteHint =
-      inviteResponseStatus !== undefined
-        ? ` Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`
-        : " Invite POST did not complete within 90s.";
     throw new Error(
-      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit.${inviteHint}`,
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit. Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`,
     );
   }
+}
+
+async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButton: Locator): Promise<boolean> {
+  const inviteRequestMatcher = (request: { url(): string; method(): string }): boolean =>
+    request.url().includes("/api/proxy/v1/admin/users/invite") && request.method() === "POST";
+
+  const firstAttemptStarted = waitForInvitePostStarted(page, inviteRequestMatcher, 15_000);
+
+  await inviteForm.evaluate((element) => {
+    const form = element as HTMLFormElement;
+
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    }
+  });
+
+  if (await firstAttemptStarted) {
+    return true;
+  }
+
+  return clickThroughOverlaysWatchingInvitePost(page, submitButton, inviteRequestMatcher, 15_000);
+}
+
+/** Watches for Invite POST during overlay cleanup, then starts the 15s waiter only after the click returns. */
+async function clickThroughOverlaysWatchingInvitePost(
+  page: Page,
+  submitButton: Locator,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  let started = false;
+
+  const onRequest = (request: Request): void => {
+    if (matcher(request)) {
+      started = true;
+    }
+  };
+
+  page.on("request", onRequest);
+
+  try {
+    await clickThroughBlockingOverlays(page, submitButton, { force: true });
+
+    if (started) {
+      return true;
+    }
+
+    return waitForInvitePostStarted(page, matcher, timeoutMs);
+  } finally {
+    page.off("request", onRequest);
+  }
+}
+
+function waitForInvitePostStarted(
+  page: Page,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  return page.waitForRequest(matcher, { timeout: timeoutMs }).then(() => true).catch(() => false);
 }
