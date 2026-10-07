@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`showSuccess` throw before `router.push` leaves tenant committed with `registerCompletedRef` set — duplicate POST blocked; leading-zero `"010"` parses to decimal 10 by design; post-success `finally` intentionally keeps `registerInFlightRef` true so submit stays locked; empty-string `industryVertical` omits vertical keys even when `industryVerticalOther` populated; Unicode local-part email blocked by zod `.email()` before verify redirect); regressions `surfaces signup error when success toast throws after successful register`, `signupFormSchema accepts leading-zero optional architecture team size as decimal ten`, `serializes leading-zero optional architecture team size as ten in the register payload builder`, `omits industry vertical from the register payload builder when industry is an empty string`, `signupFormSchema rejects unicode local-part email before verify redirect`, and `keeps submit disabled for unicode local-part email`; seeded five follow-on `(candidate)` rows; 54 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five seeded `(candidate)` rows (foreign `WorkspaceId` on recommendation rows filtered like project drift; composite `DecideAsync` is intentional dry-run suppression read; `DistinctBy` after `OrderByDescending` is the dedup fix not a defect; synthesized empty findings path is intentional manifest-bound simulation; controller `409` mapping is thin wrapper over provider throw documented on explicit compare-to sealed-hash failure); regression `GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope`; reaffirmed `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`, `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, and `SimulateAsync_CompositeRule_WhenMatched_UsesSuppressionPolicyDecision`; seeded five follow-on `(candidate)` rows; 34 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
 
 2026-10-07 thorough hunt (hit): `core-findings-advice` — proved `^` and `~` resource token delimiter parity gaps; proved `noncompliant with the constraint` and `forbidden from enable mfa` gaps; cheap-disproof closed `in conflict with the constraint` (existing `conflicts? with` regex); regressions `Jaccard_similarity_treats_caret_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_tilde_separated_resource_tokens_as_space_separated_peers`, `HasFalsifiabilitySignal_recognizes_conflict_wording_variants` (noncompliant / in-conflict), and `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` (`forbidden from`); seeded five follow-on `(candidate)` rows; 1723 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
@@ -4286,6 +4288,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for success-toast throw UX, leading-zero team size, empty industry enum, and zod EAI gate; 54 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; post-success navigation throw UX, `1e4` team size, schema-bypass `companySize`, `200` ok gate, and production funnel non-throw; 48 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `omits empty company size string from the register payload builder`, `serializes scientific notation optional architecture team size when it parses to a whole number`, and `still allows register retry after duplicate organization conflict`; seeded five follow-on `(candidate)` rows; 43 scoped SignupForm vitest tests passed.
@@ -4300,9 +4304,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4402,11 +4406,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `buildSignupRegisterPayload` — non-enum `companySize` when schema bypassed — **cheap-disproof 2026-10-07 thorough hunt:** builder is not an authz boundary; UI path uses zod enum; regression `passes non-enum company size through the payload builder when the schema is bypassed`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — any `res.ok` navigates including HTTP `200` — **cheap-disproof 2026-10-07 thorough hunt:** intentional 2xx gate; production proxy returns `201`; regression `navigates to verify on HTTP 200 when register response is ok`.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — `showSuccess` throw before `router.push` leaves success toast uncalled but register committed — locus: same try block ordering (`SignupForm.tsx` lines 191–193).
-- [ ] (candidate) `signupFormSchema` — leading-zero optional team size (`"010"`) parses via `Number()` to `10` without rejecting octal-looking input — locus: `superRefine` + payload builder `Number(teamTrim)`.
-- [ ] (candidate) `SignupForm` — `registerInFlightRef` not cleared when `registerSucceeded` true and catch runs — locus: `finally` only resets when `!registerSucceeded`; input: post-success throw; wrong outcome: submit stays disabled (may be intentional lock).
-- [ ] (candidate) `buildSignupRegisterPayload` — omits `industryVertical` when set to empty string with `industryVerticalOther` populated — locus: truthy checks on optional selects.
-- [ ] (candidate) `SignupForm` verify redirect — `encodeURIComponent` on email with Unicode local-part (EAI) after zod accepts internationalized address — locus: `router.push` query; depends on zod email vs browser navigation limits.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `showSuccess` throw before `router.push` leaves success toast uncalled but register committed — **cheap-disproof 2026-10-07 thorough hunt:** `registerCompletedRef` set before toast/navigation; duplicate POST blocked; regression `surfaces signup error when success toast throws after successful register`.
+- [x] (valid-no-repro) `signupFormSchema` — leading-zero optional team size (`"010"`) parses via `Number()` to `10` without rejecting octal-looking input — **cheap-disproof 2026-10-07 thorough hunt:** decimal parsing is intentional; regressions `signupFormSchema accepts leading-zero optional architecture team size as decimal ten` and `serializes leading-zero optional architecture team size as ten in the register payload builder`.
+- [x] (valid-no-repro) `SignupForm` — `registerInFlightRef` not cleared when `registerSucceeded` true and catch runs — **cheap-disproof 2026-10-07 thorough hunt:** post-success lock keeps CTA disabled until navigation; reaffirmed `does not allow another register POST when success handling throws after a 201`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — omits `industryVertical` when set to empty string with `industryVerticalOther` populated — **cheap-disproof 2026-10-07 thorough hunt:** falsy enum guard omits keys; regression `omits industry vertical from the register payload builder when industry is an empty string`.
+- [x] (invalid) `SignupForm` verify redirect — `encodeURIComponent` on email with Unicode local-part (EAI) after zod accepts internationalized address — **cheap-disproof 2026-10-07 thorough hunt:** zod `.email()` rejects `üser@example.com` before submit; regressions `signupFormSchema rejects unicode local-part email before verify redirect` and `keeps submit disabled for unicode local-part email`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows fresh-organization `showSuccess` copy — locus: `showSuccess` after `res.ok` (`SignupForm.tsx` ~192).
+- [ ] (candidate) `buildSignupRegisterPayload` — optional `architectureTeamSize` `"0"` omitted silently instead of rejected — locus: `t > 0` guard in builder vs `superRefine` `n <= 0` on UI path.
+- [ ] (candidate) `signupFormSchema` — `architectureTeamSize` with leading plus (`"+5"`) parses via `Number()` to valid integer — locus: `superRefine` `Number(arch)` (`signup-schema.ts` ~49).
+- [ ] (candidate) `SignupForm` `sessionStorage` `archlucid_last_registration` — stores form `adminEmail`/`organizationName` from submit values while JSON body uses trimmed zod output only on required fields in payload — locus: `sessionStorage.setItem` block (`SignupForm.tsx` ~179–186).
+- [ ] (candidate) `SignupForm` `onSubmit` — `res.text()` then empty body with `201` leaves `body` null but still navigates without persisting tenant ids in session — locus: parse block + success path (`SignupForm.tsx` ~142–148).
 
 ---
 

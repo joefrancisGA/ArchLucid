@@ -111,6 +111,43 @@ describe("SignupForm", () => {
     expect(payload.organizationName).toBe("  Contoso Trial Org  ");
   });
 
+  it("signupFormSchema accepts leading-zero optional architecture team size as decimal ten", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "010",
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("serializes leading-zero optional architecture team size as ten in the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "010",
+    });
+
+    expect(payload.architectureTeamSize).toBe(10);
+  });
+
+  it("omits industry vertical from the register payload builder when industry is an empty string", () => {
+    const values = {
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      industryVertical: "",
+      industryVerticalOther: "Should not ship without enum Other",
+    } as SignupFormValues;
+
+    const payload = buildSignupRegisterPayload(values);
+
+    expect(payload.industryVertical).toBeUndefined();
+    expect(payload.industryVerticalOther).toBeUndefined();
+  });
+
   it("signupFormSchema accepts 1e4 optional architecture team size at the upper bound", () => {
     const parsed = signupFormSchema.safeParse({
       adminEmail: "ops@example.com",
@@ -374,6 +411,64 @@ describe("SignupForm", () => {
 
     funnelSpy.mockRestore();
     vi.unstubAllGlobals();
+  });
+
+  it("surfaces signup error when success toast throws after successful register", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+    vi.mocked(showSuccess).mockImplementation(() => {
+      throw new Error("toast failed");
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "toast failed");
+      expect(pushMock).not.toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    vi.mocked(showSuccess).mockReset();
+    vi.unstubAllGlobals();
+  });
+
+  it("signupFormSchema rejects unicode local-part email before verify redirect", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "üser@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("keeps submit disabled for unicode local-part email", async () => {
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "üser@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
   });
 
   it("surfaces signup error when navigation throws after successful register", async () => {
