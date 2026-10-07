@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `core-safety-network` — re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http`; no hunt-ready row promoted; cheap-disproof closed five seeded `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 42 scoped `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`; Host composition included).
+
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five open `(candidate)` rows (HTTP `500` `detail` string routed to `showError` by design; undefined `companySize` omits JSON key; funnel telemetry after sessionStorage quota errors is intentional post-success analytics; `"-1"` team size blocked by `n <= 0` superRefine; subdomain email uses single `encodeURIComponent`); regressions `shows server detail string from HTTP 500 register responses`, `omits company size from the register payload builder when value is undefined`, `signupFormSchema rejects negative optional architecture team size`, `keeps submit disabled for negative optional architecture team size`, and `encodes subdomain work email once in the verify redirect query`; reaffirmed funnel call when `sessionStorage.setItem` throws; seeded five follow-on `(candidate)` rows; 72 scoped SignupForm vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `LlmTenantWalletStripeWebhookProcessorTests`, and `MemoryCacheBillingWebhookReplayGuardTests`; scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
@@ -22238,13 +22240,27 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 42 scoped `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`).
+
+- [x] (invalid) `OutboundExternalHttpResilienceOptions.Normalize` — `FailureRatio` above `1.0` leaves integration breaker stuck open — **cheap-disproof 2026-10-07 seed hunt:** `Normalize` clamps to `1.0`; regression `OutboundExternalHttpResilienceOptions_Normalize_clamps_failure_ratio_above_one`.
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions.Normalize` — negative `MaxRetryAttempts` throws or wraps — **cheap-disproof 2026-10-07 seed hunt:** clamps to `0`; regression `OutboundExternalHttpResilienceOptions_Normalize_clamps_negative_max_retry_attempts_to_zero`.
+- [x] (invalid) `ArchLucidAzurePublicHttpClients` — ARM/retail `Uri` roots could be `http` or IP literals — **cheap-disproof 2026-10-07 seed hunt:** compile-time `https` public authorities; regression `ArchLucidAzurePublicHttpClients_authorities_use_https_public_hosts`.
+- [x] (invalid) `ArchLucidMultiCloudPublicHttpClients` — AWS/GCP catalog roots omit TLS or use private hosts — **cheap-disproof 2026-10-07 seed hunt:** fixed `https` pricing/catalog authorities; regression `ArchLucidMultiCloudPublicHttpClients_authorities_use_https_public_hosts`.
+- [x] (invalid) `OutboundSocketsHttpHandlerSettings.Apply` — unknown `OutboundHttpSocketsHandlerProfile` value is a no-op — **cheap-disproof 2026-10-07 seed hunt:** throws `ArgumentOutOfRangeException`; regression `OutboundSocketsHttpHandlerSettings_Apply_throws_for_unknown_profile_value`.
+
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions.Normalize` — `SamplingDurationSeconds` has a lower clamp (`5`) but no upper bound so misconfiguration can widen breaker windows without validation — locus: `Normalize()` (`OutboundExternalHttpResilienceOptions.cs`).
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `InternalLoopbackProbe` (15s) exceeds `InternalDiagnostics` (10s) while both serve loopback-adjacent outbound calls — locus: constant definitions (`OutboundHttpClientTimeoutSeconds.cs`).
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `LlmCompletion` profile shares `MaxConnectionsPerServer` (20) with `ExternalIntegration` — locus: profile switch (`OutboundSocketsHttpHandlerSettings.cs` ~37–41).
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — any `5xx` including synthetic `502` from upstream private-network rejection retries blindly — locus: `(int)code >= 500` (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~71).
+- [ ] (candidate) `ArchLucid.Core/Safety/IContentSafetyGuard` — interface-only Safety surface cannot enforce outbound URL policy — locus: `IContentSafetyGuard.cs` (SSRF guards live under `ArchLucid.Core/Security/`).
 
 2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows below; 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound tests passed (`RunAnalyzers=false`).
 
