@@ -72,6 +72,38 @@ describe("SignupForm", () => {
     expect(payload.industryVerticalOther).toBeUndefined();
   });
 
+  it("includes company size in the register payload builder when a range is selected", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      companySize: "1-10",
+    });
+
+    expect(payload.companySize).toBe("1-10");
+  });
+
+  it("omits architecture team size key when optional field is an empty string", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "",
+    });
+
+    expect(payload).not.toHaveProperty("architectureTeamSize");
+  });
+
+  it("signupFormSchema rejects whitespace-only organization name after trim", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "   ",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("includes trimmed industry vertical other in the register payload builder when industry is Other", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "ops@example.com",
@@ -1044,6 +1076,9 @@ describe("SignupForm", () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("/api/proxy/v1/register");
     expect(init.method).toBe("POST");
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Accept).toBe("application/json");
+    expect(headers["Content-Type"]).toBe("application/json");
     const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.adminEmail).toBe("ops@example.com");
     expect(body.organizationName).toBe("Contoso Trial Org");
@@ -1433,6 +1468,29 @@ describe("SignupForm", () => {
     await waitFor(() => {
       expect(showSuccess).toHaveBeenCalled();
       expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 204 when register response has no body", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(null, { status: 204 })));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
     });
 
     vi.unstubAllGlobals();

@@ -4442,7 +4442,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 45 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 46 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 94 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — register `fetch` sends `Accept: application/json` — **cheap-disproof 2026-10-07 seed hunt #46:** JSON register contract; regression `submits valid payload to the same-origin proxy` asserts `Accept` and `Content-Type`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — includes `companySize` enum when operator selects a range — **cheap-disproof 2026-10-07 seed hunt #46:** optional include branch; regression `includes company size in the register payload builder when a range is selected`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body still navigates — **cheap-disproof 2026-10-07 seed hunt #46:** `res.ok` success path; regression `still navigates after 204 when register response has no body`.
+- [x] (valid-no-repro) `signupFormSchema` — whitespace-only organization name fails after trim — **cheap-disproof 2026-10-07 seed hunt #46:** `.trim().min(1)`; regressions `signupFormSchema rejects whitespace-only organization name after trim` and `keeps submit disabled when required fields are whitespace-only`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — omits `architectureTeamSize` key when optional field is empty string — **cheap-disproof 2026-10-07 seed hunt #46:** `teamTrim.length > 0` guard; regression `omits architecture team size key when optional field is an empty string`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — omits `x-archlucid-first-touch` when marketing cookie absent — locus: `readFirstTouchCookie` guard (`SignupForm.tsx` ~126–134).
+- [ ] (candidate) `buildSignupRegisterPayload` — includes `industryVertical` when Technology selected — locus: `if (values.industryVertical)` (`SignupForm.tsx` ~64–66).
+- [ ] (candidate) `SignupForm` — changing industry away from Other clears `industryVerticalOther` via `setValue` — locus: industry `onValueChange` (`SignupForm.tsx` ~314–322).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `502` register failure surfaces server `detail` string in toast — locus: `!res.ok` branch (`SignupForm.tsx` ~157–164).
+- [ ] (candidate) `signupFormSchema` — rejects organization name longer than 200 characters — locus: `.max(200)` (`signup-schema.ts` ~35–38).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 90 scoped SignupForm vitest tests passed.
 
@@ -4451,12 +4465,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` runs before `showSuccess` so toast throw still records funnel — **cheap-disproof 2026-10-07 seed hunt #45:** ordering by design; regression `surfaces signup error when success toast throws after successful register` asserts funnel before toast failure.
 - [x] (valid-no-repro) `signupFormSchema` — padded required emails pass after trim on submit values — **cheap-disproof 2026-10-07 seed hunt #45:** zod `.trim()` on email; regression `signupFormSchema trims padded required email on parse`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-ok JSON with numeric `detail` falls back to raw response text — **cheap-disproof 2026-10-07 seed hunt #45:** string `detail` gate; regression `shows raw response text when server detail is not a string`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — register `fetch` sends `Accept: application/json` — locus: headers object (`SignupForm.tsx` ~121–124).
-- [ ] (candidate) `buildSignupRegisterPayload` — includes `companySize` enum when operator selects a range — locus: `if (values.companySize)` (`SignupForm.tsx` ~50–52).
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body does not navigate (non-ok for empty success) — locus: `res.ok` without JSON body (`SignupForm.tsx` ~142–165); **note:** `204` is `ok` — verify behavior.
-- [ ] (candidate) `signupFormSchema` — whitespace-only organization name fails after trim — locus: `.trim().min(1)` (`signup-schema.ts` ~35–38).
-- [ ] (candidate) `buildSignupRegisterPayload` — omits `architectureTeamSize` key when optional field is empty string — locus: `teamTrim.length > 0` guard (`SignupForm.tsx` ~54–61).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 87 scoped SignupForm vitest tests passed.
 
@@ -4532,7 +4540,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
