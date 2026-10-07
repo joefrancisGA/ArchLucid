@@ -118,4 +118,105 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
         typeof(IContentSafetyGuard).IsInterface.Should().BeTrue();
         typeof(IContentSafetyGuard).GetMethods().Should().HaveCount(2);
     }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_Normalize_clamps_minimum_throughput_and_break_duration_lower_bounds_only()
+    {
+        OutboundExternalHttpResilienceOptions low = new() { MinimumThroughput = 0, BreakDurationSeconds = 1 };
+        low.Normalize();
+
+        low.MinimumThroughput.Should().Be(2);
+        low.BreakDurationSeconds.Should().Be(5);
+
+        OutboundExternalHttpResilienceOptions high = new() { MinimumThroughput = 10_000, BreakDurationSeconds = 3_600 };
+        high.Normalize();
+
+        high.MinimumThroughput.Should().Be(10_000);
+        high.BreakDurationSeconds.Should().Be(3_600);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_cloud_control_plane_allows_higher_pool_than_external_integration()
+    {
+        using SocketsHttpHandler cloudHandler = new();
+        using SocketsHttpHandler integrationHandler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(cloudHandler, OutboundHttpSocketsHandlerProfile.CloudControlPlane);
+        OutboundSocketsHttpHandlerSettings.Apply(integrationHandler, OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        cloudHandler.MaxConnectionsPerServer.Should().BeGreaterThan(integrationHandler.MaxConnectionsPerServer);
+        cloudHandler.MaxConnectionsPerServer.Should().Be(50);
+    }
+
+    [Fact]
+    public void OutboundHttpClientTimeoutSeconds_devops_integration_uses_longer_budget_than_external_integration()
+    {
+        OutboundHttpClientTimeoutSeconds.DevOpsIntegration.Should()
+            .BeGreaterThan(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
+        OutboundHttpClientTimeoutSeconds.DevOpsIntegration.Should().Be(60);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_internal_loopback_caps_pool_without_connect_callback()
+    {
+        using SocketsHttpHandler handler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(handler, OutboundHttpSocketsHandlerProfile.InternalLoopback);
+
+        handler.MaxConnectionsPerServer.Should().Be(4);
+        handler.ConnectCallback.Should().BeNull();
+    }
+
+    [Fact]
+    public void AzureRmAndRetailPricesHttpRetryPolicy_max_attempts_matches_integration_posture_constant()
+    {
+        AzureRmAndRetailPricesHttpRetryPolicy.MaxRetryAttempts.Should().Be(3);
+        ReferenceEquals(
+            typeof(AzureRmAndRetailPricesHttpRetryPolicy).Assembly,
+            typeof(ArchLucidAzurePublicHttpClients).Assembly).Should().BeTrue();
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_Normalize_clamps_max_retry_attempts_above_ten()
+    {
+        OutboundExternalHttpResilienceOptions options = new() { MaxRetryAttempts = 25 };
+        options.Normalize();
+
+        options.MaxRetryAttempts.Should().Be(10);
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_Normalize_clamps_failure_ratio_below_point_one()
+    {
+        OutboundExternalHttpResilienceOptions options = new() { FailureRatio = 0.01 };
+        options.Normalize();
+
+        options.FailureRatio.Should().Be(0.1);
+    }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_400_bad_request()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(() =>
+        {
+            sendCount++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        sendCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void ContentSafetyResult_is_llm_moderation_outcome_not_url_policy()
+    {
+        ContentSafetyResult blocked = new(false, "blocked", "hate", 0.9);
+
+        blocked.IsAllowed.Should().BeFalse();
+        blocked.BlockReason.Should().Be("blocked");
+    }
 }
