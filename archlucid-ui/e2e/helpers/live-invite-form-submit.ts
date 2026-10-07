@@ -2,8 +2,8 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
-import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
+import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 
 const LIVE_ADMIN_USERS_TAB_PATH = "/administration/users?tab=users";
 
