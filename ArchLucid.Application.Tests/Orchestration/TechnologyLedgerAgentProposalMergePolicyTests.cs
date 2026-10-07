@@ -1115,6 +1115,71 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "Azure\u00B7SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = null;
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:Svc-A";
+        existing.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-a";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs()
+    {
+        TechnologyLedgerEntry future = CreateCandidate(CloudProvider.Azure);
+        future.Status = TechnologyLedgerStatus.Future;
+        future.TechnologyName = "Azure SQL";
+        future.EvidenceRef = "agentTopologyProposal:p1:db-old";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db-new";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [future])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
     public void Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty()
     {
         TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);

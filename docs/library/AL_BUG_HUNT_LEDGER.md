@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`, `Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name`, `Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs`, and `Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator`; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — re-read `TechnologyLedgerAgentProposalMergePolicy` (`Resolve`, `HasMatchingProposal`, `EvidenceRefsMatch`, `ShouldTreatAsDuplicateByName`, `NormalizeTechnologyName`); no hunt-ready row promoted; retained five open `(candidate)` rows for next thorough hunt; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): `cli-draft-new` — re-read `DraftNewCommandIntakeLoop`, connect/admit/MUST stages, hooks, and arg parser; no hunt-ready row promoted; five open `(candidate)` rows unchanged for next thorough hunt; 52 scoped `DraftNewCommandCoreTests` passed (`RunAnalyzers=false`).
@@ -4784,17 +4786,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
+2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for ordinal sub-key casing, substantive/ungrounded name dedupe, Future status dedupe, and middle-dot display separators; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed-only): re-read merge policy partials; no hunt-ready promotion; five open `(candidate)` rows unchanged; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read merge policy; no hunt-ready promotion; refreshed five `(candidate)` rows below (dropped empty-chosen open row superseded by valid-no-repro regression); 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read merge policy whitespace normalization and empty chosen labels; cheap-disproof closed NBSP-vs-space promotion and whitespace-only chosen-name blocking; removed stale duplicate `(candidate)` rows already closed by thorough hunt; seeded five follow-on `(candidate)` rows below; regressions `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators` and `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
-- [ ] (candidate) `EvidenceRefsMatch` — topology stable sub-key compare uses `StringComparison.Ordinal` so `agentTopologyProposal:p1:svc-a` vs `agentTopologyProposal:p1:Svc-a` remain distinct ledger rows; reachable when manifest `ServiceId` casing drifts between topology batches (mapper preserves casing per 2026-10-05 hit).
-- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` rows participate in same-role name/ref dedupe before any `Chosen` row exists; reachable when exploration alternatives linger during topology re-ingest (`Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref` covers ungrounded alternative only).
-- [ ] (candidate) `ShouldTreatAsDuplicateByName` — substantive existing row + ungrounded candidate returns false (allows insert) even when `TechnologyNamesMatch`; reachable when an ungrounded assumed name collision exists before a substantive inventory ref arrives for the same label.
-- [ ] (candidate) `NormalizeTechnologyName` — exotic Unicode space separators outside `char.IsWhiteSpace` may not collapse to ASCII space before `TechnologyNamesMatch`; reachable when manifest display names embed narrow no-break variants beyond NBSP (NBSP already collapses per `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators`).
-- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Future` snapshot rows still participate in ref/name dedupe (no status filter); reachable when roadmap entries share `agentTopologyProposal` refs with incoming topology candidates.
+- [x] (valid-no-repro) `EvidenceRefsMatch` ordinal stable sub-key — **cheap-disproof 2026-10-06 seed hunt:** intentional lossless casing per `TechnologyLedgerTopologyProposalMapper.StableTopologyIdentitySubKey`; regressions `MapCandidates_distinct_service_ids_differing_only_by_case_both_survive_merge_policy` and `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`.
+- [x] (valid-no-repro) `HasMatchingProposal` + `TechnologyLedgerStatus.Alternative` — **cheap-disproof 2026-10-06 seed hunt:** ungrounded alternatives do not block substantive topology refs; regression `Resolve_keeps_substantive_candidate_when_alternative_row_shares_name_without_grounding_ref`.
+- [x] (valid-no-repro) `ShouldTreatAsDuplicateByName` substantive existing + ungrounded candidate — **cheap-disproof 2026-10-06 seed hunt:** intentional name-level dedupe blocks duplicate labels once a grounded row exists; regression `Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name`.
+- [x] (valid-no-repro) `NormalizeTechnologyName` exotic separators — **cheap-disproof 2026-10-06 seed hunt:** NBSP collapses; punctuation separators such as middle dot (`U+00B7`) remain distinct display tokens; regression `Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator`.
+- [x] (valid-no-repro) `HasMatchingProposal` + `TechnologyLedgerStatus.Future` — **cheap-disproof 2026-10-06 seed hunt:** ref dedupe by design (`Resolve_skips_when_future_row_shares_evidence_ref`); distinct substantive refs with matching names still insert (`Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs`).
+
+- [ ] (candidate) `NormalizeTechnologyName` — ideographic space / figure space variants (`U+3000`, `U+2007`) may or may not collapse identically to ASCII space before `TechnologyNamesMatch`; reachable when imported manifest display names embed CJK or typographic spacing.
+- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` row with substantive `EvidenceRef` and matching `TechnologyName` still dedupes a second grounded candidate with a different ref when `ShouldTreatAsDuplicateByName` returns true for dual-ungrounded pairs only — re-open when a cited producer emits substantive alternative + distinct topology ref collision.
+- [ ] (candidate) `Resolve` locked authoritative gate — `HasSubstantiveEvidenceRef(chosen.EvidenceRef)` false with `IsLocked` may allow same-family same-name inserts that operators expected frozen; reachable when locked inventory chosen rows lack grounding refs (regression family `Resolve_keeps_distinct_topology_ref_when_locked_authoritative_chosen_lacks_grounding_ref`).
+- [ ] (candidate) `EvidenceRefsMatch` — malformed refs without `:` tail fall back to case-insensitive whole-string equality (`Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`); reachable when proposal ids differ only by casing without `agentTopologyProposal:` prefix structure.
+- [ ] (candidate) `SharesProviderFamilyGate` — concrete provider candidate against `CloudProvider.None` chosen inserts exploration rows even when `TechnologyNamesMatch` and refs collide at name layer; reachable during cloud-neutral inventory chosen + concrete provider topology re-ingest (see `Resolve_inserts_assumed_on_provider_conflict` family).
 
 - [x] (valid-no-repro) `NormalizeTechnologyName` — NBSP vs ASCII space internal separators — **valid-no-repro 2026-10-06 seed hunt:** whitespace collapse matches tab/space parity; regression `Resolve_skips_when_technology_names_differ_only_by_nbsp_vs_space_separators`.
 - [x] (valid-no-repro) `TechnologyLedgerAgentProposalMergePolicy.Resolve` — whitespace-only authoritative chosen `TechnologyName` — **valid-no-repro 2026-10-06 seed hunt:** empty normalized chosen label does not block distinct display-name candidates; regression `Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`.
@@ -4813,7 +4823,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-06
