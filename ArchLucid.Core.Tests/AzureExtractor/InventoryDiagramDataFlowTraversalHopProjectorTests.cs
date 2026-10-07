@@ -179,6 +179,10 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     {
         GraphNode factory = CreateNode("factory-node", FactoryArmId, "Microsoft.DataFactory/factories");
         factory.Properties["subnet.id"] = SubnetArmId;
+        GraphNode privateEndpointFactory = CreateNode(
+            "private-endpoint-factory-node",
+            $"{FactoryArmId}-private-endpoint",
+            "Microsoft.DataFactory/factories");
 
         GraphSnapshot graph = CreateGraph(
             [
@@ -186,6 +190,8 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
                 CreateNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets"),
                 CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
                 factory,
+                CreateNode("private-endpoint-node", PrivateEndpointArmId, "Microsoft.Network/privateEndpoints"),
+                privateEndpointFactory,
                 CreateNode("nat-node", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/natGateways/nat", "Microsoft.Network/natGateways"),
             ],
             [
@@ -199,6 +205,16 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
                     "subnet-node",
                     AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet,
                     GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                CreateEdge(
+                    "private-endpoint-node",
+                    "subnet-node",
+                    AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                    GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                CreateEdge(
+                    "private-endpoint-node",
+                    "private-endpoint-factory-node",
+                    AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    GraphEdgeInferenceSources.InventoryPrivateEndpoint),
             ]);
 
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
@@ -211,6 +227,10 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         links.Should().Contain(link =>
             link.FromNodeId == "firewall-node"
             && link.ToNodeId == "factory-node"
+            && link.Evidence.DiagramLabel == "Routes through");
+        links.Should().Contain(link =>
+            link.FromNodeId == "firewall-node"
+            && link.ToNodeId == "private-endpoint-factory-node"
             && link.Evidence.DiagramLabel == "Routes through");
         links.Should().NotContain(link => link.ToNodeId == "nat-node");
     }

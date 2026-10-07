@@ -653,6 +653,42 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             consumerNodeIds.Add(edge.FromNodeId);
         }
 
+        foreach (GraphEdge targetEdge in graph.Edges)
+        {
+            if (!string.Equals(
+                    targetEdge.EdgeType,
+                    AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (GraphEdge placementEdge in graph.Edges)
+            {
+                if (!string.Equals(
+                        placementEdge.EdgeType,
+                        AzureInventoryRelationshipAssociationTypes.PeToSubnet,
+                        StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(placementEdge.FromNodeId, targetEdge.FromNodeId, StringComparison.Ordinal)
+                    || !subnetArmIdByNodeId.TryGetValue(placementEdge.ToNodeId, out string? privateEndpointSubnetArmId))
+                {
+                    continue;
+                }
+
+                string normalizedSubnetArmId = ArmResourceIdNormalizer.Normalize(privateEndpointSubnetArmId);
+
+                if (!subnetAttachedConsumerNodeIdsBySubnetArmId.TryGetValue(
+                        normalizedSubnetArmId,
+                        out HashSet<string>? consumerNodeIds))
+                {
+                    consumerNodeIds = new HashSet<string>(StringComparer.Ordinal);
+                    subnetAttachedConsumerNodeIdsBySubnetArmId[normalizedSubnetArmId] = consumerNodeIds;
+                }
+
+                consumerNodeIds.Add(targetEdge.ToNodeId);
+            }
+        }
+
         return subnetAttachedConsumerNodeIdsBySubnetArmId;
     }
 
