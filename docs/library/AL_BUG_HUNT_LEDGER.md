@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (payload builder trim only on `handleSubmit` zod path; `sessionStorage` quota errors swallowed; funnel telemetry is fire-and-forget and does not throw in production; `RegistrationRequestBaselineValidator` does not police email EAI separately from zod; `noValidate` disables native constraint UI); regressions `passes through padded required fields when the register payload builder is called directly`, `still navigates when sessionStorage.setItem throws during success handling`, `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`, and `disables native html5 validation on the signup form`; seeded five follow-on `(candidate)` rows; 40 scoped SignupForm vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit path, `buildSignupRegisterPayload`, and first-touch cookie handling; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (stale `industryVerticalOther` omitted when industry not Other; team-size ceiling 10,000 in payload builder; malformed first-touch cookie ignored; plus-addressed verify redirect encoding; non-JSON 201 body still completes signup); regressions `omits industry vertical other from the register payload builder when industry is not Other`, `includes maximum valid optional architecture team size in the register payload builder`, `still posts register when first-touch cookie JSON is malformed`, `encodes plus-addressed email in the verify redirect query`, and `still navigates after 201 when register response body is not valid json`; seeded five follow-on `(candidate)` rows; 36 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `tenant-settings-sql` — cheap-disproof closed five seeded `(candidate)` rows (MERGE `UpdatedUtc` refresh on idempotent upsert is intentional audit touch; write guard `Trim().Length` budget counts interior whitespace while `JsonSerializer` stays compact; canceled cold-cache load plus concurrent upsert still reads post-write value; read `Trim()` vs legacy direct-SQL interior whitespace is ops hygiene; workspace-suffixed keys normalize hex casing by design); regressions `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget`, `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`, and `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`; seeded five follow-on `(candidate)` rows; 54 scoped tenant-settings tests passed (15 `SqlTenantSettingsRepository` + 26 `TenantSettings_` + 13 `InMemoryTenantSettingsRepository`).
@@ -4264,6 +4266,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `passes through padded required fields when the register payload builder is called directly`, `still navigates when sessionStorage.setItem throws during success handling`, `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`, and `disables native html5 validation on the signup form`; seeded five follow-on `(candidate)` rows; 40 scoped SignupForm vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): re-read `SignupForm` and signup schema; cheap-disproof closed five promotion attempts; regressions for payload builder, first-touch cookie, verify redirect encoding, and non-JSON 201 handling; seeded five follow-on `(candidate)` rows; 36 scoped SignupForm vitest tests passed.
 
 - **id:** ui-form-validation
@@ -4272,9 +4276,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4356,11 +4360,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` verify redirect — plus-addressed email breaks `router.push` query — **cheap-disproof 2026-10-07 seed hunt:** `encodeURIComponent` on email; regression `encodes plus-addressed email in the verify redirect query`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON `201` body aborts success path — **cheap-disproof 2026-10-07 seed hunt:** `res.ok` gates success; JSON parse failure tolerated; regression `still navigates after 201 when register response body is not valid json`.
 
-- [ ] (candidate) `buildSignupRegisterPayload` — direct caller bypasses `signupFormSchema` trim on `organizationName` / `adminEmail` and posts leading or trailing whitespace — locus: exported payload builder; input: programmatic call with padded strings; wrong outcome: API validation mismatch; mechanism: builder does not re-trim required fields (submit path uses zod-validated values only).
-- [ ] (candidate) `SignupForm` `onSubmit` — `sessionStorage.setItem` for `archlucid_signup_company_size` throws `QuotaExceededError` after `registerCompletedRef` is set — locus: success path before navigation; input: storage full; wrong outcome: user stuck on locked submit without verify redirect; mechanism: success ref set before storage writes but `router.push` follows failing `setItem`.
-- [ ] (candidate) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` throw after `registerCompletedRef` prevents `router.push` — locus: funnel telemetry between toast and navigation; input: telemetry sink throws; wrong outcome: workspace created but user sees error toast; mechanism: success committed before telemetry.
-- [ ] (candidate) `signupFormSchema` — `adminEmail` zod `.email()` accepts internationalized domain names that `RegistrationRequestBaselineValidator` rejects — locus: `adminEmail` validation; input: EAI/punycode email in UI; wrong outcome: submit enabled then server 400; mechanism: client/server email rules diverge (reachability requires baseline validator citation).
-- [ ] (candidate) `SignupForm` — `noValidate` form allows native browser tooltips to disagree with zod inline errors on optional number input — locus: `<form noValidate>` + `type="number"`; input: invalid optional team size via browser constraint API; wrong outcome: dual validation UX; mechanism: TB-2010 inline-only policy vs native number widget hints.
+- [x] (invalid) `buildSignupRegisterPayload` — direct caller bypasses `signupFormSchema` trim — **cheap-disproof 2026-10-07 thorough hunt:** only `SignupForm` `handleSubmit` calls builder with zod-parsed values; padded direct calls are test-only misuse; regression `passes through padded required fields when the register payload builder is called directly`.
+- [x] (invalid) `SignupForm` `onSubmit` — `sessionStorage.setItem` quota errors block verify redirect — **cheap-disproof 2026-10-07 thorough hunt:** success-path storage writes are wrapped in try/catch; regression `still navigates when sessionStorage.setItem throws during success handling`.
+- [x] (invalid) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` throw prevents navigation in production — **cheap-disproof 2026-10-07 thorough hunt:** `first-tenant-funnel-telemetry` is fire-and-forget and does not throw; hypothetical throw surfaces `showError` without navigation (register already committed); regression `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`.
+- [x] (invalid) `signupFormSchema` — zod email vs `RegistrationRequestBaselineValidator` EAI divergence — **cheap-disproof 2026-10-07 thorough hunt:** baseline validator does not validate `AdminEmail` format; no cited server rejection path for EAI-only addresses in zone scope.
+- [x] (invalid) `SignupForm` — `noValidate` plus `type="number"` native tooltips — **cheap-disproof 2026-10-07 thorough hunt:** `noValidate` disables HTML5 constraint UI; zod inline errors govern optional team size; regression `disables native html5 validation on the signup form`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — `showSuccess` throw after `registerCompletedRef` still allows duplicate register if user reloads — locus: success toast before navigation; input: toast implementation throws on 201; wrong outcome: locked UI without verify route; mechanism: `registerCompletedRef` set but navigation skipped (partially covered by existing 201+toast-throw regression).
+- [ ] (candidate) `buildSignupRegisterPayload` — omits `companySize` when value is empty string instead of `undefined` — locus: payload builder `if (values.companySize)`; input: programmatic `{ companySize: "" }`; wrong outcome: empty string posted; mechanism: falsy check vs enum optional (submit path uses `undefined` from select).
+- [ ] (candidate) `SignupForm` verify redirect — `encodeURIComponent` on email with `%` already encoded in field — locus: `router.push` query; input: email containing literal `%`; wrong outcome: double-encoding breaks verify page; mechanism: single encode pass on user input.
+- [ ] (candidate) `signupFormSchema` — `architectureTeamSize` accepts scientific notation (`1e3`) via `Number()` — locus: superRefine `Number(arch)`; input: `1e3` in optional team field; wrong outcome: non-integer passes `Number.isInteger`; mechanism: `Number("1e3")` is 1000 integer (number input may not emit).
+- [ ] (candidate) `SignupForm` — `409` conflict response leaves `registerInFlightRef` true — locus: early `return` before `registerSucceeded`; input: duplicate org name; wrong outcome: second submit ignored; mechanism: `finally` only clears when `!registerSucceeded` (existing duplicate-org test may already falsify).
 
 ---
 

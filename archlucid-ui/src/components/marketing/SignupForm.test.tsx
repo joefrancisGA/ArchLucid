@@ -19,6 +19,7 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+import * as firstTenantFunnelTelemetry from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
@@ -62,6 +63,27 @@ describe("SignupForm", () => {
     });
 
     expect(payload.architectureTeamSize).toBe(10_000);
+  });
+
+  it("passes through padded required fields when the register payload builder is called directly", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "  ops@example.com  ",
+      adminDisplayName: "  Ops User  ",
+      organizationName: "  Contoso Trial Org  ",
+    });
+
+    expect(payload.adminEmail).toBe("  ops@example.com  ");
+    expect(payload.adminDisplayName).toBe("  Ops User  ");
+    expect(payload.organizationName).toBe("  Contoso Trial Org  ");
+  });
+
+  it("disables native html5 validation on the signup form", () => {
+    render(<SignupForm />);
+
+    const form = document.querySelector("form");
+
+    expect(form).not.toBeNull();
+    expect(form).toHaveAttribute("novalidate");
   });
 
   it("disables submit until required fields are valid (TB-2010)", () => {
@@ -252,6 +274,92 @@ describe("SignupForm", () => {
       expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%2Balias%40example.com");
     });
 
+    vi.unstubAllGlobals();
+  });
+
+  it("surfaces signup error when first-tenant funnel telemetry throws unexpectedly", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const funnelSpy = vi
+      .spyOn(firstTenantFunnelTelemetry, "recordFirstTenantFunnelEvent")
+      .mockImplementation(() => {
+        throw new Error("telemetry sink failed");
+      });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "telemetry sink failed");
+      expect(showSuccess).not.toHaveBeenCalled();
+      expect(pushMock).not.toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    funnelSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates when sessionStorage.setItem throws during success handling", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("QuotaExceededError", "QuotaExceededError");
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Technology")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Technology"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith(expect.stringContaining("/signup/verify?email="));
+    });
+
+    setItemSpy.mockRestore();
     vi.unstubAllGlobals();
   });
 
