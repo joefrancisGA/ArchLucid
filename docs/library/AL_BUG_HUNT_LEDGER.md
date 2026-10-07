@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit path, `buildSignupRegisterPayload`, and first-touch cookie handling; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (stale `industryVerticalOther` omitted when industry not Other; team-size ceiling 10,000 in payload builder; malformed first-touch cookie ignored; plus-addressed verify redirect encoding; non-JSON 201 body still completes signup); regressions `omits industry vertical other from the register payload builder when industry is not Other`, `includes maximum valid optional architecture team size in the register payload builder`, `still posts register when first-touch cookie JSON is malformed`, `encodes plus-addressed email in the verify redirect query`, and `still navigates after 201 when register response body is not valid json`; seeded five follow-on `(candidate)` rows; 36 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `tenant-settings-sql` — cheap-disproof closed five seeded `(candidate)` rows (MERGE `UpdatedUtc` refresh on idempotent upsert is intentional audit touch; write guard `Trim().Length` budget counts interior whitespace while `JsonSerializer` stays compact; canceled cold-cache load plus concurrent upsert still reads post-write value; read `Trim()` vs legacy direct-SQL interior whitespace is ops hygiene; workspace-suffixed keys normalize hex casing by design); regressions `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget`, `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`, and `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`; seeded five follow-on `(candidate)` rows; 54 scoped tenant-settings tests passed (15 `SqlTenantSettingsRepository` + 26 `TenantSettings_` + 13 `InMemoryTenantSettingsRepository`).
 
 2026-10-07 seed hunt (seed-only): `cli-terraform-evidence` — re-read `DeploymentEvidenceTerraformReference`, `REFERENCE_SAAS_STACK_ORDER.md` advanced table, and `infra/apply-saas.ps1` sync regressions; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (`assert_terraform_root_ordering_sync.py` does not parse C# but Cli live-script tests do; advanced table row count; test `IndexOfPath` substring hazard; composition metadata cites no Azure apply; hardcoded leaf fixture redundant with live ps1 parse); regressions `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path`; seeded five follow-on `(candidate)` rows; 29 scoped `DeploymentEvidenceTerraformReferenceTests` passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -4262,16 +4264,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 seed hunt (seed-only): re-read `SignupForm` and signup schema; cheap-disproof closed five promotion attempts; regressions for payload builder, first-touch cookie, verify redirect encoding, and non-JSON 201 handling; seeded five follow-on `(candidate)` rows; 36 scoped SignupForm vitest tests passed.
+
 - **id:** ui-form-validation
 - **status:** open
 - **impact:** low
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
@@ -4345,6 +4349,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 seed hunt (seed→hit): proved rapid double-click could POST register twice before submitting state updated; 28 scoped SignupForm vitest tests passed.
 
 2026-10-06 seed hunt (seed→hit): proved successful signup could POST register twice before navigation; 27 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — stale `industryVerticalOther` ships when `industryVertical` is not `Other` — **cheap-disproof 2026-10-07 seed hunt:** builder gates Other branch; regression `omits industry vertical other from the register payload builder when industry is not Other`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — optional `architectureTeamSize` `10000` omitted at upper bound — **cheap-disproof 2026-10-07 seed hunt:** integer ceiling included; regression `includes maximum valid optional architecture team size in the register payload builder`.
+- [x] (valid-no-repro) `readFirstTouchCookie` — malformed JSON throws and blocks register — **cheap-disproof 2026-10-07 seed hunt:** `readFirstTouchCookie` returns null on parse failure; signup proceeds without header; regression `still posts register when first-touch cookie JSON is malformed`.
+- [x] (valid-no-repro) `SignupForm` verify redirect — plus-addressed email breaks `router.push` query — **cheap-disproof 2026-10-07 seed hunt:** `encodeURIComponent` on email; regression `encodes plus-addressed email in the verify redirect query`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON `201` body aborts success path — **cheap-disproof 2026-10-07 seed hunt:** `res.ok` gates success; JSON parse failure tolerated; regression `still navigates after 201 when register response body is not valid json`.
+
+- [ ] (candidate) `buildSignupRegisterPayload` — direct caller bypasses `signupFormSchema` trim on `organizationName` / `adminEmail` and posts leading or trailing whitespace — locus: exported payload builder; input: programmatic call with padded strings; wrong outcome: API validation mismatch; mechanism: builder does not re-trim required fields (submit path uses zod-validated values only).
+- [ ] (candidate) `SignupForm` `onSubmit` — `sessionStorage.setItem` for `archlucid_signup_company_size` throws `QuotaExceededError` after `registerCompletedRef` is set — locus: success path before navigation; input: storage full; wrong outcome: user stuck on locked submit without verify redirect; mechanism: success ref set before storage writes but `router.push` follows failing `setItem`.
+- [ ] (candidate) `SignupForm` `onSubmit` — `recordFirstTenantFunnelEvent` throw after `registerCompletedRef` prevents `router.push` — locus: funnel telemetry between toast and navigation; input: telemetry sink throws; wrong outcome: workspace created but user sees error toast; mechanism: success committed before telemetry.
+- [ ] (candidate) `signupFormSchema` — `adminEmail` zod `.email()` accepts internationalized domain names that `RegistrationRequestBaselineValidator` rejects — locus: `adminEmail` validation; input: EAI/punycode email in UI; wrong outcome: submit enabled then server 400; mechanism: client/server email rules diverge (reachability requires baseline validator citation).
+- [ ] (candidate) `SignupForm` — `noValidate` form allows native browser tooltips to disagree with zod inline errors on optional number input — locus: `<form noValidate>` + `type="number"`; input: invalid optional team size via browser constraint API; wrong outcome: dual validation UX; mechanism: TB-2010 inline-only policy vs native number widget hints.
 
 ---
 

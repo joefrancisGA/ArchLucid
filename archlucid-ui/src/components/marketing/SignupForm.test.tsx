@@ -40,6 +40,30 @@ describe("SignupForm", () => {
     expect(payload.architectureTeamSize).toBeUndefined();
   });
 
+  it("omits industry vertical other from the register payload builder when industry is not Other", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      industryVertical: "Technology",
+      industryVerticalOther: "Should not ship",
+    });
+
+    expect(payload.industryVertical).toBe("Technology");
+    expect(payload.industryVerticalOther).toBeUndefined();
+  });
+
+  it("includes maximum valid optional architecture team size in the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "10000",
+    });
+
+    expect(payload.architectureTeamSize).toBe(10_000);
+  });
+
   it("disables submit until required fields are valid (TB-2010)", () => {
     render(<SignupForm />);
 
@@ -131,6 +155,35 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("still posts register when first-touch cookie JSON is malformed", async () => {
+    document.cookie = `${encodeURIComponent("archlucid.firstTouch.v1")}=${encodeURIComponent("not-json")}`;
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
+  });
+
   it("still posts register when first-touch cookie contains non-Latin1 UTM values", async () => {
     const capturedUtc = "2026-10-06T00:00:00.000Z";
     const cookieValue = encodeURIComponent(
@@ -166,6 +219,65 @@ describe("SignupForm", () => {
     expect(headers["x-archlucid-first-touch"]).toBeUndefined();
 
     document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
+  });
+
+  it("encodes plus-addressed email in the verify redirect query", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops+alias@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%2Balias%40example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is not valid json", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("provisioned", { status: 201 })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith(expect.stringContaining("/signup/verify?email="));
+    });
+
     vi.unstubAllGlobals();
   });
 
