@@ -285,4 +285,10 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
 
         llmHandler.PooledConnectionLifetime.Should().BeGreaterThan(integrationHandler.PooledConnectionLifetime);
     }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_uses_stable_configuration_section_name()
+    {
+        OutboundExternalHttpResilienceOptions.SectionName.Should().Be("ArchLucid:OutboundHttp:Resilience");
+    }
 }
