@@ -28,8 +28,8 @@ function paintMatches(
   const document = parser.parseFromString(svgMarkup, "image/svg+xml");
 
   document.querySelectorAll("g.node").forEach((node) => {
-    const nodeId = node.getAttribute("id") ?? "";
-    const match = matches.find((candidate) => nodeId.startsWith(`flowchart-${candidate.nodeId}-`));
+    const nodeId = node.querySelector("title")?.textContent?.trim() ?? "";
+    const match = matches.find((candidate) => candidate.nodeId === nodeId);
 
     if (!enabled || match == null) {
       return;
