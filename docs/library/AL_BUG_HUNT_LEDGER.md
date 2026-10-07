@@ -22551,7 +22551,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
@@ -22561,17 +22561,25 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 42 scoped `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`).
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows (resilience sampling upper bound, loopback timeout ordering, LLM pool ceiling parity, ARM `502` retry on public authorities, Safety interface scope); seeded five follow-on `(candidate)` rows; 42 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
 - [x] (invalid) `OutboundExternalHttpResilienceOptions.Normalize` — `FailureRatio` above `1.0` leaves integration breaker stuck open — **cheap-disproof 2026-10-07 seed hunt:** `Normalize` clamps to `1.0`; regression `OutboundExternalHttpResilienceOptions_Normalize_clamps_failure_ratio_above_one`.
 - [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions.Normalize` — negative `MaxRetryAttempts` throws or wraps — **cheap-disproof 2026-10-07 seed hunt:** clamps to `0`; regression `OutboundExternalHttpResilienceOptions_Normalize_clamps_negative_max_retry_attempts_to_zero`.
 - [x] (invalid) `ArchLucidAzurePublicHttpClients` — ARM/retail `Uri` roots could be `http` or IP literals — **cheap-disproof 2026-10-07 seed hunt:** compile-time `https` public authorities; regression `ArchLucidAzurePublicHttpClients_authorities_use_https_public_hosts`.
 - [x] (invalid) `ArchLucidMultiCloudPublicHttpClients` — AWS/GCP catalog roots omit TLS or use private hosts — **cheap-disproof 2026-10-07 seed hunt:** fixed `https` pricing/catalog authorities; regression `ArchLucidMultiCloudPublicHttpClients_authorities_use_https_public_hosts`.
 - [x] (invalid) `OutboundSocketsHttpHandlerSettings.Apply` — unknown `OutboundHttpSocketsHandlerProfile` value is a no-op — **cheap-disproof 2026-10-07 seed hunt:** throws `ArgumentOutOfRangeException`; regression `OutboundSocketsHttpHandlerSettings_Apply_throws_for_unknown_profile_value`.
 
-- [ ] (candidate) `OutboundExternalHttpResilienceOptions.Normalize` — `SamplingDurationSeconds` has a lower clamp (`5`) but no upper bound so misconfiguration can widen breaker windows without validation — locus: `Normalize()` (`OutboundExternalHttpResilienceOptions.cs`).
-- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `InternalLoopbackProbe` (15s) exceeds `InternalDiagnostics` (10s) while both serve loopback-adjacent outbound calls — locus: constant definitions (`OutboundHttpClientTimeoutSeconds.cs`).
-- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `LlmCompletion` profile shares `MaxConnectionsPerServer` (20) with `ExternalIntegration` — locus: profile switch (`OutboundSocketsHttpHandlerSettings.cs` ~37–41).
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — any `5xx` including synthetic `502` from upstream private-network rejection retries blindly — locus: `(int)code >= 500` (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~71).
-- [ ] (candidate) `ArchLucid.Core/Safety/IContentSafetyGuard` — interface-only Safety surface cannot enforce outbound URL policy — locus: `IContentSafetyGuard.cs` (SSRF guards live under `ArchLucid.Core/Security/`).
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions.Normalize` — `SamplingDurationSeconds` has no upper bound — **cheap-disproof 2026-10-07 seed hunt #22:** operational tuning only; regression `OutboundExternalHttpResilienceOptions_Normalize_does_not_apply_an_upper_bound_to_sampling_duration_seconds`.
+- [x] (valid-no-repro) `OutboundHttpClientTimeoutSeconds` — `InternalLoopbackProbe` exceeds `InternalDiagnostics` — **cheap-disproof 2026-10-07 seed hunt #22:** distinct loopback probe vs fast diagnostics budgets by design; regression `OutboundHttpClientTimeoutSeconds_internal_loopback_probe_uses_longer_budget_than_diagnostics`.
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `LlmCompletion` shares `MaxConnectionsPerServer` with `ExternalIntegration` — **cheap-disproof 2026-10-07 seed hunt #22:** pool tuning not SSRF; regression `OutboundSocketsHttpHandlerSettings_llm_completion_shares_max_connections_per_server_with_external_integration`.
+- [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy` — retries `502` and other `5xx` — **invalid 2026-10-07 seed hunt #22:** fixed public ARM/retail authorities; bounded retries; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_502_on_fixed_public_authorities`.
+- [x] (invalid) `IContentSafetyGuard` — Safety zone interface-only — **invalid 2026-10-07 seed hunt #22:** content moderation contract; URL SSRF under `ArchLucid.Core/Security/`; regression `IContentSafetyGuard_is_prompt_moderation_contract_not_outbound_url_ssrf_policy`.
+
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions.Normalize` — `MinimumThroughput` and `BreakDurationSeconds` clamp only lower bounds — locus: `Normalize()` (`OutboundExternalHttpResilienceOptions.cs` ~40–44).
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `CloudControlPlane` `MaxConnectionsPerServer` (50) exceeds `ExternalIntegration` (20) — locus: profile switch (`OutboundSocketsHttpHandlerSettings.cs` ~30–34).
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `DevOpsIntegration` (60s) doubles `ExternalIntegration` (30s) for ITSM clients that already wire connect guard — locus: `OutboundHttpClientTimeoutSeconds.cs`.
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` caps `MaxConnectionsPerServer` at 4 without connect guard — locus: `InternalLoopback` branch (`OutboundSocketsHttpHandlerSettings.cs` ~16–20).
+- [ ] (candidate) `ArchLucidAzurePublicHttpClients` vs `ArchLucidMultiCloudPublicHttpClients` — distinct authority hosts share one ARM/retail retry policy shape — locus: `AzureRmAndRetailPricesHttpRetryPolicy` registration (composition), not tenant URL input.
 
 2026-10-06 seed hunt (seed-only): re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http` after billing-webhooks dry hunt; no hunt-ready row promoted; seeded five follow-on `(candidate)` rows below; 32 scoped `PrivateNetwork` Core tests + 8 Host composition outbound tests passed (`RunAnalyzers=false`).
 
