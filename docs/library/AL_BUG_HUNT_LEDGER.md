@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `GetContextsAsync_excludes_learning_profile_outside_caller_scope`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`, and `SimulateAsync_WhenNoContexts_AddsNoRunsNote`; 35 scoped `AlertSimulationContextProviderTests` passed.
+
 2026-10-07 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `VerifyCodeAsync_returns_failure_when_otp_auth_disabled`, `VerifyCodeAsync_returns_failure_when_challenge_id_is_empty`, `VerifyCodeAsync_returns_failure_without_audit_when_challenge_is_unknown`, `VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`, and `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`; reaffirmed `TryCompleteAsync_allows_only_one_successful_completion`; 44 scoped Email OTP Application tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_project_id_missing`, `defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id`, `defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id`, and `retains runs whose runId is whitespace-only when exclusions are nonempty`; reaffirmed `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark` and `maps run work queue groups to attention partitions`; 58 scoped operator vitest tests passed.
@@ -7837,6 +7839,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
+**Hunts:** 33 · **Bugs found:** 10 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` passed.
+
+- [x] (invalid) `RuleSimulationService.CompareCandidatesAsync` — candidate B never runs when candidate A `SimulateAsync` throws — **cheap-disproof 2026-10-07 seed hunt #33:** sequential `await` fail-fast is intentional; explicit sealed-hash failures throw before second simulate (`GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`).
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to hash failure on explicit `runId` path — **cheap-disproof 2026-10-07 seed hunt #33:** explicit runs pass `skipOnSealedHashFailure: false`; compare-to uses `EnsureRunSealedManifestHashOrThrow`; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`.
+- [x] (valid-no-repro) `RuleSimulationService.SimulateAsync` — zero contexts after batch sweep returns success with summary note — **cheap-disproof 2026-10-07 seed hunt #33:** dry-run simulation (not HTTP); regression `SimulateAsync_WhenNoContexts_AddsNoRunsNote` in `RuleSimulationServiceTests`.
+- [x] (valid-no-repro) `FilterLearningProfileForSimulationScope` — foreign `GetLatestProfileAsync` with empty recommendations — **cheap-disproof 2026-10-07 seed hunt #33:** profile filter independent of recommendation rows; regression `GetContextsAsync_excludes_learning_profile_outside_caller_scope` (`LearningProfile` null).
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` clamp without `SummaryNotes` entry — **cheap-disproof 2026-10-07 seed hunt #33:** clamp is provider-side; documented on `RuleSimulationRequest`; regression `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`.
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch skips comparison when baseline `GetRunDetailAsync` returns null `GoldenManifest` — locus: ~150–176 (`AlertSimulationContextProvider.cs`); input: valid primary run with `comparedToRunId` pointing at missing manifest row.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch requires non-null `comparedDetail.Run` before comparison — locus: ~150–152; input: baseline manifest present but `Run` record null (parity primary `detail.Run` guard).
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch never forwards `comparedToRunId` into `BuildContextAsync` — locus: ~79–84 (`comparedToRunId: null`); input: regression `GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`.
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — drops in-scope rows when `RunId` differs from requested run — locus: ~240–244; input: `GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows`.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` short-circuits before `ListRunsByProjectAsync` — locus: ~50–66; input: `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` and 8 scoped `RuleSimulationServiceTests` passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `FilterLearningProfileForSimulationScope` — learning profile with foreign `TenantId` but matching workspace/project — **cheap-disproof 2026-10-07 thorough hunt:** tenant/workspace/project guard drops mis-keyed profile; regression `GetContextsAsync_excludes_learning_profile_outside_caller_scope`.
@@ -7844,12 +7862,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch sealed-hash skip returns null context while explicit run throws — **cheap-disproof 2026-10-07 thorough hunt:** intentional wave-27 `skipOnSealedHashFailure` split; regressions `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing` and `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`.
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch calls `GeneratePlanAsync` comparison overload when primary `FindingsSnapshot` is synthesized empty — **cheap-disproof 2026-10-07 thorough hunt:** synthesized manifest-bound empty findings still pair with comparison plan; regression `GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload`.
 - [x] (invalid) `AlertSimulationController.CompareCandidates` — sealed-manifest block on candidate B maps to `409 Conflict` — **cheap-disproof 2026-10-07 thorough hunt:** nested `CompareCandidatesAsync` uses recent-run batch only (`RunId` null); sealed-hash failures skip silently rather than throw; `MapSealedManifestSimulationBlockOrNull` applies to explicit-run simulate paths.
-
-- [ ] (candidate) `RuleSimulationService.CompareCandidatesAsync` — candidate B simulation never runs when candidate A `SimulateAsync` throws on explicit `RunId` sealed-hash failure — locus: sequential awaits (`RuleSimulationService.CompareCandidates.cs` ~17–75).
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch with `skipOnSealedHashFailure: true` drops comparison when baseline hash fails even on explicit `runId` path — locus: compare guard (`AlertSimulationContextProvider.cs` ~156–164).
-- [ ] (candidate) `RuleSimulationService.SimulateAsync` — zero contexts after recent-run batch sweep returns success result with empty outcomes instead of `409` — locus: early return when `contexts.Count == 0` (`RuleSimulationService.Simulate.cs` ~46–49).
-- [ ] (candidate) `FilterRecommendationsForSimulationScope` — empty `ListByRunAsync` result still allocates context with null `LearningProfile` when `GetLatestProfileAsync` returns profile for foreign tenant — locus: independent filters (`AlertSimulationContextProvider.cs` ~187–196).
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` above `50` clamped before authority list but `RuleSimulationResult.SummaryNotes` omits clamp notice — locus: `Math.Clamp` without summary (`AlertSimulationContextProvider.cs` ~70–74).
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; tenant recommendation filter, simple-rule suppression bypass, deduped `GetRunDetailAsync` call count, synthesized findings advisor input, primary sealed-hash throw; 34 scoped provider + 7 scoped service tests passed.
 
@@ -7869,9 +7881,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
