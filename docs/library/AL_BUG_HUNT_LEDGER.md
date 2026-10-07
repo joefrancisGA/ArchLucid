@@ -226,6 +226,8 @@
 
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
 
+2026-10-07 seed hunt (seed→hit): `api-tenancy-workspaces` — `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` audit events omitted `ExplicitActor`, so `AuditService.EnrichAuditEvent` overwrote `ActorUserId` from `ClaimTypes.NameIdentifier` instead of JWT oid-style `IActorContext.GetActorId()` (cost/homepage/sponsor digest parity); inject `IActorContext`; regression `DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs`; 49 scoped TenantWorkspaces tests passed.
+
 2026-10-07 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` logged `User.Identity?.Name` as both `ActorUserId` and `ActorUserName` (cost/homepage parity); inject `IActorContext`; regression `PostSponsorDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; 20 sponsor-digest + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
 
 2026-10-07 thorough hunt (hit): `host-core-jobs` — `BackgroundJobQueueProcessorHostedService` success path only re-read `Canceled` before `MarkSucceededAsync`, so a stale worker could mark `Succeeded` after `BackgroundJobStuckRunningWatchdogBackgroundWork` reclaimed the row to `Pending`; require `Running` on re-read and guard SQL `MarkSucceededAsync` with `State = N'Running'`; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`; cheap-disproof closed four reseeded candidates; 27 processor + 38 Host.Core BackgroundJob + 16 in-memory queue tests passed.
@@ -28930,11 +28932,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 26
-- **bugs-found:** 7
+- **hunts:** 27
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — delete allowed when sibling workspace DefaultProjectId pinned active project
+- **last-hunt:** 2026-10-07
+- **last-bug:** 2026-10-07 — workspace project delete/restore audit actor from IActorContext
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -29015,6 +29017,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-06 seed hunt (seed→hit): promoted recycle-bin / restore parity for legacy orphan soft-deletes (`IsDeleted=1`, `DeletedUtc` null); `RestoreProjectAsync` returns 404 before repository restore; `TryRestoreAsync` requires `DeletedUtc` in SQL and in-memory store; regression `RestoreProjectAsync_returns_not_found_when_soft_deleted_row_lacks_deleted_utc`; 48 scoped TenantWorkspaces tests passed.
 
 - [x] (proven) `TenantWorkspacesController.RestoreProjectAsync` — orphan `IsDeleted=1` without `DeletedUtc` restored while `ListRecycleBinAsync` omitted the row — **hit 2026-10-06 seed hunt (seed→hit):** reject restore when soft-deleted list row lacks `DeletedUtc`; repository restore requires `DeletedUtc IS NOT NULL`; regression `RestoreProjectAsync_returns_not_found_when_soft_deleted_row_lacks_deleted_utc`.
+
+2026-10-07 seed hunt (seed→hit): promoted soft-delete/restore audit actor correlation from sibling tenancy controllers; proved delete audit used display-name identity without `ExplicitActor`; inject `IActorContext` on `TenantWorkspacesController`; set `ExplicitActor` on delete and restore audit events; regression `DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs`; 49 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — audit `ActorUserId`/`ActorUserName` from `User.Identity?.Name` without `ExplicitActor` so enrichment preferred `ClaimTypes.NameIdentifier` over `IActorContext.GetActorId()` — **hit 2026-10-07 seed hunt (seed→hit):** explicit actor from `IActorContext` on soft-delete and restore audits; regression `DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs`.
 
 ---
 ## Zone: application-agents

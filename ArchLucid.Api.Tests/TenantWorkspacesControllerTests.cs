@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -94,6 +95,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -176,6 +178,7 @@ public sealed class TenantWorkspacesControllerTests
             projectsMock.Object,
             scopeMock.Object,
             Mock.Of<IAuditService>(),
+            Mock.Of<IActorContext>(),
             retentionMock.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -259,6 +262,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -341,6 +345,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -420,6 +425,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -504,6 +510,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
@@ -521,6 +528,97 @@ public sealed class TenantWorkspacesControllerTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ArchitectureProjectSoftDeleted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        TenantRecord tenant =
+            new()
+            {
+                Id = scope.TenantId,
+                Name = "t",
+                Slug = "t",
+                Tier = TenantTier.Free,
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+                TrialRunsUsed = 0,
+                TrialSeatsUsed = 0,
+                TrialStatus = "None",
+            };
+
+        TenantWorkspaceListItem workspace =
+            new()
+            {
+                WorkspaceId = scope.WorkspaceId,
+                TenantId = scope.TenantId,
+                Name = "w",
+                DefaultProjectId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.GetUtcNow(),
+            };
+
+        Mock<ITenantRepository> tenantsMock = new();
+        tenantsMock.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenantsMock
+            .Setup(t => t.ListWorkspacesAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<TenantWorkspaceListItem> { workspace }.AsReadOnly());
+
+        Mock<IArchitectureProjectRepository> projectsMock = new();
+        projectsMock
+            .Setup(r => r.TrySoftDeleteAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureProjectSoftDeleteResult.Deleted);
+
+        Mock<IScopeContextProvider> scopeMock = new();
+        scopeMock.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditMock = new();
+        auditMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>> retentionMock = new();
+        retentionMock.Setup(o => o.CurrentValue).Returns(new ArchitectureProjectRetentionPurgeOptions());
+
+        TenantWorkspacesController sut =
+            new(
+                tenantsMock.Object,
+                projectsMock.Object,
+                scopeMock.Object,
+                auditMock.Object,
+                actorContext.Object,
+                retentionMock.Object)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new System.Security.Claims.ClaimsPrincipal(
+                            new System.Security.Claims.ClaimsIdentity(
+                                [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  Display Name  ")],
+                                "test")),
+                    },
+                },
+            };
+
+        IActionResult result =
+            await sut.DeleteProjectAsync(scope.WorkspaceId, scope.ProjectId, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be("jwt:actor-id@test");
+        captured.ActorUserName.Should().Be("  Display Name  ");
     }
 
     [Fact]
@@ -611,6 +709,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -718,6 +817,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -774,6 +874,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -824,6 +925,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -865,6 +967,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -907,6 +1010,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -975,6 +1079,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1040,6 +1145,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1117,6 +1223,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1194,6 +1301,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1244,6 +1352,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1322,6 +1431,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1396,6 +1506,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1464,6 +1575,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1529,6 +1641,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1592,6 +1705,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1657,6 +1771,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1722,6 +1837,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1791,6 +1907,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1842,6 +1959,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1878,6 +1996,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == scope),
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1916,6 +2035,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == scope),
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1951,6 +2071,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == scope),
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -1987,6 +2108,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 Mock.Of<IScopeContextProvider>(s => s.GetCurrentScope() == scope),
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2069,6 +2191,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2149,6 +2272,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2232,6 +2356,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2318,6 +2443,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2395,6 +2521,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2485,6 +2612,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2583,6 +2711,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2656,6 +2785,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2741,6 +2871,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 retentionMock.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2826,6 +2957,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 auditMock.Object,
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -2905,6 +3037,7 @@ public sealed class TenantWorkspacesControllerTests
                 projectsMock.Object,
                 scopeMock.Object,
                 Mock.Of<IAuditService>(),
+                Mock.Of<IActorContext>(),
                 Mock.Of<IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
