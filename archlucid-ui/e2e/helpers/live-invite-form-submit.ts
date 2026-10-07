@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page, type Request } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
@@ -208,11 +208,37 @@ async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButto
     return true;
   }
 
-  const secondAttemptStarted = waitForInvitePostStarted(page, inviteRequestMatcher, 15_000);
+  return clickThroughOverlaysWatchingInvitePost(page, submitButton, inviteRequestMatcher, 15_000);
+}
 
-  await clickThroughBlockingOverlays(page, submitButton, { force: true });
+/** Watches for Invite POST during overlay cleanup, then starts the 15s waiter only after the click returns. */
+async function clickThroughOverlaysWatchingInvitePost(
+  page: Page,
+  submitButton: Locator,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  let started = false;
 
-  return secondAttemptStarted;
+  const onRequest = (request: Request): void => {
+    if (matcher(request)) {
+      started = true;
+    }
+  };
+
+  page.on("request", onRequest);
+
+  try {
+    await clickThroughBlockingOverlays(page, submitButton, { force: true });
+
+    if (started) {
+      return true;
+    }
+
+    return waitForInvitePostStarted(page, matcher, timeoutMs);
+  } finally {
+    page.off("request", onRequest);
+  }
 }
 
 function waitForInvitePostStarted(
