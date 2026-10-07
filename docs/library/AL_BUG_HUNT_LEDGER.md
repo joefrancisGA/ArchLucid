@@ -5029,7 +5029,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-07
@@ -5196,6 +5196,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry.BuildPipeline` — zero jitter span collapses backoff — **cheap-disproof 2026-10-07 thorough hunt:** orchestrator 2s/4s/8s bases yield positive `ComputeJitterSpanMilliseconds` for attempts 1–3; regression `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` — static shared `ResiliencePipeline` under concurrent callers — **cheap-disproof 2026-10-07 thorough hunt:** Polly pipeline isolates per `ExecuteAsync` invocation; regression `ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers`.
 - [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — unchecked `150 * index` overflow — **cheap-disproof 2026-10-07 thorough hunt:** authority commit/reconcile loops bound indices; regression `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices` (existing `RetryDelay_at_attempt_above_max_remains_linear_without_clamp` documents pure-helper misuse only).
+
+2026-10-07 seed hunt (seed-only): re-read orchestrator transient retry after dry hunt; seeded five `(candidate)` rows; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — only walks the linear `InnerException` chain; a second populated `AggregateException` reachable only as an inner of another aggregate inner (not on the wrapper chain) would never be consulted if Task fault shapes ever nested aggregates that way (contested vs #1259).
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — `TargetInvocationException` or `TypeInitializationException` wrapping transient `SqlException` on aggregate inners from reflection-based repository invokes; verify aggregate branch still defers to `SqlTransientDetector` inner walk like `InvalidOperationException` / `IOException` wrappers.
+- [ ] (candidate) `OrchestratorTransientDbRetry.BuildPipeline` — inner Polly `MaxRetryAttempts = 3` (four executions) vs outer `CommitRunTransientRetryPolicy.MaxAttempts = 12` lets inner backoff exhaust while outer attempt counter remains below ceiling (#1259 layered design).
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — Polly passes its own `ct` into the user delegate while `ShouldHandle` does not observe cancellation; cancel during delegate execution (not backoff) should fail fast without scheduling another retry.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — outer wall-clock `RetryBudget` does not subtract time spent inside inner `OrchestratorTransientDbRetry` Polly sleeps when the authority commit loop checks exhaustion between outer attempts (budget interaction vs `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`).
 
 ---
 
