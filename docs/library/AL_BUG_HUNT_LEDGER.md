@@ -32604,7 +32604,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 33 · **Bugs found:** 6 · **Consecutive dry hunts:** 6
+**Hunts:** 34 · **Bugs found:** 6 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_operational_security_finding_ingest_succeeds_without_durable_noop_row`, `InMemory_composition_audit_evidence_snapshot_collection_fails_closed_without_inventory_snapshots`, `InMemory_composition_path_explanation_and_inspector_agree_on_unknown_path_id`, `InMemory_composition_remediation_instance_create_fails_without_pattern_match`, and `InMemory_composition_ask_grounding_blank_question_fails_while_sparse_identifiers_mark_insufficient_evidence`; seeded five follow-on `(candidate)` rows; 40 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `IOperationalSecurityFindingIngestService` — InMemory noop finding repository accepts ingest without durable rows — **cheap-disproof 2026-10-07 seed hunt:** intentional local durability like handoff/exception noop; regression `InMemory_composition_operational_security_finding_ingest_succeeds_without_durable_noop_row`.
+- [x] (valid-no-repro) `IAuditEvidenceSnapshotCollectionService` — empty inventory collection succeeds without selector evidence — **cheap-disproof 2026-10-07 seed hunt:** empty snapshot id list and missing assessment fail closed before persistence; regression `InMemory_composition_audit_evidence_snapshot_collection_fails_closed_without_inventory_snapshots`.
+- [x] (valid-no-repro) `ISecurityEvidencePathExplanationService` vs path inspector — unknown path id shape divergence — **cheap-disproof 2026-10-07 seed hunt:** inspector returns null detail; explanation returns `Succeeded: false` with not-found message; regression `InMemory_composition_path_explanation_and_inspector_agree_on_unknown_path_id`.
+- [x] (valid-no-repro) `IRemediationInstanceService` — instance creation without patterns returns success without durable rows — **cheap-disproof 2026-10-07 seed hunt:** `CreateFromMatchAsync` fails when no active match; repository stays empty; regression `InMemory_composition_remediation_instance_create_fails_without_pattern_match`.
+- [x] (valid-no-repro) `IInfraEvidenceAskGroundingService` — sparse identifiers indistinguishable from misconfiguration — **cheap-disproof 2026-10-07 seed hunt:** blank question fails validation; sparse bundle returns `InsufficientEvidence` with `Succeeded: true`; regression `InMemory_composition_ask_grounding_blank_question_fails_while_sparse_identifiers_mark_insufficient_evidence`.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidenceFreshnessService` (line 60) — freshness evaluation on InMemory with no audit evidence snapshots may report stale without distinguishing missing baseline.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditContinuousReadinessService` (line 99) — readiness diff consumer on empty inventory may emit green readiness without control evaluations.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecurityAssetAssertionService` (line 84) — assertion upsert on InMemory noop graph may succeed without durable assertion rows.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ICloudResourceAuditLineageResolver` (line 119) — lineage resolve for hub-upserted identity without audit snapshot may return empty lineage vs not-found inconsistently.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IStructuredDiagramIngestService` (line 114) — ingest of empty diagram payload on InMemory may return success without reconciliation rows.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
@@ -32613,12 +32627,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `IAuditEvidencePackageExportService` — empty archive without insufficient-evidence signal — **cheap-disproof 2026-10-07 thorough hunt:** missing assessment fails before zip build; regression `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`.
 - [x] (valid-no-repro) `IRemediationPatternMatcherService` — zero patterns silently skip suggestions — **cheap-disproof 2026-10-07 thorough hunt:** missing finding fails closed; empty pattern catalog yields explicit `NoMatch` when evaluated; regression `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`.
 - [x] (valid-no-repro) Tenant branding admin vs resolved cache — admin writes skip cache invalidation — **cheap-disproof 2026-10-07 thorough hunt:** `TenantBrandingProfileRepositoryWithCacheInvalidation` decorates InMemory/SQL repos; regression `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`.
-
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IOperationalSecurityFindingIngestService` (line 67) — InMemory noop finding repository may accept ingest payloads without durable finding rows.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidenceSnapshotCollectionService` (line 57) — snapshot collection on empty inventory may succeed without collected selector evidence.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecurityEvidencePathExplanationService` (line 81) — explanation query on unknown path id may diverge from inspector `TryGetPathDetailAsync` null shape.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IRemediationInstanceService` (line 92) — instance creation on InMemory without patterns may return success without durable instance rows.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IInfraEvidenceAskGroundingService` (line 122) — sparse identifiers on InMemory may return insufficient-evidence without distinguishing misconfiguration from empty graph.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_peel_catalog_provider_seeds_on_first_read_without_bootstrapper_host`, `InMemory_composition_manual_evidence_submit_fails_when_assessment_missing`, `InMemory_composition_remediation_prioritization_and_waves_return_empty_without_data`, `InMemory_composition_explorer_lists_hub_upserted_cloud_resource_identity`, and `InfraEvidenceCompositionModule_registers_single_scoped_carry_forward_service`; seeded five follow-on `(candidate)` rows; 30 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
@@ -32630,9 +32638,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none

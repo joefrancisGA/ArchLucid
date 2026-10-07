@@ -12,6 +12,7 @@ using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityExceptions;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
+using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
@@ -24,6 +25,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Ask;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -1123,6 +1125,226 @@ public sealed class InfraEvidenceCompositionModuleTests
 
         (await brandingService.GetCompanyDisplayNameAsync(scope.TenantId, CancellationToken.None))
             .Should().Be("Activated Tenant Brand");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_operational_security_finding_ingest_succeeds_without_durable_noop_row()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IOperationalSecurityFindingIngestService ingestService =
+            serviceScope.ServiceProvider.GetRequiredService<IOperationalSecurityFindingIngestService>();
+        IOperationalSecurityFindingRepository findingRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IOperationalSecurityFindingRepository>();
+
+        OperationalSecurityFindingBatchIngestResult ingestResult = await ingestService.IngestBatchAsync(
+            scope,
+            [
+                new OperationalSecurityFindingIngestItem
+                {
+                    Provider = CloudProvider.Azure,
+                    SourceSystem = "composition-hunt",
+                    SourceFindingId = "finding-ingest-1",
+                    Title = "Sample finding",
+                    Severity = "High",
+                    Status = OperationalSecurityFindingStatus.Open,
+                },
+            ],
+            "actor@test",
+            CancellationToken.None);
+
+        ingestResult.FailedCount.Should().Be(0);
+        ingestResult.IngestedCount.Should().Be(1);
+        Guid findingId = ingestResult.Items[0].FindingId!.Value;
+
+        OperationalSecurityFindingRecord? stored = await findingRepository.TryGetByIdAsync(
+            scope.TenantId,
+            findingId,
+            CancellationToken.None);
+
+        stored.Should().BeNull(
+            "InMemory NoOpOperationalSecurityFindingRepository is intentional local durability; ingest success matches handoff noop pattern");
+
+        OperationalSecurityFindingDetailResult detail = await ingestService.TryGetDetailAsync(
+            scope,
+            findingId,
+            CancellationToken.None);
+
+        detail.Succeeded.Should().BeFalse();
+        detail.ErrorMessage.Should().Contain("not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_evidence_snapshot_collection_fails_closed_without_inventory_snapshots()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditEvidenceSnapshotCollectionService collectionService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditEvidenceSnapshotCollectionService>();
+
+        AuditEvidenceSnapshotCollectionResult emptyInventory = await collectionService.TryCollectSnapshotAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            [],
+            CancellationToken.None);
+
+        emptyInventory.Succeeded.Should().BeFalse();
+        emptyInventory.ErrorMessage.Should().Contain("At least one inventory snapshot id is required");
+
+        AuditEvidenceSnapshotCollectionResult missingAssessment = await collectionService.TryCollectSnapshotAsync(
+            scope,
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            [Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")],
+            CancellationToken.None);
+
+        missingAssessment.Succeeded.Should().BeFalse();
+        missingAssessment.ErrorMessage.Should().Contain("Assessment was not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_path_explanation_and_inspector_agree_on_unknown_path_id()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        Guid missingPathId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ISecurityEvidencePathInspectorQueryService inspector =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathInspectorQueryService>();
+        ISecurityEvidencePathExplanationService explanationService =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathExplanationService>();
+
+        SecurityEvidencePathDetailResponse? detail =
+            await inspector.TryGetPathDetailAsync(scope, missingPathId, CancellationToken.None);
+
+        detail.Should().BeNull();
+
+        SecurityEvidencePathExplanationResult explanation = await explanationService.TryBuildExplanationAsync(
+            scope,
+            missingPathId,
+            useSimulator: true,
+            allowInsufficientEvidence: false,
+            CancellationToken.None);
+
+        explanation.Succeeded.Should().BeFalse();
+        explanation.ErrorMessage.Should().Contain("not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_remediation_instance_create_fails_without_pattern_match()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IRemediationInstanceService instanceService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationInstanceService>();
+        IProjectScopedRemediationInstanceRepository instanceRepository =
+            serviceScope.ServiceProvider.GetRequiredService<IProjectScopedRemediationInstanceRepository>();
+
+        RemediationInstanceOperationResult createResult = await instanceService.CreateFromMatchAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            "operator@example.com",
+            CancellationToken.None);
+
+        createResult.Succeeded.Should().BeFalse();
+        createResult.ErrorMessage.Should().Contain("No active remediation pattern match");
+
+        IReadOnlyList<RemediationInstanceRecord> instances =
+            await instanceRepository.ListByScopeAsync(scope.ToProjectScopeKey(), CancellationToken.None);
+
+        instances.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_ask_grounding_blank_question_fails_while_sparse_identifiers_mark_insufficient_evidence()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IInfraEvidenceAskGroundingService askGroundingService =
+            serviceScope.ServiceProvider.GetRequiredService<IInfraEvidenceAskGroundingService>();
+
+        InfraEvidenceAskGroundingResult blankQuestion = await askGroundingService.TryAnswerAsync(
+            scope,
+            new InfraEvidenceAskRequest
+            {
+                Question = "   ",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        blankQuestion.Succeeded.Should().BeFalse();
+        blankQuestion.ErrorMessage.Should().Contain("Question is required");
+
+        InfraEvidenceAskGroundingResult sparseIdentifiers = await askGroundingService.TryAnswerAsync(
+            scope,
+            new InfraEvidenceAskRequest
+            {
+                Question = "What infrastructure changed in this workspace?",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        sparseIdentifiers.Succeeded.Should().BeTrue(sparseIdentifiers.ErrorMessage);
+        sparseIdentifiers.Response!.InsufficientEvidence.Should().BeTrue(
+            "empty collector bundle is insufficient evidence, not a request validation failure");
     }
 
     [Fact]
