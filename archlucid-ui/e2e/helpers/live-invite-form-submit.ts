@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
+import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
 
 const LIVE_ADMIN_USERS_TAB_PATH = "/administration/users?tab=users";
@@ -17,6 +18,7 @@ async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
 
   await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
   await authMeSettled.catch(() => undefined);
+  await waitAndDismissFirstSessionPurposeChooser(page);
 }
 
 /** JwtBearer admin users hub with default tenant scope and settled `/me` before assertions. */
