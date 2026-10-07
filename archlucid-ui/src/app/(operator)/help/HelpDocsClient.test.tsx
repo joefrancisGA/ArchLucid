@@ -1075,4 +1075,181 @@ describe("HelpDocsClient", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("does not duplicate fetched external doc links when two rows differ only by query string on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "First outbound doc link.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (utm variant)",
+        summary: "Same https url with tracking query params.",
+        category: "API",
+        url: "https://example.com/docs/alpha?utm_source=doc-index",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "External alpha (utm variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters rows when the search query includes query-string tokens present on the doc-index url", async () => {
+    const data = [
+      {
+        title: "Tracked compliance topic",
+        summary: "Doc-index row whose url carries marketing query params.",
+        category: "Compliance",
+        url: "/help/compliance-tracked?ref=doc-index",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Tracked compliance topic" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "compliance-tracked?ref=doc-index" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Tracked compliance topic" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched doc links when two rows differ only by percent-encoding on the same path", async () => {
+    const data = [
+      {
+        title: "Encoded path doc",
+        summary: "Plain path segment in doc-index.",
+        category: "Compliance",
+        url: "/help/encoded-path",
+      },
+      {
+        title: "Encoded path doc (percent variant)",
+        summary: "Same path with percent-encoded letters in doc-index.",
+        category: "Compliance",
+        url: "/help/%65ncoded-path",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Encoded path doc" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Encoded path doc (percent variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves non-q URL parameters when debounced search sync updates q", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=alpha");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("alpha");
+
+    vi.useFakeTimers();
+
+    fireEvent.change(searchbox, { target: { value: "beta" } });
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help?tab=operations&q=beta", { scroll: false });
+
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("filters a large fetched doc-index by title without dropping unrelated rows when localize is identity", async () => {
+    const data = Array.from({ length: 120 }, (_, index) => ({
+      title: `Topic ${index}`,
+      summary: `Summary for topic ${index}.`,
+      category: "Operations",
+      url: `/help/topic-${index}`,
+    }));
+
+    data.push({
+      title: "Needle topic",
+      summary: "Unique token needle-compliance for filter proof.",
+      category: "Compliance",
+      url: "/help/needle-compliance",
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Needle topic" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "needle-compliance" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Needle topic" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Topic 0" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
 });

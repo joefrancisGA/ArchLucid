@@ -90,6 +90,14 @@ function normalizeHelpHubFilterQuery(query: string): string {
   return normalized;
 }
 
+function decodeDocIndexPathForDedupe(path: string): string {
+  try {
+    return decodeURI(path);
+  } catch {
+    return path;
+  }
+}
+
 function normalizeDocIndexUrlForDedupe(url: string): string {
   const trimmed = url.trim();
 
@@ -102,11 +110,15 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
         parsed.pathname = parsed.pathname.replace(/\/+$/, "");
       }
 
+      parsed.pathname = decodeDocIndexPathForDedupe(parsed.pathname);
+      parsed.search = "";
+      parsed.hash = "";
+
       if (schemeRelative) {
-        return `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
+        return `//${parsed.host}${parsed.pathname}`;
       }
 
-      return parsed.toString();
+      return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
     } catch {
       if (trimmed.length > 1 && trimmed.endsWith("/") && !trimmed.includes("?")) {
         return trimmed.replace(/\/+$/, "");
@@ -118,12 +130,13 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
 
   const pathWithoutHash = trimmed.split("#", 1)[0] ?? trimmed;
   const pathWithoutQuery = pathWithoutHash.split("?", 1)[0] ?? pathWithoutHash;
+  const decodedPath = decodeDocIndexPathForDedupe(pathWithoutQuery);
 
-  if (pathWithoutQuery.length > 1 && pathWithoutQuery.endsWith("/")) {
-    return pathWithoutQuery.replace(/\/+$/, "");
+  if (decodedPath.length > 1 && decodedPath.endsWith("/")) {
+    return decodedPath.replace(/\/+$/, "");
   }
 
-  return pathWithoutQuery;
+  return decodedPath;
 }
 
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
