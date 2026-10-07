@@ -101,4 +101,55 @@ public sealed class GraphSnapshotKnowledgeModelMergerNullCollectionTests
         merged.Edges.Should().ContainSingle();
         merged.Edges[0].EdgeType.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes()
+    {
+        GraphSnapshot contextGraph = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = null!, NodeType = "model", Label = "missing-id" },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle();
+        merged.Nodes[0].NodeId.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges()
+    {
+        GraphSnapshot contextGraph = new() { Nodes = [], Edges = [] };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "model", Label = "a" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "e-null-endpoints",
+                    FromNodeId = null!,
+                    ToNodeId = null!,
+                    EdgeType = "dependsOn",
+                },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Edges.Should().ContainSingle();
+        merged.Edges[0].FromNodeId.Should().BeEmpty();
+        merged.Edges[0].ToNodeId.Should().BeEmpty();
+    }
 }

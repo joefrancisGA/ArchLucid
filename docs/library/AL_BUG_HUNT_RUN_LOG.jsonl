@@ -8786,3 +8786,4 @@
 {"at":"2026-10-07T00:00:33.3161571Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-07T00:12:17.9955929Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
 {"at":"2026-10-07T00:17:03.6400064Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
+{"at":"2026-10-07T00:26:00.0000000Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Persistence/Graph/GraphSnapshotKnowledgeModelMerger.cs"]}

@@ -226,6 +226,8 @@
 
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
 
+2026-10-07 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` called `Trim()` on null `GraphNode.NodeId` and null `GraphEdge` endpoint ids, crashing κ→Γ merge for in-memory partial graph rows (JSON deserializers already coalesce to empty); coalesce null ids before trim; regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`; scoped merger tests 12/12 Core + 7/7 KnowledgeGraph; `FullyQualifiedName~ArchLucid.Core` 7298 passed, 1 existing ADF pipeline baseline failure.
+
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` called `EdgeType.Trim()` on null `GraphEdge.EdgeType`, crashing κ→Γ merge for malformed in-memory or deserialized edges; coalesce null edge types to empty before trim in canonicalization and edge keys; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`; scoped merger tests 10/10 Core + 7/7 KnowledgeGraph.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.Merge` threw `NullReferenceException` when `GraphSnapshot` `Nodes`/`Edges`/`Warnings` were null after `GraphJsonSerialization.DeserializeSnapshot` (`"nodes":null` projection cache payloads); coalesce null collections to empty before merge; regressions `Merge_treats_null_warnings_as_empty`, `Merge_treats_null_node_and_edge_lists_as_empty`, and `Merge_succeeds_when_snapshot_projection_json_has_null_collection_properties`; scoped merger tests 9/9 Core + 7/7 KnowledgeGraph.
@@ -16006,6 +16008,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-07 seed hunt (seed→hit): promoted and proved null `GraphNode.NodeId` and null edge endpoint ids crashed merge via `NormalizeNodeId`; fixed null-coalescing before trim; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`; scoped merger 12/12 Core + 7/7 KnowledgeGraph; Core filter 7298 passed, 1 baseline ADF failure.
+
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved null `GraphEdge.EdgeType` crashed merge during endpoint canonicalization; fixed null-coalescing before trim; regression above.
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved null `Nodes`/`Edges`/`Warnings` on deserialized snapshots crashed merge; fixed null-coalescing; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`.
@@ -16020,11 +16024,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 468
-- **last-hunt:** 2026-10-06
-- **bugs-found:** 3508
+- **hunts:** 469
+- **last-hunt:** 2026-10-07
+- **bugs-found:** 3509
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — graph snapshot merge NRE on null EdgeType
+- **last-bug:** 2026-10-07 — graph snapshot merge NRE on null NodeId / edge endpoints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16053,6 +16057,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` — null `GraphNode.NodeId` or null `GraphEdge.FromNodeId`/`ToNodeId` on in-memory graph rows caused `NullReferenceException` during κ→Γ merge (`KnowledgeModelGraphReprojector` / `KnowledgeModelAwareGraphSnapshotResolver` paths) — **hit 2026-10-07 seed hunt:** coalesce null ids before trim (parity with `GraphNodeJsonConverter` / `GraphEdgeJsonConverter` empty-string defaults); regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` — null `GraphEdge.EdgeType` caused `NullReferenceException` during κ→Γ merge — **hit 2026-10-06 seed hunt:** coalesce null edge types before trim; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`.
 
