@@ -2555,6 +2555,103 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_list_with_null_architecture_id_omits_created_by_user_id_like_sql_backfill_select()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                CreatedByUserId = "creator@example.com",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListWithNullArchitectureIdAsync(scope, 10, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].CreatedByUserId.Should().BeNull();
+    }
+
+    [Fact]
+    public void Runs_list_recent_in_scope_keyset_and_offset_share_created_utc_run_id_order()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock.Should()
+            .Contain(RunListWarningFlagSql.KeysetOrderBy);
+        HotPathRelationalQueryShapes.RunsListRecentInScopeOffsetNoLock.Should()
+            .Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy);
+    }
+
+    [Fact]
+    public async Task InMemory_get_prior_committed_run_before_current_treats_empty_current_run_id_as_non_exclusion()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        const string projectSlug = "billing";
+        DateTime createdUtc = new(2026, 10, 7, 12, 0, 0, DateTimeKind.Utc);
+        Guid committedRunId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = projectSlug,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+
+        Guid? prior = await runs.GetPriorCommittedRunIdBeforeCurrentAsync(
+            scope,
+            projectSlug,
+            Guid.Empty,
+            createdUtc.AddHours(1),
+            CancellationToken.None);
+
+        prior.Should().Be(committedRunId);
+    }
+
+    [Fact]
+    public void ListWithNullArchitectureId_backfill_select_includes_knowledge_model_id_unlike_architecture_attached_list()
+    {
+        const string backfillProjection = """
+                                            ArchitectureRequestId,
+                                                   KnowledgeModelId, CreatedUtc
+                                            """;
+
+        const string architectureListProjection = """
+                                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                         PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                         ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                                  """;
+
+        backfillProjection.Should().Contain("KnowledgeModelId");
+        architectureListProjection.Should().NotContain("KnowledgeModelId");
+    }
+
+    [Fact]
     public async Task InMemory_list_by_architecture_id_omits_row_version_like_sql_lightweight_select()
     {
         ScopeContext scope = new()
