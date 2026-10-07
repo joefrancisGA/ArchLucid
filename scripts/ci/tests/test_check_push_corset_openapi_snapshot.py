@@ -23,6 +23,16 @@ mkdir -p "$NUGET_PACKAGES"
 export NUGET_PACKAGES
 """
 
+_INLINE_COMMENT_REQUIRED_COMMANDS = """#!/usr/bin/env bash
+if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
+  NUGET_PACKAGES="$CACHE_ROOT/nuget-packages"
+  mkdir -p "$NUGET_PACKAGES"
+  export NUGET_PACKAGES
+else
+  : # unset NUGET_PACKAGES; ${HOME}/.nuget/packages
+fi
+"""
+
 
 class TestCheckPushCorsetOpenapiSnapshot(unittest.TestCase):
     def test_api_tests_project_references_application_tests(self) -> None:
@@ -69,6 +79,22 @@ class TestCheckPushCorsetOpenapiSnapshot(unittest.TestCase):
         )
         self.assertTrue(
             any("GITHUB_ACTIONS" in error for error in errors),
+            msg=errors,
+        )
+
+    def test_inline_comment_required_commands_do_not_pass(self) -> None:
+        errors = sut.collect_github_actions_nuget_cache_errors(_INLINE_COMMENT_REQUIRED_COMMANDS)
+
+        self.assertTrue(
+            errors,
+            msg="required unset/mkdir commands in an inline comment must not satisfy the guard",
+        )
+        self.assertTrue(
+            any("unset NUGET_PACKAGES" in error for error in errors),
+            msg=errors,
+        )
+        self.assertTrue(
+            any(".nuget/packages" in error for error in errors),
             msg=errors,
         )
 

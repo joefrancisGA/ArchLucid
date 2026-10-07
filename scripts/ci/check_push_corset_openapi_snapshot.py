@@ -23,32 +23,49 @@ _GITHUB_ACTIONS_NUGET_BRANCH = re.compile(
     r"\bfi\b",
     re.DOTALL,
 )
+_EXPORT_NUGET_PACKAGES = re.compile(r"^\s*export\s+NUGET_PACKAGES\s*$", re.MULTILINE)
+_UNSET_NUGET_PACKAGES = re.compile(r"^\s*unset\s+NUGET_PACKAGES\b", re.MULTILINE)
+_MKDIR_DEFAULT_NUGET = re.compile(
+    r"^\s*mkdir\s+-p\s+\"\$\{HOME\}/\.nuget/packages\"\s*$",
+    re.MULTILINE,
+)
+_CACHE_NUGET_REDIRECT = re.compile(
+    r"^\s*(?:export\s+)?NUGET_PACKAGES=.*\.cache/nuget-packages",
+    re.MULTILINE,
+)
 
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _without_full_line_comments(text: str) -> str:
+def _strip_shell_comments(text: str) -> str:
+    """Drop full-line and inline `#` comments so tokens in comments cannot satisfy the guard."""
     lines: list[str] = []
 
-    for line in text.splitlines():
-        if line.lstrip().startswith("#"):
+    for raw in text.splitlines():
+        if raw.lstrip().startswith("#"):
             continue
 
-        lines.append(line)
+        code = raw.split("#", 1)[0].rstrip()
+
+        if code.strip():
+            lines.append(code)
 
     return "\n".join(lines)
+
+
+def _has_executable_command(block: str, pattern: re.Pattern[str]) -> bool:
+    return pattern.search(block) is not None
 
 
 def collect_github_actions_nuget_cache_errors(script_text: str) -> list[str]:
     """Fail unless the GITHUB_ACTIONS branch keeps the default CLI NuGet folder.
 
-    actions/setup-dotnet cache post-step looks at ~/.nuget/packages. A token-only
-    check would pass a reverted `export NUGET_PACKAGES=.cache/nuget-packages` that
-    still mentions GITHUB_ACTIONS in a comment.
+    actions/setup-dotnet cache post-step looks at ~/.nuget/packages. Required
+    commands must be executable lines, not full-line or inline comments.
     """
-    code = _without_full_line_comments(script_text)
+    code = _strip_shell_comments(script_text)
     match = _GITHUB_ACTIONS_NUGET_BRANCH.search(code)
 
     if match is None:
@@ -61,24 +78,27 @@ def collect_github_actions_nuget_cache_errors(script_text: str) -> list[str]:
     local_block = match.group("local")
     ci_block = match.group("ci")
 
-    if "export NUGET_PACKAGES" not in local_block:
+    if not _has_executable_command(local_block, _EXPORT_NUGET_PACKAGES):
         errors.append(
             f"{_ENSURE_BUILD_REL}: non-Actions branch must `export NUGET_PACKAGES` "
             "under the repo-local .cache folder",
         )
 
-    if "unset NUGET_PACKAGES" not in ci_block:
+    if not _has_executable_command(ci_block, _UNSET_NUGET_PACKAGES):
         errors.append(
             f"{_ENSURE_BUILD_REL}: GITHUB_ACTIONS branch must `unset NUGET_PACKAGES`",
         )
 
-    if "${HOME}/.nuget/packages" not in ci_block and "$HOME/.nuget/packages" not in ci_block:
+    if not _has_executable_command(ci_block, _MKDIR_DEFAULT_NUGET):
         errors.append(
             f"{_ENSURE_BUILD_REL}: GITHUB_ACTIONS branch must mkdir "
             "${HOME}/.nuget/packages (setup-dotnet cache post-step)",
         )
 
-    if "export NUGET_PACKAGES" in ci_block or ".cache/nuget-packages" in ci_block:
+    if _has_executable_command(ci_block, _EXPORT_NUGET_PACKAGES) or _has_executable_command(
+        ci_block,
+        _CACHE_NUGET_REDIRECT,
+    ):
         errors.append(
             f"{_ENSURE_BUILD_REL}: GITHUB_ACTIONS branch must not redirect "
             "NUGET_PACKAGES under .cache/nuget-packages",
