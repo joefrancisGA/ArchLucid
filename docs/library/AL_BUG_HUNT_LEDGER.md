@@ -13257,12 +13257,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — null explicit delivery id with changing status text reuses synthetic replay keys — **cheap-disproof 2026-10-07 seed hunt #26:** synthetic keys include status token so distinct status updates do not dedupe; regression `Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs`.
 - [x] (invalid) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — unscoped global route uses `TryGetByExternalKeyAsync` without tenant filter — **cheap-disproof 2026-10-07 seed hunt #26:** global routes require repository-wide external-key uniqueness by contract; regression `TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null` (same class as ledger 2026-10-01 thorough dry invalid row).
 
-- [ ] (candidate) `ItsmInboundWebhooksController.ProcessAsync` — missing `X-Jira-Token` / `X-ServiceNow-Token` binds null `VendorToken` so facade secure-compare fails with HTTP 401 without a validation-failed body distinguishing absent headers.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — failed `TryClaimReplayAsync` returns `Accepted=true` with replay-ignored audit instead of HTTP 409 so vendors cannot distinguish dedupe from successful mutation.
-- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.HasSeenAsync` — in-flight `TryClaimAsync` without `RememberAsync` may still report `HasSeen=false` until processing completes.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — malformed JSON after successful shared-secret verification returns validation-failed outcome (not HTTP 500) but still parses attacker-controlled body length before reject.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.CreateReplayIgnoredAudit` — replay-ignored audits omit external issue key when delivery id was synthetic, complicating vendor support correlation for duplicate deliveries.
-
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `ProcessAsync_returns_unauthorized_when_hmac_required_and_signature_missing`, `ProcessAsync_skips_timestamp_skew_when_header_is_whitespace_only`, `TryResolveInboundWebhookSecretAsync_returns_null_for_jira_when_only_service_now_tenant_inbound_secret_exists`, `Jira_when_no_correlation_row_inbound_is_acknowledged_without_audit_or_finding_update`, and `TryClaimAsync_after_ReleaseAsync_only_one_concurrent_caller_wins`; seeded five follow-on `(candidate)` rows; 63 scoped `ItsmInboundWebhook` tests passed (54 Application + 9 Persistence).
 
 - [x] (valid-no-repro) `ItsmInboundWebhookFacade.TryVerifyWebhookSecurity` — `RequireBodyHmacSignature` enabled with valid vendor token but missing `X-ArchLucid-Signature` may still reach JSON parse when HMAC is disabled in test config only — **cheap-disproof 2026-10-07 seed hunt #25:** when HMAC is required, missing signature returns HTTP unauthorized before JSON parse; integration coverage `Jira_post_missing_webhook_signature_returns_401_when_hmac_required`; regression `ProcessAsync_returns_unauthorized_when_hmac_required_and_signature_missing`.
@@ -13293,9 +13287,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
