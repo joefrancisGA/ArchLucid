@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted SQL `1222` (lock request timeout) while orchestrator Polly retry retried `1205` deadlock; classify `1222` transient; regression `ExecuteAsync_retries_sql_lock_timeout_error_1222`; 65 scoped transient-retry tests passed (47 Persistence + 18 Application).
+
 2026-10-07 thorough hunt (hit): `api-tenancy-workspaces` — `ListRecycleBinAsync` called `ListSoftDeletedByTenantAsync` without null-coalesce (restore path already uses `?? Array.Empty`); null list threw before empty recycle-bin response; regression `ListRecycleBinAsync_returns_ok_with_empty_deleted_projects_when_soft_deleted_list_is_null`; cheap-disproof closed four other open `(candidate)` rows; 50 scoped TenantWorkspaces tests passed.
 
 2026-10-07 seed hunt (seed-only): `api-tenancy-workspaces` — re-read `TenantWorkspacesController` list/recycle-bin/delete/restore after audit-actor hit; no hunt-ready row promoted; cheap-disproof closed restore-audit parity (fixed 2026-10-07 with delete path); seeded five `(candidate)` rows; 49 scoped TenantWorkspaces tests passed.
@@ -5005,11 +5007,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 35
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — nested parallel-persist flatten not recursive through multi-wrapper aggregate inners
+- **hunts:** 36
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-07
+- **last-bug:** 2026-10-07 — SQL lock timeout 1222 not retried by orchestrator transient pipeline
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -5136,6 +5138,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — root `SqlException` with transient number and `InnerException` mixed `AggregateException` — **cheap-disproof 2026-10-06 thorough hunt:** `TryGetParallelPersistInners` walks from `InnerException` and applies parallel-persist fail-fast despite transient SQL number at the root; regression `ExecuteAsync_does_not_retry_when_transient_sql_wraps_mixed_parallel_persist_aggregate_on_inner_chain`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry.BuildPipeline` — Polly third-attempt jitter floor — **cheap-disproof 2026-10-06 thorough hunt:** worst-case negative jitter on attempt 3 at 2s base remains positive via `SqlOpenRetryDelayCalculator`; regression `Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive`.
 - [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` — outer `150ms` vs inner 2s first backoff asymmetry — **invalid 2026-10-06 thorough hunt:** intentional layered retry design documented in #1259; `RetryBudget` bounds outer wall clock; existing `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`.
+
+2026-10-07 seed hunt (seed→hit): promoted SQL lock-timeout `1222` gap in `SqlTransientDetector` used by `OrchestratorTransientDbRetry`; no open `(candidate)` rows; 65 scoped transient-retry tests passed (47 Persistence + 18 Application).
+
+- [x] (proven) `OrchestratorTransientDbRetry` / `SqlTransientDetector` — SQL error `1222` (lock request timeout) not classified transient while `1205` deadlock retried, so authority persist gave up after one attempt under lock-timeout pressure — **hit 2026-10-07 seed hunt (seed→hit):** add `1222` to transient set; regression `ExecuteAsync_retries_sql_lock_timeout_error_1222`.
 
 ---
 
