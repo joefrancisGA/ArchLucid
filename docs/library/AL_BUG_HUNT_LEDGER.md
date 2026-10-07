@@ -7349,6 +7349,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; workspace recommendation scope filter, composite suppression `DecideAsync` read path, `DistinctBy` newest duplicate run id, synthesized empty findings + improvement plan, and controller sealed-manifest `409` mapping; regression `GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope`; reaffirmed `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`, `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, and `SimulateAsync_CompositeRule_WhenMatched_UsesSuppressionPolicyDecision`; 34 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; project-id scope filters, explicit compare-to path, historical-window gate with explicit run, and unreachable batch compare-to skip metadata; 33 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; defense-in-depth recommendation `RunId` filter, workspace learning-profile filter, evaluated-count summary notes, explicit-run slug bypass, and audit rule-kind casing; 30 scoped `AlertSimulationContextProviderTests` and 5 scoped `RuleSimulationServiceTests` passed.
@@ -7363,9 +7365,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -7429,11 +7431,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RuleSimulationService.SimulateAsync` — `UseHistoricalWindow: false` with non-null `RunId` still evaluates — **cheap-disproof 2026-10-07 thorough hunt:** early exit only when both `UseHistoricalWindow` is false and `RunId` is null; regression `SimulateAsync_WhenUseHistoricalWindowFalseButRunIdProvided_StillEvaluatesContexts`.
 - [x] (invalid) `AlertSimulationContextProvider.BuildContextAsync` — compare-to with `skipOnSealedHashFailure: true` silent drop — **cheap-disproof 2026-10-07 thorough hunt:** recent-run batch always passes `comparedToRunId: null` (`GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`); explicit path uses `skipOnSealedHashFailure: false` and throws on compare-to hash failure.
 
-- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation row with foreign `WorkspaceId` but matching tenant/project/`RunId` from mis-keyed repository row.
-- [ ] (candidate) `RuleSimulationService.SimulateAsync` — composite simulation invokes live `IAlertSuppressionPolicy.DecideAsync` (read-only alert store) per context.
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run `DistinctBy(RunId)` after `OrderByDescending(CreatedUtc)` keeps newest summary when authority returns duplicate ids.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `ImprovementPlan` from advisor when `FindingsSnapshot` is synthesized empty still drives alert metric snapshot inputs.
-- [ ] (candidate) `AlertSimulationController.Simulate` — sealed-manifest block from explicit compare-to maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull`.
+- [x] (valid-no-repro) `FilterRecommendationsForSimulationScope` — recommendation row with foreign `WorkspaceId` but matching tenant/project/`RunId` from mis-keyed repository row — **cheap-disproof 2026-10-07 thorough hunt:** defense-in-depth scope filter drops mis-keyed row; regression `GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope`.
+- [x] (valid-no-repro) `RuleSimulationService.SimulateAsync` — composite simulation invokes live `IAlertSuppressionPolicy.DecideAsync` (read-only alert store) per context — **cheap-disproof 2026-10-07 thorough hunt:** intentional dry-run suppression evaluation without persisting deliveries; regression `SimulateAsync_CompositeRule_WhenMatched_UsesSuppressionPolicyDecision`.
+- [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` — recent-run `DistinctBy(RunId)` after `OrderByDescending(CreatedUtc)` keeps newest summary when authority returns duplicate ids — **cheap-disproof 2026-10-07 thorough hunt:** fix from 2026-10-06 seed hunt; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — `ImprovementPlan` from advisor when `FindingsSnapshot` is synthesized empty still drives alert metric snapshot inputs — **cheap-disproof 2026-10-07 thorough hunt:** manifest-bound empty findings are intentional; advisor receives synthesized snapshot; regression `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`.
+- [x] (valid-no-repro) `AlertSimulationController.Simulate` — sealed-manifest block from explicit compare-to maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull` — **cheap-disproof 2026-10-07 thorough hunt:** provider throws `InvalidOperationException` with blocked message; controller maps to conflict; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws` plus architecture `Status409Conflict` on simulate paths.
+
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation row with foreign `TenantId` but matching workspace/project/`RunId` from mis-keyed repository row.
+- [ ] (candidate) `RuleSimulationService.SimulateAsync` — simple-rule simulation path never calls `IAlertSuppressionPolicy.DecideAsync` even when composite payload is present on the request.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch with duplicate `RunId` invokes `GetRunDetailAsync` only once per distinct id after deduplication.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `ImprovementAdvisorService.GeneratePlanAsync` receives synthesized empty findings (not null) when authority omits `FindingsSnapshot`.
+- [ ] (candidate) `AlertSimulationController.Simulate` — explicit primary `runId` sealed-hash failure maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull` (not only compare-to).
 
 2026-10-06 seed hunt (seed-only): reseeded alert-simulation; five `(candidate)` rows; 23 scoped `AlertSimulationContextProviderTests` passed (no code change).
 
