@@ -23,6 +23,10 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParams,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
   fetchInfraEvidenceSnapshots: vi.fn(async () => ({
     items: [
@@ -196,6 +200,21 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toBeInTheDocument();
   });
 
+  it("navigates only rendered correspondence rows and counts grouped inventory rows", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const correspondenceRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    expect(screen.getByText("1 resource(s)")).toBeInTheDocument();
+    expect(screen.getByText(/2 visible row\(s\)/)).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: "j" });
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(window, { key: "j" });
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
   it("highlights and scrolls to a deep-linked correspondence row", async () => {
     searchParams = new URLSearchParams(
       "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1",
@@ -206,6 +225,19 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(conflictRow).toHaveAttribute("aria-selected", "true");
   });
 
+  it("does not select a deep-linked inventory row hidden inside a group", async () => {
+    searchParams = new URLSearchParams(
+      "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=infra-only-1",
+    );
+    render(<DiagramReconcileWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagram-reconcile-correspondence-deep-link-missing")).toHaveTextContent(
+      "not visible in the displayed results",
+    );
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+    expect(screen.getByText("1 resource(s)")).toBeInTheDocument();
+  });
+
   it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {
     searchParams = new URLSearchParams(
       "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=missing-correspondence",
@@ -213,7 +245,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     render(<DiagramReconcileWorkbenchClient />);
 
     expect(await screen.findByTestId("infra-diagram-reconcile-correspondence-deep-link-missing")).toHaveTextContent(
-      "linked diagram correspondence row is not in the loaded reconciliation",
+      "linked diagram correspondence row is not visible in the displayed results",
     );
   });
 

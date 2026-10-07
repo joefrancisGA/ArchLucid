@@ -504,10 +504,15 @@ export function DiagramReconcileWorkbenchClient() {
       const inventoryGroups = groupDiagramReconcileInventoryOnlyRows(filteredRows);
       const nonInventoryRows = filteredRows.filter((row) => row.matchKind !== "InfrastructureOnly");
 
-      return { inventoryGroups, nonInventoryRows };
+      return {
+        inventoryGroups,
+        nonInventoryRows,
+        rowCount: inventoryGroups.length + nonInventoryRows.length,
+      };
     },
     [filteredRows],
   );
+  const navigableRows = displayedRows.nonInventoryRows;
 
   const scorecard = useMemo(
     () => reconciliation == null ? null : buildDiagramReconcileScorecard(reconciliation),
@@ -542,18 +547,8 @@ export function DiagramReconcileWorkbenchClient() {
       return true;
     }
 
-    return !reconciliation.rows.some((row) => {
-      if (row.correspondenceId !== urlCorrespondenceId) {
-        return false;
-      }
-
-      if (urlCloudResourceId.length === 0) {
-        return true;
-      }
-
-      return row.cloudResourceId === urlCloudResourceId;
-    });
-  }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCloudResourceId, urlCorrespondenceId]);
+    return !navigableRows.some((row) => row.correspondenceId === urlCorrespondenceId);
+  }, [loadingReconciliation, navigableRows, reconciliation, runId, selectedSnapshotId, urlCorrespondenceId]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -588,7 +583,7 @@ export function DiagramReconcileWorkbenchClient() {
     document
       .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
+  }, [navigableRows, selectedCorrespondenceId, urlCorrespondenceId]);
 
   useEffect(() => {
     if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
@@ -599,13 +594,13 @@ export function DiagramReconcileWorkbenchClient() {
       return;
     }
 
-    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+    const stillVisible = navigableRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
 
     if (!stillVisible) {
       setSelectedCorrespondenceId(null);
       syncUrl({ correspondenceId: "" });
     }
-  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
+  }, [loadingReconciliation, navigableRows, selectedCorrespondenceId, syncUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1113,19 +1108,19 @@ export function DiagramReconcileWorkbenchClient() {
 
   const selectAdjacentCorrespondenceRow = useCallback(
     (delta: number) => {
-      if (filteredRows.length === 0) {
+      if (navigableRows.length === 0) {
         return;
       }
 
       const currentIndex =
         selectedCorrespondenceId == null
           ? -1
-          : filteredRows.findIndex((row) => row.correspondenceId === selectedCorrespondenceId);
+          : navigableRows.findIndex((row) => row.correspondenceId === selectedCorrespondenceId);
       const nextIndex =
         currentIndex < 0
-          ? (delta > 0 ? 0 : filteredRows.length - 1)
-          : (currentIndex + delta + filteredRows.length) % filteredRows.length;
-      const nextRow = filteredRows[nextIndex];
+          ? (delta > 0 ? 0 : navigableRows.length - 1)
+          : (currentIndex + delta + navigableRows.length) % navigableRows.length;
+      const nextRow = navigableRows[nextIndex];
 
       if (nextRow == null) {
         return;
@@ -1137,7 +1132,7 @@ export function DiagramReconcileWorkbenchClient() {
         .querySelector(`[data-testid="infra-diagram-reconcile-row-${nextRow.correspondenceId}"]`)
         ?.scrollIntoView({ block: "nearest" });
     },
-    [filteredRows, selectedCorrespondenceId, syncUrl],
+    [navigableRows, selectedCorrespondenceId, syncUrl],
   );
 
   useDiagramReconcileWorkbenchShortcuts(
@@ -1229,14 +1224,14 @@ export function DiagramReconcileWorkbenchClient() {
       return null;
     }
 
-    const selectedRow = filteredRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
+    const selectedRow = navigableRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
 
     if (selectedRow == null) {
       return `Showing diagram correspondence ${selectedCorrespondenceId}.`;
     }
 
     return `Showing diagram correspondence ${formatDiagramReconcileResourceLabelForDisplay(selectedRow)}.`;
-  }, [filteredRows, selectedCorrespondenceId]);
+  }, [navigableRows, selectedCorrespondenceId]);
 
   return (
     <OperatorPageContainer
@@ -1368,7 +1363,7 @@ export function DiagramReconcileWorkbenchClient() {
           data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
           role="status"
         >
-          The linked diagram correspondence row is not in the loaded reconciliation for this review and snapshot
+          The linked diagram correspondence row is not visible in the displayed results for this review and snapshot
           {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
         </p>
       ) : null}
@@ -1721,7 +1716,7 @@ export function DiagramReconcileWorkbenchClient() {
               </div>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {reconciliation.diagramNodeCount} diagram nodes · {reconciliation.inventoryResourceCount} inventory
-                resources · {filteredRows.length} visible row(s). Use <kbd className="font-mono text-xs">J</kbd> /{" "}
+                resources · {displayedRows.rowCount} visible row(s). Use <kbd className="font-mono text-xs">J</kbd> /{" "}
                 <kbd className="font-mono text-xs">K</kbd> to move between rows.
               </p>
             </div>
