@@ -84,7 +84,7 @@ describe("diagram-reconcile-scorecard", () => {
   it("exports grouped inventory rows, confirmed rows, and connector gaps", () => {
     const csv = buildDiagramReconcileCsv(reconciliation());
 
-    expect(csv).toContain('"kind","match","diagram"');
+    expect(csv).toContain('"Kind","Match","Diagram"');
     expect(csv).toContain('"inventory-group","Inventory only","","rg","Microsoft.Storage/storageAccounts","20"');
     expect(csv).toContain('"correspondence","Confirmed","Portal"');
     expect(csv).toContain('"connector-gap","MissingInDiagram"');
