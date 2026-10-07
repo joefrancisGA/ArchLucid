@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 67 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`, `MemoryCacheBillingWebhookReplayGuardTests`, `BillingMarketplaceWebhookDedupeKeyTests`, and `LlmTenantWalletStripeWebhookProcessorTests`; 55 scoped billing webhook unit tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 62 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
@@ -22605,13 +22607,27 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 67 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ArchLucidAzurePublicHttpClients` — ARM and Retail Prices authority hosts differ — **cheap-disproof 2026-10-07 seed hunt #27:** fixed public catalog roots; regression `ArchLucidAzurePublicHttpClients_arm_and_retail_authority_hosts_differ`.
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — default `FailureRatio` is `0.5` before `Normalize` — **cheap-disproof 2026-10-07 seed hunt #27:** breaker ratio default; regression `OutboundExternalHttpResilienceOptions_default_failure_ratio_is_point_five_before_normalize`.
+- [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `503 Service Unavailable` is retried — **cheap-disproof 2026-10-07 seed hunt #27:** transient 5xx retry; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_503_service_unavailable`.
+- [x] (valid-no-repro) `OutboundHttpClientTimeoutSeconds` — `InternalDiagnostics` constant is `10` seconds — **cheap-disproof 2026-10-07 seed hunt #27:** fast internal diagnostic budget; regression `OutboundHttpClientTimeoutSeconds_internal_diagnostics_budget_is_ten_seconds`.
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `CloudControlPlane` enables multiple HTTP/2 connections like `ExternalIntegration` — **cheap-disproof 2026-10-07 seed hunt #27:** profile tuning; regression `OutboundSocketsHttpHandlerSettings_cloud_control_plane_enables_multiple_http2_connections_like_integration`.
+
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `MinimumThroughput` is `8` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~20–21).
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `SamplingDurationSeconds` is `30` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~17–18).
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `404 Not Found` is not retried — locus: `ShouldRetryHttpResponse` 5xx-only branch (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~61–71).
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` sets `EnableMultipleHttp2Connections` to `false` — locus: profile switch (`OutboundSocketsHttpHandlerSettings.cs` ~16–20).
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `ExternalIntegration` constant is `30` seconds — locus: `ExternalIntegration` (`OutboundHttpClientTimeoutSeconds.cs` ~14–15).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 62 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
@@ -22620,12 +22636,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` uses shorter `PooledConnectionLifetime` than `ExternalIntegration` — **cheap-disproof 2026-10-07 seed hunt #26:** loopback probe profile tuning; regression `OutboundSocketsHttpHandlerSettings_internal_loopback_uses_shorter_pooled_connection_lifetime_than_integration`.
 - [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — default `MaxRetryAttempts` is `3` before `Normalize` — **cheap-disproof 2026-10-07 seed hunt #26:** aligns with ARM retry posture; regression `OutboundExternalHttpResilienceOptions_default_max_retry_attempts_is_three_before_normalize`.
 - [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `408 Request Timeout` is retried — **cheap-disproof 2026-10-07 seed hunt #26:** transient status retry; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_408_request_timeout`.
-
-- [ ] (candidate) `ArchLucidAzurePublicHttpClients` — ARM and Retail Prices authority hosts differ — locus: `ResourceManagerAuthority` vs `RetailPricesAuthority` (`ArchLucidAzurePublicHttpClients.cs` ~9–12).
-- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `FailureRatio` is `0.5` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~14–15).
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `503 Service Unavailable` is retried — locus: `ShouldRetryHttpResponse` 5xx branch (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~71).
-- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `InternalDiagnostics` constant is `10` seconds — locus: `InternalDiagnostics` (`OutboundHttpClientTimeoutSeconds.cs` ~8–9).
-- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `CloudControlPlane` enables multiple HTTP/2 connections like `ExternalIntegration` — locus: `EnableMultipleHttp2Connections` (`OutboundSocketsHttpHandlerSettings.cs` ~30–35).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 57 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 

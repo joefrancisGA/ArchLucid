@@ -44,6 +44,13 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
     }
 
     [Fact]
+    public void ArchLucidAzurePublicHttpClients_arm_and_retail_authority_hosts_differ()
+    {
+        ArchLucidAzurePublicHttpClients.ResourceManagerAuthority.Host.Should()
+            .NotBe(ArchLucidAzurePublicHttpClients.RetailPricesAuthority.Host);
+    }
+
+    [Fact]
     public void ArchLucidMultiCloudPublicHttpClients_authorities_use_https_public_hosts()
     {
         ArchLucidMultiCloudPublicHttpClients.AwsPricingAuthority.Scheme.Should().Be("https");
@@ -340,6 +347,54 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
         OutboundExternalHttpResilienceOptions options = new();
 
         options.MaxRetryAttempts.Should().Be(3);
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_default_failure_ratio_is_point_five_before_normalize()
+    {
+        OutboundExternalHttpResilienceOptions options = new();
+
+        options.FailureRatio.Should().Be(0.5);
+    }
+
+    [Fact]
+    public void OutboundHttpClientTimeoutSeconds_internal_diagnostics_budget_is_ten_seconds()
+    {
+        OutboundHttpClientTimeoutSeconds.InternalDiagnostics.Should().Be(10);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_cloud_control_plane_enables_multiple_http2_connections_like_integration()
+    {
+        using SocketsHttpHandler cloudHandler = new();
+        using SocketsHttpHandler integrationHandler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(cloudHandler, OutboundHttpSocketsHandlerProfile.CloudControlPlane);
+        OutboundSocketsHttpHandlerSettings.Apply(integrationHandler, OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        cloudHandler.EnableMultipleHttp2Connections.Should().BeTrue();
+        integrationHandler.EnableMultipleHttp2Connections.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_retries_http_503_service_unavailable()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(() =>
+        {
+            sendCount++;
+
+            if (sendCount < 2)
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        sendCount.Should().Be(2);
     }
 
     [Fact]
