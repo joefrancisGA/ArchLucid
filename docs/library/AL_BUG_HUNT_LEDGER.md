@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (trailing topology ref trim, ZWSP in labels, HasMatchingProposal ordering, substantive ref dedupe path, ordinal sub-key casing); seeded five follow-on `(candidate)` rows; 112 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (missing vendor token 401, replay dedupe ack contract, in-flight HasSeen, malformed JSON validation, replay-ignored audit detail); seeded five follow-on `(candidate)` rows; 72 scoped `ItsmInboundWebhook` tests passed (62 Application + 10 Persistence).
 
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (whitespace delivery id fallback, tenant missing inbound secret 401, empty mapped human review guard, synthetic replay id per status, unscoped correlation lookup); seeded five follow-on `(candidate)` rows; 68 scoped `ItsmInboundWebhook` tests passed (59 Application + 9 Persistence).

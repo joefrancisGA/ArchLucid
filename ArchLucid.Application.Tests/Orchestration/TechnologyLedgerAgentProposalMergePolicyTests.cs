@@ -1367,6 +1367,58 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeSameAs(candidate);
     }
 
+    [Fact]
+    public void Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_embedded_zwsp()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        chosen.TechnologyName = "Azure SQL";
+        chosen.EvidenceRef = "inventory:sql";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure\u200BSQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.None);
+        chosen.TechnologyName = "Undecided platform";
+        chosen.EvidenceRef = "user:neutral";
+
+        TechnologyLedgerEntry assumed = CreateCandidate(CloudProvider.Azure);
+        assumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        assumed.TechnologyName = "Azure Kubernetes Service";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Azure AKS";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen, assumed])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_substantive_rows_share_topology_ref_before_name_dedupe_path()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "Service A";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Service B";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeNull();
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
