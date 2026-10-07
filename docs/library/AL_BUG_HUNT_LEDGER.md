@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-help-docs` — re-read `HelpDocsClient` merge/dedupe, search debounce, and link rendering after four commits since last hunt; no hunt-ready row promoted; seeded five `(candidate)` rows; 31 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five seeded `(candidate)` rows (Warned+`QualityRejected` dual flag blocks; U+FE0F variation-selector task-id split fail-closed per group; non-Guid lifecycle skip covered by arch-version pin; disabled trace gate vs unsupported-band hold are separate evaluators; whitespace-only `TaskId` chains with missing-task retries); regressions `GetBlockingReasons_when_quality_rejected_with_warned_recorded_outcome_still_blocks`, `Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups`, `GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group`, `GetBlockingReasonsAsync_returns_invalid_run_id_before_repository_calls_for_non_guid`, `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`, and `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`; seeded five follow-on `(candidate)` rows; 99 scoped zone tests passed (61 Application + 38 Core).
 
 2026-10-07 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardSubmit`, guided-intake draft submit/admit, query prefill, track stream, and clarification inference after four consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused `reviews/new` vitest tests passed (192 total scoped run: 121 passed, 71 pre-existing harness failures).
@@ -8319,16 +8321,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-07 seed hunt (seed-only): re-read `HelpDocsClient` after external https trailing-slash dedupe hits; no hunt-ready row promoted; seeded five `(candidate)` rows; 31 scoped `HelpDocsClient` vitest tests passed.
+
 - **id:** ui-help-docs
 - **status:** open
 - **impact:** low
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — external https doc-index rows duplicated paths differing only by trailing slash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8415,6 +8419,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HelpDocsClient.normalizeDocIndexUrlForDedupe` — `https://` and scheme-relative URLs skipped trailing-slash normalization, so fetched doc-index rows such as `https://example.com/docs/alpha` and `https://example.com/docs/alpha/` both rendered — **hit 2026-10-06 seed hunt (seed→hit):** parse absolute URLs and trim redundant pathname slashes before `claimedUrls` dedupe; regression `does not duplicate fetched external doc links when two rows differ only by a trailing slash on the same https url`.
 
 2026-10-06 seed hunt (seed→hit): reseeded ui-help-docs after fetched path slash dedupe fix; proved external https trailing-slash duplicates; 31 scoped `HelpDocsClient` tests passed.
+
+- [ ] (candidate) `HelpDocsClient.mergeDocIndex` / `normalizeDocIndexUrlForDedupe` — operator doc-index rows whose paths differ only by query or hash (`/architecture/reviews` vs `/architecture/reviews?tab=active`) bypass `claimedUrls` dedupe; reachable when `public/doc-index.json` emits tracking query strings on in-app routes.
+- [ ] (candidate) `normalizeHelpHubFilterQuery` — a one-character `/` search token is not stripped by the trailing-slash normalizer (`length > 1` guard), so the filter matches nearly every row whose haystack includes path slashes; reachable when operators paste a lone `/` from a copied URL fragment.
+- [ ] (candidate) `HelpDocsClient` debounced `useEffect` — the effect depends on `searchParams`, so unrelated query-key changes retrigger the 250ms `router.replace` timer even when the controlled `query` state is unchanged; reachable from deep links that carry non-`q` params on `/help`.
+- [ ] (candidate) `HelpDocsClient` link rendering — `href` uses `normalizeDocIndexUrlForDedupe(row.url.trim())` while `linkProps(row.url)` classifies externality from the untrimmed `row.url`; reachable when fetched doc-index rows include leading/trailing whitespace on `https://` URLs.
+- [ ] (candidate) `HelpDocsClient` filtered haystack — search does not index slugified category section ids from `helpDocCategoryDomId`, so filtering `getting-started` misses Getting Started rows whose title/summary omit the token; reachable when operators search using the URL fragment from in-page anchors.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 
