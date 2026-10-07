@@ -1135,6 +1135,81 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException mixed = new(deadlock, fkViolation);
+        AggregateException transientOnly = new(deadlock);
+        SetInnerException(transientOnly, mixed);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("parallel persist failed", transientOnly);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(4, "TryGetParallelPersistInners stops at the first populated aggregate on the inner chain");
+    }
+
+    [SkippableFact]
+    public void Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt()
+    {
+        TimeSpan baseDelay = TimeSpan.FromSeconds(2);
+
+        for (int pollyAttemptNumber = 0; pollyAttemptNumber <= 2; pollyAttemptNumber++)
+        {
+            int retryAttempt = pollyAttemptNumber + 1;
+            double baseMilliseconds = baseDelay.TotalMilliseconds * Math.Pow(2, retryAttempt - 1);
+
+            SqlOpenRetryDelayCalculator.ComputeJitterSpanMilliseconds(baseMilliseconds)
+                .Should()
+                .BeGreaterThan(0);
+        }
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers()
+    {
+        int firstAttempts = 0;
+        int secondAttempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Task first = OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                Interlocked.Increment(ref firstAttempts);
+
+                if (firstAttempts == 1)
+                    throw deadlock;
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        Task second = OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                Interlocked.Increment(ref secondAttempts);
+
+                if (secondAttempts == 1)
+                    throw deadlock;
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        await Task.WhenAll(first, second);
+
+        firstAttempts.Should().Be(2);
+        secondAttempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public void Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive()
     {
         TimeSpan baseDelay = TimeSpan.FromSeconds(2);

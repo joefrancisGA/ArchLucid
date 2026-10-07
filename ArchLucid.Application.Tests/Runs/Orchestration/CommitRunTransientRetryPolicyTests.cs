@@ -160,6 +160,18 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
+
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts));
+    }
+
+    [Fact]
     public void Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget()
     {
         TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
