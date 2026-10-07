@@ -149,6 +149,40 @@ public sealed class ItsmInboundWebhookFacadeTests
         result.Outcome.Should().NotBe(ItsmInboundWebhookHttpOutcome.Unauthorized);
     }
 
+    [Fact]
+    public async Task ProcessAsync_returns_unauthorized_when_tenant_scoped_and_inbound_secret_missing()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = false,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new();
+        credentials
+            .Setup(c => c.TryResolveInboundWebhookSecretAsync(tenantId, TenantItsmConnectorProvider.Jira, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        ItsmInboundWebhookSyncService sync = CreateSyncService();
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = tenantId,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = "any-token",
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
     private static ItsmInboundWebhookSyncService CreateSyncService()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

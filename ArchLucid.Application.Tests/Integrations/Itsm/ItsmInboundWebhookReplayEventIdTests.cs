@@ -43,4 +43,23 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
 
         id.Should().Be("arch-delivery-42");
     }
+
+    [Fact]
+    public void Resolve_treats_whitespace_only_delivery_id_as_absent_for_synthetic_fallback()
+    {
+        string id = ItsmInboundWebhookReplayEventId.Resolve("   ", "Jira", "KEY-1", "Done");
+
+        id.Should().Be("Jira:KEY-1:Done");
+    }
+
+    [Fact]
+    public void Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs()
+    {
+        string first = ItsmInboundWebhookReplayEventId.Resolve(null, "Jira", "KEY-1", "Done");
+        string second = ItsmInboundWebhookReplayEventId.Resolve(null, "Jira", "KEY-1", "In Progress");
+
+        first.Should().Be("Jira:KEY-1:Done");
+        second.Should().Be("Jira:KEY-1:In Progress");
+        first.Should().NotBe(second);
+    }
 }

@@ -1,0 +1,41 @@
+using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Core.Integrations.Itsm;
+using ArchLucid.Persistence.Integrations;
+
+using FluentAssertions;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Integrations.Itsm;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class ItsmInboundWebhookSyncSupportTests
+{
+    [Fact]
+    public async Task TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
+
+        Mock<IItsmInboundWebhookReplayGuard> replay = new();
+        ItsmInboundWebhookSyncSupport sut = new(correlations.Object, replay.Object);
+
+        ItsmFindingCorrelationRecord? row =
+            await sut.TryResolveCorrelationAsync("Jira", "KEY-1", authenticatedTenantId: null, CancellationToken.None);
+
+        row.Should().BeNull();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()),
+            Times.Once);
+        correlations.Verify(
+            c => c.TryGetByExternalKeyForTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+}

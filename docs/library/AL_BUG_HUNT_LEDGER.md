@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (whitespace delivery id fallback, tenant missing inbound secret 401, empty mapped human review guard, synthetic replay id per status, unscoped correlation lookup); seeded five follow-on `(candidate)` rows; 68 scoped `ItsmInboundWebhook` tests passed (59 Application + 9 Persistence).
+
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows (project list vs keyset take ceilings, caching first-page take keys, detail EXISTS vs list join warning hydration, in-memory project take defaults, unpaged TOP vs keyset Fetch); seeded five follow-on `(candidate)` rows; 170 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (HMAC required without signature, whitespace timestamp skew skip, Jira inbound secret provider scoping, orphan correlation ack, post-release concurrent replay claim); seeded five follow-on `(candidate)` rows; 63 scoped `ItsmInboundWebhook` tests passed (54 Application + 9 Persistence).
@@ -13229,7 +13231,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 25 · **Bugs found:** 19 · **Consecutive dry hunts:** 3
+**Hunts:** 26 · **Bugs found:** 19 · **Consecutive dry hunts:** 4
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `Resolve_treats_whitespace_only_delivery_id_as_absent_for_synthetic_fallback`, `ProcessAsync_returns_unauthorized_when_tenant_scoped_and_inbound_secret_missing`, `Jira_when_mapper_returns_mapped_true_with_empty_human_review_returns_not_accepted_without_audit`, `Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs`, and `TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null`; seeded five follow-on `(candidate)` rows; 68 scoped `ItsmInboundWebhook` tests passed (59 Application + 9 Persistence).
+
+- [x] (valid-no-repro) `ItsmInboundWebhooksController.ResolveDeliveryId` — whitespace-only `X-ArchLucid-Webhook-Delivery-Id` falls through to `X-Atlassian-Webhook-Identifier` or synthetic replay keys — **cheap-disproof 2026-10-07 seed hunt #26:** controller and `ItsmInboundWebhookReplayEventId.Resolve` treat whitespace delivery ids as absent; regression `Resolve_treats_whitespace_only_delivery_id_as_absent_for_synthetic_fallback`.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — tenant-scoped Jira webhook with deployment-wide secrets disabled and no tenant inbound KV mapping returns HTTP 401 indistinguishable from wrong vendor token — **cheap-disproof 2026-10-07 seed hunt #26:** missing secret short-circuits before token compare; regression `ProcessAsync_returns_unauthorized_when_tenant_scoped_and_inbound_secret_missing`.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — mapped human review that trims to empty returns `Accepted=false` with null audit — **cheap-disproof 2026-10-07 seed hunt #26:** defense-in-depth guard when mapper misbehaves; production mappers fail closed earlier; regression `Jira_when_mapper_returns_mapped_true_with_empty_human_review_returns_not_accepted_without_audit`.
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — null explicit delivery id with changing status text reuses synthetic replay keys — **cheap-disproof 2026-10-07 seed hunt #26:** synthetic keys include status token so distinct status updates do not dedupe; regression `Resolve_builds_distinct_synthetic_replay_ids_when_status_text_differs`.
+- [x] (invalid) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — unscoped global route uses `TryGetByExternalKeyAsync` without tenant filter — **cheap-disproof 2026-10-07 seed hunt #26:** global routes require repository-wide external-key uniqueness by contract; regression `TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null` (same class as ledger 2026-10-01 thorough dry invalid row).
+
+- [ ] (candidate) `ItsmInboundWebhooksController.ProcessAsync` — missing `X-Jira-Token` / `X-ServiceNow-Token` binds null `VendorToken` so facade secure-compare fails with HTTP 401 without a validation-failed body distinguishing absent headers.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — failed `TryClaimReplayAsync` returns `Accepted=true` with replay-ignored audit instead of HTTP 409 so vendors cannot distinguish dedupe from successful mutation.
+- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.HasSeenAsync` — in-flight `TryClaimAsync` without `RememberAsync` may still report `HasSeen=false` until processing completes.
+- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — malformed JSON after successful shared-secret verification returns validation-failed outcome (not HTTP 500) but still parses attacker-controlled body length before reject.
+- [ ] (candidate) `ItsmInboundWebhookSyncSupport.CreateReplayIgnoredAudit` — replay-ignored audits omit external issue key when delivery id was synthetic, complicating vendor support correlation for duplicate deliveries.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `ProcessAsync_returns_unauthorized_when_hmac_required_and_signature_missing`, `ProcessAsync_skips_timestamp_skew_when_header_is_whitespace_only`, `TryResolveInboundWebhookSecretAsync_returns_null_for_jira_when_only_service_now_tenant_inbound_secret_exists`, `Jira_when_no_correlation_row_inbound_is_acknowledged_without_audit_or_finding_update`, and `TryClaimAsync_after_ReleaseAsync_only_one_concurrent_caller_wins`; seeded five follow-on `(candidate)` rows; 63 scoped `ItsmInboundWebhook` tests passed (54 Application + 9 Persistence).
 
@@ -13238,12 +13254,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ItsmInboundTenantConnectorCredentialResolver` — tenant-scoped Jira route with ServiceNow connector secret configured returns 401 without indicating provider mismatch — **cheap-disproof 2026-10-07 seed hunt #25:** inbound secrets resolve per `GetAsync(tenantId, provider)`; Jira route does not read ServiceNow row; regression `TryResolveInboundWebhookSecretAsync_returns_null_for_jira_when_only_service_now_tenant_inbound_secret_exists`.
 - [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — missing correlation row returns `Accepted=true` with null audit so vendors cannot distinguish orphan keys from successful no-ops — **cheap-disproof 2026-10-07 seed hunt #25:** intentional ack-without-audit contract; regression `Jira_when_no_correlation_row_inbound_is_acknowledged_without_audit_or_finding_update`.
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.HasSeenAsync` — `ReleaseAsync` followed immediately by concurrent `TryClaimAsync` from two workers may both observe `HasSeen=false` before either claim wins — **cheap-disproof 2026-10-07 seed hunt #25:** only one concurrent post-release claim succeeds; regression `TryClaimAsync_after_ReleaseAsync_only_one_concurrent_caller_wins`.
-
-- [ ] (candidate) `ItsmInboundWebhooksController.ResolveDeliveryId` — whitespace-only `X-ArchLucid-Webhook-Delivery-Id` falls through to `X-Atlassian-Webhook-Identifier` or synthetic replay keys instead of rejecting malformed delivery ids.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — tenant-scoped Jira webhook with deployment-wide secrets disabled and no tenant inbound KV mapping returns HTTP 401 indistinguishable from wrong vendor token.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — mapped human review that trims to empty returns `Accepted=false` with null audit instead of unknown-status rejected audit.
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` — null explicit delivery id with changing status text reuses synthetic replay keys so distinct vendor retries on the same issue key may dedupe incorrectly.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — unscoped global route uses `TryGetByExternalKeyAsync` without tenant filter when `authenticatedTenantId` is null, so duplicate external keys across tenants rely on repository uniqueness rather than tenant binding at the HTTP layer.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback`, `TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled`, `ProcessAsync_returns_unauthorized_when_timestamp_skew_enabled_and_header_is_malformed`, `MapToHumanReview_returns_unmapped_when_configured_enum_value_is_whitespace_only`, `RememberAsync_after_TryClaim_blocks_second_claim_without_releasing_first`, and `ProcessAsync_returns_unauthorized_when_unscoped_and_deployment_wide_secrets_disabled`; seeded five follow-on `(candidate)` rows; 61 scoped `ItsmInboundWebhook` tests passed (53 Application + 8 Persistence).
 
@@ -13267,9 +13277,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
 - **related-pd-tb:** none
