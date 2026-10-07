@@ -426,6 +426,60 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        string docPath = Path.Combine(repoRoot, DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        string content = File.ReadAllText(docPath);
+        MatchCollection rowNumbers = Regex.Matches(
+            content,
+            @"^\|\s*(\d+)\s*\|\s*`infra/",
+            RegexOptions.Multiline);
+
+        List<int> indices = rowNumbers
+            .Select(match => int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture))
+            .ToList();
+
+        indices.Should().Equal(Enumerable.Range(1, 16));
+    }
+
+    [Fact]
+    public void Referenced_terraform_root_directories_match_python_ordering_guard_scope()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> pilotLeaves = ReadTerraformPilotNestedInfrastructureRootPaths(repoRoot);
+        IReadOnlyList<string> applyLeaves = ReadApplySaasStringArray(repoRoot, "$multiRootSequence");
+        IReadOnlyList<string> pilotComposition = ReadTerraformPilotCompositionRootPaths(repoRoot);
+
+        HashSet<string> referenced = pilotLeaves
+            .Concat(applyLeaves)
+            .Concat(pilotComposition)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (string rel in referenced.OrderBy(path => path, StringComparer.Ordinal))
+        {
+            Directory.Exists(Path.Combine(repoRoot, rel))
+                .Should()
+                .BeTrue($"python ordering guard requires on-disk directory for {rel}");
+        }
+
+        HashSet<string> evidencePaths = ExtractAllPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots())
+            .ToHashSet(StringComparer.Ordinal);
+
+        referenced.Should().BeSubsetOf(evidencePaths);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_hardcoded_leaf_fixture_matches_live_apply_saas_multiRootSequence()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> liveLeaves = ReadApplySaasStringArray(repoRoot, "$multiRootSequence");
+        List<string> hardcodedFixtureLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        hardcodedFixtureLeaves.Should().Equal(liveLeaves);
+    }
+
+    [Fact]
     public void Apply_saas_ps1_multiRootSequence_entries_use_double_quoted_string_literals()
     {
         string repoRoot = RequireRepositoryRoot();

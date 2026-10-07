@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; regressions `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen`, `Referenced_terraform_root_directories_match_python_ordering_guard_scope`, and `DefaultApplyOrderRoots_hardcoded_leaf_fixture_matches_live_apply_saas_multiRootSequence`; reaffirmed `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly`, `DefaultApplyOrderRoots_contains_no_duplicate_paths`, and `Compose_terraform_root_list_uses_contiguous_one_based_indices`; seeded five follow-on `(candidate)` rows; 45 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
+
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`; reaffirmed `HasSeenAsync_treats_event_id_case_variants_as_same_event`, `ProcessPaymentIntentEventAsync_skips_wallet_credit_when_payment_intent_id_blank`, and `HandleWebhookAsync_in_flight_received_event_returns_replay_without_replaying_mutation`; 59 scoped billing webhook unit tests passed (45 Persistence + 14 Application, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests` and `MemoryCacheBillingWebhookReplayGuardTests`; reaffirmed `BillingStripeWebhookReplayHttpTests`, `BillingWebhookHandleResult_Duplicate_and_AcceptedDeferred_set_flags`, and `HandleWebhookAsync_wallet_route_rejects_checkout_session_completed_without_ledger_processed`; 57 scoped billing webhook unit tests passed (43 Persistence + 14 Application, `RunAnalyzers=false`).
@@ -8582,6 +8584,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen`, `Referenced_terraform_root_directories_match_python_ordering_guard_scope`, and `DefaultApplyOrderRoots_hardcoded_leaf_fixture_matches_live_apply_saas_multiRootSequence`; reaffirmed `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly`, `DefaultApplyOrderRoots_contains_no_duplicate_paths`, and `Compose_terraform_root_list_uses_contiguous_one_based_indices`; 45 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
+
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — inserting a new hosted leaf without updating the hardcoded `expectedLeafPaths` array in tests leaves only live ps1 parse coverage — **cheap-disproof 2026-10-07 thorough hunt #33:** live `$multiRootSequence` parse and hardcoded fixture both fail on drift; regression `DefaultApplyOrderRoots_hardcoded_leaf_fixture_matches_live_apply_saas_multiRootSequence`.
+- [x] (valid-no-repro) `ReadReferenceDocAdvancedTableLeafPaths` — advanced table row numbers can skip while backtick paths still scrape sixteen leaves — **cheap-disproof 2026-10-07 thorough hunt #33:** row indices must be contiguous 1–16; regression `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen`.
+- [x] (valid-no-repro) `infra/apply-saas.ps1` — `$pilotProfileOnly` single-element array could diverge from annotated pilot line while `$multiRootSequence` sync still passes — **cheap-disproof 2026-10-07 thorough hunt #33:** dedicated pilot sync regression; reaffirmed `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly`.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — Terraform section numbering could duplicate indices if `DefaultApplyOrderRoots()` ever returned duplicate path lines — **cheap-disproof 2026-10-07 thorough hunt #33:** duplicate paths rejected at source; regressions `DefaultApplyOrderRoots_contains_no_duplicate_paths` and `Compose_terraform_root_list_uses_contiguous_one_based_indices`.
+- [x] (valid-no-repro) `assert_terraform_root_ordering_sync.py` — composition root `.tf` existence check passes while C# `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk` fails on missing directory — **cheap-disproof 2026-10-07 thorough hunt #33:** python referenced-root set is subset of evidence paths with matching on-disk checks; regression `Referenced_terraform_root_directories_match_python_ordering_guard_scope`; reaffirmed `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk`.
+
+- [ ] (candidate) `infra/apply-saas.ps1` — `$foundationWaveLeaves` count could diverge from hosted wave slice implied by evidence composition waves — locus: `$foundationWaveLeaves` array (`infra/apply-saas.ps1`).
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table could list seventeen backtick rows while C# still expects sixteen leaves — locus: `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — numbered list length could differ from `DefaultApplyOrderRoots().Count` when metadata annotations change — locus: `Compose_terraform_root_list_uses_contiguous_one_based_indices`.
+- [ ] (candidate) `infra/terraform-pilot/main.tf` — nested `path =` block count could diverge from `$multiRootSequence` length without failing composition `root_path` sync — locus: `ReadTerraformPilotNestedInfrastructureRootPaths`.
+- [ ] (candidate) `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order` — hardcoded `expectedLeafPaths` array could diverge from `ExtractLeafPaths` output while both still match live ps1 — locus: inline fixture vs `ExtractLeafPaths` (`DeploymentEvidenceTerraformReferenceTests.cs` ~45–74).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (hosted wave flatten matches `$multiRootSequence` minus orchestrator; em-dash delimiter only on annotations; pilot `root_path` composition order is separate from nested `path =` leaf order; report numbering iterates `DefaultApplyOrderRoots()` with contiguous indices; python wave guard intentionally omits orchestrator while evidence lists it for legacy `-LegacyLeafRoots`); regressions `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`, `ExtractLeafPaths_includes_orchestrator_while_hosted_wave_parity_excludes_it`, `ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines`, `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`, and `Compose_terraform_root_list_uses_contiguous_one_based_indices`; seeded five follow-on `(candidate)` rows; 42 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for backtick table scrape, double-quoted ps1 literals, orchestrator/pilot doc annotations, and unresolved repo root citation; 37 scoped deployment-evidence terraform + report tests passed; python ordering guard OK.
@@ -8594,9 +8610,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -8716,12 +8732,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `infra/terraform-pilot/main.tf` — nested `path =` module blocks list roots in different order than composition wave annotations — **cheap-disproof 2026-10-07 thorough hunt:** composition `root_path` order and nested `path =` leaf order are different sync surfaces; regression `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`.
 - [x] (invalid) `DeploymentEvidenceReportMarkdown.Compose` — numbered Terraform list indices drift when metadata-only roots change — **cheap-disproof 2026-10-07 thorough hunt:** `foreach` over `DefaultApplyOrderRoots()` with post-increment index; regressions `Compose_terraform_root_list_uses_contiguous_one_based_indices` and `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`.
 - [x] (valid-no-repro) `scripts/ci/assert_terraform_root_ordering_sync.py` — hosted wave flatten omits orchestrator while C# `ExtractLeafPaths` includes orchestrator — **cheap-disproof 2026-10-07 thorough hunt:** intentional legacy `-LegacyLeafRoots` documentation; hosted parity compares evidence leaves minus orchestrator to waves; regression `ExtractLeafPaths_includes_orchestrator_while_hosted_wave_parity_excludes_it`.
-
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — inserting a new hosted leaf without updating the hardcoded `expectedLeafPaths` array in tests leaves only live ps1 parse coverage — locus: `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order`.
-- [ ] (candidate) `ReadReferenceDocAdvancedTableLeafPaths` — advanced table row numbers can skip while backtick paths still scrape sixteen leaves — locus: regex `^\|\s*\d+\s*\|`.
-- [ ] (candidate) `infra/apply-saas.ps1` — `$pilotProfileOnly` single-element array could diverge from annotated pilot line while `$multiRootSequence` sync still passes — locus: pilot profile guard tests.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — Terraform section numbering could duplicate indices if `DefaultApplyOrderRoots()` ever returned duplicate path lines — locus: numbered list emission without dedupe.
-- [ ] (candidate) `assert_terraform_root_ordering_sync.py` — composition root `.tf` existence check passes while C# `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk` fails on missing directory — locus: dual on-disk guards.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
