@@ -6,6 +6,7 @@ import {
   consumeOperatorHomeRunsSnapshotStale,
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import {
+  defaultLabelsForScopeIds,
   getEffectiveBrowserProxyScopeHeaders,
   readOperatorScopeFromStorage,
   writeOperatorScopeToStorage,
@@ -45,6 +46,32 @@ describe("operator-scope-storage", () => {
     localStorage.setItem(OPERATOR_SCOPE_STORAGE_KEY, "not-json");
 
     expect(readOperatorScopeFromStorage()).toBeNull();
+  });
+
+  it("readOperatorScopeFromStorage_returns_null_when_project_id_missing", () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: DEV_SCOPE_TENANT_ID,
+        workspaceId: DEV_SCOPE_WORKSPACE_ID,
+      }),
+    );
+
+    expect(readOperatorScopeFromStorage()).toBeNull();
+  });
+
+  it("defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id", () => {
+    const labels = defaultLabelsForScopeIds(DEV_SCOPE_WORKSPACE_ID, "cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    expect(labels.workspace).toBe("Development workspace");
+    expect(labels.project).toBe("cccccccc…");
+  });
+
+  it("defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id", () => {
+    const labels = defaultLabelsForScopeIds("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", DEV_SCOPE_PROJECT_ID);
+
+    expect(labels.workspace).toBe("bbbbbbbb…");
+    expect(labels.project).toBe("Primary project");
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet", () => {
