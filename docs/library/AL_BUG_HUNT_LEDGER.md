@@ -112,6 +112,8 @@
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after snapshot-conflict hit emptied open rows; cheap-disproof closed promotion (`AggregateException` with parallel `IOException` inners wrapping `1205` already retries via `IsParallelPersistAggregateInnerRetriable` + `SqlTransientDetector` inner walk); no hunt-ready row promoted; seeded five `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
+2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (verify 5xx→`delivery_failed` shared mapper; `too_many_attempts` forward-compat only; resend cooldown UX vs server 429; Turnstile challenge on pre-auth anonymous proxy without BFF CSRF; livelihood replay CSRF peek/consume gap); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — re-read list lifecycle resolver and pipeline dead-letter JSON reader; cheap-disproof closed three promotion attempts (terminal `PartiallyCompleted` before golden-manifest progress marker; dead-letter before `ReadyForCommit` in-progress branch; `Created`+manifest-only uses progress-marker branch); seeded five `(candidate)` rows; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (HTTP 400 OTP mapping asymmetry, `expired_code` forward-compat copy, HEAD CSRF safe-method class, trial-status out-of-zone); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
@@ -12513,6 +12515,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 357 passed with 3 unrelated baseline seam failures.
@@ -12531,11 +12535,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — **cheap-disproof 2026-10-07 seed hunt:** `HEAD` omits BFF CSRF like `GET` for idempotent polls; intentional LK-07 safe-method class; regression `does not attach BFF CSRF on HEAD bootstrap polls (same safe-method class as GET)`.
 - [x] (invalid) `OnboardingStartClient` — **invalid 2026-10-07 seed hunt:** `trial-status` caller lives outside zone `paths` (`lib/auth` / `app/api/proxy` / `proxy.ts`); allowlist and BFF guard parity already covered by proxy-route tests — process risk only for onboarding UI, not an in-zone client defect today.
 
-- [ ] (candidate) `verifyEmailOtpCode` / `mapStatusToFailureCategory` — HTTP 5xx on verify maps to `delivery_failed` (shared mapper with challenge); reachable when verify upstream outage shows “could not send” style copy instead of code-entry failure messaging.
-- [ ] (candidate) `EmailOtpApiFailureCategory` `too_many_attempts` — union member never assigned in `email-otp-api.ts` (429 → `rate_limited` only); reachable if API adds distinct lockout status without client mapping update.
-- [ ] (candidate) `readEmailOtpResendCooldown` / `markEmailOtpResendSent` — client-side 45s resend gate in `sessionStorage` can desync from server 429 on challenge POST; reachable when operator clears storage mid-flow or server rate limit is stricter than UI cooldown.
-- [ ] (candidate) `requestEmailOtpChallenge` — optional `botChallengeToken` forwarded on challenge POST without `mergeRegistrationScopeForProxy`; reachable when Turnstile token is present but stale BFF cookie affects non-allowlisted hypothetical routes (pre-auth OTP remains on `isPublicAnonymousProxyPath`).
-- [ ] (candidate) `useResumePendingLivelihoodMutation` / `livelihood-mutation-401-resume` — replay POST after 401 confirm may omit readable BFF CSRF if session refreshed between peek and consume; reachable on long confirm-required chrome with idle keepalive.
+- [x] (valid-no-repro) `verifyEmailOtpCode` / `mapStatusToFailureCategory` — **cheap-disproof 2026-10-07 seed hunt:** HTTP 5xx maps to `delivery_failed` via shared mapper for challenge and verify; sign-in flow shows copy on active step; regression `maps verify HTTP 503 to delivery_failed via shared mapStatusToFailureCategory`.
+- [x] (valid-no-repro) `EmailOtpApiFailureCategory` `too_many_attempts` — **cheap-disproof 2026-10-07 seed hunt:** union member reserved for forward-compat; API 429 maps to `rate_limited` only; regression `never maps API failures to too_many_attempts (429 uses rate_limited)`.
+- [x] (valid-no-repro) `readEmailOtpResendCooldown` / `markEmailOtpResendSent` — **cheap-disproof 2026-10-07 seed hunt:** client cooldown is UX-only; cleared `sessionStorage` does not block server `429` handling in `requestEmailOtpChallenge`; regression `treats cleared sessionStorage as no active client cooldown (server 429 remains authoritative)`.
+- [x] (valid-no-repro) `requestEmailOtpChallenge` / `botChallengeToken` — **cheap-disproof 2026-10-07 seed hunt:** pre-auth `v1/auth/email-otp/challenge` is on `isPublicAnonymousProxyPath`; raw `fetch` omits BFF CSRF by design; regression `forwards botChallengeToken on challenge POST without BFF CSRF headers (pre-auth anonymous proxy)`.
+- [x] (valid-no-repro) `livelihood-mutation-401-resume` replay CSRF — **cheap-disproof 2026-10-07 seed hunt:** replay re-invokes caller `execute` closures that route through API helpers with `mergeRegistrationScopeForProxy`; peek/consume does not issue proxy POSTs itself.
+
+- [ ] (candidate) `clearEmailOtpChallengeSession` — does not clear `archlucid_email_otp_resend_until_ms` in `sessionStorage`; reachable when operator signs out or resets OTP session while resend cooldown key remains and UI resend button state diverges.
+- [ ] (candidate) `mapEmailOtpFailureToCustomerMessage` — `delivery_failed` copy references email delivery even when `use-sign-in-flow-state` surfaces verify-step `503` failures on the code step via shared category mapping.
+- [ ] (candidate) `validateInvitationToken` — invitation token query parameter with `+` or `%2B` may decode inconsistently between `readInvitationToken` storage and validate GET URL construction in `invitation-validation-api.ts`.
+- [ ] (candidate) `post-auth-bootstrap-api.ts` `fetchPostAuthBootstrapStatus` — non-JSON error bodies on proxy 502 still throw generic `bootstrap_status_failed` without correlation id surfacing from `proxy-problem-response` shapes.
+- [ ] (candidate) `proxy.ts` / `decideHostGateRedirect` — split-site redirect may omit preserving `returnUrl` query on `/auth/signin` when host gate fires on marketing origin bookmarks that include safe return paths.
 
 - **id:** ui-auth-proxy
 - **status:** open
@@ -12543,7 +12553,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07

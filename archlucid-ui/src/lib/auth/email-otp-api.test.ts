@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
+import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
 
 describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
   beforeEach(() => {
@@ -52,6 +53,27 @@ describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
     const result = await requestEmailOtpChallenge("operator@example.com", null);
 
     expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("forwards botChallengeToken on challenge POST without BFF CSRF headers (pre-auth anonymous proxy)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Sent.",
+        ssoRequired: false,
+        challengeId: "ch-1",
+      }),
+    });
+
+    await requestEmailOtpChallenge("operator@example.com", null, "turnstile-token");
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+    const body = JSON.parse(String(init?.body)) as { botChallengeToken?: string };
+
+    expect(body.botChallengeToken).toBe("turnstile-token");
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
   });
 
   it("returns success when the API sets ssoRequired on the challenge body (UI applyChallengeSuccess handles SSO)", async () => {
@@ -106,6 +128,23 @@ describe("verifyEmailOtpCode (pre-auth proxy)", () => {
     const result = await verifyEmailOtpCode("challenge-id", "123456", null);
 
     expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("maps verify HTTP 503 to delivery_failed via shared mapStatusToFailureCategory", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "delivery_failed" });
+  });
+
+  it("never maps API failures to too_many_attempts (429 uses rate_limited)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "rate_limited" });
+    expect(result).not.toEqual({ kind: "failure", category: "too_many_attempts" });
   });
 
   it("still POSTs when challengeId is empty (callers must guard before invoke)", async () => {
