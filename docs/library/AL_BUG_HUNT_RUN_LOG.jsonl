@@ -8759,3 +8759,4 @@
 {"at":"2026-10-07T06:49:37.8321135Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}
 {"at":"2026-10-07T07:09:27.7470323Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T07:23:01.3401025Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T07:31:19.4558964Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
