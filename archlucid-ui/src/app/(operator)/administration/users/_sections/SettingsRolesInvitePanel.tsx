@@ -139,6 +139,14 @@ export function SettingsRolesInvitePanel({
     // Playwright force-clicks (used when a Radix overlay intercepts the pointer) dispatch a
     // click without synthesizing the native form submit. Honor the button click directly.
     event.preventDefault();
+
+    const formElement = event.currentTarget.form;
+
+    if (formElement !== null && !formElement.checkValidity()) {
+      formElement.reportValidity();
+      return;
+    }
+
     void submitInvite();
   }
 

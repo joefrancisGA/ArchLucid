@@ -151,6 +151,8 @@ export async function submitAdminInviteFromUsersUi(
     (response) => inviteRequestMatcher(response.url(), response.request().method()),
     { timeout: 90_000 },
   );
+  // Observe the waiter immediately so a fail-fast throw cannot leave its timeout unhandled.
+  void inviteResponsePromise.catch(() => undefined);
 
   const invitePostStarted = await startAdminInvitePost(page, inviteForm, submitButton);
 
@@ -192,7 +194,7 @@ async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButto
   const inviteRequestMatcher = (request: { url(): string; method(): string }): boolean =>
     request.url().includes("/api/proxy/v1/admin/users/invite") && request.method() === "POST";
 
-  const firstAttempt = page.waitForRequest(inviteRequestMatcher, { timeout: 15_000 });
+  const firstAttemptStarted = waitForInvitePostStarted(page, inviteRequestMatcher, 15_000);
 
   await inviteForm.evaluate((element) => {
     const form = element as HTMLFormElement;
@@ -202,13 +204,21 @@ async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButto
     }
   });
 
-  if (await firstAttempt.then(() => true).catch(() => false)) {
+  if (await firstAttemptStarted) {
     return true;
   }
 
-  const secondAttempt = page.waitForRequest(inviteRequestMatcher, { timeout: 15_000 });
+  const secondAttemptStarted = waitForInvitePostStarted(page, inviteRequestMatcher, 15_000);
 
   await clickThroughBlockingOverlays(page, submitButton, { force: true });
 
-  return secondAttempt.then(() => true).catch(() => false);
+  return secondAttemptStarted;
+}
+
+function waitForInvitePostStarted(
+  page: Page,
+  matcher: (request: { url(): string; method(): string }) => boolean,
+  timeoutMs: number,
+): Promise<boolean> {
+  return page.waitForRequest(matcher, { timeout: timeoutMs }).then(() => true).catch(() => false);
 }

@@ -56,6 +56,32 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
     expect(showSuccess).not.toHaveBeenCalled();
   });
 
+  it("does not send an invite when the email fails native form validation", async () => {
+    vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
+
+    render(<SettingsRolesInvitePanel />);
+
+    fireEvent.change(screen.getByTestId("settings-roles-invite-email"), {
+      target: { value: "not-an-email" },
+    });
+
+    const hiddenSelect = screen.getByTestId("settings-roles-invite-role").parentElement?.querySelector("select");
+
+    if (hiddenSelect === null) {
+      throw new Error("expected hidden role select");
+    }
+
+    fireEvent.change(hiddenSelect, { target: { value: "Reader" } });
+    fireEvent.click(screen.getByTestId("settings-roles-invite-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("settings-roles-invite-email")).toHaveValue("not-an-email");
+    });
+    expect(sendAdminUserInvitation).not.toHaveBeenCalled();
+    expect(showError).not.toHaveBeenCalled();
+    expect(showSuccess).not.toHaveBeenCalled();
+  });
+
   it("keeps the entered email when the role changes", () => {
     render(<SettingsRolesInvitePanel />);
 
