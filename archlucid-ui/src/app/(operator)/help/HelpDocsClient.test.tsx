@@ -876,6 +876,184 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate a static quick link when fetched index repeats the path with only a query string", async () => {
+    const data = [
+      {
+        title: "Reviews list (tracked tab)",
+        summary: "Same reviews route with marketing query params in doc-index.",
+        category: "Operations",
+        url: "/architecture/reviews?tab=active",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Reviews list (tracked tab)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate a static quick link when fetched index repeats the path with only a hash fragment", async () => {
+    const data = [
+      {
+        title: "Reviews list (hash fragment)",
+        summary: "Same reviews route with in-page hash in doc-index.",
+        category: "Operations",
+        url: "/architecture/reviews#active",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Reviews list (hash fragment)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("matches every quick link when the filter token is a lone slash", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "/" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Reviews list" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not reschedule the debounced q sync when unrelated URL params change but q is unchanged", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=alpha");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("alpha");
+
+    vi.useFakeTimers();
+    helpDocsNavigation.replace.mockClear();
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    const callsAfterInitialSync = helpDocsNavigation.replace.mock.calls.length;
+
+    helpDocsNavigation.params = new URLSearchParams("tab=security&q=alpha");
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    expect(helpDocsNavigation.replace.mock.calls.length).toBe(callsAfterInitialSync);
+
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("classifies external doc links consistently when url has surrounding whitespace", async () => {
+    const data = [
+      {
+        title: "Whitespace padded external",
+        summary: "Doc-index row with spaces around https url.",
+        category: "API",
+        url: "  https://example.com/docs/padded  ",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Whitespace padded external" });
+
+    expect(link).toHaveAttribute("href", "https://example.com/docs/padded");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not match Getting Started rows when search uses only the category anchor slug", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Choose your next step" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "getting-started" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("No results")).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not clear the URL when Escape is pressed on an empty search box", async () => {
     vi.stubGlobal(
       "fetch",

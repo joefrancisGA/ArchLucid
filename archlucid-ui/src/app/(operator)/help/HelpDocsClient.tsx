@@ -116,11 +116,14 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
     }
   }
 
-  if (trimmed.length > 1 && trimmed.endsWith("/")) {
-    return trimmed.replace(/\/+$/, "");
+  const pathWithoutHash = trimmed.split("#", 1)[0] ?? trimmed;
+  const pathWithoutQuery = pathWithoutHash.split("?", 1)[0] ?? pathWithoutHash;
+
+  if (pathWithoutQuery.length > 1 && pathWithoutQuery.endsWith("/")) {
+    return pathWithoutQuery.replace(/\/+$/, "");
   }
 
-  return trimmed;
+  return pathWithoutQuery;
 }
 
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
