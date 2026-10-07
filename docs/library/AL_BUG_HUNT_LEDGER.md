@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting` (connect guard), `RunCoreAsync_connection_failure_returns_operation_failed` (no API client), and `RunAsync_missing_text_flag_value_returns_usage_error`; reaffirmed `RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true` and `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`; 62 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-07 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `RunCoreAsync_json_output_missing_business_outcome_returns_usage_error_before_connect`; reaffirmed `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true`, and `RunAsync_unknown_flag_returns_usage_error`; 61 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid`, `returns all runs when excluded run id list is empty`, and `omits rail items whose id prefix does not yield a run id`; reaffirmed `hydrates local storage when server watermark is newer` and `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`; 52 scoped operator vitest tests passed.
@@ -8586,7 +8588,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 45 · **Bugs found:** 17 · **Consecutive dry hunts:** 8
+**Hunts:** 46 · **Bugs found:** 17 · **Consecutive dry hunts:** 9
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_text_flag_value_returns_usage_error` and connect/client guards on JSON system-name + connection failure tests; 62 scoped `DraftNewCommandCoreTests` passed.
+
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — missing `SystemName` fails before connect in JSON mode — **cheap-disproof 2026-10-07 seed hunt #46:** JSON preflight before connect; regression `RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting` (`connectCalled` false).
+- [x] (valid-no-repro) `DraftNewCommandConnectStage` — successful connect required before `CreateDraftAsync` — **cheap-disproof 2026-10-07 seed hunt #46:** unreachable connect short-circuits intake; regression `RunCoreAsync_connection_failure_returns_operation_failed` (`clientCreated` false).
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` failure stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #46:** questions load API failure parity; regression `RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — JSON success envelope includes `executionStarted` false when `--no-auto-execute` — **cheap-disproof 2026-10-07 seed hunt #46:** success JSON contract; regression `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`.
+- [x] (valid-no-repro) `DraftNewCommandArgParser.Parse` — rejects `--text` without following value — **cheap-disproof 2026-10-07 seed hunt #46:** argv parse guard; regression `RunAsync_missing_text_flag_value_returns_usage_error`.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — non-JSON short intent fails before connect — locus: intent length validation; input: `RunCoreAsync_short_intent_text_returns_usage_error`.
+- [ ] (candidate) `DraftNewCommandConnectStage` — whitespace API base URL fails before create in non-JSON mode — locus: connect trim guard; input: `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create`.
+- [ ] (candidate) `DraftNewCommandAdmitStage` — admit transport failure stderr-only in JSON mode — locus: admit HTTP error; input: `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true`.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — skip MUST question API failure stderr-only in JSON mode — locus: skip path; input: `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`.
+- [ ] (candidate) `DraftNewCommandOptions.Parse` — duplicate `--text` uses last value — locus: `DraftNewCommandOptionsTests.Parse_duplicate_text_flag_uses_last_value` (verify parity with `DraftNewCommandArgParser`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `RunCoreAsync_json_output_missing_business_outcome_returns_usage_error_before_connect`; 61 scoped `DraftNewCommandCoreTests` passed.
 

@@ -43,6 +43,26 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunAsync_missing_text_flag_value_returns_usage_error()
+    {
+        StringWriter capturedOut = new();
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(capturedOut);
+            int exit = await DraftNewCommand.RunAsync(["--text"]);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            capturedOut.ToString().Should().Contain("--text");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_short_intent_text_returns_usage_error()
     {
         DraftNewCommandOptions options = new() { IntentText = "short" };
@@ -92,9 +112,16 @@ public sealed class DraftNewCommandCoreTests
             BusinessOutcome = "Ship a governed review package for the architecture board.",
         };
 
+        bool clientCreated = false;
         DraftNewCommandHooks hooks = new()
         {
             ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Unreachable),
+            CreateApiClient = (_, _) =>
+            {
+                clientCreated = true;
+
+                return CreateDraftFlowClient();
+            },
         };
 
         StringWriter output = new();
@@ -103,6 +130,7 @@ public sealed class DraftNewCommandCoreTests
         int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
 
         exit.Should().Be(CliExitCode.ApiUnavailable);
+        clientCreated.Should().BeFalse();
     }
 
     [Fact]
@@ -559,6 +587,7 @@ public sealed class DraftNewCommandCoreTests
         {
             CliExecutionContext.JsonOutput = true;
             bool prompted = false;
+            bool connectCalled = false;
 
             DraftNewCommandOptions options = new()
             {
@@ -570,7 +599,12 @@ public sealed class DraftNewCommandCoreTests
 
             DraftNewCommandHooks hooks = new()
             {
-                ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+                ConnectAsync = (_, _) =>
+                {
+                    connectCalled = true;
+
+                    return Task.FromResult(ApiConnectionOutcome.Connected);
+                },
                 CreateApiClient = (_, _) => CreateDraftFlowClient(),
                 PromptRequiredAsync = (_, _, _) =>
                 {
@@ -587,6 +621,7 @@ public sealed class DraftNewCommandCoreTests
 
             exit.Should().Be(CliExitCode.UsageError);
             prompted.Should().BeFalse();
+            connectCalled.Should().BeFalse();
             error.ToString().Should().Contain("--system-name");
             output.ToString().Should().NotContain("System name");
         }
