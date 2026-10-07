@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `billing-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; reaffirmed `ChangePlan_ga_off_skips_ledger_change_plan` (`Returns202Accepted`), and `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; reaffirmed empty-server-`updatedAtUtc` hydrate policy, local operator scope headers, alert whitespace preview, and explicit server recents wipe; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `uses runId preview for awaiting-approval when name is omitted` and `clears local favorites when server continuity sends empty favoriteReviews`; reaffirmed sticky-demo scope guard, first explicit hydrate without local watermark, and `builds payload from local pins and recents`; 40 scoped continuity, scope-storage, and attention-preview vitest tests passed.
@@ -10069,13 +10071,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`, `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`, and `HasSeenAsync_throws_when_event_id_is_whitespace_only`; 64 scoped billing webhook unit tests passed (50 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
+- [x] (valid-no-repro) `StripeBillingProvider.HandleWebhookAsync` — `RememberAsync` runs only after successful `MarkWebhookProcessedAsync` — **cheap-disproof 2026-10-07 seed hunt #64:** success path marks ledger `Processed` before replay guard remember; regression `HandleWebhookAsync_marks_ledger_processed_before_remember_on_success`.
+- [x] (valid-no-repro) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — rejects whitespace-only `eventId` via `ThrowIfNullOrWhiteSpace` — **cheap-disproof 2026-10-07 seed hunt #64:** argument guard fails closed; regression `HasSeenAsync_throws_when_event_id_is_whitespace_only`.
+- [x] (valid-no-repro) `BillingMarketplaceWebhookController.MarketplaceAsync` — `Returns202Accepted` maps to HTTP `202 Accepted` — **cheap-disproof 2026-10-07 seed hunt #64:** provider sets `Returns202Accepted` when GA off (`ChangePlan_ga_off_skips_ledger_change_plan`); controller maps flag to `Status202Accepted` (`BillingMarketplaceWebhookController.cs` ~100–101).
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor` — trims outer whitespace on `payment_intent_id` before wallet credit — **cheap-disproof 2026-10-07 seed hunt #64:** `paymentIntentId.Trim()` before wallet call; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`.
+- [x] (valid-no-repro) `StripeBillingProvider.ResolveWebhookSigningSecret` — subscription route prefers `SubscriptionWebhookSigningSecret` over shared secret — **cheap-disproof 2026-10-07 seed hunt #64:** dedicated subscription secret verification; regression `HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret`.
+
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — `IsReplayRejected` returns HTTP `200 Ok` without body — locus: replay branch (`BillingStripeWebhookController.cs` ~65–66); input: `BillingStripeWebhookReplayHttpTests.Duplicate_stripe_event_returns_ok_without_reprocessing`.
+- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — missing signing secret rejects before `TryInsertWebhookEventAsync` — locus: early guard ~27–31; input: empty `WebhookSigningSecret` with valid signature header.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — throws on whitespace-only `eventId` — locus: `ThrowIfNullOrWhiteSpace(eventId)` ~56; input: `TryRegisterEventAsync("stripe", "   ")`.
+- [ ] (candidate) `AzureMarketplaceBillingProvider.HandleWebhookAsync` — `ChangePlan` with `GaEnabled` true does not set `Returns202Accepted` — locus: `ChangePlan_ga_on_invokes_ledger_change_plan`; input: GA-on mutation applies synchronously.
+- [ ] (candidate) `StripeBillingProvider.HandleWebhookAsync` — failed handler marks ledger `Failed` without `RememberAsync` — locus: catch path ~88–92; input: `HandleWebhookAsync_wallet_payment_intent_missing_tenant_id_marks_failed_without_credit`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `StripeBillingProviderWalletWebhookTests`; 59 scoped billing webhook unit tests passed (45 Persistence + 14 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 

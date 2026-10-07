@@ -1517,6 +1517,169 @@ public sealed class StripeBillingProviderWalletWebhookTests
       Times.Once);
   }
 
+  [Fact]
+  public async Task HandleWebhookAsync_marks_ledger_processed_before_remember_on_success()
+  {
+    byte[] keyMaterial = new byte[32];
+    Array.Fill(keyMaterial, (byte)23);
+    string signingSecret = "whsec_" + Convert.ToBase64String(keyMaterial);
+
+    BillingOptions billing = new()
+    {
+      Provider = BillingProviderNames.Stripe,
+      Stripe = new StripeBillingOptions { WebhookSigningSecret = signingSecret }
+    };
+
+    TestMonitor<BillingOptions> monitor = new(billing);
+    Mock<IBillingLedger> ledger = new();
+    ledger
+      .Setup(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+        It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(true);
+
+    List<string> completionOrder = [];
+    ledger
+      .Setup(l => l.MarkWebhookProcessedAsync(It.IsAny<string>(), "Processed", It.IsAny<CancellationToken>()))
+      .Callback(() => completionOrder.Add("mark"))
+      .Returns(Task.CompletedTask);
+
+    Mock<ITenantRepository> tenants = new();
+    Mock<IAuditService> audit = new();
+    BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+    Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+    StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+      new(ledger.Object, activator, changePlan.Object, audit.Object);
+
+    Mock<IBillingWebhookReplayGuard> replayGuard = new();
+    replayGuard
+      .Setup(g => g.HasSeenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+    replayGuard
+      .Setup(g => g.RememberAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Callback(() => completionOrder.Add("remember"))
+      .Returns(Task.CompletedTask);
+
+    StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(
+      monitor,
+      ledger,
+      subscriptionProcessor,
+      changePlan,
+      replayGuard);
+
+    Event stripeEvent = new()
+    {
+        Id = "evt_mark_before_remember",
+        Type = "ping",
+        ApiVersion = "2025-08-27.basil",
+    };
+
+    string json = stripeEvent.ToJson();
+    string signature = BuildStripeV1Signature(signingSecret, json);
+
+    BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+      new BillingWebhookInbound { RawBody = json, StripeSignatureHeader = signature },
+      CancellationToken.None);
+
+    result.Succeeded.Should().BeTrue();
+    completionOrder.Should().Equal("mark", "remember");
+  }
+
+  [Fact]
+  public async Task HandleWebhookAsync_subscription_verifies_signature_with_subscription_specific_signing_secret()
+  {
+    byte[] subscriptionKeyMaterial = new byte[32];
+    Array.Fill(subscriptionKeyMaterial, (byte)24);
+    string subscriptionSigningSecret = "whsec_" + Convert.ToBase64String(subscriptionKeyMaterial);
+
+    byte[] sharedKeyMaterial = new byte[32];
+    Array.Fill(sharedKeyMaterial, (byte)25);
+    string sharedSigningSecret = "whsec_" + Convert.ToBase64String(sharedKeyMaterial);
+
+    BillingOptions billing = new()
+    {
+      Provider = BillingProviderNames.Stripe,
+      Stripe = new StripeBillingOptions
+      {
+        WebhookSigningSecret = sharedSigningSecret,
+        SubscriptionWebhookSigningSecret = subscriptionSigningSecret,
+      }
+    };
+
+    TestMonitor<BillingOptions> monitor = new(billing);
+    Mock<IBillingLedger> ledger = new();
+    ledger
+      .Setup(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+        It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(true);
+    ledger
+      .Setup(l => l.MarkWebhookProcessedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
+    Mock<ITenantRepository> tenants = new();
+    Mock<IAuditService> audit = new();
+    BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+    Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+    StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+      new(ledger.Object, activator, changePlan.Object, audit.Object);
+
+    Mock<IBillingWebhookReplayGuard> replayGuard = new();
+    replayGuard
+      .Setup(g => g.HasSeenAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(false);
+    replayGuard
+      .Setup(g => g.RememberAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Returns(Task.CompletedTask);
+
+    StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(
+      monitor,
+      ledger,
+      subscriptionProcessor,
+      changePlan,
+      replayGuard);
+
+    Event subscriptionSignedEvent = new()
+    {
+        Id = "evt_subscription_dedicated_secret_ok",
+        Type = "ping",
+        ApiVersion = "2025-08-27.basil",
+    };
+
+    string subscriptionJson = subscriptionSignedEvent.ToJson();
+    string subscriptionSignature = BuildStripeV1Signature(subscriptionSigningSecret, subscriptionJson);
+
+    BillingWebhookHandleResult subscriptionSigned = await sut.HandleWebhookAsync(
+      new BillingWebhookInbound
+      {
+        RawBody = subscriptionJson,
+        StripeSignatureHeader = subscriptionSignature,
+        StripeWebhookRoute = StripeBillingWebhookRoute.Subscription
+      },
+      CancellationToken.None);
+
+    subscriptionSigned.Succeeded.Should().BeTrue();
+
+    Event sharedOnlyEvent = new()
+    {
+        Id = "evt_subscription_shared_secret_rejected",
+        Type = "ping",
+        ApiVersion = "2025-08-27.basil",
+    };
+
+    string sharedJson = sharedOnlyEvent.ToJson();
+    string sharedOnlySignature = BuildStripeV1Signature(sharedSigningSecret, sharedJson);
+
+    BillingWebhookHandleResult sharedSigned = await sut.HandleWebhookAsync(
+      new BillingWebhookInbound
+      {
+        RawBody = sharedJson,
+        StripeSignatureHeader = sharedOnlySignature,
+        StripeWebhookRoute = StripeBillingWebhookRoute.Subscription
+      },
+      CancellationToken.None);
+
+    sharedSigned.Succeeded.Should().BeFalse();
+  }
+
   private static string BuildStripeV1Signature(string whsecSecret, string payload)
   {
     byte[] key = Encoding.UTF8.GetBytes(whsecSecret);

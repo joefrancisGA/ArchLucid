@@ -215,4 +215,15 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
         secondClaim.Should().BeFalse();
         seen.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task HasSeenAsync_throws_when_event_id_is_whitespace_only()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        Func<Task> act = () => sut.HasSeenAsync("stripe", "   ", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
 }
