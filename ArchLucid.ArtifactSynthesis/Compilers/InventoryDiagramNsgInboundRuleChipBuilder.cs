@@ -35,7 +35,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (remainder > 0)
         {
-            chips.Add(new DiagramNsgInboundRuleChip($"+{remainder}", IsRisky: false));
+            chips.Add(new DiagramNsgInboundRuleChip($"{remainder} more inbound rules", IsRisky: false));
         }
 
         return chips;
@@ -63,14 +63,18 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
     private static string FormatPort(string? destinationPortRange)
     {
-        return string.IsNullOrWhiteSpace(destinationPortRange) || destinationPortRange.Trim() == "*"
+        return string.IsNullOrWhiteSpace(destinationPortRange)
+            ? "Port was not stored"
+            : destinationPortRange.Trim() == "*"
             ? "any"
             : destinationPortRange.Trim();
     }
 
     private static string FormatProtocol(string? protocol)
     {
-        return string.IsNullOrWhiteSpace(protocol) || protocol.Trim() == "*"
+        return string.IsNullOrWhiteSpace(protocol)
+            ? "Protocol was not stored"
+            : protocol.Trim() == "*"
             ? "any"
             : protocol.Trim().ToUpperInvariant();
     }

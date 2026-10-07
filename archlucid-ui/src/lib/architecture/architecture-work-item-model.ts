@@ -57,7 +57,10 @@ function mapFindingLines(findings: readonly QuickDecisionFinding[]): Architectur
     findingId: finding.findingId,
     title: finding.title,
     severityLabel: severityBadgeLabel(finding.severityValue),
-    recommendedAction: finding.recommendation.trim().length > 0 ? finding.recommendation.trim() : "See finding detail.",
+    recommendedAction:
+      finding.recommendation.trim().length > 0
+        ? finding.recommendation.trim()
+        : "No recommended action recorded for this finding.",
   }));
 }
 

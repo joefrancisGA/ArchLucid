@@ -24,6 +24,7 @@ export type InfraEvidenceMermaidLedgerDrop = {
 };
 
 export type InfraEvidenceDiagramOutlineEdgeSource =
+  | "missing"
   | "observed"
   | "declared"
   | "probable"
@@ -298,7 +299,7 @@ function emptyOutlineNodeMetadata(): OutlineNodeMetadata {
 
 function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
   return {
-    source: "observed",
+    source: "missing",
     provenanceKind: null,
     inferenceSource: null,
     declaredConnectionId: null,
@@ -328,7 +329,7 @@ function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEv
 }
 
 function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {
-  let source: InfraEvidenceDiagramOutlineEdgeSource = "observed";
+  let source: InfraEvidenceDiagramOutlineEdgeSource = "missing";
   let provenanceKind: string | null = null;
   let inferenceSource: string | null = null;
   let declaredConnectionId: string | null = null;
@@ -367,7 +368,7 @@ function mergeOutlineEdgeMetadata(
   fallback: OutlineEdgeMetadata,
 ): OutlineEdgeMetadata {
   return {
-    source: preferred.source !== "observed" ? preferred.source : fallback.source,
+    source: preferred.source !== "missing" ? preferred.source : fallback.source,
     provenanceKind: preferred.provenanceKind ?? fallback.provenanceKind,
     inferenceSource: preferred.inferenceSource ?? fallback.inferenceSource,
     declaredConnectionId: preferred.declaredConnectionId ?? fallback.declaredConnectionId,
@@ -375,15 +376,11 @@ function mergeOutlineEdgeMetadata(
 }
 
 function resolveEdgeSourceFromArrow(line: string, metadata: OutlineEdgeMetadata): InfraEvidenceDiagramOutlineEdgeSource {
-  if (metadata.source !== "observed") {
+  if (metadata.source !== "missing") {
     return metadata.source;
   }
 
-  if (line.includes("-.->")) {
-    return "probable";
-  }
-
-  return "observed";
+  return "missing";
 }
 
 export function hasInfraEvidenceDeclaredDiagramEdges(

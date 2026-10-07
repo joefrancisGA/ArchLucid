@@ -24,15 +24,15 @@ describe("FindingCausalMiniChain (TB-2217)", () => {
     );
   });
 
-  it("shows honest Not available empties when fields are missing", () => {
+  it("shows field-specific omission sentences when fields are missing", () => {
     const chain = buildFindingCausalMiniChain({});
 
     render(<FindingCausalMiniChain chain={chain} defaultOpen />);
 
-    expect(screen.getByTestId("finding-causal-mini-chain-value-rule")).toHaveTextContent("Not available");
-    expect(screen.getByTestId("finding-causal-mini-chain-value-evidence")).toHaveTextContent("Not available");
+    expect(screen.getByTestId("finding-causal-mini-chain-value-rule")).toHaveTextContent("Rule was not stored");
+    expect(screen.getByTestId("finding-causal-mini-chain-value-evidence")).toHaveTextContent("Evidence was not stored");
     expect(screen.getByTestId("finding-causal-mini-chain-value-recommendation")).toHaveTextContent(
-      "Not available",
+      "Recommendation was not stored",
     );
   });
 });

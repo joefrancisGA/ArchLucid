@@ -9,7 +9,7 @@ import {
 } from "@/lib/findings/finding-source-evidence-links";
 
 /** Shown when a finding carries no recommendation text of its own. */
-export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "See finding detail for recommended actions.";
+export const QUICK_DECISION_RECOMMENDATION_FALLBACK = "No recommended action recorded for this finding.";
 
 /** First recommendation sentence, or the shared fallback when the finding has no recommendation. */
 export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding): string {

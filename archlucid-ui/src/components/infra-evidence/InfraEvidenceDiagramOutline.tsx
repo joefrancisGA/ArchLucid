@@ -120,7 +120,7 @@ function formatLedgerDropLabel(
     return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
   }
 
-  const toLabel = drop.to == null ? "—" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
+  const toLabel = drop.to == null ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
 
   return `${drop.reason} · ${fromLabel} → ${toLabel}`;
 }
@@ -146,6 +146,9 @@ function formatOutlineResourceType(resourceType: string | null): string {
 
 function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
   switch (source) {
+    case "missing":
+      return "Confidence band was not stored";
+
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
 
@@ -496,6 +499,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const edgeRowsBySource = useMemo(() => {
     const sourceOrder: readonly InfraEvidenceDiagramOutlineEdgeSource[] = [
       "probable",
+      "missing",
       "observed",
       "declared",
       "inferred",

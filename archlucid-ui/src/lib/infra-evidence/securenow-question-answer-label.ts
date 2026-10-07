@@ -11,5 +11,11 @@ const ANSWER_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function secureNowQuestionAnswerLabel(answerCode: string): string {
-  return ANSWER_LABELS[answerCode] ?? answerCode;
+  const trimmed = answerCode.trim();
+
+  if (trimmed.length === 0) {
+    return "Stored answer was not on this question";
+  }
+
+  return ANSWER_LABELS[trimmed] ?? trimmed;
 }

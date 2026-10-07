@@ -56,8 +56,6 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
     categoryLabel:
       typedPayloadLookupString(payload, "category") ??
       typedPayloadLookupString(payload, "Category") ??
-      payload.decisionRuleName ??
-      payload.decisionRuleId ??
       null,
     impactedAreaLabel:
       typedPayloadLookupString(payload, "impactedArea") ??

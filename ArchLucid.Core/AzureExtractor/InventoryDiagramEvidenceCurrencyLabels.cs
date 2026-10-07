@@ -3,16 +3,17 @@ namespace ArchLucid.Core.AzureExtractor;
 /// <summary>Formats NR-01 relationship edge labels with evidence currency.</summary>
 public static class InventoryDiagramEvidenceCurrencyLabels
 {
-    public static string Format(InventoryDiagramEvidenceCurrency currency, string relationshipLabel)
+    public static string Format(InventoryDiagramEvidenceCurrency? currency, string relationshipLabel)
     {
         string trimmedLabel = relationshipLabel?.Trim() ?? string.Empty;
         string currencyLabel = currency switch
         {
+            null => "Evidence currency was not stored",
             InventoryDiagramEvidenceCurrency.Current => "Current",
             InventoryDiagramEvidenceCurrency.Configured => "Configured",
             InventoryDiagramEvidenceCurrency.Observed => "Observed",
             InventoryDiagramEvidenceCurrency.Derived => "Derived",
-            _ => "Current",
+            _ => "Evidence currency was not stored",
         };
 
         if (trimmedLabel.Length == 0)

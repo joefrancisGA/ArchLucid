@@ -5,8 +5,9 @@ import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivat
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-/** Honest empty label when a causal step has no payload field (TB-2217). */
-export const FINDING_CAUSAL_STEP_MISSING = "Not available";
+export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
+export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
+export const FINDING_CAUSAL_RECOMMENDATION_MISSING = "Recommendation was not stored";
 
 export type FindingCausalMiniChainStepKey = "rule" | "evidence" | "recommendation";
 
@@ -130,8 +131,7 @@ export function findingCausalMiniChainFromGovernanceQueueRow(
 export function findingCausalMiniChainFromInspectPayload(
   payload: FindingInspectPayload,
 ): FindingCausalMiniChainResult {
-  const recommendation =
-    payload.recommendedActions.find((action) => action.trim().length > 0) ?? payload.reasoningSummary ?? null;
+  const recommendation = payload.recommendedActions.find((action) => action.trim().length > 0) ?? null;
 
   return buildFindingCausalMiniChain({
     ruleName: payload.decisionRuleName,

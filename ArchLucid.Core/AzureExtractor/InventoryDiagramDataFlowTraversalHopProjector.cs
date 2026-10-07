@@ -255,7 +255,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             return "Connects through";
         }
 
-        return "Routes to";
+        return "Hop label was not stored";
     }
 
     private static void AddRouteTableTraversalLinks(

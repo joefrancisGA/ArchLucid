@@ -16,8 +16,12 @@ export function buyerFindingSeverityDisplayLabel(severityRaw: string | null | un
 
   const key = trimmed.toLowerCase();
 
-  if (key === "warning" || key === "medium") {
-    return "High";
+  if (key === "warning") {
+    return "Warning";
+  }
+
+  if (key === "medium") {
+    return "Medium";
   }
 
   if (key === "high severity") {

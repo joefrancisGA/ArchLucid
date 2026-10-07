@@ -10,7 +10,9 @@ import {
   parseFindingCausalChainOpenFromSearch,
 } from "@/lib/findings/finding-causal-chain-disclosure-url";
 import {
-  FINDING_CAUSAL_STEP_MISSING,
+  FINDING_CAUSAL_EVIDENCE_MISSING,
+  FINDING_CAUSAL_RECOMMENDATION_MISSING,
+  FINDING_CAUSAL_RULE_MISSING,
   type FindingCausalMiniChainResult,
 } from "@/lib/findings/finding-causal-mini-chain";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -129,7 +131,12 @@ export function FindingCausalMiniChain(props: FindingCausalMiniChainProps): Reac
               )}
               data-testid={`finding-causal-mini-chain-value-${step.key}`}
             >
-              {step.value ?? FINDING_CAUSAL_STEP_MISSING}
+              {step.value
+                ?? (step.key === "rule"
+                  ? FINDING_CAUSAL_RULE_MISSING
+                  : step.key === "evidence"
+                    ? FINDING_CAUSAL_EVIDENCE_MISSING
+                    : FINDING_CAUSAL_RECOMMENDATION_MISSING)}
             </span>
           </li>
         ))}

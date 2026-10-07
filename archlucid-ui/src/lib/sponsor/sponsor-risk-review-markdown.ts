@@ -14,24 +14,6 @@ function trimLine(value: string | null | undefined): string {
 }
 
 function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
-  const firstTheme = summary.themeSummaries?.find((t) => t.trim().length > 0)?.trim();
-
-  if (firstTheme !== null && firstTheme !== undefined && firstTheme.length > 0) {
-    return firstTheme;
-  }
-
-  const risk = summary.explanation?.riskImplications?.find((r) => r.trim().length > 0)?.trim();
-
-  if (risk !== null && risk !== undefined && risk.length > 0) {
-    return risk;
-  }
-
-  const driver = summary.explanation?.keyDrivers?.find((d) => d.trim().length > 0)?.trim();
-
-  if (driver !== null && driver !== undefined && driver.length > 0) {
-    return driver;
-  }
-
   return "No sponsor action was stored on this review.";
 }
 

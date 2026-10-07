@@ -129,7 +129,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
             : connectionNode.Label;
 
         string edgeLabel = BuildConnectionEdgeLabel(connectionType, endpoint1ArmId, endpoint2ArmId);
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(graphNode);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(graphNode);
 
         ast.Edges.Add(new DiagramEdge
         {
@@ -214,7 +214,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         Dictionary<string, string> properties = graphNode.Properties;
         IReadOnlyList<string> subnetArmIds = AzureInventoryRouteTableSubnetAssociationParser.Parse(properties);
         IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(graphNode);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(graphNode);
         int emittedEdgeCount = 0;
 
         foreach (string subnetArmId in subnetArmIds)
@@ -289,7 +289,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
                     {
                         FromNodeId = ownerDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = "effective route reachability",
+                        Label = BuildRouteEdgeLabel(route),
                         ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     });
@@ -402,7 +402,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         }
 
         string? workflowDiagramNodeId = workflowNode.NodeId;
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(graphNode);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(graphNode);
 
         foreach (AzureInventoryWorkflowActionTarget action in actions)
         {
@@ -461,8 +461,12 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route)
     {
-        string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix) ? "*" : route.AddressPrefix.Trim();
-        string nextHopType = string.IsNullOrWhiteSpace(route.NextHopType) ? "route" : route.NextHopType.Trim();
+        string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix)
+            ? "Address prefix was not stored"
+            : route.AddressPrefix.Trim();
+        string nextHopType = string.IsNullOrWhiteSpace(route.NextHopType)
+            ? "Next hop type was not stored"
+            : route.NextHopType.Trim();
 
         return $"{addressPrefix} → {nextHopType}";
     }
@@ -682,7 +686,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return $"{typeLabel}: {endpoint1Name} ↔ {endpoint2Name}";
     }
 
-    private static InventoryDiagramEvidenceCurrency ReadEvidenceCurrency(GraphNode graphNode)
+    private static InventoryDiagramEvidenceCurrency? ReadEvidenceCurrency(GraphNode graphNode)
     {
         if (graphNode.Properties.TryGetValue(
                 InventoryDiagramNodeRelationshipPropertyKeys.EvidenceCurrency,
@@ -692,7 +696,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
             return parsed;
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 
     private static string ResolveConnectionInferenceSource(string? armResourceType)
