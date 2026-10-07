@@ -1,5 +1,3 @@
-{"at":"2026-09-07T07:11:50.7572149Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-07T07:20:33.9678759Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-07T07:40:29.092433Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T07:44:15.9763213Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
 {"at":"2026-09-07T07:56:48.8901802Z","zoneId":"host-infra-evidence-composition","outcome":"hit"}
@@ -8760,3 +8758,4 @@
 {"at":"2026-10-07T06:42:33.5517825Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T06:49:37.8321135Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}
 {"at":"2026-10-07T07:09:27.7470323Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-07T07:23:01.3401025Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
