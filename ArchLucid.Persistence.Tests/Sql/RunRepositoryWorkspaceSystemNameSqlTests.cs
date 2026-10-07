@@ -1195,6 +1195,52 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_list_with_null_architecture_id_returns_empty_when_take_not_positive()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> zeroTake = await runs.ListWithNullArchitectureIdAsync(scope, 0, CancellationToken.None);
+        IReadOnlyList<RunRecord> negativeTake = await runs.ListWithNullArchitectureIdAsync(scope, -1, CancellationToken.None);
+
+        zeroTake.Should().BeEmpty("null-architecture backfill queue treats non-positive take as no-op, matching SqlRunRepository.");
+        negativeTake.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ListByArchitectureId_inline_select_omits_run_list_warning_joins()
+    {
+        const string architectureListProjection = """
+                                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                         PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                         ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                                  """;
+
+        architectureListProjection.Should().NotContain("HasWarnings");
+        architectureListProjection.Should().NotContain("HasGovernanceWarnings");
+        RunListWarningFlagSql.SelectColumns.Should().Contain("HasWarnings");
+        RunListWarningFlagSql.SelectColumns.Should().Contain("HasGovernanceWarnings");
+    }
+
+    [Fact]
     public async Task InMemory_list_with_null_architecture_id_excludes_archived_runs()
     {
         ScopeContext scope = new()
