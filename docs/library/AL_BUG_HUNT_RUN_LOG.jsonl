@@ -1,6 +1,3 @@
-{"at":"2026-09-07T23:13:13.7779389Z","zoneId":"decisioning","outcome":"hit"}
-{"at":"2026-09-07T23:17:25.780122Z","zoneId":"core-requests-constraints","outcome":"hit"}
-{"at":"2026-09-07T23:20:52.1456463Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-07T23:29:14.0701891Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T23:34:46.0169358Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
 {"at":"2026-09-07T23:38:07.0788624Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
@@ -8799,3 +8796,5 @@
 {"at":"2026-10-07T22:35:20.1628536Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T22:50:50.5999947Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T23:12:35.5723545Z","zoneId":"ui-marketing-surfaces","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}
+{"at":"2026-10-07T23:19:47.0201585Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}
+{"at":"2026-10-07T23:26:29.6966903Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}

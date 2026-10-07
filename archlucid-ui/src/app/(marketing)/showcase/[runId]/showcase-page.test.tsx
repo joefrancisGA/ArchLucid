@@ -240,6 +240,31 @@ describe("MarketingShowcasePage", () => {
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
 
+  it("treats API payloads missing runExplanation as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const missingExplanationPayload = {
+      ...payload,
+      runExplanation: null,
+    } as unknown as DemoCommitPagePreviewResponse;
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(missingExplanationPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
   it("treats API payloads with an empty artifacts array as invalid", async () => {
     vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
 

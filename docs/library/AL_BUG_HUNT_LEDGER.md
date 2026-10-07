@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `ui-marketing-surfaces` — proved `fetchShowcasePayload` accepted `runExplanation: null`; cheap-disproved get-started sign-in href parity, quick-scan privacy URL param preservation, see-it HTTP 304 snapshot contract, and showcase `api_fallback` telemetry mode; regression `treats API payloads missing runExplanation as invalid`; 20 scoped vitest tests passed.
+
 2026-10-07 thorough hunt (hit): `ui-marketing-surfaces` — proved empty showcase API `pipelineTimeline`/`artifacts`, pricing signup attribution `string[]` drop, and `/see-it` short repeated-digit placeholder run ids; cheap-disproved capitalized `SHOWCASE_STATIC_ONLY=True` (already normalized) and classified privacy `yes` query as intentional `1`/`true` contract; regressions in `showcase-page.test.tsx`, `pricing-signup-href.test.ts`, `see-it.test.tsx`, `showcase-page-server-resolution.test.ts`, `quick-scan-privacy-disclosure-url.test.ts`; 43 targeted vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-marketing-surfaces` — re-read see-it, showcase fetch, pricing signup attribution, quick-scan privacy URL param, and showcase static-only env gates; no hunt-ready row promoted; seeded five `(candidate)` rows; scoped marketing vitest 516 passed with 26 baseline failures.
@@ -31312,6 +31314,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-07 thorough hunt #24 (hit): proved `fetchShowcasePayload` missing `runExplanation` validation gap; cheap-disproved `buildSignInTrialHref` (`get-started-content.test.ts`), `QuickScanWorkspaceSection` privacy URL sync (`quick-scan-privacy-disclosure-url.test.ts`), `loadSeeItDemoPreview` 304 snapshot path (existing `see-it.test.tsx`), and `resolveShowcasePageRenderPlan` `api_fallback` telemetry (`ShowcaseRenderMode`); seeded five follow-on `(candidate)` rows; 20 scoped vitest tests passed.
+
 2026-10-07 thorough hunt #23 (hit): proved `fetchShowcasePayload` accepted empty `artifacts`/`pipelineTimeline`, `buildPricingSignupHref` dropped duplicate attribution `string[]` values, and `isWeakPlaceholderRunId` ignored 8–15 character repeated-digit placeholders on `/see-it`; cheap-disproved `shouldServeShowcaseStaticOnly` capitalized env values; `parseQuickScanPrivacyDisclosureOpenFromSearch` `yes` classified valid-no-repro; seeded five follow-on `(candidate)` rows; 43 targeted vitest tests passed.
 
 2026-10-07 seed hunt #22 (seed-only): re-read `loadSeeItDemoPreview`, `fetchShowcasePayload`, `buildPricingSignupHref`, quick-scan privacy disclosure URL helpers, and `shouldServeShowcaseStaticOnly`; no hunt-ready row promoted; seeded five `(candidate)` rows; scoped marketing vitest 516 passed with 26 baseline failures.
@@ -31324,11 +31328,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 23
-- **bugs-found:** 28
+- **hunts:** 24
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — showcase empty timeline/artifacts; pricing attribution arrays; see-it short placeholder run ids
+- **last-bug:** 2026-10-07 — showcase API missing runExplanation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31394,11 +31398,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `isWeakPlaceholderRunId` — repeated-digit placeholders under 16 characters slipped through — **hit 2026-10-07 thorough hunt #23:** weak-placeholder gate now starts at length 8 for `/^(.)\1+$/` run ids; regression `falls back when live preview uses a short repeated-digit placeholder run id` in `see-it.test.tsx`.
 - [x] (valid-no-repro) `parseQuickScanPrivacyDisclosureOpenFromSearch` — `yes` does not open disclosure — **cheap-disproof 2026-10-07 thorough hunt #23:** contract documents only `1` and `true`; regression `only treats 1 and true as open` in `quick-scan-privacy-disclosure-url.test.ts`.
 
-- [ ] (candidate) `fetchShowcasePayload` — missing `runExplanation` still returns `ok` — locus: validation stops after timeline checks (`showcase-page-server-resolution.ts` ~93–116); input: marketing showcase API 200 JSON with `runExplanation: null`; wrong outcome: downstream demo preview sections assume explanation counts exist and render thin/broken buyer copy.
-- [ ] (candidate) `loadSeeItDemoPreview` — HTTP 304 returns snapshot file without re-running `preferShowcaseStaticSnapshot` on cached body — locus: early return on `response.status === 304` (`load-see-it-demo-preview.ts` ~124–125); input: stale `If-None-Match` pairing where snapshot JSON drifted from live claims-universe policy; wrong outcome: `/see-it` serves outdated snapshot content while reporting `source: "snapshot"`.
-- [ ] (candidate) `buildSignInTrialHref` — hand-built `/auth/signin?returnUrl=` string diverges from `buildAuthSignInHref` encoding rules — locus: `get-started-content.ts` ~181–187; input: vertical slug with characters requiring encoding in `returnUrl`; wrong outcome: get-started sign-in CTA return path differs from centralized auth href helper.
-- [ ] (candidate) `QuickScanWorkspaceSection` — privacy disclosure URL sync uses `searchParams.toString()` wholesale — locus: `quickScanPrivacyDisclosureHrefFromSearch(searchParams.toString(), …)` (`QuickScanWorkspaceSection.tsx` ~43); input: `/quick-scan` with duplicate or array-shaped query keys from framework serialization; wrong outcome: toggling disclosure drops unrelated marketing params from the shareable URL.
-- [ ] (candidate) `resolveShowcasePageRenderPlan` — `http_error`/`missing` serves curated static fallback but leaves `renderMode: "api_fallback"` when API base is configured — locus: `staticPayloadPlan` with `renderMode: "api_fallback"` (`showcase-page-server-resolution.ts` ~154–183); input: curated slug with transient upstream 503; wrong outcome: telemetry/funnel labels imply API-sourced payload while buyers see static demo body.
+- [x] (proven) `fetchShowcasePayload` — missing `runExplanation` still returned `ok` — **hit 2026-10-07 thorough hunt #24:** added `hasUsableShowcaseRunExplanation` parity with `/see-it` normalization; regression `treats API payloads missing runExplanation as invalid` in `showcase-page.test.tsx`.
+- [x] (valid-no-repro) `loadSeeItDemoPreview` — HTTP 304 snapshot path — **cheap-disproof 2026-10-07 thorough hunt #24:** 304 intentionally serves checked-in snapshot without re-parsing live body; covered by `returns snapshot when response is 304 Not Modified` in `see-it.test.tsx`.
+- [x] (invalid) `buildSignInTrialHref` — encoding divergence from `buildAuthSignInHref` — **cheap-disproof 2026-10-07 thorough hunt #24:** vertical slugs are fixed buyer enums and `buildSignInTrialHref matches buildAuthSignInHref onboarding return path` in `get-started-content.test.ts`.
+- [x] (invalid) `QuickScanWorkspaceSection` — privacy toggle drops unrelated query params — **cheap-disproof 2026-10-07 thorough hunt #24:** `quickScanPrivacyDisclosureHrefFromSearch` preserves `utm_source` when opening/closing disclosure; regression in `quick-scan-privacy-disclosure-url.test.ts`.
+- [x] (valid-no-repro) `resolveShowcasePageRenderPlan` — `renderMode: "api_fallback"` on static fallback — **cheap-disproof 2026-10-07 thorough hunt #24:** `ShowcaseRenderMode` explicitly includes `api_fallback` for funnel telemetry when upstream fetch fails but curated static body is shown.
+
+- [ ] (candidate) `hasUsableShowcaseRunExplanation` — non-finite `findingCount` / `complianceGapCount` on otherwise complete payloads — locus: `hasUsableShowcaseRunExplanation` (`showcase-page-server-resolution.ts`); input: marketing showcase API 200 JSON with `runExplanation.findingCount: NaN`; wrong outcome: `/showcase/[runId]` serves malformed counts in buyer proof sections.
+- [ ] (candidate) `fetchShowcasePayload` — missing `runExplanation.explanation` still passes after runExplanation object exists — locus: post-#24 validation only checks counts (`showcase-page-server-resolution.ts`); input: API JSON with empty `runExplanation` object and finite counts but no `explanation` subtree; wrong outcome: sponsor conclusion / key-driver sections render empty without invalid fallback.
+- [ ] (candidate) `DemoPreviewMarketingBody.signInReturnPath` — `encodeURIComponent(payloadRunId)` in return path vs decoded run segment in route — locus: `DemoPreviewMarketingBody.tsx` ~62–63; input: showcase API `run.runId` containing characters encoded differently in URL segment vs review path; wrong outcome: sign-in returnUrl does not match `ShowcaseQuickNav` review href.
+- [ ] (candidate) `loadSeeItDemoPreview` — empty API base skips network but still reads snapshot file synchronously on every request — locus: `!base` branch (`load-see-it-demo-preview.ts` ~105–107); input: serverless cold start with missing `NEXT_PUBLIC_DEMO_API_BASE`; wrong outcome: `/see-it` blocks SSR on large `public/demo-preview-snapshot.json` read without timeout guard.
+- [ ] (candidate) `pricing/page.tsx` — `customPolicyPackQuoteInterest` only checks string/array `interest` param shapes — locus: `interestParam` handling (`pricing/page.tsx` ~47–53); input: `/pricing?interest=` empty string with `source=trial-nudge`; wrong outcome: sales-led quote focus and signup attribution disagree on whether custom policy pack intent is active.
 
 ## Zone: capabilities-cost-mcp
 

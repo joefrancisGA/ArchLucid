@@ -65,6 +65,24 @@ export function resolveShowcaseApiBase(): string {
   return "";
 }
 
+function hasUsableShowcaseRunExplanation(payload: DemoCommitPagePreviewResponse): boolean {
+  const runExplanation = payload.runExplanation;
+
+  if (runExplanation === null || runExplanation === undefined) {
+    return false;
+  }
+
+  if (typeof runExplanation.findingCount !== "number" || !Number.isFinite(runExplanation.findingCount)) {
+    return false;
+  }
+
+  if (typeof runExplanation.complianceGapCount !== "number" || !Number.isFinite(runExplanation.complianceGapCount)) {
+    return false;
+  }
+
+  return true;
+}
+
 export async function fetchShowcasePayload(
   url: string,
 ): Promise<ShowcaseFetchResult> {
@@ -112,6 +130,10 @@ export async function fetchShowcasePayload(
       payload.pipelineTimeline.length === 0 ||
       payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
     ) {
+      return { kind: "invalid" };
+    }
+
+    if (!hasUsableShowcaseRunExplanation(payload)) {
       return { kind: "invalid" };
     }
 
