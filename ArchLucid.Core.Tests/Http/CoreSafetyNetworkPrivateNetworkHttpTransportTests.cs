@@ -291,4 +291,75 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
     {
         OutboundExternalHttpResilienceOptions.SectionName.Should().Be("ArchLucid:OutboundHttp:Resilience");
     }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_retries_after_http_request_exception()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(() =>
+        {
+            sendCount++;
+
+            if (sendCount < 2)
+                throw new HttpRequestException("transient transport fault");
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        sendCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void ArchLucidAzurePublicHttpClients_exposes_distinct_arm_and_retail_factory_client_names()
+    {
+        ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName.Should().Be("ArchLucid.AzureResourceManager");
+        ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName.Should().Be("ArchLucid.AzureRetailPrices");
+        ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName.Should()
+            .NotBe(ArchLucidAzurePublicHttpClients.RetailPricesHttpClientName);
+    }
+
+    [Fact]
+    public void OutboundSocketsHttpHandlerSettings_internal_loopback_uses_shorter_pooled_connection_lifetime_than_integration()
+    {
+        using SocketsHttpHandler loopbackHandler = new();
+        using SocketsHttpHandler integrationHandler = new();
+
+        OutboundSocketsHttpHandlerSettings.Apply(loopbackHandler, OutboundHttpSocketsHandlerProfile.InternalLoopback);
+        OutboundSocketsHttpHandlerSettings.Apply(integrationHandler, OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        loopbackHandler.PooledConnectionLifetime.Should().BeLessThan(integrationHandler.PooledConnectionLifetime);
+    }
+
+    [Fact]
+    public void OutboundExternalHttpResilienceOptions_default_max_retry_attempts_is_three_before_normalize()
+    {
+        OutboundExternalHttpResilienceOptions options = new();
+
+        options.MaxRetryAttempts.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task AzureRmAndRetailPricesHttpRetryPolicy_retries_http_408_request_timeout()
+    {
+        int sendCount = 0;
+        IAsyncPolicy<HttpResponseMessage> policy =
+            AzureRmAndRetailPricesHttpRetryPolicy.Create(NullLogger.Instance, static _ => TimeSpan.Zero);
+
+        using HttpResponseMessage response = await policy.ExecuteAsync(() =>
+        {
+            sendCount++;
+
+            if (sendCount < 2)
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.RequestTimeout));
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        sendCount.Should().Be(2);
+    }
 }

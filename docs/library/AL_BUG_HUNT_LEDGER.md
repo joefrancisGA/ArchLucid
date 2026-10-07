@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 62 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt (dry): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows on InMemory full graph; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read in-flight required-field snapshot, dismiss vs draft note UI, toggle a11y wiring, form POST via fetch, and cancel button type; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -22593,13 +22595,27 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 62 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
+- [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy` — retries after `HttpRequestException` transport faults — **cheap-disproof 2026-10-07 seed hunt #26:** bounded retry on public ARM/retail authorities; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_after_http_request_exception`.
+- [x] (valid-no-repro) `ArchLucidAzurePublicHttpClients` — ARM and Retail Prices factory logical names differ — **cheap-disproof 2026-10-07 seed hunt #26:** distinct factory registrations; regression `ArchLucidAzurePublicHttpClients_exposes_distinct_arm_and_retail_factory_client_names`.
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` uses shorter `PooledConnectionLifetime` than `ExternalIntegration` — **cheap-disproof 2026-10-07 seed hunt #26:** loopback probe profile tuning; regression `OutboundSocketsHttpHandlerSettings_internal_loopback_uses_shorter_pooled_connection_lifetime_than_integration`.
+- [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — default `MaxRetryAttempts` is `3` before `Normalize` — **cheap-disproof 2026-10-07 seed hunt #26:** aligns with ARM retry posture; regression `OutboundExternalHttpResilienceOptions_default_max_retry_attempts_is_three_before_normalize`.
+- [x] (invalid) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `408 Request Timeout` is retried — **cheap-disproof 2026-10-07 seed hunt #26:** transient status retry; regression `AzureRmAndRetailPricesHttpRetryPolicy_retries_http_408_request_timeout`.
+
+- [ ] (candidate) `ArchLucidAzurePublicHttpClients` — ARM and Retail Prices authority hosts differ — locus: `ResourceManagerAuthority` vs `RetailPricesAuthority` (`ArchLucidAzurePublicHttpClients.cs` ~9–12).
+- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `FailureRatio` is `0.5` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~14–15).
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `503 Service Unavailable` is retried — locus: `ShouldRetryHttpResponse` 5xx branch (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~71).
+- [ ] (candidate) `OutboundHttpClientTimeoutSeconds` — `InternalDiagnostics` constant is `10` seconds — locus: `InternalDiagnostics` (`OutboundHttpClientTimeoutSeconds.cs` ~8–9).
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `CloudControlPlane` enables multiple HTTP/2 connections like `ExternalIntegration` — locus: `EnableMultipleHttp2Connections` (`OutboundSocketsHttpHandlerSettings.cs` ~30–35).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 57 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
@@ -22608,12 +22624,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ArchLucidMultiCloudPublicHttpClients` — AWS and GCP factory logical names are distinct strings — **cheap-disproof 2026-10-07 seed hunt #25:** distinct `IHttpClientFactory` names; regression `ArchLucidMultiCloudPublicHttpClients_exposes_distinct_factory_client_names`.
 - [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `LlmCompletion` uses longer `PooledConnectionLifetime` than `ExternalIntegration` — **cheap-disproof 2026-10-07 seed hunt #25:** profile tuning; regression `OutboundSocketsHttpHandlerSettings_llm_completion_uses_longer_pooled_connection_lifetime_than_integration`.
 - [x] (valid-no-repro) `OutboundExternalHttpResilienceOptions` — configuration section name `ArchLucid:OutboundHttp:Resilience` is stable for host binding — **cheap-disproof 2026-10-07 seed hunt #25:** options binding contract; regression `OutboundExternalHttpResilienceOptions_uses_stable_configuration_section_name`.
-
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — retries after `HttpRequestException` transport faults — locus: `ShouldHandle` predicate (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~38–39).
-- [ ] (candidate) `ArchLucidAzurePublicHttpClients` — ARM and Retail Prices factory logical names differ — locus: `ResourceManagerHttpClientName` vs `RetailPricesHttpClientName` (`ArchLucidAzurePublicHttpClients.cs` ~14–18).
-- [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` uses shorter `PooledConnectionLifetime` than `ExternalIntegration` — locus: profile switch (`OutboundSocketsHttpHandlerSettings.cs` ~16–27).
-- [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `MaxRetryAttempts` is `3` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~27).
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `408 Request Timeout` is retried — locus: `ShouldRetryHttpResponse` (`AzureRmAndRetailPricesHttpRetryPolicy.cs` ~65–66).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 56 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
