@@ -48,6 +48,41 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
     expect(Date.parse(payload.updatedAtUtc)).not.toBeNaN();
   });
 
+  it("refuses hydrate when continuity fetch is not explicit", () => {
+    expect(
+      shouldHydrateWorkingWorkspaceContinuityFromServer(
+        { favoriteReviews: [], recentViewEntries: [], updatedAtUtc: "2026-09-13T12:00:00Z" },
+        false,
+      ),
+    ).toBe(false);
+  });
+
+  it("hydrates title-only favorite rows from server without architectureId", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [
+        { runId: "run-title-only", pinnedAtUtc: "2026-09-13T12:00:00Z", title: "Claims API" },
+      ],
+      recentViewEntries: [],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toEqual([
+      { runId: "run-title-only", pinnedAt: "2026-09-13T12:00:00Z", title: "Claims API" },
+    ]);
+  });
+
+  it("writes local continuity watermark from server updatedAtUtc after hydrate", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [],
+      recentViewEntries: [],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    expect(window.localStorage.getItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY)).toBe(
+      "2026-09-13T12:02:00Z",
+    );
+  });
+
   it("hydrates from server when local continuity watermark is absent", () => {
     expect(
       shouldHydrateWorkingWorkspaceContinuityFromServer(

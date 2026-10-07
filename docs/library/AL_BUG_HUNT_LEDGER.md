@@ -31143,7 +31143,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 37 · **Bugs found:** 34 · **Consecutive dry hunts:** 9
+**Hunts:** 38 · **Bugs found:** 34 · **Consecutive dry hunts:** 10
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `refuses hydrate when continuity fetch is not explicit`, `hydrates title-only favorite rows from server without architectureId`, `writes local continuity watermark from server updatedAtUtc after hydrate`, `does not fall back to runId when awaiting-approval name trims to empty string`; 38 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
+- [x] (valid-no-repro) `getEffectiveBrowserProxyScopeHeaders` — unsigned users with registration payload prefer registration over stale operator `localStorage` scope — **cheap-disproof 2026-10-07 seed hunt #38:** unsigned registration branch wins over sticky demo scope; regression `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — returns false when hydrate is not explicit (`isExplicit` false) — **cheap-disproof 2026-10-07 seed hunt #38:** background continuity reads must not overwrite device state; regression `refuses hydrate when continuity fetch is not explicit`.
+- [x] (valid-no-repro) `toFavoriteReviewRows` — retains title-only favorite rows without `architectureId` on server hydrate — **cheap-disproof 2026-10-07 seed hunt #38:** title-only pins are valid continuity rows; regression `hydrates title-only favorite rows from server without architectureId`.
+- [x] (invalid) `resolveAttentionPartitionPreview` — `awaiting-approval` falls back to `runId` when name whitespace-only — **cheap-disproof 2026-10-07 seed hunt #38:** `name?.trim()` yields `""` which is not nullish, so `?? runId` does not run; regressions `returns empty preview when awaiting-approval name is whitespace-only` and `does not fall back to runId when awaiting-approval name trims to empty string`.
+- [x] (valid-no-repro) `applyWorkingWorkspaceContinuityFromServer` — writes local synced watermark from server `updatedAtUtc` after hydrate — **cheap-disproof 2026-10-07 seed hunt #38:** enables later `shouldHydrate` comparisons; regression `writes local continuity watermark from server updatedAtUtc after hydrate`.
+
+- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — signed-in sticky demo scope ignored when sample visit inactive — locus: `signedInStickyDemoScope` guard (`operator-scope-storage.ts` ~218–221); input: `getEffectiveBrowserProxyScopeHeaders_ignoresStickyDemoStorageForSignedInUsersWithoutSampleVisit`.
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — hydrates when local watermark absent even if server payload empty — locus: `localSyncedAt === null` ~149–150; input: `hydrates from server when local continuity watermark is absent`.
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `awaiting-approval` uses `runId` when name omitted — locus: `?? runId` chain ~42–43; input: `topAwaitingApproval` with `name: undefined`.
+- [ ] (candidate) `buildWorkingWorkspaceContinuityPayload` — includes `updatedAtUtc` on every PUT payload — locus: `new Date().toISOString()` ~114; input: `builds payload from local pins and recents`.
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — clears favorites when server sends empty `favoriteReviews` — locus: `writeFavoriteReviews(toFavoriteReviewRows(...))` ~163; input: empty favorites array on explicit hydrate.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration`, `drops recent view rows when visitedAtUtc is whitespace-only`, `returns null preview for assigned-to-me when assigned finding title is omitted`, `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`; 36 scoped `lib/operator` vitest tests passed.
 
