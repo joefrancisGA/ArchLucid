@@ -95,7 +95,7 @@ export function buildDiagramReconcileCsv(
   const scorecard = buildDiagramReconcileScorecard(reconciliation);
   const groups = groupDiagramReconcileInventoryOnlyRows(reconciliation.rows ?? []);
   const lines: string[] = [
-    ["kind", "match", "diagram", "resource group", "resource type", "count", "resource names", "explanation"].map(csvCell).join(","),
+    ["Kind", "Match", "Diagram", "Resource group", "Resource type", "Count", "Resource names", "Explanation"].map(csvCell).join(","),
     ["scorecard", "Matched", "", "", "", scorecard.matched, "", ""].map(csvCell).join(","),
     ["scorecard", "Possible", "", "", "", scorecard.possible, "", ""].map(csvCell).join(","),
     ["scorecard", "Diagram only", "", "", "", scorecard.diagramOnly, "", ""].map(csvCell).join(","),
