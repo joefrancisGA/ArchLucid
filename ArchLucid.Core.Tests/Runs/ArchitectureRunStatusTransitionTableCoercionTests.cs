@@ -93,6 +93,25 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_parses_scientific_notation_whole_number_ordinal_to_committed()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("5e0", out ArchitectureRunStatus status);
+
+        // double.TryParse floor coercion for in-memory callers; SQL CK_Runs_LegacyRunStatus stores enum names on persisted rows.
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Committed);
+    }
+
+    [Fact]
+    public void TryParseStatus_rejects_non_finite_whole_number_ordinal_string()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("Infinity", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_hexadecimal_ordinal_string()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("0x5", out ArchitectureRunStatus status);
@@ -111,5 +130,16 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         result.IsAllowed.Should().BeFalse();
         result.TargetStatus.Should().Be(ArchitectureRunStatus.TasksGenerated);
         result.DenialReason.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryTransition_denies_retry_requested_from_created()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Created,
+            ArchitectureRunStatusLifecycleEvent.RetryRequested);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Created);
     }
 }

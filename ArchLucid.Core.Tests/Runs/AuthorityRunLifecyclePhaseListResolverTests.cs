@@ -61,6 +61,22 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_failed_with_golden_manifest_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa24"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Terminal failure resolution precedes golden-manifest progress-marker branch.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_failed_without_progress_markers_returns_failed_not_not_started()
     {
         RunRecord header = new()
