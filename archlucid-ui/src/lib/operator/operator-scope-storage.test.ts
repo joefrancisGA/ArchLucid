@@ -19,6 +19,7 @@ import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { writeLastRegistrationPayloadForTests } from "@/lib/operator/operator-registration-scope-test-helpers";
 import { clearOidcSession, persistTokenResponse } from "@/lib/oidc/session";
+import { WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY } from "@/lib/operator/working-workspace-continuity-sync";
 
 describe("operator-scope-storage", () => {
   beforeEach(() => {
@@ -301,6 +302,22 @@ describe("operator-scope-storage", () => {
     });
 
     expect(consumeOperatorHomeRunsSnapshotStale()).toBe(false);
+  });
+
+  it("writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark", () => {
+    localStorage.setItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY, "2026-09-13T12:00:00Z");
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY)).toBe(
+      "2026-09-13T12:00:00Z",
+    );
   });
 
   it("writeOperatorScopeToStorage_clears_home_disclosure_prefs", () => {

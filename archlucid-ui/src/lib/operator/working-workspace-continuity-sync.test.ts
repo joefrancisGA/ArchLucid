@@ -47,6 +47,15 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
     expect(payload.updatedAtUtc).toBeTruthy();
   });
 
+  it("hydrates from server when local continuity watermark is absent", () => {
+    expect(
+      shouldHydrateWorkingWorkspaceContinuityFromServer(
+        { favoriteReviews: [], recentViewEntries: [], updatedAtUtc: "2026-09-13T09:00:00Z" },
+        true,
+      ),
+    ).toBe(true);
+  });
+
   it("hydrates local storage when server watermark is newer", () => {
     window.localStorage.setItem(
       WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY,

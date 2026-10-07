@@ -26,6 +26,54 @@ describe("resolveAttentionPartitionPreview", () => {
     expect(preview).toBe("Claims API review");
   });
 
+  it("skips archived runs when falling back to the first active run title", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "unfinished-work",
+      topUnfinishedItem: null,
+      assignedFindingTitle: null,
+      topAwaitingApproval: null,
+      topAlert: null,
+      runs: [
+        {
+          runId: "run-archived",
+          projectId: "default",
+          description: "Archived review",
+          createdUtc: "2026-01-01T00:00:00.000Z",
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+          isArchived: true,
+        },
+        {
+          runId: "run-active",
+          projectId: "default",
+          description: "Active review",
+          createdUtc: "2026-01-02T00:00:00.000Z",
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+          isArchived: false,
+        },
+      ],
+    });
+
+    expect(preview).toBe("Active review");
+  });
+
+  it("returns empty preview when awaiting-approval name is whitespace-only", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "awaiting-approval",
+      topUnfinishedItem: null,
+      assignedFindingTitle: null,
+      topAwaitingApproval: {
+        runId: "run-await",
+        name: "   ",
+      },
+      topAlert: null,
+      runs: [],
+    });
+
+    expect(preview).toBe("");
+  });
+
   it("returns assigned finding title for assigned-to-me partition", () => {
     const preview = resolveAttentionPartitionPreview({
       partition: "assigned-to-me",

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-operator-lib` — re-read `working-workspace-continuity-sync`, `resolveAttentionPartitionPreview`, and scope-change cache clears after HOM reconciliation commits; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (IH-066 continuity sync watermark is user-global and intentionally survives `writeOperatorScopeToStorage`; unfinished-work preview skips archived runs before `buyerFacingReviewTitleFromSummary`; whitespace-only awaiting-approval `name` yields empty preview because `trim()` returns `""` before `?? runId`; explicit server continuity hydrates when local watermark absent; offline reconnect invalidates via shared helper); regressions `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`, `skips archived runs when falling back to the first active run title`, `returns empty preview when awaiting-approval name is whitespace-only`, and `hydrates from server when local continuity watermark is absent`; seeded five follow-on `(candidate)` rows; 646 scoped `src/lib/operator/` vitest tests passed (48 pre-existing failures elsewhere in the same path filter).
+
 2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five seeded `(candidate)` rows (`reloadOnChange` on overlay JSON is standard configuration reload semantics without a worker-specific stale-options repro; distinct `ArchLucid.Worker` OpenTelemetry `service.name` is intentional per executable; operational-error capture uses default scope context on anonymous health paths by design; content-safety fail-open advisory is warn-only and covered in `ArchLucid.Host.Core.Tests`; `WebApplicationFactory` `UseSetting` is not deployment env precedence — operators use `Demo__*` / `Hosting__*` after `AddEnvironmentVariables()`); regression `Worker_host_web_host_use_setting_does_not_beat_saas_overlay_from_content_root`; reaffirmed `Worker_host_environment_variables_override_saas_overlay_from_content_root`; seeded five follow-on `(candidate)` rows; 29 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` overlay chain, graceful shutdown, and `UseArchLucidWorkerPipeline` health maps after five consecutive dry hunts emptied open rows; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (deployment env vars still beat SaaS JSON via `AddEnvironmentVariables()` after overlays; legacy product keys warn-only after `Build()`; anonymous `/health` summary JSON omits exception text; `IWorkerHostDrainGate` registered via `AddArchLucidGracefulShutdown`; `HostOptions.ShutdownTimeout` is 45s); regressions `Worker_host_environment_variables_override_saas_overlay_from_content_root`, `Worker_host_starts_when_legacy_product_section_keys_are_present`, `Worker_host_health_root_returns_summary_json_without_exception_text`, `Worker_composition_registers_worker_host_drain_gate`, and `Worker_host_configures_graceful_shutdown_timeout`; seeded five follow-on `(candidate)` rows; 28 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -30307,7 +30309,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-2026-09-26 thorough hunt (hit): proved `OperatorHomeWorkspaceMetricsStrip` omitted `runsDashboardTotalCount` when calling `deriveOperatorHomeTenantCountingSnapshot`, hiding the metrics strip on demo-only Overview rows despite workspace `totalCount` and awaiting-approval pressure; fixed by passing `runsDashboard.totalCount`; regression `shows awaiting-approval metric when overview rows are demo-only but workspace totalCount is populated`; 17 scoped tenant-counting/metrics-strip tests passed.
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 646 scoped `src/lib/operator/` vitest tests passed (48 pre-existing failures in the same path filter).
 
 - **id:** ui-operator-lib
 - **status:** open
@@ -30315,10 +30317,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -30375,6 +30377,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — **hit 2026-09-26 thorough hunt:** `OperatorHomeWorkspaceMetricsStrip` omitted `runsDashboardTotalCount`, so demo-only Overview rows zeroed `hasReviews` and hid awaiting-approval pressure despite workspace `totalCount`; fixed by passing `runsDashboard.totalCount`; regression `shows awaiting-approval metric when overview rows are demo-only but workspace totalCount is populated`
 - [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` used loaded page length instead of paginated runs dashboard `totalCount` — **hit 2026-09-12 thorough hunt #1852:** tenant counting helper and most call sites fixed; regression `uses runsDashboardTotalCount for reviewPackagesTotal when the dashboard page is paginated`; MetricsStrip gap closed 2026-09-26.
+
+- [x] (valid-no-repro) `WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY` — survives `writeOperatorScopeToStorage` and may block continuity hydrate after tenant switch — **cheap-disproof 2026-10-07 seed hunt:** IH-066 watermark is user-global device sync metadata; scope change clears tenant-scoped recents/favorites separately; regression `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — unfinished-work fallback uses first `runs` row including archived inventory — **cheap-disproof 2026-10-07 seed hunt:** `runs.find` skips `isArchived === true`; regression `skips archived runs when falling back to the first active run title`.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — awaiting-approval preview should fall back to `runId` when `name` is whitespace — **cheap-disproof 2026-10-07 seed hunt:** `name?.trim()` yields `""` which is not nullish, so preview is empty by expression semantics; regression `returns empty preview when awaiting-approval name is whitespace-only`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — refuses first explicit server payload when local watermark missing — **cheap-disproof 2026-10-07 seed hunt:** absent local watermark hydrates; regression `hydrates from server when local continuity watermark is absent`.
+- [x] (valid-no-repro) `retryOperatorOfflineConnection` — offline retry must scope invalidation to operator home queries only — **cheap-disproof 2026-10-07 seed hunt:** TB-2214 helper intentionally calls unfiltered `invalidateQueries()` or reload; regression `invalidates queries when a query client is available` in `operator-offline-reconnect.test.ts`.
+
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `awaiting-approval` and `alerts` partitions return empty string when title/name is whitespace-only instead of falling back to `runId` / `alertId`.
+- [ ] (candidate) `persistWorkingWorkspaceContinuityToServer` — tenant switch clears local pins/recents but does not push an empty continuity payload, so user-global server continuity may retain prior-tenant favorites until the next explicit PUT.
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — empty server `updatedAtUtc` always hydrates and may overwrite local pins when the API omits a watermark.
+- [ ] (candidate) `readOperatorScopeFromStorage` — parse cache keyed on raw JSON may serve stale scope if another tab mutates `archlucid_operator_scope_v1` without dispatching `storage` events in the same document.
+- [ ] (candidate) `buildWorkingWorkspaceContinuityPayload` — uses `new Date().toISOString()` for `updatedAtUtc` on every build, so rapid PUTs may reorder against server clocks on slow networks.
 
 2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
 
