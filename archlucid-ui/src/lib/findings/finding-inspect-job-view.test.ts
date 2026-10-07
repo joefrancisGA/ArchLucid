@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
@@ -47,5 +50,21 @@ describe("finding-inspect-job-view", () => {
     );
 
     expect(jobView).toBe("answer-these-questions");
+  });
+
+  it("does not import semantic-band helper from a use-client module", () => {
+    const jobViewSrc = readFileSync(path.resolve(__dirname, "finding-inspect-job-view.ts"), "utf8");
+    const inspectBodySrc = readFileSync(
+      path.resolve(
+        __dirname,
+        "../../app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectFindingBody.tsx",
+      ),
+      "utf8",
+    );
+
+    expect(jobViewSrc).toContain("@/lib/findings/finding-semantic-support-band-from-typed-payload");
+    expect(jobViewSrc).not.toContain("FindingSemanticSupportBandInspectSection");
+    expect(inspectBodySrc).toContain("@/lib/findings/finding-semantic-support-band-from-typed-payload");
+    expect(inspectBodySrc).not.toContain("findingSemanticSupportBandFromTypedPayload } from \"@/components/findings/FindingSemanticSupportBandInspectSection\"");
   });
 });

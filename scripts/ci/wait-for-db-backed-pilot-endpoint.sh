@@ -43,21 +43,43 @@ elif [ -n "${ARCHLUCID_PROXY_BEARER_TOKEN:-}" ]; then
   auth_curl_args+=(-H "Authorization: Bearer ${ARCHLUCID_PROXY_BEARER_TOKEN}")
 fi
 
+# Bound-claim auth (ApiKey / JwtBearer) rejects x-workspace-id / x-project-id when the
+# principal has no matching claim (ScopeIdentityBinding header-only escalation → 403).
+# Demo workspaces A and B share defaultTenantId, so tenant-only GET still reaches both runs.
+bound_claim_auth=0
+if [ -n "${LIVE_API_KEY:-}" ] || [ -n "${LIVE_JWT_TOKEN:-}" ] || [ -n "${ARCHLUCID_PROXY_BEARER_TOKEN:-}" ]; then
+  bound_claim_auth=1
+fi
+
+# Fills nameref array with tenant header plus optional workspace/project headers.
+fill_probe_scope_headers() {
+  local -n _headers=$1
+  local workspace_id="$2"
+  local project_id="$3"
+  _headers=()
+  _headers+=(-H "x-tenant-id: ${TENANT_ID}")
+
+  if [ "${bound_claim_auth}" -eq 0 ]; then
+    _headers+=(-H "x-workspace-id: ${workspace_id}")
+    _headers+=(-H "x-project-id: ${project_id}")
+  fi
+}
+
 probe_pilot_run_deltas() {
   local label="$1"
   local run_id="$2"
   local workspace_id="$3"
   local project_id="$4"
   local body_file
+  local -a scope_headers=()
   body_file="$(mktemp)"
   last_label="${label}"
+  fill_probe_scope_headers scope_headers "${workspace_id}" "${project_id}"
   last_status="$(
     curl -sS -o "${body_file}" -w "%{http_code}" \
       "${API_URL}/v1/pilots/runs/${run_id}/pilot-run-deltas" \
       -H "Accept: application/json" \
-      -H "x-tenant-id: ${TENANT_ID}" \
-      -H "x-workspace-id: ${workspace_id}" \
-      -H "x-project-id: ${project_id}" \
+      "${scope_headers[@]}" \
       "${auth_curl_args[@]}" || true
   )"
   last_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"
@@ -70,15 +92,15 @@ probe_authority_run_detail() {
   local workspace_id="$3"
   local project_id="$4"
   local body_file
+  local -a scope_headers=()
   body_file="$(mktemp)"
   last_label="${label}"
+  fill_probe_scope_headers scope_headers "${workspace_id}" "${project_id}"
   last_status="$(
     curl -sS -o "${body_file}" -w "%{http_code}" \
       "${API_URL}/v1/authority/reviews/${run_id}" \
       -H "Accept: application/json" \
-      -H "x-tenant-id: ${TENANT_ID}" \
-      -H "x-workspace-id: ${workspace_id}" \
-      -H "x-project-id: ${project_id}" \
+      "${scope_headers[@]}" \
       "${auth_curl_args[@]}" || true
   )"
   last_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
-import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/finding-semantic-support-band-from-typed-payload";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";

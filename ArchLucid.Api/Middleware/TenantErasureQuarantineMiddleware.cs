@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -54,6 +55,20 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 
         if (tenant is null)
         {
+            // DevelopmentBypass live E2E steers arbitrary isolated tenant ids via x-tenant-id
+            // (freshIsolatedTenantScope) without a dbo.Tenants row. Fail-closed 404 stays for
+            // JWT/ApiKey. Matches CommercialTenantTierFilter's DevelopmentBypass missing-tenant path.
+
+            if (string.Equals(
+                    context.User.Identity?.AuthenticationType,
+                    DevelopmentBypassAuthenticationHandler.SchemeName,
+                    StringComparison.Ordinal))
+            {
+                await next(context);
+
+                return;
+            }
+
             Microsoft.AspNetCore.Mvc.ProblemDetails missingTenantProblem = new()
             {
                 Type = ProblemTypes.ResourceNotFound,

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
@@ -334,6 +335,52 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
 
         terminalReached.Should().BeFalse();
         http.Response.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Erasure_quarantine_allows_development_bypass_when_tenant_record_missing()
+    {
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/architecture/request" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    DevelopmentBypassAuthenticationHandler.SchemeName)),
+            Response = { Body = new MemoryStream() },
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton(tenants.Object);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        bool terminalReached = false;
+
+        RequestDelegate terminal = context =>
+        {
+            terminalReached = true;
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        terminalReached.Should().BeTrue();
+        http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
     }
 
     [Fact]

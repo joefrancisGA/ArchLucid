@@ -6,43 +6,11 @@
  * Uses the same standalone asset sync as e2e/start-e2e-with-mock.ts.
  */
 import { spawn } from "node:child_process";
-import fs from "node:fs";
 import path from "node:path";
 
+import { syncStandaloneRuntimeAssets } from "./sync-standalone-runtime-assets";
+
 const LIVE_API_BASE = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
-
-function syncStandaloneRuntimeAssets(projectRoot: string): string {
-  const standaloneRoot = path.join(projectRoot, ".next", "standalone");
-  const serverJs = path.join(standaloneRoot, "server.js");
-
-  if (!fs.existsSync(serverJs)) {
-    throw new Error(
-      `Missing ${serverJs}. Run "npm run build" first (next.config uses output: "standalone").`,
-    );
-  }
-
-  const staticSrc = path.join(projectRoot, ".next", "static");
-  const staticDest = path.join(standaloneRoot, ".next", "static");
-
-  if (!fs.existsSync(staticSrc)) {
-    throw new Error(`Missing ${staticSrc} after build; client assets are required for e2e.`);
-  }
-
-  fs.mkdirSync(path.dirname(staticDest), { recursive: true });
-  fs.cpSync(staticSrc, staticDest, { recursive: true });
-
-  const publicSrc = path.join(projectRoot, "public");
-  const publicDest = path.join(standaloneRoot, "public");
-
-  if (fs.existsSync(publicSrc)) {
-    fs.cpSync(publicSrc, publicDest, { recursive: true });
-  }
-  else {
-    fs.mkdirSync(publicDest, { recursive: true });
-  }
-
-  return standaloneRoot;
-}
 
 async function main(): Promise<void> {
   const projectRoot = process.cwd();

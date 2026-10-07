@@ -11,7 +11,6 @@ import {
   shouldShowArchitectRestatementSemanticSupportBandSplit,
 } from "@/lib/findings/finding-architect-restatement-semantic-support-band-honesty";
 import {
-  normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
   semanticSupportBandInspectDetail,
 } from "@/lib/findings/semantic-support-band-presentation";
@@ -23,19 +22,6 @@ export type FindingSemanticSupportBandInspectSectionProps = {
   readonly finding: QuickDecisionFinding;
   readonly trailBackedArchitectRestatement?: string | null;
 };
-
-export function findingSemanticSupportBandFromTypedPayload(
-  typedPayload: Record<string, unknown> | null,
-  classification: QuickDecisionFinding["classification"],
-): QuickDecisionFinding["semanticSupportBand"] {
-  const band = normalizeFindingSemanticSupportBand(typedPayload?.semanticSupportBand);
-
-  if (classification === "ChecklistCoverage") {
-    return band;
-  }
-
-  return band ?? resolveDecisionGradeSemanticSupportBand(null);
-}
 
 /** AS-061 inspect section beside model provenance for decision-grade findings. */
 export function FindingSemanticSupportBandInspectSection(
