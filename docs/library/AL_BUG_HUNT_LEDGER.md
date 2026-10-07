@@ -5248,7 +5248,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
-**Hunts:** 55 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+**Hunts:** 56 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions for empty sub-key topology refs, competing chosen order, and Turkish I labels; 109 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `EvidenceRefsMatch` — empty sub-key `agentTopologyProposal:p1:` falls back to case-insensitive whole-string compare — **cheap-disproof 2026-10-07 seed hunt #56:** parser rejects empty `stableSubKey`; regressions `Resolve_skips_when_empty_subkey_topology_refs_match_via_case_insensitive_string_fallback` and `Resolve_keeps_candidate_when_empty_subkey_topology_ref_differs_from_substantive_ref`.
+- [x] (valid-no-repro) `Resolve` — first matching `Chosen` in `existingRows` order wins — **cheap-disproof 2026-10-07 seed hunt #56:** single chosen per role is orchestration contract; regression `Resolve_uses_first_chosen_row_when_multiple_chosen_entries_share_role` documents first-row gate behavior.
+- [x] (valid-no-repro) `TechnologyNamesMatch` — Turkish dotted/dotless `I` variants — **cheap-disproof 2026-10-07 seed hunt #56:** `OrdinalIgnoreCase` does not equate `Azur\u0131` with `Azur\u0049`; regression `Resolve_keeps_distinct_technology_names_for_turkish_dotless_i_vs_latin_capital_i`.
+- [x] (valid-no-repro) `HasMatchingProposal` — `Future` status rows participate in ref dedupe — **cheap-disproof 2026-10-07 seed hunt #56:** intentional exploration guard; regression `Resolve_skips_when_future_row_shares_evidence_ref` (name-only collisions still insert via `Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs`).
+- [x] (invalid) `SharesProviderFamilyGate` — symmetric `CloudProvider.None` on candidate allows insert when chosen has substantive ref and matching name — **cheap-disproof 2026-10-07 seed hunt #56:** cloud-neutral authoritative chosen blocks same-name concrete candidates; regression `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name`.
+
+- [ ] (candidate) `EvidenceRefsMatch` — trailing whitespace on otherwise identical topology refs may fail structured parse yet still dedupe after trim — locus: `leftTrimmed`/`rightTrimmed` + parser; input: `agentTopologyProposal:p1:svc-api ` vs canonical ref (see `Resolve_skips_when_topology_ref_differs_only_by_trailing_whitespace` family if present).
+- [ ] (candidate) `NormalizeTechnologyName` — consecutive internal whitespace collapses but does not trim Unicode format characters (ZWSP) embedded in tokens — locus: `Split` whitespace rules; input: `Azure\u200BSQL` vs `Azure SQL` after NBSP parity rows.
+- [ ] (candidate) `Resolve` — `HasMatchingProposal` returns before chosen gate so a matching `Assumed` row blocks candidates even when authoritative `Chosen` would allow exploration — locus: method ordering ~15–22; input: substantive assumed row shares topology ref with new candidate while chosen is cloud-neutral with different name.
+- [ ] (candidate) `ShouldTreatAsDuplicateByName` — ungrounded existing + substantive candidate returns false but `HasMatchingProposal` may still match on `EvidenceRefsMatch` first — locus: loop ordering ~65–73; input: duplicate topology ref with upgraded substantive candidate replay.
+- [ ] (candidate) `TryParseAgentTopologyProposalRef` — `prefix` match is case-insensitive while sub-key comparison is ordinal, allowing case-only sub-key drift to survive merge — locus: `EvidenceRefsMatch` ~127–128; input: `agentTopologyProposal:p1:Svc-A` vs `agentTopologyProposal:p1:svc-a` (regression `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions for fullwidth Latin labels, spaced topology refs, and cross-role shared refs; 105 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5257,12 +5271,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryParseAgentTopologyProposalRef` — whitespace inside proposal segments may not structurally match canonical refs — **cheap-disproof 2026-10-07 seed hunt #55:** spaced segments parse to distinct proposal/sub-key tokens; regression `Resolve_keeps_candidate_when_agent_topology_ref_has_spaces_around_proposal_segments`.
 - [x] (valid-no-repro) `HasMatchingProposal` — `TechnologyLedgerRole` mismatch allows duplicate `EvidenceRef` strings across roles — **cheap-disproof 2026-10-07 seed hunt #55:** role filter is intentional; regression `Resolve_inserts_candidate_when_same_topology_evidence_ref_applies_to_different_role` (parity `Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute`).
 - [x] (valid-no-repro) `ShouldTreatAsDuplicateByName` — substantive existing + whitespace-only candidate ref vs dual-whitespace-only pair — **cheap-disproof 2026-10-07 seed hunt #55:** dual-substantive requires ref match; regressions `Resolve_keeps_distinct_evidence_ref_when_existing_row_has_whitespace_only_ref` and `Resolve_skips_when_both_assumed_rows_have_whitespace_only_refs_and_matching_technology_name`.
-
-- [ ] (candidate) `EvidenceRefsMatch` — `TryParseAgentTopologyProposalRef` requires non-empty `proposalId` and `stableSubKey` so `agentTopologyProposal:p1:` with empty sub-key falls back to case-insensitive whole-string compare — locus: parser ~156; input: malformed empty sub-key tails from hand-edited inventory imports.
-- [ ] (candidate) `Resolve` — first matching `Chosen` in `existingRows` order wins even when a later authoritative chosen row would block the candidate — locus: `FirstOrDefault` ~18–19; input: duplicate-role rows with competing chosen sources in one batch.
-- [ ] (candidate) `TechnologyNamesMatch` — `OrdinalIgnoreCase` on normalized names may treat Turkish dotted/dotless `I` variants as equal — locus: `NormalizeTechnologyName` + compare; input: `Azur\u0131` vs `Azur\u0049` service labels in imported topology proposals.
-- [ ] (candidate) `HasMatchingProposal` — `Future` status rows participate in ref dedupe before chosen gate, blocking exploration candidates that share topology refs — locus: `EvidenceRefsMatch` loop; input: `TechnologyLedgerStatus.Future` row with same `agentTopologyProposal` ref as new candidate (see `Resolve_skips_when_future_row_shares_evidence_ref`).
-- [ ] (candidate) `SharesProviderFamilyGate` — symmetric `CloudProvider.None` on candidate allows insert even when chosen has substantive ref and matching name — locus: provider gate ~84–87; input: cloud-neutral chosen inventory + concrete provider candidate sharing display name.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_technology_names_differ_only_by_unicode_space_separators` and `Resolve_keeps_candidate_when_alternative_row_has_substantive_ref_with_distinct_topology_ref`; 102 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5303,7 +5311,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-07
