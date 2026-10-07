@@ -78,6 +78,63 @@ public sealed class RuleSimulationServiceTests
     }
 
     [Fact]
+    public async Task SimulateAsync_WhenFewerContextsThanRequested_StillReportsEvaluatedCountOnly()
+    {
+        Guid runId = Guid.NewGuid();
+        AlertEvaluationContext context = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = runId,
+        };
+
+        Mock<IAlertSimulationContextProvider> provider = new();
+        provider
+            .Setup(
+                x => x.GetContextsAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid?>(),
+                    It.IsAny<Guid?>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([context]);
+
+        Mock<IAlertEvaluator> evaluator = new();
+        evaluator
+            .Setup(x => x.Evaluate(It.IsAny<IReadOnlyList<AlertRule>>(), It.IsAny<AlertEvaluationContext>()))
+            .Returns(Array.Empty<AlertRecord>());
+
+        RuleSimulationService sut = CreateSut(
+            evaluator.Object,
+            Mock.Of<IAlertMetricSnapshotBuilder>(),
+            Mock.Of<ICompositeAlertRuleEvaluator>(),
+            Mock.Of<IAlertSuppressionPolicy>(),
+            provider.Object);
+
+        RuleSimulationRequest request = new()
+        {
+            RuleKind = RuleKindConstants.Simple,
+            SimpleRule = new AlertRule { Name = "r" },
+            RecentRunCount = 5,
+        };
+
+        RuleSimulationResult result = await sut.SimulateAsync(
+            context.TenantId,
+            context.WorkspaceId,
+            context.ProjectId,
+            request,
+            CancellationToken.None);
+
+        result.EvaluatedRunCount.Should().Be(1);
+        result.SummaryNotes.Should().Contain(n => n.Contains("Evaluated 1 run context", StringComparison.OrdinalIgnoreCase));
+        result.SummaryNotes.Should().NotContain(n => n.Contains("skipped", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task SimulateAsync_SimpleRule_WhenEvaluatorReturnsAlerts_AddsMatchedOutcomes()
     {
         Guid runId = Guid.NewGuid();
