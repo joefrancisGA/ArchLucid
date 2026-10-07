@@ -141,6 +141,19 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task HasSeenAsync_treats_internal_whitespace_in_event_id_as_distinct_event()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        await sut.RememberAsync("stripe", "evt_internal", CancellationToken.None);
+
+        bool internalSpaceSeen = await sut.HasSeenAsync("stripe", "evt internal", CancellationToken.None);
+
+        internalSpaceSeen.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task HasSeenAsync_returns_true_after_TryRegisterEventAsync()
     {
         MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });

@@ -19,4 +19,15 @@ public sealed class BillingMarketplaceWebhookDedupeKeyTests
 
         keyTrimmed.Should().NotBe(keyPaddedAction);
     }
+
+    [Fact]
+    public void Build_embeds_subscription_id_without_trim_so_whitespace_variants_differ()
+    {
+        const string body = """{"action":"Suspend","subscriptionId":"sub-1"}""";
+
+        string keyTrimmed = BillingMarketplaceWebhookDedupeKey.Build("sub-1", "Suspend", body);
+        string keyPaddedSubscription = BillingMarketplaceWebhookDedupeKey.Build(" sub-1 ", "Suspend", body);
+
+        keyTrimmed.Should().NotBe(keyPaddedSubscription);
+    }
 }

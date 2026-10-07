@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `billing-webhooks` — re-read Stripe/Marketplace controllers, wallet processor, and memory replay guard; no hunt-ready row promoted; cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows; regressions in `LlmTenantWalletStripeWebhookProcessorTests`, `MemoryCacheBillingWebhookReplayGuardTests`, and `BillingMarketplaceWebhookDedupeKeyTests`; 24 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Retrying`/`FailedPartial`; boolean `failureClass`; `PartiallyCompleted` dead-letter; `"-6"` ordinal); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Created`/`Failed`; `NaN` ordinal; whitespace-only `failureClass`; dead-letter on `Failed`+manifest); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 87 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
@@ -9500,13 +9502,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts below; seeded five follow-on `(candidate)` rows; regressions in `LlmTenantWalletStripeWebhookProcessorTests`, `MemoryCacheBillingWebhookReplayGuardTests`, and `BillingMarketplaceWebhookDedupeKeyTests`; 24 scoped billing webhook unit tests passed (`RunAnalyzers=false`; API SQL integration HTTP suites not run).
+
+- [x] (valid-no-repro) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — non-success Stripe event types credit wallet — **cheap-disproof 2026-10-07 seed hunt:** only `payment_intent.succeeded` calls `ApplyWebhookPaymentIntentSucceededAsync`; regressions `ProcessPaymentIntentEventAsync_ignores_unknown_event_type_without_wallet_call`, `ProcessPaymentIntentEventAsync_payment_failed_does_not_credit_wallet`, `ProcessPaymentIntentEventAsync_null_event_type_skips_wallet_credit`.
+- [x] (invalid) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — internal whitespace in `eventId` collapses distinct Stripe ids — **cheap-disproof 2026-10-07 seed hunt:** only `Trim()` applied; regression `HasSeenAsync_treats_internal_whitespace_in_event_id_as_distinct_event`.
+- [x] (invalid) `BillingMarketplaceWebhookDedupeKey.Build` — padded `subscriptionId` shares dedupe key with trimmed twin — **cheap-disproof 2026-10-07 seed hunt:** subscription id embedded without trim; regression `Build_embeds_subscription_id_without_trim_so_whitespace_variants_differ`.
+- [x] (valid-no-repro) `BillingStripeWebhookController.HandleStripeWebhookAsync` — missing `Stripe-Signature` header skips verification — **cheap-disproof 2026-10-07 seed hunt:** null signature forwarded to `StripeBillingProvider` which rejects; controller path unchanged in selected files; no failing repro without integration host.
+- [x] (valid-no-repro) `BillingMarketplaceWebhookController.MarketplaceAsync` — missing `Authorization` bearer skips JWT verification — **cheap-disproof 2026-10-07 seed hunt:** null bearer forwarded to provider; selected controller only bounded-reads body; no reachable bypass in zone paths without provider tests this pass.
+
+- [ ] (candidate) `StripeBillingProvider.DispatchStripeWebhookEventAsync` — `payment_intent.created` invokes wallet processor even though processor no-ops without credit; reachable when wallet route misconfiguration delivers lifecycle events (`HandleWebhookAsync_wallet_payment_intent_created_succeeds_without_credit` expectation drift).
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — post-eviction callback removes `_claimedKeys` entry so identical event id could be re-registered after cache entry expires while ledger still `Processed` — multi-instance + TTL interaction.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — negative `amountCents` forwarded to wallet service on succeeded events; wallet layer policy vs silent reject in processor.
+- [ ] (candidate) `BillingMarketplaceWebhookDedupeKey.Build` — same `subscriptionId` and `action` with different raw JSON whitespace outside `action` field changes fingerprint only via SHA-256 of full body (intentional) vs operator double-submit with reformatted JSON.
+- [ ] (candidate) `BillingStripeWebhookController` / `BillingMarketplaceWebhookController` — `InboundWebhookBoundedBodyReader` 64 KiB limit returns 413 before provider when valid signed payload exceeds limit; hostile-input contract only unless provider documents larger payloads.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five follow-on seeded candidates; regressions for dedupe-key action embedding, wallet `payment_intent.created`, shared signing-secret fallback, failed-ledger retry, and missing-tenant replay; 28 scoped billing webhook unit tests passed (`RunAnalyzers=false`).
 
