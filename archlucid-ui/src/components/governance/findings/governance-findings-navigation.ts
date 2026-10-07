@@ -71,8 +71,10 @@ export function resolveGovernanceQueueAuxiliaryFindingHref(
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {
-  if (manifestId !== " — ") {
-    return signedRecordDetailPath(manifestId);
+  const normalizedManifestId = manifestId.trim();
+
+  if (normalizedManifestId.length > 0 && normalizedManifestId !== "—") {
+    return signedRecordDetailPath(normalizedManifestId);
   }
 
   return resolveWorkingRunReviewLocator({ runId }).href;

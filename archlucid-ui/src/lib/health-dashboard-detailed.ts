@@ -51,8 +51,8 @@ export function parseCircuitGatesFromHealthEntry(
       continue;
     }
     const row = g as Record<string, unknown>;
-    const name = typeof row.name === "string" ? row.name : " — ";
-    const state = typeof row.state === "string" ? row.state : " — ";
+    const name = typeof row.name === "string" ? row.name : "Name not returned";
+    const state = typeof row.state === "string" ? row.state : "State not returned";
     const breakDurationSeconds =
       typeof row.breakDurationSeconds === "number" && Number.isFinite(row.breakDurationSeconds) ? row.breakDurationSeconds : undefined;
     out.push({

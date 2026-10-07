@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
   formatSecurityEvidencePathKindLabel,
+  formatSecurityEvidencePathRelationshipLabel,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
 } from "@/lib/security-evidence-path-presentation";
@@ -26,6 +27,12 @@ describe("security-evidence-path-presentation", () => {
   it("maps confidence bands to enterprise status kinds without percentages", () => {
     expect(securityEvidencePathConfidenceBandStatusKind("Confirmed")).toBe("ready");
     expect(securityEvidencePathConfidenceBandStatusKind("Possible")).toBe("needs-attention");
+  });
+
+  it("uses an explicit absence label when a relationship is not stored", () => {
+    expect(formatSecurityEvidencePathRelationshipLabel("RoleAssignment")).toBe("RoleAssignment");
+    expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("No stored link");
+    expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("No stored link");
   });
 
   it("leads hop labels with the trailing resource name", () => {

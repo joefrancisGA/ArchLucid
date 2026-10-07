@@ -146,7 +146,7 @@ function CapabilityMatrixTable(props: {
                     className="inline-flex min-w-[2rem] justify-center font-semibold"
                     aria-label={`${row.label} for ${role.label}: ${row.roles[role.id] ? "Allowed" : "Not allowed"}`}
                   >
-                    <span aria-hidden="true">{row.roles[role.id] ? "Yes" : " — "}</span>
+                    <span aria-hidden="true">{row.roles[role.id] ? "Yes" : "No"}</span>
                     <span className="sr-only">{row.roles[role.id] ? "Allowed" : "Not allowed"}</span>
                   </span>
                 </td>

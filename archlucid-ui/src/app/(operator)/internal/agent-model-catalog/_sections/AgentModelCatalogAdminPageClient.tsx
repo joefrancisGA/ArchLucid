@@ -209,7 +209,7 @@ export function AgentModelCatalogAdminPageClient() {
                         <EnterpriseTableCell className="font-mono text-xs">{row.aliasId}</EnterpriseTableCell>
                         <EnterpriseTableCell>{row.lifecycleStatus}</EnterpriseTableCell>
                         <EnterpriseTableCell>{row.structuredOutputLevel}</EnterpriseTableCell>
-                        <EnterpriseTableCell>{row.deploymentName ?? " — "}</EnterpriseTableCell>
+                        <EnterpriseTableCell>{row.deploymentName ?? "Deployment not returned"}</EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <HelpLazyDetails
                             summary={formatEvaluationSummary(row)}

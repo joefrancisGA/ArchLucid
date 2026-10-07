@@ -196,7 +196,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
           <div>
             <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
-              {projected !== null ? formatUsd(projected) : " — "}
+              {projected !== null
+                ? formatUsd(projected)
+                : enabled && selectedIds.size === 0
+                  ? "Select findings to project a cost"
+                  : "Cost not returned"}
             </dd>
           </div>
         </dl>

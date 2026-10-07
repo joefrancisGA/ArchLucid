@@ -120,7 +120,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
     expect(within(edgesTable).getByRole("columnheader", { name: "To" })).toBeTruthy();
     expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable).getByText("—")).toBeTruthy();
+    expect(within(edgesTable).getByText("Not recorded")).toBeTruthy();
 
     expect(within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
     expect(within(nodesTable).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
@@ -728,6 +728,34 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(section).getByText(/missing a required link: required subnet no longer exists/u)).toBeInTheDocument();
     expect(within(section).getByText(/Bastion/u)).toBeInTheDocument();
     expect(within(section).queryByText(/bastion-01 .*missing a required link/u)).toBeNull();
+  });
+
+  it("shows stored questionable reason and action metadata in the Problem column", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_questionable",
+              label: "avd-host",
+              resourceType: "Microsoft.DesktopVirtualization/hostPools",
+              resourceGroup: "rg-desktop",
+              connectionState: "Orphaned",
+              questionableReason: "Named like an AVD host and not registered",
+              questionableAction: "Register or retire the resource",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+
+    expect(within(section).getByText(
+      "Named like an AVD host and not registered Recommended action: Register or retire the resource",
+    )).toBeInTheDocument();
   });
 
   it("does not show questions notice for unconnected shared-service types", () => {

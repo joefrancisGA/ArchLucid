@@ -52,6 +52,12 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
   return PROVENANCE_KIND_LABELS[trimmed] ?? trimmed;
 }
 
+export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
+  const trimmed = edgeType?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : "No stored link";
+}
+
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
   ObservedFact: "This hop was read from collected evidence.",
   DerivedFact: "This hop was calculated from collected evidence.",

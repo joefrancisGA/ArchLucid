@@ -24,8 +24,8 @@ function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonl
   const safeEmail = escapeHtml(payload.workEmail);
   const safeCompany = escapeHtml(payload.company);
   const safeRole = escapeHtml(payload.roleTitle);
-  const safeCloud = payload.cloudPlatformFocus === null ? " — " : escapeHtml(payload.cloudPlatformFocus);
-  const safeNote = payload.note === null ? " — " : escapeHtml(payload.note);
+  const safeCloud = payload.cloudPlatformFocus === null ? "Not provided" : escapeHtml(payload.cloudPlatformFocus);
+  const safeNote = payload.note === null ? "Not provided" : escapeHtml(payload.note);
   const subject = `${productName}: private beta access request`;
 
   const html =
@@ -43,8 +43,8 @@ function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonl
     `Work email: ${payload.workEmail}\n` +
     `Company: ${payload.company}\n` +
     `Role/title: ${payload.roleTitle}\n` +
-    `Cloud/platform focus: ${payload.cloudPlatformFocus ?? " — "}\n` +
-    `Note: ${payload.note ?? " — "}\n`;
+    `Cloud/platform focus: ${payload.cloudPlatformFocus ?? "Not provided"}\n` +
+    `Note: ${payload.note ?? "Not provided"}\n`;
 
   return { subject, html, text };
 }
