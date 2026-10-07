@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted snapshot/RCSI update conflict class (`3960`/`41301`/`41302`) while orchestrator retried lock-class errors; `IsSnapshotOrUpdateConflict`; regressions `ExecuteAsync_retries_sql_snapshot_update_conflict_error_3960` and `ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate`; cheap-disproof closed three other `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
+
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive lock-class SQL hits (`1204`/`1222`); no hunt-ready row promoted; seeded five `(candidate)` rows (snapshot/update-conflict codes, IOException-only wrapper chain, reconcile poll budget, deep aggregate walk, negative delay misuse); 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
 
 2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted SQL `1204` (lock resource pressure; SQL Server asks to rerun when fewer active users) while orchestrator retried `1205`/`1222`; regression `ExecuteAsync_retries_sql_lock_resource_error_1204`; 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
@@ -5011,11 +5013,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 38
-- **bugs-found:** 7
+- **hunts:** 39
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — SQL lock resource 1204 not retried by orchestrator transient pipeline
+- **last-bug:** 2026-10-07 — snapshot/RCSI SQL update conflicts not retried by orchestrator pipeline
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -5153,11 +5155,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-07 seed hunt (seed-only): re-read orchestrator transient retry after lock-class SQL hits; no new hunt-ready defect; seeded five `(candidate)` rows; 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
 
-- [ ] (candidate) `SqlTransientDetector` (consumed by `OrchestratorTransientDbRetry`) — SQL snapshot/update conflict errors `3960` / `41301` / `41302` under RCSI/snapshot isolation not classified transient while lock-class `1204`/`1205`/`1222` retry; reachable on concurrent authority commit under Azure SQL snapshot conflicts.
-- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `IOException` wrapper with transient `SqlException` inner and no `AggregateException` (single-repo persist, not parallel `Task.WhenAll`); `SqlTransientDetector` inner walk vs parallel-persist aggregate rules divergence.
-- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryBudget` — authority commit reconcile poll loop (`ManifestReconcilePollAttempts` × `ManifestReconcilePollDelay`) can consume wall clock before outer `IsExhausted` check on unique-key path; client sees `ConflictException` while polls still running.
-- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — only the first `AggregateException` on an `InnerException` chain is flattened; a second nested parallel-persist aggregate deeper on the same chain is ignored (repository throw-site shape TBD).
-- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — negative `attempt` or `poll` inputs return negative `TimeSpan` (no guard); misuse by a future caller could stall or fault `Task.Delay` (authority loop starts at 1 today).
+2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved snapshot/RCSI update conflict class gap; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
+
+- [x] (proven) `SqlTransientDetector` / `OrchestratorTransientDbRetry` — snapshot/RCSI update conflict SQL `3960` / `41301` / `41302` not classified transient while lock-class errors retried — **hit 2026-10-07 thorough hunt:** `IsSnapshotOrUpdateConflict`; regression `ExecuteAsync_retries_sql_snapshot_update_conflict_error_3960`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — `IOException` wrapper with transient `SqlException` inner and no `AggregateException` — **cheap-disproof 2026-10-07 thorough hunt:** `SqlTransientDetector` inner-chain walk retries without parallel-persist aggregate flatten; regression `ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.RetryBudget` — reconcile poll delays exhaust budget before `IsExhausted` — **cheap-disproof 2026-10-07 thorough hunt:** inter-poll delay sum alone fits inside `RetryBudget`; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
+- [x] (invalid) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — second nested `AggregateException` deeper on same chain ignored — **cheap-disproof 2026-10-07 thorough hunt:** parallel-persist throw sites surface a single aggregate; first nested aggregate on chain is intentional (#1259 semantics).
+- [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — negative attempt/poll inputs — **cheap-disproof 2026-10-07 thorough hunt:** authority commit/reconcile loops start at 1; pure helper documents zero-index as zero delay (`RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt`).
 
 ---
 
