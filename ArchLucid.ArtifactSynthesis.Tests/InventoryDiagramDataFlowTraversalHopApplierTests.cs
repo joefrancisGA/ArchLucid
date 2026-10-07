@@ -31,6 +31,12 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
     private const string StorageArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st";
 
+    private const string FactoryArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf";
+
+    private const string SubnetArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
+
     private const string PrivateEndpointArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe";
 
@@ -126,6 +132,51 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == NsgArmId);
+    }
+
+    [Fact]
+    public void Compile_data_flow_draws_firewall_routes_through_subnet_application_and_ingestion_cards()
+    {
+        GraphNode factory = CreateNode("factory-node", FactoryArmId, "Microsoft.DataFactory/factories");
+        factory.Properties["subnet.id"] = SubnetArmId;
+
+        GraphSnapshot graph = CreateGraph(
+            [
+                CreateNode("firewall-node", FirewallArmId, "Microsoft.Network/azureFirewalls"),
+                CreateNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets"),
+                CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+                factory,
+            ],
+            [
+                CreateEdge(
+                    "firewall-node",
+                    "subnet-node",
+                    AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+                    GraphEdgeInferenceSources.InventoryFirewallSubnet),
+                CreateEdge(
+                    "app-node",
+                    "subnet-node",
+                    AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet,
+                    GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            ]);
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        string firewallId = ast.Nodes.Single(node => node.ArmResourceId == FirewallArmId).NodeId;
+        string appId = ast.Nodes.Single(node => node.ArmResourceId == AppArmId).NodeId;
+        string factoryId = ast.Nodes.Single(node => node.ArmResourceId == FactoryArmId).NodeId;
+
+        ast.Edges.Should().Contain(edge =>
+            !edge.IsLayoutOnly
+            && edge.FromNodeId == firewallId
+            && edge.ToNodeId == appId
+            && edge.Label == "Routes through");
+        ast.Edges.Should().Contain(edge =>
+            !edge.IsLayoutOnly
+            && edge.FromNodeId == firewallId
+            && edge.ToNodeId == factoryId
+            && edge.Label == "Routes through");
+        ast.Nodes.Should().NotContain(node => node.ArmResourceId == SubnetArmId);
     }
 
     [Fact]

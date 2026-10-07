@@ -28,6 +28,12 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     private const string StorageArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st";
 
+    private const string FactoryArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf";
+
+    private const string SubnetArmId =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/app";
+
     private const string PrivateEndpointArmId =
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe";
 
@@ -166,6 +172,47 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopArmType("Microsoft.Network/networkSecurityGroups")
             .Should()
             .BeFalse();
+    }
+
+    [Fact]
+    public void CollectTraversalLinks_projects_firewall_to_application_and_ingestion_cards_on_its_subnet()
+    {
+        GraphNode factory = CreateNode("factory-node", FactoryArmId, "Microsoft.DataFactory/factories");
+        factory.Properties["subnet.id"] = SubnetArmId;
+
+        GraphSnapshot graph = CreateGraph(
+            [
+                CreateNode("firewall-node", FirewallArmId, "Microsoft.Network/azureFirewalls"),
+                CreateNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets"),
+                CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+                factory,
+                CreateNode("nat-node", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/natGateways/nat", "Microsoft.Network/natGateways"),
+            ],
+            [
+                CreateEdge(
+                    "firewall-node",
+                    "subnet-node",
+                    AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+                    GraphEdgeInferenceSources.InventoryFirewallSubnet),
+                CreateEdge(
+                    "app-node",
+                    "subnet-node",
+                    AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet,
+                    GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            ]);
+
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        links.Should().Contain(link =>
+            link.FromNodeId == "firewall-node"
+            && link.ToNodeId == "app-node"
+            && link.Evidence.DiagramLabel == "Routes through");
+        links.Should().Contain(link =>
+            link.FromNodeId == "firewall-node"
+            && link.ToNodeId == "factory-node"
+            && link.Evidence.DiagramLabel == "Routes through");
+        links.Should().NotContain(link => link.ToNodeId == "nat-node");
     }
 
     [Fact]

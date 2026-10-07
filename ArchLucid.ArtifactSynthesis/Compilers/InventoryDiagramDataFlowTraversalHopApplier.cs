@@ -22,7 +22,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         ArgumentNullException.ThrowIfNull(graphToDiagramNodeId);
         ArgumentNullException.ThrowIfNull(dataFlowEdges);
 
-        if (ast.Nodes.Count == 0 || dataFlowEdges.Count == 0)
+        if (ast.Nodes.Count == 0)
         {
             return;
         }
@@ -32,12 +32,9 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopPath> paths =
-            InventoryDiagramDataFlowTraversalHopProjector.ProjectDataFlowEdgePaths(graph, dataFlowEdges);
-
-        if (paths.Count == 0)
-        {
-            return;
-        }
+            dataFlowEdges.Count == 0
+                ? []
+                : InventoryDiagramDataFlowTraversalHopProjector.ProjectDataFlowEdgePaths(graph, dataFlowEdges);
 
         HashSet<string> edgesToRemove = new(StringComparer.Ordinal);
         List<DiagramEdge> edgesToAdd = [];
@@ -45,6 +42,23 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         HashSet<string> visibleDiagramNodeIds = ast.Nodes
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
+
+        AddDirectFirewallEdges(
+            graph,
+            graphToDiagramNodeId,
+            visibleDiagramNodeIds,
+            ast.Edges
+                .Where(edge => !edge.IsLayoutOnly)
+                .Select(edge => BuildEdgeKey(edge.FromNodeId, edge.ToNodeId))
+                .ToHashSet(StringComparer.Ordinal),
+            edgesToRemove,
+            edgesToAdd,
+            addedEdgeKeys);
+
+        if (paths.Count == 0 && edgesToAdd.Count == 0)
+        {
+            return;
+        }
 
         foreach (InventoryDiagramDataFlowTraversalHopPath path in paths)
         {
@@ -122,6 +136,58 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
         }
 
         ApplyHopEvidence(ast, graph, graphNodesById);
+    }
+
+    private static void AddDirectFirewallEdges(
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, string> graphToDiagramNodeId,
+        IReadOnlySet<string> visibleDiagramNodeIds,
+        IReadOnlySet<string> existingEdgeKeys,
+        ISet<string> edgesToRemove,
+        List<DiagramEdge> edgesToAdd,
+        HashSet<string> addedEdgeKeys)
+    {
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> firewallLinks =
+            InventoryDiagramDataFlowTraversalHopProjector
+                .CollectTraversalLinks(graph)
+                .Where(link =>
+                    link.Evidence.AssociationType.Equals(
+                        AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+                        StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        foreach (InventoryDiagramDataFlowTraversalHopLink link in firewallLinks)
+        {
+            if (!graphToDiagramNodeId.TryGetValue(link.FromNodeId, out string? fromDiagramNodeId)
+                || !graphToDiagramNodeId.TryGetValue(link.ToNodeId, out string? toDiagramNodeId)
+                || !visibleDiagramNodeIds.Contains(fromDiagramNodeId)
+                || !visibleDiagramNodeIds.Contains(toDiagramNodeId))
+            {
+                continue;
+            }
+
+            string edgeKey = BuildEdgeKey(fromDiagramNodeId, toDiagramNodeId);
+
+            if (existingEdgeKeys.Contains(edgeKey))
+            {
+                // Replace a lifted "protects" edge with the more specific firewall-to-consumer route.
+                edgesToRemove.Add(edgeKey);
+            }
+
+            if (!addedEdgeKeys.Add(edgeKey))
+            {
+                continue;
+            }
+
+            edgesToAdd.Add(new DiagramEdge
+            {
+                FromNodeId = fromDiagramNodeId,
+                ToNodeId = toDiagramNodeId,
+                Label = link.Evidence.DiagramLabel,
+                InferenceSource = link.Evidence.InferenceSource,
+                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            });
+        }
     }
 
     private static bool ArePathNodesVisible(
