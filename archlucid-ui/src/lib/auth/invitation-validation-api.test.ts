@@ -49,6 +49,14 @@ describe("validateInvitationToken (pre-auth proxy)", () => {
     expect(payload.status).toBe("Valid");
   });
 
+  it("encodes plus signs in invitation tokens for the validate GET query string", async () => {
+    await validateInvitationToken("invite+token");
+
+    const url = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+
+    expect(url).toContain("token=invite%2Btoken");
+  });
+
   it("throws invitation_validation_failed on any non-OK proxy response", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 404 }));
 

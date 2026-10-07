@@ -28,6 +28,15 @@ describe("fetchPostAuthBootstrapStatus", () => {
 
     await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
   });
+
+  it("throws bootstrap_status_failed on proxy 502 before attempting to parse a non-JSON body", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response("upstream gateway timeout", { status: 502, headers: { "Content-Type": "text/plain" } }),
+    );
+
+    await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("createPostAuthWorkspace", () => {

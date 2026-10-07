@@ -1,5 +1,3 @@
-{"at":"2026-09-07T22:04:41.3413034Z","zoneId":"core-explanation-json","outcome":"hit"}
-{"at":"2026-09-07T22:09:46.2219638Z","zoneId":"core-findings-advice","outcome":"hit"}
 {"at":"2026-09-07T22:16:15.2254894Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T22:22:11.7531177Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T22:35:00.6521705Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
@@ -8805,3 +8803,4 @@
 {"at":"2026-10-07T21:42:02.8130302Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs;ArchLucid.Application/Integrations/Itsm/;ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-10-07T21:49:23.8872545Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs;ArchLucid.Application/Integrations/Itsm/;ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs"]}
 {"at":"2026-10-07T22:00:35.1671266Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+{"at":"2026-10-07T22:15:29.2393869Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}

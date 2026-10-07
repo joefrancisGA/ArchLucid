@@ -21,4 +21,10 @@ describe("mapEmailOtpFailureToCustomerMessage", () => {
   it("maps delivery failure", () => {
     expect(mapEmailOtpFailureToCustomerMessage("delivery_failed")).toMatch(/could not send/i);
   });
+
+  it("uses the same delivery_failed copy for verify-step outages mapped via shared 5xx category", () => {
+    expect(mapEmailOtpFailureToCustomerMessage("delivery_failed")).toBe(
+      "We could not send a sign-in code right now. Try again in a few minutes.",
+    );
+  });
 });

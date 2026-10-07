@@ -110,6 +110,22 @@ describe("decideHostGateRedirect", () => {
     ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/architecture/reviews?x=1" });
   });
 
+  it("preserves returnUrl on marketing-host /auth/signin redirects via pathAndQuery", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/auth/signin",
+        search: "?returnUrl=%2Farchitecture%2Freviews",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://app.archlucid.net/auth/signin?returnUrl=%2Farchitecture%2Freviews",
+    });
+  });
+
   it("redirects marketing-host / to /welcome on the public origin", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";

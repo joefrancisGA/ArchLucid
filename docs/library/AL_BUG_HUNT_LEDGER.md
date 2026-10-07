@@ -13374,6 +13374,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+**Hunts:** 63 · **Bugs found:** 35 · **Consecutive dry hunts:** 5
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-session.test.ts`, `sign-in-page-copy.test.ts`, `invitation-validation-api.test.ts`, `post-auth-bootstrap-api.test.ts`, and `host-gate.test.ts`; scoped auth/proxy vitest 252 passed with 3 unrelated baseline seam failures.
+
+- [x] (valid-no-repro) `clearEmailOtpChallengeSession` — resend cooldown `archlucid_email_otp_resend_until_ms` survives challenge session clear — **cheap-disproof 2026-10-07 seed hunt #63:** client resend throttle is orthogonal to challenge keys (same class as server-429 authoritative cooldown); regression `leaves resend cooldown sessionStorage when challenge session is cleared`.
+- [x] (valid-no-repro) `mapEmailOtpFailureToCustomerMessage` — `delivery_failed` copy is send-oriented when verify-step `503` maps via shared `mapStatusToFailureCategory` 5xx bucket — **cheap-disproof 2026-10-07 seed hunt #63:** intentional shared outage category; regression `uses the same delivery_failed copy for verify-step outages mapped via shared 5xx category`.
+- [x] (valid-no-repro) `validateInvitationToken` — `encodeURIComponent` on validate GET — **cheap-disproof 2026-10-07 seed hunt #63:** plus signs encode as `%2B` on the wire; regression `encodes plus signs in invitation tokens for the validate GET query string` (query parsing before `storeInvitationToken` remains invite-page concern).
+- [x] (valid-no-repro) `fetchPostAuthBootstrapStatus` — proxy `502` with non-JSON body — **cheap-disproof 2026-10-07 seed hunt #63:** intentional LK-07 fail-closed `bootstrap_status_failed` without proxy-problem correlation surfacing; regression `throws bootstrap_status_failed on proxy 502 before attempting to parse a non-JSON body`.
+- [x] (valid-no-repro) `decideHostGateRedirect` — `returnUrl` on marketing-host sign-in bookmarks — **cheap-disproof 2026-10-07 seed hunt #63:** `pathAndQuery` preserves search on operator paths; regression `preserves returnUrl on marketing-host /auth/signin redirects via pathAndQuery`.
+
+- [ ] (candidate) `clearOperatorSessionForExpiry` — idle timeout path in `operator-session-clear.ts` clears OIDC/scope but does not call `clearEmailOtpChallengeSession` or `clearInvitationToken`, leaving pre-auth sessionStorage keys on shared sign-in devices.
+- [ ] (candidate) `resolveEmailOtpPostAuthPath` — `nextStep` `Complete` returns `safeReturn` without re-consuming `consumePostSignInReturnUrl` ordering when both `returnUrl` arg and OIDC stored return are present — locus: `email-otp-post-auth.ts` ~7–19; input: bootstrap-complete with stale OIDC return key.
+- [ ] (candidate) `requestEmailOtpChallenge` — omits `mergeRegistrationScopeForProxy` while bootstrap helpers attach registration scope headers — locus: raw `fetch` ~43–50; reachable when stale operator scope remains in `localStorage` during anonymous challenge POST (parity with invitation validate forwarding tests).
+- [ ] (candidate) `fetchPostAuthBootstrapStatus` — `returnUrl` query encoding uses `URLSearchParams` while `acceptPostAuthInvitation` builds `returnUrl` via manual `encodeURIComponent` — locus: `post-auth-bootstrap-api.ts` ~53–63 vs ~117; input: return paths containing `&` or `+` segments.
+- [ ] (candidate) `proxy.ts` demo-run alias `308` redirect clones `nextUrl` pathname only — verify query string survives when `demoRunAliasRedirectDestinationPath` fires on marketing/app host with tracking query params on `/runs/{alias}`.
+
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
@@ -13400,21 +13416,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `requestEmailOtpChallenge` / `botChallengeToken` — **cheap-disproof 2026-10-07 seed hunt:** pre-auth `v1/auth/email-otp/challenge` is on `isPublicAnonymousProxyPath`; raw `fetch` omits BFF CSRF by design; regression `forwards botChallengeToken on challenge POST without BFF CSRF headers (pre-auth anonymous proxy)`.
 - [x] (valid-no-repro) `livelihood-mutation-401-resume` replay CSRF — **cheap-disproof 2026-10-07 seed hunt:** replay re-invokes caller `execute` closures that route through API helpers with `mergeRegistrationScopeForProxy`; peek/consume does not issue proxy POSTs itself.
 
-- [ ] (candidate) `clearEmailOtpChallengeSession` — does not clear `archlucid_email_otp_resend_until_ms` in `sessionStorage`; reachable when operator signs out or resets OTP session while resend cooldown key remains and UI resend button state diverges.
-- [ ] (candidate) `mapEmailOtpFailureToCustomerMessage` — `delivery_failed` copy references email delivery even when `use-sign-in-flow-state` surfaces verify-step `503` failures on the code step via shared category mapping.
-- [ ] (candidate) `validateInvitationToken` — invitation token query parameter with `+` or `%2B` may decode inconsistently between `readInvitationToken` storage and validate GET URL construction in `invitation-validation-api.ts`.
-- [ ] (candidate) `post-auth-bootstrap-api.ts` `fetchPostAuthBootstrapStatus` — non-JSON error bodies on proxy 502 still throw generic `bootstrap_status_failed` without correlation id surfacing from `proxy-problem-response` shapes.
-- [ ] (candidate) `proxy.ts` / `decideHostGateRedirect` — split-site redirect may omit preserving `returnUrl` query on `/auth/signin` when host gate fires on marketing origin bookmarks that include safe return paths.
-
 - **id:** ui-auth-proxy
 - **status:** open
 - **impact:** high
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 35
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
