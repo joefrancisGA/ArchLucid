@@ -112,6 +112,15 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     }
 
     [Fact]
+    public void TryParseStatus_rejects_nan_whole_number_ordinal_string()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("NaN", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
+
+    [Fact]
     public void TryParseStatus_rejects_hexadecimal_ordinal_string()
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("0x5", out ArchitectureRunStatus status);
@@ -163,5 +172,16 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
 
         result.IsAllowed.Should().BeFalse();
         result.TargetStatus.Should().Be(ArchitectureRunStatus.Created);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_failed()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Failed,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Failed);
     }
 }
