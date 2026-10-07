@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-auth-callback` — cheap-disproof closed five seeded `(candidate)` rows (`response.ok` including hypothetical `200`+error JSON is intentional gate — `POST /api/access-requests` returns `204`/`4xx` only; report-problem `errorTitle` is stable heading while `technicalDetail` stays in-panel; required text fields post without client trim while server `parseAccessRequestBody` trims; `204` success is fire-and-forget per `route.ts` with no correlation token; cancel/toggle retaining form state is intentional UX); regressions `shows success when the API returns HTTP 200 with a JSON error body`, `wires report problem errorTitle to the access heading, not technicalDetail`, `posts required fields without client-side trim in the JSON body`, and `retains form field values after cancel and reopening the request form`; reaffirmed `shows success state after submit`; seeded five follow-on `(candidate)` rows; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`wasAlreadyProvisioned` without `tenantId` still writes best-effort session JSON — intentional; payload builder trims optional team size `" 5 "` to five; whitespace-only `201` body skips JSON merge like empty body; zod `.trim()` preserves interior double spaces in names by design; `=` in email local-part blocked before verify redirect); regressions `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`, `serializes interior-whitespace optional architecture team size in the register payload builder`, `still navigates after 201 when register response body is whitespace only`, `signupFormSchema keeps interior double spaces in required name fields after trim`, `signupFormSchema rejects email local-part containing equals sign`, and `keeps submit disabled for email local-part containing equals sign`; seeded five follow-on `(candidate)` rows; 67 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five seeded `(candidate)` rows (advanced-table scraper requires backtick-wrapped cells — drift fails sixteen-leaf sync; `apply-saas.ps1` uses double-quoted `$multiRootSequence` literals parsed by test helper; orchestrator row 16 is legacy-only in doc while evidence lists it for `-LegacyLeafRoots`; pilot line is annotated metadata-only default after orchestrator in evidence list; `DocumentationRelativePath` is repo-relative citation when checkout root is unresolved); regressions `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Apply_saas_ps1_multiRootSequence_entries_use_double_quoted_string_literals`, `Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row`, `DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile`, and `Compose_when_repository_root_unresolved_cites_doc_path_without_checkout_root`; seeded five follow-on `(candidate)` rows; 33 scoped `DeploymentEvidenceTerraformReferenceTests` and 4 scoped `DeploymentEvidenceReportMarkdownTests` passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -8567,7 +8569,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 15 scoped `AuthCallbackAccessPanel` vitest tests passed.
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 - **id:** ui-auth-callback
 - **status:** open
@@ -8575,9 +8577,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -8606,11 +8608,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `showForm` toggle — prior field values persist when form is collapsed and reopened — **cheap-disproof 2026-10-07 seed hunt:** stateful form is intentional; regression `retains form values when the request form is toggled closed and reopened`.
 - [x] (valid-no-repro) `technicalDetail` prop — HTML-like strings in callback failure copy — **cheap-disproof 2026-10-07 seed hunt:** React text node escaping; regression `renders technical detail as plain text without interpreting HTML`.
 
-- [ ] (candidate) `onSubmit` — treats any `response.ok` (including `200`) as success without reading a JSON error envelope in the body.
-- [ ] (candidate) `FatalPageReportProblemSupportRow` — report payload uses `AUTH_CALLBACK_ACCESS_HEADING` only and never includes `technicalDetail` from props.
-- [ ] (candidate) `onSubmit` — required `name` / `workEmail` / `company` / `roleTitle` are posted without client-side trim (server `parseAccessRequestBody` trims; operator may only see generic error on whitespace-only values).
-- [ ] (candidate) `onSubmit` — `204 No Content` success path ignores response body shape (no confirmation id or correlation token for support follow-up).
-- [ ] (candidate) Cancel control — hides the form and clears `errorMessage` but does not reset `form` field state when the operator reopens the request flow.
+- [x] (valid-no-repro) `onSubmit` — treats any `response.ok` (including `200`) as success without reading a JSON error envelope in the body — **cheap-disproof 2026-10-07 thorough hunt:** `POST /api/access-requests` (`route.ts`) returns `204` or `4xx` JSON only; `response.ok` gate matches SignupForm intentional 2xx success semantics; regression `shows success when the API returns HTTP 200 with a JSON error body` documents hypothetical mis-proxy only.
+- [x] (valid-no-repro) `FatalPageReportProblemSupportRow` — report payload uses `AUTH_CALLBACK_ACCESS_HEADING` only and never includes `technicalDetail` from props — **cheap-disproof 2026-10-07 thorough hunt:** callback failure detail remains in `auth-callback-technical-detail`; report problem uses stable surface title; regression `wires report problem errorTitle to the access heading, not technicalDetail`.
+- [x] (valid-no-repro) `onSubmit` — required `name` / `company` / `roleTitle` are posted without client-side trim (server `parseAccessRequestBody` trims; operator may only see generic error on whitespace-only values) — **cheap-disproof 2026-10-07 thorough hunt:** client posts raw text fields; server normalizes; regression `posts required fields without client-side trim in the JSON body`.
+- [x] (valid-no-repro) `onSubmit` — `204 No Content` success path ignores response body shape (no confirmation id or correlation token for support follow-up) — **cheap-disproof 2026-10-07 thorough hunt:** API contract is empty-body `204` only; reaffirmed `shows success state after submit`.
+- [x] (valid-no-repro) Cancel control — hides the form and clears `errorMessage` but does not reset `form` field state when the operator reopens the request flow — **cheap-disproof 2026-10-07 thorough hunt:** intentional draft retention; regressions `retains form field values after cancel and reopening the request form` and `retains form values when the request form is toggled closed and reopened`.
+
+- [ ] (candidate) `onSubmit` — non-409 failure responses never parse JSON `message` from the API (operator always sees `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR`).
+- [ ] (candidate) `workEmail` — `type="email"` control may normalize operator input before POST so padded addresses never reach `parseAccessRequestBody`.
+- [ ] (candidate) `submitting` — disables submit/cancel buttons but leaves required inputs editable during an in-flight POST.
+- [ ] (candidate) Success view — replaces the failure panel and drops `technicalDetail`, so operators cannot re-read the original callback error after a successful access request.
+- [ ] (candidate) `websiteUrl` honeypot — posts the raw hidden field value without client trim (server `trimOptional` decides honeypot vs real submit).
 
 ---
 

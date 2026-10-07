@@ -1,6 +1,17 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const fatalReportProblemCapture = vi.hoisted(() => ({
+  lastProps: null as { errorTitle: string } | null,
+}));
+
+vi.mock("@/components/support/FatalPageReportProblemAction", () => ({
+  FatalPageReportProblemSupportRow: (props: { errorTitle: string }) => {
+    fatalReportProblemCapture.lastProps = props;
+    return <div data-testid="fatal-page-report-problem-row" />;
+  },
+}));
+
 import { AuthCallbackAccessPanel } from "@/app/(operator)/auth/callback/AuthCallbackAccessPanel";
 import {
   AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION,
@@ -277,6 +288,95 @@ describe("AuthCallbackAccessPanel", () => {
 
     expect(detail.textContent).toBe('<img src=x onerror="alert(1)">');
     expect(detail.querySelector("img")).toBeNull();
+  });
+
+  it("shows success when the API returns HTTP 200 with a JSON error body", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ error: "send_failed" }, { status: 200 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("wires report problem errorTitle to the access heading, not technicalDetail", () => {
+    fatalReportProblemCapture.lastProps = null;
+
+    render(<AuthCallbackAccessPanel technicalDetail="Token exchange failed." />);
+
+    expect(screen.getByText("Token exchange failed.")).toBeInTheDocument();
+    expect(fatalReportProblemCapture.lastProps?.errorTitle).toBe(AUTH_CALLBACK_ACCESS_HEADING);
+    expect(fatalReportProblemCapture.lastProps?.errorTitle).not.toContain("Token exchange");
+  });
+
+  it("posts required fields without client-side trim in the JSON body", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "  Jordan Lee  " } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "  Fabrikam  " } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "  Architect  " } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as {
+      name: string;
+      workEmail: string;
+      company: string;
+      roleTitle: string;
+    };
+
+    expect(body.name).toBe("  Jordan Lee  ");
+    expect(body.company).toBe("  Fabrikam  ");
+    expect(body.roleTitle).toBe("  Architect  ");
+    vi.unstubAllGlobals();
+  });
+
+  it("retains form field values after cancel and reopening the request form", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ error: "send_failed" }, { status: 502 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.getByLabelText("Work email")).toHaveValue("jordan@fabrikam.com");
+    vi.unstubAllGlobals();
   });
 
   it("shows back-to-sign-in recovery only after a successful submit", async () => {
