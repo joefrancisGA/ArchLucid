@@ -1,4 +1,3 @@
-{"at":"2026-09-07T09:30:07.280113Z","zoneId":"core-azure-extractor","outcome":"hit"}
 {"at":"2026-09-07T09:36:25.2467638Z","zoneId":"core-configuration-summary","outcome":"hit"}
 {"at":"2026-09-07T09:42:28.4468847Z","zoneId":"core-authority-runs","outcome":"hit"}
 {"at":"2026-09-07T09:48:41.9714198Z","zoneId":"core-authority-runs","outcome":"seed-only"}
@@ -8764,3 +8763,4 @@
 {"at":"2026-10-07T09:13:00.6105793Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T09:21:41.63651Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T09:27:35.2784392Z","zoneId":"alert-simulation","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T09:36:07.8347588Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
