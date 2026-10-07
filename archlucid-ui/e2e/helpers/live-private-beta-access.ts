@@ -333,6 +333,35 @@ export function parseInvitationRetryAfterMs(retryAfter: string | undefined): num
   return 15_000;
 }
 
+/** Problem+json `retryAfterSeconds` when validate is rate-limited without a Retry-After header. */
+export function parseInvitationValidateRateLimitBackoffMs(
+  retryAfterHeader: string | undefined,
+  problemBody?: string,
+): number {
+  if (retryAfterHeader !== undefined && retryAfterHeader.trim().length > 0) {
+    return parseInvitationRetryAfterMs(retryAfterHeader);
+  }
+
+  const trimmedBody = problemBody?.trim() ?? "";
+
+  if (trimmedBody.length === 0) {
+    return parseInvitationRetryAfterMs(undefined);
+  }
+
+  try {
+    const json = JSON.parse(trimmedBody) as { retryAfterSeconds?: number };
+    const seconds = json.retryAfterSeconds;
+
+    if (typeof seconds === "number" && Number.isFinite(seconds) && seconds >= 0) {
+      return Math.min((seconds + 1) * 1_000, 60_000);
+    }
+  } catch {
+    return parseInvitationRetryAfterMs(undefined);
+  }
+
+  return parseInvitationRetryAfterMs(undefined);
+}
+
 async function probeAuthMeViaProxy(page: Page): Promise<{ ok: boolean; status: number; text: string }> {
   return page
     .evaluate(async () => {
@@ -481,30 +510,37 @@ export async function validateInvitationToken(
 
   url.searchParams.set("token", invitationToken);
 
-  let res = await request.get(url.toString(), {
-    headers: { Accept: "application/json" },
-  });
+  const maxAttempts = process.env.CI ? 8 : 4;
 
-  for (let attempt = 0; res.status() === 429 && attempt < 2; attempt += 1) {
-    await new Promise((resolve) => setTimeout(resolve, parseInvitationRetryAfterMs(res.headers()["retry-after"])));
-    res = await request.get(url.toString(), {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const res = await request.get(url.toString(), {
       headers: { Accept: "application/json" },
     });
+
+    if (res.status() === 429 && attempt < maxAttempts - 1) {
+      const rateLimitBody = await res.text();
+      const waitMs = parseInvitationValidateRateLimitBackoffMs(res.headers()["retry-after"], rateLimitBody);
+
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      continue;
+    }
+
+    if (!res.ok()) {
+      const body = await res.text();
+
+      throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
+    }
+
+    const body = (await res.json()) as LiveInvitationValidationResult;
+
+    if (!body.status) {
+      throw new Error("Invitation validate response missing status.");
+    }
+
+    return body;
   }
 
-  if (!res.ok()) {
-    const body = await res.text();
-
-    throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
-  }
-
-  const body = (await res.json()) as LiveInvitationValidationResult;
-
-  if (!body.status) {
-    throw new Error("Invitation validate response missing status.");
-  }
-
-  return body;
+  throw new Error("GET /v1/auth/invitations/validate exhausted rate-limit retries.");
 }
 
 /** Seeds a platform user and returns a Reader pre-auth JWT (harness; TB-927 invitee principal). */

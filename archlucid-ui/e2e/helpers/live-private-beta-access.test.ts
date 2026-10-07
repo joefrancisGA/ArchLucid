@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { parseInvitationRetryAfterMs } from "./live-private-beta-access";
+import {
+  parseInvitationRetryAfterMs,
+  parseInvitationValidateRateLimitBackoffMs,
+} from "./live-private-beta-access";
 
 describe("private-beta invitation validation retry policy", () => {
   it("honors a numeric Retry-After value with a one-second safety margin", () => {
@@ -16,5 +19,14 @@ describe("private-beta invitation validation retry policy", () => {
 
   it("uses a bounded fallback when the server omits Retry-After", () => {
     expect(parseInvitationRetryAfterMs(undefined)).toBe(15_000);
+  });
+
+  it("reads retryAfterSeconds from problem+json when Retry-After is absent", () => {
+    expect(
+      parseInvitationValidateRateLimitBackoffMs(
+        undefined,
+        JSON.stringify({ retryAfterSeconds: 900 }),
+      ),
+    ).toBe(60_000);
   });
 });
