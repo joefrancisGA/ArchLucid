@@ -25,7 +25,7 @@ def run_gh(args: Sequence[str]) -> str:
 
 
 class GitHubCli:
-    """Read-only GitHub access for the Evergreen launcher.
+    """GitHub access for the Evergreen launcher: reads, plus issue/comment creation for the report lane.
 
     The runner is injectable so unit tests can feed canned responses instead of
     calling the real CLI.
@@ -52,6 +52,18 @@ class GitHubCli:
         Job logs carry ANSI colour codes; without the flag ``gh`` refuses to print them.
         """
         return self._runner(["api", "--allow-escape-sequences", path])
+
+    def api_post(self, path: str, fields: dict[str, str | list[str]]) -> Any:
+        """POST form fields to a REST path; a list value becomes repeated ``name[]`` fields (e.g. labels)."""
+        args: list[str] = ["api", "--method", "POST", path]
+
+        for name, value in fields.items():
+            if isinstance(value, list):
+                args.extend(arg for item in value for arg in ("-f", f"{name}[]={item}"))
+            else:
+                args.extend(["-f", f"{name}={value}"])
+
+        return json.loads(self._runner(args))
 
     def repo_path(self, suffix: str) -> str:
         """Build ``repos/{owner}/{name}/{suffix}``."""

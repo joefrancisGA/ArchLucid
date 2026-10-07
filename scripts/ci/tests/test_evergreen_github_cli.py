@@ -48,6 +48,22 @@ class TestGitHubCli(unittest.TestCase):
         self.assertEqual(cli.api_text("repos/o/r/actions/jobs/1/logs"), "raw log")
         self.assertEqual(calls, [["api", "--allow-escape-sequences", "repos/o/r/actions/jobs/1/logs"]])
 
+    def test_api_post_sends_form_fields_and_expands_list_values(self) -> None:
+        calls: list[Sequence[str]] = []
+
+        def runner(args: Sequence[str]) -> str:
+            calls.append(list(args))
+            return '{"html_url": "u"}'
+
+        cli = GitHubCli("o/r", runner=runner)
+
+        result = cli.api_post("repos/o/r/issues", {"title": "T", "labels": ["a", "b"]})
+
+        self.assertEqual(result, {"html_url": "u"})
+        self.assertEqual(
+            calls, [["api", "--method", "POST", "repos/o/r/issues", "-f", "title=T", "-f", "labels[]=a", "-f", "labels[]=b"]]
+        )
+
     def test_repo_path_and_repository(self) -> None:
         cli = GitHubCli("o/r", runner=lambda args: "")
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evergreen launcher CLI: digest a failed run, decide, and launch a Cloud Agent.
+"""Evergreen launcher CLI: digest a failed run, decide, then launch a Cloud Agent or open a report issue.
 
 Subcommands are separate so the workflow can record each stage's output and so
 the decision can be inspected without an API key.
@@ -7,6 +7,8 @@ the decision can be inspected without an API key.
     evergreen_launch.py digest --run-id 123 --output .evergreen/digest.json
     evergreen_launch.py decide --digest .evergreen/digest.json --max-per-day 6 --output .evergreen/decision.json
     evergreen_launch.py launch --digest ... --decision ... --model cursor-grok-4.6-high --output .evergreen/launch.json
+    evergreen_launch.py report --digest ... --decision ... --output .evergreen/report.json
+    evergreen_launch.py announce --digest ... --decision ... --launch .evergreen/launch.json
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -28,8 +30,12 @@ from evergreen.failure_digest import FailureDigest, FailureDigestBuilder  # noqa
 from evergreen.fingerprint import FingerprintCalculator  # noqa: E402
 from evergreen.github_cli import GitHubCli  # noqa: E402
 from evergreen.github_state import GitHubStateReader  # noqa: E402
+from evergreen.issue_reporter import IssueReporter  # noqa: E402
+from evergreen.lane import Lane, parse_lanes  # noqa: E402
+from evergreen.launch_announcer import LaunchAnnouncer  # noqa: E402
 from evergreen.launch_policy import LaunchDecision, LaunchPolicy  # noqa: E402
 from evergreen.launch_target import DeliveryMode, LaunchTarget  # noqa: E402
+from evergreen.prior_work import PriorWork  # noqa: E402
 from evergreen.prompt_renderer import PromptRenderer  # noqa: E402
 
 
@@ -62,8 +68,12 @@ def _repository(args: argparse.Namespace) -> str:
     return repository
 
 
-def _today() -> date:
-    return datetime.now(timezone.utc).date()
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+# Dependabot branches are compared against the latest run on this branch to spot trunk-wide failures.
+TRUNK_BRANCH = "master"
 
 
 def command_digest(args: argparse.Namespace) -> int:
@@ -74,29 +84,47 @@ def command_digest(args: argparse.Namespace) -> int:
     return 0
 
 
+def _disabled_lanes(args: argparse.Namespace) -> frozenset[Lane]:
+    try:
+        return parse_lanes(args.disabled_lanes)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+
+
 def command_decide(args: argparse.Namespace) -> int:
     digest: FailureDigest = FailureDigest.from_dict(_read_json(Path(args.digest)))
     github = GitHubCli(_repository(args))
     state = GitHubStateReader(github)
-    today: date = _today()
-    fingerprint: str = FingerprintCalculator().compute(digest)
-    decision: LaunchDecision = LaunchPolicy(max_per_day=args.max_per_day).decide(
+    now: datetime = _now()
+    calculator = FingerprintCalculator()
+    prior: PriorWork = state.prior_work(digest.pull_request_numbers)
+    policy = LaunchPolicy(max_per_day=args.max_per_day, disabled_lanes=_disabled_lanes(args))
+    decision: LaunchDecision = policy.decide(
         digest=digest,
-        fingerprint=fingerprint,
-        today=today,
-        open_pr_bodies=state.open_pull_request_bodies(),
-        todays_cache_keys=state.todays_launch_cache_keys(today),
+        fingerprint=calculator.compute(digest),
+        family=calculator.family(digest),
+        now=now,
+        prior=prior,
+        todays_cache_keys=state.todays_launch_cache_keys(now.date()),
+        # Lazy: only Dependabot launches pay for these two extra API calls.
+        trunk_failed_jobs=lambda: state.failed_job_names_on_branch(digest.workflow_name, TRUNK_BRANCH),
     )
     _write_json(Path(args.output), decision.to_dict())
     _append_github_output(
         {
             "launch": "true" if decision.launch else "false",
+            "report": "true" if decision.report else "false",
+            "lane": decision.lane,
+            "delivery_mode": decision.delivery_mode,
             "fingerprint": decision.fingerprint,
             "cache_key": decision.cache_key,
             "reason": decision.reason,
         }
     )
-    print(f"decision: launch={decision.launch} fingerprint={decision.fingerprint} reason={decision.reason}")
+    print(
+        f"decision: launch={decision.launch} report={decision.report} lane={decision.lane or '-'} "
+        f"fingerprint={decision.fingerprint} reason={decision.reason}"
+    )
     return 0
 
 
@@ -110,7 +138,11 @@ def command_launch(args: argparse.Namespace) -> int:
     api_key: str = os.environ.get("CURSOR_API_KEY", "")
     repository: str = _repository(args)
     client = CloudAgentClient(api_key=api_key, repo_url=f"https://github.com/{repository}")
-    target = LaunchTarget(starting_ref=decision.starting_ref, delivery_mode=DeliveryMode(decision.delivery_mode))
+    target = LaunchTarget(
+        starting_ref=decision.starting_ref,
+        delivery_mode=DeliveryMode(decision.delivery_mode),
+        lane=Lane(decision.lane or Lane.TRUNK_GATE.value),
+    )
     prompt_text: str = PromptRenderer().render(digest, decision)
     launched = client.launch(prompt_text, args.model, target)
     _write_json(
@@ -128,6 +160,31 @@ def command_launch(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_report(args: argparse.Namespace) -> int:
+    digest: FailureDigest = FailureDigest.from_dict(_read_json(Path(args.digest)))
+    decision = LaunchDecision(**_read_json(Path(args.decision)))
+
+    if not decision.report:
+        raise SystemExit(f"decision says do not report: {decision.reason}")
+
+    issue_url: str = IssueReporter(GitHubCli(_repository(args))).publish(digest, decision)
+    _write_json(Path(args.output), {"issue_url": issue_url, "fingerprint": decision.fingerprint})
+    _append_github_output({"issue_url": issue_url})
+    print(f"reported: {issue_url}")
+    return 0
+
+
+def command_announce(args: argparse.Namespace) -> int:
+    digest: FailureDigest = FailureDigest.from_dict(_read_json(Path(args.digest)))
+    decision = LaunchDecision(**_read_json(Path(args.decision)))
+    agent_url: str = str(_read_json(Path(args.launch))["url"])
+    urls: list[str] = LaunchAnnouncer(GitHubCli(_repository(args))).announce(
+        digest.pull_request_numbers, decision, agent_url
+    )
+    print(f"announced on {len(urls)} pull request(s)")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--repository", help="owner/name; defaults to GITHUB_REPOSITORY")
@@ -141,6 +198,7 @@ def build_parser() -> argparse.ArgumentParser:
     decide = subparsers.add_parser("decide", help="apply dedupe and daily-cap policy")
     decide.add_argument("--digest", required=True)
     decide.add_argument("--max-per-day", type=int, default=6)
+    decide.add_argument("--disabled-lanes", default="", help="comma-separated lanes to skip, e.g. dependabot,scheduled")
     decide.add_argument("--output", required=True)
     decide.set_defaults(func=command_decide)
 
@@ -150,6 +208,18 @@ def build_parser() -> argparse.ArgumentParser:
     launch.add_argument("--model", default=DEFAULT_MODEL)
     launch.add_argument("--output", required=True)
     launch.set_defaults(func=command_launch)
+
+    report = subparsers.add_parser("report", help="open an issue for a report-only workflow failure")
+    report.add_argument("--digest", required=True)
+    report.add_argument("--decision", required=True)
+    report.add_argument("--output", required=True)
+    report.set_defaults(func=command_report)
+
+    announce = subparsers.add_parser("announce", help="comment the fingerprint on the pull request an agent was launched onto")
+    announce.add_argument("--digest", required=True)
+    announce.add_argument("--decision", required=True)
+    announce.add_argument("--launch", required=True, help="launch.json written by the launch subcommand")
+    announce.set_defaults(func=command_announce)
 
     return parser
 

@@ -48,6 +48,16 @@ class FingerprintCalculator:
         material: str = "\n".join(parts)
         return hashlib.sha256(material.encode("utf-8")).hexdigest()[: self._digest_length]
 
+    def family(self, digest: FailureDigest) -> str:
+        """Coarse key: which workflow and jobs broke on which branch, regardless of the error text.
+
+        Owner escalations are matched on this so a failure whose message wobbles between runs still maps
+        to the escalation already raised for it.
+        """
+        parts: list[str] = [digest.workflow_name, digest.head_branch]
+        parts.extend(f"job:{name}" for name in sorted({job.name for job in digest.failed_jobs}))
+        return hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()[: self._digest_length]
+
     def job_signatures(self, job: FailedJob) -> list[str]:
         signatures: set[str] = {self.signature(line) for line in job.error_lines}
         signatures.discard("")
