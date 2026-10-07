@@ -1,4 +1,3 @@
-{"at":"2026-09-07T08:15:34.8492119Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-07T08:23:44.6343133Z","zoneId":"quick-scan-distributed-concurrency","outcome":"hit"}
 {"at":"2026-09-07T08:33:50.7988346Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-09-07T08:44:13.7737277Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit"}
@@ -8760,4 +8759,5 @@
 {"at":"2026-10-07T07:47:43.2815286Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T07:54:02.2155762Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T08:05:44.8338455Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
-{"at":"2026-10-07T08:15:07.5200650Z","zoneId":"alert-simulation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-07T08:15:07.520065Z","zoneId":"alert-simulation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-07T08:21:14.1850203Z","zoneId":"alert-simulation","outcome":"hit","productLine":"archlucid-shared"}
