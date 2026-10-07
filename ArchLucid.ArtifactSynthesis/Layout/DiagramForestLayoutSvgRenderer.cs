@@ -2034,7 +2034,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<string> frameIds)
     {
         IReadOnlyList<(string Name, int Count)> types = members
-            .Select(member => member.Node.ArmResourceType?.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault())
+            .Select(member => ResolveNeighborhoodTypeName(member.Node.ArmResourceType))
             .Where(type => !string.IsNullOrWhiteSpace(type))
             .GroupBy(type => type!, StringComparer.Ordinal)
             .OrderByDescending(group => group.Count())
@@ -2043,6 +2043,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             .Select(group => (group.Key, group.Count()))
             .ToList();
         return new NeighborhoodMetadata(id, kind, title, members, frameIds, types);
+    }
+
+    private static string? ResolveNeighborhoodTypeName(string? armResourceType)
+    {
+        // Both Azure vault products end in "vaults"; retain the product distinction in the map.
+        if (string.Equals(armResourceType, "Microsoft.KeyVault/vaults", StringComparison.OrdinalIgnoreCase))
+        {
+            return "key vaults";
+        }
+
+        if (string.Equals(armResourceType, "Microsoft.RecoveryServices/vaults", StringComparison.OrdinalIgnoreCase))
+        {
+            return "recovery vaults";
+        }
+
+        return armResourceType?.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
     }
 
     private static XElement EmitNeighborhoodMetadata(

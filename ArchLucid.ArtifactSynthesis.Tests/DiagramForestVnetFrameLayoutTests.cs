@@ -673,6 +673,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
                 Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-app"),
                 Workload("workspace", "law-app", "Microsoft.OperationalInsights/workspaces", "rg-app"),
                 Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+                Workload("recovery-vault", "recovery-vault-app", "Microsoft.RecoveryServices/vaults", "rg-app"),
             ],
             [
                 Cited("vm", "subnet"),
@@ -686,15 +687,28 @@ public sealed class DiagramForestVnetFrameLayoutTests
                 && element.Attribute("data-frame-kind")?.Value == "shared-services");
         (double x, double y, double width, double height) box = Box(sharedFrame);
         Contains(svg, box, "law-app").Should().BeTrue();
-        Contains(svg, box, "vault-app").Should().BeTrue();
+        Contains(svg, box, "vault-app").Should().BeFalse();
         Contains(svg, box, "vm-app").Should().BeFalse();
-        svg.Descendants().Count(element =>
+        XElement resourceGroupFrame = svg.Descendants().First(element =>
             element.Attribute("class")?.Value == "rg-frame"
-            && element.Attribute("data-frame-cell-id")?.Value != "shared-services").Should().Be(0);
+            && element.Attribute("data-frame-cell-id")?.Value != "shared-services");
+        (double x, double y, double width, double height) resourceGroupBox = Box(resourceGroupFrame);
+        Contains(svg, resourceGroupBox, "vault-app").Should().BeTrue();
+        Contains(svg, resourceGroupBox, "recovery-vault-app").Should().BeTrue();
         svg.Descendants().First(element => element.Attribute("id")?.Value == "diagram-neighborhoods")
             .Descendants().Any(element =>
                 element.Name.LocalName == "neighborhood"
                 && element.Attribute("kind")?.Value == "shared-services").Should().BeTrue();
+        XElement vnetNeighborhood = svg.Descendants()
+            .First(element =>
+                element.Name.LocalName == "neighborhood"
+                && element.Attribute("kind")?.Value == "vnet");
+        vnetNeighborhood.Descendants().Any(element =>
+            element.Name.LocalName == "type"
+            && element.Attribute("name")?.Value == "key vaults").Should().BeTrue();
+        vnetNeighborhood.Descendants().Any(element =>
+            element.Name.LocalName == "type"
+            && element.Attribute("name")?.Value == "recovery vaults").Should().BeTrue();
     }
 
     [Fact]

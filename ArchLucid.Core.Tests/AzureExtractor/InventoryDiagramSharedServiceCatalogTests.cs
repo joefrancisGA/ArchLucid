@@ -12,7 +12,9 @@ public sealed class InventoryDiagramSharedServiceCatalogTests
         InventoryDiagramSharedServiceCatalog.IsSharedService("Microsoft.OperationalInsights/workspaces")
             .Should().BeTrue();
         InventoryDiagramSharedServiceCatalog.IsSharedService("Microsoft.KeyVault/vaults")
-            .Should().BeTrue();
+            .Should().BeFalse();
+        InventoryDiagramSharedServiceCatalog.IsSharedService("Microsoft.RecoveryServices/vaults")
+            .Should().BeFalse();
         InventoryDiagramSharedServiceCatalog.IsSharedService("Microsoft.Storage/storageAccounts")
             .Should().BeFalse();
     }
