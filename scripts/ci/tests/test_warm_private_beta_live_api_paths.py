@@ -24,6 +24,8 @@ class TestWarmPrivateBetaLiveApiPaths(unittest.TestCase):
         self.assertIn("Skipping remaining warms", script_text)
         self.assertIn("warm_status", script_text)
         self.assertIn("Optional warm skipped for ${label}", script_text)
+        self.assertIn("Optional create-run warm returned HTTP 400", script_text)
+        self.assertIn("letting Playwright create the run with its real request body", script_text)
         self.assertNotIn("Required warm failed because the API is unreachable", script_text)
         self.assertIn("refresh_private_beta_ci_jwt.sh", script_text)
         self.assertNotIn("Skipping draft inventory and create-run shell warm", script_text)
