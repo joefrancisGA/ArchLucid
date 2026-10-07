@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` overlay chain, graceful shutdown, and `UseArchLucidWorkerPipeline` health maps after five consecutive dry hunts emptied open rows; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (deployment env vars still beat SaaS JSON via `AddEnvironmentVariables()` after overlays; legacy product keys warn-only after `Build()`; anonymous `/health` summary JSON omits exception text; `IWorkerHostDrainGate` registered via `AddArchLucidGracefulShutdown`; `HostOptions.ShutdownTimeout` is 45s); regressions `Worker_host_environment_variables_override_saas_overlay_from_content_root`, `Worker_host_starts_when_legacy_product_section_keys_are_present`, `Worker_host_health_root_returns_summary_json_without_exception_text`, `Worker_composition_registers_worker_host_drain_gate`, and `Worker_host_configures_graceful_shutdown_timeout`; seeded five follow-on `(candidate)` rows; 28 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt (dry): `ui-auth-callback` — cheap-disproof closed five seeded `(candidate)` rows (`response.ok` including hypothetical `200`+error JSON is intentional gate — `POST /api/access-requests` returns `204`/`4xx` only; report-problem `errorTitle` is stable heading while `technicalDetail` stays in-panel; required text fields post without client trim while server `parseAccessRequestBody` trims; `204` success is fire-and-forget per `route.ts` with no correlation token; cancel/toggle retaining form state is intentional UX); regressions `shows success when the API returns HTTP 200 with a JSON error body`, `wires report problem errorTitle to the access heading, not technicalDetail`, `posts required fields without client-side trim in the JSON body`, and `retains form field values after cancel and reopening the request form`; reaffirmed `shows success state after submit`; seeded five follow-on `(candidate)` rows; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`wasAlreadyProvisioned` without `tenantId` still writes best-effort session JSON — intentional; payload builder trims optional team size `" 5 "` to five; whitespace-only `201` body skips JSON merge like empty body; zod `.trim()` preserves interior double spaces in names by design; `=` in email local-part blocked before verify redirect); regressions `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`, `serializes interior-whitespace optional architecture team size in the register payload builder`, `still navigates after 201 when register response body is whitespace only`, `signupFormSchema keeps interior double spaces in required name fields after trim`, `signupFormSchema rejects email local-part containing equals sign`, and `keeps submit disabled for email local-part containing equals sign`; seeded five follow-on `(candidate)` rows; 67 scoped SignupForm vitest tests passed.
@@ -9346,7 +9348,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; 23 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five promotion attempts; seeded five follow-on `(candidate)` rows below; 28 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 - **id:** worker-host
 - **status:** open
@@ -9354,7 +9356,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
@@ -9406,6 +9408,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Program.Main` — `LogConfigurationWarnings` after `Build()` without second `CollectErrors` — **cheap-disproof 2026-10-07 thorough hunt:** warnings are non-blocking by design; hard errors still fail pre-`Build()` `ValidateOrThrow` (`Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`); aligns with prior post-`Build()` parity closure.
 - [x] (valid-no-repro) `Program.Main` — `AddSingleton<IScopeContextProvider, HttpScopeContextProvider>` on a background worker — **cheap-disproof 2026-10-07 thorough hunt:** singleton reads per-call ambient/HTTP; background jobs push `AmbientScopeContext`; regressions `Worker_scope_provider_uses_defaults_without_http_context` and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`.
 - [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — maps `/health/ready` with summary detail while API exposes authenticated diagnostics — **cheap-disproof 2026-10-07 thorough hunt:** documented in `WorkerHostPipelineExtensions` remarks; regression `Worker_host_health_ready_returns_anonymous_summary_json`.
+
+- [x] (valid-no-repro) `Program.Main` — `AddEnvironmentVariables()` after SaaS JSON might lose to overlay files on the worker host — **cheap-disproof 2026-10-07 seed hunt:** `Demo__SaaSGuestSeedEnabled=false` env beats `appsettings.SaaS.json`; regression `Worker_host_environment_variables_override_saas_overlay_from_content_root`.
+- [x] (valid-no-repro) `Program.Main` — `ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent` after `Build()` should fail startup on legacy keys — **cheap-disproof 2026-10-07 seed hunt:** warn-only until 2027-07-01 enforcement date; regression `Worker_host_starts_when_legacy_product_section_keys_are_present`.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — anonymous `GET /health` might echo exception text — **cheap-disproof 2026-10-07 seed hunt:** summary writer matches `/health/ready`; regression `Worker_host_health_root_returns_summary_json_without_exception_text`.
+- [x] (valid-no-repro) `AddArchLucidGracefulShutdown` — worker host might omit drain gate registration — **cheap-disproof 2026-10-07 seed hunt:** `IWorkerHostDrainGate` resolves from DI; regression `Worker_composition_registers_worker_host_drain_gate`.
+- [x] (valid-no-repro) `AddArchLucidGracefulShutdown` — `HostOptions.ShutdownTimeout` might stay at framework default — **cheap-disproof 2026-10-07 seed hunt:** 45 second shutdown budget; regression `Worker_host_configures_graceful_shutdown_timeout`.
+
+- [ ] (candidate) `Program.Main` — optional overlay JSON uses `reloadOnChange: true` while hosted services may cache `IOptions` snapshots across file reload events.
+- [ ] (candidate) `Program.Main` — `AddArchLucidOpenTelemetry` sets `telemetryServiceName: "ArchLucid.Worker"` so shared APM dashboards may not correlate worker spans with API `ArchLucid.Api` traffic without extra attributes.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — exception handler calls `OperationalErrorHttpCapture.TryCaptureFromException` with `OperationalErrorSource.Worker` on anonymous health/metrics routes without tenant scope context.
+- [ ] (candidate) `Program.Main` — `ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored` may emit production-like warnings on a headless worker with no interactive content-safety surface.
+- [ ] (candidate) `WebApplicationFactory` `UseSetting` overrides are not equivalent to post-overlay environment-variable precedence (operators should use `Hosting__*` / `Demo__*` env keys after `AddEnvironmentVariables()` in `Program.Main`).
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.

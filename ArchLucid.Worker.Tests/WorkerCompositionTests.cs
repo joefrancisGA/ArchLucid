@@ -1,3 +1,4 @@
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -12,6 +13,28 @@ namespace ArchLucid.Worker.Tests;
 [Trait("Category", "Integration")]
 public sealed class WorkerCompositionTests
 {
+    [Fact]
+    public void Worker_composition_registers_worker_host_drain_gate()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            factory.Services.GetRequiredService<IWorkerHostDrainGate>().Should().NotBeNull();
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
     [Fact]
     public void Worker_starts_and_registers_expected_background_services()
     {

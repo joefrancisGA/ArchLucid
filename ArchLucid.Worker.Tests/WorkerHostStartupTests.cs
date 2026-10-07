@@ -22,6 +22,61 @@ namespace ArchLucid.Worker.Tests;
 public sealed class WorkerHostStartupTests
 {
     [Fact]
+    public void Worker_host_environment_variables_override_saas_overlay_from_content_root()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string? priorDemoSeed = Environment.GetEnvironmentVariable("Demo__SaaSGuestSeedEnabled");
+        string contentRoot = Path.Combine(Path.GetTempPath(), "archlucid-worker-saas-env-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(contentRoot);
+
+        try
+        {
+            Environment.SetEnvironmentVariable("Demo__SaaSGuestSeedEnabled", "false");
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.json"),
+                """
+                {
+                  "Hosting": { "Role": "Worker" },
+                  "Demo": { "SaaSGuestSeedEnabled": false }
+                }
+                """);
+            File.WriteAllText(
+                Path.Combine(contentRoot, "appsettings.SaaS.json"),
+                """
+                {
+                  "Demo": { "SaaSGuestSeedEnabled": true }
+                }
+                """);
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseContentRoot(contentRoot);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["Demo:SaaSGuestSeedEnabled"].Should().Be("false");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("Demo__SaaSGuestSeedEnabled", priorDemoSeed);
+            snapshot.Restore();
+
+            try
+            {
+                Directory.Delete(contentRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // Best-effort temp cleanup on shared CI hosts.
+            }
+        }
+    }
+
+    [Fact]
     public void Worker_host_loads_appsettings_saas_overlay_from_content_root()
     {
         WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
@@ -602,6 +657,55 @@ public sealed class WorkerHostStartupTests
     }
 
     [Fact]
+    public void Worker_host_configures_graceful_shutdown_timeout()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            HostOptions hostOptions = factory.Services.GetRequiredService<IOptions<HostOptions>>().Value;
+
+            hostOptions.ShutdownTimeout.Should().Be(TimeSpan.FromSeconds(45));
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_host_starts_when_legacy_product_section_keys_are_present()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("ArchiForge:IgnoredLegacyFlag", "true");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
     public void Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role()
     {
         WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
@@ -672,6 +776,35 @@ public sealed class WorkerHostStartupTests
             HttpResponseMessage response = await client.GetAsync("/health/live");
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public async Task Worker_host_health_root_returns_summary_json_without_exception_text()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            using HttpClient client = factory.CreateClient();
+
+            HttpResponseMessage response = await client.GetAsync("/health");
+
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.ServiceUnavailable);
+            response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+            string body = await response.Content.ReadAsStringAsync();
+            body.Should().NotContain("exception", because: "summary health must not echo exception text");
         }
         finally
         {
