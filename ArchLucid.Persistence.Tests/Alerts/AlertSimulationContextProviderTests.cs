@@ -2992,4 +2992,142 @@ public sealed class AlertSimulationContextProviderTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        ManifestDocument primaryManifest = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = findingsSnapshotId,
+            ContextSnapshotId = contextSnapshotId,
+            GraphSnapshotId = graphSnapshotId,
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        ManifestDocument comparedManifest = new()
+        {
+            RunId = comparedToRunId,
+            FindingsSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = primaryManifest,
+                FindingsSnapshot = null
+            });
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                comparedToRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = comparedToRunId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = comparedManifest,
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = comparedToRunId,
+                    FindingsSnapshotId = comparedManifest.FindingsSnapshotId,
+                    ContextSnapshotId = comparedManifest.ContextSnapshotId,
+                    GraphSnapshotId = comparedManifest.GraphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        ComparisonResult comparisonResult = new()
+        {
+            BaseRunId = comparedToRunId,
+            TargetRunId = runId,
+        };
+
+        FindingsSnapshot? capturedFindings = null;
+
+        Mock<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<ComparisonResult>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<ManifestDocument, FindingsSnapshot, ComparisonResult, CancellationToken>(
+                (_, findings, _, _) => capturedFindings = findings)
+            .ReturnsAsync(new ArchLucid.Contracts.Advisory.Models.ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        comparison
+            .Setup(c => c.Compare(comparedManifest, primaryManifest))
+            .Returns(comparisonResult);
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            comparedToRunId,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        advisor.Verify(
+            a => a.GeneratePlanAsync(
+                primaryManifest,
+                It.IsAny<FindingsSnapshot>(),
+                comparisonResult,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        capturedFindings.Should().NotBeNull();
+        capturedFindings!.Findings.Should().BeEmpty();
+        capturedFindings.FindingsSnapshotId.Should().Be(findingsSnapshotId);
+    }
 }

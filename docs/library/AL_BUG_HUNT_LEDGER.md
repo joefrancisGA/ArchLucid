@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; regressions `GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload` and `SimulateAsync_CompositeRule_DoesNotInvokeSimpleEvaluator_WhenSimpleRuleAlsoPresentOnRequest`; reaffirmed `GetContextsAsync_excludes_learning_profile_outside_caller_scope`, `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing`, and `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` and 8 scoped `RuleSimulationServiceTests` passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` error and success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `shows raw html error body when register response is not json`, `shows synthetic message when register error response body is empty`, `omits optional architecture team size above 10000 from the register payload builder`, and `signupFormSchema rejects alphabetic optional architecture team size`; reaffirmed `navigates to verify on HTTP 200 when register response is ok`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit path, `buildSignupRegisterPayload`, and first-touch header encoding; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `shows raw response text when server detail is not a string`, `shows server detail string from HTTP 429 register responses`, `omits negative zero optional architecture team size from the register payload builder`, and `signupFormSchema rejects negative zero optional architecture team size`; reaffirmed `still posts register when first-touch cookie contains non-Latin1 UTM values` and `does not fire a second register request on rapid double-click before submitting state updates`; seeded five follow-on `(candidate)` rows; 76 scoped SignupForm vitest tests passed.
@@ -7476,6 +7478,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` and 8 scoped `RuleSimulationServiceTests` passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `FilterLearningProfileForSimulationScope` — learning profile with foreign `TenantId` but matching workspace/project — **cheap-disproof 2026-10-07 thorough hunt:** tenant/workspace/project guard drops mis-keyed profile; regression `GetContextsAsync_excludes_learning_profile_outside_caller_scope`.
+- [x] (invalid) `RuleSimulationService.SimulateAsync` — composite path never calls `IAlertEvaluator.Evaluate` when `SimpleRule` is also populated — **cheap-disproof 2026-10-07 thorough hunt:** `RuleKind` selects composite branch; unused simple payload is not read; regression `SimulateAsync_CompositeRule_DoesNotInvokeSimpleEvaluator_WhenSimpleRuleAlsoPresentOnRequest`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch sealed-hash skip returns null context while explicit run throws — **cheap-disproof 2026-10-07 thorough hunt:** intentional wave-27 `skipOnSealedHashFailure` split; regressions `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing` and `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch calls `GeneratePlanAsync` comparison overload when primary `FindingsSnapshot` is synthesized empty — **cheap-disproof 2026-10-07 thorough hunt:** synthesized manifest-bound empty findings still pair with comparison plan; regression `GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload`.
+- [x] (invalid) `AlertSimulationController.CompareCandidates` — sealed-manifest block on candidate B maps to `409 Conflict` — **cheap-disproof 2026-10-07 thorough hunt:** nested `CompareCandidatesAsync` uses recent-run batch only (`RunId` null); sealed-hash failures skip silently rather than throw; `MapSealedManifestSimulationBlockOrNull` applies to explicit-run simulate paths.
+
+- [ ] (candidate) `RuleSimulationService.CompareCandidatesAsync` — candidate B simulation never runs when candidate A `SimulateAsync` throws on explicit `RunId` sealed-hash failure — locus: sequential awaits (`RuleSimulationService.CompareCandidates.cs` ~17–75).
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch with `skipOnSealedHashFailure: true` drops comparison when baseline hash fails even on explicit `runId` path — locus: compare guard (`AlertSimulationContextProvider.cs` ~156–164).
+- [ ] (candidate) `RuleSimulationService.SimulateAsync` — zero contexts after recent-run batch sweep returns success result with empty outcomes instead of `409` — locus: early return when `contexts.Count == 0` (`RuleSimulationService.Simulate.cs` ~46–49).
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — empty `ListByRunAsync` result still allocates context with null `LearningProfile` when `GetLatestProfileAsync` returns profile for foreign tenant — locus: independent filters (`AlertSimulationContextProvider.cs` ~187–196).
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` above `50` clamped before authority list but `RuleSimulationResult.SummaryNotes` omits clamp notice — locus: `Math.Clamp` without summary (`AlertSimulationContextProvider.cs` ~70–74).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; tenant recommendation filter, simple-rule suppression bypass, deduped `GetRunDetailAsync` call count, synthesized findings advisor input, primary sealed-hash throw; 34 scoped provider + 7 scoped service tests passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; workspace recommendation scope filter, composite suppression `DecideAsync` read path, `DistinctBy` newest duplicate run id, synthesized empty findings + improvement plan, and controller sealed-manifest `409` mapping; regression `GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope`; reaffirmed `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`, `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, and `SimulateAsync_CompositeRule_WhenMatched_UsesSuppressionPolicyDecision`; 34 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
@@ -7494,9 +7510,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -7571,12 +7587,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch with duplicate `RunId` invokes `GetRunDetailAsync` only once per distinct id after deduplication — **cheap-disproof 2026-10-07 thorough hunt:** `DistinctBy` after `OrderByDescending`; regression `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list` (now verifies single detail fetch).
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — `ImprovementAdvisorService.GeneratePlanAsync` receives synthesized empty findings (not null) when authority omits `FindingsSnapshot` — **cheap-disproof 2026-10-07 thorough hunt:** intentional manifest-bound empty findings; regression `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`.
 - [x] (valid-no-repro) `AlertSimulationController.Simulate` — explicit primary `runId` sealed-hash failure maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull` (not only compare-to) — **cheap-disproof 2026-10-07 thorough hunt:** provider throws on explicit path (`skipOnSealedHashFailure: false`); regression `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`.
-
-- [ ] (candidate) `FilterLearningProfileForSimulationScope` — learning profile with foreign `TenantId` but matching workspace/project from `GetLatestProfileAsync` mis-keyed row.
-- [ ] (candidate) `RuleSimulationService.SimulateAsync` — composite rule path never calls `IAlertEvaluator.Evaluate` when `SimpleRule` is also populated on the request.
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch sealed-hash skip (`skipOnSealedHashFailure: true`) returns null context without throwing while explicit run throws — locus: `BuildContextAsync` guard branches.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch calls `GeneratePlanAsync` with comparison overload when primary findings snapshot is synthesized empty — locus: `comparison is null` ternary (`AlertSimulationContextProvider.cs` ~179–184).
-- [ ] (candidate) `AlertSimulationController.CompareCandidates` — sealed-manifest block on candidate B manifest maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull` — locus: `AlertSimulationController.CompareCandidates.cs` catch path.
 
 2026-10-06 seed hunt (seed-only): reseeded alert-simulation; five `(candidate)` rows; 23 scoped `AlertSimulationContextProviderTests` passed (no code change).
 
