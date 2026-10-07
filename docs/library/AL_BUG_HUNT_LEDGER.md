@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `api-tenancy-workspaces` — re-read `TenantWorkspacesController` list/recycle-bin/delete/restore after audit-actor hit; no hunt-ready row promoted; cheap-disproof closed restore-audit parity (fixed 2026-10-07 with delete path); seeded five `(candidate)` rows; 49 scoped TenantWorkspaces tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `maps verify HTTP 410 to unknown because EmailOtpAuthController documents only 200 and 401` and bootstrap status 503 fail-closed; scoped auth/proxy vitest 357 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — re-read bootstrap, email-OTP, and BFF guard clients after thorough dry emptied open rows; cheap-disproof closed promotion attempts (challenge `ssoRequired` success envelope, soft-failure workspace create 200 body, delivery_failed mapping); seeded five `(candidate)` rows; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest passed with 3 unrelated baseline seam failures.
@@ -28932,7 +28934,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
@@ -29021,6 +29023,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-07 seed hunt (seed→hit): promoted soft-delete/restore audit actor correlation from sibling tenancy controllers; proved delete audit used display-name identity without `ExplicitActor`; inject `IActorContext` on `TenantWorkspacesController`; set `ExplicitActor` on delete and restore audit events; regression `DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs`; 49 scoped TenantWorkspaces tests passed.
 
 - [x] (proven) `TenantWorkspacesController.DeleteProjectAsync` / `RestoreProjectAsync` — audit `ActorUserId`/`ActorUserName` from `User.Identity?.Name` without `ExplicitActor` so enrichment preferred `ClaimTypes.NameIdentifier` over `IActorContext.GetActorId()` — **hit 2026-10-07 seed hunt (seed→hit):** explicit actor from `IActorContext` on soft-delete and restore audits; regression `DeleteProjectAsync_audit_uses_actor_context_id_when_display_name_differs`.
+
+2026-10-07 seed hunt (seed-only): re-read workspace list/recycle-bin/delete/restore after audit-actor hit; no new hunt-ready defect; seeded five `(candidate)` rows; 49 scoped TenantWorkspaces tests passed.
+
+- [ ] (candidate) `TenantWorkspacesController.RestoreProjectAsync` — `ListSoftDeletedByTenantAsync` omits a soft-deleted `scope.ProjectId` row while `TryRestoreAsync` still returns `Restored` (list vs restore skew); reachable via mocked repository or read-replica lag behind `TryRestoreAsync` SQL.
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — operator-documented-safe-retry on `AlreadyDeleted` returns HTTP 204 without `ArchitectureProjectSoftDeleted` audit while first delete emitted audit; SIEM may show delete without matching retry signal.
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>.CurrentValue.RetentionDays` changes between recycle-bin GET and `SqlArchitectureProjectRetentionPurgeService` purge tick; `PurgeAfterUtc` advertisement diverges from worker clamp mid-session.
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — tenant-wide metadata pin guard calls `ListActiveByTenantAsync` before `TrySoftDeleteAsync`; concurrent soft-delete on another connection could make active list stale and allow delete while sibling workspace still pins default metadata.
+- [ ] (candidate) `TenantWorkspacesController.ListRecycleBinAsync` — `ListSoftDeletedByTenantAsync` returns null (contract unspecified); `deleted.Where(...)` would throw before empty recycle-bin response (defensive coalesce parity with restore path `?? Array.Empty`).
 
 ---
 ## Zone: application-agents
