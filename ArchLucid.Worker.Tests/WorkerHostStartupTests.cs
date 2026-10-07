@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -597,5 +599,55 @@ public sealed class WorkerHostStartupTests
                 e => e.Contains("IntegrationEvents:TransactionalOutboxEnabled", StringComparison.Ordinal)
                     && e.Contains("Sql", StringComparison.Ordinal),
                 "the worker should fail fast when outbox is enabled without durable SQL.");
+    }
+
+    [Fact]
+    public void Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
+
+            configuration["Hosting:Role"].Should().Be("Worker");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public async Task Worker_host_health_live_returns_ok_when_pipeline_is_mapped()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            using HttpClient client = factory.CreateClient();
+
+            HttpResponseMessage response = await client.GetAsync("/health/live");
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
     }
 }

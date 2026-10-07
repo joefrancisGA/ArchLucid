@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` startup ordering, `WorkerProcessHostingRoleConfiguration`, and `UseArchLucidWorkerPipeline` health mapping after four consecutive dry hunts; no hunt-ready row promoted; regressions `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role` and `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; seeded five follow-on `(candidate)` rows; 19 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — re-read golden-manifest exclude binds, architecture list locking vs dashboard NOLOCK lists, dashboard warning hydration vs in-memory denormalized flags, keyset cursor validation, and sample purge SP scope; cheap-disproof closed five seeded `(candidate)` rows; regressions `InMemory_get_committed_run_by_golden_manifest_treats_empty_exclude_run_id_as_non_exclusion`, `SelectCommittedRunIdByGoldenManifestId_excludes_run_id_via_sql_not_nullable_optional`, `ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads`, `InMemory_list_recent_in_scope_retains_stored_warning_flags_without_findings_aggregate_model`, `RunsListRecentInScopeNoLock_hydrates_warning_flags_from_left_join_aggregates`, and `SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract`; seeded five follow-on `(candidate)` rows; 165 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `sql-run-repository` — re-read null-architecture backfill projection, recent-in-scope list cache shapes, committed prior lookup binds, and backfill vs architecture column splits; cheap-disproof closed five seeded `(candidate)` rows; regressions `InMemory_list_with_null_architecture_id_omits_created_by_user_id_like_sql_backfill_select`, `Runs_list_recent_in_scope_keyset_and_offset_share_created_utc_run_id_order`, `ListRecentInScope_first_page_cache_isolated_per_list_shape`, `InMemory_get_prior_committed_run_before_current_treats_empty_current_run_id_as_non_exclusion`, and `ListWithNullArchitectureId_backfill_select_includes_knowledge_model_id_unlike_architecture_attached_list`; seeded five follow-on `(candidate)` rows; 159 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -9106,10 +9108,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -9152,6 +9154,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Program.Main` — Worker does not call `ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` after validation — **cheap-disproof 2026-10-05 thorough hunt:** method is informational operator confirmation only (`ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation` → `AgentExecutionRules.LogInformationWhenRealModeConfigured`); worker Real-mode startup with Managed Identity already succeeds without the line (`Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`).
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge` while the API host applies it before validation — **cheap-disproof 2026-10-05 seed hunt:** bridge is intentionally scoped to `ArchLucid.Api` (legacy key literal); worker does not register `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` and has no `ContextIngestionMaxPayloadMiddleware`; `ContextIngestionRules` still validates a legacy-only flat key at `ValidateOrThrow`.
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent` — **cheap-disproof 2026-10-05 seed hunt:** advisor only emits CORS and browser-auth advisories; the worker pipeline exposes health/metrics only with no CORS or interactive auth stack.
+
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — enables `UseHsts` and optional `UseHttpsRedirection` on a health/metrics-only host; reachable when Container Apps internal HTTP probes hit the worker pod before ingress TLS termination.
+- [ ] (candidate) `Program.Main` — `WorkerProcessHostingRoleConfiguration.Apply` injects `Hosting:Role=Worker` via in-memory configuration after environment variables load; reachable when operators expect file-based `appsettings.json` alone to define role without the worker executable defaulting it.
+- [ ] (candidate) `Program.Main` — `LogConfigurationWarnings` runs after `Build()` without a second `ArchLucidConfigurationRules.CollectErrors` pass (unlike API); reachable when warning-only configuration drift should block startup but passes `ValidateOrThrow`.
+- [ ] (candidate) `Program.Main` — `AddSingleton<IScopeContextProvider, HttpScopeContextProvider>` on a background worker; reachable when hosted services resolve tenant scope without an HTTP request and fall back to ambient context incorrectly.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — maps `/health/ready` with summary detail while API exposes authenticated diagnostics; reachable when operators compare worker ready JSON to API diagnostic health during rollout.
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.
