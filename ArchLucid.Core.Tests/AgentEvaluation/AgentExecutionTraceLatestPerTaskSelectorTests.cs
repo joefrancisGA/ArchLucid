@@ -100,6 +100,37 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key()
+    {
+        DateTime sharedUtc = new(2026, 12, 23, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace firstTopology = new()
+        {
+            TraceId = "trace-a-first",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace secondTopology = new()
+        {
+            TraceId = "trace-b-second",
+            TaskId = string.Empty,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([firstTopology, secondTopology]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-b-second");
+    }
+
+    [Fact]
     public void Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index()
     {
         DateTime sharedUtc = new(2026, 6, 1, 10, 0, 0, DateTimeKind.Utc);

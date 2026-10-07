@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 72 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+**Hunts:** 73 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`; 102 scoped zone tests passed (61 Application + 41 Core).
+
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — authority lifecycle `Complete` gate skipped when `runId` is not parseable as `Guid` — **cheap-disproof 2026-10-07 seed hunt #73:** parity non-Guid ack path; production commit/finalize uses Guid run ids; other gates (structural mode, quality, provenance) still run.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — durable `QualityRejected=true` traces ignored when PilotStrict disabled for Real runs — **cheap-disproof 2026-10-07 seed hunt #73:** TB-2226 Real PilotStrict-only commit blocking; regressions `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces` and `GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces`.
+- [x] (valid-no-repro) `_semanticSupportBandFinalizeJudge.ApplyAsync` — mutates findings after `FindingEvidenceReferentialIntegrityValidator` already validated evidence linkage — **cheap-disproof 2026-10-07 seed hunt #73:** judge updates semantic-support band overlays only (`FindingSemanticSupportBandFinalizeJudge`); evidence refs unchanged; ordering intentional per `CommitOutputIntegrityGateMapArchitectureTests`; `UnsupportedSemanticSupportFinalizeHoldEvaluator` follows.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — blank `TaskId` groups only by `agent:{AgentType}` — **cheap-disproof 2026-10-07 seed hunt #73:** intentional retry-chain key for legacy traces; distinct agent types stay separate (`Select_when_task_id_missing_keeps_each_trace_distinct`); same-agent retries collapse by `AttemptIndex` (`Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`).
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` loads all attempt traces while only latest-per-task rows affect quality gate — **cheap-disproof 2026-10-07 seed hunt #73:** selector inside evaluator is contract; regression `GetBlockingReasons_ignores_superseded_rejected_trace_when_latest_trace_accepted`.
+
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — separate `GetByIdAsync` calls for create-time pins (~140) and evidence integrity (~202) can observe different `RunRecord` presence in one commit — locus: dual header fetch; input: header deleted between pin checks (TOCTOU).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `CommitCreateTimePinIntegrityEvaluator` skipped when first header fetch is null even though `CommitArchitectureVersionPinIntegrityEvaluator` already passed — locus: nested `if (headerForPins is not null)` ~143–158; input: SQL run row missing at create-time pin phase.
+- [ ] (candidate) `UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons` — may block finalize after `FindingSemanticSupportBandFinalizeJudge` fail-open leaves Unchecked heuristic bands — locus: post-judge hold ~223–228; input: LLM judge error with PilotStrict unsupported-band policy enabled.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `StringComparer.OrdinalIgnoreCase` on `TaskId` may merge visually distinct Unicode task ids that differ only by casing normalization edge — locus: `GroupBy` ~22; input: task ids differing by Turkish dotted/dotless I casing.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Simulator` bypasses quality gate while `CommitOutputIntegrityService` still loads traces for Real-only evaluator path — locus: mode guard ~21–22; input: Simulator run with `QualityRejected=true` traces reaching commit integrity (structural guard allows Simulator).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id`; 101 scoped zone tests passed (61 Application + 40 Core).
 
@@ -4685,12 +4699,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` omits persisted acknowledgement union when `runId` is not a Guid — **cheap-disproof 2026-10-07 seed hunt #72:** intentional for non-Guid run identifiers; request-body ids still normalized; production commit paths use Guid run ids (parity `PreCommitGovernanceGateTests.EvaluateAsync_allows_when_runId_is_not_parseable_guid`).
 - [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Fallback` with PilotStrict options and rejected traces bypasses evaluator — **cheap-disproof 2026-10-07 seed hunt #72:** `StructuralExecutionModeCommitGuard` blocks Fallback before evaluator runs; regression `StructuralExecutionModeCommitGuardTests` Fallback case.
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_finalizeQualityGate.EnsurePassOrThrowAsync` runs before evidence referential integrity — **cheap-disproof 2026-10-07 seed hunt #72:** intentional TB-2321 ordering documented in `CommitOutputIntegrityGateMapArchitectureTests`; evidence referential integrity still blocks before semantic judge when header exists.
-
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — authority lifecycle `Complete` gate skipped when `runId` is not parseable as `Guid` — locus: `Guid.TryParse` guard ~103–118; input: opaque string run id on direct finalize API callers.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — durable `QualityRejected=true` traces ignored when PilotStrict disabled for Real runs — locus: `!options.Enabled || options.Mode != PilotStrict` early return; input: Real run with patched reject flag while gate mode is Monitor.
-- [ ] (candidate) `_semanticSupportBandFinalizeJudge.ApplyAsync` — mutates findings after `FindingEvidenceReferentialIntegrityValidator` already validated evidence linkage — locus: ordering ~217–221 (`CommitOutputIntegrityGateMapArchitectureTests`); input: judge persistence changing evidence ids post-validation.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — blank `TaskId` groups only by `agent:{AgentType}` so unrelated tasks sharing an agent type collapse — locus: fallback key ~60–62; input: two distinct tasks with null `TaskId` same `AgentType.Topology`.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` loads all attempt traces while only latest-per-task rows affect quality gate — locus: repository fetch ~121–122 vs selector inside evaluator; input: superseded rejected attempt remains in store but should not block after higher attempt accepted.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application + 39 Core).
 
@@ -4710,7 +4718,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
