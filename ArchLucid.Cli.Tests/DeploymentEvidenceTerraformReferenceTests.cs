@@ -344,6 +344,44 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         leaves.IndexOf("infra/terraform-private").Should().BeLessThan(leaves.IndexOf("infra/terraform-keyvault"));
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> referenceLeaves = ReadReferenceDocAdvancedTableLeafPaths(repoRoot);
+
+        referenceLeaves.Should().HaveCount(16);
+        referenceLeaves.Should().Equal(ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots()));
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        List<string> compositionLines = roots
+            .Where(line => line.Contains("metadata composition root", StringComparison.Ordinal))
+            .ToList();
+
+        compositionLines.Should().HaveCount(3);
+
+        foreach (string line in compositionLines)
+        {
+            line.Should().Contain("no Azure apply", "composition roots are metadata-only per REFERENCE_SAAS_STACK_ORDER.md");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        int terraformIndex = IndexOfPath(roots, "infra/terraform");
+        int monitoringIndex = IndexOfPath(roots, "infra/terraform-monitoring");
+
+        terraformIndex.Should().BeGreaterThanOrEqualTo(0);
+        monitoringIndex.Should().BeGreaterThan(terraformIndex);
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);
@@ -478,8 +516,9 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     {
         for (int i = 0; i < roots.Count; i++)
         {
+            string linePath = roots[i].Split(" —", 2, StringSplitOptions.None)[0].Trim();
 
-            if (roots[i].Contains(path, StringComparison.Ordinal))
+            if (string.Equals(linePath, path, StringComparison.Ordinal))
             {
                 return i;
             }

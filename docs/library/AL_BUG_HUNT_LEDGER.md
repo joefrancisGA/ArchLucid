@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `cli-terraform-evidence` — re-read `DeploymentEvidenceTerraformReference`, `REFERENCE_SAAS_STACK_ORDER.md` advanced table, and `infra/apply-saas.ps1` sync regressions; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (`assert_terraform_root_ordering_sync.py` does not parse C# but Cli live-script tests do; advanced table row count; test `IndexOfPath` substring hazard; composition metadata cites no Azure apply; hardcoded leaf fixture redundant with live ps1 parse); regressions `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path`; seeded five follow-on `(candidate)` rows; 29 scoped `DeploymentEvidenceTerraformReferenceTests` passed; `assert_terraform_root_ordering_sync.py` OK.
+
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (`ReflectionTypeLoadException.LoaderExceptions` not walked and parallel-persist fail-fast beside deadlock; orchestrator bases keep positive jitter span today; root transient `SqlException` over mixed inner aggregate fail-fast; outer attempt ceiling exhausts at `MaxAttempts` with zero elapsed by design; generic and void overloads share nested all-transient aggregate retry); regressions `ExecuteAsync_does_not_retry_when_aggregate_lists_reflection_type_load_with_transient_loader_exceptions`, `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`, `ExecuteAsync_does_not_retry_when_transient_sql_wraps_mixed_parallel_persist_aggregate_on_inner_chain`, `IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget`, and `ExecuteAsync_generic_overload_retries_deadlock_when_top_level_aggregate_nests_transient_only_aggregate`; seeded five follow-on `(candidate)` rows; 93 scoped transient-retry tests passed (71 Persistence + 22 Application).
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive dry hunts emptied open rows; no hunt-ready row promoted; cheap-disproof closed five promotion attempts (nested all-transient parallel-persist aggregate retry intentional, bare SQL `2627` and `OutOfMemoryException` fail-fast on void and generic overloads, reconcile poll ceiling below commit attempt ceiling); regressions `ExecuteAsync_retries_deadlock_when_top_level_aggregate_nests_transient_only_aggregate`, `ExecuteAsync_does_not_retry_non_transient_sql_unique_constraint_violation`, `ExecuteAsync_does_not_retry_out_of_memory_exception`, `ExecuteAsync_generic_overload_does_not_retry_out_of_memory_exception`, and `Manifest_reconcile_poll_cap_stays_below_commit_max_attempts`; seeded five follow-on `(candidate)` rows; 91 scoped transient-retry tests passed (69 Persistence + 22 Application).
@@ -8138,16 +8140,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-10-07 seed hunt (seed-only): re-read static apply-order reference and triple-sync guards; cheap-disproof closed five promotion attempts; regressions `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path`; seeded five follow-on `(candidate)` rows; 29 scoped tests passed; python ordering guard OK.
+
 - **id:** cli-terraform-evidence
 - **status:** open
 - **impact:** medium
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8248,6 +8252,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Composition wave 3 cites `infra/terraform-monitoring` instead of `infra/terraform-app` — **cheap-disproof 2026-09-11 seed hunt #1783:** third composition root is app metadata wave; regression `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`.
 
 2026-09-11 seed hunt #1783 (seed-only): reseeded cli-terraform-evidence after #1779; cheap-disproof closed orchestrator legacy annotation and composition wave-3 root; 25 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) `scripts/ci/assert_terraform_root_ordering_sync.py` — C# `DefaultApplyOrderRoots` can drift while python guard stays green — **cheap-disproof 2026-10-07 seed hunt:** python aligns pilot/`apply-saas.ps1` only; Cli regressions parse live `$multiRootSequence`, waves, pilot, and reference table; python OK alongside 29 scoped tests.
+- [x] (valid-no-repro) `REFERENCE_SAAS_STACK_ORDER.md` advanced table row count diverges from sixteen hosted leaves — **cheap-disproof 2026-10-07 seed hunt:** table rows match evidence leaves; regression `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`.
+- [x] (invalid) `DeploymentEvidenceTerraformReferenceTests.IndexOfPath` — `Contains("infra/terraform")` false-positive on `infra/terraform-monitoring` corrupts ordering assertions — **cheap-disproof 2026-10-07 seed hunt:** helper now compares exact path prefix before em dash; regression `DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path` (test harness only; production list is static text).
+- [x] (valid-no-repro) Composition metadata lines omit `no Azure apply` while report readers assume executable applies — **cheap-disproof 2026-10-07 seed hunt:** all three composition lines cite `no Azure apply`; regression `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`.
+- [x] (valid-no-repro) Hardcoded `expectedLeafPaths` in `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order` passes while `$multiRootSequence` drifts — **cheap-disproof 2026-10-07 seed hunt:** live ps1 parse test fails first; hardcoded fixture is redundant fast-check per #1436.
+
+- [ ] (candidate) `ReadReferenceDocAdvancedTableLeafPaths` — advanced table rows that omit backticks around `infra/terraform-*` paths are skipped so evidence sync passes while doc order diverges — locus: regex `^\|\s*\d+\s*\|\s*\`(infra/[^`]+)\`` in `DeploymentEvidenceTerraformReferenceTests`; input: markdown table cell without backticks; wrong outcome: fewer than sixteen parsed leaves; mechanism: brittle doc scraper.
+- [ ] (candidate) `ParsePowerShellStringArray` — `apply-saas.ps1` arrays migrated to single-quoted `'infra/terraform-*'` entries — locus: test helper `quoted` regex `^""([^""]+)""`; input: `$multiRootSequence` line `    'infra/terraform-private',`; wrong outcome: empty parsed sequence and false-green sync; mechanism: double-quote-only parser.
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table prose says orchestrator is omitted from hosted `-MultiRoot` while `DefaultApplyOrderRoots` still lists orchestrator in the sixteen-leaf sequence — locus: doc row 16 vs `ExtractLeafPaths`; input: operator reads doc only; wrong outcome: skip orchestrator apply; mechanism: doc/runtime narrative mismatch (orchestrator is in `$multiRootSequence` for `-LegacyLeafRoots`).
+- [ ] (candidate) `DefaultApplyOrderRoots` — pilot canonical profile line placed after orchestrator legacy leaf so readers infer pilot runs after full hosted apply — locus: list ordering; input: evidence report numbered list; wrong outcome: execute pilot after `-MultiRoot` leaves; mechanism: `apply-saas.ps1` default is `$pilotProfileOnly` only (documented in reference doc, not list position).
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — evidence generated with `repositoryRoot: null` still implies on-disk doc exists beside output artifact — locus: `DeploymentEvidenceReportMarkdown.Compose`; input: probe run outside git checkout; wrong outcome: broken relative doc link; mechanism: citation is repo-relative constant, not resolved URI.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
