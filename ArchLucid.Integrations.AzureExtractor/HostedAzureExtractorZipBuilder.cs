@@ -161,6 +161,7 @@ public static class HostedAzureExtractorZipBuilder
                 principalId = row.PrincipalId,
                 principalType = row.PrincipalType,
                 roleDefinitionId = row.RoleDefinitionId,
+                roleName = row.RoleName,
                 pimEligibilityKind = row.PimEligibilityKind,
             })
             .ToArray<object>();

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Graphviz;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ContextIngestion.Diagram;
@@ -843,7 +844,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseReport = MapCollapseReport(renderResult.CollapseReport),
             IdentityDiagramHints = MapIdentityDiagramHints(modeKey, snapshot),
             CompletenessWarnings = ResolveCompletenessWarnings(snapshot),
-            CompletenessSummary = BuildCompletenessSummary(modeKey, sourceGraph, snapshot),
+            CompletenessSummary = BuildCompletenessSummary(modeKey, renderResult.RepairedAst, snapshot),
         };
     }
 
@@ -859,19 +860,19 @@ public sealed class InfraEvidenceSnapshotMermaidService(
 
     private static InfraEvidenceMermaidCompletenessSummary? BuildCompletenessSummary(
         string modeKey,
-        GraphSnapshot? graph,
+        DiagramAst? ast,
         AzureInventorySnapshotDetailReadModel? snapshot)
     {
-        if (graph is null)
+        if (ast is null)
         {
             return null;
         }
 
-        List<GraphEdge> visibleEdges = graph.Edges
-            .Where(edge => edge.Weight >= 0.5d)
+        List<DiagramEdge> visibleEdges = ast.Edges
+            .Where(edge => !edge.IsLayoutOnly)
             .ToList();
         HashSet<string> collectedClasses = visibleEdges
-            .Select(edge => edge.InferenceSource ?? edge.EdgeType)
+            .Select(edge => edge.InferenceSource ?? edge.Label)
             .Where(source => !string.IsNullOrWhiteSpace(source))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         int hiddenHopCount = visibleEdges.Count(edge =>
@@ -879,18 +880,14 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             && (edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
                 || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
                 || edge.InferenceSource.Equals(GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase)));
-        int collocationCount = visibleEdges.Count(edge =>
-            string.Equals(
-                edge.InferenceSource,
-                GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
-                StringComparison.OrdinalIgnoreCase));
+        int collocationCount = visibleEdges.Count(IsLikelyResourceGroupEdge);
 
         return new InfraEvidenceMermaidCompletenessSummary
         {
             Mode = modeKey,
-            VisibleNodeCount = graph.Nodes.Count,
+            VisibleNodeCount = ast.Nodes.Count,
             VisibleEdgeCount = visibleEdges.Count,
-            ConnectedComponentCount = CountConnectedComponents(graph.Nodes, visibleEdges),
+            ConnectedComponentCount = DiagramAstVisibleComponentCounter.Count(ast),
             HiddenHopsUsedCount = hiddenHopCount,
             LikelyInCollocationEdgeCount = collocationCount,
             CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
@@ -900,54 +897,20 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         };
     }
 
-    private static int CountConnectedComponents(
-        IReadOnlyList<GraphNode> nodes,
-        IReadOnlyList<GraphEdge> edges)
+    private static bool IsLikelyResourceGroupEdge(DiagramEdge edge)
     {
-        Dictionary<string, List<string>> adjacency = nodes.ToDictionary(
-            node => node.NodeId,
-            _ => new List<string>(),
-            StringComparer.Ordinal);
-
-        foreach (GraphEdge edge in edges)
-        {
-            if (adjacency.TryGetValue(edge.FromNodeId, out List<string>? from)
-                && adjacency.TryGetValue(edge.ToNodeId, out List<string>? to))
-            {
-                from.Add(edge.ToNodeId);
-                to.Add(edge.FromNodeId);
-            }
-        }
-
-        HashSet<string> visited = new(StringComparer.Ordinal);
-        int components = 0;
-
-        foreach (string nodeId in adjacency.Keys)
-        {
-            if (!visited.Add(nodeId))
-            {
-                continue;
-            }
-
-            components++;
-            Queue<string> queue = new();
-            queue.Enqueue(nodeId);
-
-            while (queue.Count > 0)
-            {
-                string current = queue.Dequeue();
-
-                foreach (string neighbor in adjacency[current])
-                {
-                    if (visited.Add(neighbor))
-                    {
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-        }
-
-        return components;
+        return (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryAppKeyVaultRef,
+                    StringComparison.OrdinalIgnoreCase))
+               && string.Equals(
+                   edge.ProvenanceKind,
+                   ProvenanceKind.DeterministicInference.ToString(),
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ResolveCompletenessWarnings(AzureInventorySnapshotDetailReadModel? snapshot)

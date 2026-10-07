@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
 
@@ -1490,7 +1491,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             scope.Trim(),
             principalId.Trim(),
             TryGetStringValue(propertiesElement, "principalType"),
-            roleDefinitionId.Trim());
+            roleDefinitionId.Trim(),
+            RoleName: AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(roleDefinitionId));
     }
 
     private static HostedAzureArmRoleAssignmentRecord? MapRoleEligibilitySchedule(JsonElement item)
@@ -1517,7 +1519,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             principalId.Trim(),
             TryGetStringValue(propertiesElement, "principalType"),
             roleDefinitionId.Trim(),
-            PimEligibilityKind: "eligible");
+            PimEligibilityKind: "eligible",
+            RoleName: AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(roleDefinitionId));
     }
 
     private void LogSkippedArmRow(JsonElement item)
