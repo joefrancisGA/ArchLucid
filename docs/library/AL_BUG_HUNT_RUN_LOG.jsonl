@@ -8777,3 +8777,4 @@
 {"at":"2026-10-07T12:32:53.659634Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T12:40:23.6476153Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T12:46:25.5767459Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-07T12:53:07.9836649Z","zoneId":"host-infra-evidence-composition","outcome":"dry","productLine":"securenow"}
