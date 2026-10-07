@@ -1081,6 +1081,43 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace cleanVisibleTask = new()
+        {
+            TraceId = "trace-clean",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedVariationSelectorTask = new()
+        {
+            TraceId = "trace-rejected-fe0f",
+            TaskId = "manifest-task\uFE0F",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [cleanVisibleTask, rejectedVariationSelectorTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-fe0f");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_zero_width_task_id_splits_groups_still_blocks_rejected_visible_group()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

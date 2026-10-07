@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five seeded `(candidate)` rows (Warned+`QualityRejected` dual flag blocks; U+FE0F variation-selector task-id split fail-closed per group; non-Guid lifecycle skip covered by arch-version pin; disabled trace gate vs unsupported-band hold are separate evaluators; whitespace-only `TaskId` chains with missing-task retries); regressions `GetBlockingReasons_when_quality_rejected_with_warned_recorded_outcome_still_blocks`, `Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups`, `GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group`, `GetBlockingReasonsAsync_returns_invalid_run_id_before_repository_calls_for_non_guid`, `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`, and `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`; seeded five follow-on `(candidate)` rows; 99 scoped zone tests passed (61 Application + 38 Core).
+
 2026-10-07 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardSubmit`, guided-intake draft submit/admit, query prefill, track stream, and clarification inference after four consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused `reviews/new` vitest tests passed (192 total scoped run: 121 passed, 71 pre-existing harness failures).
 
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (consecutive empty aggregate shells before mixed parallel-persist, nested all-transient aggregate retry semantics, zero-jitter branch with current 2s/4s/8s bases, bare transient SQL sibling with wrapped mixed nested aggregate, outer attempt 11 sub-budget vs inner Polly backoff); regressions `ExecuteAsync_does_not_retry_when_two_empty_aggregate_shells_precede_mixed_parallel_persist_aggregate`, `ExecuteAsync_retries_when_top_level_aggregate_inner_is_nested_aggregate_with_only_transient_sql_inners`, `ExecuteAsync_does_not_retry_when_bare_transient_sql_sibling_pairs_with_wrapped_mixed_nested_aggregate`, and `IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget`; 86 scoped transient-retry tests passed (65 Persistence + 21 Application).
@@ -4302,16 +4304,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups` and `GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group`; 99 scoped zone tests passed (61 Application + 38 Core).
+
 - **id:** commit-output-integrity
 - **status:** open
 - **impact:** medium
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
@@ -4402,11 +4406,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — full-width digit task-id split — **cheap-disproof 2026-10-06 thorough hunt:** separate groups still fail-closed per rejected latest trace; regressions `Select_when_task_ids_differ_only_by_full_width_digits_form_separate_groups`, `GetBlockingReasons_when_full_width_task_id_group_has_rejected_latest_still_blocks`.
 - [x] (invalid) `StructuralExecutionModeCommitGuard` vs `RealCommitAgentOutputQualityGateEvaluator` input divergence — **cheap-disproof 2026-10-06 thorough hunt:** `CommitOutputIntegrityService` throws on Mixed/Fallback before quality gate (#1689); regression `GetBlockingReasons_when_mixed_or_fallback_blocks_before_downstream_integrity_evaluators`; hypothetical guard bypass is not a reachable commit path.
 
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone winning trace with `RecordedQualityGateOutcome=Warned` and `QualityRejected=true` after patch drift; reachable when `ApplyQualityRejectedPatch(true)` follows a Warned snapshot patch without updating recorded outcome.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector` — `TaskId` differing only by trailing Unicode format characters (e.g. U+FE0F variation selector) forms separate groups; reachable from rich-text pasted manifest labels.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — authority lifecycle `Complete` gate skipped for non-Guid `runId` while arch-version pin still blocks; reachable only if a future caller removed pin evaluator (defense-in-depth documentation gap).
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` with `PilotStrictHoldOnUnsupportedSemanticSupport=true` still allows commit on rejected traces while unsupported-band hold is also off; reachable tenant misconfiguration (product/config, not evaluator bug).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` with only whitespace after `Trim()` collapses to `agent:{AgentType}` grouping; reachable when manifest task label is whitespace-only.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone winning trace with `RecordedQualityGateOutcome=Warned` and `QualityRejected=true` after patch drift — **cheap-disproof 2026-10-07 thorough hunt:** durable `QualityRejected` blocks regardless of recorded outcome; regression `GetBlockingReasons_when_quality_rejected_with_warned_recorded_outcome_still_blocks`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` — `TaskId` differing only by trailing U+FE0F variation selector — **cheap-disproof 2026-10-07 thorough hunt:** trim-only keys keep distinct groups; PilotStrict still blocks rejected latest per group; regressions `Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups` and `GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group`.
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — authority lifecycle `Complete` gate skipped for non-Guid `runId` — **cheap-disproof 2026-10-07 thorough hunt:** `CommitArchitectureVersionPinIntegrityEvaluator` fail-closed before quality gate; regression `GetBlockingReasonsAsync_returns_invalid_run_id_before_repository_calls_for_non_guid`.
+- [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` with `PilotStrictHoldOnUnsupportedSemanticSupport=true` — **cheap-disproof 2026-10-07 thorough hunt:** trace quality gate and unsupported-band hold are separate evaluators; disabled gate intentionally bypasses trace checks; regression `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` — **cheap-disproof 2026-10-07 thorough hunt:** chains with missing-task retries per `agent:{AgentType}`; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone winning trace with `RecordedQualityGateOutcome=null` and `QualityRejected=true` only; reachable when `ApplyQualityRejectedPatch(true)` clears the recorded enum but leaves the durable reject flag set.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` null vs empty string both collapse to `agent:{AgentType}` for the same `AgentType`; reachable when repository rows omit `TaskId` on some retries but not others.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — Guid lifecycle `Complete` gate reads stage outcomes while `run.GoldenManifestId` on the in-memory header is still null for a run that already finalized; reachable on seal immediately after manifest write races.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Mode=WarnOnly` with `QualityRejected=true` traces; reachable when tenant downgrades gate mode after traces were recorded under PilotStrict.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector` — outer whitespace trim plus embedded U+FE0F on the same visible task label forms a third group distinct from trimmed and variation-suffixed ids; reachable from rich-text manifest labels with padding and emoji presentation selectors.
 
 - [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — missing `TaskId` `AgentType` whitespace/casing split — **cheap-disproof 2026-10-05 thorough hunt:** `AgentType` on `AgentExecutionTrace` is `AgentType` enum, not free text; missing-task grouping is intentional `agent:{AgentType}` retry chaining (#578); extra groups only add fail-closed PilotStrict coverage.
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FindingSemanticSupportBandFinalizeJudge.ApplyAsync` before `UnsupportedSemanticSupportFinalizeHoldEvaluator` — **cheap-disproof 2026-10-05 thorough hunt:** ADR 0099 ratchet requires judge before hold so TB-1228 evaluates post-judge bands; architecture regressions `CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist` and `As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold`; mid-batch overlay persist failure is not a reachable wrong seal outcome in these files.

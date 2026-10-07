@@ -333,6 +333,31 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups()
+    {
+        AgentExecutionTrace visibleTask = new()
+        {
+            TraceId = "trace-visible",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace variationSelectorTask = new()
+        {
+            TraceId = "trace-fe0f",
+            TaskId = "manifest-task\uFE0F",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([visibleTask, variationSelectorTask]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-visible", "trace-fe0f"]);
+    }
+
+    [Fact]
     public void Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups()
     {
         AgentExecutionTrace visibleTask = new()
