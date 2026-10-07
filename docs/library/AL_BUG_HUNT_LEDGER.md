@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 78 · **Bugs found:** 12 · **Consecutive dry hunts:** 11
+**Hunts:** 79 · **Bugs found:** 12 · **Consecutive dry hunts:** 12
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 107 scoped zone tests passed (63 Application + 44 Core).
+
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` bypasses PilotStrict empty-trace fail-closed — **cheap-disproof 2026-10-07 seed hunt #79:** quality gate off skips TB-2226 empty-trace proof; regression `GetBlockingReasons_when_gate_disabled_with_empty_traces_returns_empty`.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Rejected` blocks even when `QualityRejected=false` — **cheap-disproof 2026-10-07 seed hunt #79:** recorded outcome is sufficient; regression `GetBlockingReasons_when_real_pilot_strict_and_trace_rejected_returns_reason`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — single-trace input bypasses grouping — **cheap-disproof 2026-10-07 seed hunt #79:** fast path by design; regression `Select_when_single_trace_returns_same_trace`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — higher `AttemptIndex` wins over newer `CreatedUtc` on superseded retry — **cheap-disproof 2026-10-07 seed hunt #79:** TB-035 attempt authority; regression `Select_when_created_utc_differs_prefers_highest_attempt_index_over_newer_superseded_timestamp`.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `gate disabled` returns empty even with `QualityRejected=true` traces — **cheap-disproof 2026-10-07 seed hunt #79:** gate disabled is global bypass; regression `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — empty input trace list fails closed on Real PilotStrict — locus: latest count ~32–36; input: `GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason`.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone `Accepted` latest-per-task trace does not block — locus: loop ~39–49; input: `GetBlockingReasons_when_single_accepted_trace_does_not_block`.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — missing `TaskId` does not collapse distinct `AgentType` traces — locus: agent key ~60–62; input: `Select_when_task_id_missing_keeps_each_trace_distinct`.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — null `traces` argument throws before mode guard — locus: `ThrowIfNull(traces)` ~19; input: `GetBlockingReasons_throws_when_traces_null`.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — empty input returns empty list without throwing — locus: early return ~18–19; input: `Select_when_empty_traces_returns_empty_list`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 107 scoped zone tests passed (63 Application + 44 Core).
 
