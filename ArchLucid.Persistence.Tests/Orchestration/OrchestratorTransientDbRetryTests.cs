@@ -34,6 +34,46 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_sql_snapshot_update_conflict_error_41301()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(41301);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_sql_snapshot_update_conflict_error_41302()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(41302);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate()
     {
         int attempts = 0;
@@ -1001,6 +1041,75 @@ public sealed class OrchestratorTransientDbRetryTests
 
         await act.Should().ThrowAsync<SqlException>();
         attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_honors_cancellation_during_retry_backoff_after_transient_sql()
+    {
+        int attempts = 0;
+        using CancellationTokenSource cancellation = new();
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                {
+                    Task.Run(
+                        () =>
+                        {
+                            Thread.Sleep(100);
+                            cancellation.Cancel();
+                        });
+
+                    throw SqlExceptionTestFactory.Create(1205);
+                }
+
+                return Task.CompletedTask;
+            },
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_first_nested_aggregate_on_chain_is_empty_shell_before_mixed_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException mixed = new(deadlock, fkViolation);
+        AggregateException emptyShell = new();
+        SetInnerException(emptyShell, mixed);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("parallel persist failed", emptyShell);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public void Orchestrator_retry_delay_exponential_base_matches_polly_attempt_number_plus_one()
+    {
+        TimeSpan baseDelay = TimeSpan.FromSeconds(2);
+
+        for (int pollyAttemptNumber = 0; pollyAttemptNumber <= 2; pollyAttemptNumber++)
+        {
+            int retryAttempt = pollyAttemptNumber + 1;
+            double expectedBaseMilliseconds = baseDelay.TotalMilliseconds * Math.Pow(2, retryAttempt - 1);
+
+            TimeSpan delay = SqlOpenRetryDelayCalculator.Calculate(retryAttempt, baseDelay, 0);
+
+            delay.Should().Be(TimeSpan.FromMilliseconds(expectedBaseMilliseconds));
+        }
     }
 
     [SkippableFact]
