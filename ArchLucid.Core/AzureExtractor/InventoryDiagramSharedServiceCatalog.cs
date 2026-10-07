@@ -8,7 +8,6 @@ public static class InventoryDiagramSharedServiceCatalog
         "Microsoft.OperationalInsights/workspaces",
         "Microsoft.Insights/actionGroups",
         "Microsoft.ManagedIdentity/userAssignedIdentities",
-        "Microsoft.KeyVault/vaults",
         "Microsoft.Network/privateDnsZones",
         "Microsoft.Network/dnsZones",
     };
