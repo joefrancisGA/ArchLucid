@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-review-intake-wizards` — re-read `useNewRunWizardSubmit`, guided-intake draft submit/admit, query prefill, track stream, and clarification inference after four consecutive dry hunts; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused `reviews/new` vitest tests passed (192 total scoped run: 121 passed, 71 pre-existing harness failures).
+
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (consecutive empty aggregate shells before mixed parallel-persist, nested all-transient aggregate retry semantics, zero-jitter branch with current 2s/4s/8s bases, bare transient SQL sibling with wrapped mixed nested aggregate, outer attempt 11 sub-budget vs inner Polly backoff); regressions `ExecuteAsync_does_not_retry_when_two_empty_aggregate_shells_precede_mixed_parallel_persist_aggregate`, `ExecuteAsync_retries_when_top_level_aggregate_inner_is_nested_aggregate_with_only_transient_sql_inners`, `ExecuteAsync_does_not_retry_when_bare_transient_sql_sibling_pairs_with_wrapped_mixed_nested_aggregate`, and `IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget`; 86 scoped transient-retry tests passed (65 Persistence + 21 Application).
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive dry hunts emptied open rows; no hunt-ready row promoted; seeded five `(candidate)` rows; 82 scoped transient-retry tests passed (62 Persistence + 20 Application).
@@ -30686,16 +30688,18 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-07 seed hunt (seed-only): re-read reviews/new submit, prefill, track, and guided-intake inference hooks; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused vitest tests passed.
+
 - **id:** ui-review-intake-wizards
 - **status:** open
 - **impact:** high
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -30820,6 +30824,12 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `resolveInitialReviewsNewActivePath` — unrecognized `path=` falls back to quick-review — **cheap-disproof 2026-10-06 thorough hunt:** bare `/architecture/reviews/new` defaults to quick start by product contract; `baseline=1` still opens detailed despite a typo `path=`; regressions `defaults unrecognized path= values to quick-review` and `opens detailed wizard for baseline=1 even when path= is unrecognized`.
 - [x] (valid-no-repro) `useNewRunWizardTrackStream` — quick-review polls on every step after spawn — **cheap-disproof 2026-10-06 thorough hunt:** quick-start track UI expects live summary while the operator remains on early slides; full wizard gates polling to `TRACK_STEP_INDEX` by design; regression `keeps summary polling enabled on every quick-review step after a run is spawned`.
 - [x] (valid-no-repro) `useNewRunWizardIntakeParams` + `useNewRunWizardQueryPrefill` — accelerator and preset on one URL — **cheap-disproof 2026-10-06 thorough hunt:** preset effect explicitly yields when `acceleratorPackId !== null` (comment: accelerator is more specific); regression `applies accelerator prefill and skips preset when both query params are present`.
+
+- [ ] (candidate) `useNewRunWizardIntakeParams` / `useNewRunWizardQueryPrefill` — any non-empty trimmed `policyPackId` query value is written into `policyReferences` via `setValue` without catalog validation; reachable from governance/policy-pack deep links that carry a typo or retired pack id (`POLICY_PACK_ID_QUERY_PARAM` on `/architecture/reviews/new`).
+- [ ] (candidate) `useGuidedIntakeClarificationInference` — LLM clarification inference runs only when `step === 1`, so a deep-linked `intakeStep=2` confirm URL can skip suggested answers while the brief still looks complete; reachable from bookmarked guided-intake URLs that omit the clarifications slide.
+- [ ] (candidate) `guided-intake-example-template-prefill-once` — session-scoped `guidedIntakeExampleTemplatePrefillAppliedIds` blocks a second `template=` example prefill without a hard navigation; reachable when an operator opens two different example-request links in the same browser tab session.
+- [ ] (candidate) `useNewRunWizardTrackStream` — `useRunSummaryStream` disables polling when `wizardMode` switches from quick to full until `stepIndex === TRACK_STEP_INDEX`; reachable when a spawned quick-start run stays open while the operator switches to the detailed wizard path mid-session.
+- [ ] (candidate) `useNewRunWizardSubmit` — `clearWizardSession()` runs immediately after a successful create, before `uploadPendingEvidence` finishes; reachable when pending document/inventory evidence upload fails after the run id is assigned on the track step.
 
 ---
 
