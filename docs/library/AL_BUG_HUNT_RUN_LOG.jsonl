@@ -8781,3 +8781,4 @@
 {"at":"2026-10-07T13:01:52.7833166Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T13:06:02.3824729Z","zoneId":"ui-auth-callback","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T13:10:12.9451825Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T13:16:40.5866505Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}

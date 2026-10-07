@@ -1138,6 +1138,81 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("shows raw response text when server detail is not a string", async () => {
+    vi.mocked(showError).mockClear();
+
+    const response = Response.json({ detail: [{ msg: "Invalid organization." }] }, { status: 400 });
+    const rawText = await response.clone().text();
+
+    vi.stubGlobal("fetch", vi.fn(async () => response));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", rawText);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows server detail string from HTTP 429 register responses", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ detail: "Too many signup attempts. Try again later." }, { status: 429 }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith(
+        "Signup",
+        "Too many signup attempts. Try again later.",
+      );
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("omits negative zero optional architecture team size from the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "-0",
+    });
+
+    expect(payload.architectureTeamSize).toBeUndefined();
+  });
+
+  it("signupFormSchema rejects negative zero optional architecture team size", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "-0",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("encodes subdomain work email once in the verify redirect query", async () => {
     pushMock.mockClear();
 
