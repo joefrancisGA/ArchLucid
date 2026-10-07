@@ -914,6 +914,56 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
     }
 
     [Fact]
+    public void Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_full_width_latin_letters()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Aws);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "\uFF21zure SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+        candidate.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_candidate_when_agent_topology_ref_has_spaces_around_proposal_segments()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Aws);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal: p1 :svc-api";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_inserts_candidate_when_same_topology_evidence_ref_applies_to_different_role()
+    {
+        TechnologyLedgerEntry computeRow = CreateCandidate(CloudProvider.Azure);
+        computeRow.Role = TechnologyLedgerRole.ComputeRuntime;
+        computeRow.EvidenceRef = "agentTopologyProposal:p1:shared-ref";
+        computeRow.TechnologyName = "Azure App Service";
+
+        TechnologyLedgerEntry regionCandidate = CreateCandidate(CloudProvider.Azure);
+        regionCandidate.Role = TechnologyLedgerRole.Region;
+        regionCandidate.EvidenceRef = "agentTopologyProposal:p1:shared-ref";
+        regionCandidate.TechnologyName = "East US";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(regionCandidate, [computeRow])
+            .Should()
+            .BeSameAs(regionCandidate);
+    }
+
+    [Fact]
     public void Resolve_inserts_region_candidate_when_compute_chosen_would_block_same_family_compute()
     {
         TechnologyLedgerEntry computeChosen = CreateChosen(CloudProvider.Azure);

@@ -1,4 +1,3 @@
-{"at":"2026-09-07T18:29:17.5619996Z","zoneId":"agent-runtime-safety","outcome":"dry"}
 {"at":"2026-09-07T18:35:36.9764212Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-09-07T18:40:53.7478483Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-09-07T18:46:06.711435Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
@@ -8802,4 +8801,5 @@
 {"at":"2026-10-07T18:06:03.803361Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
 {"at":"2026-10-07T18:12:56.9045263Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs,ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs,ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs"]}
 {"at":"2026-10-07T18:18:21.2512374Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs,ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs,ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs"]}
-{"at":"2026-10-07T18:24:26.4665820Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+{"at":"2026-10-07T18:24:26.466582Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
+{"at":"2026-10-07T18:30:05.1443915Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
