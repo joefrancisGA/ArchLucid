@@ -8650,6 +8650,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (generic non-409 errors intentionally ignore JSON `message`; `type="email"` normalizes padded addresses before POST; only submit/cancel disable during flight; success view intentionally omits callback `technicalDetail`; honeypot `websiteUrl` posts raw value for server `trimOptional`); regressions `does not parse JSON message field on non-409 API failures`, `normalizes padded work email via the email input before POST`, `keeps required inputs editable while submit is in flight`, `omits callback technical detail on the success view`, and `posts honeypot websiteUrl without client-side trim`; seeded five follow-on `(candidate)` rows; 24 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 19 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 - **id:** ui-auth-callback
@@ -8658,9 +8660,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -8695,11 +8697,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `onSubmit` — `204 No Content` success path ignores response body shape (no confirmation id or correlation token for support follow-up) — **cheap-disproof 2026-10-07 thorough hunt:** API contract is empty-body `204` only; reaffirmed `shows success state after submit`.
 - [x] (valid-no-repro) Cancel control — hides the form and clears `errorMessage` but does not reset `form` field state when the operator reopens the request flow — **cheap-disproof 2026-10-07 thorough hunt:** intentional draft retention; regressions `retains form field values after cancel and reopening the request form` and `retains form values when the request form is toggled closed and reopened`.
 
-- [ ] (candidate) `onSubmit` — non-409 failure responses never parse JSON `message` from the API (operator always sees `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR`).
-- [ ] (candidate) `workEmail` — `type="email"` control may normalize operator input before POST so padded addresses never reach `parseAccessRequestBody`.
-- [ ] (candidate) `submitting` — disables submit/cancel buttons but leaves required inputs editable during an in-flight POST.
-- [ ] (candidate) Success view — replaces the failure panel and drops `technicalDetail`, so operators cannot re-read the original callback error after a successful access request.
-- [ ] (candidate) `websiteUrl` honeypot — posts the raw hidden field value without client trim (server `trimOptional` decides honeypot vs real submit).
+- [x] (valid-no-repro) `onSubmit` — non-409 failure responses never parse JSON `message` from the API — **cheap-disproof 2026-10-07 thorough hunt:** generic operator copy by design (matches `validation_failed` seed hunt); regression `does not parse JSON message field on non-409 API failures`.
+- [x] (valid-no-repro) `workEmail` — `type="email"` control may normalize operator input before POST — **cheap-disproof 2026-10-07 thorough hunt:** email control normalizes padded input in jsdom before JSON stringify; regression `normalizes padded work email via the email input before POST`.
+- [x] (valid-no-repro) `submitting` — disables submit/cancel buttons but leaves required inputs editable during an in-flight POST — **cheap-disproof 2026-10-07 thorough hunt:** intentional; only action buttons set `disabled={submitting}`; regression `keeps required inputs editable while submit is in flight`.
+- [x] (valid-no-repro) Success view — replaces the failure panel and drops `technicalDetail` — **cheap-disproof 2026-10-07 thorough hunt:** success branch is request-sent confirmation only; regression `omits callback technical detail on the success view`.
+- [x] (valid-no-repro) `websiteUrl` honeypot — posts the raw hidden field value without client trim — **cheap-disproof 2026-10-07 thorough hunt:** server `trimOptional` classifies honeypot; regression `posts honeypot websiteUrl without client-side trim`.
+
+- [ ] (candidate) `onSubmit` — cancel or request-access toggle during an in-flight POST does not abort `fetch` (late response may still flip to success).
+- [ ] (candidate) `onSubmit` — untouched honeypot posts `websiteUrl: ""` instead of omitting the field from JSON.
+- [ ] (candidate) Success view — omits `FatalPageReportProblemSupportRow` so operators cannot report the original callback failure after access request succeeds.
+- [ ] (candidate) `technicalDetail` — empty string prop still renders the helper paragraph (visual noise on blank callback errors).
+- [ ] (candidate) `onSubmit` — rapid double activation before `submitting` disables the submit button may enqueue duplicate `POST /api/access-requests`.
 
 ---
 
