@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit/`finally` gates, payload builder, and success-path ordering; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; reaffirmed `shows a toast for duplicate organization conflict without leaving submit stuck`, `shows a toast when register fetch throws`, `omits non-integer optional architecture team size from the register payload builder`, `surfaces signup error when success toast throws after successful register`, and `omits company size from the register payload builder when value is undefined`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
+
 2026-10-07 seed hunt (seed→hit): `topology-proposal-merge` — proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` dropped dual-model relationships whose endpoints used a secondary rename label absent from intersected-service keys; `CollectPruneEndpointKeys` now unions rename labels for intersected service/datastore identities from the combined manifests; regression `Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name`; cheap-disproof closed four other `(candidate)` rows; regression `BuildDeclaredEndpointCanonicalMap_keeps_first_service_name_mapping_when_duplicate_service_names_have_different_ids`; reaffirmed `Merge_output_has_no_dangling_edges`, `MapRelationships_resolves_module_qualified_terraform_address_when_graph_node_source_id_is_root_address`, and `FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByRenamedServiceLabels`; seeded five follow-on `(candidate)` rows; 1,617 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `topology-proposal-merge` — cheap-disproof closed five open `(candidate)` rows; regressions `Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id`, `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes`, and `Merge_disagreement_count_includes_secondary_only_duplicate_relationship_rows`; reaffirmed `FilterValidatedProposals_WhenGraphIsEmpty_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasWhenCostAppearsFirst` and graph-merge `ConnectsTo` dedupe; seeded five follow-on `(candidate)` rows; 1,615 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
@@ -4386,6 +4388,22 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+**Hunts:** 42 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
+
+- [x] (invalid) `SignupForm` `onSubmit` — `409` early `return` skips `finally` in-flight reset — **cheap-disproof 2026-10-07 seed hunt:** `finally` always runs; `registerSucceeded` stays false so gate clears; regression `shows a toast for duplicate organization conflict without leaving submit stuck`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `catch` surfaces raw `Error.message` from `fetch`/`router.push` — **cheap-disproof 2026-10-07 seed hunt:** TB-2005 async failure toast path; regressions `shows a toast when register fetch throws` and `surfaces signup error when navigation throws after successful register`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — fractional `architectureTeamSize` omitted when builder called without zod — **cheap-disproof 2026-10-07 seed hunt:** fail-closed omit at API boundary; UI blocked by schema; regression `omits non-integer optional architecture team size from the register payload builder`.
+- [x] (invalid) `SignupForm` success path — `recordFirstTenantFunnelEvent` after `showSuccess` throw — **cheap-disproof 2026-10-07 seed hunt:** funnel runs before toast; regression `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`.
+- [x] (valid-no-repro) `SignupForm` — `companySize` sessionStorage skipped when value falsy after register — **cheap-disproof 2026-10-07 seed hunt:** intentional omit for “Prefer not to say”; regression `omits company size from the register payload builder when value is undefined`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows “Organization created” success toast — locus: unconditional `showSuccess` after `res.ok` (`SignupForm.tsx` ~191–192).
+- [ ] (candidate) `SignupForm` `onSubmit` — `res.ok` with whitespace-only JSON body (`"   "`) treated as success with `body` null — locus: `JSON.parse` + empty-object guard (`SignupForm.tsx` ~142–149).
+- [ ] (SignupForm) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — locus: trim guard (`SignupForm.tsx` ~68–73).
+- [ ] (candidate) `SignupForm` — `registerInFlightRef` stays true after success so retry requires full page reload — locus: `finally` skips reset when `registerSucceeded` (`SignupForm.tsx` ~197–201).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — first zod issue may not match visible field when multiple optional errors exist — locus: `issues[0]` only (`signup-schema.ts` ~109–111).
+
 2026-10-07 seed hunt (seed-only): re-read `SignupForm` error/success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON HTML error body surfaces raw markup in `showError` — **cheap-disproof 2026-10-07 seed hunt:** intentional `text` fallback when `JSON.parse` fails; regression `shows raw html error body when register response is not json`.
@@ -4436,9 +4454,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
