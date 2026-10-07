@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Created`/`Failed`; `NaN` ordinal; whitespace-only `failureClass`; dead-letter on `Failed`+manifest); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
+2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Created`/`Failed`; `NaN` ordinal; whitespace-only `failureClass`; dead-letter on `Failed`+manifest); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 87 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`Infinity` ordinal; `RetryRequested` from `Created`; `CommitFinalized` from `WaitingForResults`; numeric `failureClass`; unparseable status + snapshot); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 83 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
@@ -21956,7 +21956,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 87 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Created` — **cheap-disproof 2026-10-07 seed hunt:** finalize legal only from `ReadyForCommit`; regression `TryTransition_denies_commit_finalized_from_created`.
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` — `NaN` ordinal — **cheap-disproof 2026-10-07 seed hunt:** non-finite guard; regression `TryParseStatus_rejects_nan_whole_number_ordinal_string`.
