@@ -826,6 +826,28 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_transient_sql_when_inner_chain_has_empty_aggregate_shell()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        SetInnerException(deadlock, new AggregateException());
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw deadlock;
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_does_not_retry_when_wrapper_inner_aggregate_is_empty_shell()
     {
         int attempts = 0;
