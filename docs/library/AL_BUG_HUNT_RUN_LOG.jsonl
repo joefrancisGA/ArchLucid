@@ -8796,3 +8796,4 @@
 {"at":"2026-10-07T14:33:47.9509921Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T14:37:04.3712536Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T14:41:30.7148399Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-07T14:48:20.0969462Z","zoneId":"ui-auth-callback","outcome":"hit","productLine":"archlucid-shared"}
