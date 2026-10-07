@@ -98,6 +98,24 @@ public sealed class HotPathCacheKeysTests
     }
 
     [SkippableFact]
+    public void RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+
+        string unpagedCeilingKey = HotPathCacheKeys.RunListByProjectFirstPage(scope, "billing", 200, 3);
+        string keysetCeilingKey = HotPathCacheKeys.RunListByProjectFirstPage(scope, "billing", 100, 3);
+
+        unpagedCeilingKey.Should().NotBe(keysetCeilingKey);
+        unpagedCeilingKey.Should().Contain(":200:billing");
+        keysetCeilingKey.Should().Contain(":100:billing");
+    }
+
+    [SkippableFact]
     public void RunListRecentInScopeFirstPage_includes_scope_revision()
     {
         ScopeContext scope = new()

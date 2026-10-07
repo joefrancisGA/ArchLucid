@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows (project list vs keyset take ceilings, caching first-page take keys, detail EXISTS vs list join warning hydration, in-memory project take defaults, unpaged TOP vs keyset Fetch); seeded five follow-on `(candidate)` rows; 170 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (HMAC required without signature, whitespace timestamp skew skip, Jira inbound secret provider scoping, orphan correlation ack, post-release concurrent replay claim); seeded five follow-on `(candidate)` rows; 63 scoped `ItsmInboundWebhook` tests passed (54 Application + 9 Persistence).
 
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (delivery-id precedence, malformed timestamp skew, empty human-review trim, RememberAsync claim interaction, unscoped 401 ambiguity); seeded five follow-on `(candidate)` rows; 61 scoped `ItsmInboundWebhook` tests passed (53 Application + 8 Persistence).
@@ -6592,6 +6594,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
+**Hunts:** 61 · **Bugs found:** 27 · **Consecutive dry hunts:** 2
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `ForProjectList_and_keyset_page_use_different_take_ceilings_by_design`, `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`, `Run_detail_correlated_warning_flags_use_nolock_exists_while_list_shapes_use_left_join_aggregates`, `InMemory_list_by_project_defaults_to_twenty_while_keyset_defaults_to_run_pagination_take`, and `Runs_list_by_project_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more`; seeded five follow-on `(candidate)` rows; 170 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectList` vs `ForProjectKeysetPage` — unpaged project lists clamp `take` to 200 while keyset `Fetch` caps at `RunPagination.MaxTake + 1` — **cheap-disproof 2026-10-07 seed hunt #61:** intentional list-shape split; regression `ForProjectList_and_keyset_page_use_different_take_ceilings_by_design`.
+- [x] (valid-no-repro) `CachingRunRepository.ListByProjectAsync` — caches first pages with `safeTake` up to 200 while `ListByProjectKeysetAsync` caches at `RunPagination.MaxTake` — **cheap-disproof 2026-10-07 seed hunt #61:** hot-path cache keys include clamped take so shapes do not collide; regression `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
+- [x] (valid-no-repro) `RunDetailReadSql.SelectCorrelatedWarningFlags` — EXISTS subqueries on findings/alerts use `WITH (NOLOCK)` while dashboard list shapes join the same aggregates — **cheap-disproof 2026-10-07 seed hunt #61:** detail reads use correlated EXISTS; lists use `LeftJoinAggregates` by design; regression `Run_detail_correlated_warning_flags_use_nolock_exists_while_list_shapes_use_left_join_aggregates`.
+- [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectAsync` — uses `Math.Clamp(..., 1, 200)` with default 20 while `ListByProjectKeysetAsync` uses `RunPagination.ClampTake` default 25 max 100 — **cheap-disproof 2026-10-07 seed hunt #61:** mirrors SQL parameter builders; regression `InMemory_list_by_project_defaults_to_twenty_while_keyset_defaults_to_run_pagination_take`.
+- [x] (valid-no-repro) `HotPathRelationalQueryShapes.RunsListByProjectNoLock` — unpaged `TOP (@Take)` omits probe row while keyset shape uses `@Fetch` — **cheap-disproof 2026-10-07 seed hunt #61:** `HasMore` is keyset-only; unpaged lists return bounded length without probe; regression `Runs_list_by_project_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more`.
+
+- [ ] (candidate) `CachingRunRepository.ListRecentInScopeAsync` — first-page cache uses `safeTake` up to 200 while `ListRecentInScopeKeysetAsync` caches `RunPagination.ClampTake(take)`; reachable when dashboard toggles recent-in-scope list APIs within TTL.
+- [ ] (candidate) `RunListQueryParameters.ForRecentInScope` — unset take defaults to 200 ceiling while `ForRecentInScopeKeysetPage` uses `RunPagination.Fetch`; reachable when operators request the same numeric take on unpaged vs keyset recent lists.
+- [ ] (candidate) `InMemoryRunRepository.ListRecentInScopeAsync` — `Math.Clamp(take <= 0 ? 200 : take, 1, 200)` vs keyset `RunPagination.ClampTake` when take is zero; reachable when contract tests assume identical defaults across recent list shapes.
+- [ ] (candidate) `HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock` vs `RunsListRecentInScopeKeysetNoLock` — unpaged `TOP (@Take)` without `@Fetch` while keyset uses probe fetch; reachable when UI infers further pages from unpaged recent list length alone.
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — governance open-alert EXISTS in detail read uses `ar.Status = 'Open'` while join aggregate filters `ar.Status = N'Open'`; reachable only if collation treats ASCII/Open variants differently from list hydration.
+
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five seeded `(candidate)` rows (project list warning hydration, keyset HasMore clamps, replica list routing, keyset in-memory warnings, detail NOLOCK shape); seeded five follow-on `(candidate)` rows; 235 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five seeded `(candidate)` rows after architecture-list projection hit; seeded five follow-on `(candidate)` rows; 149 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
@@ -6641,12 +6659,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InMemoryRunRepository.ListRecentInScopeKeysetAsync` — returns live store rows for paged items without dashboard warning projection — **cheap-disproof 2026-10-07 seed hunt #60:** keyset continuation mirrors unpaged in-memory model; regression `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`.
 - [x] (valid-no-repro) `RunRepositorySql.SelectByScopedId` — detail read omits table-level `NOLOCK` while list paths tolerate dirty reads — **cheap-disproof 2026-10-07 seed hunt #60:** main `FROM dbo.Runs` omits `NOLOCK` (correlated EXISTS may still NOLOCK findings); regression `Run_detail_select_omits_nolock_while_project_list_shape_uses_nolock`.
 
-- [ ] (candidate) `RunListQueryParameters.ForProjectList` vs `ForProjectKeysetPage` — unpaged project lists clamp `take` to 200 while keyset `Fetch` caps at `RunPagination.MaxTake + 1`; reachable when UI mixes unpaged and keyset project list APIs with the same requested page size.
-- [ ] (candidate) `CachingRunRepository.ListByProjectAsync` — caches first pages with `safeTake` up to 200 while `ListByProjectKeysetAsync` caches at `RunPagination.MaxTake`; reachable when dashboard toggles between unpaged and keyset project lists within TTL.
-- [ ] (candidate) `RunDetailReadSql.SelectCorrelatedWarningFlags` — EXISTS subqueries on findings/alerts use `WITH (NOLOCK)` while dashboard list shapes join the same aggregates; reachable when concurrent finding writes race list vs detail warning badges.
-- [ ] (candidate) `InMemoryRunRepository.ListByProjectAsync` — uses `Math.Clamp(..., 1, 200)` with default 20 while `ListByProjectKeysetAsync` uses `RunPagination.ClampTake` default 25 max 100; reachable when contract tests assume identical take normalization across list shapes.
-- [ ] (candidate) `HotPathRelationalQueryShapes.RunsListByProjectNoLock` — unpaged `TOP (@Take)` omits probe row while keyset shape uses `@Fetch`; reachable when operators infer `HasMore` from unpaged project list length alone.
-
 - [x] (valid-no-repro) `GetLatestWithGraphAtOrBeforeAsync` connection factory — **valid-no-repro 2026-10-06 seed hunt:** graph-at-time uses primary `ISqlConnectionFactory` like `GetByIdAsync`; authority run lists alone route via `IAuthorityRunListConnectionFactory` (`READ_REPLICA_ROUTING.md`); replica lag is documented eventual consistency, not a normalization defect.
 - [x] (valid-no-repro) `CountActiveRunsForArchitectureRequestAsync` NULL `LegacyRunStatus` — **valid-no-repro 2026-10-06 seed hunt:** intentional active occupancy until status is initialized (`RunRepositoryCore.LegacyRunStatusIsNonTerminal`); regressions `CountActiveRunsForArchitectureRequest_treats_null_legacy_status_as_active` and `InMemory_count_active_runs_treats_null_legacy_status_as_active_like_sql`.
 - [x] (valid-no-repro) `ClearGraphSnapshotForArchitectureAsync` `Guid.Empty` — **valid-no-repro 2026-10-06 seed hunt:** no-op matches `GetLatestRunIdForArchitectureAsync` / committed architecture lookups; upstream hooks (`ArchitectureSynthesisKernel`, `ArchitectureRunCreateIdentityLinkHook`) guard empty ids before repository calls.
@@ -6667,9 +6679,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none

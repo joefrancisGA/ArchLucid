@@ -79,6 +79,14 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Runs_list_by_project_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("SELECT TOP (@Take)");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().NotContain("@Fetch");
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("SELECT TOP (@Fetch)");
+    }
+
+    [SkippableFact]
     public void Runs_list_by_project_keyset_retains_cursor_predicate_and_run_id_tie_break()
     {
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
@@ -287,6 +295,16 @@ public sealed class HotPathRelationalQueryShapeTests
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("HasWarnings");
         RunRepositorySql.SelectByRunIdAdmin.Should().NotContain("OperatorGovernanceDecision");
+    }
+
+    [SkippableFact]
+    public void Run_detail_correlated_warning_flags_use_nolock_exists_while_list_shapes_use_left_join_aggregates()
+    {
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .Contain("FROM dbo.FindingsSnapshots fs WITH (NOLOCK)");
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .Contain("CASE WHEN EXISTS");
+        RunListWarningFlagSql.LeftJoinAggregates.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
     }
 
     [SkippableFact]

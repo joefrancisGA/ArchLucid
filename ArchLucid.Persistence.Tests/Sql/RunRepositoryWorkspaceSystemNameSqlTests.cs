@@ -2895,6 +2895,41 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
     }
 
+    [SkippableFact]
+    public async Task InMemory_list_by_project_defaults_to_twenty_while_keyset_defaults_to_run_pagination_take()
+    {
+        InMemoryRunRepository runs = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime now = TimeProvider.System.UtcNowDateTime();
+
+        for (int index = 0; index < 30; index++)
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = Guid.NewGuid(),
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    CreatedUtc = now.AddMinutes(-index),
+                },
+                CancellationToken.None);
+        }
+
+        IReadOnlyList<RunRecord> unpaged = await runs.ListByProjectAsync(scope, "billing", 0, CancellationToken.None);
+        RunListPage keyset = await runs.ListByProjectKeysetAsync(scope, "billing", null, null, 0, CancellationToken.None);
+
+        unpaged.Should().HaveCount(20);
+        keyset.Items.Should().HaveCount(25);
+    }
+
     [Fact]
     public void SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract()
     {
