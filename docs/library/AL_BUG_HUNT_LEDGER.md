@@ -142,6 +142,8 @@
 
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (permanent type-init sibling fail-fast, HTTP-only aggregate inner, naive serial inner×outer budget product by design, reflection `InnerException` transient SQL walk retries with deadlock sibling, type-init nested aggregate flatten); regressions `ExecuteAsync_does_not_retry_when_aggregate_lists_type_initialization_with_permanent_sql_beside_deadlock`, `ExecuteAsync_does_not_retry_when_aggregate_sole_inner_is_http_request_without_sql`, `Naive_serial_product_of_max_attempts_and_inner_polly_backoff_exceeds_retry_budget_by_design`, `ExecuteAsync_retries_deadlock_when_reflection_type_load_inner_exception_wraps_transient_sql`, `ExecuteAsync_does_not_retry_when_type_initialization_hides_mixed_nested_aggregate`, and `ExecuteAsync_retries_deadlock_when_type_initialization_hides_nested_all_transient_aggregate`; seeded five follow-on `(candidate)` rows; 104 scoped transient-retry tests passed (80 Persistence + 24 Application).
 
+2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 42 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt (dry): `ui-review-intake-wizards` — cheap-disproof closed five stale duplicate `(candidate)` rows at zone tail plus five follow-on `(candidate)` rows; regressions in `use-new-run-wizard-intake-params`, `use-new-run-wizard-query-prefill`, `use-new-run-wizard-track-stream`, `use-new-run-wizard-submit`, `reviews-new-path-switcher-state`, and `use-first-pilot-intake-submit` tests; scoped `reviews/new` vitest 132 passed with 71 pre-existing baseline failures.
 
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` startup ordering, `WorkerProcessHostingRoleConfiguration`, and `UseArchLucidWorkerPipeline` health mapping after four consecutive dry hunts; no hunt-ready row promoted; regressions `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role` and `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; seeded five follow-on `(candidate)` rows; 19 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -4440,7 +4442,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 42 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 43 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 83 scoped SignupForm vitest tests passed.
+
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows “Organization created” success toast — **cheap-disproof 2026-10-07 seed hunt:** verify page copy handles idempotent provision separately; regression `shows organization created success toast when register response was already provisioned`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `res.ok` with whitespace-only response body treated as success with `body` null — **cheap-disproof 2026-10-07 seed hunt:** non-JSON whitespace skips `JSON.parse`; regression `still navigates after 201 when register response body is whitespace only`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — **cheap-disproof 2026-10-07 seed hunt:** fail-closed trim guard; UI blocked by `signupFormSchema`; regression `omits whitespace-only industry vertical other from the register payload builder when industry is Other`.
+- [x] (valid-no-repro) `SignupForm` — `registerInFlightRef` stays true after success so duplicate POST is blocked — **cheap-disproof 2026-10-07 seed hunt:** intentional anti-double-submit; regression `does not fire a second register request after success before navigation`.
+- [x] (valid-no-repro) `deriveSignupFormReadinessMessage` — first zod issue may not match visible field when multiple optional errors exist — **cheap-disproof 2026-10-07 seed hunt:** required-field email issues precede optional `Other` industry; regression `deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON literal `null` body still navigates to verify — locus: `JSON.parse('null')` yields null tenant payload (`SignupForm.tsx` ~142–149, ~178–186).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `409` with JSON `detail` string still shows fixed duplicate-org toast — locus: status branch before `!res.ok` (`SignupForm.tsx` ~151–154).
+- [ ] (candidate) `buildSignupRegisterPayload` — non-numeric `architectureTeamSize` like `abc` omitted when builder called without zod — locus: `Number.isFinite` guard (`SignupForm.tsx` ~56–61).
+- [ ] (candidate) `SignupForm` — success path leaves primary button label on `Creating…` until navigation unmounts — locus: `submitting` not cleared when `registerSucceeded` (`SignupForm.tsx` ~197–201).
+- [ ] (candidate) `SignupForm` `onSubmit` — malformed JSON object in `201` body (`{tenantId:`) surfaces error toast instead of success — locus: `JSON.parse` catch sets `body` null while `res.ok` (`SignupForm.tsx` ~145–165).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
@@ -4450,12 +4466,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `SignupForm` success path — `recordFirstTenantFunnelEvent` after `showSuccess` throw — **cheap-disproof 2026-10-07 seed hunt:** funnel runs before toast; regression `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`.
 - [x] (valid-no-repro) `SignupForm` — `companySize` sessionStorage skipped when value falsy after register — **cheap-disproof 2026-10-07 seed hunt:** intentional omit for “Prefer not to say”; regression `omits company size from the register payload builder when value is undefined`.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows “Organization created” success toast — locus: unconditional `showSuccess` after `res.ok` (`SignupForm.tsx` ~191–192).
-- [ ] (candidate) `SignupForm` `onSubmit` — `res.ok` with whitespace-only JSON body (`"   "`) treated as success with `body` null — locus: `JSON.parse` + empty-object guard (`SignupForm.tsx` ~142–149).
-- [ ] (candidate) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — locus: trim guard (`SignupForm.tsx` ~68–73).
-- [ ] (candidate) `SignupForm` — `registerInFlightRef` stays true after success so retry requires full page reload — locus: `finally` skips reset when `registerSucceeded` (`SignupForm.tsx` ~197–201).
-- [ ] (candidate) `deriveSignupFormReadinessMessage` — first zod issue may not match visible field when multiple optional errors exist — locus: `issues[0]` only (`signup-schema.ts` ~109–111).
-
 2026-10-07 seed hunt (seed-only): re-read `SignupForm` error/success response handling and optional team-size gating; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON HTML error body surfaces raw markup in `showError` — **cheap-disproof 2026-10-07 seed hunt:** intentional `text` fallback when `JSON.parse` fails; regression `shows raw html error body when register response is not json`.
@@ -4464,11 +4474,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `200` with JSON success body still runs verify redirect — **cheap-disproof 2026-10-07 seed hunt:** intentional `res.ok` gate; reaffirmed `navigates to verify on HTTP 200 when register response is ok`.
 - [x] (valid-no-repro) `SignupForm` optional team-size input — pasted non-numeric text until change validation runs — **cheap-disproof 2026-10-07 seed hunt:** `type="number"` does not admit alphabetic input in test env; `signupFormSchema` rejects `"abc"` when set; regression `signupFormSchema rejects alphabetic optional architecture team size`.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — `409` duplicate-org branch returns before `finally` resets in-flight state but still clears gate — locus: early `return` after `showError` (`SignupForm.tsx` ~151–154, ~197–201).
-- [ ] (candidate) `SignupForm` `onSubmit` — `catch` path surfaces raw `Error.message` from `fetch`/`router.push` without redaction — locus: outer catch (`SignupForm.tsx` ~194–196).
-- [ ] (candidate) `buildSignupRegisterPayload` — fractional team size like `3.5` omitted in builder while zod blocks submit on normal path — locus: `Number.isInteger` guard (`SignupForm.tsx` ~59).
-- [ ] (candidate) `SignupForm` success path — `recordFirstTenantFunnelEvent` runs even when `showSuccess` throws after `registerCompletedRef` set — locus: ordering before toast (`SignupForm.tsx` ~191–192).
-- [ ] (candidate) `SignupForm` — `companySize` sessionStorage write skipped when value falsy after successful register — locus: `if (values.companySize)` (`SignupForm.tsx` ~170–175).
+- [x] (invalid) `SignupForm` `onSubmit` — `409` duplicate-org branch returns before `finally` resets in-flight state but still clears gate — **ledger duplicate 2026-10-07 seed hunt #43:** same row closed above as `(invalid)`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `catch` path surfaces raw `Error.message` from `fetch`/`router.push` without redaction — **ledger duplicate 2026-10-07 seed hunt #43:** same row closed above.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — fractional team size like `3.5` omitted in builder while zod blocks submit on normal path — **ledger duplicate 2026-10-07 seed hunt #43:** same row closed above.
+- [x] (invalid) `SignupForm` success path — `recordFirstTenantFunnelEvent` runs even when `showSuccess` throws after `registerCompletedRef` set — **ledger duplicate 2026-10-07 seed hunt #43:** same row closed above.
+- [x] (valid-no-repro) `SignupForm` — `companySize` sessionStorage write skipped when value falsy after successful register — **ledger duplicate 2026-10-07 seed hunt #43:** same row closed above.
 
 2026-10-07 seed hunt (seed-only): re-read `SignupForm` submit path, payload builder, and first-touch header encoding; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 76 scoped SignupForm vitest tests passed.
 
@@ -4506,7 +4516,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07

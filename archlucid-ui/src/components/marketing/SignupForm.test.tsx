@@ -20,7 +20,11 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import * as firstTenantFunnelTelemetry from "@/lib/first-tenant-funnel-telemetry";
-import { signupFormSchema, type SignupFormValues } from "@/lib/signup-schema";
+import {
+  deriveSignupFormReadinessMessage,
+  signupFormSchema,
+  type SignupFormValues,
+} from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
 import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
@@ -53,6 +57,32 @@ describe("SignupForm", () => {
 
     expect(payload.industryVertical).toBe("Technology");
     expect(payload.industryVerticalOther).toBeUndefined();
+  });
+
+  it("omits whitespace-only industry vertical other from the register payload builder when industry is Other", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      industryVertical: "Other",
+      industryVerticalOther: "   \t  ",
+    });
+
+    expect(payload.industryVertical).toBe("Other");
+    expect(payload.industryVerticalOther).toBeUndefined();
+  });
+
+  it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "not-an-email",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      industryVertical: "Other",
+      industryVerticalOther: "",
+    });
+
+    expect(message).toMatch(/valid work email/i);
+    expect(message).not.toMatch(/industry/i);
   });
 
   it("includes maximum valid optional architecture team size in the register payload builder", () => {
@@ -750,6 +780,32 @@ describe("SignupForm", () => {
     expect(stored.tenantId).toBeUndefined();
 
     setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is JSON null", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("null", { status: 201, headers: { "Content-Type": "application/json" } })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
     vi.unstubAllGlobals();
   });
 
