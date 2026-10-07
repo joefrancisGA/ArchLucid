@@ -10,10 +10,20 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 CACHE_ROOT="$ROOT/.cache"
-NUGET_PACKAGES="$CACHE_ROOT/nuget-packages"
 RESTORE_STAMP="$CACHE_ROOT/openapi-contract-restore.stamp"
-mkdir -p "$NUGET_PACKAGES"
-export NUGET_PACKAGES
+mkdir -p "$CACHE_ROOT"
+
+# actions/setup-dotnet cache post-step looks at the default CLI folder
+# (~/.nuget/packages). Redirecting NUGET_PACKAGES under .cache leaves that
+# folder missing and fails the job after snapshot tests already passed.
+if [[ -z "${GITHUB_ACTIONS:-}" ]]; then
+  NUGET_PACKAGES="$CACHE_ROOT/nuget-packages"
+  mkdir -p "$NUGET_PACKAGES"
+  export NUGET_PACKAGES
+else
+  unset NUGET_PACKAGES || true
+  mkdir -p "${HOME}/.nuget/packages"
+fi
 
 fingerprint() {
   local payload
