@@ -29,6 +29,42 @@ describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
       expect(result.response.challengeId ?? null).toBeNull();
     }
   });
+
+  it("returns delivery_failed when the API marks emailDeliverySucceeded false", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Delivery failed.",
+        ssoRequired: false,
+        emailDeliverySucceeded: false,
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result).toEqual({ kind: "failure", category: "delivery_failed" });
+  });
+
+  it("returns success when the API sets ssoRequired on the challenge body (UI applyChallengeSuccess handles SSO)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Use your organization SSO.",
+        ssoRequired: true,
+        ssoMessage: "Contact your admin.",
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result.kind).toBe("success");
+
+    if (result.kind === "success") {
+      expect(result.response.ssoRequired).toBe(true);
+    }
+  });
 });
 
 describe("verifyEmailOtpCode (pre-auth proxy)", () => {

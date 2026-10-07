@@ -46,6 +46,30 @@ describe("createPostAuthWorkspace", () => {
     expect(result.succeeded).toBe(false);
     expect(result.customerMessage).toBe("Workspace creation could not be completed.");
   });
+
+  it("parses HTTP 200 bodies with succeeded false without treating the transport as an error", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          succeeded: false,
+          customerMessage: "Organization already exists.",
+          duplicateOrganization: { detected: true, accessRequestRecommended: true, customerMessage: "Request access." },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const result = await createPostAuthWorkspace({
+      workspaceName: "Workspace",
+      organizationName: "Org",
+      termsAccepted: true,
+      includeDemoSeed: false,
+    });
+
+    expect(result.succeeded).toBe(false);
+    expect(result.customerMessage).toBe("Organization already exists.");
+    expect(result.duplicateOrganization?.accessRequestRecommended).toBe(true);
+  });
 });
 
 describe("initiatePostAuthAccessRequest", () => {
