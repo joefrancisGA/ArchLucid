@@ -1173,6 +1173,69 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_wrapped_in_target_invocation_exception()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        TargetInvocationException wrapper = new("invoke failed", deadlock);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw wrapper;
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_aggregate_inner_is_target_invocation_exception()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        TargetInvocationException wrapper = new("invoke failed", deadlock);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(wrapper);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_cancellation_is_requested_during_delegate_execution()
+    {
+        int attempts = 0;
+        using CancellationTokenSource cancellation = new();
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            ct =>
+            {
+                attempts++;
+                cancellation.Cancel();
+                throw new OperationCanceledException(ct);
+            },
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers()
     {
         int firstAttempts = 0;

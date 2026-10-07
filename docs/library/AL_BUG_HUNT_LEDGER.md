@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (non-linear aggregate graph, reflection wrappers, inner/outer attempt layering, cancel during delegate, budget vs inner sleep); regressions `ExecuteAsync_retries_deadlock_wrapped_in_target_invocation_exception`, `ExecuteAsync_retries_deadlock_when_aggregate_inner_is_target_invocation_exception`, `ExecuteAsync_does_not_retry_when_cancellation_is_requested_during_delegate_execution`, `Outer_commit_max_attempts_exceeds_inner_polly_retry_attempt_budget_by_design`, plus existing chained-aggregate and `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`; 82 scoped transient-retry tests passed (62 Persistence + 20 Application).
+
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive dry hunt emptied open rows; no hunt-ready row promoted; seeded five `(candidate)` rows; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
 
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (chained populated aggregates on inner chain, empty-shell flatten sibling, jitter span positivity, concurrent `ExecuteAsync` isolation, bounded policy delay indices); regressions `ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate`, `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`, `ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers`, and `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices`; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
@@ -5031,9 +5033,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
@@ -5201,11 +5203,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-07 seed hunt (seed-only): re-read orchestrator transient retry after dry hunt; seeded five `(candidate)` rows; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
 
-- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — only walks the linear `InnerException` chain; a second populated `AggregateException` reachable only as an inner of another aggregate inner (not on the wrapper chain) would never be consulted if Task fault shapes ever nested aggregates that way (contested vs #1259).
-- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — `TargetInvocationException` or `TypeInitializationException` wrapping transient `SqlException` on aggregate inners from reflection-based repository invokes; verify aggregate branch still defers to `SqlTransientDetector` inner walk like `InvalidOperationException` / `IOException` wrappers.
-- [ ] (candidate) `OrchestratorTransientDbRetry.BuildPipeline` — inner Polly `MaxRetryAttempts = 3` (four executions) vs outer `CommitRunTransientRetryPolicy.MaxAttempts = 12` lets inner backoff exhaust while outer attempt counter remains below ceiling (#1259 layered design).
-- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — Polly passes its own `ct` into the user delegate while `ShouldHandle` does not observe cancellation; cancel during delegate execution (not backoff) should fail fast without scheduling another retry.
-- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — outer wall-clock `RetryBudget` does not subtract time spent inside inner `OrchestratorTransientDbRetry` Polly sleeps when the authority commit loop checks exhaustion between outer attempts (budget interaction vs `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`).
+- [x] (invalid) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — non-linear nested aggregate graph — **cheap-disproof 2026-10-07 thorough hunt:** parallel-persist faults surface a single aggregate; top-level `Flatten()` and first populated aggregate on inner chain govern retry (#1259); regression `ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — `TargetInvocationException` wrapping transient `SqlException` — **cheap-disproof 2026-10-07 thorough hunt:** aggregate branch defers to `SqlTransientDetector` inner walk; regressions `ExecuteAsync_retries_deadlock_wrapped_in_target_invocation_exception` and `ExecuteAsync_retries_deadlock_when_aggregate_inner_is_target_invocation_exception`.
+- [x] (invalid) `OrchestratorTransientDbRetry.BuildPipeline` — inner Polly three retries vs outer twelve attempts — **cheap-disproof 2026-10-07 thorough hunt:** intentional layered retry (#1259); regression `Outer_commit_max_attempts_exceeds_inner_polly_retry_attempt_budget_by_design` plus `ExecuteAsync_exhausts_max_retries_then_throws_transient_sql_error`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync` — cancel during delegate execution — **cheap-disproof 2026-10-07 thorough hunt:** `OperationCanceledException` is not retriable; regression `ExecuteAsync_does_not_retry_when_cancellation_is_requested_during_delegate_execution` (sibling `ExecuteAsync_does_not_retry_operation_canceled`).
+- [x] (invalid) `CommitRunTransientRetryPolicy.IsExhausted` — outer budget vs inner Polly sleep accounting — **cheap-disproof 2026-10-07 thorough hunt:** minimum inner backoff sum fits inside `RetryBudget`; regression `Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget`.
 
 ---
 

@@ -172,6 +172,12 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void Outer_commit_max_attempts_exceeds_inner_polly_retry_attempt_budget_by_design()
+    {
+        CommitRunTransientRetryPolicy.MaxAttempts.Should().BeGreaterThan(4);
+    }
+
+    [Fact]
     public void Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget()
     {
         TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
