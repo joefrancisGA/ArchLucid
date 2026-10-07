@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Retrying`/`FailedPartial`; boolean `failureClass`; `PartiallyCompleted` dead-letter; `"-6"` ordinal); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`CommitFinalized` from `Created`/`Failed`; `NaN` ordinal; whitespace-only `failureClass`; dead-letter on `Failed`+manifest); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 87 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (`Infinity` ordinal; `RetryRequested` from `Created`; `CommitFinalized` from `WaitingForResults`; numeric `failureClass`; unparseable status + snapshot); seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 83 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
@@ -21948,13 +21950,27 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
+
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Retrying` — **cheap-disproof 2026-10-07 seed hunt:** finalize only from `ReadyForCommit`; regression `TryTransition_denies_commit_finalized_from_retrying`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `FailedPartial` — **cheap-disproof 2026-10-07 seed hunt:** partial failure must reach `ReadyForCommit` before finalize; regression `TryTransition_denies_commit_finalized_from_failed_partial`.
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `false` `failureClass` — **cheap-disproof 2026-10-07 seed hunt:** non-string token rejected by `TryReadNonEmptyTextToken`; regression `IsDeadLettered_returns_false_for_boolean_false_failure_class_token`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with pipeline dead-letter — **cheap-disproof 2026-10-07 seed hunt:** dead-letter precedes terminal/progress branches; regression `ResolveFromRunHeader_partially_completed_with_pipeline_dead_letter_returns_failed_not_in_progress`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative integer ordinals such as `"-6"` — **cheap-disproof 2026-10-07 seed hunt:** negative ordinals fail `Enum.IsDefined`; SQL enum names on persist; regression `TryParseStatus_rejects_negative_integer_ordinal_string`.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `ExecutionCompletedQualityRejected` denied (quality-rejected runs cannot finalize without recovery).
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `PartiallyCompleted` denied (must reach `ReadyForCommit` via execute-complete events).
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `true` `failureClass` token returns not dead-lettered (parity with `false` non-string guard).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` with pipeline dead-letter JSON returns `Failed` before in-progress legacy branch.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative fractional ordinals such as `"-5.0"` rejected by `TryParseWholeNumberString` non-negative floor rule (parity with positive `"5.0"` acceptance).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 87 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
@@ -21963,12 +21979,6 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Failed` — **cheap-disproof 2026-10-07 seed hunt:** terminal failure cannot finalize without `ReadyForCommit`; regression `TryTransition_denies_commit_finalized_from_failed`.
 - [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — whitespace-only `failureClass` — **cheap-disproof 2026-10-07 seed hunt:** trim then empty token fails `TryReadNonEmptyTextToken`; regression `IsDeadLettered_returns_false_for_whitespace_only_failure_class_token`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — pipeline dead-letter on `Failed` with stale `GoldenManifestId` — **cheap-disproof 2026-10-07 seed hunt:** `IsDeadLettered` precedes terminal/manifest branches; regression `ResolveFromRunHeader_failed_with_pipeline_dead_letter_and_golden_manifest_returns_failed`.
-
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `Retrying` denied (retry path must rematerialize tasks before finalize).
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from `FailedPartial` denied (partial failure must recover to `ReadyForCommit` first).
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — boolean `false` `failureClass` token returns not dead-lettered (non-string JSON token).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `PartiallyCompleted` with pipeline dead-letter JSON returns `Failed` before progress-marker branch (same ordering as `ReadyForCommit` dead-letter row).
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — negative integer ordinals such as `"-6"` rejected (`int.TryParse` succeeds but `Enum.IsDefined` may not apply when string is not a known name).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 83 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 

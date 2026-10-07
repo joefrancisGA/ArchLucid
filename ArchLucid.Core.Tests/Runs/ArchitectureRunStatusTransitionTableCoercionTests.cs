@@ -184,4 +184,35 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         result.IsAllowed.Should().BeFalse();
         result.TargetStatus.Should().Be(ArchitectureRunStatus.Failed);
     }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_retrying()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.Retrying,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.Retrying);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_failed_partial()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.FailedPartial,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.FailedPartial);
+    }
+
+    [Fact]
+    public void TryParseStatus_rejects_negative_integer_ordinal_string()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("-6", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
 }
