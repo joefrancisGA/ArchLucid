@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucidPersistenceStartup`, `StartupConfigurationDiagnostics`, and API/worker demo-seed wiring; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucidPersistenceStartup`, worker pipeline middleware, and `DemoSeedBootstrapPolicy`; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs`, `WorkerHostPipelineExtensions`, and worker/API startup ordering; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -9556,7 +9558,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 33 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+**Hunts:** 34 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): re-read demo-seed bootstrap and startup diagnostics; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+
+- [x] (valid-no-repro) `Program.Main` — synchronous `IDemoSeedService.SeedAsync` during worker startup when showcase flags are set — **cheap-disproof 2026-10-07 seed hunt:** shared `ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` path (API and Jobs CLI too); gated by `DemoSeedBootstrapPolicy.ShouldSeedShowcaseOnStartup`; intentional for showcase/trial hosts.
+- [x] (valid-no-repro) `Program.Main` — worker omits `DemoSeedStartupHostedService` so seed timing differs from API in `/app` image — **cheap-disproof 2026-10-07 seed hunt:** worker already seeds during persistence bootstrap; API adds non-blocking `DemoSeedStartupHostedService` after HTTP stack registration; worker-only revisions are not missing showcase seed when policy allows.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — `Cross-Origin-Embedder-Policy: require-corp` on `/metrics` — **cheap-disproof 2026-10-07 seed hunt:** duplicate of prior `SecurityHeadersMiddleware` closure; Prometheus scrapers ignore browser isolation headers.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — no `AddArchLucidRateLimiting` on health/metrics routes — **cheap-disproof 2026-10-07 seed hunt:** worker exposes probe/scrape plane only; rate limits protect tenant API traffic at the API host/edge; no wrong worker outcome established.
+- [x] (invalid) `Program.Main` — `StartupConfigurationDiagnostics` before migrations snapshots stale SQL catalog state — **cheap-disproof 2026-10-07 seed hunt:** `StartupConfigurationFactsReader.FromConfiguration` reads `IConfiguration` only; migrations do not mutate configuration keys in the snapshot (parity 2026-10-06 `StartupConfigurationDiagnostics` row).
+
+- [ ] (candidate) `ArchLucidPersistenceStartup` — `ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true` lets worker continue startup after DbUp failure while `StartupMigrationHealthState` marks migration failed — locus: `ArchLucidPersistenceStartup.cs` ~122–133; input: invalid system connection with degraded flag enabled.
+- [ ] (candidate) `ArchLucidPersistenceStartup` — demo seed `catch` logs warning and continues when `IDemoSeedService.SeedAsync` throws on worker startup — locus: ~293–298; input: `Demo:Enabled` + `Demo:EnableShowcaseSeed` with seed service fault.
+- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics` logs `RateLimitPermitLimitWindow` on worker hosts that never register `AddArchLucidRateLimiting` — locus: `StartupConfigurationDiagnostics.cs` ~25–42; input: default `appsettings.json` rate-limit section beside `Hosting:Role=Worker`.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — `MapHealthChecks("/health")` uses default predicate (all checks) while `/health/live` and `/health/ready` filter by tags — locus: `WorkerHostPipelineExtensions.cs` ~95–110; input: ready check degraded but live check healthy.
+- [ ] (candidate) `AddArchLucidOpenTelemetry` — registers `AddPrometheusExporter()` on the shared meter provider even when `Observability:Prometheus:Enabled` is false until pipeline maps scrape endpoint — locus: `ObservabilityExtensions.cs` ~180–183; input: Prometheus disabled with OTLP-only observability config.
 
 2026-10-07 seed hunt (seed-only): re-read persistence bootstrap and worker pipeline middleware; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
@@ -9565,14 +9581,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Program.Main` — `AddHttpContextAccessor` leaves background jobs without HTTP scope — **cheap-disproof 2026-10-07 seed hunt:** `HttpScopeContextProvider` prefers `AmbientScopeContext` then defaults; regressions `Worker_scope_provider_uses_defaults_without_http_context` and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`.
 - [x] (valid-no-repro) `Program.Main` — legacy-key warnings before schema bootstrap mis-order operator signals — **cheap-disproof 2026-10-07 seed hunt:** warn-only legacy path; SQL migration failures still throw; regression `Worker_host_starts_when_legacy_product_section_keys_are_present`.
 - [x] (invalid) `UseArchLucidWorkerPipeline` — `TraceResponseHeaderMiddleware` breaks `/health/live` probes — **cheap-disproof 2026-10-07 seed hunt:** probes gate on status code; extra `traceparent` / `X-Trace-Id` headers do not alter liveness; regression `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`.
-
-- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs `IDemoSeedService.SeedAsync` synchronously during worker startup when `Demo:Enabled` and `Demo:EnableShowcaseSeed` are true — locus: `ArchLucidPersistenceStartup.cs` ~277–289; input: production-like worker with SQL storage and showcase demo flags in `appsettings.SaaS.json`.
-- [ ] (candidate) `Program.Main` — worker omits `DemoSeedStartupHostedService` registered on the API host so showcase seed timing differs between `ArchLucid.Api.dll` and `ArchLucid.Worker.dll` in the shared `/app` image — locus: `ArchLucid.Api/Program.cs` ~119 vs `ArchLucid.Worker/Program.cs`.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — `SecurityHeadersMiddleware` sets `Cross-Origin-Embedder-Policy: require-corp` on plaintext Prometheus `/metrics` bodies — locus: `SecurityHeadersMiddleware.cs` ~48; input: browser-based metrics debugging behind CORP-sensitive tooling.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — worker pipeline omits `AddArchLucidRateLimiting` so anonymous `GET /health` and `/metrics` are not throttled — locus: `WorkerHostPipelineExtensions.cs` vs API `PipelineExtensions`; input: abusive probe traffic against worker ingress.
-- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics.LogIfEnabled` snapshots configuration before `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` mutates SQL catalog state — locus: `Program.cs` ~73–79; input: first-run migration on empty SQL catalog with startup summary logging enabled.
-
-2026-10-07 seed hunt (seed-only): re-read worker startup vs API host; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
 - [x] (valid-no-repro) `Program.Main` — `AddArchLucidOpenTelemetry` registers before `ValidateOrThrow` so `Observability:*` failures surface as OTel DI exceptions — **cheap-disproof 2026-10-07 seed hunt:** `ObservabilityRules.CollectPrometheus` runs in `ValidateOrThrow` before `Build()`; regression `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials` asserts `*Prometheus*` at `factory.Services`.
 - [x] (valid-no-repro) `Program.Main` — worker omits explicit `builder.Services.AddHealthChecks()` before composition — **cheap-disproof 2026-10-07 seed hunt:** `DataHealthJobsCompositionModule` calls `AddHealthChecks()` during `AddArchLucidApplicationServices`; regressions `Worker_host_health_live_returns_ok_when_pipeline_is_mapped` and `Worker_host_health_ready_returns_anonymous_summary_json`.
@@ -9600,7 +9608,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
