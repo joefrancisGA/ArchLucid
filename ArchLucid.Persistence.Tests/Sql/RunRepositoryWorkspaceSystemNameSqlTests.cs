@@ -1291,6 +1291,101 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void ListByArchitectureId_inline_select_lists_updated_utc_without_run_record_property_mapping()
+    {
+        const string architectureListProjection = """
+                                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                         PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                         ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                                  """;
+
+        architectureListProjection.Should().Contain("UpdatedUtc");
+        typeof(RunRecord).GetProperty("UpdatedUtc").Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_architecture_id_omits_operator_governance_disposition_like_sql_lightweight_select()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        Guid runId = Guid.NewGuid();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                OperatorGovernanceDecision = "Hold",
+                OperatorGovernanceDecisionRationale = "Awaiting sponsor sign-off.",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByArchitectureIdAsync(scope, architectureId, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].OperatorGovernanceDecision.Should().BeNull();
+        listed[0].OperatorGovernanceDecisionRationale.Should().BeNull();
+
+        RunRecord? stored = await runs.GetByIdAsync(scope, runId, CancellationToken.None);
+
+        stored.Should().NotBeNull();
+        stored!.OperatorGovernanceDecision.Should().Be("Hold");
+    }
+
+    [Fact]
+    public void Committed_lookup_ordering_differs_between_manifest_latest_and_prior_before_current()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("ORDER BY gm.CreatedUtc DESC, r.RunId DESC");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void ListWithNullArchitectureId_backfill_select_includes_architecture_request_id_unlike_architecture_attached_list()
+    {
+        const string backfillProjection = """
+                                          ArchitectureRequestId,
+                                          KnowledgeModelId,
+                                          """;
+
+        backfillProjection.Should().Contain("ArchitectureRequestId");
+        const string architectureListProjection = """
+                                                  GoldenManifestId
+                                                  """;
+
+        architectureListProjection.Should().NotContain("ArchitectureRequestId");
+    }
+
+    [Fact]
+    public void Archival_PurgeStaleUncommittedRunsBatch_uses_catalog_scope_while_sample_purge_honors_optional_tenant_filter()
+    {
+        const string archivalProcedure = """
+                                         CREATE OR ALTER PROCEDURE dbo.Archival_PurgeStaleUncommittedRunsBatch
+                                             @CutoffUtc DATETIME2,
+                                             @BatchSize INT
+                                         """;
+
+        const string sampleProcedure = """
+                                       CREATE OR ALTER PROCEDURE dbo.SampleRunPurgeBatch
+                                           @TenantId UNIQUEIDENTIFIER = NULL,
+                                       """;
+
+        archivalProcedure.Should().NotContain("@TenantId");
+        sampleProcedure.Should().Contain("@TenantId");
+    }
+
+    [Fact]
     public async Task InMemory_list_with_null_architecture_id_excludes_archived_runs()
     {
         ScopeContext scope = new()
