@@ -274,11 +274,11 @@ public sealed class DiagramForestVnetFrameLayoutTests
             [
                 Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
                 Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
-                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-sec"),
+                Workload("workspace", "workspace-app", "Microsoft.OperationalInsights/workspaces", "rg-sec"),
             ],
             [
                 Cited("vm", "vnet"),
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
+                new DiagramEdge { FromNodeId = "workspace", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
             ]);
 
         XDocument svg = Render(ast);
@@ -304,7 +304,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
         sharedNeighborhood.Elements().Where(element => element.Name.LocalName == "member")
             .Select(element => element.Attribute("id")?.Value)
             .Should().ContainSingle()
-            .Which.Should().Be("vault");
+            .Which.Should().Be("workspace");
         VnetFrames(svg).Single().Attribute("data-neighborhood-id")?.Value
             .Should().Be(vnetNeighborhood.Attribute("id")?.Value);
         svg.Descendants()
@@ -699,14 +699,12 @@ public sealed class DiagramForestVnetFrameLayoutTests
             .Descendants().Any(element =>
                 element.Name.LocalName == "neighborhood"
                 && element.Attribute("kind")?.Value == "shared-services").Should().BeTrue();
-        XElement vnetNeighborhood = svg.Descendants()
-            .First(element =>
-                element.Name.LocalName == "neighborhood"
-                && element.Attribute("kind")?.Value == "vnet");
-        vnetNeighborhood.Descendants().Any(element =>
+        XElement metadata = svg.Descendants().First(element =>
+            element.Attribute("id")?.Value == "diagram-neighborhoods");
+        metadata.Descendants().Any(element =>
             element.Name.LocalName == "type"
             && element.Attribute("name")?.Value == "key vaults").Should().BeTrue();
-        vnetNeighborhood.Descendants().Any(element =>
+        metadata.Descendants().Any(element =>
             element.Name.LocalName == "type"
             && element.Attribute("name")?.Value == "recovery vaults").Should().BeTrue();
     }
