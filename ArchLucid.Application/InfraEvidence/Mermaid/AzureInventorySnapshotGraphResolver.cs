@@ -212,6 +212,12 @@ public sealed class AzureInventorySnapshotGraphResolver(
             }
         }
 
+        AzureInventorySnapshotRoleAssignmentEdgeHydrator.AddMissingRoleAssignmentEdges(
+            graphSnapshot,
+            nodes,
+            nodeIdByArmId,
+            edges,
+            edgeKeys);
         AzureInventorySnapshotVnetPeeringEdgeHydrator.AddMissingPeeringEdges(
             snapshot,
             nodeIdByArmId,

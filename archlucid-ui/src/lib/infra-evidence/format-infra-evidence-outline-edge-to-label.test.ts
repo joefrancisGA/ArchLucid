@@ -56,6 +56,16 @@ describe("formatInfraEvidenceOutlineEdgeToLabel", () => {
       }),
     ).toBe("core-vnet (Virtual Network)");
   });
+
+  it("does not copy the From name when the To name is missing", () => {
+    expect(
+      formatInfraEvidenceOutlineEdgeToLabel({
+        fromName: "api",
+        toName: "",
+        toResourceType: null,
+      }),
+    ).toBe("Destination name was not stored");
+  });
 });
 
 describe("resolveInfraEvidenceOutlineEdgeToDisplay", () => {

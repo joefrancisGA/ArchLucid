@@ -73,6 +73,7 @@ export function buildRunDetailFindingsPresentation(
       (finding) =>
         !finding.isMuted &&
         !isReviewFindingDispositionClosed(finding) &&
+        finding.severityValue !== null &&
         finding.severityValue >= 2 &&
         finding.confidenceLevel === "Low",
     ).length,

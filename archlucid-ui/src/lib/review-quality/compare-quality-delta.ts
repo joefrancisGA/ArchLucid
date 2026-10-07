@@ -1,6 +1,7 @@
 import type { CompareFindingLifecycleRecord } from "@/lib/compare-finding-lifecycle";
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { hasFindingSeverityAtLeast } from "@/lib/quick-decision-severity-labels";
 import type { GoldenManifestComparison } from "@/types/comparison";
 
 export type CompareTrustLaneBreakdownRow = {
@@ -130,7 +131,7 @@ export function clusterReviewFindingsByRootCause(
 }
 
 export function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): number {
-  return findings.filter((finding) => !finding.isMuted && finding.severityValue >= 2).length;
+  return findings.filter((finding) => !finding.isMuted && hasFindingSeverityAtLeast(finding.severityValue, 2)).length;
 }
 
 /** Maps lifecycle sourceAgent to auditable trust lanes for compare (TB-2135 extension). */

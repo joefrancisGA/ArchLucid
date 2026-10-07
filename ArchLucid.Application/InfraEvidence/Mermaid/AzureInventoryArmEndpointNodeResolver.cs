@@ -9,7 +9,7 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 internal static class AzureInventoryArmEndpointNodeResolver
 {
     public static bool TryResolveExactOrAncestorNodeId(
-        Dictionary<string, string> nodeIdByArmId,
+        IReadOnlyDictionary<string, string> nodeIdByArmId,
         string armId,
         out string nodeId)
     {
@@ -43,7 +43,7 @@ internal static class AzureInventoryArmEndpointNodeResolver
     }
 
     public static IReadOnlyList<string> ResolveRelatedNodeIds(
-        Dictionary<string, string> nodeIdByArmId,
+        IReadOnlyDictionary<string, string> nodeIdByArmId,
         string armId)
     {
         HashSet<string> nodeIds = new(StringComparer.Ordinal);

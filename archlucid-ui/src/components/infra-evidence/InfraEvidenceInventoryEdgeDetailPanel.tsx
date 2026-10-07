@@ -69,13 +69,13 @@ export function InfraEvidenceInventoryEdgeDetailPanel(
         <div>
           <dt className="font-medium text-neutral-700 dark:text-neutral-300">Provenance</dt>
           <dd className="m-0 font-mono text-sm text-neutral-900 dark:text-neutral-100">
-            {props.edge.provenanceKind ?? "—"}
+            {props.edge.provenanceKind ?? "Provenance was not stored"}
           </dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="font-medium text-neutral-700 dark:text-neutral-300">Inference source</dt>
           <dd className="m-0 font-mono text-sm text-neutral-900 dark:text-neutral-100">
-            {props.edge.inferenceSource ?? "—"}
+            {props.edge.inferenceSource ?? "Inference source was not stored"}
           </dd>
         </div>
       </dl>

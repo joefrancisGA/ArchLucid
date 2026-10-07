@@ -3,6 +3,7 @@ import { parseArchitectureGeneratedContent } from "@/lib/architecture/architectu
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { hasFindingSeverityAtLeast } from "@/lib/quick-decision-severity-labels";
 import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 
 export type SponsorReadinessStatus = "ready" | "needs-attention" | "preliminary-only";
@@ -122,7 +123,7 @@ function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): n
     (finding) =>
       !finding.isMuted
       && !isReviewFindingDispositionClosed(finding)
-      && finding.severityValue >= HIGH_SEVERITY_THRESHOLD,
+      && hasFindingSeverityAtLeast(finding.severityValue, HIGH_SEVERITY_THRESHOLD),
   ).length;
 }
 

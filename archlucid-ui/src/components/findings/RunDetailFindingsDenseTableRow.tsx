@@ -134,21 +134,21 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
         ) : (
-          <span className="text-al-text-secondary">—</span>
+          <span className="text-al-text-secondary">Confidence was not stored</span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[7rem] align-top">
         {reviewStatus !== null ? (
           <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
         ) : (
-          <span className="text-al-text-secondary">—</span>
+          <span className="text-al-text-secondary">Review status was not stored</span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[5rem] align-top">
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip href={viewEvidenceHref} evidenceRefCount={evidenceRefCount} />
         ) : (
-          <span className="text-al-text-secondary">—</span>
+          <span className="text-al-text-secondary">Evidence link was not stored</span>
         )}
       </EnterpriseTableCell>
     </EnterpriseTableRow>

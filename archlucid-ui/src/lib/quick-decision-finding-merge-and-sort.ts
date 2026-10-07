@@ -9,6 +9,7 @@ import {
   type RunDetailFindingStreams,
 } from "@/lib/quick-decision-finding-stream-resolver";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-wire-snapshots";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 import {
   extractQuickDecisionFindingsFromRunDetail,
@@ -179,8 +180,10 @@ export function sortQuickDecisionFindings(findings: readonly QuickDecisionFindin
       return aAdvisory - bAdvisory;
     }
 
-    if (b.severityValue !== a.severityValue) {
-      return b.severityValue - a.severityValue;
+    const severityOrder = compareFindingSeverity(a.severityValue, b.severityValue);
+
+    if (severityOrder !== 0) {
+      return severityOrder;
     }
 
     return a.findingOrder - b.findingOrder;

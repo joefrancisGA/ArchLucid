@@ -6,6 +6,7 @@ import {
   deriveFindingsToolbarStatusCounts,
   deriveFindingsToolbarSeverityCounts,
   deriveOpenRootCauseClusterCount,
+  filterFindingsForToolbar,
 } from "./run-detail-findings-toolbar-presentation";
 
 function sampleFinding(
@@ -15,7 +16,7 @@ function sampleFinding(
     findingId: partial.findingId,
     title: partial.title ?? "Sample finding",
     recommendation: partial.recommendation ?? "",
-    severityValue: partial.severityValue ?? 1,
+    severityValue: partial.severityValue === undefined ? 1 : partial.severityValue,
     findingOrder: partial.findingOrder ?? 0,
     isMuted: partial.isMuted ?? false,
     muteReason: partial.muteReason ?? null,
@@ -66,6 +67,23 @@ describe("RunDetailFindingsToolbar helpers", () => {
     ]);
 
     expect(counts).toEqual({ critical: 0, high: 1, medium: 0, low: 0 });
+  });
+
+  it("does not classify a missing severity as Low", () => {
+    const findings = [
+      sampleFinding({ findingId: "f-unknown", severityValue: null }),
+      sampleFinding({ findingId: "f-low", severityValue: 0 }),
+    ];
+
+    expect(deriveFindingsToolbarSeverityCounts(findings)).toEqual({
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 1,
+    });
+    expect(filterFindingsForToolbar(findings, "low", "", "", "").map((finding) => finding.findingId)).toEqual([
+      "f-low",
+    ]);
   });
 
   it("does not count root-cause clusters when all members are disposition-closed", () => {

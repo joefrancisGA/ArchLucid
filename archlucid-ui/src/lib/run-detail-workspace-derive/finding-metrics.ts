@@ -41,6 +41,10 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       continue;
     }
 
+    if (finding.severityValue === null) {
+      continue;
+    }
+
     if (finding.severityValue >= 3) {
       critical += 1;
     } else if (finding.severityValue === 2) {
@@ -126,7 +130,7 @@ export function countFindingsAwaitingAction(findings: readonly QuickDecisionFind
       return true;
     }
 
-    return finding.severityValue >= 2;
+    return finding.severityValue !== null && finding.severityValue >= 2;
   }).length;
 }
 export function severityLabelForFinding(finding: QuickDecisionFinding): string {

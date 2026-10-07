@@ -15,6 +15,10 @@ import {
   humanReviewStatusDisplay,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  compareFindingSeverity,
+  hasFindingSeverityAtLeast,
+} from "@/lib/quick-decision-severity-labels";
 
 export type RunDetailFindingsFilterKind =
   | "all"
@@ -88,7 +92,7 @@ export function filterFindingsForToolbar(
       return false;
     }
 
-    if (filter === "critical" && (finding.severityValue < 3 || isReviewFindingDispositionClosed(finding))) {
+    if (filter === "critical" && (!hasFindingSeverityAtLeast(finding.severityValue, 3) || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
@@ -100,7 +104,7 @@ export function filterFindingsForToolbar(
       return false;
     }
 
-    if (filter === "low" && (finding.severityValue > 0 || isReviewFindingDispositionClosed(finding))) {
+    if (filter === "low" && (finding.severityValue !== 0 || isReviewFindingDispositionClosed(finding))) {
       return false;
     }
 
@@ -162,11 +166,11 @@ export function sortFindingsForToolbar(
     }
 
     if (sort === "severity-desc") {
-      return b.severityValue - a.severityValue || a.findingOrder - b.findingOrder;
+      return compareFindingSeverity(a.severityValue, b.severityValue) || a.findingOrder - b.findingOrder;
     }
 
     if (sort === "severity-asc") {
-      return a.severityValue - b.severityValue || a.findingOrder - b.findingOrder;
+      return compareFindingSeverity(a.severityValue, b.severityValue, "ascending") || a.findingOrder - b.findingOrder;
     }
 
     return a.title.localeCompare(b.title);
@@ -213,6 +217,10 @@ export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDeci
 
   for (const finding of findings) {
     if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
+      continue;
+    }
+
+    if (finding.severityValue === null) {
       continue;
     }
 

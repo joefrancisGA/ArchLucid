@@ -1895,32 +1895,6 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             byId[id] = cell;
         }
 
-        List<NeighborhoodMetadata> singletons = neighborhoods
-            .Where(neighborhood => neighborhood.Kind == "remainder"
-                && neighborhood.Members.Count == 1
-                && !string.Equals(
-                    neighborhood.Members[0].Node.NodeId,
-                    "other-resource-groups-rollup",
-                    StringComparison.Ordinal))
-            .ToList();
-        if (singletons.Count >= 2)
-        {
-            foreach (NeighborhoodMetadata singleton in singletons)
-            {
-                neighborhoods.Remove(singleton);
-                byId.Remove(singleton.Id);
-            }
-
-            NeighborhoodMetadata other = CreateNeighborhood(
-                "other-resource-groups",
-                "other",
-                $"Other resource groups ({singletons.Count})",
-                singletons.SelectMany(singleton => singleton.Members).ToList(),
-                singletons.SelectMany(singleton => singleton.FrameIds).ToList());
-            neighborhoods.Add(other);
-            byId[other.Id] = other;
-        }
-
         List<NodePlacement> sharedServiceMembers = placements
             .Where(placement => !placement.IsFrameAnchor
                 && string.Equals(placement.FrameCellId, SharedServicesFrameCellId, StringComparison.Ordinal))

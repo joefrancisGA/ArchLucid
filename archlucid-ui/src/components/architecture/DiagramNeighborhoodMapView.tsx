@@ -28,11 +28,18 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
+  const isVnet = neighborhood.kind === "vnet";
+
   return (
     <button
       key={neighborhood.id}
       type="button"
-      className="flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:border-slate-700 dark:bg-slate-950"
+      className={[
+        "flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:bg-slate-950",
+        isVnet
+          ? "border-slate-400 dark:border-slate-500"
+          : "border-slate-200 dark:border-slate-700",
+      ].join(" ")}
       data-testid={`architecture-diagram-neighborhood-tile-${neighborhood.id}`}
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
@@ -52,13 +59,33 @@ export function DiagramNeighborhoodMapView(
 ): React.JSX.Element {
   const visibleLinks = props.map.links.slice(0, 12);
   const remainingLinkCount = Math.max(0, props.map.links.length - visibleLinks.length);
+  const virtualNetworks = props.map.neighborhoods.filter((neighborhood) => neighborhood.kind === "vnet");
+  const resourceGroups = props.map.neighborhoods.filter((neighborhood) => neighborhood.kind !== "vnet");
 
   return (
     <section aria-label={ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL} className="space-y-4 p-1">
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
-        {props.map.neighborhoods.map((neighborhood) =>
-          renderTile(neighborhood, props.onOpenNeighborhood))}
-      </div>
+      {virtualNetworks.length > 0 ? (
+        <section aria-labelledby="architecture-diagram-virtual-networks-heading" data-testid="architecture-diagram-virtual-networks">
+          <h2 id="architecture-diagram-virtual-networks-heading" className="mb-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+            Virtual networks
+          </h2>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+            {virtualNetworks.map((neighborhood) =>
+              renderTile(neighborhood, props.onOpenNeighborhood))}
+          </div>
+        </section>
+      ) : null}
+      {resourceGroups.length > 0 ? (
+        <section aria-labelledby="architecture-diagram-resource-groups-heading" data-testid="architecture-diagram-resource-groups">
+          <h2 id="architecture-diagram-resource-groups-heading" className="mb-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+            Resource groups
+          </h2>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+            {resourceGroups.map((neighborhood) =>
+              renderTile(neighborhood, props.onOpenNeighborhood))}
+          </div>
+        </section>
+      ) : null}
       {props.map.links.length > 0 ? (
         <ul className="m-0 space-y-1 p-0 text-[12px] text-slate-600 dark:text-slate-300">
           {visibleLinks.map((link) => (

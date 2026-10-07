@@ -41,6 +41,11 @@ internal static class DiagramEdgeLabelHumanizer
 
         string label = storedLabel.Trim();
 
+        if (string.Equals(label, "Likely", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
         {
             return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);

@@ -79,7 +79,9 @@ function isDismissed(question: SecureNowQuestion): boolean {
 
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
-    if (filter === "Open") return question.status === "Open" && !question.isExpired;
+    if (filter === "Open") {
+      return question.status !== "Answered" && !isDismissed(question) && !question.isExpired;
+    }
     if (filter === "Answered") return question.status === "Answered";
     return isDismissed(question);
   });
@@ -170,7 +172,9 @@ export function SecureNowQuestionQueueProvider(
   }, [loadQuestions]);
 
   const openQuestions = useMemo(
-    () => questions.filter((question) => question.status === "Open" && !question.isExpired),
+    () => questions.filter(
+      (question) => question.status !== "Answered" && !isDismissed(question) && !question.isExpired,
+    ),
     [questions],
   );
   const filteredQuestions = useMemo(

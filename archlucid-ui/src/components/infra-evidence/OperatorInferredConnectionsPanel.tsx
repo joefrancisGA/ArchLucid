@@ -31,12 +31,16 @@ type OperatorInferredConnectionsPanelProps = {
   readonly snapshotId: string;
 };
 
+function formatStoredValue(value: string | null | undefined, fallback: string): string {
+  return value != null && value.trim().length > 0 ? value : fallback;
+}
+
 function formatEndpoint(row: OperatorInferredConnectionRow): string {
   if (row.toCatalog != null && row.toCatalog.length > 0) {
-    return `${row.toHost ?? "host"} / ${row.toCatalog}`;
+    return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${row.toCatalog}`;
   }
 
-  return row.toHost ?? row.toArmId ?? "—";
+  return formatStoredValue(row.toHost ?? row.toArmId, "Destination was not stored");
 }
 
 export function OperatorInferredConnectionsPanel(
@@ -246,9 +250,14 @@ export function OperatorInferredConnectionsPanel(
                       aria-label={`Select ${row.settingName ?? row.connectionId}`}
                     />
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{row.fromLabel ?? row.fromArmId ?? "—"}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatStoredValue(
+                    row.fromLabel ?? row.fromArmId,
+                    "Starting resource was not stored",
+                  )}</EnterpriseTableCell>
                   <EnterpriseTableCell>{formatEndpoint(row)}</EnterpriseTableCell>
-                  <EnterpriseTableCell>{row.settingName ?? "—"}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {formatStoredValue(row.settingName, "Setting name was not stored")}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell>{row.sourceFileFormat ?? row.source}</EnterpriseTableCell>
                   <EnterpriseTableCell>{row.status}</EnterpriseTableCell>
                 </EnterpriseTableRow>

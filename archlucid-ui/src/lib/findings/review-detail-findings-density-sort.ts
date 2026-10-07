@@ -3,6 +3,7 @@ import {
   INSIGHT_DENSITY_GENERIC_THRESHOLD,
   isLowInsightDensityScore,
 } from "@/lib/governance/governance-findings-density-sort";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export { INSIGHT_DENSITY_GENERIC_THRESHOLD };
 
@@ -29,7 +30,7 @@ export function sortReviewDetailFindingsBySignal(
       return rightScore - leftScore;
     }
 
-    const severityDelta = right.severityValue - left.severityValue;
+    const severityDelta = compareFindingSeverity(left.severityValue, right.severityValue);
 
     if (severityDelta !== 0) {
       return severityDelta;

@@ -190,10 +190,10 @@ export function InferenceQuestionnairePanel(
               Question {currentIndex + 1} of {proposedItems.length}
             </p>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {currentItem.ruleName ?? "Inference gap"}
+              {currentItem.ruleName ?? "Rule name was not stored"}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-question">
-              {currentItem.questionText ?? "Does this connection exist?"}
+              {currentItem.questionText ?? "Question text was not stored"}
             </p>
 
             <div className="flex flex-wrap gap-2">

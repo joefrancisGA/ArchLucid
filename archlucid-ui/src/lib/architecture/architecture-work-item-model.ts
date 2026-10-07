@@ -1,6 +1,7 @@
 import type { WorkItemClipboardFormat } from "@/lib/copy-finding-as-work-item";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export type ArchitectureWorkItemFindingLine = {
   readonly findingId: string;
@@ -36,17 +37,21 @@ function architectureReviewUrl(siteOrigin: string, runId: string): string {
 }
 
 function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): string {
-  if (findings.length === 0) {
+  const knownSeverities = findings
+    .map((finding) => finding.severityValue)
+    .filter((severity): severity is number => severity !== null);
+
+  if (knownSeverities.length === 0) {
     return "Medium";
   }
 
-  const highest = findings.reduce((max, finding) => Math.max(max, finding.severityValue), 0);
+  const highest = Math.max(...knownSeverities);
 
   return severityBadgeLabel(highest);
 }
 
 function mapFindingLines(findings: readonly QuickDecisionFinding[]): ArchitectureWorkItemFindingLine[] {
-  const sorted = [...findings].sort((left, right) => right.severityValue - left.severityValue);
+  const sorted = [...findings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue));
 
   return sorted.slice(0, MAX_FINDING_LINES).map((finding) => ({
     findingId: finding.findingId,
@@ -61,7 +66,7 @@ export function pickNativeCreateFindingId(findings: readonly QuickDecisionFindin
     return null;
   }
 
-  const sorted = [...findings].sort((left, right) => right.severityValue - left.severityValue);
+  const sorted = [...findings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue));
 
   return sorted[0]?.findingId ?? null;
 }

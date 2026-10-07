@@ -150,6 +150,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title}
         </h3>
+        {finding.category != null && finding.category.trim().length > 0 ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium">Category:</span> {finding.category}
+          </p>
+        ) : null}
         <QuickDecisionFindingRationale runId={runId} finding={finding} />
         {snippet.length > 0 ? (
           <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -185,7 +190,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             finding.confidenceLevel === "Low" ? (
               <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
             ) : (
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Not scored</span>
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence level was not stored</span>
             )}
           </dd>
         </div>

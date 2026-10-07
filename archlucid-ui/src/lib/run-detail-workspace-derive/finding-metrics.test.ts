@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { countFindingsAwaitingAction, countOpenFindings } from "./finding-metrics";
+import {
+  countFindingsAwaitingAction,
+  countFindingsBySeverity,
+  countOpenFindings,
+} from "./finding-metrics";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -11,7 +15,7 @@ function sampleFinding(
     findingId: partial.findingId,
     title: partial.title ?? "Sample finding",
     recommendation: partial.recommendation ?? "",
-    severityValue: partial.severityValue ?? 1,
+    severityValue: partial.severityValue === undefined ? 1 : partial.severityValue,
     findingOrder: partial.findingOrder ?? 0,
     isMuted: partial.isMuted ?? false,
     muteReason: partial.muteReason ?? null,
@@ -60,5 +64,14 @@ describe("finding-metrics", () => {
     ]);
 
     expect(awaitingActionCount).toBe(0);
+  });
+
+  it("does not include findings with missing severity in numeric severity counts", () => {
+    expect(
+      countFindingsBySeverity([
+        sampleFinding({ findingId: "f-unknown", severityValue: null }),
+        sampleFinding({ findingId: "f-low", severityValue: 0 }),
+      ]),
+    ).toEqual({ critical: 0, high: 0, medium: 0, low: 1 });
   });
 });
