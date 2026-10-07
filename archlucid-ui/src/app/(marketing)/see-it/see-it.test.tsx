@@ -220,6 +220,20 @@ describe("resolveSeeItMarketingRenderPlan", () => {
     expect(plan.payload).toBe(livePayload);
   });
 
+  it("falls back when live preview uses a short repeated-digit placeholder run id", () => {
+    const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = "1".repeat(15);
+    livePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+
+    const plan = resolveSeeItMarketingRenderPlan({
+      source: "live",
+      payload: livePayload,
+    });
+
+    expect(plan.source).toBe("snapshot");
+    expect(plan.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
   it("falls back when a rich live payload omits the manifest used by the policy-pack summary", () => {
     const livePayload = createMinimalDemoPreviewPayload();
     livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;

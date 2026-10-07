@@ -9,8 +9,8 @@ function isWeakPlaceholderRunId(runId: string | undefined | null): boolean {
   if (t.length === 0)
     return true;
 
-  // Snapshot / fixture runs sometimes use long repeated placeholder digits or a single repeated character.
-  if (t.length >= 16 && /^(.)\1+$/.test(t))
+  // Snapshot / fixture runs sometimes use repeated placeholder digits or a single repeated character.
+  if (t.length >= 8 && /^(.)\1+$/.test(t))
     return true;
 
   return false;

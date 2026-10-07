@@ -107,7 +107,9 @@ export async function fetchShowcasePayload(
 
     if (
       !Array.isArray(payload.artifacts) ||
+      payload.artifacts.length === 0 ||
       !Array.isArray(payload.pipelineTimeline) ||
+      payload.pipelineTimeline.length === 0 ||
       payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
     ) {
       return { kind: "invalid" };
