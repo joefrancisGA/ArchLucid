@@ -87,6 +87,27 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_global_qualified_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    public sealed class Handler
+    {
+        void M({|#0:global::System.Security.Claims.ClaimsPrincipal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(6, 47, 6, 62)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
   public async Task Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias()
   {
     const string testCode = """

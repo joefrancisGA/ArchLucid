@@ -13672,6 +13672,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: security-analyzers
 
+2026-10-07 thorough hunt #27 (hit): proved `InheritsFromControllerBase` used reference identity and skipped controllers whose `ControllerBase` came from another assembly; proved duplicate AL0001 on abstract bases plus concrete derived types; cheap-disproved conditional-access `LogAsync`, `global::` qualified banned types, and method-group `LogAsync` references; seeded five new `(candidate)` rows; 80 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-07 thorough hunt #26 (hit): proved `RequireAuthorizationAnalyzer` treated public `[NonAction]` helpers as qualifying declared actions and skipped inherited unauthorized scans; cheap-disproved four candidates (dynamic `LogAsync`, delegate audit path, file-scoped `using` alias, custom `HttpMethod` subclass `Verbs` property); seeded five new `(candidate)` rows; 76 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-07 thorough hunt #25 (hit): proved `HttpMethodAttributeDeclaresMutatingVerb` ignored `Method`/`Methods` named attribute properties; cheap-disproved four follow-on candidates (referenced-base `HttpMethod`, inherited AL0001 gate, global-using alias, cast `LogAsync`); seeded five new `(candidate)` rows; 71 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -13686,11 +13688,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 26
-- **bugs-found:** 24
+- **hunts:** 27
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — AL0001 skipped inherited actions when derived only declared `[NonAction]` helpers
+- **last-bug:** 2026-10-07 — AL0001 missed referenced-base controllers / duplicated on abstract bases
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13776,11 +13778,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — file-scoped `using` alias bypass — **cheap-disproof 2026-10-07 thorough hunt #26:** `IAliasSymbol.Target` resolves on parameter usage; regression `Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias`.
 - [x] (invalid) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — custom subclass `Verbs` property — **cheap-disproof 2026-10-07 thorough hunt #26:** non-`Method`/`Methods` properties are outside the framework attribute contract; regression `AL0003_does_not_track_custom_HttpMethod_subclass_verbs_property`.
 
-- [ ] (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — `InheritsFromControllerBase` may fail when controller bases come from a different compilation than `GetTypeByMetadataName("ControllerBase")` — locus: `InheritsFromControllerBase` symbol equality (`RequireAuthorizationAnalyzer.cs`); input: derived Api controller inheriting shared-library `ControllerBase` stub in analyzer tests; wrong outcome: inherited AL0001 scans never run in multi-assembly test harnesses (production NuGet refs may differ).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `await auditService?.LogAsync(...)` conditional access may not match audit invocation — locus: `InvocationExpressionSyntax` descendant walk (`MutatingControllerAuditAnalyzer.cs`); input: null-conditional `LogAsync` call inside `[HttpPost]` action; wrong outcome: false-positive AL0003 when audit exists via conditional access.
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `global::System.Security.Claims.ClaimsPrincipal` qualified syntax may duplicate or miss diagnostics — locus: qualified-name pruning (`TenantIdentityBoundaryAnalyzer.cs` ~64–71); input: parameter typed with fully qualified global alias to banned type; wrong outcome: ARCH001 silent on rightmost identifier.
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — inherited scan may duplicate AL0001 for the same inherited action on both abstract base and concrete derived — locus: inherited diagnostic location uses derived type location while message names base method (`RequireAuthorizationAnalyzer.cs` ~177–188); input: shared base with unauthorized GET and derived with only `[NonAction]` helper; wrong outcome: duplicate diagnostics per concrete controller (noise / review fatigue).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `nameof(LogAsync)` or method group reference should not count as audit — locus: `InvocationMatchesAuditInterfaceSemantic` (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` action passing `auditService.LogAsync` without invoking; wrong outcome: false-negative AL0003 if invocation matcher broadens to method groups.
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — `InheritsFromControllerBase` failed across assembly `ControllerBase` symbols — **hit 2026-10-07 thorough hunt #27:** reference-identity equality skipped shared-library bases; fixed with `SymbolIsControllerBase` metadata/namespace match; regression `Reports_inherited_unauthorized_action_when_unauthenticated_base_lives_in_referenced_assembly`.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — conditional-access `LogAsync` — **cheap-disproof 2026-10-07 thorough hunt #27:** invocation descendant walk still binds `LogAsync`; regression `AL0003_is_absent_when_LogAsync_uses_conditional_access`.
+- [x] (valid-no-repro) `TenantIdentityBoundaryAnalyzer` — `global::` qualified banned types — **cheap-disproof 2026-10-07 thorough hunt #27:** rightmost identifier flagged; regression `Reports_global_qualified_ClaimsPrincipal_parameter_in_inner_layer_assembly`.
+- [x] (proven) `RequireAuthorizationAnalyzer` — duplicate AL0001 on abstract base and concrete derived — **hit 2026-10-07 thorough hunt #27:** abstract controllers reported declared actions while derived inherited scan repeated; skip declared reports and inherited scan on abstract types; regression `Reports_inherited_unauthorized_action_when_derived_declares_only_public_NonAction_helper` (single diagnostic).
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — method-group `LogAsync` reference — **cheap-disproof 2026-10-07 thorough hunt #27:** only `InvocationExpressionSyntax` counts; AL0003 still reports; regression `AL0003_reports_when_HttpPost_action_only_references_LogAsync_method_group`.
+
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — abstract controller with no concrete derived in compilation may no longer receive method-level AL0001 after abstract skip — locus: declared-method report guard (`RequireAuthorizationAnalyzer.cs`); input: standalone abstract `ControllerBase` subtype with unauthorized `[HttpGet]` and no derived types; wrong outcome: silent gap vs prior behavior.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `await using` or `foreach await` patterns wrapping `LogAsync` may evade body walk — locus: `EnumerateMethodBodies` / descendant invocation scan (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` action logging inside `await foreach` enumerator; wrong outcome: false-positive AL0003 when audit runs in async iterator.
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — banned type in `catch (HttpRequestException ex)` when exception type aliases banned surface — locus: `AnalyzeIdentifierName` (`TenantIdentityBoundaryAnalyzer.cs`); input: `catch (System.Exception ex)` with banned type only in filter expression; wrong outcome: ARCH001 silent on disallowed ambient dependency types in catch filters.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — `SymbolIsControllerBase` may treat unrelated `ControllerBase` types in another namespace as equivalent — locus: `SymbolIsControllerBase` namespace string compare (`RequireAuthorizationAnalyzer.cs`); input: test stub type named `ControllerBase` outside `Microsoft.AspNetCore.Mvc`; wrong outcome: false-positive inheritance match.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `nameof(IAuditService.LogAsync)` inside mutating action should not suppress AL0003 — locus: `InvocationMatchesAuditInterfaceSemantic` (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` action with only `nameof(auditService.LogAsync)` in body; wrong outcome: false-negative if nameof binding is mistaken for invocation.
 
 ---
 

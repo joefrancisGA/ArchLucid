@@ -110,10 +110,6 @@ namespace N
 }
 """;
 
-        DiagnosticResult expectedOnBase = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(42, 30, 42, 42)
-            .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
-
         DiagnosticResult expectedOnDerived = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
             .WithSpan(45, 25, 45, 65)
             .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
@@ -121,12 +117,50 @@ namespace N
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
         {
             TestCode = testCode,
-            ExpectedDiagnostics = { expectedOnBase, expectedOnDerived },
+            ExpectedDiagnostics = { expectedOnDerived },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { ProductAssemblyNameTransform }
         };
 
         await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_inherited_unauthorized_action_when_unauthenticated_base_lives_in_referenced_assembly()
+    {
+        MetadataReference sharedControllerReference = BuildSharedUnauthenticatedGetControllerReference();
+        CSharpCompilation apiCompilation = CSharpCompilation.Create(
+            "ArchLucid.Api",
+            [
+                CSharpSyntaxTree.ParseText(
+                    AspNetCoreStubs +
+                    """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class DerivedFromReferencedUnauthenticatedBaseController
+        : Shared.Controllers.SharedUnauthenticatedGetController
+    {
+        [NonAction]
+        public IActionResult Helper() => Ok();
+    }
+}
+""")
+            ],
+            TrustedPlatformReferences().Append(sharedControllerReference),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        ImmutableArray<Diagnostic> diagnostics =
+            await apiCompilation
+                .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new RequireAuthorizationAnalyzer()))
+                .GetAnalyzerDiagnosticsAsync();
+
+        Assert.Single(
+            diagnostics,
+            diagnostic => diagnostic.Id == Al0001Descriptor.Rule.Id &&
+                          diagnostic.GetMessage().Contains("InheritedGet", StringComparison.Ordinal));
     }
 
     [Fact]

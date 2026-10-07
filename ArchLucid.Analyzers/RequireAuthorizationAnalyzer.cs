@@ -140,16 +140,19 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (location is null)
                 continue;
 
+            if (symbol.IsAbstract)
+                continue;
+
             context.ReportDiagnostic(
                 Al0001Descriptor.Create(location, method.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
             reportedAnyMethod = true;
         }
 
-        if (!hasDeclaredQualifyingApiActions)
+        if (!symbol.IsAbstract && !hasDeclaredQualifyingApiActions)
         {
             for (INamedTypeSymbol? baseType = symbol.BaseType;
                  baseType is not null &&
-                 !SymbolEqualityComparer.Default.Equals(baseType, controllerBase);
+                 !SymbolIsControllerBase(baseType, controllerBase);
                  baseType = baseType.BaseType)
             {
                 foreach (IMethodSymbol inheritedMethod in baseType.GetMembers().OfType<IMethodSymbol>())
@@ -211,11 +214,31 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
     {
         for (INamedTypeSymbol? current = type.BaseType; current is not null; current = current.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(current, controllerBase))
+            if (SymbolIsControllerBase(current, controllerBase))
                 return true;
         }
 
         return false;
+    }
+
+    private static bool SymbolIsControllerBase(INamedTypeSymbol type, INamedTypeSymbol controllerBase)
+    {
+        if (SymbolEqualityComparer.Default.Equals(type, controllerBase))
+            return true;
+
+        if (!string.Equals(type.MetadataName, controllerBase.MetadataName, StringComparison.Ordinal))
+            return false;
+
+        INamespaceSymbol? typeNamespace = type.ContainingNamespace;
+        INamespaceSymbol? controllerNamespace = controllerBase.ContainingNamespace;
+
+        if (typeNamespace is null || controllerNamespace is null)
+            return false;
+
+        return string.Equals(
+            typeNamespace.ToDisplayString(),
+            controllerNamespace.ToDisplayString(),
+            StringComparison.Ordinal);
     }
 
     private static bool HasTypeLevelAuthorizeOrAllowAnonymous(
@@ -226,7 +249,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(current, controllerBase))
+            if (SymbolIsControllerBase(current, controllerBase))
                 break;
 
             if (SymbolHasAuthorizeOrAllowAnonymous(current, authorizeAttribute, allowAnonymousAttribute))
