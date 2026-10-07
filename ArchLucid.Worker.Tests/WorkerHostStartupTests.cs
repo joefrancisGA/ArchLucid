@@ -893,4 +893,61 @@ public sealed class WorkerHostStartupTests
             snapshot.Restore();
         }
     }
+
+    [Fact]
+    public void Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("AgentExecution:Mode", "Real");
+                    builder.UseSetting("AzureOpenAI:Endpoint", "https://example.openai.azure.com/");
+                    builder.UseSetting("AzureOpenAI:ApiKey", "test-key");
+                    builder.UseSetting("LlmCompletionCache:Enabled", "false");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*ArchLucid configuration is invalid*")
+                .WithMessage("*DeploymentName*");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_host_starts_when_startup_configuration_summary_logging_is_disabled()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("Hosting:LogStartupConfigurationSummary", "false");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five open `(candidate)` rows; regressions `Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name` and `Worker_host_starts_when_startup_configuration_summary_logging_is_disabled`; reaffirmed `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials` and `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `core-safety-network` — re-read `ArchLucid.Core/Safety` and `ArchLucid.Core/Http`; no hunt-ready row promoted; cheap-disproof closed five seeded `(candidate)` rows; regressions in `CoreSafetyNetworkPrivateNetworkHttpTransportTests`; 42 scoped `FullyQualifiedName~PrivateNetwork` tests passed (`RunAnalyzers=false`; Host composition included).
 
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five open `(candidate)` rows (HTTP `500` `detail` string routed to `showError` by design; undefined `companySize` omits JSON key; funnel telemetry after sessionStorage quota errors is intentional post-success analytics; `"-1"` team size blocked by `n <= 0` superRefine; subdomain email uses single `encodeURIComponent`); regressions `shows server detail string from HTTP 500 register responses`, `omits company size from the register payload builder when value is undefined`, `signupFormSchema rejects negative optional architecture team size`, `keeps submit disabled for negative optional architecture team size`, and `encodes subdomain work email once in the verify redirect query`; reaffirmed funnel call when `sessionStorage.setItem` throws; seeded five follow-on `(candidate)` rows; 72 scoped SignupForm vitest tests passed.
@@ -9407,6 +9409,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name` and `Worker_host_starts_when_startup_configuration_summary_logging_is_disabled`; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `Program.Main` — `AzureOpenAiEnvironmentConfigurationBridge.Apply` before `ValidateOrThrow` fails startup on missing deployment — **cheap-disproof 2026-10-07 thorough hunt:** intentional fail-fast before background LLM work; regressions `Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name` and `Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases`.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — Prometheus misconfiguration fails at host build, not first scrape — **cheap-disproof 2026-10-07 thorough hunt:** `ObservabilityRules` rejects missing scrape credentials during DI validation; regression `Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials`.
+- [x] (valid-no-repro) `Program.Main` — `StartupConfigurationDiagnostics.LogIfEnabled` after `Build()` before schema bootstrap — **cheap-disproof 2026-10-07 thorough hunt:** opt-out via `Hosting:LogStartupConfigurationSummary`; snapshot logs booleans/enums only (no connection secrets); regression `Worker_host_starts_when_startup_configuration_summary_logging_is_disabled`.
+- [x] (valid-no-repro) `Program.Main` — `ArchLucidConfigurationRules.LogConfigurationWarnings` non-fatal staging SQL auth warnings — **cheap-disproof 2026-10-07 thorough hunt:** warnings-only by design (`SqlConnectionCredentialRules.LogStagingWarningsIfPresent`); hard errors still fail pre-`Build()` `ValidateOrThrow`; reaffirmed `LogStagingWarningsIfPresent_logs_when_sql_password_present` in Host.Core tests.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` / `AddArchLucidOpenTelemetry` — health paths excluded from trace instrumentation but not metrics — **cheap-disproof 2026-10-07 thorough hunt:** `IsHealthCheckRequest` filters ASP.NET Core tracing only; metrics instrumentation intentionally includes health routes; documented in `ObservabilityExtensions`.
+
+- [ ] (candidate) `Program.Main` — `ArchLucidSerilogConfiguration.Configure` runs before `ValidateOrThrow` so invalid config still initializes Serilog sinks — locus: `Program.cs` ~50–61.
+- [ ] (candidate) `Program.Main` — `AddArchLucidApplicationServices(..., Worker)` may register HTTP-scoped services unused on the worker pipeline — locus: `Program.cs` ~59.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — `PrometheusScrapeAuthMiddleware` runs before `UseOpenTelemetryPrometheusScrapingEndpoint` so unauthenticated scrape attempts still hit exporter wiring — locus: `WorkerHostPipelineExtensions.cs` ~88–93.
+- [ ] (candidate) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` before `UseArchLucidWorkerPipeline` delays mapping `/health/live` until migrations complete — locus: `Program.cs` ~79–82.
+- [ ] (candidate) `Program.Main` — `ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored` on worker with no interactive SDK surface — locus: `Program.cs` ~66–69.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 29 scoped worker host/composition tests passed (`RunAnalyzers=false`).
 
 - **id:** worker-host
@@ -9415,13 +9431,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed all five open `(candidate)` rows; regressions `Worker_host_skips_pilot_overlay_in_development_from_content_root`, `Worker_host_leaves_modern_max_payload_unset_when_advanced_carries_legacy_context_ingestion_only`, and `Worker_host_starts_in_testing_when_archlucid_auth_mode_unset`; reaffirmed post-`Build()` `CollectErrors` parity via existing `Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`; 17 scoped worker host/composition tests passed.
 
@@ -9479,12 +9495,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — exception handler calls `OperationalErrorHttpCapture.TryCaptureFromException` with `OperationalErrorSource.Worker` on anonymous health/metrics routes without tenant scope context — **cheap-disproof 2026-10-07 thorough hunt:** `OperationalErrorHttpCapture.BuildRequest` falls back to empty `ScopeContext` (null tenant ids) when no ambient scope; health routes are anonymous and filtered from ASP.NET Core trace instrumentation.
 - [x] (valid-no-repro) `Program.Main` — `ContentSafetyConfigurationWarnings.LogIfProductionLikeFailOpenSdkSettingIsIgnored` may emit production-like warnings on a headless worker with no interactive content-safety surface — **cheap-disproof 2026-10-07 thorough hunt:** advisory only; runtime fail-closed override is `ContentSafetyProductionLikePostConfigure`; existing `ArchLucid.Host.Core.Tests` cover warning emission.
 - [x] (valid-no-repro) `WebApplicationFactory` `UseSetting` overrides are not equivalent to post-overlay environment-variable precedence — **cheap-disproof 2026-10-07 thorough hunt:** `UseSetting` loses to `appsettings.SaaS.json` loaded in `Program.Main`; deployment env keys after `AddEnvironmentVariables()` still win; regressions `Worker_host_web_host_use_setting_does_not_beat_saas_overlay_from_content_root` and `Worker_host_environment_variables_override_saas_overlay_from_content_root`.
-
-- [ ] (candidate) `Program.Main` — `AzureOpenAiEnvironmentConfigurationBridge.Apply` maps flat `AZURE_OPENAI_*` env vars into configuration before `ValidateOrThrow`, so missing deployment aliases fail at startup rather than first background LLM call.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — `Observability:Prometheus:Enabled` registers scrape middleware; misconfigured scrape credentials fail at `factory.Services` resolution, not on first `/metrics` request.
-- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics.LogIfEnabled` can emit a configuration snapshot (including storage hints) after `Build()` even when schema bootstrap later fails.
-- [ ] (candidate) `Program.Main` — `ArchLucidConfigurationRules.LogConfigurationWarnings` after `Build()` emits non-fatal warnings that may be mistaken for startup failure in log-based alerting.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — ASP.NET Core health check tracing filter excludes `/health/*` from OpenTelemetry while Prometheus scrape paths remain instrumented when enabled.
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.
