@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (chained populated aggregates on inner chain, empty-shell flatten sibling, jitter span positivity, concurrent `ExecuteAsync` isolation, bounded policy delay indices); regressions `ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate`, `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`, `ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers`, and `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices`; 78 scoped transient-retry tests passed (59 Persistence + 19 Application).
+
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` after empty-shell chain hit; cheap-disproof closed promotion (top-level `AggregateException` with empty sibling flattens away so transient SQL inner still retries); no hunt-ready row promoted; seeded five `(candidate)` rows; 74 scoped transient-retry tests passed (56 Persistence + 18 Application).
 
 2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `TryGetParallelPersistInners` treated empty nested `AggregateException` as parallel-persist shape (`inners.Count == 0`), so `IsRetriableOrchestratorDbFailure` returned false before `SqlTransientDetector` could classify transient `SqlException` on the same chain; skip empty shells and require populated inners; regression `ExecuteAsync_retries_transient_sql_when_inner_chain_has_empty_aggregate_shell`; 74 scoped transient-retry tests passed (56 Persistence + 18 Application).
@@ -5027,9 +5029,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
@@ -5189,11 +5191,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` / `IsRetriableOrchestratorDbFailure` — empty nested `AggregateException` on `InnerException` chain returned parallel-persist shape with zero inners, failing closed before `SqlTransientDetector` classified transient `SqlException` on the same chain — **hit 2026-10-07 seed hunt:** skip empty shells and require populated inners; regression `ExecuteAsync_retries_transient_sql_when_inner_chain_has_empty_aggregate_shell`.
 
-- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — two populated nested `AggregateException` nodes on the same `InnerException` chain; the walker returns the first aggregate only, so a later mixed parallel-persist aggregate on that chain would be ignored if a repository ever chained aggregates (contested vs #1259 single-aggregate throw sites).
-- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — top-level `AggregateException.Flatten()` sibling that is an empty-shell `AggregateException` object beside transient `SqlException` (distinct inner object, zero grandchildren) fails `inners.All` even when `Flatten()` already removed the shell from the flattened set (falsification attempted 2026-10-07 seed: `AggregateException.Flatten()` drops empty nested aggregate siblings; no repro).
-- [ ] (candidate) `OrchestratorTransientDbRetry.BuildPipeline` — `DelayGenerator` uses `Random.Shared.Next` jitter; when `ComputeJitterSpanMilliseconds` returns zero, inter-attempt delay collapses to the bare exponential base with no spread under sustained SQL lock pressure.
-- [ ] (candidate) `OrchestratorTransientDbRetry` — static shared `ResiliencePipeline` services concurrent `ExecuteAsync` callers; verify Polly retry state and `ShouldHandle` invocations remain isolated per execution under parallel authority persist attempts.
-- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — `150 * index` millisecond math is unchecked; hypothetical callers passing indices beyond the authority commit loop could overflow `TimeSpan.FromMilliseconds` (helpers are pure; current orchestrator loops bound attempts/polls).
+- [x] (invalid) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — two populated nested `AggregateException` nodes on the same `InnerException` chain — **cheap-disproof 2026-10-07 thorough hunt:** parallel-persist throw sites surface a single aggregate (#1259); first populated aggregate on the chain governs retry; regression `ExecuteAsync_retries_when_first_populated_aggregate_on_inner_chain_hides_later_mixed_aggregate`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — empty-shell `AggregateException` sibling beside transient `SqlException` at top-level flatten — **cheap-disproof 2026-10-07 thorough hunt:** `AggregateException.Flatten()` drops empty nested aggregate siblings (seed falsification 2026-10-07).
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.BuildPipeline` — zero jitter span collapses backoff — **cheap-disproof 2026-10-07 thorough hunt:** orchestrator 2s/4s/8s bases yield positive `ComputeJitterSpanMilliseconds` for attempts 1–3; regression `Orchestrator_retry_jitter_span_is_positive_for_each_polly_retry_attempt`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — static shared `ResiliencePipeline` under concurrent callers — **cheap-disproof 2026-10-07 thorough hunt:** Polly pipeline isolates per `ExecuteAsync` invocation; regression `ExecuteAsync_isolates_retry_attempt_counters_across_concurrent_callers`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` / `ManifestReconcilePollDelay` — unchecked `150 * index` overflow — **cheap-disproof 2026-10-07 thorough hunt:** authority commit/reconcile loops bound indices; regression `RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices` (existing `RetryDelay_at_attempt_above_max_remains_linear_without_clamp` documents pure-helper misuse only).
 
 ---
 
