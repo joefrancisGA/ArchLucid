@@ -86,7 +86,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (string.IsNullOrWhiteSpace(prefix))
         {
-            return "unknown";
+            return "Source was not stored";
         }
 
         prefix = prefix.Trim();

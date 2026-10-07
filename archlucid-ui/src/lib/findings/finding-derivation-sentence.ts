@@ -4,6 +4,8 @@ import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFind
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 export const FINDING_DERIVATION_NOT_AVAILABLE = "Derivation not available";
+export const FINDING_DERIVATION_ASSEMBLED_PREFIX =
+  "Assembled from stored rule and evidence fields, not a stored explanation.";
 
 export type FindingDerivationInput = {
   readonly ruleName?: string | null;
@@ -68,6 +70,13 @@ function evidencePhrase(input: FindingDerivationInput): string | null {
   return null;
 }
 
+function assembledSentence(sentence: string): FindingDerivationResult {
+  return {
+    sentence: `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${sentence}`,
+    synthesised: true,
+  };
+}
+
 /** Builds one plain-language derivation sentence — never fabricates confidence when inputs are missing. */
 export function buildFindingDerivationSentence(input: FindingDerivationInput): FindingDerivationResult {
   const reasoningSummary = nonEmpty(input.reasoningSummary);
@@ -92,24 +101,15 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
     severityLabel !== null ? `a ${severityLabel} severity finding` : "this finding";
 
   if (ruleLabel !== null && evidence !== null) {
-    return {
-      sentence: `Policy rule "${ruleLabel}" matched ${evidence} and produced ${severitySuffix}.`,
-      synthesised: true,
-    };
+    return assembledSentence(`Policy rule "${ruleLabel}" matched ${evidence} and produced ${severitySuffix}.`);
   }
 
   if (ruleLabel !== null) {
-    return {
-      sentence: `Policy rule "${ruleLabel}" produced ${severitySuffix}.`,
-      synthesised: true,
-    };
+    return assembledSentence(`Policy rule "${ruleLabel}" produced ${severitySuffix}.`);
   }
 
   if (evidence !== null) {
-    return {
-      sentence: `${evidence.charAt(0).toUpperCase()}${evidence.slice(1)} supported ${severitySuffix}.`,
-      synthesised: true,
-    };
+    return assembledSentence(`${evidence.charAt(0).toUpperCase()}${evidence.slice(1)} supported ${severitySuffix}.`);
   }
 
   return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };

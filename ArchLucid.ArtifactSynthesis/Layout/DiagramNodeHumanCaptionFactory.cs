@@ -55,7 +55,7 @@ public static class DiagramNodeHumanCaptionFactory
         ArgumentNullException.ThrowIfNull(node);
 
         string resourceName = string.IsNullOrWhiteSpace(node.Label)
-            ? node.NodeId
+            ? "Resource name was not stored"
             : MermaidDiagramRenderer.EscapeLabel(node.Label);
         string? typeCaption = node.IsDataFlowRollup
             ? null

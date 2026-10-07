@@ -629,8 +629,12 @@ export function resolveInfraEvidenceOutlineNodeLabel(
 ): string {
   const match = nodes.find((node) => node.id === nodeId);
 
-  if (match == null || match.label.trim().length === 0) {
-    return nodeId;
+  if (match == null) {
+    return "No stored link";
+  }
+
+  if (match.label.trim().length === 0) {
+    return "Node name was not stored";
   }
 
   return normalizeSecureNowResourceNameForDisplay(match.label);
@@ -670,16 +674,6 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
 
   if (explicit.length > 0) {
     return explicit;
-  }
-
-  const fromNode = nodes.find((node) => node.id === edge.from);
-  const toNode = nodes.find((node) => node.id === edge.to);
-
-  if (
-    isInfraEvidenceVirtualNetworkResourceType(fromNode?.resourceType)
-    && isInfraEvidenceVirtualNetworkResourceType(toNode?.resourceType)
-  ) {
-    return "peering";
   }
 
   return "";

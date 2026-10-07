@@ -68,6 +68,21 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(md).toContain("No sponsor action was stored on this review.");
     expect(md).not.toContain("align owners");
   });
+
+  it("omits residual posture duplication and labels empty finding cells", () => {
+    const md = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ riskPosture: "" }),
+      [{ findingId: "f", title: "", severity: "", recommended: "" }],
+    );
+
+    expect(md.match(/Risk posture was not stored/g)).toHaveLength(1);
+    expect(md).not.toContain("Residual risk posture: .");
+    expect(md).toContain(
+      "| Severity was not stored | Finding title was not stored | No sponsor action was stored on this review. |",
+    );
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

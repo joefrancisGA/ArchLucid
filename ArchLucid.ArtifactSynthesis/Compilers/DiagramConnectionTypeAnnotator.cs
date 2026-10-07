@@ -5,9 +5,7 @@ using ArchLucid.KnowledgeGraph.Inventory;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Fills blank visible connector labels when inventory rows omitted the graph edge type.
-///     Executive VNet snapshots still carry VNet-to-VNet peering edges; without this pass those
-///     connectors render as unlabeled arrows and the Edges table shows an em dash.
+///     Makes omitted VNet-to-VNet relationship labels explicit without inferring a relationship type.
 /// </summary>
 internal static class DiagramConnectionTypeAnnotator
 {
@@ -42,7 +40,7 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            edge.Label = "peering";
+            edge.Label = "Relationship was not stored";
         }
     }
 

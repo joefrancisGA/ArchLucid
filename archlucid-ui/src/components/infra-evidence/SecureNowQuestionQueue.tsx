@@ -110,9 +110,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     return null;
   }
 
-  const friendlyType = currentQuestion?.resourceType != null
-    ? formatDiagramArmTypeFriendlyName(currentQuestion.resourceType)
-    : null;
+  const friendlyType = currentQuestion == null || currentQuestion.resourceType.trim().length === 0
+    ? null
+    : formatDiagramArmTypeFriendlyName(currentQuestion.resourceType) ?? "Resource type was not stored";
+  const resourceTypeLabel = friendlyType ?? (currentQuestion != null ? "Resource type was not stored" : null);
   const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
     ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
     : "Resource name was not stored";
@@ -129,8 +130,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0" data-testid="infra-diagrams-question-resource-identity">
-            {friendlyType != null ? (
-              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{friendlyType}</span>
+            {resourceTypeLabel != null ? (
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{resourceTypeLabel}</span>
             ) : null}
             <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-resource-name">
               {displayName}
@@ -141,7 +142,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
               data-testid="infra-diagrams-question-text"
             >
-              {currentQuestion.questionText}
+              {currentQuestion.questionText.trim().length > 0
+                ? currentQuestion.questionText
+                : "Question text was not stored"}
             </p>
           ) : null}
           {currentQuestion != null && currentQuestion.status !== "Open" ? (
@@ -173,6 +176,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         <div className="mt-2 space-y-2">
           {currentQuestion.status === "Open" ? (
             <>
+              {currentQuestion.answerCodes.length === 0 ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  No answer choices were stored on this question.
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 {currentQuestion.answerCodes.map((answerCode) => (
                   <Button
@@ -315,14 +323,14 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Visit limit: {Math.min(visitedQuestionKeys.size, VISIT_CAP)} of {VISIT_CAP}
                 </span>
               </div>
-              {currentQuestion.reasonText.trim().length > 0 ? (
-                <div className="space-y-1">
-                  <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
-                    {currentQuestion.reasonText}
-                  </p>
-                </div>
-              ) : null}
+              <div className="space-y-1">
+                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
+                  {currentQuestion.reasonText.trim().length > 0
+                    ? currentQuestion.reasonText
+                    : "Reason was not stored"}
+                </p>
+              </div>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.sourceLine}
               </p>

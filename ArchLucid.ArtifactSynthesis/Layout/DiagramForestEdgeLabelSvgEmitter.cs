@@ -32,7 +32,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
         string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
-        string title = label.Length == 0 ? "connector" : label;
+        string title = label.Length == 0 ? "Relationship was not stored" : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 

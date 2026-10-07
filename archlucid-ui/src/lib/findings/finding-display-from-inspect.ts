@@ -175,19 +175,7 @@ export function findingDetailHeadingTitle(payload: FindingInspectPayload): strin
     return titleCandidate;
   }
 
-  const ruleName = payload.decisionRuleName?.trim();
-
-  if (ruleName !== undefined && ruleName.length > 0) {
-    return ruleName;
-  }
-
-  const ruleId = payload.decisionRuleId?.trim();
-
-  if (ruleId !== undefined && ruleId.length > 0) {
-    return ruleId;
-  }
-
-  return "Finding detail";
+  return "Finding title was not stored";
 }
 
 /** Route-aware title fallback used before / when the inspect payload is sparse. */
@@ -228,22 +216,7 @@ export function findingDetailLeadSentence(payload: FindingInspectPayload): strin
     return description;
   }
 
-  const labels = findingInspectPrimaryLabels(payload);
-  const area = labels.impactedAreaLabel?.trim();
-
-  if (area !== undefined && area.length > 0) {
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return `Recorded risk observation for ${area}. Residual disposition and monitoring cadence are documented in the policy record.`;
-    }
-
-    return `Outcome focuses on ${area}. Review evidence and the recommended action before closing or escalating.`;
-  }
-
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return "Risk observation record for the finalized review — see evidence and monitoring details below.";
-  }
-
-  return "Review the recommendations and cited evidence below before sign-off.";
+  return "Finding description was not stored.";
 }
 
 /** Optional narrative for "Why this matters" — common typed-payload keys from finding engines. */

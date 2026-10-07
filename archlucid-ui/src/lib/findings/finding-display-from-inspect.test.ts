@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  findingDetailLeadSentence,
   findingDetailHeadingTitle,
   findingWhyThisMattersText,
   typedPayloadLookupString,
@@ -30,6 +31,23 @@ describe("findingDetailHeadingTitle", () => {
     };
 
     expect(findingDetailHeadingTitle(payload)).toBe("Sensitive Data Minimization Risk");
+  });
+
+  it("does not promote a rule id into the title", () => {
+    const payload: FindingInspectPayload = {
+      ...payloadWithTyped({}),
+      decisionRuleId: "rule-123",
+    };
+
+    expect(findingDetailHeadingTitle(payload)).toBe("Finding title was not stored");
+  });
+});
+
+describe("findingDetailLeadSentence", () => {
+  it("uses omission copy when description is absent", () => {
+    expect(findingDetailLeadSentence(payloadWithTyped({ impactedArea: "network" }))).toBe(
+      "Finding description was not stored.",
+    );
   });
 });
 

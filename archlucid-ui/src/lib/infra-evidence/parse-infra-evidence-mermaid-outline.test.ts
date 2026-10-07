@@ -46,7 +46,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "vnet1")).toBe("vnet-eastus");
-    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe("missing");
+    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe("No stored link");
   });
 
   it("prefers metadata seed ids over mermaid node hashes", () => {
@@ -222,7 +222,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
-  it("derives peering when a VNet-to-VNet arrow has no mermaid label", () => {
+  it("leaves an unlabeled VNet-to-VNet arrow unrecorded", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
         "flowchart TD",
@@ -246,7 +246,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         declaredConnectionId: null,
       },
     ]);
-    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("peering");
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("");
   });
 
   it("falls back to RG subgraph labels when metadata comments are absent", () => {

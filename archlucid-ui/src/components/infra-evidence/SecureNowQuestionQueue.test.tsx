@@ -124,6 +124,24 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
   });
 
+  it("labels missing question copy, type, reason, and choices", async () => {
+    mocks.listQuestions.mockResolvedValue([{
+      ...question,
+      questionText: "",
+      resourceType: "",
+      reasonText: "",
+      answerCodes: [],
+    }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was not stored");
+    expect(screen.getByText("Resource type was not stored")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent("Reason was not stored");
+    expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
+  });
+
   it("keeps inventory questions visible when inferred connections fail to load", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
     mocks.listConnections.mockRejectedValue(new Error("inferred connections unavailable"));

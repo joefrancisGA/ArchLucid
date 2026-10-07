@@ -5,7 +5,10 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { FindingDerivationResult } from "@/lib/findings/finding-derivation-sentence";
+import {
+  FINDING_DERIVATION_ASSEMBLED_PREFIX,
+  type FindingDerivationResult,
+} from "@/lib/findings/finding-derivation-sentence";
 import {
   FINDING_DERIVATION_EVIDENCE_OPEN_PARAM,
   findingDerivationEvidenceDisclosureHrefFromSearch,
@@ -56,6 +59,9 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
   const { derivation, evidenceHref, testId = "finding-derivation-line", compact = false } = props;
   const evidenceLink =
     evidenceHref !== null && evidenceHref !== undefined && evidenceHref.trim().length > 0 ? evidenceHref : null;
+  const sentence = derivation.synthesised && !derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
+    ? `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${derivation.sentence}`
+    : derivation.sentence;
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
@@ -82,7 +88,7 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
   if (compact) {
     return (
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid={testId}>
-        <span data-testid={`${testId}-sentence`}>{derivation.sentence}</span>
+        <span data-testid={`${testId}-sentence`}>{sentence}</span>
         {evidenceLink !== null ? (
           <>
             {" "}
@@ -103,7 +109,7 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
   return (
     <div className="space-y-1" data-testid={testId}>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid={`${testId}-sentence`}>
-        {derivation.sentence}
+        {sentence}
       </p>
       {evidenceLink !== null ? (
         <details

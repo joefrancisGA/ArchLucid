@@ -85,7 +85,7 @@ export function buildSponsorRiskReviewMarkdown(
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 
   const remainingRiskParts = [
-    `Residual risk posture: ${summary.riskPosture}.`,
+    trimLine(summary.riskPosture).length > 0 ? `Residual risk posture: ${summary.riskPosture}.` : null,
     typeof summary.findingCount === "number" && Number.isFinite(summary.findingCount)
       ? `${Math.trunc(summary.findingCount)} architecture finding${
           Math.trunc(summary.findingCount) === 1 ? "" : "s"
@@ -113,7 +113,11 @@ export function buildSponsorRiskReviewMarkdown(
           "| --- | --- | --- |",
           ...prioritizedFindings.map(
             (r) =>
-              `| ${mdTableCell(r.severity)} | ${mdTableCell(r.title)} | ${mdTableCell(r.recommended)} |`,
+              `| ${mdTableCell(trimLine(r.severity) || "Severity was not stored")} | ${mdTableCell(
+                trimLine(r.title) || "Finding title was not stored",
+              )} | ${mdTableCell(
+                trimLine(r.recommended) || "No sponsor action was stored on this review.",
+              )} |`,
           ),
           "",
         ].join("\n");
