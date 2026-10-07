@@ -81,4 +81,25 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeFalse();
         status.Should().Be(default);
     }
+
+    [Fact]
+    public void TryParseStatus_rejects_hexadecimal_ordinal_string()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("0x5", out ArchitectureRunStatus status);
+
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
+
+    [Fact]
+    public void TryTransition_denies_commit_finalized_from_tasks_generated()
+    {
+        ArchitectureRunStatusTransitionResult result = ArchitectureRunStatusTransitionTable.TryTransition(
+            ArchitectureRunStatus.TasksGenerated,
+            ArchitectureRunStatusLifecycleEvent.CommitFinalized);
+
+        result.IsAllowed.Should().BeFalse();
+        result.TargetStatus.Should().Be(ArchitectureRunStatus.TasksGenerated);
+        result.DenialReason.Should().NotBeNullOrWhiteSpace();
+    }
 }

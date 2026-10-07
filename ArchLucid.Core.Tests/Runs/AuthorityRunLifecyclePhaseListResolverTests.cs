@@ -446,6 +446,21 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_tasks_generated_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_waiting_for_results_with_orphan_golden_manifest_returns_in_progress()
     {
         RunRecord header = new()
