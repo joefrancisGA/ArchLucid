@@ -129,6 +129,63 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> multiRoot = ReadApplySaasStringArray(repoRoot, "$multiRootSequence");
+        IReadOnlyList<string> hostedWaves = ReadApplySaasHostedWaveLeaves(repoRoot);
+        List<string> expectedHosted = multiRoot
+            .Where(path => !string.Equals(path, "infra/terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        hostedWaves.Should().Equal(expectedHosted);
+    }
+
+    [Fact]
+    public void ExtractLeafPaths_includes_orchestrator_while_hosted_wave_parity_excludes_it()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        List<string> evidenceLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+        IReadOnlyList<string> applySaasHostedWaves = ReadApplySaasHostedWaveLeaves(repoRoot);
+
+        evidenceLeaves.Should().Contain("infra/terraform-orchestrator");
+        evidenceLeaves
+            .Where(path => !string.Equals(path, "infra/terraform-orchestrator", StringComparison.Ordinal))
+            .Should()
+            .Equal(applySaasHostedWaves);
+    }
+
+    [Fact]
+    public void ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+
+        foreach (string line in roots)
+        {
+            if (!line.Contains(" —", StringComparison.Ordinal))
+                continue;
+
+            string path = line.Split(" —", 2, StringSplitOptions.None)[0].Trim();
+
+            path.Should().StartWith("infra/");
+            path.Should().NotContain(" —", "path segment must not contain em-dash; delimiter separates path from annotation only");
+        }
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> pilotLeaves = ReadTerraformPilotNestedInfrastructureRootPaths(repoRoot);
+        IReadOnlyList<string> evidenceComposition = ExtractCompositionRootPaths(
+            DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidenceComposition.Should().Equal(ReadTerraformPilotCompositionRootPaths(repoRoot));
+        pilotLeaves.Should().Equal(ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots()));
+        evidenceComposition.Should().NotEqual(pilotLeaves.Take(3).ToList());
+    }
+
+    [Fact]
     public void DefaultApplyOrderRoots_leaf_sequence_matches_terraform_pilot_nested_infrastructure_roots()
     {
         string repoRoot = RequireRepositoryRoot();

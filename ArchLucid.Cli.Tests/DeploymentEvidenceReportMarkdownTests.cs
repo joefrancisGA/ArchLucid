@@ -1,5 +1,7 @@
 using System.Text;
 
+using System.Text.RegularExpressions;
+
 using ArchLucid.Cli.Commands;
 
 using FluentAssertions;
@@ -88,6 +90,36 @@ public sealed class DeploymentEvidenceReportMarkdownTests
 
         md.Should().Contain("metadata composition root");
         md.Should().Contain(DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+    }
+
+    [Fact]
+    public void Compose_terraform_root_list_uses_contiguous_one_based_indices()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        MatchCollection numberedRoots = Regex.Matches(md, @"^(\d+)\. infra/", RegexOptions.Multiline);
+        List<int> indices = numberedRoots
+            .Select(match => int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture))
+            .ToList();
+
+        indices.Should().Equal(Enumerable.Range(1, roots.Count));
     }
 
     [Fact]
