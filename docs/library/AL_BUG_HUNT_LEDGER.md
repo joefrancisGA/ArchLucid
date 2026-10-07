@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 73 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+**Hunts:** 74 · **Bugs found:** 12 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_task_id_dotless_i_and_latin_capital_i_remain_distinct_tasks`; 103 scoped zone tests passed (61 Application + 42 Core).
+
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — separate `GetByIdAsync` calls for create-time pins (~140) and evidence integrity (~202) can observe different `RunRecord` presence in one commit — **cheap-disproof 2026-10-07 seed hunt #74:** duplicate TOCTOU rows from hunts #72–#73; arch-version pin and quality/provenance/scorecard gates still run; null header skips optional pin/evidence passes only.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `CommitCreateTimePinIntegrityEvaluator` skipped when first header fetch is null even though `CommitArchitectureVersionPinIntegrityEvaluator` already passed — **cheap-disproof 2026-10-07 seed hunt #74:** create-time pins require persisted run header; arch-version pin can pass from request pins alone; intentional optional skip when row missing.
+- [x] (valid-no-repro) `UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons` — may block finalize after `FindingSemanticSupportBandFinalizeJudge` fail-open leaves Unchecked heuristic bands — **cheap-disproof 2026-10-07 seed hunt #74:** hold targets `Unsupported` classification bands only; judge fail-open keeps `Unchecked` (`FindingSemanticSupportBandFinalizeJudgeTests.ApplyAsync_fail_open_keeps_heuristic_when_judge_returns_null`); not a post-judge surprise block.
+- [x] (invalid) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `StringComparer.OrdinalIgnoreCase` on `TaskId` may merge visually distinct Unicode task ids that differ only by casing normalization edge — **cheap-disproof 2026-10-07 seed hunt #74:** Turkish dotless `ı` (U+0131) and Latin `I` (U+0049) stay distinct keys; regression `Select_when_task_id_dotless_i_and_latin_capital_i_remain_distinct_tasks`.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Simulator` bypasses quality gate while `CommitOutputIntegrityService` still loads traces for Real-only evaluator path — **cheap-disproof 2026-10-07 seed hunt #74:** TB-2226 Real-only gate; regressions `GetBlockingReasons_when_simulator_mode_returns_empty` and `GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Real PilotStrict with zero traces always blocks even when structural mode commit guard already passed — locus: empty-list reason ~32–36; input: API commit on Real run with no persisted agent traces.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_qualityGateOptionsResolver.Resolve` snapshot reused for unsupported-band hold after `_semanticSupportBandFinalizeJudge.ApplyAsync` — locus: `gateOptions` ~161 vs ~224; input: resolver returns different `PilotStrictHoldOnUnsupportedSemanticSupport` between calls (dynamic config).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `DecisionGradeFindingProvenanceValidator` runs before `_finalizeQualityGate` so scorecard-blocking findings may still pass provenance — locus: ordering ~172–198; input: finding fails finalize scorecard but passes provenance shape checks.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — outer whitespace trimmed on `TaskId` but inner NBSP (U+00A0) preserved may split retry chains — locus: `Trim()` ~55; input: task ids `task-1` vs `task\u00A01` same attempt lineage.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — lifecycle `Complete` check uses in-memory `run.GoldenManifestId` before trace quality gate — locus: ~108–117; input: stale `ArchitectureRun` DTO manifest id null while SQL stage outcomes show Complete.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`; 102 scoped zone tests passed (61 Application + 41 Core).
 

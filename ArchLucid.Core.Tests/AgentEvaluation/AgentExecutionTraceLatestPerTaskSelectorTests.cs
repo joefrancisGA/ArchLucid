@@ -215,6 +215,34 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_id_dotless_i_and_latin_capital_i_remain_distinct_tasks()
+    {
+        DateTime sharedUtc = new(2026, 10, 7, 12, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace dotlessTask = new()
+        {
+            TraceId = "trace-dotless",
+            TaskId = "task\u0131",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace latinCapitalTask = new()
+        {
+            TraceId = "trace-latin-i",
+            TaskId = "taskI",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([dotlessTask, latinCapitalTask]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-dotless", "trace-latin-i"]);
+    }
+
+    [Fact]
     public void Select_when_task_id_is_whitespace_only_chains_with_missing_task_id()
     {
         DateTime sharedUtc = new(2026, 8, 1, 10, 0, 0, DateTimeKind.Utc);
