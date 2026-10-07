@@ -33,6 +33,14 @@ describe("DiagramNeighborhoodMapView", () => {
     render(<DiagramNeighborhoodMapView map={map} onOpenNeighborhood={onOpenNeighborhood} />);
 
     expect(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Virtual networks" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Resource groups" })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-virtual-networks")).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app"),
+    );
+    expect(screen.getByTestId("architecture-diagram-resource-groups")).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-shared:security"),
+    );
     expect(screen.getByText("app-vnet")).toBeInTheDocument();
     expect(screen.getByText("app-vnet")).not.toHaveAttribute("title");
     expect(screen.getByText("4 resources")).toBeInTheDocument();

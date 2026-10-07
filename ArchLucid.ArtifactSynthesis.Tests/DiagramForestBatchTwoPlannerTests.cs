@@ -55,7 +55,7 @@ public sealed class DiagramForestBatchTwoPlannerTests
     }
 
     [Fact]
-    public void Singleton_tail_planner_collapses_only_unconnected_singletons()
+    public void Singleton_tail_planner_preserves_each_resource_group_node()
     {
         List<DiagramNode> nodes =
         [
@@ -92,7 +92,10 @@ public sealed class DiagramForestBatchTwoPlannerTests
                 nodes,
                 []);
 
-        result.Nodes.Should().ContainSingle(node => node.Label == "Other resource groups (9)");
+        result.Nodes.Should().HaveCount(11);
+        result.Nodes.Should().NotContain(node => node.Label.StartsWith("Other resource groups", StringComparison.Ordinal));
+        result.Nodes.Should().Contain(node => node.Label == "singleton-0");
+        result.Nodes.Should().Contain(node => node.ArmResourceGroup == "rg-8");
         result.Nodes.Should().Contain(node => node.NodeId == "large");
     }
 
