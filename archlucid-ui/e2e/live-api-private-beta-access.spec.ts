@@ -383,9 +383,14 @@ test.describe(
     }
 
     await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 1 })).toBeVisible({
-      timeout: 60_000,
-    });
+
+    if (/\/auth\//.test(page.url())) {
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
+    }
+
+    await expect(page.getByTestId("reviews-new-page-title")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("reviews-new-page-title")).toHaveText(START_REVIEW_LABEL);
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 

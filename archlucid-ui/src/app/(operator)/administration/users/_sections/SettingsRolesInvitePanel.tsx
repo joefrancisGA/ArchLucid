@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type RefObject } from "react";
 
 import { MutatingInWorkspaceChip } from "@/components/MutatingInWorkspaceChip";
 import { ColdInviteUsersInviteVocabularyRail } from "@/components/ColdInviteUsersInviteVocabularyRail";
@@ -65,6 +65,7 @@ export function SettingsRolesInvitePanel({
     message: initialMessage?.trim() ?? "",
   }));
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const [inviteSentForReviewId, setInviteSentForReviewId] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const reviewIdTrimmed = reviewId?.trim() ?? "";
@@ -75,50 +76,70 @@ export function SettingsRolesInvitePanel({
     architectureId: architectureIdTrimmed,
   });
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function submitInvite(): Promise<void> {
     if (!form.email.trim() || !form.role) {
       return;
     }
 
+    if (sendingRef.current) {
+      return;
+    }
+
+    sendingRef.current = true;
     setSending(true);
 
-    const result = await sendAdminUserInvitation(form.email.trim(), form.role, form.message);
+    try {
+      const result = await sendAdminUserInvitation(form.email.trim(), form.role, form.message);
 
-    setSending(false);
+      if (!result.ok) {
+        if (result.reason === "directory_user_exists") {
+          showError(
+            "Cannot invite this email",
+            result.detail
+              ?? "A directory user already exists for that address. Manage access through your identity provider or SCIM provisioning instead.",
+          );
 
-    if (!result.ok) {
-      if (result.reason === "directory_user_exists") {
+          return;
+        }
+
         showError(
-          "Cannot invite this email",
-          result.detail
-            ?? "A directory user already exists for that address. Manage access through your identity provider or SCIM provisioning instead.",
+          "Could not send invite",
+          "The invitation service rejected the request or is unavailable. Check the email and try again.",
         );
 
         return;
       }
 
-      showError(
-        "Could not send invite",
-        "The invitation service rejected the request or is unavailable. Check the email and try again.",
+      const acceptLink = resolveAdminUserInvitationAcceptLink(result.invitation);
+
+      showSuccess(
+        acceptLink !== null
+          ? `Invitation sent to ${form.email}. Copy the accept link from Pending invitations if you need to share it manually.`
+          : `Invitation sent to ${form.email}.`,
       );
+      setForm(EMPTY_FORM);
 
-      return;
+      if (reviewIdTrimmed.length > 0) {
+        setInviteSentForReviewId(reviewIdTrimmed);
+      }
+
+      onInviteSent?.(result.invitation);
+    } finally {
+      sendingRef.current = false;
+      setSending(false);
     }
+  }
 
-    const acceptLink = resolveAdminUserInvitationAcceptLink(result.invitation);
+  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    void submitInvite();
+  }
 
-    showSuccess(
-      acceptLink !== null
-        ? `Invitation sent to ${form.email}. Copy the accept link from Pending invitations if you need to share it manually.`
-        : `Invitation sent to ${form.email}.`,
-    );
-    setForm(EMPTY_FORM);
-    if (reviewIdTrimmed.length > 0) {
-      setInviteSentForReviewId(reviewIdTrimmed);
-    }
-    onInviteSent?.(result.invitation);
+  function handleSubmitClick(event: MouseEvent<HTMLButtonElement>): void {
+    // Playwright force-clicks (used when a Radix overlay intercepts the pointer) dispatch a
+    // click without synthesizing the native form submit. Honor the button click directly.
+    event.preventDefault();
+    void submitInvite();
   }
 
   function handleCancel() {
@@ -229,6 +250,7 @@ export function SettingsRolesInvitePanel({
             type="submit"
             size="sm"
             disabled={sending || !canSubmit}
+            onClick={handleSubmitClick}
             data-testid="settings-roles-invite-submit"
           >
             {sending ? "Sending…" : "Send invite"}

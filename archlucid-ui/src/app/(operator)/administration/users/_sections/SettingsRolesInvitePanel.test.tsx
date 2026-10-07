@@ -51,6 +51,7 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
     await waitFor(() => {
       expect(showError).toHaveBeenCalled();
     });
+    expect(sendAdminUserInvitation).toHaveBeenCalledTimes(1);
     expect(sendAdminUserInvitation).toHaveBeenCalledWith("reviewer@example.com", "Reader", "");
     expect(showSuccess).not.toHaveBeenCalled();
   });
@@ -152,6 +153,7 @@ describe("SettingsRolesInvitePanel (SSU P0)", () => {
         "Invitation sent to reviewer@example.com. Copy the accept link from Pending invitations if you need to share it manually.",
       );
     });
+    expect(sendAdminUserInvitation).toHaveBeenCalledTimes(1);
     expect(onInviteSent).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",

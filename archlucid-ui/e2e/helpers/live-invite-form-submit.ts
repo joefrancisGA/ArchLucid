@@ -143,23 +143,34 @@ export async function submitAdminInviteFromUsersUi(
 
   await expect(submitButton).toBeEnabled({ timeout: 15_000 });
   await dismissBlockingModalOverlays(page);
+
+  const inviteRequestMatcher = (url: string, method: string): boolean =>
+    url.includes("/api/proxy/v1/admin/users/invite") && method === "POST";
+
   const inviteResponsePromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/admin/users/invite") &&
-      response.request().method() === "POST",
+    (response) => inviteRequestMatcher(response.url(), response.request().method()),
     { timeout: 90_000 },
   );
 
-  await clickThroughBlockingOverlays(page, submitButton, { force: true });
+  const invitePostStarted = await startAdminInvitePost(page, inviteForm, submitButton);
+
+  if (!invitePostStarted) {
+    throw new Error(
+      `Admin invite UI for ${email} did not start Invite POST after submit. url=${page.url()}`,
+    );
+  }
 
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
+
   try {
     const inviteResponse = await inviteResponsePromise;
     inviteResponseStatus = inviteResponse.status();
     inviteResponseBody = await inviteResponse.text();
   } catch {
-    // Fall through to UI assertions when the build surfaces only toast + seeded rows.
+    throw new Error(
+      `Admin invite UI for ${email} Invite POST did not complete within 90s after submit. url=${page.url()}`,
+    );
   }
 
   const pendingRow = page.locator("tr", { hasText: email });
@@ -171,12 +182,33 @@ export async function submitAdminInviteFromUsersUi(
       conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
     ]);
   } catch {
-    const inviteHint =
-      inviteResponseStatus !== undefined
-        ? ` Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`
-        : " Invite POST did not complete within 90s.";
     throw new Error(
-      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit.${inviteHint}`,
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit. Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`,
     );
   }
+}
+
+async function startAdminInvitePost(page: Page, inviteForm: Locator, submitButton: Locator): Promise<boolean> {
+  const inviteRequestMatcher = (request: { url(): string; method(): string }): boolean =>
+    request.url().includes("/api/proxy/v1/admin/users/invite") && request.method() === "POST";
+
+  const firstAttempt = page.waitForRequest(inviteRequestMatcher, { timeout: 15_000 });
+
+  await inviteForm.evaluate((element) => {
+    const form = element as HTMLFormElement;
+
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    }
+  });
+
+  if (await firstAttempt.then(() => true).catch(() => false)) {
+    return true;
+  }
+
+  const secondAttempt = page.waitForRequest(inviteRequestMatcher, { timeout: 15_000 });
+
+  await clickThroughBlockingOverlays(page, submitButton, { force: true });
+
+  return secondAttempt.then(() => true).catch(() => false);
 }

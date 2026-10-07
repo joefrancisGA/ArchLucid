@@ -5,6 +5,8 @@
  */
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
+import { isDestroyedPlaywrightExecutionContext } from "./playwright-execution-context";
+
 import {
   OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
@@ -172,6 +174,34 @@ export async function writeJwtBrowserSession(page: Page, accessToken: string): P
     await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
   }
 
+  await page.waitForLoadState("domcontentloaded");
+
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await writeJwtBrowserSessionOnCurrentDocument(page, accessToken, expiresAtMs);
+
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (!isDestroyedPlaywrightExecutionContext(error) || attempt === 3) {
+        throw error;
+      }
+
+      await page.waitForLoadState("domcontentloaded");
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("writeJwtBrowserSession failed after navigation retries");
+}
+
+async function writeJwtBrowserSessionOnCurrentDocument(
+  page: Page,
+  accessToken: string,
+  expiresAtMs: number,
+): Promise<void> {
   await page.evaluate(
     ({ expiresKey, expiresAt, displayKey }) => {
       sessionStorage.setItem(expiresKey, String(expiresAt));

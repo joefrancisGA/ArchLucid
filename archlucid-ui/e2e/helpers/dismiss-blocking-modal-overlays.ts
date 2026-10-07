@@ -55,3 +55,19 @@ export async function clickThroughBlockingOverlays(
   await dismissBlockingModalOverlays(page);
   await target.click({ timeout: 15_000, force: true });
 }
+
+/** Opens a dialog from a control without Escaping after the click (which would close the new dialog). */
+export async function clickControlThatOpensDialog(
+  page: Page,
+  target: Locator,
+  dialog: Locator,
+): Promise<void> {
+  await dismissBlockingModalOverlays(page);
+  await target.click({ timeout: 15_000, force: true });
+
+  if (await dialog.isVisible().catch(() => false)) {
+    return;
+  }
+
+  await target.click({ timeout: 15_000, force: true });
+}
