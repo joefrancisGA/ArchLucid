@@ -22,10 +22,17 @@ public static class TopologyProposalConsensusMerger
 
         List<ManifestService> intersectedServices = IntersectServices(primaryServices, secondaryServices);
         List<ManifestDatastore> intersectedDatastores = IntersectDatastores(primaryDatastores, secondaryDatastores);
+        IReadOnlyList<ManifestService> combinedServices =
+            CombineManifestServices(primaryServices, secondaryServices);
+        IReadOnlyList<ManifestDatastore> combinedDatastores =
+            CombineManifestDatastores(primaryDatastores, secondaryDatastores);
+
         List<ManifestRelationship> intersectedRelationships =
             PruneRelationshipsToDeclaredEndpoints(
                 intersectedServices,
                 intersectedDatastores,
+                combinedServices,
+                combinedDatastores,
                 IntersectRelationships(
                     primaryRelationships,
                     secondaryRelationships,
@@ -294,15 +301,20 @@ public static class TopologyProposalConsensusMerger
     }
 
     private static List<ManifestRelationship> PruneRelationshipsToDeclaredEndpoints(
-        IReadOnlyList<ManifestService> services,
-        IReadOnlyList<ManifestDatastore> datastores,
+        IReadOnlyList<ManifestService> intersectedServices,
+        IReadOnlyList<ManifestDatastore> intersectedDatastores,
+        IReadOnlyList<ManifestService> combinedServices,
+        IReadOnlyList<ManifestDatastore> combinedDatastores,
         IReadOnlyList<ManifestRelationship> relationships)
     {
         if (relationships.Count == 0)
             return [];
 
-        HashSet<string> endpointKeys =
-            TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(services, datastores);
+        HashSet<string> endpointKeys = CollectPruneEndpointKeys(
+            intersectedServices,
+            intersectedDatastores,
+            combinedServices,
+            combinedDatastores);
 
         if (endpointKeys.Count == 0)
             return [];
@@ -318,5 +330,43 @@ public static class TopologyProposalConsensusMerger
         }
 
         return pruned;
+    }
+
+    private static HashSet<string> CollectPruneEndpointKeys(
+        IReadOnlyList<ManifestService> intersectedServices,
+        IReadOnlyList<ManifestDatastore> intersectedDatastores,
+        IReadOnlyList<ManifestService> combinedServices,
+        IReadOnlyList<ManifestDatastore> combinedDatastores)
+    {
+        HashSet<string> endpointKeys =
+            TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(intersectedServices, intersectedDatastores);
+
+        HashSet<string> intersectedServiceKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in intersectedServices)
+            intersectedServiceKeys.Add(ServiceKey(service));
+
+        foreach (ManifestService service in combinedServices)
+        {
+            if (!intersectedServiceKeys.Contains(ServiceKey(service)))
+                continue;
+
+            TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys(endpointKeys, service);
+        }
+
+        HashSet<string> intersectedDatastoreKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestDatastore datastore in intersectedDatastores)
+            intersectedDatastoreKeys.Add(DatastoreKey(datastore));
+
+        foreach (ManifestDatastore datastore in combinedDatastores)
+        {
+            if (!intersectedDatastoreKeys.Contains(DatastoreKey(datastore)))
+                continue;
+
+            TopologyProposalRelationshipEndpointIndex.AddManifestDatastoreEndpointKeys(endpointKeys, datastore);
+        }
+
+        return endpointKeys;
     }
 }

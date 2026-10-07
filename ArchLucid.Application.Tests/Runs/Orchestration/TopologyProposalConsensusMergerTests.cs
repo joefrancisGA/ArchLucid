@@ -943,4 +943,63 @@ public sealed class TopologyProposalConsensusMergerTests
         result.MergedProposal.AddedRelationships.Should().ContainSingle();
         result.DisagreementCount.Should().Be(1);
     }
+
+    [Fact]
+    public void Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "renamed-api",
+            TargetId = "ds-sql",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships = [relationship],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "renamed-api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores = primary.AddedDatastores,
+            AddedRelationships = [relationship],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle()
+            .Which.SourceId.Should().Be("renamed-api");
+    }
 }
