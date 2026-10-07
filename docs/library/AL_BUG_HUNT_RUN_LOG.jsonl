@@ -1,5 +1,3 @@
-{"at":"2026-09-07T01:33:20.9583772Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-07T01:37:16.6274234Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:41:35.2401175Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:45:38.6387466Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:50:28.5181913Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8777,3 +8775,4 @@
 {"at":"2026-10-07T01:04:15.2876609Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/,ArchLucid.Api/Controllers/Tenancy/"]}
 {"at":"2026-10-07T01:20:47.4115095Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs,ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.ProjectCrud.cs"]}
 {"at":"2026-10-07T01:30:52.3390278Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.cs"]}
+{"at":"2026-10-07T01:41:19.6366051Z","zoneId":"api-tenancy-workspaces","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantWorkspacesController.RetentionPurge.cs"]}
