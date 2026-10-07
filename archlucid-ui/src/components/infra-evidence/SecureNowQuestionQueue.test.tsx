@@ -76,6 +76,7 @@ describe("SecureNowQuestionQueue", () => {
 
     expect(screen.getByTestId("infra-diagrams-question-bar")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.getByTestId("infra-diagrams-question-text")).not.toHaveAttribute("title");
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent("adf-edw-hi-dev");
     expect(screen.getByText("Data Factory")).toBeInTheDocument();
     expect(screen.getByText("Why SecureNow is asking")).toBeInTheDocument();

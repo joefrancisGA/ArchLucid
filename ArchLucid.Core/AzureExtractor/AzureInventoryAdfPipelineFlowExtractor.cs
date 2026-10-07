@@ -409,13 +409,9 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                 continue;
             }
 
-            if (reference.TryGetProperty("parameters", out JsonElement parametersElement)
-                && parametersElement.ValueKind is JsonValueKind.Object
-                && parametersElement.EnumerateObject().Any())
-            {
-                continue;
-            }
-
+            // Keep a static DatasetReference even when it also carries parameters.
+            // Parameter values can include folder paths or other secret-bearing strings;
+            // the flow row only stores the dataset name.
             string? datasetName = TryReadString(reference, "referenceName");
 
             if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(datasetName))
