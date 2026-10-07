@@ -521,6 +521,97 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not show success after cancel while submit is in flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    resolveFetch?.(new Response(null, { status: 204 }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("auth-callback-access-success")).not.toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: AUTH_CALLBACK_ACCESS_HEADING })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not enqueue duplicate POST when submit is activated twice before in-flight guard applies", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+
+    const submitButton = screen.getByRole("button", { name: "Submit request" });
+    fireEvent.click(submitButton);
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
+  it("posts empty honeypot websiteUrl string for server trimOptional normalization", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { websiteUrl: string };
+
+    expect(body.websiteUrl).toBe("");
+    vi.unstubAllGlobals();
+  });
+
+  it("omits technical detail paragraph when technicalDetail is blank", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="" />);
+
+    expect(screen.queryByTestId("auth-callback-technical-detail")).not.toBeInTheDocument();
+  });
+
   it("shows back-to-sign-in recovery only after a successful submit", async () => {
     vi.stubGlobal(
       "fetch",

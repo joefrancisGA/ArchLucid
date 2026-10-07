@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,15 +47,35 @@ const EMPTY_FORM: FormState = {
 };
 
 /** Private-beta access request experience for `/auth/callback` sign-in failures. */
+type SubmitControl = {
+  generation: number;
+  inFlight: boolean;
+};
+
 export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessPanelProps): React.JSX.Element {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const submitControlRef = useRef<SubmitControl>({ generation: 0, inFlight: false });
+
+  function invalidateInFlightSubmit(): void {
+    submitControlRef.current.generation += 1;
+    submitControlRef.current.inFlight = false;
+    setSubmitting(false);
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+
+    if (submitControlRef.current.inFlight) {
+      return;
+    }
+
+    const generation = submitControlRef.current.generation + 1;
+    submitControlRef.current.generation = generation;
+    submitControlRef.current.inFlight = true;
     setSubmitting(true);
     setErrorMessage(null);
 
@@ -77,6 +97,10 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
         }),
       });
 
+      if (generation !== submitControlRef.current.generation) {
+        return;
+      }
+
       if (response.status === 409) {
         setErrorMessage(AUTH_CALLBACK_ACCESS_DUPLICATE_ERROR);
         return;
@@ -90,9 +114,16 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
       setSubmitted(true);
       setShowForm(false);
     } catch {
+      if (generation !== submitControlRef.current.generation) {
+        return;
+      }
+
       setErrorMessage(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
     } finally {
-      setSubmitting(false);
+      if (generation === submitControlRef.current.generation) {
+        submitControlRef.current.inFlight = false;
+        setSubmitting(false);
+      }
     }
   }
 
@@ -114,12 +145,14 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
     <div className="max-w-[560px]" data-testid="auth-callback-access-panel">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_ACCESS_HEADING}</h1>
       <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_CALLBACK_ACCESS_LEAD}</p>
-      <p
-        className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="auth-callback-technical-detail"
-      >
-        {technicalDetail}
-      </p>
+      {technicalDetail.trim() !== "" ? (
+        <p
+          className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="auth-callback-technical-detail"
+        >
+          {technicalDetail}
+        </p>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button
@@ -128,7 +161,13 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
           size="sm"
           data-testid="auth-callback-request-access"
           onClick={() => {
-            setShowForm((open) => !open);
+            setShowForm((open) => {
+              if (open) {
+                invalidateInFlightSubmit();
+              }
+
+              return !open;
+            });
           }}
         >
           {AUTH_CALLBACK_ACCESS_REQUEST_ACTION}
@@ -269,6 +308,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
               size="sm"
               disabled={submitting}
               onClick={() => {
+                invalidateInFlightSubmit();
                 setShowForm(false);
                 setErrorMessage(null);
               }}
