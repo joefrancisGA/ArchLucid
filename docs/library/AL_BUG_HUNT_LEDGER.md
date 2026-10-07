@@ -9730,7 +9730,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 35 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+**Hunts:** 36 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+
+- [x] (valid-no-repro) `Program.Main` — `StartupMigrationHealthState.MarkMigrationFailed` during degraded DbUp startup is not surfaced on worker `/health/ready` because `StartupDatabaseMigrationHealthCheck` registers only in `ApiWebLayerServiceCollectionExtensions` — **cheap-disproof 2026-10-07 seed hunt #36:** degraded migration signaling is API readiness contract; worker still records state via `RegisterHostedStartupProbes`; operators probe API `StartupDatabaseMigrationHealthCheck` or logs (`StartupDatabaseMigrationHealthCheckTests`).
+- [x] (valid-no-repro) `Program.Main` — `StartupConfigurationDiagnostics` logs `CorsOriginCount` on worker hosts that never call `AddArchLucidCors` — **cheap-disproof 2026-10-07 seed hunt #36:** shared `StartupConfigurationFactsReader` snapshot for pilot/support triage; informational only (parity rate-limit row); opt-out `Hosting:LogStartupConfigurationSummary=false`.
+- [x] (invalid) `Program.Main` — scoped worker integration tests always set `ConnectionStrings:Redis=localhost` even though worker startup does not validate Redis reachability at build — **cheap-disproof 2026-10-07 seed hunt #36:** test harness supplies probe connection string; runtime readiness uses `OptionalRedisConnectionHealthCheck` when configured, not build-time validation.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — `UseHsts()` runs for non-Development worker hosts before optional HTTPS redirection is skipped on HTTP-only `ASPNETCORE_URLS` — **cheap-disproof 2026-10-07 seed hunt #36:** `AspNetCoreHostingUrls.ShouldUseHttpsRedirection` skips redirect on HTTP-only URLs; HSTS on plain HTTP is inert for scrapers/probes; regression `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — `CorrelationIdMiddleware` runs on `/metrics` scrape requests and may overwrite inbound correlation headers expected by scraper sidecars — **cheap-disproof 2026-10-07 seed hunt #36:** `CorrelationIdHeaderParser.TryGetValidIncomingCorrelationId` preserves valid inbound values; Prometheus scrapes do not depend on response `X-Correlation-Id`.
+
+- [ ] (candidate) `Program.Main` — `await ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` completes before `UseArchLucidWorkerPipeline`, delaying `/health/live` mapping until DbUp and optional demo seed finish — locus: `Program.cs` ~79–82; input: SQL worker revision with long migration scripts and K8s `startupProbe` hitting `/health/live` during bootstrap.
+- [ ] (candidate) `Program.Main` — `AddArchLucidGracefulShutdown` registers `WorkerHostDrainHostedService` before `AddArchLucidApplicationServices` background job processors start — locus: `GracefulShutdownWebApplicationBuilderExtensions.cs` + `Program.cs` ~48–59; input: SIGTERM during in-flight `BackgroundJobQueueProcessorHostedService` work with drain gate not observed by job loop.
+- [ ] (candidate) `Program.Main` — `ConfigurationValidationHostedService` from shared composition runs on worker and can throw after HTTP pipeline is mapped — locus: `ServiceCollectionExtensions.HostedStartupProbes.cs` + `ConfigurationValidationHostedService.StartAsync`; input: worker with `ArchLucid:StorageProvider=Sql` and missing `ConnectionStrings:ArchLucid` after passing pre-`Build()` `ValidateOrThrow`.
+- [ ] (candidate) `Program.Main` — `ArchLucidConfigurationRules.LogConfigurationWarnings` after `Build()` emits staging SQL credential warnings on InMemory worker test hosts that never open SQL — locus: `Program.cs` ~71; input: `ConnectionStrings:ArchLucid` password present with `ArchLucid:StorageProvider=InMemory` in shared `/app` image.
+- [ ] (candidate) `Program.Main` — `AzureOpenAiEnvironmentConfigurationBridge.Apply` mutates configuration before `WorkerProcessHostingRoleConfiguration.ValidateOrThrow`, so invalid bridge keys fail with API-parity messages on a host with no LLM HTTP surface — locus: `Program.cs` ~43–61; input: `AZURE_OPENAI_ENDPOINT` set without deployment name on worker-only revision (`Worker_host_fails_fast_when_real_mode_missing_azure_openai_deployment_name`).
 
 2026-10-07 seed hunt (seed-only): re-read migration/readiness wiring and health route predicates; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
@@ -9739,12 +9753,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Program.Main` — startup snapshot logs rate-limit fields without worker rate-limit middleware — **cheap-disproof 2026-10-07 seed hunt:** `StartupConfigurationDiagnostics` emits shared configuration facts from `IConfiguration`; informational only; regression `Worker_host_starts_when_startup_configuration_summary_logging_is_disabled` covers opt-out.
 - [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — `/health` aggregates all checks while `/health/live` and `/health/ready` are tag-filtered — **cheap-disproof 2026-10-07 seed hunt:** intentional aggregate summary endpoint; orchestrators should probe `/health/live` or `/health/ready`; regression `Worker_host_health_root_returns_summary_json_without_exception_text`.
 - [x] (valid-no-repro) `AddArchLucidOpenTelemetry` — `AddPrometheusExporter()` registered when Prometheus scrape is disabled — **cheap-disproof 2026-10-07 seed hunt:** documented in `ObservabilityExtensions` so integration tests can enable scrape after build; `UseOpenTelemetryPrometheusScrapingEndpoint` is gated on `Observability:Prometheus:Enabled`.
-
-- [ ] (candidate) `Program.Main` — `StartupMigrationHealthState.MarkMigrationFailed` during degraded DbUp startup is not surfaced on worker `/health/ready` because `StartupDatabaseMigrationHealthCheck` registers only in `ApiWebLayerServiceCollectionExtensions` — locus: `ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs` ~136 vs worker `Program.cs`; input: SQL worker with `ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true` and failed system-plane migration.
-- [ ] (candidate) `Program.Main` — `StartupConfigurationDiagnostics` logs `CorsOriginCount` on worker hosts that never call `AddArchLucidCors` — locus: `StartupConfigurationDiagnostics.cs` snapshot template; input: shared `/app` `appsettings.json` CORS section with `Hosting:Role=Worker`.
-- [ ] (candidate) `Program.Main` — scoped worker integration tests always set `ConnectionStrings:Redis=localhost` even though worker startup does not validate Redis reachability at build — locus: `WorkerHostStartupTests` `WithWebHostBuilder` defaults; input: worker host with missing/invalid Redis while hybrid cache consumers register.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — `UseHsts()` runs for non-Development worker hosts before optional HTTPS redirection is skipped on HTTP-only `ASPNETCORE_URLS` — locus: `WorkerHostPipelineExtensions.cs` ~82–86; input: plain-HTTP Container Apps worker revision.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — `CorrelationIdMiddleware` runs on `/metrics` scrape requests and may overwrite inbound correlation headers expected by scraper sidecars — locus: pipeline ordering ~25–26; input: Prometheus enabled with custom `X-Correlation-Id` on scrape requests.
 
 2026-10-07 seed hunt (seed-only): re-read demo-seed bootstrap and startup diagnostics; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
@@ -9786,7 +9794,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
