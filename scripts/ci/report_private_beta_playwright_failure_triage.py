@@ -37,6 +37,54 @@ def artifact_name(lane: str, suffix: str) -> str:
     return f"{prefix}-{suffix}"
 
 
+def classify_warmup_log(log_text: str) -> dict[str, object]:
+    """Classify optional warmup 400s separately from API startup failures."""
+    normalized = log_text.lower()
+    optional_http_400 = "warm create architecture run" in normalized and "http 400" in normalized
+    api_failed = "api process exited" in normalized or "now listening" not in normalized
+
+    if optional_http_400 and not api_failed:
+        return {
+            "status": "EXPECTED_OPTIONAL_HTTP_400",
+            "detail": "Optional create-run warmup returned HTTP 400; Playwright JIT warmup remains authoritative.",
+        }
+
+    if optional_http_400:
+        return {
+            "status": "OPTIONAL_HTTP_400_WITH_STARTUP_SIGNAL",
+            "detail": "Warmup returned HTTP 400 while startup diagnostics require review.",
+        }
+
+    return {
+        "status": "NO_OPTIONAL_HTTP_400",
+        "detail": "No optional create-run HTTP 400 was found in the supplied API log.",
+    }
+
+
+def classify_retry_reliability(log_text: str) -> dict[str, str]:
+    """Make retry-only success/failure visible instead of treating it as clean."""
+    normalized = log_text.lower()
+    retry_observed = "retry1" in normalized or "retrying" in normalized
+    failed = "failed" in normalized or "error:" in normalized
+
+    if retry_observed and failed:
+        return {
+            "status": "RETRY_RELIABILITY_REVIEW",
+            "detail": "A retry and failure marker were observed; do not claim clean reliability.",
+        }
+
+    if retry_observed:
+        return {
+            "status": "RETRY_OBSERVED",
+            "detail": "A retry marker was observed; retain it as a flake signal.",
+        }
+
+    return {
+        "status": "NO_RETRY_MARKER",
+        "detail": "No retry marker was found in the supplied log.",
+    }
+
+
 def build_triage_steps(lane: str) -> list[dict[str, str]]:
     cancel_hint = (
         "Frozen/smoke-branch lane uses cancel-in-progress: false; trunk push may cancel older SHAs."
@@ -96,7 +144,12 @@ def build_triage_steps(lane: str) -> list[dict[str, str]]:
     ]
 
 
-def build_summary(root: Path, lane: str = "trunk") -> dict[str, object]:
+def build_summary(
+    root: Path,
+    lane: str = "trunk",
+    api_log_path: Path | None = None,
+    playwright_log_path: Path | None = None,
+) -> dict[str, object]:
     runbook_exists = (root / RUNBOOK.relative_to(root)).is_file()
     heavy_spec_path = root / HEAVY_SPEC
     heavy_spec_exists = heavy_spec_path.is_file()
@@ -109,7 +162,7 @@ def build_summary(root: Path, lane: str = "trunk") -> dict[str, object]:
     if (root / FROZEN_RUNBOOK.relative_to(root)).is_file():
         frozen_runbook_path = str(FROZEN_RUNBOOK.relative_to(root))
 
-    return {
+    summary: dict[str, object] = {
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "overallDisposition": overall,
         "lane": lane,
@@ -120,6 +173,18 @@ def build_summary(root: Path, lane: str = "trunk") -> dict[str, object]:
         "stepCount": len(steps),
         "steps": steps,
     }
+
+    if api_log_path is not None and api_log_path.is_file():
+        summary["warmupClassification"] = classify_warmup_log(
+            api_log_path.read_text(encoding="utf-8", errors="replace"),
+        )
+
+    if playwright_log_path is not None and playwright_log_path.is_file():
+        summary["retryReliability"] = classify_retry_reliability(
+            playwright_log_path.read_text(encoding="utf-8", errors="replace"),
+        )
+
+    return summary
 
 
 def render_markdown(summary: dict[str, object]) -> str:
@@ -141,6 +206,17 @@ def render_markdown(summary: dict[str, object]) -> str:
         "",
         f"**Runbook:** `{summary.get('runbookPath')}`",
     ]
+
+    for classification_key, label in (
+        ("warmupClassification", "Warmup classification"),
+        ("retryReliability", "Retry reliability"),
+    ):
+        classification = summary.get(classification_key)
+
+        if isinstance(classification, dict):
+            lines.append(
+                f"**{label}:** `{classification.get('status')}` — {classification.get('detail')}",
+            )
 
     frozen_path = summary.get("frozenRunbookPath")
 
@@ -177,12 +253,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--json-out", type=Path, default=None)
+    parser.add_argument("--api-log", type=Path, default=None)
+    parser.add_argument("--playwright-log", type=Path, default=None)
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    summary = build_summary(REPO_ROOT, lane=args.lane)
+    summary = build_summary(
+        REPO_ROOT,
+        lane=args.lane,
+        api_log_path=args.api_log,
+        playwright_log_path=args.playwright_log,
+    )
 
     if args.json_out is not None:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
