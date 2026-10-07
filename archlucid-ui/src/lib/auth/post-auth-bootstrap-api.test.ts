@@ -22,6 +22,12 @@ describe("fetchPostAuthBootstrapStatus", () => {
 
     await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
   });
+
+  it("throws bootstrap_status_failed when the proxy returns 503", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+
+    await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
+  });
 });
 
 describe("createPostAuthWorkspace", () => {

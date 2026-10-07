@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `maps verify HTTP 410 to unknown because EmailOtpAuthController documents only 200 and 401` and bootstrap status 503 fail-closed; scoped auth/proxy vitest 357 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — re-read bootstrap, email-OTP, and BFF guard clients after thorough dry emptied open rows; cheap-disproof closed promotion attempts (challenge `ssoRequired` success envelope, soft-failure workspace create 200 body, delivery_failed mapping); seeded five `(candidate)` rows; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest passed with 3 unrelated baseline seam failures.
 
 2026-10-06 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`, `Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name`, `Resolve_keeps_candidate_when_future_row_shares_technology_name_but_distinct_substantive_refs`, and `Resolve_keeps_distinct_candidates_when_technology_names_differ_only_by_middle_dot_separator`; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
@@ -12010,13 +12012,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 357 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 seed hunt (seed-only): re-read `post-auth-bootstrap-api.ts`, `email-otp-api.ts`, and `enforceProxyBffSessionGuard` after four consecutive dry hunts; cheap-disproof closed challenge SSO/delivery/workspace soft-failure promotions; seeded five `(candidate)` rows below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest passed with 3 unrelated baseline seam failures.
 
-- [ ] (candidate) `verifyEmailOtpCode` / `mapStatusToFailureCategory` — HTTP 410/408 challenge-expired responses map to `unknown` instead of `expired_code`; reachable when verify proxy returns gone/conflict statuses after idle code entry.
-- [ ] (candidate) `fetchPostAuthBootstrapStatus` — all non-OK proxy statuses throw the same `bootstrap_status_failed` error; reachable when UI should distinguish LK-07 401 session recovery from upstream 503 maintenance messaging.
-- [ ] (candidate) `isPreAuthSignInAnonymousProxyPath` — `v1/tenant/trial-status` is allowlisted without a `lib/auth` proxy client in zone `paths`; reachable when a new trial-gating client ships without updating `proxy-anonymous-marketing-paths.ts`.
-- [ ] (candidate) `requestEmailOtpChallenge` — raw `fetch` omits `mergeRegistrationScopeForProxy` unlike bootstrap clients; reachable when stale `archlucid_operator_scope_v1` headers could affect pre-auth OTP if API ever binds scope (today `[AllowAnonymous]` routes ignore scope).
-- [ ] (candidate) `enforceProxyBffSessionGuard` — `PUT`/`PATCH`/`DELETE` on non-anonymous proxy paths share the same CSRF gate as `POST`; reachable when future auth maintenance endpoints use non-POST mutating verbs without allowlist entries.
+- [x] (invalid) `verifyEmailOtpCode` / `mapStatusToFailureCategory` HTTP 410/408 — **cheap-disproof 2026-10-07 seed hunt:** `EmailOtpAuthController.VerifyAsync` documents only 200 and 401; expired challenges surface as 401; regression `maps verify HTTP 410 to unknown because EmailOtpAuthController documents only 200 and 401`.
+- [x] (valid-no-repro) `fetchPostAuthBootstrapStatus` — **cheap-disproof 2026-10-07 seed hunt:** single `bootstrap_status_failed` throw is intentional fail-closed for 401/503 alike; regression `throws bootstrap_status_failed when the proxy returns 503`.
+- [x] (invalid) `isPreAuthSignInAnonymousProxyPath` / `v1/tenant/trial-status` — **cheap-disproof 2026-10-07 seed hunt:** caller is `OnboardingStartClient` with `mergeRegistrationScopeForProxy`; allowlist covered by `proxy-route-pre-auth-anonymous.test.ts` and `proxy-anonymous-marketing-paths.test.ts` — process risk only, not in-zone `lib/auth` gap today.
+- [x] (valid-no-repro) `requestEmailOtpChallenge` scope headers — **cheap-disproof 2026-10-07 seed hunt:** pre-auth OTP routes are `[AllowAnonymous]` on `isPublicAnonymousProxyPath`; same class as `evaluateAuthSignInRouting` omitting `mergeRegistrationScopeForProxy`.
+- [x] (valid-no-repro) `enforceProxyBffSessionGuard` PUT/PATCH/DELETE CSRF — **cheap-disproof 2026-10-07 seed hunt:** intentional LK-07; no `lib/auth` proxy client uses non-POST mutating verbs today.
+
+- [ ] (candidate) `verifyEmailOtpCode` — HTTP 400 validation failures from `EmailOtpAuthController` (`ChallengeId` empty) map to `unknown` via `mapStatusToFailureCategory`; reachable when malformed client calls bypass UI guards.
+- [ ] (candidate) `requestEmailOtpChallenge` — HTTP 400 bad request maps to `unknown` while verify maps 401 to `invalid_code`; reachable when challenge POST validation fails before rate-limit paths.
+- [ ] (candidate) `mapEmailOtpFailureToCustomerMessage` — `expired_code` copy exists in `sign-in-page-copy.ts` but verify path never emits that category from current API statuses; reachable only if API later adds explicit expired responses without client mapping update.
+- [ ] (candidate) `mergeRegistrationScopeForProxy` — `HEAD` skips `applyBffCsrfHeader` like `GET`; reachable if a future bootstrap poll uses `HEAD` against a mutating-guarded proxy route.
+- [ ] (candidate) `OnboardingStartClient` — `GET /api/proxy/v1/tenant/trial-status` uses registration scope headers outside zone `paths`; reachable when trial-status response handling diverges from proxy allowlist/BFF guard expectations.
 
 - **id:** ui-auth-proxy
 - **status:** open
@@ -12024,10 +12034,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — BFF session JWT scope ignored for upstream headers in production
 - **related-pd-tb:** none
 - **code-changed-since:** yes

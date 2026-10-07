@@ -76,6 +76,22 @@ describe("verifyEmailOtpCode (pre-auth proxy)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("maps verify HTTP 401 to invalid_code per API contract", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "invalid_code" });
+  });
+
+  it("maps verify HTTP 410 to unknown because EmailOtpAuthController documents only 200 and 401", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 410 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
   it("still POSTs when challengeId is empty (callers must guard before invoke)", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(JSON.stringify({ accessToken: "token" }), { status: 200 }),
