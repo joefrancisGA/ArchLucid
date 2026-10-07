@@ -197,6 +197,12 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public void Retention_window_is_twenty_four_hours()
+    {
+        MemoryCacheBillingWebhookReplayGuard.Retention.Should().Be(TimeSpan.FromHours(24));
+    }
+
+    [Fact]
     public async Task RememberAsync_then_TryRegisterEventAsync_returns_false_for_same_event()
     {
         MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
