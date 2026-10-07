@@ -145,6 +145,56 @@ class CheckNpmOverridesLockfileSyncTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_accepts_nested_lockfile_entry_matching_override(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "package.json").write_text(
+                json.dumps({"overrides": {"@puppeteer/browsers": "3.2.3"}}),
+                encoding="utf-8",
+            )
+            (root / "package-lock.json").write_text(
+                json.dumps(
+                    {
+                        "packages": {
+                            "": {"name": "archlucid-ui"},
+                            "node_modules/puppeteer-core/node_modules/@puppeteer/browsers": {
+                                "version": "3.2.3",
+                            },
+                        },
+                    },
+                ),
+                encoding="utf-8",
+            )
+
+            errors = sut.check_prefix(root)
+
+        self.assertEqual(errors, [])
+
+    def test_detects_nested_lockfile_entry_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "package.json").write_text(
+                json.dumps({"overrides": {"@puppeteer/browsers": "3.2.3"}}),
+                encoding="utf-8",
+            )
+            (root / "package-lock.json").write_text(
+                json.dumps(
+                    {
+                        "packages": {
+                            "": {"name": "archlucid-ui"},
+                            "node_modules/puppeteer-core/node_modules/@puppeteer/browsers": {
+                                "version": "3.1.0",
+                            },
+                        },
+                    },
+                ),
+                encoding="utf-8",
+            )
+
+            errors = sut.check_prefix(root)
+
+        self.assertTrue(any("3.2.3" in error and "3.1.0" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
