@@ -226,6 +226,8 @@
 
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
 
+2026-10-07 thorough hunt (hit): `host-core-jobs` — `BackgroundJobQueueProcessorHostedService` success path only re-read `Canceled` before `MarkSucceededAsync`, so a stale worker could mark `Succeeded` after `BackgroundJobStuckRunningWatchdogBackgroundWork` reclaimed the row to `Pending`; require `Running` on re-read and guard SQL `MarkSucceededAsync` with `State = N'Running'`; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`; cheap-disproof closed four reseeded candidates; 27 processor + 38 Host.Core BackgroundJob + 16 in-memory queue tests passed.
+
 2026-10-07 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` called `Trim()` on null `GraphNode.NodeId` and null `GraphEdge` endpoint ids, crashing κ→Γ merge for in-memory partial graph rows (JSON deserializers already coalesce to empty); coalesce null ids before trim; regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`; scoped merger tests 12/12 Core + 7/7 KnowledgeGraph; `FullyQualifiedName~ArchLucid.Core` 7298 passed, 1 existing ADF pipeline baseline failure.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` called `EdgeType.Trim()` on null `GraphEdge.EdgeType`, crashing κ→Γ merge for malformed in-memory or deserialized edges; coalesce null edge types to empty before trim in canonicalization and edge keys; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`; scoped merger tests 10/10 Core + 7/7 KnowledgeGraph.
@@ -11731,17 +11733,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: host-core-jobs
 
+2026-10-07 thorough hunt (hit): proved stale processor success assignment after watchdog reclaim to `Pending`; fixed Running re-read + SQL guard; regression above; cheap-disproof closed four reseeded candidates; reseeded four new candidates.
+
 - **id:** host-core-jobs
 - **status:** open
 - **impact:** medium
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 44
-- **bugs-found:** 30
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — watchdog notify failure reset reclaimed RetryCount to zero
+- **hunts:** 45
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-07
+- **last-bug:** 2026-10-07 — stale MarkSucceeded after watchdog reclaim to Pending
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11822,10 +11826,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
-- [ ] (candidate) `InMemoryBackgroundJobQueue.GetFileAsync` — returns `_files` entries for `Canceled` terminal rows until eviction (download API vs cancel-wins state contract).
-- [ ] (candidate) `AzureBlobBackgroundJobResultBlobAccessor` — upload succeeds then `MarkSucceededAsync` cancel re-read skips persistence while blob remains (orphan blob hygiene vs job row).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — registry-cancel branch deletes queue message when `MarkCanceledAsync` is no-op on already-terminal row (stale notify vs idempotent cancel).
-- [ ] (candidate) `ArchLucidJobRunner` — `ToDictionary` on `IArchLucidJob` registrations throws when two implementations share the same `Name` slug (DI misconfiguration surface).
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.GetFileAsync` — returns `_files` for `Canceled` rows until eviction — **valid-no-repro 2026-10-07 thorough hunt:** `JobsController.DownloadJobFile` requires `BackgroundJobState.Succeeded` before `GetFileAsync`; queue-layer retention is not an operator download defect.
+- [x] (valid-no-repro) `AzureBlobBackgroundJobResultBlobAccessor` — orphan blob after cancel re-read skips `MarkSucceededAsync` — **valid-no-repro 2026-10-07 thorough hunt:** cancel-wins contract; blob hygiene without `ResultBlobName` on the row is storage cleanup only (`ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment`).
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — registry-cancel deletes message when `MarkCanceledAsync` is no-op — **valid-no-repro 2026-10-07 thorough hunt:** stale notification cleanup; terminal rows use `TryPrepareQueuedJobAsync` `ShouldDeleteQueueMessageImmediately` (2026-10-05 dry family).
+- [x] (invalid) `ArchLucidJobRunner` — duplicate `Name` slug `ToDictionary` throw — **invalid 2026-10-07 thorough hunt:** misconfiguration fails at host construction, not a reachable runtime operator input.
+
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` / `BackgroundJobRepository.MarkSucceededAsync` — stale worker success assignment after watchdog reclaim moved `Running` → `Pending` — **hit 2026-10-07 thorough hunt:** success path now requires `Running` on pre-write re-reads and SQL `MarkSucceededAsync` updates only `Running` rows; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`.
+
+- [ ] (candidate) `BackgroundJobRepository.MarkFailedTerminalAsync` — UPDATE without `State` guard — reachable when a stale worker failure path runs after watchdog reclaim (sibling to proven `MarkSucceeded` gap).
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry scheduling re-reads only `Canceled`, not `Pending` reclaim while executor still running.
+- [ ] (candidate) `BackgroundJobQueueProcessorHostedService` success path — blob uploaded then Running check fails leaves orphan result blob without `ResultBlobName` on row (storage hygiene vs state correctness).
+- [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — success assigns `_files` before cancel re-read; canceled row may retain bytes until eviction (parity with durable orphan-blob hygiene).
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
