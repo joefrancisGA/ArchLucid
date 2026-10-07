@@ -14,7 +14,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
     It 'projects type on each ARG relationship query' {
         $specs = @(Get-ArchLucidArgNetworkAssociationQuerySpecs)
 
-        $specs.Count | Should -Be 7
+        $specs.Count | Should -Be 10
         foreach ($spec in $specs)
         {
             $spec.Query | Should -Match 'project id, type'
@@ -28,6 +28,12 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
             Should -Match "type =~ 'microsoft.network/publicipaddresses'"
         ($specs | Where-Object { $_.Kind -eq 'vmssNetworkInterface' }).Query |
             Should -Match "virtualmachinescalesets/virtualmachines/networkinterfaces"
+        ($specs | Where-Object { $_.Kind -eq 'azureFirewall' }).Query |
+            Should -Match "ipConfigurations = properties.ipConfigurations"
+        ($specs | Where-Object { $_.Kind -eq 'routeTable' }).Query |
+            Should -Match "routes = properties.routes"
+        ($specs | Where-Object { $_.Kind -eq 'appService' }).Query |
+            Should -Match "virtualNetworkSubnetId = properties.virtualNetworkSubnetId"
     }
 
     It 'emits bastionToSubnet from a Bastion ARG ipConfiguration' {
@@ -52,6 +58,114 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
 
         @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' }).Count | Should -Be 1
         @($rows | Where-Object { $_.associationType -eq 'bastionToSubnet' })[0].toResourceId | Should -Be $subnetId
+    }
+
+    It 'emits firewallToSubnet from a firewall ARG ipConfiguration without storing its private IP' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $facts = [System.Collections.ArrayList]::new()
+        $firewallId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw01'
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureFirewallSubnet'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromFirewallRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -FirewallResourceId $firewallId `
+            -IpConfigurationsJson @"
+[
+  {
+    "properties": {
+      "subnet": { "id": "$subnetId" },
+      "privateIPAddress": "10.0.0.4"
+    }
+  }
+]
+"@ `
+            -FirewallPrivateIpFacts $facts
+
+        @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' })[0].fromResourceId | Should -Be $firewallId
+        @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' })[0].toResourceId | Should -Be $subnetId
+        $facts.Count | Should -Be 1
+        $rows[0].PSObject.Properties.Name | Should -Not -Contain 'privateIPAddress'
+    }
+
+    It 'emits firewallToSubnet only when a route-table VirtualAppliance next hop matches the firewall private IP' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $firewallFacts = [System.Collections.ArrayList]::new()
+        $routeTableFacts = [System.Collections.ArrayList]::new()
+        $firewallId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw01'
+        $routeTableId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt01'
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/app'
+
+        [void]$firewallFacts.Add([ordered]@{
+                resourceId = $firewallId
+                privateIPAddress = '10.0.0.4'
+            })
+        Add-ArchLucidNetworkAssociationRow `
+            -Rows $rows `
+            -Seen $seen `
+            -FromResourceId $subnetId `
+            -ToResourceId $routeTableId `
+            -AssociationType 'subnetToRouteTable'
+        Add-ArchLucidArgNetworkAssociationRowsFromRouteTableRecord `
+            -RouteTableFacts $routeTableFacts `
+            -RouteTableResourceId $routeTableId `
+            -RoutesJson @"
+[
+  {
+    "properties": {
+      "nextHopType": "VirtualAppliance",
+      "nextHopIpAddress": "10.0.0.4"
+    }
+  },
+  {
+    "properties": {
+      "nextHopType": "Internet",
+      "nextHopIpAddress": "10.0.0.4"
+    }
+  },
+  {
+    "properties": {
+      "nextHopType": "VirtualAppliance",
+      "nextHopIpAddress": "10.0.0.5"
+    }
+  }
+]
+"@
+
+        Add-ArchLucidArgFirewallRoutedSubnetRows `
+            -Rows $rows `
+            -Seen $seen `
+            -FirewallPrivateIpFacts $firewallFacts `
+            -RouteTableFacts $routeTableFacts
+
+        @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' })[0].toResourceId | Should -Be $subnetId
+        $rows[1].PSObject.Properties.Name | Should -Not -Contain 'privateIPAddress'
+    }
+
+    It 'emits appServiceToSubnet from virtualNetworkSubnetId and skips empty values' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $appServiceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/func01'
+        $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/app'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromAppServiceRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -AppServiceResourceId $appServiceId `
+            -VirtualNetworkSubnetId $subnetId
+        Add-ArchLucidArgNetworkAssociationRowsFromAppServiceRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -AppServiceResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/no-vnet' `
+            -VirtualNetworkSubnetId ''
+
+        $rows.Count | Should -Be 1
+        $rows[0].associationType | Should -Be 'appServiceToSubnet'
+        $rows[0].toResourceId | Should -Be $subnetId
     }
 
     It 'emits publicIpToNic from a scale-set NIC ipConfiguration object' {
