@@ -274,11 +274,11 @@ public sealed class DiagramForestVnetFrameLayoutTests
             [
                 Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/app", "rg-net"),
                 Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-net"),
-                Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-sec"),
+                Workload("workspace", "workspace-app", "Microsoft.OperationalInsights/workspaces", "rg-sec"),
             ],
             [
                 Cited("vm", "vnet"),
-                new DiagramEdge { FromNodeId = "vault", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
+                new DiagramEdge { FromNodeId = "workspace", ToNodeId = "vnet", Label = InventoryDiagramRelationshipLabelTexts.PrivateAccess },
             ]);
 
         XDocument svg = Render(ast);
@@ -304,7 +304,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
         sharedNeighborhood.Elements().Where(element => element.Name.LocalName == "member")
             .Select(element => element.Attribute("id")?.Value)
             .Should().ContainSingle()
-            .Which.Should().Be("vault");
+            .Which.Should().Be("workspace");
         VnetFrames(svg).Single().Attribute("data-neighborhood-id")?.Value
             .Should().Be(vnetNeighborhood.Attribute("id")?.Value);
         svg.Descendants()
@@ -673,6 +673,7 @@ public sealed class DiagramForestVnetFrameLayoutTests
                 Workload("vm", "vm-app", "Microsoft.Compute/virtualMachines", "rg-app"),
                 Workload("workspace", "law-app", "Microsoft.OperationalInsights/workspaces", "rg-app"),
                 Workload("vault", "vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+                Workload("recovery-vault", "recovery-vault-app", "Microsoft.RecoveryServices/vaults", "rg-app"),
             ],
             [
                 Cited("vm", "subnet"),
@@ -686,15 +687,46 @@ public sealed class DiagramForestVnetFrameLayoutTests
                 && element.Attribute("data-frame-kind")?.Value == "shared-services");
         (double x, double y, double width, double height) box = Box(sharedFrame);
         Contains(svg, box, "law-app").Should().BeTrue();
-        Contains(svg, box, "vault-app").Should().BeTrue();
+        Contains(svg, box, "vault-app").Should().BeFalse();
         Contains(svg, box, "vm-app").Should().BeFalse();
-        svg.Descendants().Count(element =>
+        XElement resourceGroupFrame = svg.Descendants().First(element =>
             element.Attribute("class")?.Value == "rg-frame"
-            && element.Attribute("data-frame-cell-id")?.Value != "shared-services").Should().Be(0);
+            && element.Attribute("data-frame-cell-id")?.Value != "shared-services");
+        (double x, double y, double width, double height) resourceGroupBox = Box(resourceGroupFrame);
+        Contains(svg, resourceGroupBox, "vault-app").Should().BeTrue();
+        Contains(svg, resourceGroupBox, "recovery-vault-app").Should().BeTrue();
         svg.Descendants().First(element => element.Attribute("id")?.Value == "diagram-neighborhoods")
             .Descendants().Any(element =>
                 element.Name.LocalName == "neighborhood"
                 && element.Attribute("kind")?.Value == "shared-services").Should().BeTrue();
+    }
+
+    [Fact]
+    public void Render_neighborhood_metadata_distinguishes_key_and_recovery_vaults()
+    {
+        string vnetArmId = "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app";
+        DiagramAst ast = Inventory(
+            "Azure inventory (Network)",
+            [
+                Vnet("vnet", "app-vnet", vnetArmId, "rg-app"),
+                Subnet("subnet", vnetArmId, "app", "rg-app"),
+                Workload("key-vault", "key-vault-app", "Microsoft.KeyVault/vaults", "rg-app"),
+                Workload("recovery-vault", "recovery-vault-app", "Microsoft.RecoveryServices/vaults", "rg-app"),
+            ],
+            [
+                Cited("key-vault", "subnet"),
+                Cited("recovery-vault", "subnet"),
+            ]);
+
+        XDocument svg = Render(ast);
+        XElement metadata = svg.Descendants().Single(element =>
+            element.Attribute("id")?.Value == "diagram-neighborhoods");
+        metadata.Descendants().Any(element =>
+            element.Name.LocalName == "type"
+            && element.Attribute("name")?.Value == "key vaults").Should().BeTrue();
+        metadata.Descendants().Any(element =>
+            element.Name.LocalName == "type"
+            && element.Attribute("name")?.Value == "recovery vaults").Should().BeTrue();
     }
 
     [Fact]
