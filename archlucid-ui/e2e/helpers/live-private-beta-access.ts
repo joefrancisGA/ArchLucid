@@ -288,6 +288,47 @@ export function resolveScopeFromAuthMe(
   };
 }
 
+function parseAuthMe429RetryMs(detailText: string): number {
+  const match = /Try again in (\d+) second/i.exec(detailText);
+
+  if (match === null) {
+    return 15_000;
+  }
+
+  return Math.min((Number(match[1]) + 1) * 1000, 60_000);
+}
+
+export function parseInvitationRetryAfterMs(retryAfter: string | undefined): number {
+  const seconds = Number.parseInt(retryAfter ?? "", 10);
+
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.min((seconds + 1) * 1_000, 60_000);
+  }
+
+  const retryAtMs = Date.parse(retryAfter ?? "");
+
+  if (Number.isFinite(retryAtMs)) {
+    return Math.min(Math.max(retryAtMs - Date.now(), 1_000), 60_000);
+  }
+
+  return 15_000;
+}
+
+async function probeAuthMeViaProxy(page: Page): Promise<{ ok: boolean; status: number; text: string }> {
+  return page
+    .evaluate(async () => {
+      const res = await fetch("/api/proxy/api/auth/me", {
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      const text = await res.text();
+
+      return { ok: res.ok, status: res.status, text };
+    })
+    .catch(() => ({ ok: false, status: 0, text: "" }));
+}
+
 export async function fetchAuthMeViaProxy(
   page: Page,
   accessToken?: string | null,
@@ -414,9 +455,16 @@ export async function validateInvitationToken(
 
   url.searchParams.set("token", invitationToken);
 
-  const res = await request.get(url.toString(), {
+  let res = await request.get(url.toString(), {
     headers: { Accept: "application/json" },
   });
+
+  for (let attempt = 0; res.status() === 429 && attempt < 2; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, parseInvitationRetryAfterMs(res.headers()["retry-after"])));
+    res = await request.get(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+  }
 
   if (!res.ok()) {
     const body = await res.text();

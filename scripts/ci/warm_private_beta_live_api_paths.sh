@@ -140,6 +140,14 @@ warm_path_post() {
       return 2
     fi
 
+    if [ "${status}" = "400" ] && [ "${label}" = "create architecture run" ]; then
+      # The shell warm is advisory. Playwright owns the create-run request because it
+      # has the current request identity and can report a completed run, while this
+      # synthetic body may be rejected by request validation or pipeline prerequisites.
+      echo "::notice::Optional create-run warm returned HTTP 400; treating it as JIT-only and letting Playwright create the run with its real request body." >&2
+      return 3
+    fi
+
     if [ "${attempt}" -eq "${max_attempts}" ]; then
       describe_warm_failure "${label}" "${url}" "${status}" "warning"
       return 1

@@ -106,6 +106,14 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertIn(sut._INVITE_FLOW_SPEC, push_text)
 
+    def test_push_workflow_runs_claim_boundary_checks_before_the_access_smoke(self) -> None:
+        push_text = (REPO_ROOT / ".github/workflows/private-beta-access-on-push.yml").read_text(
+            encoding="utf-8",
+        )
+
+        self.assertIn("python3 scripts/ci/check_buyer_claim_drift.py", push_text)
+        self.assertIn("python3 scripts/ci/check_claim_evidence_consistency.py", push_text)
+
     def test_private_beta_workflows_restart_api_after_enterprise_grant(self) -> None:
         for rel_path in (sut._CI_REL, sut._PUSH_REL, sut._SMOKE_REL):
             errors: list[str] = []
