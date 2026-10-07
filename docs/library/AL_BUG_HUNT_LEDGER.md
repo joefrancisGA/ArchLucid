@@ -112,6 +112,8 @@
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after snapshot-conflict hit emptied open rows; cheap-disproof closed promotion (`AggregateException` with parallel `IOException` inners wrapping `1205` already retries via `IsParallelPersistAggregateInnerRetriable` + `SqlTransientDetector` inner walk); no hunt-ready row promoted; seeded five `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
+2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (HTTP 400 OTP mapping asymmetry, `expired_code` forward-compat copy, HEAD CSRF safe-method class, trial-status out-of-zone); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 thorough hunt (hit): `orchestrator-transient-retry` — `SqlTransientDetector` omitted snapshot/RCSI update conflict class (`3960`/`41301`/`41302`) while orchestrator retried lock-class errors; `IsSnapshotOrUpdateConflict`; regressions `ExecuteAsync_retries_sql_snapshot_update_conflict_error_3960` and `ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate`; cheap-disproof closed three other `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after consecutive lock-class SQL hits (`1204`/`1222`); no hunt-ready row promoted; seeded five `(candidate)` rows (snapshot/update-conflict codes, IOException-only wrapper chain, reconcile poll budget, deep aggregate walk, negative delay misuse); 66 scoped transient-retry tests passed (48 Persistence + 18 Application).
@@ -12509,6 +12511,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `proxy-fetch-registration-scope.test.ts`; scoped auth/proxy vitest 243 passed with 3 unrelated baseline seam failures.
+
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest 357 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 seed hunt (seed-only): re-read `post-auth-bootstrap-api.ts`, `email-otp-api.ts`, and `enforceProxyBffSessionGuard` after four consecutive dry hunts; cheap-disproof closed challenge SSO/delivery/workspace soft-failure promotions; seeded five `(candidate)` rows below; regressions in `email-otp-api.test.ts` and `post-auth-bootstrap-api.test.ts`; scoped auth/proxy vitest passed with 3 unrelated baseline seam failures.
@@ -12519,11 +12523,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `requestEmailOtpChallenge` scope headers — **cheap-disproof 2026-10-07 seed hunt:** pre-auth OTP routes are `[AllowAnonymous]` on `isPublicAnonymousProxyPath`; same class as `evaluateAuthSignInRouting` omitting `mergeRegistrationScopeForProxy`.
 - [x] (valid-no-repro) `enforceProxyBffSessionGuard` PUT/PATCH/DELETE CSRF — **cheap-disproof 2026-10-07 seed hunt:** intentional LK-07; no `lib/auth` proxy client uses non-POST mutating verbs today.
 
-- [ ] (candidate) `verifyEmailOtpCode` — HTTP 400 validation failures from `EmailOtpAuthController` (`ChallengeId` empty) map to `unknown` via `mapStatusToFailureCategory`; reachable when malformed client calls bypass UI guards.
-- [ ] (candidate) `requestEmailOtpChallenge` — HTTP 400 bad request maps to `unknown` while verify maps 401 to `invalid_code`; reachable when challenge POST validation fails before rate-limit paths.
-- [ ] (candidate) `mapEmailOtpFailureToCustomerMessage` — `expired_code` copy exists in `sign-in-page-copy.ts` but verify path never emits that category from current API statuses; reachable only if API later adds explicit expired responses without client mapping update.
-- [ ] (candidate) `mergeRegistrationScopeForProxy` — `HEAD` skips `applyBffCsrfHeader` like `GET`; reachable if a future bootstrap poll uses `HEAD` against a mutating-guarded proxy route.
-- [ ] (candidate) `OnboardingStartClient` — `GET /api/proxy/v1/tenant/trial-status` uses registration scope headers outside zone `paths`; reachable when trial-status response handling diverges from proxy allowlist/BFF guard expectations.
+- [x] (valid-no-repro) `verifyEmailOtpCode` — **cheap-disproof 2026-10-07 seed hunt:** HTTP 400 maps to `unknown` via `mapStatusToFailureCategory`; conservative for validation failures; regression `maps verify HTTP 400 validation failures to unknown`.
+- [x] (valid-no-repro) `requestEmailOtpChallenge` — **cheap-disproof 2026-10-07 seed hunt:** HTTP 400 → `unknown` while verify uses explicit 401 → `invalid_code`; asymmetric but intentional until API documents distinct challenge validation statuses; regression `maps challenge HTTP 400 validation failures to unknown (asymmetric with verify 401 invalid_code)`.
+- [x] (valid-no-repro) `mapEmailOtpFailureToCustomerMessage` — **cheap-disproof 2026-10-07 seed hunt:** `expired_code` copy is forward-compat; `email-otp-api.ts` maps expired challenges to `invalid_code` via HTTP 401 per controller contract; regression `maps expired code` in `sign-in-page-copy.test.ts`.
+- [x] (valid-no-repro) `mergeRegistrationScopeForProxy` — **cheap-disproof 2026-10-07 seed hunt:** `HEAD` omits BFF CSRF like `GET` for idempotent polls; intentional LK-07 safe-method class; regression `does not attach BFF CSRF on HEAD bootstrap polls (same safe-method class as GET)`.
+- [x] (invalid) `OnboardingStartClient` — **invalid 2026-10-07 seed hunt:** `trial-status` caller lives outside zone `paths` (`lib/auth` / `app/api/proxy` / `proxy.ts`); allowlist and BFF guard parity already covered by proxy-route tests — process risk only for onboarding UI, not an in-zone client defect today.
+
+- [ ] (candidate) `verifyEmailOtpCode` / `mapStatusToFailureCategory` — HTTP 5xx on verify maps to `delivery_failed` (shared mapper with challenge); reachable when verify upstream outage shows “could not send” style copy instead of code-entry failure messaging.
+- [ ] (candidate) `EmailOtpApiFailureCategory` `too_many_attempts` — union member never assigned in `email-otp-api.ts` (429 → `rate_limited` only); reachable if API adds distinct lockout status without client mapping update.
+- [ ] (candidate) `readEmailOtpResendCooldown` / `markEmailOtpResendSent` — client-side 45s resend gate in `sessionStorage` can desync from server 429 on challenge POST; reachable when operator clears storage mid-flow or server rate limit is stricter than UI cooldown.
+- [ ] (candidate) `requestEmailOtpChallenge` — optional `botChallengeToken` forwarded on challenge POST without `mergeRegistrationScopeForProxy`; reachable when Turnstile token is present but stale BFF cookie affects non-allowlisted hypothetical routes (pre-auth OTP remains on `isPublicAnonymousProxyPath`).
+- [ ] (candidate) `useResumePendingLivelihoodMutation` / `livelihood-mutation-401-resume` — replay POST after 401 confirm may omit readable BFF CSRF if session refreshed between peek and consume; reachable on long confirm-required chrome with idle keepalive.
 
 - **id:** ui-auth-proxy
 - **status:** open
@@ -12531,7 +12541,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07

@@ -8,6 +8,19 @@ describe("mergeRegistrationScopeForProxy (post-auth bootstrap clients)", () => {
     document.cookie = `${BFF_CSRF_COOKIE_NAME}=; Max-Age=0`;
   });
 
+  it("does not attach BFF CSRF on HEAD bootstrap polls (same safe-method class as GET)", () => {
+    document.cookie = `${BFF_CSRF_COOKIE_NAME}=csrf-token-value`;
+
+    const init = mergeRegistrationScopeForProxy({
+      method: "HEAD",
+      headers: { Accept: "application/json" },
+    });
+
+    const headers = new Headers(init.headers);
+
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
+  });
+
   it("does not attach BFF CSRF on GET bootstrap status reads", () => {
     const init = mergeRegistrationScopeForProxy({
       method: "GET",

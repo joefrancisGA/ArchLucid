@@ -1,4 +1,3 @@
-{"at":"2026-09-07T10:49:29.1529949Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-07T10:57:33.4205576Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-07T11:04:58.0140281Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
 {"at":"2026-09-07T11:10:50.9612288Z","zoneId":"core-configuration-summary","outcome":"hit"}
@@ -8762,4 +8761,5 @@
 {"at":"2026-10-07T10:24:19.8436406Z","zoneId":"ui-operator-lib","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T10:33:49.0034061Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-07T10:42:35.3695722Z","zoneId":"api-policy-packs","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-07T10:48:51.5112400Z","zoneId":"commit-output-integrity","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T10:48:51.51124Z","zoneId":"commit-output-integrity","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T10:55:42.4063339Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared"}
