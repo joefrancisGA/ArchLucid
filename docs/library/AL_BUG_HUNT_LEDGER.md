@@ -31143,7 +31143,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 36 · **Bugs found:** 34 · **Consecutive dry hunts:** 8
+**Hunts:** 37 · **Bugs found:** 34 · **Consecutive dry hunts:** 9
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration`, `drops recent view rows when visitedAtUtc is whitespace-only`, `returns null preview for assigned-to-me when assigned finding title is omitted`, `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`; 36 scoped `lib/operator` vitest tests passed.
+
+- [x] (valid-no-repro) `getEffectiveBrowserProxyScopeHeaders` — signed-in users without dedicated workspace return empty pending scope headers and still write scope cookies — **cheap-disproof 2026-10-07 seed hunt #37:** intentional pending-scope bootstrap until workspace resolves; regression `getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — refuses hydrate when server `updatedAtUtc` is older than local continuity watermark — **cheap-disproof 2026-10-07 seed hunt #37:** IH-066 last-write-wins guard; regression `hydrates local storage when server watermark is newer` (false when server `09:00` < local `10:00`).
+- [x] (valid-no-repro) `toRecentViewEntries` — drops recent rows when `visitedAtUtc` is whitespace-only while `href` and `label` are valid — **cheap-disproof 2026-10-07 seed hunt #37:** fail-closed omit for malformed continuity rows; regression `drops recent view rows when visitedAtUtc is whitespace-only`.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — `assigned-to-me` returns `null` when `assignedFindingTitle` is omitted, collapsing partition card subtitle — **cheap-disproof 2026-10-07 seed hunt #37:** no synthetic fallback title; regression `returns null preview for assigned-to-me when assigned finding title is omitted`.
+- [x] (valid-no-repro) `buildWorkingWorkspaceContinuityPayload` — omits `architectureId` on favorite rows when local pin stored title-only — **cheap-disproof 2026-10-07 seed hunt #37:** optional field mapping only includes defined pin fields; regression `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`.
+
+- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — unsigned users with registration payload prefer registration over stale operator `localStorage` scope — locus: unsigned registration branch (`operator-scope-storage.ts` ~206–213); input: `getEffectiveBrowserProxyScopeHeaders_prefersRegistrationScopeOverStaleOperatorScopeWhenUnsigned`.
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — returns false when hydrate is not explicit (`isExplicit` false) — locus: early guard ~142–144; input: non-explicit server continuity payload.
+- [ ] (candidate) `toFavoriteReviewRows` — retains title-only favorite rows without `architectureId` on server hydrate — locus: title branch ~69–70; input: server row with title + runId + pinnedAt only.
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `awaiting-approval` falls back to `runId` when name whitespace-only — locus: ~42–43; input: `returns empty preview when awaiting-approval name is whitespace-only` (runId fallback).
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — writes local synced watermark from server `updatedAtUtc` after hydrate — locus: ~172–176; input: paired with `shouldHydrate` newer-watermark test.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 32 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

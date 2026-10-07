@@ -38,6 +38,7 @@ describe("operator-scope-storage", () => {
     vi.unstubAllEnvs();
     clearOidcSession();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet", () => {
@@ -115,6 +116,20 @@ describe("operator-scope-storage", () => {
     expect(h["x-tenant-id"]).toBe(tenantId);
     expect(h["x-workspace-id"]).toBe(workspaceId);
     expect(h["x-project-id"]).toBe(projectId);
+  });
+
+  it("getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration", () => {
+    persistTokenResponse({
+      access_token: "signed-in-access-token",
+      token_type: "Bearer",
+      expires_in: 3600,
+    });
+
+    const h = getEffectiveBrowserProxyScopeHeaders();
+
+    expect(h["x-tenant-id"]).toBe("");
+    expect(h["x-workspace-id"]).toBe("");
+    expect(h["x-project-id"]).toBe("");
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers", () => {

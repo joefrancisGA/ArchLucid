@@ -130,6 +130,39 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
     expect(stored.entries).toEqual([]);
   });
 
+  it("drops recent view rows when visitedAtUtc is whitespace-only", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [],
+      recentViewEntries: [
+        {
+          href: "/architecture/architectures/arch-9",
+          label: "Architecture",
+          kind: "architecture",
+          visitedAtUtc: "   ",
+          architectureId: "arch-9",
+        },
+      ],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    const stored = JSON.parse(window.localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY) ?? "{}");
+
+    expect(stored.entries).toEqual([]);
+  });
+
+  it("buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only", () => {
+    window.localStorage.setItem(
+      FAVORITE_REVIEWS_STORAGE_KEY,
+      JSON.stringify([{ runId: "run-1", pinnedAt: "2026-09-13T12:00:00Z", title: "Claims API" }]),
+    );
+
+    const payload = buildWorkingWorkspaceContinuityPayload();
+
+    expect(payload.favoriteReviews).toEqual([
+      { runId: "run-1", pinnedAtUtc: "2026-09-13T12:00:00Z", title: "Claims API" },
+    ]);
+  });
+
   it("drops favorite rows when pinnedAtUtc is whitespace-only", () => {
     applyWorkingWorkspaceContinuityFromServer({
       favoriteReviews: [{ runId: "run-9", pinnedAtUtc: "   " }],
