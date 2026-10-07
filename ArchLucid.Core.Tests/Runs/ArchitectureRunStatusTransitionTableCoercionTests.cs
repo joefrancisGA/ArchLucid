@@ -71,4 +71,14 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
         ok.Should().BeFalse();
         status.Should().Be(default);
     }
+
+    [Fact]
+    public void TryParseStatus_rejects_plus_prefixed_numeric_ordinal_string()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("+5", out ArchitectureRunStatus status);
+
+        // int.TryParse rejects leading '+'; SQL CK_Runs_LegacyRunStatus allowlist stores enum names on persisted rows.
+        ok.Should().BeFalse();
+        status.Should().Be(default);
+    }
 }

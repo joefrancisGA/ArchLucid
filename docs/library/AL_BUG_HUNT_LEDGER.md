@@ -112,6 +112,8 @@
 
 2026-10-07 seed hunt (seed-only): `orchestrator-transient-retry` — re-read `OrchestratorTransientDbRetry` / `CommitRunTransientRetryPolicy` after snapshot-conflict hit emptied open rows; cheap-disproof closed promotion (`AggregateException` with parallel `IOException` inners wrapping `1205` already retries via `IsParallelPersistAggregateInnerRetriable` + `SqlTransientDetector` inner walk); no hunt-ready row promoted; seeded five `(candidate)` rows; 68 scoped transient-retry tests passed (50 Persistence + 18 Application).
 
+2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (negative schemaVersion; quality-reject vs dead-letter both `Failed`; `+5` ordinal parse; orphan golden manifest on `WaitingForResults`; lowercase `pipelinedeadletter`); seeded five follow-on `(candidate)` rows; regressions in `RunAuthorityPipelineDeadLetterDetectionTests`, `ArchitectureRunStatusTransitionTableCoercionTests`, and `AuthorityRunLifecyclePhaseListResolverTests`; 53 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (verify 5xx→`delivery_failed` shared mapper; `too_many_attempts` forward-compat only; resend cooldown UX vs server 429; Turnstile challenge on pre-auth anonymous proxy without BFF CSRF; livelihood replay CSRF peek/consume gap); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
 
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — re-read list lifecycle resolver and pipeline dead-letter JSON reader; cheap-disproof closed three promotion attempts (terminal `PartiallyCompleted` before golden-manifest progress marker; dead-letter before `ReadyForCommit` in-progress branch; `Created`+manifest-only uses progress-marker branch); seeded five `(candidate)` rows; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
@@ -21934,7 +21936,7 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-07
@@ -21942,13 +21944,21 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-07 seed hunt (seed-only): re-read `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` ordering and `RunAuthorityPipelineDeadLetterDetection` after picker open rows emptied; cheap-disproof closed three promotion attempts; seeded five `(candidate)` rows below; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `RunAuthorityPipelineDeadLetterDetectionTests`, `ArchitectureRunStatusTransitionTableCoercionTests`, and `AuthorityRunLifecyclePhaseListResolverTests`; 53 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — negative `schemaVersion` (e.g. `-1`) rejected like `0` via `TryReadSupportedSchemaVersion`; reachable only if a writer emits sub-minimum negative versions without SQL row guard.
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` with pipeline dead-letter JSON surfaces indistinguishable `Failed` on list/export (dead-letter branch precedes terminal failure); reachable when operators need dead-letter vs quality-reject badge parity on authority lists.
-- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — signed numeric ordinal strings such as `"+5"` fail parse while unsigned `"5"` coerces to `Committed` for in-memory transition callers; reachable on hand-edited legacy status strings in tests/fixtures only (SQL enum-name allowlist on persist).
-- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `WaitingForResults` with stale non-empty `GoldenManifestId` and no `ContextSnapshotId` surfaces `InProgress` via manifest progress-marker after in-progress legacy branch; reachable when coordination leaves orphan manifest id on active wait rows.
-- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` using all-lowercase `pipelinedeadletter` without canonical casing; reachable from hand-edited `LastFailureReason` JSON if case-insensitive compare regresses.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — negative `schemaVersion` — **cheap-disproof 2026-10-07 seed hunt:** `TryReadSupportedSchemaVersion` rejects sub-minimum versions like `0`; no writer emits negative schema; regression `IsDeadLettered_returns_false_for_negative_schema_version`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — quality-rejected + pipeline dead-letter — **cheap-disproof 2026-10-07 seed hunt:** dead-letter precedes terminal failure; list/export `Failed` either way (no distinct badge in-zone); regression `ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only`.
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` — `"+5"` ordinal — **cheap-disproof 2026-10-07 seed hunt:** `int.TryParse` rejects leading `+`; in-memory/test fixtures only; SQL enum-name allowlist on persist; regression `TryParseStatus_rejects_plus_prefixed_numeric_ordinal_string`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `WaitingForResults` + orphan `GoldenManifestId` — **cheap-disproof 2026-10-07 seed hunt:** in-progress legacy branch runs first; both branches yield `InProgress`; regression `ResolveFromRunHeader_waiting_for_results_with_orphan_golden_manifest_returns_in_progress`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — all-lowercase `pipelinedeadletter` — **cheap-disproof 2026-10-07 seed hunt:** `StringComparison.OrdinalIgnoreCase` match is intentional; regression `IsDeadLettered_returns_true_for_all_lowercase_pipeline_dead_letter_failure_class`.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — hexadecimal ordinal strings such as `0x5` fail parse while decimal `"5"` coerces to `Committed` for in-memory callers; reachable only on hand-edited legacy status strings (SQL enum-name allowlist on persist).
+- [ ] (candidate) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` with stale non-empty `GoldenManifestId` and no `ContextSnapshotId` surfaces `InProgress` via manifest progress-marker when coordination leaves orphan manifest id on early pipeline rows.
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` near-miss token `PipelineDeadLette` (truncated) returns not dead-lettered because comparison is exact after trim; reachable from corrupted JSON paste into `LastFailureReason`.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryTransition` — `CommitFinalized` from non-`ReadyForCommit` statuses returns denied result while list resolver may still show `InProgress` from legacy status string; reachable when finalize event is attempted out of order in tests.
+- [ ] (candidate) `AuthorityPipelineConcurrencyOptions` — negative `MaxConcurrentExecutionsPerTenant` disables SQL gate while misconfigured positive overflow from binding could bypass limits; reachable from host configuration typos (orchestration outside zone paths).
+
+2026-10-07 seed hunt (seed-only): re-read `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` ordering and `RunAuthorityPipelineDeadLetterDetection` after picker open rows emptied; cheap-disproof closed three promotion attempts; seeded five `(candidate)` rows below; regressions in `AuthorityRunLifecyclePhaseListResolverTests`; 49 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): reseeded core-authority-runs; cheap-disproof closed `PartiallyCompleted` + `ContextSnapshotId` in-progress mask candidate; added four new `(candidate)` rows; 43 scoped Core tests (`RunAuthority` + `AuthorityRunLifecycle`).
 

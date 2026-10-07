@@ -152,6 +152,26 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_negative_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":-1,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_all_lowercase_pipeline_dead_letter_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"pipelinedeadletter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace()
     {
         const string json = "\uFEFF{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";

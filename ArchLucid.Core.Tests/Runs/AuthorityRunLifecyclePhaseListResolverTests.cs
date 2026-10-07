@@ -444,4 +444,37 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_waiting_for_results_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa19"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // In-progress legacy status branch runs before golden-manifest progress marker; both yield InProgress.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa20"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        // Dead-letter check precedes terminal failure; list/export phase is Failed either way (no distinct badge today).
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
 }
