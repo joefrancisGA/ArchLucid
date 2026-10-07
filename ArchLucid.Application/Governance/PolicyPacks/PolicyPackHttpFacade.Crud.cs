@@ -37,11 +37,25 @@ public sealed partial class PolicyPackHttpFacade
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
-        PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
-            policyPackId,
-            request.Version.Trim(),
-            request.ContentJson,
-            ct).ConfigureAwait(false);
+        PolicyPackVersion? version;
+
+        try
+        {
+            version = await _workflow.TryPublishVersionAsync(
+                policyPackId,
+                request.Version.Trim(),
+                request.ContentJson,
+                ct).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+            when (ex.Message.Contains("Platform-default", StringComparison.OrdinalIgnoreCase))
+        {
+            return new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                Message = ex.Message,
+            };
+        }
 
         if (version is null)
         {

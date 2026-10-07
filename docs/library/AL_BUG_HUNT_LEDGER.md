@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `api-policy-packs` — proved `PolicyPackHttpFacade.PublishVersionAsync` let `PolicyPacksAppService` throw on in-scope `PlatformDefault` republish, surfacing HTTP 500; map to `ValidationFailed` and return HTTP 400 from `Publish` symmetric with `PromoteCatalogEntry`; cheap-disproof closed four other seeded `(candidate)` rows (validate mapper/facade parity; assign `Conflict` not emitted today; simulate bulk blank skip intentional; `GetVersion` pack vs version not-found mapping correct); regressions `PublishVersionAsync_maps_platform_default_republish_to_validation_failed` and `Publish_returns_bad_request_when_platform_default_pack_cannot_be_republished`; seeded five follow-on `(candidate)` rows; 80 scoped `PolicyPacksController` tests and 1 Application publish regression passed.
+
 2026-10-07 thorough hunt (hit): `api-policy-packs` — proved `PolicyPackHttpFacade.SetAssignmentEnabledAsync` invoked `TrySetAssignmentEnabledAsync` then `TrySetAssignmentEnabledWithOutcomeAsync`, toggling the assignment workflow twice per `PUT assignments/{id}/enabled`; removed the redundant boolean wrapper call; cheap-disproof closed four other seeded `(candidate)` rows (validate `ValidationFailed` unreachable from controller after `PolicyPackValidateContentHttpMapper`; publish facade returns only success/not-found today; assign `Conflict` maps to generic 409 by design until facade emits assignment-specific conflict; simulate bulk blank skip is intentional with all-whitespace 400); regression `SetAssignmentEnabledAsync_invokes_workflow_toggle_once_per_request`; seeded five follow-on `(candidate)` rows; 79 scoped `PolicyPacksController` tests and 1 Application `PolicyPackHttpFacade` regression passed.
 
 2026-10-07 thorough hunt (dry): `ui-operator-lib` — cheap-disproof closed five seeded `(candidate)` rows (`??` after `trim()` treats whitespace-only awaiting-approval and alert titles as present empty strings, not missing ids; scope change clears recents without auto-PUT of empty IH-066 continuity; empty server `updatedAtUtc` intentionally hydrates over a local watermark; `readOperatorScopeFromStorage` re-parses when `localStorage` raw JSON changes in-tab; client `updatedAtUtc` uses ISO clock at build time with server last-write-wins); regressions `returns empty preview when alert title is whitespace-only`, `hydrates when server omits updatedAtUtc even if local watermark exists`, `readOperatorScopeFromStorage_reflects_direct_localStorage_writes_in_the_same_tab`, and `writeOperatorScopeToStorage_clears_recent_views_but_not_favorite_pins`; reaffirmed `returns empty preview when awaiting-approval name is whitespace-only`; seeded five follow-on `(candidate)` rows; 27 scoped regressions in continuity, scope-storage, and attention-preview tests passed.
@@ -29250,17 +29252,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 30
-- **bugs-found:** 17
+- **hunts:** 31
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — assignment enable toggle executed workflow twice per HTTP request
+- **last-bug:** 2026-10-07 — platform-default pack republish surfaced HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-06 seed hunt (seed-only): re-read assign/archive/enable/org-required, CRUD publish/delete, catalog promote/demote, simulate bulk/single, validate, and effective read paths; cheap-disproof closed validate `ValidationFailed` leak (`Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing` never calls facade); no failing repro; seeded five `(candidate)` rows; 79 scoped `PolicyPacksController` tests passed.
+
+2026-10-07 thorough hunt (hit): proved platform-default republish threw through `Publish` as HTTP 500; facade/controller now map to HTTP 400; 80 scoped controller tests + 1 Application publish regression passed.
 
 2026-10-07 thorough hunt (hit): proved duplicate assignment-enable workflow invocation in `PolicyPackHttpFacade.SetAssignmentEnabledAsync`; cheap-disproof closed validate/publish/assign-conflict/simulate-blank candidates; 79 scoped controller tests + 1 Application regression passed.
 
@@ -29270,11 +29274,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `PolicyPacksController.Validate` / `PolicyPackHttpFacade.ValidateContentAsync` — facade can return `ValidationFailed` for deserialize/null document failures after the controller mapper accepted the JSON object shape; reachable only if mapper and facade validation diverge on nested optional fields.
-- [ ] (candidate) `PolicyPackHttpFacade.PublishVersionAsync` / `PolicyPacksController.Publish` — workflow publish validation failures currently collapse to `null` version → HTTP 404; reachable if invalid semver/content should map to HTTP 400 like catalog promote `ValidationFailed`.
+- [ ] (candidate) `PolicyPacksController.Validate` — returns `Ok(result.Value!)` without a `ValidationFailed` branch if `ValidateContentAsync` ever regresses to emit that outcome for reachable bodies; today `PolicyPackValidateContentHttpMapper` mirrors facade deserialize gates.
+- [ ] (candidate) `PolicyPackHttpFacade.PublishVersionAsync` / `PolicyPacksController.Publish` — other publish validation failures from management still collapse to `null` version → HTTP 404 instead of HTTP 400 when content/semver rules fail inside `IPolicyPackManagementService`.
 - [ ] (candidate) `PolicyPackHttpResultMapper.MapAssign` — `PolicyPackHttpOutcome.Conflict` maps to a generic governance-scope 409 without surfacing facade `Message`; reachable when assign begins returning conflict outcomes with operator-facing detail.
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — normalized `runIds` omit blank slots while `RequestedRunCount` in the bulk summary reflects evaluated ids only; reachable when clients expect raw array length accounting for skipped blanks.
-- [ ] (candidate) `PolicyPacksController.GetVersion` / `PolicyPackHttpFacade.GetVersionAsync` — `VersionNotFound` vs pack `ResourceNotFound` distinction depends on workflow lookup outcome mapping; reachable when clients request a version string that exists globally but not for the scoped pack row.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — normalized `runIds` omit blank slots while `RequestedRunCount` reflects distinct evaluated ids; reachable when clients expect raw array slot accounting for skipped blanks.
+- [ ] (candidate) `PolicyPacksController.DuplicatePack` — `PolicyPacksAppService.TryDuplicatePackAsync` failures other than not-found may throw through the HTTP facade without a typed outcome mapping.
+- [x] (proven) `PolicyPackHttpFacade.PublishVersionAsync` / `PolicyPacksController.Publish` — in-scope `PlatformDefault` republish threw `InvalidOperationException` and surfaced HTTP 500 — **hit 2026-10-07:** map to `ValidationFailed` / HTTP 400; regressions `PublishVersionAsync_maps_platform_default_republish_to_validation_failed` and `Publish_returns_bad_request_when_platform_default_pack_cannot_be_republished`.
+- [x] (valid-no-repro) `PolicyPacksController.Validate` / `PolicyPackHttpFacade.ValidateContentAsync` — mapper/facade deserialize parity — **cheap-disproof 2026-10-07:** identical `PolicyPackContentDocument` gates; reachable `POST validate` inputs never hit facade-only `ValidationFailed`.
+- [x] (valid-no-repro) `PolicyPackHttpResultMapper.MapAssign` — generic 409 on assign `Conflict` — **cheap-disproof 2026-10-07:** assign facade does not emit `Conflict` on current paths.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — blank `runIds` skipped vs summary counts — **cheap-disproof 2026-10-07:** all-whitespace arrays return HTTP 400; workflow dedupes duplicates by design (`TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`).
+- [x] (valid-no-repro) `PolicyPacksController.GetVersion` / `PolicyPackHttpFacade.GetVersionAsync` — pack vs version not-found — **cheap-disproof 2026-10-07:** `MapVersionLookup` maps `PackNotFound` and `VersionNotFound` to distinct problem types; workflow scopes version lookup to the route pack id.
 - [x] (proven) `PolicyPackHttpFacade.SetAssignmentEnabledAsync` — called `TrySetAssignmentEnabledAsync` and then `TrySetAssignmentEnabledWithOutcomeAsync`, executing the workflow twice per HTTP toggle — **hit 2026-10-07:** removed redundant boolean wrapper; regression `SetAssignmentEnabledAsync_invokes_workflow_toggle_once_per_request`.
 - [x] (valid-no-repro) `PolicyPacksController.Validate` — returns `Ok(result.Value!)` without mapping `PolicyPackHttpOutcome.ValidationFailed` — **cheap-disproof 2026-10-07:** `PolicyPackValidateContentHttpMapper.Validate` runs before `ValidateContentAsync`; reachable controller inputs never reach facade `ValidationFailed` on the current contract.
 - [x] (valid-no-repro) `PolicyPacksController.Publish` / `PolicyPackHttpFacade.PublishVersionAsync` — hypothetical future `ValidationFailed` publish outcome — **cheap-disproof 2026-10-07:** facade returns only `Success` or `ResourceNotFound` today; no reachable validation-failure outcome exists in `TryPublishVersionAsync` wiring.
