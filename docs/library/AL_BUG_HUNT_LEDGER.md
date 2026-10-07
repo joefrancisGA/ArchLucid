@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five seeded `(candidate)` rows (foreign `ProjectId` on learning profile and recommendations filtered like tenant/workspace drift; explicit `runId` with in-scope `comparedToRunId` builds comparison per existing regression; `UseHistoricalWindow: false` gate applies only when `RunId` is null; compare-to sealed-hash skip with `skipOnSealedHashFailure: true` is unreachable because batch sweep never forwards `comparedToRunId`); regressions `GetContextsAsync_excludes_learning_profile_when_project_mismatches_caller_scope`, `GetContextsAsync_excludes_recommendation_rows_when_project_id_mismatches_caller_scope`, and `SimulateAsync_WhenUseHistoricalWindowFalseButRunIdProvided_StillEvaluatesContexts`; reaffirmed `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings`; seeded five follow-on `(candidate)` rows; 33 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
+
 2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five seeded `(candidate)` rows (recommendation `RunId` drift filtered defense-in-depth; workspace learning-profile drift covered by `FilterLearningProfileForSimulationScope`; batch/context count gap is observability not correctness; explicit `runId` ignores `runProjectSlug` by design; audit `RuleKind` casing is cosmetic because controller resolves case-insensitively before simulate); regressions `GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows`, `GetContextsAsync_excludes_learning_profile_when_workspace_mismatches_caller_scope`, `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`, and `SimulateAsync_WhenFewerContextsThanRequested_StillReportsEvaluatedCountOnly`; seeded five follow-on `(candidate)` rows; 30 scoped `AlertSimulationContextProviderTests` and 5 scoped `RuleSimulationServiceTests` passed.
 
 2026-10-07 thorough hunt (hit): `alert-simulation` — `BuildContextAsync` attached `GetLatestProfileAsync` results without validating scope ids, so a mis-scoped learning profile could skew composite `AcceptanceRatePercent`; filter via `FilterLearningProfileForSimulationScope`; cheap-disproof closed four other seeded `(candidate)` rows (project-latest profile is intentional for scope-level learning; `RecentRunCount` cap already regression-tested; compare-to hash drop is intentional batch skip; `CompareCandidates` validates both candidates per rule kind); regressions `GetContextsAsync_excludes_learning_profile_outside_caller_scope` and `GetContextsAsync_recent_run_batch_trims_run_project_slug_before_listing_runs`; seeded five follow-on `(candidate)` rows; 28 scoped `AlertSimulationContextProviderTests` passed.
@@ -7319,6 +7321,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; project-id scope filters, explicit compare-to path, historical-window gate with explicit run, and unreachable batch compare-to skip metadata; 33 scoped `AlertSimulationContextProviderTests` and 6 scoped `RuleSimulationServiceTests` passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; defense-in-depth recommendation `RunId` filter, workspace learning-profile filter, evaluated-count summary notes, explicit-run slug bypass, and audit rule-kind casing; 30 scoped `AlertSimulationContextProviderTests` and 5 scoped `RuleSimulationServiceTests` passed.
 
 2026-10-07 thorough hunt (hit): proved mis-scoped learning profile could enter simulation context; regressions for learning-profile scope filter and slug trim; 28 scoped `AlertSimulationContextProviderTests` passed.
@@ -7331,9 +7335,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -7391,11 +7395,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` path ignores `runProjectSlug` — **cheap-disproof 2026-10-07 thorough hunt:** single-run branch never calls `ListRunsByProjectAsync`; regression `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`.
 - [x] (invalid) `AlertSimulationController.Simulate` — audit payload logs `request.RuleKind` without normalizing case — **cheap-disproof 2026-10-07 thorough hunt:** `TryResolveRuleKind` is case-insensitive before service invocation; audit preserves client casing only.
 
-- [ ] (candidate) `FilterLearningProfileForSimulationScope` — foreign `ProjectId` on `RecommendationLearningProfile` from `GetLatestProfileAsync` (same filter path as tenant/workspace drift).
-- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation row with foreign `ProjectId` but matching tenant/workspace/`RunId` from mis-keyed repository row.
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` with non-null `comparedToRunId` still builds comparison context when compare-to run is in scope.
-- [ ] (candidate) `RuleSimulationService.SimulateAsync` — `UseHistoricalWindow: false` with non-null `RunId` still evaluates contexts (window gate applies only when `RunId` is null).
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch when `skipOnSealedHashFailure: true` drops comparison without surfacing skip reason in `AlertEvaluationContext`.
+- [x] (valid-no-repro) `FilterLearningProfileForSimulationScope` — foreign `ProjectId` on `RecommendationLearningProfile` — **cheap-disproof 2026-10-07 thorough hunt:** same filter as tenant/workspace; regression `GetContextsAsync_excludes_learning_profile_when_project_mismatches_caller_scope`.
+- [x] (valid-no-repro) `FilterRecommendationsForSimulationScope` — foreign `ProjectId` on recommendation row — **cheap-disproof 2026-10-07 thorough hunt:** scope filter drops mis-keyed row; regression `GetContextsAsync_excludes_recommendation_rows_when_project_id_mismatches_caller_scope`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` with in-scope `comparedToRunId` builds comparison — **cheap-disproof 2026-10-07 thorough hunt:** intentional explicit-run compare path; regression `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings`.
+- [x] (valid-no-repro) `RuleSimulationService.SimulateAsync` — `UseHistoricalWindow: false` with non-null `RunId` still evaluates — **cheap-disproof 2026-10-07 thorough hunt:** early exit only when both `UseHistoricalWindow` is false and `RunId` is null; regression `SimulateAsync_WhenUseHistoricalWindowFalseButRunIdProvided_StillEvaluatesContexts`.
+- [x] (invalid) `AlertSimulationContextProvider.BuildContextAsync` — compare-to with `skipOnSealedHashFailure: true` silent drop — **cheap-disproof 2026-10-07 thorough hunt:** recent-run batch always passes `comparedToRunId: null` (`GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`); explicit path uses `skipOnSealedHashFailure: false` and throws on compare-to hash failure.
+
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation row with foreign `WorkspaceId` but matching tenant/project/`RunId` from mis-keyed repository row.
+- [ ] (candidate) `RuleSimulationService.SimulateAsync` — composite simulation invokes live `IAlertSuppressionPolicy.DecideAsync` (read-only alert store) per context.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run `DistinctBy(RunId)` after `OrderByDescending(CreatedUtc)` keeps newest summary when authority returns duplicate ids.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `ImprovementPlan` from advisor when `FindingsSnapshot` is synthesized empty still drives alert metric snapshot inputs.
+- [ ] (candidate) `AlertSimulationController.Simulate` — sealed-manifest block from explicit compare-to maps to `409 Conflict` via `MapSealedManifestSimulationBlockOrNull`.
 
 2026-10-06 seed hunt (seed-only): reseeded alert-simulation; five `(candidate)` rows; 23 scoped `AlertSimulationContextProviderTests` passed (no code change).
 

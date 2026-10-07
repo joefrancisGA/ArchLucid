@@ -41,6 +41,71 @@ public sealed class RuleSimulationServiceTests
     }
 
     [Fact]
+    public async Task SimulateAsync_WhenUseHistoricalWindowFalseButRunIdProvided_StillEvaluatesContexts()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        AlertEvaluationContext context = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            RunId = runId,
+        };
+
+        Mock<IAlertSimulationContextProvider> provider = new();
+        provider
+            .Setup(
+                x => x.GetContextsAsync(
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    runId,
+                    It.IsAny<Guid?>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([context]);
+
+        Mock<IAlertEvaluator> evaluator = new();
+        evaluator
+            .Setup(x => x.Evaluate(It.IsAny<IReadOnlyList<AlertRule>>(), It.IsAny<AlertEvaluationContext>()))
+            .Returns(Array.Empty<AlertRecord>());
+
+        RuleSimulationService sut = CreateSut(
+            evaluator.Object,
+            Mock.Of<IAlertMetricSnapshotBuilder>(),
+            Mock.Of<ICompositeAlertRuleEvaluator>(),
+            Mock.Of<IAlertSuppressionPolicy>(),
+            provider.Object);
+
+        RuleSimulationRequest request = new()
+        {
+            RuleKind = RuleKindConstants.Simple,
+            SimpleRule = new AlertRule { Name = "r" },
+            UseHistoricalWindow = false,
+            RunId = runId,
+        };
+
+        RuleSimulationResult result = await sut.SimulateAsync(tenantId, workspaceId, projectId, request, CancellationToken.None);
+
+        result.EvaluatedRunCount.Should().Be(1);
+        provider.Verify(
+            x => x.GetContextsAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                runId,
+                It.IsAny<Guid?>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task SimulateAsync_WhenNoContexts_AddsNoRunsNote()
     {
         Mock<IAlertSimulationContextProvider> provider = new();
