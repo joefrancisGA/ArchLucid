@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read dismiss/error/success/fetch paths; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `retains duplicate-email error when the request form is toggled closed without cancel`, `keeps required field drafts when dismiss clears only the honeypot website field`, `reflects updated technicalDetail prop while the access form is open`, `omits request access control on the success view`, and `posts access request with Accept application/json header`; seeded five follow-on `(candidate)` rows; 38 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read `AuthCallbackAccessPanel` dismiss/submit/error paths; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `dismisses the form via request access toggle while submit is in flight`, `retains a prior submit error when the request form is toggled closed without cancel`, and `mentions asynchronous follow-up on the success view`; seeded five follow-on `(candidate)` rows; 33 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 seed hunt (seed→hit): `ui-auth-callback` — proved bot-poisoned honeypot `websiteUrl` survived cancel/reopen and could yield silent `204` honeypot success on the next operator submit; `dismissAccessRequestForm` clears honeypot on cancel and request-access collapse; cheap-disproof closed four other `(candidate)` rows; regressions `clears honeypot websiteUrl when cancel closes the form` and `does not surface stale submit error after collapsing the form during an in-flight POST`; seeded five follow-on `(candidate)` rows; 30 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -8781,7 +8783,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 23 · **Bugs found:** 3 · **Consecutive dry hunts:** 1
+**Hunts:** 24 · **Bugs found:** 3 · **Consecutive dry hunts:** 2
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `retains duplicate-email error when the request form is toggled closed without cancel`, `keeps required field drafts when dismiss clears only the honeypot website field`, `reflects updated technicalDetail prop while the access form is open`, `omits request access control on the success view`, and `posts access request with Accept application/json header`; seeded five follow-on `(candidate)` rows; 38 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (valid-no-repro) `onSubmit` — `409` duplicate error persists when the form is collapsed via request-access toggle — **cheap-disproof 2026-10-07 seed hunt:** matches intentional generic-error retention on toggle-close; cancel still clears; regression `retains duplicate-email error when the request form is toggled closed without cancel`.
+- [x] (valid-no-repro) `dismissAccessRequestForm` — does not reset required fields after honeypot clear — **cheap-disproof 2026-10-07 seed hunt:** draft retention is intentional; regression `keeps required field drafts when dismiss clears only the honeypot website field`.
+- [x] (valid-no-repro) `technicalDetail` prop — updates from parent re-render while `showForm` is open — **cheap-disproof 2026-10-07 seed hunt:** React prop flow is correct (detail stays visible for open form); regression `reflects updated technicalDetail prop while the access form is open`.
+- [x] (valid-no-repro) Success view — no second access-request submit without remount — **cheap-disproof 2026-10-07 seed hunt:** `submitted` branch is terminal success UX; recovery is back-to-sign-in only; regression `omits request access control on the success view`.
+- [x] (valid-no-repro) `fetch` — `Accept: application/json` on `204` success — **cheap-disproof 2026-10-07 seed hunt:** header matches JSON error envelope on `4xx`; `204` has no body; regression `posts access request with Accept application/json header`.
+
+- [ ] (candidate) `onSubmit` — `409` duplicate path returns before `setShowForm(false)` but leaves `showForm` true with error visible under collapsed toggle — locus: error alert inside form only; input: duplicate response then toggle-close hides error until reopen.
+- [ ] (candidate) `AuthCallbackAccessPanel` — no `aria-live` region for async submit errors — locus: `role="alert"` on error paragraph; input: screen reader after slow `502`.
+- [ ] (candidate) `try again` Link — remains enabled while `submitting` is true — locus: outline link outside form; input: operator navigates away mid-POST without `invalidateInFlightSubmit`.
+- [ ] (candidate) Hidden honeypot — `aria-hidden="true"` wrapper still exposes `Website` label to `getByLabelText` in tests/DOM — locus: hidden field markup; input: assistive tech or autofill targeting `name="websiteUrl"`.
+- [ ] (candidate) `onSubmit` — `catch` path does not distinguish offline `TypeError` from other fetch failures — locus: generic `AUTH_CALLBACK_ACCESS_SUBMIT_ERROR`; input: `fetch` rejected with `Failed to fetch`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `dismisses the form via request access toggle while submit is in flight`, `retains a prior submit error when the request form is toggled closed without cancel`, and `mentions asynchronous follow-up on the success view`; seeded five follow-on `(candidate)` rows; 33 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8790,12 +8806,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Success view — no copy reminding operators that access approval is asynchronous — **cheap-disproof 2026-10-07 seed hunt:** `AUTH_CALLBACK_ACCESS_SUCCESS_BODY` already states review and follow-up; regression `mentions asynchronous follow-up on the success view`.
 - [x] (valid-no-repro) `FatalPageReportProblemSupportRow` — report payload omits callback `technicalDetail` — **cheap-disproof 2026-10-07 seed hunt:** duplicate of 2026-10-07 thorough hunt; stable `errorTitle` uses `AUTH_CALLBACK_ACCESS_HEADING`; detail stays in `auth-callback-technical-detail`.
 - [x] (valid-no-repro) `submitting` — disables cancel during flight — **cheap-disproof 2026-10-07 seed hunt:** request-access toggle still calls `dismissAccessRequestForm`; regression `dismisses the form via request access toggle while submit is in flight`.
-
-- [ ] (candidate) `onSubmit` — `409` duplicate error persists when the form is collapsed via request-access toggle (not cancel) — locus: toggle dismiss vs cancel `setErrorMessage(null)`; input: duplicate email submit then toggle-close/reopen.
-- [ ] (candidate) `dismissAccessRequestForm` — does not reset required `name` / `company` / `roleTitle` after honeypot clear — locus: partial reset on dismiss; input: bot-filled honeypot then operator reopens and submits same draft.
-- [ ] (candidate) `technicalDetail` prop — updates from parent re-render while `showForm` is open — locus: `CallbackClient` `message` state vs open form; input: rare callback error refresh without unmount.
-- [ ] (candidate) Success view — no way to submit another access request without remounting the panel — locus: `submitted` branch; input: operator typo in work email after `204`.
-- [ ] (candidate) `fetch` — `Accept: application/json` on `POST /api/access-requests` when success is `204` No Content — locus: `onSubmit` headers; input: strict intermediary stripping empty JSON bodies.
 
 2026-10-07 seed hunt (seed→hit): cheap-disproof closed four open `(candidate)` rows; proved honeypot `websiteUrl` retention after dismiss; regressions `clears honeypot websiteUrl when cancel closes the form` and `does not surface stale submit error after collapsing the form during an in-flight POST`; seeded five follow-on `(candidate)` rows; 30 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8823,9 +8833,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
