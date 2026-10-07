@@ -23,4 +23,12 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
 
         id.Should().Be("Jira:KEY-1:Done");
     }
+
+    [Fact]
+    public void BuildSynthetic_trims_provider_external_key_and_status()
+    {
+        string id = ItsmInboundWebhookReplayEventId.BuildSynthetic(" Jira ", " KEY-1 ", " Done ");
+
+        id.Should().Be("Jira:KEY-1:Done");
+    }
 }

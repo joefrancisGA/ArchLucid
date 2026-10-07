@@ -67,4 +67,16 @@ public sealed class ItsmInboundJiraPayloadReaderTests
         ok.Should().BeTrue();
         result.StatusValue.Should().Be("Done");
     }
+
+    [Fact]
+    public void TryRead_trims_whitespace_from_issue_key_before_format_validation()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"  PROJ-9  ","fields":{"status":{"name":"Done"}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.ExternalKey.Should().Be("PROJ-9");
+    }
 }

@@ -85,6 +85,19 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task TryClaimAsync_treats_provider_name_case_variants_as_same_claim()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool first = await sut.TryClaimAsync(TenantA, "Jira", "delivery-provider-case", CancellationToken.None);
+        bool second = await sut.TryClaimAsync(TenantA, "jira", "delivery-provider-case", CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task TryClaimAsync_treats_event_id_case_variants_as_same_claim()
     {
         using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
