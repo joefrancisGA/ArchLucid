@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 75 · **Bugs found:** 12 · **Consecutive dry hunts:** 8
+**Hunts:** 76 · **Bugs found:** 12 · **Consecutive dry hunts:** 9
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces`; 105 scoped zone tests passed (62 Application + 43 Core).
+
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `QualityWarning=true` on latest-per-task trace does not block PilotStrict commit — **cheap-disproof 2026-10-07 seed hunt #76:** TB-2226 blocks durable rejections only; regressions `GetBlockingReasons_when_single_warned_trace_does_not_block` and `GetBlockingReasons_when_winning_duplicate_quality_warning_only_does_not_block_after_sibling_quality_rejected_cleared`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityRejected=true` with `RecordedQualityGateOutcome=Accepted` still ranks as rejected sibling — **cheap-disproof 2026-10-07 seed hunt #76:** rank-1 drift row loses to clean Accepted duplicate; regressions `Select_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted` and `GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`; lone drift still blocks via `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`.
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` unions persisted acks after provenance gate — **cheap-disproof 2026-10-07 seed hunt #76:** persisted union runs immediately before `FinalizeAssumptionGateEvaluator` (~181–186); provenance ordering does not strip persisted acknowledgements.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` trace load precedes architecture-version pin failure — **cheap-disproof 2026-10-07 seed hunt #76:** pin mismatch still throws `ConflictException`; extra trace read is perf-only, not integrity bypass.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Fallback structural mode returns empty reasons here but `StructuralExecutionModeCommitGuard` blocks earlier in service — **cheap-disproof 2026-10-07 seed hunt #76:** TB-2226 Real-only evaluator; regression `GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces`; service path `StructuralExecutionModeCommitGuardTests`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Mixed` structural mode bypasses evaluator like Simulator — locus: mode guard ~21–22; input: Mixed run with `QualityRejected=true` traces (guard blocks Mixed in service).
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — equal `AttemptIndex`, rank, and `CreatedUtc` tie-breaks on `TraceId` ordinal — locus: `ThenByDescending(TraceId)` ~27–28; input: duplicate upsert rows differing only by trace id.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips lifecycle Complete check but still runs Real quality gate — locus: Guid guard ~103–118; input: opaque run id string with Real traces present.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FinalizeAssumptionGateEvaluator` runs after provenance but before scorecard — locus: ~172–198; input: existential assumption unacknowledged blocks before `_finalizeQualityGate`.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` trim does not normalize Unicode format (NFC/NFD) — locus: `Trim()` ~55; input: canonically equivalent task ids in different normalization forms.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_task_id_contains_nbsp_does_not_chain_with_ascii_hyphen_task`; 104 scoped zone tests passed (61 Application + 43 Core).
 
