@@ -243,6 +243,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_pipeline_dead_lettered_typo_suffix_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLettered"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_empty_json_object_without_failure_class()
     {
         const string json = "{}";

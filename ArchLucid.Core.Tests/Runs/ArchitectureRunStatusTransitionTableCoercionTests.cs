@@ -77,9 +77,19 @@ public sealed class ArchitectureRunStatusTransitionTableCoercionTests
     {
         bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("+5", out ArchitectureRunStatus status);
 
-        // int.TryParse rejects leading '+'; SQL CK_Runs_LegacyRunStatus allowlist stores enum names on persisted rows.
+        // Enum.TryParse would coerce signed numeric strings to backing values; reject explicit leading '+' before enum parse.
         ok.Should().BeFalse();
         status.Should().Be(default);
+    }
+
+    [Fact]
+    public void TryParseStatus_parses_leading_zero_whole_number_ordinal_to_committed()
+    {
+        bool ok = ArchitectureRunStatusTransitionTable.TryParseStatus("05", out ArchitectureRunStatus status);
+
+        // int.TryParse accepts leading zeros for in-memory callers; SQL CK_Runs_LegacyRunStatus stores enum names on persisted rows.
+        ok.Should().BeTrue();
+        status.Should().Be(ArchitectureRunStatus.Committed);
     }
 
     [Fact]
