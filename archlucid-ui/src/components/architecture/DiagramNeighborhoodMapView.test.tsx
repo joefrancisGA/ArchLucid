@@ -33,6 +33,8 @@ describe("DiagramNeighborhoodMapView", () => {
     render(<DiagramNeighborhoodMapView map={map} onOpenNeighborhood={onOpenNeighborhood} />);
 
     expect(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app")).toBeInTheDocument();
+    expect(screen.getByText("app-vnet")).toBeInTheDocument();
+    expect(screen.getByText("app-vnet")).not.toHaveAttribute("title");
     expect(screen.getByText("4 resources")).toBeInTheDocument();
     expect(screen.getByText("security — 1 — app-vnet")).toBeInTheDocument();
 

@@ -16,6 +16,7 @@ const SCOPE_SWITCHER_TRIGGER_TEST_ID = "operator-scope-switcher-trigger";
 
 /**
  * First-session purpose chooser is optional (grandfathered users, invite flows). When shown, pick live workspace.
+ * Closing it without choosing live does not persist the preference, so it reopens and blocks clicks.
  */
 export async function dismissFirstSessionPurposeChooserIfVisible(page: Page): Promise<void> {
   const chooser = page.getByTestId(FIRST_SESSION_PURPOSE_CHOOSER_TEST_ID);
@@ -27,6 +28,16 @@ export async function dismissFirstSessionPurposeChooserIfVisible(page: Page): Pr
 
   await page.getByTestId(FIRST_SESSION_PURPOSE_LIVE_BUTTON_TEST_ID).click();
   await expect(chooser).toBeHidden({ timeout: 60_000 });
+}
+
+/** Preferences load after the first operator navigation; wait briefly then pick live if the chooser appears. */
+export async function waitAndDismissFirstSessionPurposeChooser(
+  page: Page,
+  timeoutMs = 8_000,
+): Promise<void> {
+  const chooser = page.getByTestId(FIRST_SESSION_PURPOSE_CHOOSER_TEST_ID);
+  await chooser.waitFor({ state: "visible", timeout: timeoutMs }).catch(() => undefined);
+  await dismissFirstSessionPurposeChooserIfVisible(page);
 }
 
 /** Live-seat acceptance: scope trigger and banners must not imply sample / NOT LIVE DATA. */

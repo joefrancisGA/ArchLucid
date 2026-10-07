@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -20,23 +21,7 @@ public sealed partial class SqlContextSnapshotRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(projectId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string sql = """
-                           SELECT TOP 1
-                               SnapshotId,
-                               RunId,
-                               ProjectId,
-                               CreatedUtc,
-                               CanonicalObjectsJson,
-                               DeltaSummary,
-                               WarningsJson,
-                               ErrorsJson,
-                               SourceHashesJson
-                           FROM dbo.ContextSnapshots
-                           WHERE ProjectId = @ProjectId
-                           """
-                     + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + """
-                           ORDER BY CreatedUtc DESC;
-                           """;
+        string sql = ContextSnapshotReadSql.BuildGetLatest(scope);
 
         DynamicParameters parameters = new();
         parameters.Add("ProjectId", projectId);
@@ -47,7 +32,9 @@ public sealed partial class SqlContextSnapshotRepository
             new CommandDefinition(sql, parameters, cancellationToken: ct));
 
         if (row is null)
+        {
             return null;
+        }
 
         return await ContextSnapshotRelationalRead.HydrateAsync(connection, null, row, ct);
     }
@@ -70,20 +57,7 @@ public sealed partial class SqlContextSnapshotRepository
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        string sql = """
-                     SELECT
-                         SnapshotId,
-                         RunId,
-                         ProjectId,
-                         CreatedUtc,
-                         CanonicalObjectsJson,
-                         DeltaSummary,
-                         WarningsJson,
-                         ErrorsJson,
-                         SourceHashesJson
-                     FROM dbo.ContextSnapshots
-                     WHERE SnapshotId = @SnapshotId
-                     """ + PersistenceTenantScope.AndScopeProjectIdTripleWhere(scope) + ";";
+        string sql = ContextSnapshotReadSql.BuildGetById(scope);
 
         DynamicParameters parameters = new();
         parameters.Add("SnapshotId", snapshotId);
@@ -93,7 +67,9 @@ public sealed partial class SqlContextSnapshotRepository
             new CommandDefinition(sql, parameters, transaction, cancellationToken: ct));
 
         if (row is null)
+        {
             return null;
+        }
 
         return await ContextSnapshotRelationalRead.HydrateAsync(connection, transaction, row, ct);
     }

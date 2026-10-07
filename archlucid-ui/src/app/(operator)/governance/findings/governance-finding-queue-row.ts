@@ -11,7 +11,7 @@ export type GovernanceFindingQueueRecordKind = "finding" | "decision";
 export type GovernanceFindingQueueRow = {
   runId: string;
   runLabel: string;
-  /** Canonical manifest UUID when known, or " — ". */
+  /** Canonical manifest UUID when known, or empty when absent. */
   manifestId: string;
   findingId: string;
   title: string;

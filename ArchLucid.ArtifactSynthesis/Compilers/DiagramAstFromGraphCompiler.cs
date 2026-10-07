@@ -231,6 +231,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
         InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
         InventoryDiagramExternalTargetApplier.Apply(ast, graph, nodeIdMap, mode);
+        InventoryDiagramRoleAccessApplier.Apply(ast, graph, nodeIdMap);
+        InventoryDiagramLikelyRelationshipApplier.Apply(ast);
         InventoryDiagramOrphanedStateApplier.Apply(
             ast,
             graph,

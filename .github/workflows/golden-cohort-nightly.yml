@@ -206,8 +206,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Gate eligibility (var off, fork PR, or disabled path)
+      - name: Gate eligibility (var off, fork PR, Dependabot, or disabled path)
         id: eligibility
+        env:
+          PR_HEAD_REPO_FULL_NAME: ${{ github.event.pull_request.head.repo.full_name }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           set -euo pipefail
           if ! bash scripts/ci/is_real_mode_ci_enabled.sh enabled; then
@@ -216,13 +221,15 @@ jobs:
             exit 0
           fi
 
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+          # Dependabot cannot read GitHub Environment OIDC secrets; skip azure/login
+          # the same way fork PRs already do so the required check stays green.
+          if secrets_reason="$(bash scripts/ci/golden_cohort_pr_secrets_available.sh)"; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+          else
             echo "enabled=false" >> "${GITHUB_OUTPUT}"
-            echo "Fork pull request; cohort-real-llm-gate passes as no-op (secrets unavailable)."
+            echo "${secrets_reason}"
             exit 0
           fi
-
-          echo "enabled=true" >> "${GITHUB_OUTPUT}"
 
       - name: Live schedule eligibility
         id: live_schedule

@@ -1,9 +1,21 @@
-# Evergreen: when a trunk gate goes red, launch a Cursor Cloud Agent to repair it.
+# Evergreen: when a build goes red, launch a Cursor Cloud Agent to repair it (or file an issue).
 #
-# Trigger: completion of the push-corset / private-beta / OpenAPI workflows on master and of
-# full CI on pull requests. Only `conclusion == failure` launches; `cancelled` is the
-# cancel-in-progress queue draining and is ignored. Dedupe and the daily cap live in
-# scripts/ci/evergreen (open PRs carrying `Evergreen-Fingerprint:` + today's launch cache keys).
+# Lanes (scripts/ci/evergreen/lane.py):
+#   trunk_gate  push-corset / private-beta / OpenAPI on master, full CI on PRs -> agent opens a PR
+#   scheduled   nightly/weekly workflows that are code-fixable on master       -> agent opens a PR
+#   bugsmash    CI on the bugsmash branch                                      -> agent pushes to the branch
+#   dependabot  CI on dependabot/* branches                                    -> agent pushes to the branch
+# Report-only workflows (k6, ZAP, Schemathesis, Stryker, ...; see workflow_router.py) get an
+# `evergreen-report` issue with the failure digest and no agent.
+#
+# Only `conclusion == failure` acts; `cancelled` is the cancel-in-progress queue draining. Dedupe lives in
+# scripts/ci/evergreen: PR/issue/comment markers (`Evergreen-Fingerprint:`, `Evergreen-Family:`), a 7-day
+# cool-down after a `NEEDS OWNER:` escalation, today's launch cache keys, and the daily cap.
+# Kill switch: repository variable EVERGREEN_DISABLED_LANES (comma list, e.g. `dependabot,scheduled`).
+#
+# Dependabot note: GitHub runs workflow_run workflows that were triggered by Dependabot with a read-only
+# token and *Dependabot* secrets, so the dependabot lane needs CURSOR_API_KEY added under Settings >
+# Secrets and variables > Dependabot as well.
 #
 # Recursion guard: this workflow is not in its own `workflows:` list and no gate depends on it.
 # Requires the repository secret CURSOR_API_KEY (Cursor dashboard > Integrations > API keys).
@@ -16,6 +28,20 @@ on:
       - "Private-beta access on push"
       - "Refresh OpenAPI v1 snapshot"
       - "CI"
+      # Scheduled, code-fixable: an agent repairs these.
+      - "Cancel stale pending CI (0 jobs)"
+      - "golden-cohort-nightly"
+      - "Live E2E nightly"
+      - "Supply chain: UI npm audit weekly"
+      # Scheduled, report-only: see REPORT_ONLY_WORKFLOWS in scripts/ci/evergreen/workflow_router.py.
+      - "Performance: k6 per-tenant burst (scheduled)"
+      - "Performance: k6 production-like (scheduled)"
+      - "Performance: k6 soak (scheduled)"
+      - "Security: ZAP baseline (scheduled, strict visibility)"
+      - "Security: Schemathesis API fuzz (scheduled)"
+      - "Stryker (scheduled)"
+      - "Deep regression (optional)"
+      - "Trunk matrix measurement"
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -33,6 +59,8 @@ permissions:
   actions: read
   contents: read
   pull-requests: read
+  # Create report issues and the push-mode marker comment. Deliberately not contents/pull-requests write.
+  issues: write
 
 concurrency:
   # Serialise launches so two red runs cannot race past the dedupe check.
@@ -67,10 +95,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAX_PER_DAY: ${{ vars.EVERGREEN_MAX_PER_DAY || '6' }}
+          DISABLED_LANES: ${{ vars.EVERGREEN_DISABLED_LANES || '' }}
         run: |
           python3 scripts/ci/evergreen_launch.py decide \
             --digest .evergreen/digest.json \
             --max-per-day "${MAX_PER_DAY}" \
+            --disabled-lanes "${DISABLED_LANES}" \
             --output .evergreen/decision.json
 
       - name: Require CURSOR_API_KEY
@@ -79,7 +109,7 @@ jobs:
           HAS_KEY: ${{ secrets.CURSOR_API_KEY != '' }}
         run: |
           if [ "${HAS_KEY}" != "true" ]; then
-            echo "::error::CURSOR_API_KEY secret is not set; Evergreen cannot launch an agent."
+            echo "::error::CURSOR_API_KEY secret is not set; Evergreen cannot launch an agent. (Dependabot-triggered runs read Dependabot secrets: add the key there too.)"
             exit 1
           fi
 
@@ -103,10 +133,33 @@ jobs:
           path: .evergreen/launch.json
           key: ${{ steps.decide.outputs.cache_key }}
 
+      - name: Announce launch on the pull request (push mode)
+        if: steps.launch.outcome == 'success' && steps.decide.outputs.delivery_mode == 'push_to_branch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/ci/evergreen_launch.py announce \
+            --digest .evergreen/digest.json \
+            --decision .evergreen/decision.json \
+            --launch .evergreen/launch.json
+
+      - name: Open report issue (report-only workflow)
+        id: report
+        if: steps.decide.outputs.report == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/ci/evergreen_launch.py report \
+            --digest .evergreen/digest.json \
+            --decision .evergreen/decision.json \
+            --output .evergreen/report.json
+
       - name: Summary
         if: always()
         env:
           LAUNCH: ${{ steps.decide.outputs.launch }}
+          LANE: ${{ steps.decide.outputs.lane }}
+          ISSUE_URL: ${{ steps.report.outputs.issue_url }}
           REASON: ${{ steps.decide.outputs.reason }}
           FINGERPRINT: ${{ steps.decide.outputs.fingerprint }}
           AGENT_URL: ${{ steps.launch.outputs.agent_url }}
@@ -117,8 +170,10 @@ jobs:
             echo
             echo "- Source run: ${SOURCE_RUN}"
             echo "- Fingerprint: \`${FINGERPRINT}\`"
+            echo "- Lane: ${LANE:-n/a}"
             echo "- Decision: ${LAUNCH:-n/a} (${REASON:-no decision})"
             if [ -n "${AGENT_URL}" ]; then echo "- Agent: ${AGENT_URL}"; fi
+            if [ -n "${ISSUE_URL}" ]; then echo "- Report issue: ${ISSUE_URL}"; fi
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload digest and decision

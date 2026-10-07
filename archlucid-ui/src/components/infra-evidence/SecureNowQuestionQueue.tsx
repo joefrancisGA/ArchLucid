@@ -138,9 +138,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           </div>
           {currentQuestion != null ? (
             <p
-              className={cn("m-0 line-clamp-2", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
               data-testid="infra-diagrams-question-text"
-              title={currentQuestion.questionText}
             >
               {currentQuestion.questionText}
             </p>

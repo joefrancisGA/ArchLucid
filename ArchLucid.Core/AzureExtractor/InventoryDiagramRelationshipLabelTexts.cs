@@ -1,8 +1,10 @@
 namespace ArchLucid.Core.AzureExtractor;
 
-/// <summary>Canonical inventory diagram relationship labels (NR-21 through NR-26).</summary>
+/// <summary>Canonical inventory diagram relationship labels (NR-21 through NR-28).</summary>
 public static class InventoryDiagramRelationshipLabelTexts
 {
+    public const string HasAccess = "Has access";
+
     public const string PrivateAccess = "Private access";
 
     public const string PublicExposureCaption = "public";

@@ -34,7 +34,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     return {
       runId,
       runLabel,
-      manifestId: (entry.manifestId ?? "").trim().length > 0 ? (entry.manifestId ?? "").trim() : "Not returned",
+      manifestId: (entry.manifestId ?? "").trim(),
       findingId: entry.findingId,
       title: entry.title,
       severity: entry.severity,
@@ -81,7 +81,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     return {
       runId,
       runLabel: runId.length > 0 ? runId : "Not returned",
-      manifestId: manifestId.length > 0 ? manifestId : "Not returned",
+      manifestId,
       findingId: entry.decisionId,
       title: titleRaw.length > 0 ? titleRaw : entry.decisionId,
       severity: "Info",
@@ -104,7 +104,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
       const titleRaw = (t.findingTitle ?? findingId).trim();
       const manifestRaw = isDemoRunIdEligibleForStaticFallback(run.runId)
         ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
-        : "Not returned";
+        : "";
 
       const ruleHint = (t.ruleId ?? "").trim();
       const runDescription = (run.description ?? "").trim();
@@ -113,7 +113,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
       return {
         runId: run.runId,
         runLabel,
-        manifestId: manifestRaw.length > 0 ? manifestRaw : "Not returned",
+        manifestId: manifestRaw,
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
         severity: severityFromTrace(t.traceConfidenceLabel),

@@ -9,11 +9,23 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 Set-Location $Root
 
 $CacheRoot = Join-Path $Root '.cache'
-$NuGetPackages = Join-Path $CacheRoot 'nuget-packages'
 $RestoreStamp = Join-Path $CacheRoot 'openapi-contract-restore.stamp'
 
-New-Item -ItemType Directory -Force -Path $NuGetPackages | Out-Null
-$env:NUGET_PACKAGES = $NuGetPackages
+New-Item -ItemType Directory -Force -Path $CacheRoot | Out-Null
+
+# actions/setup-dotnet cache post-step looks at the default CLI folder
+# (~/.nuget/packages). Redirecting NUGET_PACKAGES under .cache leaves that
+# folder missing and fails the job after snapshot tests already passed.
+if ([string]::IsNullOrWhiteSpace($env:GITHUB_ACTIONS)) {
+    $NuGetPackages = Join-Path $CacheRoot 'nuget-packages'
+    New-Item -ItemType Directory -Force -Path $NuGetPackages | Out-Null
+    $env:NUGET_PACKAGES = $NuGetPackages
+}
+else {
+    Remove-Item Env:NUGET_PACKAGES -ErrorAction SilentlyContinue
+    $defaultNuGet = Join-Path $HOME '.nuget/packages'
+    New-Item -ItemType Directory -Force -Path $defaultNuGet | Out-Null
+}
 
 function Get-OpenApiContractRestoreFingerprint {
     $files = @(
