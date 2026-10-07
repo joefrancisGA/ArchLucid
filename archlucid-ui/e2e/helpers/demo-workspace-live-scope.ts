@@ -52,8 +52,9 @@ export type DemoWorkspaceScopeIds = {
 async function writeOperatorScopeToBrowser(
   page: Page,
   scope: DemoWorkspaceScopeIds,
-  options?: { readonly persistViaInitScript?: boolean },
+  options?: { readonly persistViaInitScript?: boolean; readonly persistToLocalStorage?: boolean },
 ): Promise<void> {
+  const persistToLocalStorage = options?.persistToLocalStorage !== false;
   const scopeCookieValue = serializeOperatorScopeCookiePayload({
     tenantId: scope.tenantId,
     workspaceId: scope.workspaceId,
@@ -68,6 +69,11 @@ async function writeOperatorScopeToBrowser(
       sameSite: "Lax",
     },
   ]);
+
+  // Cookie is enough for RSC scope headers. localStorage demo GUIDs trip LS-010.
+  if (!persistToLocalStorage) {
+    return;
+  }
 
   await page.evaluate(
     (
@@ -160,7 +166,14 @@ export async function injectDemoWorkspaceOperatorScope(
   await page.goto("/", { waitUntil: "domcontentloaded" });
 }
 
-/** Resets operator scope to CI default tenant/workspace so admin settings pages keep DevelopmentBypass Admin. */
+/**
+ * Resets operator scope to the CI JWT tenant so admin settings keep Admin.
+ * Cookie-only: those GUIDs are also Customer Intake Demo IDs. Writing them to
+ * localStorage makes LS-010 treat the seat as sticky sample and replace the
+ * page with `/auth/bootstrap`. JwtBearer CI mints the live tenant with the
+ * same IDs; bootstrap/status then 401s because the minted JWT is not a
+ * platform user.
+ */
 export async function injectDefaultTenantOperatorScope(page: Page): Promise<void> {
   const defaultScope = {
     tenantId: LIVE_E2E_DEFAULT_TENANT_ID,
@@ -169,15 +182,15 @@ export async function injectDefaultTenantOperatorScope(page: Page): Promise<void
   };
 
   await stubEmptyArchitectureDraftListRoute(page);
-  await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  // Register after demo-workspace init scripts in the same browser context so default scope wins
-  // on every subsequent navigation (admin settings requires default tenant Admin, not demo scope).
-  await writeOperatorScopeToBrowser(page, defaultScope, { persistViaInitScript: true });
+  if (page.url() === "about:blank") {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+  }
 
-  // Init script only runs on navigations after registration — reload once so scope is committed
-  // before the first /administration/users RSC flight.
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await writeOperatorScopeToBrowser(page, defaultScope, {
+    persistViaInitScript: false,
+    persistToLocalStorage: false,
+  });
 }
 
 /**
