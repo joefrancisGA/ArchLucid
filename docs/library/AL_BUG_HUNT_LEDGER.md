@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `alert-simulation` — `AlertSimulationContextProvider.BuildContextAsync` attached every `ListByRunAsync` row without re-validating tenant/workspace/project/run scope, so a mis-scoped repository row could influence composite simulation metrics; filter via `FilterRecommendationsForSimulationScope`; cheap-disproof closed four other seeded `(candidate)` rows (`RecentRunCount` clamp 1–50 documented on `RuleSimulationRequest`; whitespace `RunProjectSlug` normalizes like advisory schedules; compare-to path never reads `comparedDetail.FindingsSnapshot`; composite simulate path ignores unused `SimpleRule` payload); regressions `GetContextsAsync_excludes_recommendation_rows_outside_caller_scope`, `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`, and `GetContextsAsync_recent_run_batch_uses_default_slug_when_run_project_slug_is_whitespace`; seeded five follow-on `(candidate)` rows; 26 scoped `AlertSimulationContextProviderTests` passed.
+
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (reload duplicate POST is a new session not same-handler gap; falsy `companySize` omits key; `%` in email blocked by zod before submit; scientific notation parses to valid integer team size; `409` clears `registerInFlightRef` in `finally`); regressions `omits empty company size string from the register payload builder`, `serializes scientific notation optional architecture team size when it parses to a whole number`, and `still allows register retry after duplicate organization conflict`; seeded five follow-on `(candidate)` rows; 43 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (payload builder trim only on `handleSubmit` zod path; `sessionStorage` quota errors swallowed; funnel telemetry is fire-and-forget and does not throw in production; `RegistrationRequestBaselineValidator` does not police email EAI separately from zod; `noValidate` disables native constraint UI); regressions `passes through padded required fields when the register payload builder is called directly`, `still navigates when sessionStorage.setItem throws during success handling`, `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`, and `disables native html5 validation on the signup form`; seeded five follow-on `(candidate)` rows; 40 scoped SignupForm vitest tests passed.
@@ -7313,17 +7315,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
+2026-10-07 thorough hunt (hit): proved mis-scoped recommendation rows could enter simulation context; regressions for recommendation scope filter, recent-run clamp, and whitespace slug default; 26 scoped `AlertSimulationContextProviderTests` passed.
+
 - **id:** alert-simulation
 - **status:** open
 - **impact:** high
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 25
-- **bugs-found:** 8
+- **hunts:** 26
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — Guid.Empty comparedToRunId still queried compare-to run detail
+- **last-hunt:** 2026-10-07
+- **last-bug:** 2026-10-07 — recommendation rows outside caller scope attached to simulation context
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -7359,11 +7363,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — mis-keyed `RunDetailDto` rows where `RunRecord.RunId` differed from the requested run id still simulated when `GoldenManifest.RunId` matched — **hit 2026-10-06 seed hunt:** require `detail.Run.RunId == runId` and compare-to `RunRecord.RunId == comparedToRunId` before building contexts; regression `GetContextsAsync_when_run_record_id_mismatches_requested_run_returns_empty`; 22 scoped `AlertSimulationContextProviderTests` passed.
 - [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `comparedToRunId` of `Guid.Empty` entered the compare-to branch because `Nullable<Guid>.HasValue` is true for empty, invoking `GetRunDetailAsync(Guid.Empty)` — **hit 2026-10-06 seed hunt:** compare branch requires non-empty guid; regression `GetContextsAsync_when_compared_to_run_id_is_empty_does_not_query_compare_to_run_detail`; 23 scoped `AlertSimulationContextProviderTests` passed.
 
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` of `0` or negative from `RuleSimulationRequest.RecentRunCount` is clamped to `1` via `Math.Clamp(recentRunCount, 1, 50)`, so historical-window simulation always evaluates at least one run when the client intended zero.
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — whitespace-only `runProjectSlug` from `RuleSimulationRequest.RunProjectSlug` is rewritten to `"default"` before `ListRunsByProjectAsync`, so a slug of spaces lists the default project runs instead of failing validation.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch requires `comparedDetail.GoldenManifest` non-null but does not require `FindingsSnapshotMatchesGoldenManifest` on the baseline run; foreign compared findings rows might still influence advisor if a future code path reads `comparedDetail.FindingsSnapshot`.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `recommendationRepository.ListByRunAsync` is keyed only by primary `runId`; if authority mis-associates recommendations to another run id, simulation could attach foreign recommendations (depends on repository invariants).
-- [ ] (candidate) `AlertSimulationController.StampSimulationScope` — when `RuleKind` is Composite, embedded `SimpleRule` tenant/workspace/project ids are not overwritten, so a request carrying both payloads could leave stale scope on the unused simple rule if downstream ever reads it.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` of `0` or negative clamped to `1` — **cheap-disproof 2026-10-07 thorough hunt:** intentional `Math.Clamp(recentRunCount, 1, 50)` per `RuleSimulationRequest` XML; zero-eval historical window uses `UseHistoricalWindow: false` in `RuleSimulationService`; regression `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — whitespace-only `runProjectSlug` rewritten to `"default"` — **cheap-disproof 2026-10-07 thorough hunt:** matches `AdvisoryScheduleEligibilityGuard.NormalizeRunProjectSlug`; regression `GetContextsAsync_recent_run_batch_uses_default_slug_when_run_project_slug_is_whitespace`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch omits `FindingsSnapshotMatchesGoldenManifest` on baseline run — **cheap-disproof 2026-10-07 thorough hunt:** compare uses golden manifests only; regression `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` (2026-09-07 #1258).
+- [x] (proven) `AlertSimulationContextProvider.BuildContextAsync` — `ListByRunAsync` rows outside caller scope attached to `RecommendationRecords` — **hit 2026-10-07 thorough hunt:** defense-in-depth filter `FilterRecommendationsForSimulationScope`; regression `GetContextsAsync_excludes_recommendation_rows_outside_caller_scope`.
+- [x] (invalid) `AlertSimulationController.StampSimulationScope` — Composite requests leave stale `SimpleRule` scope — **cheap-disproof 2026-10-07 thorough hunt:** `RuleSimulationService.SimulateAsync` evaluates only `CompositeRule` when `RuleKind` is Composite; unused `SimpleRule` payload is never read.
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — `RecommendationLearningProfile` is project-latest, not run-scoped, so simulating an old run may pair stale acceptance-rate metrics with that run's plan.
+- [ ] (candidate) `RuleSimulationService.SimulateAsync` — `RecentRunCount` above `50` is silently capped with no summary note when historical window listing truncates.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — trimmed non-empty `runProjectSlug` values with leading/trailing spaces rely on `Trim()` only at list time (no slug charset validation).
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch skips comparison when compared sealed-hash verification fails in batch mode but does not distinguish drop reason in context metadata.
+- [ ] (candidate) `AlertSimulationController.StampComparisonScope` — candidate comparison requests stamp simple/composite payloads independently; a request with both simple candidates null and one composite set is validated at controller layer only.
 
 2026-10-06 seed hunt (seed-only): reseeded alert-simulation; five `(candidate)` rows; 23 scoped `AlertSimulationContextProviderTests` passed (no code change).
 
