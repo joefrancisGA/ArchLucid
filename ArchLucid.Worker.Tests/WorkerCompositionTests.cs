@@ -1,3 +1,5 @@
+using ArchLucid.Core.Scoping;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -34,6 +36,69 @@ public sealed class WorkerCompositionTests
                 s =>
                     s.GetType().Name.Contains("BackgroundJobQueueProcessorHostedService", StringComparison.Ordinal)
                     || s.GetType().Name.Contains("DataConsistencyOrphanProbeHostedService", StringComparison.Ordinal));
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_scope_provider_uses_defaults_without_http_context()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IScopeContextProvider provider = factory.Services.GetRequiredService<IScopeContextProvider>();
+
+            ScopeContext scope = provider.GetCurrentScope();
+
+            scope.TenantId.Should().Be(ScopeIds.DefaultTenant);
+            scope.WorkspaceId.Should().Be(ScopeIds.DefaultWorkspace);
+            scope.ProjectId.Should().Be(ScopeIds.DefaultProject);
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_scope_provider_prefers_ambient_override_over_defaults_without_http()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        Guid tenant = Guid.NewGuid();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            IScopeContextProvider provider = factory.Services.GetRequiredService<IScopeContextProvider>();
+
+            ScopeContext pushed = new()
+            {
+                TenantId = tenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject,
+            };
+
+            using (AmbientScopeContext.Push(pushed))
+            {
+                provider.GetCurrentScope().TenantId.Should().Be(tenant);
+            }
         }
         finally
         {

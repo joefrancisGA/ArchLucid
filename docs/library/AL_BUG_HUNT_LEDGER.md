@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `worker-host` — cheap-disproof closed five open `(candidate)` rows (plain-HTTP `ASPNETCORE_URLS` disables HTTPS redirection for probes; in-memory `Hosting:Role=Worker` default is intentional; post-`Build()` warning-only logging matches API error vs warning split; `HttpScopeContextProvider` uses ambient/defaults off the HTTP thread; worker `/health/ready` summary JSON is documented vs API diagnostics); regressions `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`, `Worker_host_health_ready_returns_anonymous_summary_json`, `Worker_scope_provider_uses_defaults_without_http_context`, and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`; reaffirmed `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role`; 23 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows (full-string slash/dot/control scans and query-only `%` after decode cap are conservative by design; NBSP inside path segments is not an open-redirect class); regressions `TryNormalize_rejects_when_query_contains_slash_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_query_contains_dot_homoglyph_conservative_full_string_scan`, `TryNormalize_rejects_when_decoded_query_contains_control_character`, `TryNormalize_accepts_nbsp_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_when_query_retains_percent_after_decode_cap`; seeded five follow-on `(candidate)` rows; 159 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read `ArchLucid.Worker/Program.cs` startup ordering, `WorkerProcessHostingRoleConfiguration`, and `UseArchLucidWorkerPipeline` health mapping after four consecutive dry hunts; no hunt-ready row promoted; regressions `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role` and `Worker_host_health_live_returns_ok_when_pipeline_is_mapped`; seeded five follow-on `(candidate)` rows; 19 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -9112,15 +9114,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; 23 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 - **id:** worker-host
 - **status:** open
 - **impact:** low
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
@@ -9165,11 +9169,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ArchitectureRunCreationConfigurationBridge` while the API host applies it before validation — **cheap-disproof 2026-10-05 seed hunt:** bridge is intentionally scoped to `ArchLucid.Api` (legacy key literal); worker does not register `IOptions<ArchitectureRunCreationPayloadLimitsOptions>` and has no `ContextIngestionMaxPayloadMiddleware`; `ContextIngestionRules` still validates a legacy-only flat key at `ValidateOrThrow`.
 - [x] (valid-no-repro) `Program.Main` — Worker omits `ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent` — **cheap-disproof 2026-10-05 seed hunt:** advisor only emits CORS and browser-auth advisories; the worker pipeline exposes health/metrics only with no CORS or interactive auth stack.
 
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — enables `UseHsts` and optional `UseHttpsRedirection` on a health/metrics-only host; reachable when Container Apps internal HTTP probes hit the worker pod before ingress TLS termination.
-- [ ] (candidate) `Program.Main` — `WorkerProcessHostingRoleConfiguration.Apply` injects `Hosting:Role=Worker` via in-memory configuration after environment variables load; reachable when operators expect file-based `appsettings.json` alone to define role without the worker executable defaulting it.
-- [ ] (candidate) `Program.Main` — `LogConfigurationWarnings` runs after `Build()` without a second `ArchLucidConfigurationRules.CollectErrors` pass (unlike API); reachable when warning-only configuration drift should block startup but passes `ValidateOrThrow`.
-- [ ] (candidate) `Program.Main` — `AddSingleton<IScopeContextProvider, HttpScopeContextProvider>` on a background worker; reachable when hosted services resolve tenant scope without an HTTP request and fall back to ambient context incorrectly.
-- [ ] (candidate) `UseArchLucidWorkerPipeline` — maps `/health/ready` with summary detail while API exposes authenticated diagnostics; reachable when operators compare worker ready JSON to API diagnostic health during rollout.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — enables `UseHsts` and optional `UseHttpsRedirection` on a health/metrics-only host — **cheap-disproof 2026-10-07 thorough hunt:** `AspNetCoreHostingUrls.ShouldUseHttpsRedirection` skips redirection when `ASPNETCORE_URLS` is HTTP-only; HSTS adds headers only; regression `Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development`.
+- [x] (valid-no-repro) `Program.Main` — `WorkerProcessHostingRoleConfiguration.Apply` injects `Hosting:Role=Worker` via in-memory configuration — **cheap-disproof 2026-10-07 thorough hunt:** intentional executable default; regression `Worker_host_defaults_hosting_role_to_worker_when_configuration_omits_role`.
+- [x] (valid-no-repro) `Program.Main` — `LogConfigurationWarnings` after `Build()` without second `CollectErrors` — **cheap-disproof 2026-10-07 thorough hunt:** warnings are non-blocking by design; hard errors still fail pre-`Build()` `ValidateOrThrow` (`Worker_host_fails_fast_when_simulator_has_negative_max_completion_tokens`); aligns with prior post-`Build()` parity closure.
+- [x] (valid-no-repro) `Program.Main` — `AddSingleton<IScopeContextProvider, HttpScopeContextProvider>` on a background worker — **cheap-disproof 2026-10-07 thorough hunt:** singleton reads per-call ambient/HTTP; background jobs push `AmbientScopeContext`; regressions `Worker_scope_provider_uses_defaults_without_http_context` and `Worker_scope_provider_prefers_ambient_override_over_defaults_without_http`.
+- [x] (valid-no-repro) `UseArchLucidWorkerPipeline` — maps `/health/ready` with summary detail while API exposes authenticated diagnostics — **cheap-disproof 2026-10-07 thorough hunt:** documented in `WorkerHostPipelineExtensions` remarks; regression `Worker_host_health_ready_returns_anonymous_summary_json`.
 
 - [x] (proven) `Program.Main` — Kestrel `AddServerHeader` stayed at the host default while the API host sets it false before listen — reachable anonymous `GET /health/live` responses could disclose the Kestrel version; configured the worker host to disable the header; regression `Worker_host_disables_kestrel_server_header` failed before the fix and passed after it
 - [x] (valid-no-repro) `Program.Main` — `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` runs before `UseArchLucidWorkerPipeline` — SQL bootstrap can delay route mapping, but `/health/live` is intentionally liveness-only and no wrong startup-probe outcome is established in the selected source; the focused startup/composition tests passed.

@@ -650,4 +650,61 @@ public sealed class WorkerHostStartupTests
             snapshot.Restore();
         }
     }
+
+    [Fact]
+    public async Task Worker_host_health_live_succeeds_on_plain_http_urls_in_non_development()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseEnvironment("Testing");
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("ASPNETCORE_URLS", "http://127.0.0.1:0");
+                });
+
+            using HttpClient client = factory.CreateClient();
+
+            HttpResponseMessage response = await client.GetAsync("/health/live");
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public async Task Worker_host_health_ready_returns_anonymous_summary_json()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            using HttpClient client = factory.CreateClient();
+
+            HttpResponseMessage response = await client.GetAsync("/health/ready");
+
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.ServiceUnavailable);
+            response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+            string body = await response.Content.ReadAsStringAsync();
+            body.Should().NotContain("exception", because: "summary health must not echo exception text");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
 }
