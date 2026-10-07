@@ -16,7 +16,7 @@ export function formatInfraEvidenceOutlineEdgeToLabel(input: {
   const toName = input.toName.trim();
 
   if (toName.length === 0) {
-    return fromName;
+    return "Destination name was not stored";
   }
 
   if (!namesMatch(fromName, toName)) {

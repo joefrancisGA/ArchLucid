@@ -41,7 +41,7 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("policy-pack:default")).toBeInTheDocument();
   });
 
-  it("shows em dash placeholders for empty optional scalar and empty string lists", () => {
+  it("explains omitted optional scalar and empty string lists", () => {
     render(
       <WizardFormTestHarness
         values={{
@@ -59,7 +59,7 @@ describe("WizardStepReview", () => {
     expect(priorRow?.textContent).toContain(" — ");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain(" — ");
+    expect(advancedSection?.textContent).toContain("None recorded on this draft");
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

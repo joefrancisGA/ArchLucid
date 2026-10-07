@@ -66,4 +66,22 @@ describe("RunDetailFindingsDenseTableRow", () => {
     expect(screen.queryByTestId("run-detail-findings-density-honesty-finding-1")).toBeNull();
     expect(screen.queryByTestId("working-finding-semantic-support-band")).toBeNull();
   });
+
+  it("labels missing confidence, review status, and evidence link", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow
+            runId="run-1"
+            finding={sampleFinding({ confidenceLevel: null, humanReviewStatus: null, evidenceRefCount: null })}
+            showDensityScore
+          />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByText("Confidence was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Review status was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Evidence link was not stored")).toBeInTheDocument();
+  });
 });

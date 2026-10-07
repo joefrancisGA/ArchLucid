@@ -225,15 +225,19 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
         ) : null}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
-          {row.runLabel}
-        </Link>
+        {row.runId.trim().length > 0 ? (
+          <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+            {row.runLabel}
+          </Link>
+        ) : (
+          row.runLabel
+        )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
         {governanceQueueSeverityCell(row, false, severityMeaning)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "No owner recorded." : " — "}
+        {row.recordKind === "finding" ? row.ownerUserId?.trim() || "No owner recorded." : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {governanceQueueDispositionLabel(row)}
@@ -243,13 +247,13 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           ? row.agingDays !== undefined
             ? `${row.agingDays}d`
             : "Not returned"
-          : " — "}
+          : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : " — "}
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : " — "}
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />

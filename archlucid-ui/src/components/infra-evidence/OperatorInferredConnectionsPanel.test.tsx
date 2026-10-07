@@ -61,6 +61,18 @@ describe("OperatorInferredConnectionsPanel", () => {
     expect(screen.getByTestId("operator-inferred-connections-confirm")).toBeEnabled();
   });
 
+  it("labels missing destination metadata without inventing a host", async () => {
+    vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockResolvedValue([
+      { ...uploadRow, fromLabel: null, fromArmId: null, toHost: null, toCatalog: "orders", settingName: null },
+    ]);
+
+    render(<OperatorInferredConnectionsPanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Starting resource was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Host name was not stored / orders")).toBeInTheDocument();
+    expect(screen.getByText("Setting name was not stored")).toBeInTheDocument();
+  });
+
   it("shows the API message and api-problem recovery when list throws ApiLoadFailureState", async () => {
     vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockRejectedValue(
       apiLoadFailure("Database Query Failed: table missing."),

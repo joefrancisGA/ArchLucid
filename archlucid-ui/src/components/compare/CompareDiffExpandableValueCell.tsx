@@ -9,12 +9,12 @@ import { EnterpriseTableCell } from "@/components/ui/enterprise-table";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type CompareDiffExpandableValueCellProps = {
-  readonly value: string | null;
+  readonly value: string | null | undefined;
   readonly monospace?: boolean;
 };
 
 export function CompareDiffExpandableValueCell(props: CompareDiffExpandableValueCellProps): ReactElement {
-  const display = props.value ?? " — ";
+  const display = props.value === null || props.value === undefined ? "Value not returned" : props.value;
   const [expanded, setExpanded] = useState(false);
   const needsExpansion = display.length > 96;
 

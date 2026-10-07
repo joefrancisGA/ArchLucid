@@ -60,6 +60,7 @@ import {
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
   formatSecurityEvidencePathKindLabel,
+  formatSecurityEvidencePathRelationshipLabel,
   explainSecurityEvidenceProvenanceKind,
   formatSecurityEvidenceProvenanceKindLabel,
   securityEvidencePathConfidenceBandStatusKind,
@@ -197,7 +198,7 @@ function PathHopsTable(props: {
               </EnterpriseTableCell>
               <EnterpriseTableCell title={hop.fromNodeLabel}>{securityEvidencePathHopNodeName(hop.fromNodeLabel)}</EnterpriseTableCell>
               <EnterpriseTableCell title={hop.toNodeLabel}>{securityEvidencePathHopNodeName(hop.toNodeLabel)}</EnterpriseTableCell>
-              <EnterpriseTableCell>{hop.edgeType}</EnterpriseTableCell>
+              <EnterpriseTableCell>{formatSecurityEvidencePathRelationshipLabel(hop.edgeType)}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid="security-evidence-path-hop-provenance">
                 {formatSecurityEvidenceProvenanceKindLabel(hop.provenanceKind)}
                 {hop.hopOrdinal === 1 && explainSecurityEvidenceProvenanceKind(hop.provenanceKind) != null ? (

@@ -32,7 +32,7 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
     return driver;
   }
 
-  return "Review prioritized findings and align owners on monitored items before the next change window.";
+  return "No sponsor action was stored on this review.";
 }
 
 function ratioPercentLabel(value: number | null | undefined, emptyLabel: string): string {
@@ -76,7 +76,7 @@ export function buildSponsorRiskReviewMarkdown(
       ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
       : null,
     typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
-      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, " — ")}.`
+      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "Ratio not returned")}.`
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)
@@ -125,11 +125,11 @@ export function buildSponsorRiskReviewMarkdown(
     "",
     "## Risk posture",
     "",
-    trimLine(summary.riskPosture),
+    trimLine(summary.riskPosture) || "Risk posture was not stored",
     "",
     "## Final decision",
     "",
-    trimLine(summary.overallAssessment),
+    trimLine(summary.overallAssessment) || "Final decision was not stored",
     "",
     "## Remaining risk",
     "",

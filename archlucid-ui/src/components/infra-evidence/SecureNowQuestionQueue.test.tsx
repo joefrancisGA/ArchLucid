@@ -84,6 +84,45 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
   });
 
+  it("shows a stored answer for answered questions", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      { ...question, status: "Answered", answerCode: "NamePeer", answerText: "Name the peer" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
+
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Answer: Name the peer");
+    expect(screen.getByRole("button", { name: "Answered", exact: true })).toBeInTheDocument();
+  });
+
+  it("explains when a non-open question has no stored answer", async () => {
+    mocks.listQuestions.mockResolvedValue([question, { ...question, status: "Answered" }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
+
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent(
+      "Stored answer was not on this question",
+    );
+  });
+
+  it("preserves missing and unexpected stored question status", async () => {
+    mocks.listQuestions.mockResolvedValue([question, { ...question, status: null, resourceName: "" }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
+      "Resource name was not stored",
+    );
+    expect(screen.getByText("Question status was not stored")).toBeInTheDocument();
+  });
+
   it("keeps inventory questions visible when inferred connections fail to load", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
     mocks.listConnections.mockRejectedValue(new Error("inferred connections unavailable"));

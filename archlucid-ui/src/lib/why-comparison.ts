@@ -102,5 +102,5 @@ export function whyHardCellDisplay(cell: WhyHardComparisonCell): string {
 
   if (cell === "no") return "No";
 
-  return " — ";
+  return "Not returned";
 }

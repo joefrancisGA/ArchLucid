@@ -12,9 +12,9 @@ describe("manifestStatusForDisplay", () => {
     expect(manifestStatusForDisplay("Draft")).toBe("Draft");
   });
 
-  it("returns em dash when empty", () => {
-    expect(manifestStatusForDisplay("")).toBe(" — ");
-    expect(manifestStatusForDisplay(null)).toBe(" — ");
+  it("explains when status is omitted", () => {
+    expect(manifestStatusForDisplay("")).toBe("Status not returned");
+    expect(manifestStatusForDisplay(null)).toBe("Status not returned");
   });
 });
 

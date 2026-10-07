@@ -197,7 +197,7 @@ export function formatAdvisoryScheduleInstant(
   const zone = toStoredIanaTimeZoneId(timeZoneId);
 
   if (!Number.isFinite(date.getTime())) {
-    return { primary: " — ", utcSecondary: "" };
+    return { primary: "Time not returned", utcSecondary: "" };
   }
 
   const formatter = new Intl.DateTimeFormat("en-US", {
