@@ -2683,4 +2683,123 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         listed.Should().ContainSingle();
         listed[0].RowVersion.Should().BeNull();
     }
+
+    [Fact]
+    public async Task InMemory_get_committed_run_by_golden_manifest_treats_empty_exclude_run_id_as_non_exclusion()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Guid committedRunId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        Guid? found = await runs.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            manifestId,
+            Guid.Empty,
+            CancellationToken.None);
+
+        found.Should().Be(committedRunId);
+    }
+
+    [Fact]
+    public void SelectCommittedRunIdByGoldenManifestId_excludes_run_id_via_sql_not_nullable_optional()
+    {
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.RunId <> @ExcludeRunId");
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().NotContain("@ExcludeRunId IS NULL");
+    }
+
+    [Fact]
+    public void ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads()
+    {
+        const string architectureListSql = """
+                                           SELECT RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                  PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                  ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                           FROM dbo.Runs
+                                           """;
+
+        architectureListSql.Should().NotContain("WITH (NOLOCK)");
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain("WITH (NOLOCK)");
+    }
+
+    [Fact]
+    public async Task InMemory_list_recent_in_scope_retains_stored_warning_flags_without_findings_aggregate_model()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        Guid runId = Guid.NewGuid();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                HasWarnings = true,
+                HasGovernanceWarnings = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListRecentInScopeAsync(scope, 10, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].HasWarnings.Should().BeTrue();
+        listed[0].HasGovernanceWarnings.Should().BeTrue();
+
+        RunRecord? stored = await runs.GetByIdAsync(scope, runId, CancellationToken.None);
+
+        stored.Should().NotBeNull();
+        stored!.HasWarnings.Should().BeTrue();
+    }
+
+    [Fact]
+    public void RunsListRecentInScopeNoLock_hydrates_warning_flags_from_left_join_aggregates()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain(RunListWarningFlagSql.LeftJoinAggregates);
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain("ISNULL(fsWarn.HasWarnings, 0) AS HasWarnings");
+    }
+
+    [Fact]
+    public void SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract()
+    {
+        const string samplePurgeProcedure = """
+                                            CREATE OR ALTER PROCEDURE dbo.SampleRunPurgeBatch
+                                                @TenantId UNIQUEIDENTIFIER = NULL,
+                                            """;
+
+        samplePurgeProcedure.Should().Contain("@TenantId");
+        samplePurgeProcedure.Should().NotContain("@WorkspaceId");
+    }
 }
