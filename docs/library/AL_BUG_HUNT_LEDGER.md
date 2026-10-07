@@ -8528,7 +8528,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 42 · **Bugs found:** 17 · **Consecutive dry hunts:** 5
+**Hunts:** 43 · **Bugs found:** 17 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_submit_without_run_id_does_not_emit_ok_true`, `RunCoreAsync_json_output_whitespace_api_base_url_fails_connect_before_create`; 59 scoped `DraftNewCommandCoreTests` passed.
+
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `PatchDraftAsync` HTTP failure stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #43:** intentional stderr-only parity; regression `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — `SubmitDraftAsync` success with blank `runId` stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #43:** parity non-JSON `RunCoreAsync_submit_without_run_id_returns_operation_failed`; regression `RunCoreAsync_json_output_submit_without_run_id_does_not_emit_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — pending MUST in JSON mode emits `CliJson.WriteFailureLine` with `must_questions_pending` — **cheap-disproof 2026-10-07 seed hunt #43:** intentional structured usage error (not API failure envelope); regression `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` unreachable in JSON mode when `--system-name` omitted — **cheap-disproof 2026-10-07 seed hunt #43:** JSON preflight blocks before admit; regression `RunCoreAsync_json_output_missing_system_name_returns_usage_error_without_prompting`.
+- [x] (valid-no-repro) `DraftNewCommandConnectStage` — whitespace-only API base URL fails connect before draft create in JSON mode — **cheap-disproof 2026-10-07 seed hunt #43:** parity non-JSON connect guard; regression `RunCoreAsync_json_output_whitespace_api_base_url_fails_connect_before_create`.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — null `IntentText` fails before connect — locus: ~154–158; input: `--json` without `--text` (usage stderr-only).
+- [ ] (candidate) `DraftNewCommandAdmitStage` — semantic `Admitted=false` admission stderr-only in JSON mode — locus: ~145–151; input: regression parity `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — `SubmitDraftAsync` HTTP failure stderr-only in JSON mode — locus: submit error ~61–66; input: already covered by `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true` (verify only).
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — interactive whitespace MUST answer returns usage error without operator hints — locus: ~120–129; input: `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — `ExecuteRunAsync` failure emits structured `execute_failed` JSON line — locus: ~110–117; input: `RunCoreAsync_json_output_execute_failure_emits_structured_failure_and_stderr_guidance`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope`, `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; 57 scoped `DraftNewCommandCoreTests` passed.
 

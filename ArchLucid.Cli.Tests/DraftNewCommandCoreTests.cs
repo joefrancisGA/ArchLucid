@@ -327,6 +327,41 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_json_output_submit_without_run_id_does_not_emit_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRunIdHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("no runId");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_submit_without_request_id_returns_operation_failed()
     {
         DraftNewCommandOptions options = new()
@@ -926,6 +961,58 @@ public sealed class DraftNewCommandCoreTests
 
         exit.Should().Be(CliExitCode.ConfigurationError);
         createCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_whitespace_api_base_url_fails_connect_before_create()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+        bool createCalled = false;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                ApiBaseUrl = string.Empty,
+                ApiBaseUrlFromArgument = true,
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (baseUrl, _) =>
+                {
+                    baseUrl.Should().BeEmpty();
+
+                    return Task.FromResult(ApiConnectionOutcome.InvalidConfiguration);
+                },
+                CreateApiClient = (_, _) =>
+                {
+                    createCalled = true;
+
+                    return CreateDraftFlowClient();
+                },
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.ConfigurationError);
+            createCalled.Should().BeFalse();
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
     }
 
     [Fact]
