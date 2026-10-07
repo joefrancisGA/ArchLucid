@@ -86,7 +86,8 @@ export function buildDiagramReconcileDenominatorSentence(inventoryResourceCount:
 
 function csvCell(value: string | number | null | undefined): string {
   const text = value == null ? "" : String(value);
-  return `"${text.replaceAll("\"", "\"\"")}"`;
+  const safeText = /^\s*[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${safeText.replaceAll("\"", "\"\"")}"`;
 }
 
 export function buildDiagramReconcileCsv(
