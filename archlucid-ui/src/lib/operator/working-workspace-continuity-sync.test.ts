@@ -101,4 +101,42 @@ describe("working-workspace-continuity-sync (IH-066)", () => {
       ),
     ).toBe(false);
   });
+
+  it("clears local recents when server continuity payload omits recent view entries", () => {
+    window.localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        entries: [
+          {
+            href: "/architecture/architectures/arch-local",
+            label: "Local architecture",
+            kind: "architecture",
+            visitedAtUtc: "2026-09-13T11:00:00Z",
+            architectureId: "arch-local",
+          },
+        ],
+      }),
+    );
+
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [{ runId: "run-9", pinnedAtUtc: "2026-09-13T12:00:00Z" }],
+      recentViewEntries: [],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    const stored = JSON.parse(window.localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY) ?? "{}");
+
+    expect(stored.entries).toEqual([]);
+  });
+
+  it("drops favorite rows when pinnedAtUtc is whitespace-only", () => {
+    applyWorkingWorkspaceContinuityFromServer({
+      favoriteReviews: [{ runId: "run-9", pinnedAtUtc: "   " }],
+      recentViewEntries: [],
+      updatedAtUtc: "2026-09-13T12:02:00Z",
+    });
+
+    expect(JSON.parse(window.localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toEqual([]);
+  });
 });

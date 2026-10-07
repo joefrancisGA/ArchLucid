@@ -103,4 +103,17 @@ describe("resolveAttentionPartitionPreview", () => {
 
     expect(preview).toBe("Open egress path");
   });
+
+  it("returns assigned finding title verbatim without trim for assigned-to-me partition", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "assigned-to-me",
+      topUnfinishedItem: null,
+      assignedFindingTitle: "   ",
+      topAwaitingApproval: null,
+      topAlert: null,
+      runs: [],
+    });
+
+    expect(preview).toBe("   ");
+  });
 });
