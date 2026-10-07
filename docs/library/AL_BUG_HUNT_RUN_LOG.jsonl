@@ -8762,3 +8762,4 @@
 {"at":"2026-10-07T08:47:11.235996Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-07T08:54:37.4523494Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-07T09:00:32.5115826Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-07T09:07:14.9181101Z","zoneId":"alert-simulation","outcome":"dry","productLine":"archlucid-shared"}
