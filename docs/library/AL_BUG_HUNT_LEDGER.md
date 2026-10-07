@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; regressions `returns assigned finding title verbatim without trim for assigned-to-me partition`, `clears local recents when server continuity payload omits recent view entries`, and `drops favorite rows when pinnedAtUtc is whitespace-only`; reaffirmed `getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers` and `refreshes dependent client state from cross-tab storage without rewriting storage`; seeded five follow-on `(candidate)` rows; 32 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five open `(candidate)` rows (duplicate TOCTOU header/pin rows, intentional Simulator bypass, Warned-over-rejected duplicate policy, caller `GoldenManifestId` parity, lone `QualityRejected`+`Accepted` drift); reaffirmed `GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`, `Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace`, `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`, and `GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application quality-gate + 39 Core selector, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit/`finally` gates, payload builder, and success-path ordering; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; reaffirmed `shows a toast for duplicate organization conflict without leaving submit stuck`, `shows a toast when register fetch throws`, `omits non-integer optional architecture team size from the register payload builder`, `surfaces signup error when success toast throws after successful register`, and `omits company size from the register payload builder when value is undefined`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
@@ -30647,6 +30649,22 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
+**Hunts:** 36 · **Bugs found:** 34 · **Consecutive dry hunts:** 8
+
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 32 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
+- [x] (invalid) `resolveAttentionPartitionPreview` — whitespace-only `assignedFindingTitle` renders blank preview — **cheap-disproof 2026-10-07 thorough hunt:** partition returns the whitespace string verbatim (not trimmed empty); regression `returns assigned finding title verbatim without trim for assigned-to-me partition`.
+- [x] (valid-no-repro) `applyWorkingWorkspaceContinuityFromServer` — empty `recentViewEntries` wipes local recents during favorite hydrate — **cheap-disproof 2026-10-07 thorough hunt:** IH-066 explicit server hydrate overwrites device recents; regression `clears local recents when server continuity payload omits recent view entries`.
+- [x] (valid-no-repro) `getEffectiveBrowserProxyScopeHeaders` — signed-in cold load writes registration/dedicated cookies before operator `localStorage` scope — **cheap-disproof 2026-10-07 thorough hunt:** intentional bootstrap priority documented in function comment; regression `getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers`.
+- [x] (valid-no-repro) `refreshOperatorScopeFromCrossTabStorage` — sibling-tab invalidation does not await in-flight TanStack queries — **cheap-disproof 2026-10-07 thorough hunt:** `void invalidateOperatorHomeRunsCaches()` matches standard invalidate-then-refetch pattern; consumers subscribe to scope-changed events; regression `refreshes dependent client state from cross-tab storage without rewriting storage`.
+- [x] (valid-no-repro) `toFavoriteReviewRows` — whitespace-only `pinnedAtUtc` drops favorite rows — **cheap-disproof 2026-10-07 thorough hunt:** fail-closed omit for malformed server continuity rows; regression `drops favorite rows when pinnedAtUtc is whitespace-only`.
+
+- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — signed-in users without dedicated workspace return empty pending scope headers and still write scope cookies — locus: pending header branch (`operator-scope-storage.ts` ~260–268).
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — refuses hydrate when server `updatedAtUtc` is older than local continuity watermark — locus: `Date.parse` comparison (`working-workspace-continuity-sync.ts` ~157).
+- [ ] (candidate) `toRecentViewEntries` — drops recent rows when `visitedAtUtc` is whitespace-only while `href` and `label` are valid — locus: trim guards (`working-workspace-continuity-sync.ts` ~82–94).
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `assigned-to-me` returns `null` when `assignedFindingTitle` is omitted, collapsing partition card subtitle — locus: raw return (`resolve-attention-partition-preview.ts` ~39–40).
+- [ ] (candidate) `buildWorkingWorkspaceContinuityPayload` — omits `architectureId` on favorite rows when local pin stored title-only — locus: spread mapping (`working-workspace-continuity-sync.ts` ~117–123).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; 27 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
 - **id:** ui-operator-lib
@@ -30655,9 +30673,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
 - **related-pd-tb:** none
@@ -30727,12 +30745,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — empty server `updatedAtUtc` always hydrates and may overwrite local pins when the API omits a watermark — **cheap-disproof 2026-10-07 thorough hunt:** intentional explicit-hydrate path when server omits watermark; regression `hydrates when server omits updatedAtUtc even if local watermark exists`.
 - [x] (valid-no-repro) `readOperatorScopeFromStorage` — parse cache keyed on raw JSON may serve stale scope if another tab mutates `archlucid_operator_scope_v1` — **cheap-disproof 2026-10-07 thorough hunt:** in-tab `localStorage` writes change raw JSON and invalidate cache; cross-tab uses `storage` listener; regression `readOperatorScopeFromStorage_reflects_direct_localStorage_writes_in_the_same_tab`.
 - [x] (valid-no-repro) `buildWorkingWorkspaceContinuityPayload` — uses `new Date().toISOString()` for `updatedAtUtc` on every build, so rapid PUTs may reorder against server clocks on slow networks — **cheap-disproof 2026-10-07 thorough hunt:** client watermark is advisory; server `updatedAtUtc` comparison in `shouldHydrateWorkingWorkspaceContinuityFromServer` is authoritative; reaffirmed `builds payload from local pins and recents`.
-
-- [ ] (candidate) `resolveAttentionPartitionPreview` — `assigned-to-me` returns raw `assignedFindingTitle` without trim, so whitespace-only governance titles may render as blank partition previews.
-- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — empty `recentViewEntries` resets to `createEmptyRecentViewsState()` and may wipe locally cached recents even when favorites hydrate from the same payload.
-- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — signed-in dedicated-workspace bootstrap may write cookies from registration scope before operator `localStorage` scope is hydrated on cold load.
-- [ ] (candidate) `refreshOperatorScopeFromCrossTabStorage` — invalidates home runs caches on sibling-tab scope writes but does not await in-flight TanStack queries before consumers read stale rows.
-- [ ] (candidate) `toFavoriteReviewRows` — drops favorite rows when `pinnedAtUtc` is whitespace-only, silently shrinking continuity PUT payloads.
 
 2026-09-12 thorough hunt #1852 (hit): proved tenant counting snapshot omitted paginated totalCount; 6 scoped operator-home-tenant-counting tests passed.
 
