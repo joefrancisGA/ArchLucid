@@ -707,6 +707,53 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         Dictionary<string, object?> properties)
     {
         AddJsonArrayProperty(propertiesElement, properties, "ipConfigurations");
+        AddFirewallIpConfigurationSubnetIds(propertiesElement, properties);
+        AddFirewallManagementSubnetId(propertiesElement, properties);
+    }
+
+    private static void AddFirewallIpConfigurationSubnetIds(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("ipConfigurations", out JsonElement ipConfigurations)
+            || ipConfigurations.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
+        {
+            string? subnetId = TryReadNestedString(ipConfiguration, "properties", "subnet", "id");
+
+            if (!string.IsNullOrWhiteSpace(subnetId))
+            {
+                // The index is the ipConfigurations array position, so [0] stays the first configuration.
+                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId.Trim();
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddFirewallManagementSubnetId(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        string? subnetId = TryReadNestedString(
+            propertiesElement,
+            "managementIpConfiguration",
+            "properties",
+            "subnet",
+            "id");
+
+        if (string.IsNullOrWhiteSpace(subnetId))
+        {
+            return;
+        }
+
+        properties["managementIpConfiguration.subnet.id"] = subnetId.Trim();
     }
 
     private static void AddFrontDoorProperties(
