@@ -41,6 +41,12 @@ describe("operator-scope-storage", () => {
     sessionStorage.clear();
   });
 
+  it("readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid", () => {
+    localStorage.setItem(OPERATOR_SCOPE_STORAGE_KEY, "not-json");
+
+    expect(readOperatorScopeFromStorage()).toBeNull();
+  });
+
   it("getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet", () => {
     writeOperatorScopeToStorage({
       tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",

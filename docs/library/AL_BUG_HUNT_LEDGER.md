@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid`, `returns all runs when excluded run id list is empty`, and `omits rail items whose id prefix does not yield a run id`; reaffirmed `hydrates local storage when server watermark is newer` and `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`; 52 scoped operator vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`; reaffirmed `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`, and `RunCoreAsync_json_output_execute_failure_emits_structured_failure_and_stderr_guidance`; 60 scoped `DraftNewCommandCoreTests` passed.
 
 2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize`, `OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize`, `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`, `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`, and `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`; 72 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
@@ -31197,7 +31199,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 41 · **Bugs found:** 34 · **Consecutive dry hunts:** 13
+**Hunts:** 42 · **Bugs found:** 34 · **Consecutive dry hunts:** 14
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid`, `returns all runs when excluded run id list is empty`, and `omits rail items whose id prefix does not yield a run id`; 52 scoped operator vitest tests passed.
+
+- [x] (valid-no-repro) `readOperatorScopeFromStorage` — returns null when `localStorage` JSON is invalid — **cheap-disproof 2026-10-07 seed hunt #42:** fail-closed parse; regression `readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid`.
+- [x] (valid-no-repro) `filterRunsForHomeAttentionPreview` — returns input unchanged when `excludedRunIds` is empty — **cheap-disproof 2026-10-07 seed hunt #42:** early return preserves list; regression `returns all runs when excluded run id list is empty`.
+- [x] (valid-no-repro) `listHomeAttentionPreviewExcludedRunIds` — omits rail items whose id prefix does not yield a run id — **cheap-disproof 2026-10-07 seed hunt #42:** empty suffix after prefix; regression `omits rail items whose id prefix does not yield a run id`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — returns false when server `updatedAtUtc` parses older than local watermark — **cheap-disproof 2026-10-07 seed hunt #42:** IH-066 last-write-wins; regression `hydrates local storage when server watermark is newer` (`shouldHydrate` false for `09:00` vs local `10:00`).
+- [x] (valid-no-repro) `buildWorkingWorkspaceContinuityPayload` — omits undefined optional favorite fields from PUT payload — **cheap-disproof 2026-10-07 seed hunt #42:** optional `architectureId` mapping; regression `buildWorkingWorkspaceContinuityPayload omits architectureId when local pin is title-only`.
+
+- [ ] (candidate) `readOperatorScopeFromStorage` — returns null when scope JSON omits a required id field — locus: type guards ~76–83 (`operator-scope-storage.ts`); input: JSON object missing `projectId`.
+- [ ] (candidate) `filterRunsForHomeAttentionPreview` — retains runs whose `runId` is whitespace-only — locus: empty trim keeps row ~57–60 (`home-attention-dedup.ts`); input: run with `runId: "   "` and nonempty exclusions.
+- [ ] (candidate) `defaultLabelsForScopeIds` — uses dev workspace label for configured dev workspace id — locus: `defaultLabelsForScopeIds` (`operator-scope-storage.ts` ~278–288); input: `DEV_SCOPE_WORKSPACE_ID` constant.
+- [ ] (candidate) `writeOperatorScopeToStorage` — clears operator recent views without clearing continuity sync watermark — locus: scope write side effects; input: `writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark`.
+- [ ] (candidate) `runWorkQueueAttentionPartition` — maps `committed` queue group to `awaiting-approval` partition — locus: switch (`attention-partitions.ts` ~34–35); input: `attention-partitions.test.ts`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`, `omits surface keys when optional counts are NaN`, `clamps negative nav badge counts to zero`, and `uses alertId preview for alerts when title is omitted`; 47 scoped operator vitest tests passed.
 
