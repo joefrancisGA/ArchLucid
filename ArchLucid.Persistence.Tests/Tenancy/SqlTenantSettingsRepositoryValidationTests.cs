@@ -66,6 +66,41 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget()
+    {
+        string core = new('a', TenantSettingsSchemaLimits.SettingValueMaxLength - 1);
+        string withInteriorNewline = core + "\n" + "x";
+
+        withInteriorNewline.Trim().Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength + 1);
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(withInteriorNewline);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 13)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Should().NotContain("\n");
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(json);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureSettingValueLength_rejects_whitespace_only_value()
     {
         Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");
