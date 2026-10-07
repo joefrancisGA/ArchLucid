@@ -1,4 +1,3 @@
-{"at":"2026-09-07T18:49:27.1450116Z","zoneId":"cli-tenant-isolation","outcome":"dry"}
 {"at":"2026-09-07T18:56:28.0813178Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
 {"at":"2026-09-07T19:01:18.1461463Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
 {"at":"2026-09-07T19:05:50.8870739Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
@@ -8803,3 +8802,4 @@
 {"at":"2026-10-07T18:36:13.1977405Z","zoneId":"technology-ledger-merge","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs"]}
 {"at":"2026-10-07T18:43:05.7323855Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T18:47:03.9842492Z","zoneId":"commit-output-integrity","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-07T18:50:38.7232235Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared"}

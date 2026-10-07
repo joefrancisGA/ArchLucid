@@ -1659,6 +1659,175 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = false,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new QuestionsForbiddenHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error loading draft questions");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new StaleSecondQuestionSkipFailsHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error skipping question");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new AdmitDraftHttpFailureHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error admitting draft");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "   ",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = ConnectedHooks();
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            error.ToString().Should().Contain("--business-outcome");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = false,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new AnswerMustQuestionHttpFailureHandler());
+        DraftNewCommandHooks hooks = new()
+        {
+            ConnectAsync = (_, _) => Task.FromResult(ApiConnectionOutcome.Connected),
+            CreateApiClient = (_, _) => client,
+            ReadLineAsync = (_, _) => Task.FromResult<string?>("Public data only"),
+        };
+
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("Error answering question");
+        output.ToString().Should().NotContain("\"ok\":true");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true()
     {
         bool previousJson = CliExecutionContext.JsonOutput;
@@ -2373,6 +2542,68 @@ public sealed class DraftNewCommandCoreTests
                 return new HttpResponseMessage(HttpStatusCode.Forbidden)
                 {
                     Content = new StringContent("{\"title\":\"Forbidden\"}", System.Text.Encoding.UTF8, "application/json"),
+                };
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class AdmitDraftHttpFailureHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(HttpRequestMessage request, string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    Content = new StringContent(
+                        "{\"title\":\"Admission service unavailable\"}",
+                        System.Text.Encoding.UTF8,
+                        "application/json"),
+                };
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class AnswerMustQuestionHttpFailureHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(HttpRequestMessage request, string path)
+        {
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "Admitted",
+                    selection = new
+                    {
+                        pendingMustQuestions = new[]
+                        {
+                            new
+                            {
+                                questionKey = "must-data-classification",
+                                prompt = "What is the data classification?",
+                                tier = "Must",
+                                answerKind = "Text",
+                                source = "L0Universal",
+                                ruleKeys = Array.Empty<string>(),
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/answer", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent(
+                        "{\"title\":\"Answer rejected by policy\"}",
+                        System.Text.Encoding.UTF8,
+                        "application/json"),
                 };
             }
 

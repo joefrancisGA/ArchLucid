@@ -8514,6 +8514,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+**Hunts:** 42 · **Bugs found:** 17 · **Consecutive dry hunts:** 5
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true`, `RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope`, `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`; 57 scoped `DraftNewCommandCoreTests` passed.
+
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `GetDraftQuestionsAsync` HTTP failure in JSON mode exits `OperationFailed` with stderr only (no structured JSON failure line) — **cheap-disproof 2026-10-07 seed hunt #42:** intentional JSON stderr-only parity with connect/create/submit; regression `RunCoreAsync_json_output_questions_load_failure_stderr_only_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — `SkipDraftQuestionAsync` API failure after `--skip-must-questions` exits stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #42:** parity with 2026-10-06 JSON envelope rows; regression `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` transport failure (non-semantic HTTP error) stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #42:** distinct from semantic `Admitted=false` path; regression `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--business-outcome` fails usage preflight stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #42:** `IsNullOrWhiteSpace` parity with `--system-name`; regression `RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — interactive `AnswerDraftQuestionAsync` API failure exits stderr-only without `CliJson.WriteFailureLine` — **cheap-disproof 2026-10-07 seed hunt #42:** non-JSON MUST path; API failures stderr-only by design; regression `RunCoreAsync_answer_must_question_api_failure_stderr_only_without_json_envelope`.
+
+- [ ] (candidate) `DraftNewCommandAdmitStage` — `PatchDraftAsync` HTTP failure stderr-only in JSON mode — locus: patch error ~118–123; input: 409/503 on patch after create succeeded.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — `SubmitDraftAsync` success with blank `runId` stderr-only in JSON mode — locus: runId trim ~69–78; input: API returns whitespace-only runId (parity submit-without-runId tests).
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — pending MUST in JSON mode emits `CliJson.WriteFailureLine` with `must_questions_pending` — locus: ~37–47; input: pending questions with `--json` and without `--skip-must-questions` (structured usage error).
+- [ ] (candidate) `DraftNewCommandAdmitStage` — `PromptRequiredAsync` unreachable in JSON mode when `--system-name` omitted — locus: admit stage prompt ~64–75; input: JSON flow must preflight flags before admit (no interactive prompt).
+- [ ] (candidate) `DraftNewCommandConnectStage` — whitespace-only API base URL fails connect before draft create in JSON mode — locus: connect stage; input: parity `RunCoreAsync_whitespace_api_base_url_argument_fails_connect_before_create` under `--json`.
+
 2026-10-06 thorough hunt (dry): closed five JSON-envelope `(candidate)` rows; 52 scoped tests passed.
 
 - [x] (valid-no-repro) `DraftNewCommandConnectStage` — JSON connect failure stderr-only — **cheap-disproof 2026-10-06 thorough hunt:** parity with API `OperationFailed` JSON paths; regression `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true`.
