@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 71 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+**Hunts:** 72 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id`; 101 scoped zone tests passed (61 Application + 40 Core).
+
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — evidence referential integrity skipped when post-quality-gate `GetByIdAsync` returns null after create-time pin header was present — **cheap-disproof 2026-10-07 seed hunt #72:** null header skips optional evidence pass (cannot resolve pins); duplicate TOCTOU rows; commit still requires quality/provenance/scorecard; parity `FinalizeReadinessService` null-header guard.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityWarning=true` with null `RecordedQualityGateOutcome` ranks 0 — **cheap-disproof 2026-10-07 seed hunt #72:** `QualityWarning` is non-blocking for PilotStrict; tie-break uses `TraceId` among rank-0 siblings; regressions `Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id` and `GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` omits persisted acknowledgement union when `runId` is not a Guid — **cheap-disproof 2026-10-07 seed hunt #72:** intentional for non-Guid run identifiers; request-body ids still normalized; production commit paths use Guid run ids (parity `PreCommitGovernanceGateTests.EvaluateAsync_allows_when_runId_is_not_parseable_guid`).
+- [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Fallback` with PilotStrict options and rejected traces bypasses evaluator — **cheap-disproof 2026-10-07 seed hunt #72:** `StructuralExecutionModeCommitGuard` blocks Fallback before evaluator runs; regression `StructuralExecutionModeCommitGuardTests` Fallback case.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_finalizeQualityGate.EnsurePassOrThrowAsync` runs before evidence referential integrity — **cheap-disproof 2026-10-07 seed hunt #72:** intentional TB-2321 ordering documented in `CommitOutputIntegrityGateMapArchitectureTests`; evidence referential integrity still blocks before semantic judge when header exists.
+
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — authority lifecycle `Complete` gate skipped when `runId` is not parseable as `Guid` — locus: `Guid.TryParse` guard ~103–118; input: opaque string run id on direct finalize API callers.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — durable `QualityRejected=true` traces ignored when PilotStrict disabled for Real runs — locus: `!options.Enabled || options.Mode != PilotStrict` early return; input: Real run with patched reject flag while gate mode is Monitor.
+- [ ] (candidate) `_semanticSupportBandFinalizeJudge.ApplyAsync` — mutates findings after `FindingEvidenceReferentialIntegrityValidator` already validated evidence linkage — locus: ordering ~217–221 (`CommitOutputIntegrityGateMapArchitectureTests`); input: judge persistence changing evidence ids post-validation.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — blank `TaskId` groups only by `agent:{AgentType}` so unrelated tasks sharing an agent type collapse — locus: fallback key ~60–62; input: two distinct tasks with null `TaskId` same `AgentType.Topology`.
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `GetByRunIdAsync` loads all attempt traces while only latest-per-task rows affect quality gate — locus: repository fetch ~121–122 vs selector inside evaluator; input: superseded rejected attempt remains in store but should not block after higher attempt accepted.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application + 39 Core).
 
@@ -4685,12 +4699,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` — `QualityRejected`+null outcome vs `QualityWarning=true` duplicate at same attempt — **cheap-disproof 2026-10-07 thorough hunt:** rejected duplicate wins rank 1; regression `Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace`; evaluator Warned-over-rejected tie policy remains intentional (`GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`).
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — lifecycle `Complete` uses caller `run.GoldenManifestId` vs loaded manifest object — **cheap-disproof 2026-10-07 thorough hunt:** `RunKernelCompleteness` fail-closed on null pointer; regression `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`; stale in-memory header is orchestrator contract outside selector/evaluator paths.
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone `Accepted`+`QualityRejected=true` winning trace — **cheap-disproof 2026-10-07 thorough hunt:** durable reject flag blocks regardless of recorded outcome; regression `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks` (extends 2026-10-06 row).
-
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — evidence referential integrity skipped when post-quality-gate `GetByIdAsync` returns null after create-time pin header was present — locus: `FindingEvidenceReferentialIntegrityValidator` null-header guard (`CommitOutputIntegrityService.cs` ~200–216).
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityWarning=true` with null `RecordedQualityGateOutcome` ranks 0 and may lose to another rank-0 unevaluated duplicate at the same `AttemptIndex` — locus: rank ladder (`AgentExecutionTraceLatestPerTaskSelector.cs` ~34–48).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` omits persisted acknowledgement union when `runId` is not a Guid — locus: early return (`CommitOutputIntegrityService.cs` ~244–245).
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Fallback` with PilotStrict options and rejected traces bypasses evaluator — locus: `StructuralExecutionMode != Real` early return (orchestrator must block earlier).
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_finalizeQualityGate.EnsurePassOrThrowAsync` runs before evidence referential integrity so stale finding evidence ids could pass finalize gate — locus: gate ordering (`CommitOutputIntegrityService.cs` ~195–216).
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `Select_when_outer_whitespace_on_variation_selector_task_id_chains_with_unpadded_variation_key` and `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`; 101 scoped zone tests passed (62 Application + 39 Core).
 
@@ -4702,7 +4710,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 71
+- **hunts:** 72
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07

@@ -1170,4 +1170,36 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-a-accepted");
     }
+
+    [Fact]
+    public void Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id()
+    {
+        DateTime sharedUtc = new(2026, 12, 22, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace qualityWarningUnevaluated = new()
+        {
+            TraceId = "trace-b-warning",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = true,
+            RecordedQualityGateOutcome = null,
+        };
+        AgentExecutionTrace plainUnevaluated = new()
+        {
+            TraceId = "trace-a-plain",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = false,
+            RecordedQualityGateOutcome = null,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([qualityWarningUnevaluated, plainUnevaluated]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-b-warning");
+    }
 }
