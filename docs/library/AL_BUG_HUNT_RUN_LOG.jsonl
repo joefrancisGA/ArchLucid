@@ -8802,3 +8802,4 @@
 {"at":"2026-10-07T17:34:03.7772276Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T17:47:16.6135807Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T17:55:13.2688493Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
+{"at":"2026-10-07T18:01:10.4121739Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
