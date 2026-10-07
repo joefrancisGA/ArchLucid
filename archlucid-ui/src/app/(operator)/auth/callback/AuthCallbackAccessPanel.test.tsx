@@ -988,6 +988,83 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("omits technical detail paragraph when technicalDetail is whitespace only", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="   " />);
+
+    expect(screen.queryByTestId("auth-callback-technical-detail")).not.toBeInTheDocument();
+  });
+
+  it("inserts a newline in the note field when Enter is pressed without submitting", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    const noteField = screen.getByLabelText("Brief note (optional)");
+    fireEvent.change(noteField, { target: { value: "Line one" } });
+    fireEvent.keyDown(noteField, { key: "Enter", code: "Enter" });
+    fireEvent.change(noteField, { target: { value: "Line one\n" } });
+
+    expect(noteField).toHaveValue("Line one\n");
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps report problem support visible when the access form is expanded", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-callback-access-form")).toBeInTheDocument();
+  });
+
+  it("does not post access request when work email fails HTML5 validation", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "not-an-email" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("clears submitting state after duplicate response so the operator can retry", async () => {
+    const fetchMock = vi.fn(async () => Response.json({ error: "duplicate_recent" }, { status: 409 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(AUTH_CALLBACK_ACCESS_DUPLICATE_ERROR)).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: "Submit request" })).not.toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("shows back-to-sign-in recovery only after a successful submit", async () => {
     vi.stubGlobal(
       "fetch",

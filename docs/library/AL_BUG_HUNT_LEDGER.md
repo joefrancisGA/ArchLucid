@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read `technicalDetail` trim guard, note keyboard, report-problem chrome, HTML5 email gate, and `409`/`finally` flow; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `omits technical detail paragraph when technicalDetail is whitespace only`, `inserts a newline in the note field when Enter is pressed without submitting`, `keeps report problem support visible when the access form is expanded`, `does not post access request when work email fails HTML5 validation`, and `clears submitting state after duplicate response so the operator can retry`; seeded five follow-on `(candidate)` rows; 48 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read form error/a11y/navigation/fetch-reject paths; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `surfaces duplicate error again when the collapsed form is reopened`, `exposes submit errors with role alert`, `keeps try again navigation enabled while submit is in flight`, `keeps honeypot website field in the DOM inside an aria-hidden container`, and `uses generic submit error copy when fetch rejects with a network TypeError`; seeded five follow-on `(candidate)` rows; 43 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read dismiss/error/success/fetch paths; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `retains duplicate-email error when the request form is toggled closed without cancel`, `keeps required field drafts when dismiss clears only the honeypot website field`, `reflects updated technicalDetail prop while the access form is open`, `omits request access control on the success view`, and `posts access request with Accept application/json header`; seeded five follow-on `(candidate)` rows; 38 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -8785,7 +8787,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 25 · **Bugs found:** 3 · **Consecutive dry hunts:** 3
+**Hunts:** 26 · **Bugs found:** 3 · **Consecutive dry hunts:** 4
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `omits technical detail paragraph when technicalDetail is whitespace only`, `inserts a newline in the note field when Enter is pressed without submitting`, `keeps report problem support visible when the access form is expanded`, `does not post access request when work email fails HTML5 validation`, and `clears submitting state after duplicate response so the operator can retry`; seeded five follow-on `(candidate)` rows; 48 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (invalid) `technicalDetail` — whitespace-only prop renders blank helper — **cheap-disproof 2026-10-07 seed hunt:** guard uses `technicalDetail.trim() !== ""`; regression `omits technical detail paragraph when technicalDetail is whitespace only`.
+- [x] (valid-no-repro) `note` textarea — Enter does not submit the form — **cheap-disproof 2026-10-07 seed hunt:** default textarea behavior; regression `inserts a newline in the note field when Enter is pressed without submitting`.
+- [x] (valid-no-repro) `FatalPageReportProblemSupportRow` — visible with expanded form — **cheap-disproof 2026-10-07 seed hunt:** intentional support path alongside access request; regression `keeps report problem support visible when the access form is expanded`.
+- [x] (valid-no-repro) `workEmail` — HTML5 validation before `fetch` — **cheap-disproof 2026-10-07 seed hunt:** browser blocks malformed email; regression `does not post access request when work email fails HTML5 validation`.
+- [x] (valid-no-repro) `onSubmit` — `409` `finally` clears `submitting` for retry — **cheap-disproof 2026-10-07 seed hunt:** expected control flow; regression `clears submitting state after duplicate response so the operator can retry`.
+
+- [ ] (candidate) `technicalDetail` — non-trimming display when prop contains leading/trailing spaces on non-empty message — locus: render `{technicalDetail}` without trim; input: buyer-safe message padded with spaces.
+- [ ] (candidate) `cloudPlatformFocus` / `note` — optional fields omitted from JSON as `null` but still editable during `submitting` — locus: POST body trim vs disabled state; input: edit optional fields mid-flight.
+- [ ] (candidate) `AuthCallbackAccessPanel` — success branch replaces entire panel so `FatalPageReportProblemSupportRow` unmounts — locus: `submitted` early return; input: successful submit after viewing report-problem.
+- [ ] (candidate) `onSubmit` — `Content-Type: application/json` without explicit charset — locus: fetch headers; input: non-ASCII name/company in JSON body.
+- [ ] (candidate) Request-access button — toggles form while label stays `Request access` (no “Hide” affordance) — locus: `AUTH_CALLBACK_ACCESS_REQUEST_ACTION`; input: operator unsure form is open.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `surfaces duplicate error again when the collapsed form is reopened`, `exposes submit errors with role alert`, `keeps try again navigation enabled while submit is in flight`, `keeps honeypot website field in the DOM inside an aria-hidden container`, and `uses generic submit error copy when fetch rejects with a network TypeError`; seeded five follow-on `(candidate)` rows; 43 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8794,12 +8810,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `try again` Link — enabled during in-flight POST — **cheap-disproof 2026-10-07 seed hunt:** navigation away unmounts panel; no client abort required; regression `keeps try again navigation enabled while submit is in flight`.
 - [x] (valid-no-repro) Hidden honeypot — `Website` label still in DOM — **cheap-disproof 2026-10-07 seed hunt:** intentional bot trap markup; regression `keeps honeypot website field in the DOM inside an aria-hidden container`.
 - [x] (valid-no-repro) `onSubmit` — `catch` does not distinguish offline failures — **cheap-disproof 2026-10-07 seed hunt:** generic operator copy by design; regression `uses generic submit error copy when fetch rejects with a network TypeError` (extends `shows generic submit error when fetch rejects`).
-
-- [ ] (candidate) `technicalDetail` — whitespace-only prop passes `trim() !== ""` guard and renders a blank-looking helper line — locus: `technicalDetail.trim() !== ""`; input: `CallbackClient` message `"   "` before buyer-safe mapping.
-- [ ] (candidate) `note` textarea — Enter inserts newline without submitting (no accidental double-submit via keyboard) — locus: form default submit; input: operator adds multiline note then Enter.
-- [ ] (candidate) `FatalPageReportProblemSupportRow` — remains visible above an expanded access form — locus: panel layout; input: operator expands form while report-problem CTA still shown.
-- [ ] (candidate) `workEmail` — HTML5 `required`/`type="email"` prevents `fetch` until browser validation passes — locus: native constraint validation; input: empty or malformed email before submit.
-- [ ] (candidate) `onSubmit` — `409` early `return` still runs `finally` to clear `submitting` while duplicate error remains — locus: control flow after duplicate; input: rapid resubmit after duplicate without editing email.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `retains duplicate-email error when the request form is toggled closed without cancel`, `keeps required field drafts when dismiss clears only the honeypot website field`, `reflects updated technicalDetail prop while the access form is open`, `omits request access control on the success view`, and `posts access request with Accept application/json header`; seeded five follow-on `(candidate)` rows; 38 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8843,9 +8853,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
