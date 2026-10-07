@@ -446,4 +446,38 @@ public sealed class AuthSignInReturnPathGuardTests
         string queryValue = string.Concat(Enumerable.Repeat("%25", 9));
         AuthSignInReturnPathGuard.TryNormalize("/reviews?x=" + queryValue).Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalize_rejects_when_leading_byte_order_mark_precedes_slash()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("\uFEFF/reviews").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/reviews#campaign=\uFF0F")]
+    [InlineData("/reviews#path=\u2215tail")]
+    public void TryNormalize_rejects_when_fragment_contains_slash_homoglyph_conservative_full_string_scan(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/reviews#label=\uFF0E\uFF0E")]
+    [InlineData("/reviews#dots=\u3002\u3002")]
+    public void TryNormalize_rejects_when_fragment_contains_dot_homoglyph_conservative_full_string_scan(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_percent_encoded_del_control_character_in_path_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews/%7Fsegment").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_when_fragment_decodes_to_slash_homoglyph_after_percent_decode()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/safe#%EF%BC%8F").Should().BeNull();
+    }
 }
