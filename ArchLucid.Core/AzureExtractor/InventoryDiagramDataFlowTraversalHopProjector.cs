@@ -43,6 +43,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
 
         AddRouteTableTraversalLinks(graph, graphNodesById, links, linkKeys);
         AddPrivateEndpointTraversalLinks(graph, graphNodesById, links, linkKeys);
+        AddFirewallDownstreamLinks(graph, graphNodesById, links, linkKeys);
 
         return links;
     }
@@ -381,6 +382,85 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         }
     }
 
+    private static void AddFirewallDownstreamLinks(
+        GraphSnapshot graph,
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        List<InventoryDiagramDataFlowTraversalHopLink> links,
+        HashSet<string> linkKeys)
+    {
+        Dictionary<string, string> subnetArmIdByNodeId = BuildSubnetArmIdByNodeId(graph);
+        Dictionary<string, HashSet<string>> attachedNodeIdsBySubnetArmId =
+            BuildSubnetAttachedConsumerNodeIdsBySubnetArmId(graph, subnetArmIdByNodeId);
+
+        foreach (GraphEdge edge in graph.Edges)
+        {
+            if (!string.Equals(
+                    edge.EdgeType,
+                    AzureInventoryRelationshipAssociationTypes.FirewallToSubnet,
+                    StringComparison.OrdinalIgnoreCase)
+                || !subnetArmIdByNodeId.TryGetValue(edge.ToNodeId, out string? subnetArmId))
+            {
+                continue;
+            }
+
+            InventoryDiagramDataFlowTraversalHopEvidence? evidence = ResolveEvidence(edge);
+
+            if (evidence is null
+                || !attachedNodeIdsBySubnetArmId.TryGetValue(
+                    ArmResourceIdNormalizer.Normalize(subnetArmId),
+                    out HashSet<string>? attachedNodeIds))
+            {
+                continue;
+            }
+
+            foreach (string attachedNodeId in attachedNodeIds)
+            {
+                if (!IsFirewallDownstreamNode(graphNodesById, attachedNodeId, edge.FromNodeId))
+                {
+                    continue;
+                }
+
+                AddLink(links, linkKeys, edge.FromNodeId, attachedNodeId, evidence);
+            }
+        }
+    }
+
+    private static bool IsFirewallDownstreamNode(
+        IReadOnlyDictionary<string, GraphNode> graphNodesById,
+        string nodeId,
+        string firewallNodeId)
+    {
+        if (string.Equals(nodeId, firewallNodeId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!graphNodesById.TryGetValue(nodeId, out GraphNode? node)
+            || InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopNode(node)
+            || IsNetworkDetailNode(node))
+        {
+            return false;
+        }
+
+        string armType = ReadArmType(node);
+
+        return armType.StartsWith("Microsoft.Web/", StringComparison.OrdinalIgnoreCase)
+               || armType.StartsWith("Microsoft.App/", StringComparison.OrdinalIgnoreCase)
+               || armType.StartsWith("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase)
+               || armType.StartsWith("Microsoft.Synapse/", StringComparison.OrdinalIgnoreCase)
+               || armType.StartsWith("Microsoft.Logic/", StringComparison.OrdinalIgnoreCase)
+               || armType.StartsWith("Microsoft.EventGrid/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNetworkDetailNode(GraphNode node)
+    {
+        string armType = ReadArmType(node);
+
+        return armType.Contains("/subnets", StringComparison.OrdinalIgnoreCase)
+               || armType.Equals("Microsoft.Network/networkInterfaces", StringComparison.OrdinalIgnoreCase)
+               || armType.Equals("Microsoft.Network/networkSecurityGroups", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string? FindPrivateEndpointBetween(
         GraphSnapshot graph,
         string consumerNodeId,
@@ -625,6 +705,18 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             {
                 subnetArmIdByNodeId[node.NodeId] = armId;
             }
+
+            foreach (KeyValuePair<string, string> property in node.Properties)
+            {
+                if (!IsSubnetProperty(property.Key)
+                    || string.IsNullOrWhiteSpace(property.Value))
+                {
+                    continue;
+                }
+
+                subnetArmIdByNodeId[node.NodeId] = ArmResourceIdNormalizer.Normalize(property.Value);
+                break;
+            }
         }
 
         foreach (GraphEdge edge in graph.Edges)
@@ -643,6 +735,13 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         }
 
         return subnetArmIdByNodeId;
+    }
+
+    private static bool IsSubnetProperty(string propertyName)
+    {
+        return propertyName.Equals("subnet.id", StringComparison.OrdinalIgnoreCase)
+               || propertyName.Equals("subnetId", StringComparison.OrdinalIgnoreCase)
+               || propertyName.StartsWith("ipConfiguration.subnet.id", StringComparison.OrdinalIgnoreCase);
     }
 
     private static Dictionary<string, string> BuildNicOwnerArmIdMap(
