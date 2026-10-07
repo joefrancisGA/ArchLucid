@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 77 · **Bugs found:** 12 · **Consecutive dry hunts:** 10
+**Hunts:** 78 · **Bugs found:** 12 · **Consecutive dry hunts:** 11
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 107 scoped zone tests passed (63 Application + 44 Core).
+
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `WarnOnly` mode returns empty even when latest traces are `QualityRejected=true` — **cheap-disproof 2026-10-07 seed hunt #78:** TB-2226 commit blocking is PilotStrict-only; regressions `GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces` and `GetBlockingReasons_when_warn_only_mode_with_empty_traces_returns_empty`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — `QualityPreferenceRank` returns 0 for `QualityWarning=true` without recorded outcome — **cheap-disproof 2026-10-07 seed hunt #78:** intentional non-blocking warning snapshots; regression `Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id`.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `UnsupportedSemanticSupportFinalizeHoldEvaluator` uses same `gateOptions` as trace quality gate — **cheap-disproof 2026-10-07 seed hunt #78:** single `Resolve` per commit; unsupported hold is independently gated by `PilotStrictHoldOnUnsupportedSemanticSupport` (`UnsupportedSemanticSupportFinalizeHoldEvaluatorTests.GetBlockingReasons_when_flag_off_returns_empty`).
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — multiple latest-per-task rejected traces produce multiple blocking reason strings — **cheap-disproof 2026-10-07 seed hunt #78:** fail-closed per winning trace; regression `GetBlockingReasons_when_multiple_rejected_tasks_return_multiple_reasons`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — empty `TaskId` chains retries per `agent:{AgentType}` only — **cheap-disproof 2026-10-07 seed hunt #78:** intentional legacy retry key; regression `Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` bypasses PilotStrict empty-trace fail-closed — locus: options guard ~24–25; input: Real run with zero traces (`GetBlockingReasons_when_gate_disabled_with_empty_traces_returns_empty`).
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Rejected` blocks even when `QualityRejected=false` — locus: loop ~45–46; input: outcome Rejected without durable flag.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — single-trace input bypasses grouping — locus: `traces.Count <= 1` ~18–19; input: `Select_when_single_trace_returns_same_trace`.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — higher `AttemptIndex` wins over newer `CreatedUtc` on superseded retry — locus: `OrderByDescending(AttemptIndex)` ~24; input: existing superseded-rejected vs accepted-retry tests.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `gate disabled` returns empty even with `QualityRejected=true` traces — locus: ~24–25; input: `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetBlockingReasons_when_mixed_mode_returns_empty_even_with_rejected_traces`, `Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks`; 107 scoped zone tests passed (63 Application + 44 Core).
 
