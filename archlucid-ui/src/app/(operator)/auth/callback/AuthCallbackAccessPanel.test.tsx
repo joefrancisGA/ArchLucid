@@ -1085,6 +1085,95 @@ describe("AuthCallbackAccessPanel", () => {
     expect(screen.getByTestId("auth-callback-request-access")).toHaveTextContent(AUTH_CALLBACK_ACCESS_REQUEST_ACTION);
   });
 
+  it("snapshots optional note in the POST body at submit start even if the field changes during flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Brief note (optional)"), { target: { value: "First draft" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.change(screen.getByLabelText("Brief note (optional)"), { target: { value: "Edited during flight" } });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { note: string | null };
+
+    expect(body.note).toBe("First draft");
+
+    resolveFetch?.(new Response(null, { status: 204 }));
+    vi.unstubAllGlobals();
+  });
+
+  it("does not expose aria-expanded on the request access toggle button", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    const toggle = screen.getByTestId("auth-callback-request-access");
+    fireEvent.click(toggle);
+
+    expect(toggle).not.toHaveAttribute("aria-expanded");
+  });
+
+  it("posts empty required fields when native constraint validation is bypassed", async () => {
+    const fetchMock = vi.fn(async () => Response.json({ error: "validation_failed" }, { status: 400 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { name: string; workEmail: string };
+
+    expect(body.name).toBe("");
+    expect(body.workEmail).toBe("");
+    vi.unstubAllGlobals();
+  });
+
+  it("uses outline styling for back to sign in on the success view", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 204 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    const backLink = screen.getByRole("link", { name: AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION });
+    expect(backLink.className).toContain("border");
+    vi.unstubAllGlobals();
+  });
+
   it("omits technical detail paragraph when technicalDetail is whitespace only", () => {
     render(<AuthCallbackAccessPanel technicalDetail="   " />);
 
