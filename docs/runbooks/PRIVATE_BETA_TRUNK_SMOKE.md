@@ -134,6 +134,15 @@ Requires SQL Server, API with JwtBearer PEM, and `archlucid-ui` live-e2e build. 
 
 The same spec also runs in `.github/workflows/ci.yml` job `ui-e2e-live-beta-access` on **`workflow_dispatch`** full CI. Use **Actions → CI → Run workflow** on `master` when you need the private-beta smoke inside the full regression matrix (not only trunk push).
 
+Before promoting a fix between the default branch and the release cut, compare
+the canonical workflow and invitee proof directly from both refs:
+
+```bash
+python3 scripts/ci/check_private_beta_ref_parity.py \
+  --base-ref origin/master \
+  --release-ref origin/RC34
+```
+
 ```bash
 bash scripts/ci/dispatch_full_ci_matrix.sh master
 # Optional extended live-a11y matrix:

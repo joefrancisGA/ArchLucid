@@ -65,6 +65,17 @@ class TestPrivateBetaReadiness(unittest.TestCase):
             self.assertTrue(any("RC34" in issue for issue in issues))
             self.assertTrue(any("missing contexts" in issue for issue in issues))
 
+    def test_staging_contract_requires_owner_approved_sha_dispatch(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/cd-staging-on-merge.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text("workflow_run:\n", encoding="utf-8")
+
+            issues = sut._check_staging_dispatch(root)
+
+            self.assertTrue(any("target_sha" in issue for issue in issues))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -35,12 +35,17 @@ def _read(root: Path, relative_path: str) -> str:
 def _check_required_files(root: Path) -> list[str]:
     required_files = (
         ".github/workflows/private-beta-access-on-push.yml",
+        ".github/workflows/cd-staging-on-merge.yml",
         ".github/rulesets/golden-cohort-gate-required-check.json",
         "docs/runbooks/PRIVATE_BETA_TRUNK_SMOKE.md",
         "docs/runbooks/PRIVATE_BETA_OPERATOR_LAUNCH_KIT.md",
         "scripts/ci/report_private_beta_playwright_failure_triage.py",
         "scripts/ci/report_real_mode_evidence_freshness.py",
         "scripts/ci/assert_ship_gate_evidence_schema.py",
+        "scripts/ci/check_private_beta_ref_parity.py",
+        "scripts/ci/check_private_beta_spend_freeze.py",
+        "scripts/ci/private_beta_offboarding_dry_run.py",
+        "scripts/ci/report_private_beta_funnel.py",
     ) + REQUIRED_SPECS
 
     return [
@@ -110,6 +115,9 @@ def _check_operator_contracts(root: Path) -> list[str]:
         "AgentExecution__Mode=Simulator",
         "check_buyer_claim_drift.py",
         "report_real_mode_evidence_freshness.py",
+        "validate_ship_gate_evidence_index.py",
+        "private_beta_offboarding_dry_run.py",
+        "report_private_beta_funnel.py",
         "Disable the tenant's users or SCIM access",
         "Set the tenant budget to zero or deny execution",
         "tombstone or hard-purge policy",
@@ -134,6 +142,23 @@ def _check_operator_contracts(root: Path) -> list[str]:
     return issues
 
 
+def _check_staging_dispatch(root: Path) -> list[str]:
+    content = _read(root, ".github/workflows/cd-staging-on-merge.yml")
+    required_markers = (
+        "workflow_dispatch:",
+        "target_sha:",
+        "github.event_name == 'workflow_dispatch'",
+        "github.event.workflow_run.head_branch == 'main'",
+        "github.event.workflow_run.head_branch == 'master'",
+    )
+
+    return [
+        f"staging workflow is missing owner-approved RC34 dispatch marker: {marker}"
+        for marker in required_markers
+        if marker not in content
+    ]
+
+
 def collect_issues(root: Path) -> list[str]:
     issues = _check_required_files(root)
 
@@ -141,6 +166,7 @@ def collect_issues(root: Path) -> list[str]:
         issues.extend(_check_workflow(root))
         issues.extend(_check_ruleset(root))
         issues.extend(_check_operator_contracts(root))
+        issues.extend(_check_staging_dispatch(root))
 
     return issues
 

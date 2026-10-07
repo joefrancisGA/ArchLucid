@@ -7,6 +7,10 @@ describe("private-beta invitation validation retry policy", () => {
     expect(parseInvitationRetryAfterMs("2")).toBe(3_000);
   });
 
+  it("caps a long server Retry-After value at the bounded retry ceiling", () => {
+    expect(parseInvitationRetryAfterMs("900")).toBe(60_000);
+  });
+
   it("honors an HTTP-date Retry-After value without producing a negative delay", () => {
     const retryAt = new Date(Date.now() + 5_000).toUTCString();
 

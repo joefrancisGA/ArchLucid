@@ -1,9 +1,11 @@
-# Optional: deploy to the GitHub **staging** environment after a **green** CI run on main/master.
+# Optional: deploy to the GitHub **staging** environment after a **green** CI run on main/master,
+# or manually deploy an owner-approved immutable commit SHA from RC34.
 # Enable by setting repository variable `AUTO_DEPLOY_STAGING_MERGE` to `true`.
 # Configure the **staging** environment with the same secrets as manual CD (ACR, Container Apps, etc.).
 # Optional **CONTAINER_APP_WORKER_NAME**: same image as API (`archlucid-api:<tag>`); Terraform sets `dotnet ArchLucid.Worker.dll` as the container command.
 #
-# Trigger: `workflow_run` on workflow named **CI** (see `.github/workflows/ci.yml` `name: CI`).
+# Trigger: `workflow_run` on workflow named **CI** (see `.github/workflows/ci.yml` `name: CI`),
+# plus explicit `workflow_dispatch` with a commit SHA for the RC34 release-cut path.
 # Only runs when CI `conclusion` is success, event was **push** or **workflow_dispatch**, head branch is main or master,
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
@@ -21,6 +23,12 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: "Owner-approved immutable commit SHA to deploy to staging (use the RC34 head SHA)."
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -39,10 +47,19 @@ jobs:
   deploy-staging:
     if: |
       vars.AUTO_DEPLOY_STAGING_MERGE == 'true' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
-      (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') &&
-      github.event.workflow_run.head_repository.full_name == github.repository
+      (
+        (
+          github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') &&
+          (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') &&
+          github.event.workflow_run.head_repository.full_name == github.repository
+        ) ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.target_sha != ''
+        )
+      )
     name: Deploy staging (merge)
     runs-on: ubuntu-latest
     environment: staging
@@ -51,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.target_sha || github.event.workflow_run.head_sha }}
           # Full history so schema gate can resolve LKG BUILD_ID vs failed BUILD_ID.
           fetch-depth: 0
 
@@ -63,7 +80,7 @@ jobs:
 
       - name: Set BUILD_ID and image tag
         run: |
-          BUILD_ID="${{ github.event.workflow_run.head_sha }}"
+          BUILD_ID="${{ github.event_name == 'workflow_dispatch' && inputs.target_sha || github.event.workflow_run.head_sha }}"
           echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           TAG="${{ vars.IMAGE_TAG }}"
           if [ -z "$TAG" ]; then TAG="$BUILD_ID"; fi
@@ -605,7 +622,7 @@ jobs:
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
-          GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
+          GITHUB_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.target_sha || github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
@@ -778,7 +795,7 @@ jobs:
           fi
           UI_DIGEST="${UI_IMAGE_DIGEST:-$API_IMAGE_DIGEST}"
           python3 scripts/ci/cd_deployment_lineage.py --write-summary \
-            --commit-sha "${{ github.event.workflow_run.head_sha }}" \
+            --commit-sha "${{ github.event_name == 'workflow_dispatch' && inputs.target_sha || github.event.workflow_run.head_sha }}" \
             --build-id "$BUILD_ID" \
             --target-environment staging \
             --image-tag "$IMAGE_TAG" \

@@ -21,6 +21,10 @@ Everything else is deferred during the cut freeze. The path is exercised by
 [`PRIVATE_BETA_TRUNK_SMOKE.md`](PRIVATE_BETA_TRUNK_SMOKE.md), while a real
 staging witness remains the owner's Gate 1 action.
 
+For an owner-approved RC34 staging witness, dispatch
+`CD staging on merge` with the immutable RC34 head SHA as `target_sha`.
+Automatic deployment remains limited to green `master`/`main` CI runs.
+
 ## Go / no-go preflight
 
 | Check | Evidence | Owner | Cut decision |
@@ -81,6 +85,16 @@ scope. Do not down-migrate production data as an incident shortcut.
 4. Apply the documented tombstone or hard-purge policy; sealed evidence and
    retention exceptions must be explained, not silently deleted.
 
+Generate a non-mutating tenant-specific plan before an authorized operator
+executes those steps:
+
+```bash
+python3 scripts/ci/private_beta_offboarding_dry_run.py \
+  --tenant-id "<tenant-guid>" \
+  --operator "<operator-id>" \
+  --json-out artifacts/private-beta/offboarding-plan.json
+```
+
 ## Cost, abuse, and capacity review
 
 Before inviting more than the controlled 2–5 named operators, record the
@@ -138,6 +152,15 @@ Use [`TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md) and the first-tenant funnel telemetry
 implementation as the mapping reference. A report is useful when it includes a
 report reference, `correlationId`, and `runId`; never place bearer tokens,
 invite URLs, raw evidence, or unredacted bundles in a customer channel.
+
+Build the first-week report from redacted audit JSONL records:
+
+```bash
+python3 scripts/ci/report_private_beta_funnel.py \
+  artifacts/private-beta/audit-events.jsonl \
+  --json-out artifacts/private-beta/funnel.json \
+  --markdown-out artifacts/private-beta/funnel.md
+```
 
 ### Canned replies
 
@@ -197,6 +220,14 @@ Expected: the controlled create/execute response reports Simulator and a
 ```
 
 If either surface cannot be switched independently, the cut is `NO-GO`.
+
+Capture the verification response as JSON and validate it before recording a
+green freeze:
+
+```bash
+python3 scripts/ci/check_private_beta_spend_freeze.py \
+  artifacts/private-beta/spend-freeze.json
+```
 
 ## Cut-freeze rule
 
