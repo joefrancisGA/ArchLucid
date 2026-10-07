@@ -1,9 +1,9 @@
 > **Scope:** Paste-ready GPT-5.6 Luna prompts. Draw the data-flow relationships the page already counts, keep linked-service icons through diagram repair, and make each card say what it is, who uses a data store, which factory an ADF link belongs to, where a MySQL host lives, and what a network hop is for. DFV-11 through DFV-19 then save that link identity, draw one card per external host, wrap tall stages left to right, scroll a canvas wider than the frame, roll up repeated cards, fix the PNG browser fallback, read app settings and uploaded config, summarize the stages, and filter edges by evidence. DFV-20 is Composer copy for how to read a card. DFV-21 rolls up a crowded Source column only after DFV-12. DFV-24 is Composer copy so a count card says that a click lists its members. Internal engineering only.
-> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-24-rollup-list-invitation.md`](../../.cursor/prompts/data-flow-diagram-24-rollup-list-invitation.md)
+> **Paste-ready files:** [`.cursor/prompts/data-flow-diagram-00-index.md`](../../.cursor/prompts/data-flow-diagram-00-index.md) through [`.cursor/prompts/data-flow-diagram-25-firewall-downstream.md`](../../.cursor/prompts/data-flow-diagram-25-firewall-downstream.md)
 
 # Data flow diagram — Luna prompts
 
-**Created:** 2026-09-30 · **Revised:** 2026-10-05 (DFV-24) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna (DFV-20 and DFV-24 are Composer 2.5)
+**Created:** 2026-09-30 · **Revised:** 2026-10-07 (DFV-25) · **Status:** ready to paste · **Audience:** GPT-5.6 Luna (DFV-20 and DFV-24 are Composer 2.5)
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
@@ -35,10 +35,11 @@ Observed on SecureNow **Diagrams**, diagram type **Data flow — what may connec
 | **DFV-22** | [data-flow-diagram-22-collect-pipeline-direction.md](../../.cursor/prompts/data-flow-diagram-22-collect-pipeline-direction.md) | Keep a static dataset name even when the activity passes parameters. Also read source, sink, and dataset slots on `typeProperties`. Re-collect after this ships. |
 | **DFV-23** | [data-flow-diagram-23-paint-pipeline-direction.md](../../.cursor/prompts/data-flow-diagram-23-paint-pipeline-direction.md) | Label resolved factory edges **Reads from** or **Writes to**. Keep the re-collect sentence only when those edges are absent. |
 | **DFV-24** | [data-flow-diagram-24-rollup-list-invitation.md](../../.cursor/prompts/data-flow-diagram-24-rollup-list-invitation.md) | Composer, not Luna. A count card says `Click to list the 6`. **Reading a card** says a count opens the list and a second click closes it. The open heading is the count. Members stay. |
+| **DFV-25** | [data-flow-diagram-25-firewall-downstream.md](../../.cursor/prompts/data-flow-diagram-25-firewall-downstream.md) | Draw **Routes through** from the firewall to each Application or Ingestion card on its subnet. Leave the subnet, NAT gateways, and the load balancer off that change. |
 
 ## Run order
 
-**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session: **24** (Composer). The member list already exists. **24** only makes the click obvious. After that look: **22** (collect pipeline direction), then **23** (paint Reads from / Writes to). Re-collect Azure inventory after **22** before judging **23**. Readability sessions stay **16**, **20** (Composer), **12**, then **17** if edges are still noisy. **21** stays unpasted until **12** has shipped and the Source column is still hard to read. Do not run two of these in one session.
+**01–07, 13, 14, 18, and 19 are on `master`.** Next, one session: **25**. Draw the firewall to the Application and Ingestion cards on its subnet. NAT gateways and the load balancer wait. **23** still paints **Reads from** and **Writes to** when those factory edges need labels. **21** stays unpasted until **12** has shipped and the Source column is still hard to read. Do not run two of these in one session.
 
 ## After PR 4128
 
