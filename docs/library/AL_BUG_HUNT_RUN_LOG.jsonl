@@ -8762,3 +8762,4 @@
 {"at":"2026-10-07T04:51:34.8584646Z","zoneId":"ui-help-docs","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
 {"at":"2026-10-07T05:01:58.3652498Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-07T05:06:55.9664047Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-07T05:12:02.3757937Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
