@@ -4676,7 +4676,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
-**Hunts:** 76 · **Bugs found:** 12 · **Consecutive dry hunts:** 9
+**Hunts:** 77 · **Bugs found:** 12 · **Consecutive dry hunts:** 10
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetBlockingReasons_when_mixed_mode_returns_empty_even_with_rejected_traces`, `Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks`; 107 scoped zone tests passed (63 Application + 44 Core).
+
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Mixed` structural mode bypasses evaluator like Simulator — **cheap-disproof 2026-10-07 seed hunt #77:** TB-2226 Real-only gate; regression `GetBlockingReasons_when_mixed_mode_returns_empty_even_with_rejected_traces`; service `StructuralExecutionModeCommitGuardTests` Mixed case.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.Select` — equal `AttemptIndex`, rank, and `CreatedUtc` tie-breaks on `TraceId` ordinal — **cheap-disproof 2026-10-07 seed hunt #77:** deterministic lexicographic tie-break; regression `Select_when_same_attempt_created_utc_and_rank_tie_prefers_lexicographically_greater_trace_id`.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips lifecycle Complete check but still runs Real quality gate — **cheap-disproof 2026-10-07 seed hunt #77:** intentional Guid-gated lifecycle only (~103–118); quality/provenance gates still evaluate traces for Real PilotStrict; parity `PreCommitGovernanceGateTests.EvaluateAsync_allows_when_runId_is_not_parseable_guid` for ack/lifecycle skip scope.
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `FinalizeAssumptionGateEvaluator` runs after provenance but before scorecard — **cheap-disproof 2026-10-07 seed hunt #77:** intentional gate map (`CommitOutputIntegrityGateMapArchitectureTests`); existential assumptions block before `_finalizeQualityGate`; `FinalizeAssumptionGateEvaluatorTests`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` trim does not normalize Unicode format (NFC/NFD) — **cheap-disproof 2026-10-07 seed hunt #77:** ordinal keys without Unicode normalization; distinct NFD/NFC forms stay separate retry chains; regression `Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks`.
+
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `WarnOnly` mode returns empty even when latest traces are `QualityRejected=true` — locus: options guard ~24–25; input: Real run with durable reject flags (PilotStrict blocking disabled).
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.Select` — `QualityPreferenceRank` returns 0 for `QualityWarning=true` without recorded outcome — locus: rank ~48; input: tie-break among rank-0 siblings uses `TraceId` (`Select_when_same_attempt_quality_warning_and_unevaluated_share_rank_zero_tiebreaks_by_trace_id`).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `UnsupportedSemanticSupportFinalizeHoldEvaluator` uses same `gateOptions` as trace quality gate — locus: ~161 and ~224; input: `PilotStrictHoldOnUnsupportedSemanticSupport` false skips hold while trace gate still PilotStrict.
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — multiple latest-per-task rejected traces produce multiple blocking reason strings — locus: foreach ~39–50; input: two tasks each with rejected winning trace.
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — empty `TaskId` chains retries per `agent:{AgentType}` only — locus: ~60–62; input: same agent type missing task id collapses attempts (`Select_when_task_id_missing_same_agent_type_collapses_to_latest_attempt_per_agent_key`).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces`; 105 scoped zone tests passed (62 Application + 43 Core).
 

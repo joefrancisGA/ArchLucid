@@ -271,6 +271,36 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_id_nfd_and_nfc_forms_remain_distinct_tasks()
+    {
+        DateTime sharedUtc = new(2026, 10, 7, 19, 0, 0, DateTimeKind.Utc);
+        string nfdTaskId = "caf\u0065\u0301";
+        string nfcTaskId = "caf\u00E9";
+        AgentExecutionTrace nfdTask = new()
+        {
+            TraceId = "trace-nfd",
+            TaskId = nfdTaskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace nfcTask = new()
+        {
+            TraceId = "trace-nfc",
+            TaskId = nfcTaskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([nfdTask, nfcTask]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-nfd", "trace-nfc"]);
+    }
+
+    [Fact]
     public void Select_when_task_id_is_whitespace_only_chains_with_missing_task_id()
     {
         DateTime sharedUtc = new(2026, 8, 1, 10, 0, 0, DateTimeKind.Utc);
