@@ -10,6 +10,8 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
 using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.RemediationMetrics;
+using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
+using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
@@ -768,6 +770,169 @@ public sealed class InfraEvidenceCompositionModuleTests
         composer.Should().BeOfType<BrandedDiagramExportComposer>();
         exportService.Should().BeOfType<BrandedDiagramExportService>();
         composer.DecorateMermaidSource("graph TD\n  A-->B", "Acme").Should().Contain("%% title: Acme");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_peel_catalog_provider_seeds_on_first_read_without_bootstrapper_host()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IDiagramPeelCatalogProvider peelCatalogProvider =
+            serviceScope.ServiceProvider.GetRequiredService<IDiagramPeelCatalogProvider>();
+
+        Contracts.InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot snapshot =
+            await peelCatalogProvider.GetCatalogAsync(CancellationToken.None);
+
+        snapshot.Entries.Should().NotBeEmpty(
+            "RepositoryDiagramPeelCatalogProvider supplies default seed snapshot when repository count is zero; bootstrapper hosted startup is optional");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_manual_evidence_submit_fails_when_assessment_missing()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditManualEvidenceSubmissionService submissionService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditManualEvidenceSubmissionService>();
+
+        AuditManualEvidenceSubmitResult result = await submissionService.TrySubmitAsync(
+            new AuditManualEvidenceSubmitRequest
+            {
+                AssessmentId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ControlId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                RequirementId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                Owner = "owner@example.com",
+                Content = "evidence body",
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Assessment not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_remediation_prioritization_and_waves_return_empty_without_data()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IRemediationPrioritizationService prioritizationService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationPrioritizationService>();
+        IRemediationWaveService waveService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationWaveService>();
+
+        IReadOnlyList<RemediationPrioritizedFinding> ranked = await prioritizationService.RankOpenFindingsAsync(
+            scope,
+            actorKey: "operator@example.com",
+            CancellationToken.None);
+
+        ranked.Should().BeEmpty(
+            "InMemory noop finding repositories yield zero open findings; empty ranking is expected local behavior, not a miscomposition unavailable signal");
+
+        IReadOnlyList<RemediationWaveRecord> waves = await waveService.ListWavesAsync(scope, CancellationToken.None);
+
+        waves.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_explorer_lists_hub_upserted_cloud_resource_identity()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ICloudResourceIdentityDirectory identityDirectory =
+            serviceScope.ServiceProvider.GetRequiredService<ICloudResourceIdentityDirectory>();
+        ICloudResourceExplorerQueryService explorerQueryService =
+            serviceScope.ServiceProvider.GetRequiredService<ICloudResourceExplorerQueryService>();
+
+        Guid snapshotId = Guid.NewGuid();
+        const string externalResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        CloudResourceIdentityRecord upserted = await identityDirectory.UpsertOnSnapshotAsync(
+            scope,
+            CloudProvider.Azure,
+            externalResourceId,
+            snapshotId,
+            resourceType: "Microsoft.Storage/storageAccounts",
+            subscriptionOrAccountId: "sub",
+            resourceGroupOrProject: "rg",
+            region: "eastus",
+            displayName: "sa1",
+            CancellationToken.None);
+
+        PagedResponse<CloudResourceSummary> explorerPage = await explorerQueryService.ListCloudResourcesAsync(
+            scope,
+            namePrefix: null,
+            resourceType: null,
+            resourceGroup: null,
+            CloudResourceExplorerWorkQueue.All,
+            page: 1,
+            pageSize: 50,
+            CancellationToken.None);
+
+        explorerPage.Items.Should().ContainSingle();
+        explorerPage.Items[0].CloudResourceId.Should().Be(upserted.CloudResourceId);
+        explorerPage.Items[0].ExternalResourceId.Should().Be(upserted.ExternalResourceIdNormalized);
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_registers_single_scoped_carry_forward_service()
+    {
+        ServiceCollection services = [];
+        InfraEvidenceCompositionModule.Register(services, new ConfigurationBuilder().Build());
+
+        int carryForwardRegistrations = services.Count(static descriptor =>
+            descriptor.ServiceType == typeof(SecureNowArchitectPathCarryForwardService));
+
+        carryForwardRegistrations.Should().Be(1,
+            "coordinator delegates carry-forward through ISecureNowArchitectNeighborhoodRunner; single concrete registration is current intentional wiring");
     }
 
     private static ScopeContext CreateDefaultScope() =>
