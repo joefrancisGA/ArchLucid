@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (`wasAlreadyProvisioned` without `tenantId` still writes best-effort session JSON — intentional; payload builder trims optional team size `" 5 "` to five; whitespace-only `201` body skips JSON merge like empty body; zod `.trim()` preserves interior double spaces in names by design; `=` in email local-part blocked before verify redirect); regressions `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`, `serializes interior-whitespace optional architecture team size in the register payload builder`, `still navigates after 201 when register response body is whitespace only`, `signupFormSchema keeps interior double spaces in required name fields after trim`, `signupFormSchema rejects email local-part containing equals sign`, and `keeps submit disabled for email local-part containing equals sign`; seeded five follow-on `(candidate)` rows; 67 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): `cli-terraform-evidence` — cheap-disproof closed five seeded `(candidate)` rows (advanced-table scraper requires backtick-wrapped cells — drift fails sixteen-leaf sync; `apply-saas.ps1` uses double-quoted `$multiRootSequence` literals parsed by test helper; orchestrator row 16 is legacy-only in doc while evidence lists it for `-LegacyLeafRoots`; pilot line is annotated metadata-only default after orchestrator in evidence list; `DocumentationRelativePath` is repo-relative citation when checkout root is unresolved); regressions `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Apply_saas_ps1_multiRootSequence_entries_use_double_quoted_string_literals`, `Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row`, `DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile`, and `Compose_when_repository_root_unresolved_cites_doc_path_without_checkout_root`; seeded five follow-on `(candidate)` rows; 33 scoped `DeploymentEvidenceTerraformReferenceTests` and 4 scoped `DeploymentEvidenceReportMarkdownTests` passed; `assert_terraform_root_ordering_sync.py` OK.
 
 2026-10-07 thorough hunt (dry): `alert-simulation` — cheap-disproof closed five seeded `(candidate)` rows (foreign `TenantId` on recommendation rows filtered with workspace/project/run drift defense; simple `RuleKind` path ignores unused `CompositeRule` payload and never calls `DecideAsync`; duplicate recent-run ids dedupe before a single `GetRunDetailAsync` per run; null `FindingsSnapshot` synthesizes manifest-bound empty findings for advisor input; explicit primary run sealed-hash failure throws for controller `409` mapping); regression `SimulateAsync_SimpleRule_DoesNotInvokeSuppressionPolicy_WhenCompositeRuleAlsoPresentOnRequest`; reaffirmed `GetContextsAsync_excludes_recommendation_rows_outside_caller_scope`, `GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list`, `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`, and `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`; seeded five follow-on `(candidate)` rows; 34 scoped `AlertSimulationContextProviderTests` and 7 scoped `RuleSimulationServiceTests` passed.
@@ -4294,6 +4296,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for idempotent session payload, team-size trim, whitespace `201` body, interior name spaces, and equals-sign email gate; 67 scoped SignupForm vitest tests passed.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for `wasAlreadyProvisioned` toast, zero/`+5` team size, session trim parity, and empty `201` body; 61 scoped SignupForm vitest tests passed.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for success-toast throw UX, leading-zero team size, empty industry enum, and zod EAI gate; 54 scoped SignupForm vitest tests passed.
@@ -4312,9 +4316,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4426,11 +4430,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` `sessionStorage` `archlucid_last_registration` — stores form `adminEmail`/`organizationName` from submit values while JSON body uses trimmed zod output only on required fields in payload — **cheap-disproof 2026-10-07 thorough hunt:** `handleSubmit` supplies zod-trimmed values to both payload builder and session write; regression `persists trimmed required fields in archlucid_last_registration after successful register`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `res.text()` then empty body with `201` leaves `body` null but still navigates without persisting tenant ids in session — **cheap-disproof 2026-10-07 thorough hunt:** `res.ok` gates success; session enrichment is best-effort; regression `still navigates after 201 when register response body is empty`.
 
-- [ ] (candidate) `SignupForm` `onSubmit` — `201` JSON with only `wasAlreadyProvisioned: true` and no `tenantId` still writes `archlucid_last_registration` without workspace/project ids — locus: spread `body` into session JSON (`SignupForm.tsx` ~179–186).
-- [ ] (candidate) `buildSignupRegisterPayload` — optional `architectureTeamSize` with interior whitespace (`" 5 "`) omitted when trim happens only in `superRefine` input path — locus: `teamTrim` in builder vs zod-trimmed submit values.
-- [ ] (candidate) `SignupForm` `onSubmit` — non-JSON `201` with whitespace-only body treated as empty text and skips tenant id session merge — locus: `text.length > 0` before `JSON.parse` (`SignupForm.tsx` ~145–148).
-- [ ] (candidate) `signupFormSchema` — `adminDisplayName` / `organizationName` padded with interior double spaces kept after `.trim()` on submit — locus: zod `.trim()` collapses ends only (`signup-schema.ts` ~30–38).
-- [ ] (candidate) `SignupForm` verify redirect — `encodeURIComponent` on email after zod trim when local-part contains `=` sign — locus: `router.push` query (`SignupForm.tsx` ~193); depends on zod `.email()` accepting `=` in local-part.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `201` JSON with only `wasAlreadyProvisioned: true` and no `tenantId` still writes `archlucid_last_registration` without workspace/project ids — **cheap-disproof 2026-10-07 thorough hunt:** best-effort session enrichment after `res.ok`; regression `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`.
+- [x] (valid-no-repro) `buildSignupRegisterPayload` — optional `architectureTeamSize` with interior whitespace (`" 5 "`) omitted when trim happens only in `superRefine` input path — **cheap-disproof 2026-10-07 thorough hunt:** builder `teamTrim` trims before `Number()`; regression `serializes interior-whitespace optional architecture team size in the register payload builder`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON `201` with whitespace-only body treated as empty text and skips tenant id session merge — **cheap-disproof 2026-10-07 thorough hunt:** parse failure tolerates success; same class as empty body; regression `still navigates after 201 when register response body is whitespace only`.
+- [x] (valid-no-repro) `signupFormSchema` — `adminDisplayName` / `organizationName` padded with interior double spaces kept after `.trim()` on submit — **cheap-disproof 2026-10-07 thorough hunt:** intentional zod trim semantics; regression `signupFormSchema keeps interior double spaces in required name fields after trim`.
+- [x] (invalid) `SignupForm` verify redirect — `encodeURIComponent` on email after zod trim when local-part contains `=` sign — **cheap-disproof 2026-10-07 thorough hunt:** zod `.email()` rejects `a=b@c.com` before submit; regressions `signupFormSchema rejects email local-part containing equals sign` and `keeps submit disabled for email local-part containing equals sign`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `500` with JSON `detail` string surfaces raw server text in `showError` without redaction — locus: non-ok branch (`SignupForm.tsx` ~157–164).
+- [ ] (candidate) `buildSignupRegisterPayload` — `companySize` undefined vs omitted when select reset to Prefer not to say — locus: `if (values.companySize)` guard.
+- [ ] (candidate) `SignupForm` — `recordFirstTenantFunnelEvent` invoked after sessionStorage writes so quota failure still records funnel — locus: ordering after `setItem` try blocks (`SignupForm.tsx` ~178–191).
+- [ ] (candidate) `signupFormSchema` — `architectureTeamSize` negative string `"-1"` rejected by `Number()` superRefine — locus: `n <= 0` guard (`signup-schema.ts` ~63).
+- [ ] (candidate) `SignupForm` verify redirect — email with subdomain `ops@mail.example.com` encoded without double-encoding `%40` — locus: single `encodeURIComponent` on full address (`SignupForm.tsx` ~193).
 
 ---
 

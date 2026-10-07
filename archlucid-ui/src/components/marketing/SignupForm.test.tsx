@@ -192,6 +192,42 @@ describe("SignupForm", () => {
     expect(payload.architectureTeamSize).toBe(5);
   });
 
+  it("serializes interior-whitespace optional architecture team size in the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: " 5 ",
+    });
+
+    expect(payload.architectureTeamSize).toBe(5);
+  });
+
+  it("signupFormSchema keeps interior double spaces in required name fields after trim", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops  User",
+      organizationName: "Contoso  Trial  Org",
+    });
+
+    expect(parsed.success).toBe(true);
+
+    if (parsed.success) {
+      expect(parsed.data.adminDisplayName).toBe("Ops  User");
+      expect(parsed.data.organizationName).toBe("Contoso  Trial  Org");
+    }
+  });
+
+  it("signupFormSchema rejects email local-part containing equals sign", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "a=b@c.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
   it("signupFormSchema accepts 1e4 optional architecture team size at the upper bound", () => {
     const parsed = signupFormSchema.safeParse({
       adminEmail: "ops@example.com",
@@ -689,6 +725,92 @@ describe("SignupForm", () => {
 
     setItemSpy.mockRestore();
     vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is whitespace only", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("   \n\t  ", { status: 201 })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");
+
+    expect(registrationWrite).toBeDefined();
+    const stored = JSON.parse(String(registrationWrite![1])) as Record<string, unknown>;
+    expect(stored.tenantId).toBeUndefined();
+
+    setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId", async () => {
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ wasAlreadyProvisioned: true }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");
+
+    expect(registrationWrite).toBeDefined();
+    const stored = JSON.parse(String(registrationWrite![1])) as Record<string, unknown>;
+    expect(stored.wasAlreadyProvisioned).toBe(true);
+    expect(stored.tenantId).toBeUndefined();
+    expect(stored.defaultWorkspaceId).toBeUndefined();
+
+    setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps submit disabled for email local-part containing equals sign", async () => {
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "a=b@c.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeDisabled();
+    });
   });
 
   it("shows organization created success toast when register response was already provisioned", async () => {
