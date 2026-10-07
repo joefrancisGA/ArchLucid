@@ -186,15 +186,14 @@ describe("DiagramReconcileWorkbenchClient", () => {
   it("clears selected correspondence when match-kind filter hides the selected row", async () => {
     render(<DiagramReconcileWorkbenchClient />);
 
-    const infraOnlyRow = await screen.findByTestId("infra-diagram-reconcile-row-infra-only-1");
-    fireEvent.click(infraOnlyRow);
-    expect(infraOnlyRow).toHaveAttribute("aria-selected", "true");
+    const correspondenceRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+    fireEvent.click(correspondenceRow);
+    expect(correspondenceRow).toHaveAttribute("aria-selected", "true");
 
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
-    fireEvent.change(filter, { target: { value: "Conflict" } });
+    fireEvent.change(filter, { target: { value: "DiagramOnly" } });
 
-    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toHaveAttribute("aria-selected", "false");
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toBeInTheDocument();
   });
 
   it("highlights and scrolls to a deep-linked correspondence row", async () => {
