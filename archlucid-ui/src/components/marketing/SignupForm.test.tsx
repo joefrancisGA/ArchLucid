@@ -20,6 +20,7 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import * as firstTenantFunnelTelemetry from "@/lib/first-tenant-funnel-telemetry";
+import { signupFormSchema, type SignupFormValues } from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
 import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
@@ -87,6 +88,17 @@ describe("SignupForm", () => {
     expect(payload.architectureTeamSize).toBe(1000);
   });
 
+  it("serializes 1e4 optional architecture team size at the upper bound in the register payload builder", () => {
+    const payload = buildSignupRegisterPayload({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "1e4",
+    });
+
+    expect(payload.architectureTeamSize).toBe(10_000);
+  });
+
   it("passes through padded required fields when the register payload builder is called directly", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "  ops@example.com  ",
@@ -97,6 +109,30 @@ describe("SignupForm", () => {
     expect(payload.adminEmail).toBe("  ops@example.com  ");
     expect(payload.adminDisplayName).toBe("  Ops User  ");
     expect(payload.organizationName).toBe("  Contoso Trial Org  ");
+  });
+
+  it("signupFormSchema accepts 1e4 optional architecture team size at the upper bound", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      architectureTeamSize: "1e4",
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("passes non-enum company size through the payload builder when the schema is bypassed", () => {
+    const values = {
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      companySize: "not-a-real-enum",
+    } as SignupFormValues;
+
+    const payload = buildSignupRegisterPayload(values);
+
+    expect(payload.companySize).toBe("not-a-real-enum");
   });
 
   it("disables native html5 validation on the signup form", () => {
@@ -337,6 +373,74 @@ describe("SignupForm", () => {
     });
 
     funnelSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("surfaces signup error when navigation throws after successful register", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+    pushMock.mockImplementation(() => {
+      throw new Error("navigation failed");
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(showError).toHaveBeenCalledWith("Signup", "navigation failed");
+      expect(screen.getByRole("button", { name: /Creating/i })).toBeDisabled();
+    });
+
+    pushMock.mockReset();
+    vi.unstubAllGlobals();
+  });
+
+  it("navigates to verify on HTTP 200 when register response is ok", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
     vi.unstubAllGlobals();
   });
 
