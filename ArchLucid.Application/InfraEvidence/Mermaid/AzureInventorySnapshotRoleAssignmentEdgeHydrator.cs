@@ -43,7 +43,10 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
                 continue;
             }
 
-            string toNodeId = nodeIdByArmId.TryGetValue(scope, out string? resourceNodeId)
+            string toNodeId = AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(
+                    nodeIdByArmId,
+                    scope,
+                    out string resourceNodeId)
                 ? resourceNodeId
                 : "role-scope-" + MermaidIdSanitizer.Sanitize(scope);
             string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.HasRole}";
