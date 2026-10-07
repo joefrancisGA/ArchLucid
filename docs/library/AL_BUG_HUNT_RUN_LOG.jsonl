@@ -1,6 +1,3 @@
-{"at":"2026-09-07T00:53:26.9528488Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-07T00:57:58.262916Z","zoneId":"archlucid-core","outcome":"hit"}
-{"at":"2026-09-07T01:02:21.3210911Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:06:47.4444265Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:11:20.0640528Z","zoneId":"archlucid-core","outcome":"hit"}
 {"at":"2026-09-07T01:16:40.4510654Z","zoneId":"archlucid-core","outcome":"hit"}
@@ -8781,4 +8778,6 @@
 {"at":"2026-10-07T00:26:00Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Persistence/Graph/GraphSnapshotKnowledgeModelMerger.cs"]}
 {"at":"2026-10-07T00:26:42.2370271Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Persistence/Graph/GraphSnapshotKnowledgeModelMerger.cs"]}
 {"at":"2026-10-07T00:50:26Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Jobs/BackgroundJobQueueProcessorHostedService.cs,ArchLucid.Persistence/Data/Repositories/BackgroundJobRepository.QueuePrepareAndLifecycle.cs"]}
-{"at":"2026-10-07T00:50:27.4572530Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/"]}
+{"at":"2026-10-07T00:50:27.457253Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/"]}
+{"at":"2026-10-07T01:04:14Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantSponsorDigestPreferencesController.cs"]}
+{"at":"2026-10-07T01:04:15.2876609Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/,ArchLucid.Api/Controllers/Tenancy/"]}

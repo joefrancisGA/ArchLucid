@@ -226,6 +226,8 @@
 
 2026-10-06 seed hunt (seed-only): `api-tenancy-workspaces` — promoted restore with stale workspace `DefaultProjectId` metadata; cheap-disproof closed as intentional (no delete-style default guard on restore); regression `RestoreProjectAsync_returns_no_content_when_workspace_default_metadata_still_points_at_soft_deleted_project`; seeded five sibling-path `(candidate)` rows; 44 scoped TenantWorkspaces tests passed.
 
+2026-10-07 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` logged `User.Identity?.Name` as both `ActorUserId` and `ActorUserName` (cost/homepage parity); inject `IActorContext`; regression `PostSponsorDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; 20 sponsor-digest + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
+
 2026-10-07 thorough hunt (hit): `host-core-jobs` — `BackgroundJobQueueProcessorHostedService` success path only re-read `Canceled` before `MarkSucceededAsync`, so a stale worker could mark `Succeeded` after `BackgroundJobStuckRunningWatchdogBackgroundWork` reclaimed the row to `Pending`; require `Running` on re-read and guard SQL `MarkSucceededAsync` with `State = N'Running'`; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`; cheap-disproof closed four reseeded candidates; 27 processor + 38 Host.Core BackgroundJob + 16 in-memory queue tests passed.
 
 2026-10-07 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` called `Trim()` on null `GraphNode.NodeId` and null `GraphEdge` endpoint ids, crashing κ→Γ merge for in-memory partial graph rows (JSON deserializers already coalesce to empty); coalesce null ids before trim; regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`; scoped merger tests 12/12 Core + 7/7 KnowledgeGraph; `FullyQualifiedName~ArchLucid.Core` 7298 passed, 1 existing ADF pipeline baseline failure.
@@ -27313,17 +27315,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-07 seed hunt (seed→hit): promoted `TenantSponsorDigestPreferencesController` audit actor parity; regression above; four audit-actor sibling `(candidate)` rows remain open.
+
 - **id:** api-governance-tenancy-controllers
 - **status:** open
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 309
-- **last-hunt:** 2026-10-06
-- **bugs-found:** 514
+- **hunts:** 310
+- **last-hunt:** 2026-10-07
+- **bugs-found:** 515
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — cost settings audit/persist used display name as ActorUserId
+- **last-bug:** 2026-10-07 — sponsor digest preferences audit used display name as ActorUserId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27332,7 +27336,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 - [x] (proven) `TenantCostSettingsController.PutAsync` — audit `ActorUserId` and `UpdatedByActorId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for stable id; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
-- [ ] (candidate) `TenantSponsorDigestPreferencesController.PutAsync` — `AuditEvent.ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` (`TenantSponsorDigestPreferencesController.cs` ~183) while `CorePilotTeamChecklistController` uses `IActorContext.GetActorId()`; reachable `PUT /v1/tenant/sponsor-digest-preferences`.
+- [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — audit `ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` — **hit 2026-10-07 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PostSponsorDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; reachable `POST /v1/tenant/sponsor-digest-preferences`.
 - [ ] (candidate) `TenantExecDigestPreferencesController.PutAsync` — same dual-name audit mapping (`TenantExecDigestPreferencesController.cs` ~183); reachable `PUT /v1/tenant/exec-digest-preferences`.
 - [ ] (candidate) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` on baseline put paths (`TenantBaselineController.Put.cs` ~91, 136, 177, 218); reachable tenant baseline PUT routes under `v1/tenant/baseline`.
 - [ ] (candidate) `TenantTrialController` — trial lifecycle calls pass `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable trial admin POST routes.
