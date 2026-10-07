@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (dry): `commit-output-integrity` — cheap-disproof closed five open `(candidate)` rows (duplicate TOCTOU header/pin rows, intentional Simulator bypass, Warned-over-rejected duplicate policy, caller `GoldenManifestId` parity, lone `QualityRejected`+`Accepted` drift); reaffirmed `GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`, `Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace`, `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`, and `GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application quality-gate + 39 Core selector, `RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm` submit/`finally` gates, payload builder, and success-path ordering; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; reaffirmed `shows a toast for duplicate organization conflict without leaving submit stuck`, `shows a toast when register fetch throws`, `omits non-integer optional architecture team size from the register payload builder`, `surfaces signup error when success toast throws after successful register`, and `omits company size from the register payload builder when value is undefined`; seeded five follow-on `(candidate)` rows; 80 scoped SignupForm vitest tests passed.
 
 2026-10-07 seed hunt (seed→hit): `topology-proposal-merge` — proved `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` dropped dual-model relationships whose endpoints used a secondary rename label absent from intersected-service keys; `CollectPruneEndpointKeys` now unions rename labels for intersected service/datastore identities from the combined manifests; regression `Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name`; cheap-disproof closed four other `(candidate)` rows; regression `BuildDeclaredEndpointCanonicalMap_keeps_first_service_name_mapping_when_duplicate_service_names_have_different_ids`; reaffirmed `Merge_output_has_no_dangling_edges`, `MapRelationships_resolves_module_qualified_terraform_address_when_graph_node_source_id_is_root_address`, and `FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByRenamedServiceLabels`; seeded five follow-on `(candidate)` rows; 1,617 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
@@ -4400,7 +4402,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `wasAlreadyProvisioned: true` still shows “Organization created” success toast — locus: unconditional `showSuccess` after `res.ok` (`SignupForm.tsx` ~191–192).
 - [ ] (candidate) `SignupForm` `onSubmit` — `res.ok` with whitespace-only JSON body (`"   "`) treated as success with `body` null — locus: `JSON.parse` + empty-object guard (`SignupForm.tsx` ~142–149).
-- [ ] (SignupForm) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — locus: trim guard (`SignupForm.tsx` ~68–73).
+- [ ] (candidate) `buildSignupRegisterPayload` — `industryVerticalOther` whitespace-only omitted while `industryVertical` is `Other` when builder invoked without zod — locus: trim guard (`SignupForm.tsx` ~68–73).
 - [ ] (candidate) `SignupForm` — `registerInFlightRef` stays true after success so retry requires full page reload — locus: `finally` skips reset when `registerSucceeded` (`SignupForm.tsx` ~197–201).
 - [ ] (candidate) `deriveSignupFormReadinessMessage` — first zod issue may not match visible field when multiple optional errors exist — locus: `issues[0]` only (`signup-schema.ts` ~109–111).
 
@@ -4578,6 +4580,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: commit-output-integrity
 
+**Hunts:** 71 · **Bugs found:** 12 · **Consecutive dry hunts:** 6
+
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 100 scoped zone tests passed (61 Application + 39 Core).
+
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `headerForPins` null after arch-version pin passed — **cheap-disproof 2026-10-07 thorough hunt:** duplicate of 2026-10-06 TOCTOU rows; arch-version pin blocks missing header before quality gate; not a single-request fail-open in these files.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Simulator` with `QualityRejected=true` traces — **cheap-disproof 2026-10-07 thorough hunt:** TB-2226 Real-only gate; regression `GetBlockingReasons_when_simulator_mode_returns_empty`.
+- [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector` — `QualityRejected`+null outcome vs `QualityWarning=true` duplicate at same attempt — **cheap-disproof 2026-10-07 thorough hunt:** rejected duplicate wins rank 1; regression `Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace`; evaluator Warned-over-rejected tie policy remains intentional (`GetBlockingReasons_when_same_attempt_quality_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`).
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — lifecycle `Complete` uses caller `run.GoldenManifestId` vs loaded manifest object — **cheap-disproof 2026-10-07 thorough hunt:** `RunKernelCompleteness` fail-closed on null pointer; regression `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`; stale in-memory header is orchestrator contract outside selector/evaluator paths.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone `Accepted`+`QualityRejected=true` winning trace — **cheap-disproof 2026-10-07 thorough hunt:** durable reject flag blocks regardless of recorded outcome; regression `GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks` (extends 2026-10-06 row).
+
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — evidence referential integrity skipped when post-quality-gate `GetByIdAsync` returns null after create-time pin header was present — locus: `FindingEvidenceReferentialIntegrityValidator` null-header guard (`CommitOutputIntegrityService.cs` ~200–216).
+- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — `QualityWarning=true` with null `RecordedQualityGateOutcome` ranks 0 and may lose to another rank-0 unevaluated duplicate at the same `AttemptIndex` — locus: rank ladder (`AgentExecutionTraceLatestPerTaskSelector.cs` ~34–48).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `LoadAcknowledgedAssumptionIdsAsync` omits persisted acknowledgement union when `runId` is not a Guid — locus: early return (`CommitOutputIntegrityService.cs` ~244–245).
+- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Fallback` with PilotStrict options and rejected traces bypasses evaluator — locus: `StructuralExecutionMode != Real` early return (orchestrator must block earlier).
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `_finalizeQualityGate.EnsurePassOrThrowAsync` runs before evidence referential integrity so stale finding evidence ids could pass finalize gate — locus: gate ordering (`CommitOutputIntegrityService.cs` ~195–216).
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `Select_when_outer_whitespace_on_variation_selector_task_id_chains_with_unpadded_variation_key` and `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`; 101 scoped zone tests passed (62 Application + 39 Core).
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups` and `GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group`; 99 scoped zone tests passed (61 Application + 38 Core).
@@ -4588,9 +4606,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-04 — semantic support judge persisted before commit-blocking gates
 - **related-pd-tb:** TB-2226
@@ -4688,11 +4706,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `Enabled=false` with `PilotStrictHoldOnUnsupportedSemanticSupport=true` — **cheap-disproof 2026-10-07 thorough hunt:** trace quality gate and unsupported-band hold are separate evaluators; disabled gate intentionally bypasses trace checks; regression `GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`.
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — whitespace-only `TaskId` after `Trim()` — **cheap-disproof 2026-10-07 thorough hunt:** chains with missing-task retries per `agent:{AgentType}`; regression `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`.
 
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `headerForPins` null skips create-time pin evaluator while arch-version pin already passed; reachable only on TOCTOU delete between pin fetches outside a single commit transaction.
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `StructuralExecutionMode.Simulator` with persisted `QualityRejected=true` traces; reachable when simulator runs reuse production trace rows without clearing reject flags.
-- [ ] (candidate) `AgentExecutionTraceLatestPerTaskSelector` — same `AttemptIndex` and `CreatedUtc` with `QualityRejected=true`+null outcome vs `QualityWarning=true` duplicate; reachable when patch drift leaves warning-only sibling after reject patch on paired upsert rows.
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — lifecycle `Complete` uses caller `run.GoldenManifestId` while `RunKernelCompleteness` could treat loaded `GoldenManifest` argument as pointer; reachable if orchestrator passes stale header but supplies manifest object (GET review parity).
-- [ ] (candidate) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — Real + `PilotStrict` + exactly one trace with `RecordedQualityGateOutcome=Accepted` and `QualityRejected=true`; reachable when snapshot patch and durable flag disagree on winning row only.
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — lone winning trace with `RecordedQualityGateOutcome=null` and `QualityRejected=true` only — **cheap-disproof 2026-10-07:** durable reject flag intentionally blocks (`GetBlockingReasons_when_quality_rejected_flag_set_with_null_recorded_outcome_still_blocks`; extends #1617).
 - [x] (valid-no-repro) `AgentExecutionTraceLatestPerTaskSelector.GetLatestPerTaskKey` — `TaskId` null vs empty string collapse — **cheap-disproof 2026-10-07:** `TaskId` defaults to empty; `Trim()`+`IsNullOrWhiteSpace` chains missing-task retries per intentional `agent:{AgentType}` (#578; `Select_when_task_id_is_whitespace_only_chains_with_missing_task_id`).
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — null in-memory `GoldenManifestId` with succeeded stages — **cheap-disproof 2026-10-07:** `RunKernelCompleteness.HasGoldenManifestPointer` fail-closed; regression `Resolve_when_golden_manifest_id_null_but_stages_succeeded_is_not_complete`.
