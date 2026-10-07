@@ -89,4 +89,30 @@ public sealed class DeploymentEvidenceReportMarkdownTests
         md.Should().Contain("metadata composition root");
         md.Should().Contain(DeploymentEvidenceTerraformReference.DocumentationRelativePath);
     }
+
+    [Fact]
+    public void Compose_when_repository_root_unresolved_cites_doc_path_without_checkout_root()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: null,
+            gitHeadSha: null,
+            gitDirty: null,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        md.Should().Contain("Repository root could not be resolved");
+        md.Should().Contain(DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        md.Should().NotContain("**Root:**");
+    }
 }

@@ -355,6 +355,74 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void Reference_doc_advanced_table_path_cells_use_backtick_wrappers()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        string docPath = Path.Combine(repoRoot, DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        string content = File.ReadAllText(docPath);
+        MatchCollection backtickPaths = Regex.Matches(
+            content,
+            @"^\|\s*\d+\s*\|\s*`(infra/[^`]+)`\s*\|",
+            RegexOptions.Multiline);
+
+        backtickPaths.Should().HaveCount(16);
+    }
+
+    [Fact]
+    public void Apply_saas_ps1_multiRootSequence_entries_use_double_quoted_string_literals()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> parsed = ReadApplySaasStringArray(repoRoot, "$multiRootSequence");
+
+        parsed.Should().HaveCount(16);
+
+        string applySaasPath = Path.Combine(repoRoot, "infra", "apply-saas.ps1");
+        string[] lines = File.ReadAllLines(applySaasPath);
+        int markerLine = Array.FindIndex(
+            lines,
+            line => line.Contains("$multiRootSequence = @(", StringComparison.Ordinal));
+
+        markerLine.Should().BeGreaterThanOrEqualTo(0);
+
+        Regex doubleQuotedLeaf = new(@"^\s*""(infra/[^""]+)""\s*,?\s*$");
+
+        for (int i = markerLine + 1; i < lines.Length; i++)
+        {
+            string line = lines[i].Trim();
+
+            if (line.StartsWith(')'))
+                break;
+
+            if (line.Length == 0)
+                continue;
+
+            doubleQuotedLeaf.IsMatch(line).Should().BeTrue($"expected double-quoted leaf line, got: {line}");
+        }
+    }
+
+    [Fact]
+    public void Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        string docPath = Path.Combine(repoRoot, DeploymentEvidenceTerraformReference.DocumentationRelativePath);
+        string content = File.ReadAllText(docPath);
+
+        content.Should().Contain("| 16 | `infra/terraform-orchestrator`");
+        content.Should().Contain("legacy-only");
+        content.Should().Contain("omitted from hosted `-MultiRoot`");
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        string pilotLine = roots.Single(line => line.Contains("infra/terraform-pilot", StringComparison.Ordinal));
+
+        pilotLine.Should().Contain("canonical default profile");
+        pilotLine.Should().Contain("no Azure apply");
+    }
+
+    [Fact]
     public void DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply()
     {
         IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
