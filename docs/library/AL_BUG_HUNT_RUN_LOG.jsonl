@@ -1,6 +1,3 @@
-{"at":"2026-09-07T06:52:00.1282257Z","zoneId":"sql-run-repository","outcome":"hit"}
-{"at":"2026-09-07T06:57:30.3021632Z","zoneId":"core-findings-advice","outcome":"hit"}
-{"at":"2026-09-07T07:02:57.0565175Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-07T07:11:50.7572149Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-07T07:20:33.9678759Z","zoneId":"core-explanation-json","outcome":"hit"}
 {"at":"2026-09-07T07:40:29.092433Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
@@ -8762,3 +8759,4 @@
 {"at":"2026-10-07T06:36:22.2839646Z","zoneId":"worker-host","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T06:42:33.5517825Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T06:49:37.8321135Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}
+{"at":"2026-10-07T07:09:27.7470323Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}

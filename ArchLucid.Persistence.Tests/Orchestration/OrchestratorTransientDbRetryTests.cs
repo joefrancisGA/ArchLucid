@@ -384,6 +384,23 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_does_not_retry_out_of_memory_exception()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                throw new OutOfMemoryException("simulated");
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<OutOfMemoryException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_bare_timeout_exception()
     {
         int attempts = 0;
@@ -1343,6 +1360,64 @@ public sealed class OrchestratorTransientDbRetryTests
 
         firstAttempts.Should().Be(2);
         secondAttempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_top_level_aggregate_nests_transient_only_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        AggregateException nested = new(deadlock, SqlExceptionTestFactory.Create(1204));
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(nested);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_non_transient_sql_unique_constraint_violation()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw SqlExceptionTestFactory.Create(2627);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_out_of_memory_exception()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new OutOfMemoryException("simulated");
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<OutOfMemoryException>();
+
+        attempts.Should().Be(1);
     }
 
     [SkippableFact]

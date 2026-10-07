@@ -186,6 +186,14 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void Manifest_reconcile_poll_cap_stays_below_commit_max_attempts()
+    {
+        CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts
+            .Should()
+            .BeLessThan(CommitRunTransientRetryPolicy.MaxAttempts);
+    }
+
+    [Fact]
     public void IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget()
     {
         CommitRunTransientRetryPolicy.IsExhausted(
