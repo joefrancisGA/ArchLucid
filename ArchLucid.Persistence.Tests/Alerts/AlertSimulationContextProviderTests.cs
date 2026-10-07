@@ -2984,5 +2984,12 @@ public sealed class AlertSimulationContextProviderTests
 
         contexts.Should().ContainSingle();
         contexts[0].RunId.Should().Be(runId);
+
+        authority.Verify(
+            a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

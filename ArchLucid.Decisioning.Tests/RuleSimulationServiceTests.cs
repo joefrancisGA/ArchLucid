@@ -342,6 +342,72 @@ public sealed class RuleSimulationServiceTests
         result.Outcomes.Should().ContainSingle(o => o.RuleMatched && !o.WouldCreateAlert && o.SuppressionReason == "deduped");
     }
 
+    [Fact]
+    public async Task SimulateAsync_SimpleRule_DoesNotInvokeSuppressionPolicy_WhenCompositeRuleAlsoPresentOnRequest()
+    {
+        AlertEvaluationContext context = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+        };
+
+        Mock<IAlertSimulationContextProvider> provider = new();
+        provider
+            .Setup(
+                x => x.GetContextsAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid?>(),
+                    It.IsAny<Guid?>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([context]);
+
+        Mock<IAlertEvaluator> evaluator = new();
+        evaluator
+            .Setup(x => x.Evaluate(It.IsAny<IReadOnlyList<AlertRule>>(), It.IsAny<AlertEvaluationContext>()))
+            .Returns(Array.Empty<AlertRecord>());
+
+        Mock<IAlertSuppressionPolicy> suppression = new();
+
+        RuleSimulationService sut = CreateSut(
+            evaluator.Object,
+            Mock.Of<IAlertMetricSnapshotBuilder>(),
+            Mock.Of<ICompositeAlertRuleEvaluator>(),
+            suppression.Object,
+            provider.Object);
+
+        RuleSimulationRequest request = new()
+        {
+            RuleKind = RuleKindConstants.Simple,
+            SimpleRule = new AlertRule { Name = "simple-only" },
+            CompositeRule = new CompositeAlertRule
+            {
+                Name = "unused-composite",
+                Severity = AlertSeverity.Warning,
+                TenantId = context.TenantId,
+                WorkspaceId = context.WorkspaceId,
+                ProjectId = context.ProjectId,
+                Conditions = [],
+            },
+            RecentRunCount = 1,
+        };
+
+        await sut.SimulateAsync(context.TenantId, context.WorkspaceId, context.ProjectId, request, CancellationToken.None);
+
+        suppression.Verify(
+            x => x.DecideAsync(
+                It.IsAny<CompositeAlertRule>(),
+                It.IsAny<AlertEvaluationContext>(),
+                It.IsAny<AlertMetricSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static RuleSimulationService CreateSut(
         IAlertEvaluator alertEvaluator,
         IAlertMetricSnapshotBuilder metricSnapshotBuilder,
