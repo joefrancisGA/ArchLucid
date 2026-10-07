@@ -8379,6 +8379,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (hosted wave flatten matches `$multiRootSequence` minus orchestrator; em-dash delimiter only on annotations; pilot `root_path` composition order is separate from nested `path =` leaf order; report numbering iterates `DefaultApplyOrderRoots()` with contiguous indices; python wave guard intentionally omits orchestrator while evidence lists it for legacy `-LegacyLeafRoots`); regressions `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`, `ExtractLeafPaths_includes_orchestrator_while_hosted_wave_parity_excludes_it`, `ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines`, `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`, and `Compose_terraform_root_list_uses_contiguous_one_based_indices`; seeded five follow-on `(candidate)` rows; 42 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions for backtick table scrape, double-quoted ps1 literals, orchestrator/pilot doc annotations, and unresolved repo root citation; 37 scoped deployment-evidence terraform + report tests passed; python ordering guard OK.
 
 2026-10-07 seed hunt (seed-only): re-read static apply-order reference and triple-sync guards; cheap-disproof closed five promotion attempts; regressions `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`, `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`, and `DefaultApplyOrderRoots_index_helper_distinguishes_consumption_apim_from_monitoring_path`; seeded five follow-on `(candidate)` rows; 29 scoped tests passed; python ordering guard OK.
@@ -8389,9 +8391,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
