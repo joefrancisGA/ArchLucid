@@ -69,6 +69,36 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task TryClaimAsync_after_ReleaseAsync_only_one_concurrent_caller_wins()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool first = await sut.TryClaimAsync(TenantA, "Jira", "delivery-post-release-race", CancellationToken.None);
+        await sut.ReleaseAsync(TenantA, "Jira", "delivery-post-release-race", CancellationToken.None);
+
+        const int parallelClaims = 12;
+        using Barrier startBarrier = new(parallelClaims);
+        Task<bool>[] tasks = new Task<bool>[parallelClaims];
+
+        for (int index = 0; index < parallelClaims; index++)
+        {
+            tasks[index] = Task.Run(async () =>
+            {
+                startBarrier.SignalAndWait();
+
+                return await sut.TryClaimAsync(TenantA, "Jira", "delivery-post-release-race", CancellationToken.None);
+            });
+        }
+
+        bool[] results = await Task.WhenAll(tasks);
+
+        first.Should().BeTrue();
+        results.Count(claimed => claimed).Should().Be(1);
+        results.Count(claimed => !claimed).Should().Be(parallelClaims - 1);
+    }
+
+    [Fact]
     public async Task ReleaseAsync_after_TryClaimAsync_allows_a_new_claim()
     {
         using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });

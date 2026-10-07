@@ -84,6 +84,71 @@ public sealed class ItsmInboundWebhookFacadeTests
         result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
     }
 
+    [Fact]
+    public async Task ProcessAsync_returns_unauthorized_when_hmac_required_and_signature_missing()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+            RequireBodyHmacSignature = true,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookSyncService sync = CreateSyncService();
+
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ProcessAsync_skips_timestamp_skew_when_header_is_whitespace_only()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+            WebhookTimestampSkewSeconds = 120,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookSyncService sync = CreateSyncService();
+
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+                TimestampHeader = "   ",
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().NotBe(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
     private static ItsmInboundWebhookSyncService CreateSyncService()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
