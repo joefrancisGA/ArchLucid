@@ -31143,7 +31143,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 38 · **Bugs found:** 34 · **Consecutive dry hunts:** 10
+**Hunts:** 39 · **Bugs found:** 34 · **Consecutive dry hunts:** 11
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `uses runId preview for awaiting-approval when name is omitted`, `clears local favorites when server continuity sends empty favoriteReviews`; 40 scoped continuity, scope-storage, and attention-preview vitest tests passed.
+
+- [x] (valid-no-repro) `getEffectiveBrowserProxyScopeHeaders` — signed-in sticky demo scope ignored when sample visit inactive — **cheap-disproof 2026-10-07 seed hunt #39:** signed-in users must not send demo tenant headers after registration; regression `getEffectiveBrowserProxyScopeHeaders_ignoresStickyDemoStorageForSignedInUsersWithoutSampleVisit`.
+- [x] (valid-no-repro) `shouldHydrateWorkingWorkspaceContinuityFromServer` — hydrates when local watermark absent even if server payload empty — **cheap-disproof 2026-10-07 seed hunt #39:** first explicit server hydrate always allowed when no local watermark; regression `hydrates from server when local continuity watermark is absent`.
+- [x] (valid-no-repro) `resolveAttentionPartitionPreview` — `awaiting-approval` uses `runId` when name omitted — **cheap-disproof 2026-10-07 seed hunt #39:** intentional `?? runId` fallback for queue rows without display name; regression `uses runId preview for awaiting-approval when name is omitted`.
+- [x] (valid-no-repro) `buildWorkingWorkspaceContinuityPayload` — includes `updatedAtUtc` on every PUT payload — **cheap-disproof 2026-10-07 seed hunt #39:** server last-write-wins requires fresh timestamp; regression `builds payload from local pins and recents`.
+- [x] (valid-no-repro) `applyWorkingWorkspaceContinuityFromServer` — clears favorites when server sends empty `favoriteReviews` — **cheap-disproof 2026-10-07 seed hunt #39:** explicit server hydrate overwrites device pins (IH-066); regression `clears local favorites when server continuity sends empty favoriteReviews`.
+
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — treats empty server `updatedAtUtc` as always-hydrate even when local watermark exists — locus: ~153–154; input: `hydrates when server omits updatedAtUtc even if local watermark exists`.
+- [ ] (candidate) `getEffectiveBrowserProxyScopeHeaders` — local operator scope wins when all ids set — locus: `readOperatorScopeFromStorage` ~216–231; input: `getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet`.
+- [ ] (candidate) `resolveAttentionPartitionPreview` — `alerts` partition uses `alertId` when title whitespace-only — locus: ~45–46; input: `returns empty preview when alert title is whitespace-only`.
+- [ ] (candidate) `toFavoriteReviewRows` — drops rows with empty `runId` on server hydrate — locus: runId trim ~50–54; input: malformed favorite row with blank runId.
+- [ ] (candidate) `applyWorkingWorkspaceContinuityFromServer` — persists empty recent-view schema when server sends no recents — locus: `createEmptyRecentViewsState` ~165–168; input: `clears local recents when server continuity payload omits recent view entries`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `refuses hydrate when continuity fetch is not explicit`, `hydrates title-only favorite rows from server without architectureId`, `writes local continuity watermark from server updatedAtUtc after hydrate`, `does not fall back to runId when awaiting-approval name trims to empty string`; 38 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 

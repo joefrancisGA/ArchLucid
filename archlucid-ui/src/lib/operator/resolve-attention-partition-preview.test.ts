@@ -59,6 +59,21 @@ describe("resolveAttentionPartitionPreview", () => {
     expect(preview).toBe("Active review");
   });
 
+  it("uses runId preview for awaiting-approval when name is omitted", () => {
+    const preview = resolveAttentionPartitionPreview({
+      partition: "awaiting-approval",
+      topUnfinishedItem: null,
+      assignedFindingTitle: null,
+      topAwaitingApproval: {
+        runId: "run-await",
+      },
+      topAlert: null,
+      runs: [],
+    });
+
+    expect(preview).toBe("run-await");
+  });
+
   it("returns empty preview when awaiting-approval name is whitespace-only", () => {
     const preview = resolveAttentionPartitionPreview({
       partition: "awaiting-approval",
