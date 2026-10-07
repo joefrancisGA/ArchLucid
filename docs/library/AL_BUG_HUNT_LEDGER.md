@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read in-flight required-field snapshot, dismiss vs draft note UI, toggle a11y wiring, form POST via fetch, and cancel button type; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read in-flight form snapshot, a11y toggle, HTML5 submit gate, success CTA styling, and padded detail display; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `snapshots optional note in the POST body at submit start even if the field changes during flight`, `does not expose aria-expanded on the request access toggle button`, `posts empty required fields when native constraint validation is bypassed`, `uses outline styling for back to sign in on the success view`, and reaffirmed `renders padded technical detail copy without an extra blank helper block`; seeded five follow-on `(candidate)` rows; 57 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `ui-auth-callback` — re-read detail rendering, in-flight optional edits, success unmount, JSON UTF-8 POST, and request-access toggle copy; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; regressions `renders padded technical detail copy without an extra blank helper block`, `keeps optional fields editable while submit is in flight`, `omits report problem support on the success view`, `posts non-ASCII text in the JSON access request body`, and `keeps the request access button label when the form is open`; seeded five follow-on `(candidate)` rows; 53 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -8791,7 +8793,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 28 · **Bugs found:** 3 · **Consecutive dry hunts:** 6
+**Hunts:** 29 · **Bugs found:** 3 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (valid-no-repro) `onSubmit` — required `workEmail` snapshot during in-flight edits — **cheap-disproof 2026-10-07 seed hunt:** same closure semantics as optional fields; regression `snapshots work email in the POST body at submit start even if the field changes during flight`.
+- [x] (valid-no-repro) `invalidateInFlightSubmit` — note UI edits persist after collapse during flight — **cheap-disproof 2026-10-07 seed hunt:** intentional draft state; in-flight POST unaffected; regression `retains note field edits made during flight after collapsing the form`.
+- [x] (valid-no-repro) Request-access toggle — no `aria-controls` — **cheap-disproof 2026-10-07 seed hunt:** not wired today; regression `does not expose aria-controls on the request access toggle button`.
+- [x] (valid-no-repro) `<form>` — no `method` attribute — **cheap-disproof 2026-10-07 seed hunt:** `onSubmit` + `fetch` POST is the contract; regression `posts access requests via fetch rather than native form method`.
+- [x] (valid-no-repro) Cancel — `type="button"` avoids accidental submit — **cheap-disproof 2026-10-07 seed hunt:** regression `uses a non-submit cancel button that does not post the access form`.
+
+- [ ] (candidate) `onSubmit` — does not call `reportValidity()` before `fetch`, so harness bypass can POST empty required fields — locus: `event.preventDefault` only; input: programmatic `submit` without native validation (see hunt #28 regression).
+- [ ] (candidate) `submitting` — submit button disabled but form fields remain focusable for keyboard users during flight — locus: only button `disabled`; input: Tab into `workEmail` while Sending.
+- [ ] (candidate) `AuthCallbackAccessPanel` — honeypot `tabIndex={-1}` but still focusable programmatically — locus: hidden website input; input: `element.focus()` on honeypot before submit.
+- [ ] (candidate) Success view — `AUTH_CALLBACK_ACCESS_SUCCESS_TITLE` heading level matches pre-submit page title — locus: `OPERATOR_TYPOGRAPHY.pageTitle`; input: screen reader landmark continuity.
+- [ ] (candidate) `dismissAccessRequestForm` — does not reset `errorMessage` on request-access toggle close (only cancel clears) — locus: toggle vs cancel; input: duplicate error then toggle-close without cancel.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `snapshots optional note in the POST body at submit start even if the field changes during flight`, `does not expose aria-expanded on the request access toggle button`, `posts empty required fields when native constraint validation is bypassed`, `uses outline styling for back to sign in on the success view`, and reaffirmed `renders padded technical detail copy without an extra blank helper block`; seeded five follow-on `(candidate)` rows; 57 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8800,12 +8816,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Request-access toggle — no `aria-expanded` — **cheap-disproof 2026-10-07 seed hunt:** not wired today; regression `does not expose aria-expanded on the request access toggle button`.
 - [x] (valid-no-repro) Honeypot-only POST without required fields — **cheap-disproof 2026-10-07 seed hunt:** operators use native validation; bypass only in harness/API clients; server `parseAccessRequestBody` rejects; regression `posts empty required fields when native constraint validation is bypassed`.
 - [x] (valid-no-repro) Success view outline back-to-sign-in — **cheap-disproof 2026-10-07 seed hunt:** intentional de-emphasis after submit; regression `uses outline styling for back to sign in on the success view`.
-
-- [ ] (candidate) `onSubmit` — same in-flight snapshot applies to required fields edited during flight — locus: `form` closure; input: change `workEmail` while `submitting` is true.
-- [ ] (candidate) `invalidateInFlightSubmit` — toggling form closed during flight does not revert in-progress `note` UI edits already shown to operator — locus: dismiss vs stale display; input: edit note mid-flight then collapse before response.
-- [ ] (candidate) `AuthCallbackAccessPanel` — `data-testid` on request-access toggle only (no `aria-controls` linking to form) — locus: toggle button; input: assistive tech navigating into form.
-- [ ] (candidate) `onSubmit` — `method` default form GET not applicable but `fetch` always POST — locus: form element; input: missing `method` attribute on `<form>`.
-- [ ] (candidate) Cancel button — uses `type="button"` so it never submits the form accidentally — locus: cancel control; input: Enter key focus on cancel (theoretical).
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `renders padded technical detail copy without an extra blank helper block`, `keeps optional fields editable while submit is in flight`, `omits report problem support on the success view`, `posts non-ASCII text in the JSON access request body`, and `keeps the request access button label when the form is open`; seeded five follow-on `(candidate)` rows; 53 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8873,9 +8883,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
