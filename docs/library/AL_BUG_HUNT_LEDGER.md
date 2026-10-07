@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write`, `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`, and `TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key`; 16 scoped `SqlTenantSettingsRepository` tests plus 42 `TenantSettings_` caching tests passed.
+
 2026-10-07 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `GetContextsAsync_excludes_learning_profile_outside_caller_scope`, `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`, `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`, and `SimulateAsync_WhenNoContexts_AddsNoRunsNote`; 35 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-10-07 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five seeded `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `VerifyCodeAsync_returns_failure_when_otp_auth_disabled`, `VerifyCodeAsync_returns_failure_when_challenge_id_is_empty`, `VerifyCodeAsync_returns_failure_without_audit_when_challenge_is_unknown`, `VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`, and `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`; reaffirmed `TryCompleteAsync_allows_only_one_successful_completion`; 44 scoped Email OTP Application tests passed.
@@ -4292,7 +4294,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 43 · **Bugs found:** 7 · **Consecutive dry hunts:** 5
+**Hunts:** 44 · **Bugs found:** 7 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 16 scoped `SqlTenantSettingsRepository` tests plus 42 `TenantSettings_` caching tests passed.
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — write trims `SettingValue` while read trims returned scalar — **cheap-disproof 2026-10-07 seed hunt #44:** symmetric normalization for new writes; `UpsertAsync_round_trips_trimmed_key_and_value`; legacy interior whitespace trimmed on read by design (`TryGetCoreAsync` ~68).
+- [x] (invalid) `CachingTenantSettingsRepository.TryGetAsync` — negative cache survives hybrid TTL when generation unchanged — **cheap-disproof 2026-10-07 seed hunt #44:** generation-stamped keys intentionally hold stale positives until wrapper write; regression `TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write`.
+- [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — embedded `\\u0000` within trim budget — **cheap-disproof 2026-10-07 seed hunt #44:** length guard counts UTF-16 code units only; no scalar charset gate (same class as supplementary-plane acceptance).
+- [x] (invalid) `SqlTenantSettingsRepository` — `OperationCanceledException` retried as transient — **cheap-disproof 2026-10-07 seed hunt #44:** `SqlTransientDetector.IsTransient` handles `SqlException`/`TimeoutException` only; cancel propagates from Polly; regression `TenantSettings_TryGetAsync_reflects_upsert_after_tryget_canceled_during_cold_cache_load`.
+- [x] (invalid) `InMemoryTenantSettingsRepository` — concurrent upsert/delete without generation stamps — **cheap-disproof 2026-10-07 seed hunt #44:** dev/test inner only; production uses `CachingTenantSettingsRepository` generation + write-in-flight; regression `TenantSettings_TryGetAsync_returns_null_after_concurrent_delete_on_same_key`.
+
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — whitespace-only `SettingValue` row in SQL maps to `null` — locus: `string.IsNullOrWhiteSpace(value)` ~68 (`SqlTenantSettingsRepository.cs`); input: direct SQL seed with spaces-only value.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — `WriteInFlightKeys` bypasses cache and reads inner during in-flight upsert — locus: ~29–30; input: `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`.
+- [ ] (candidate) `TenantSettingKeyNormalizer` — tab-padded keys collapse to one slot — locus: normalize on read/write; input: `UpsertAsync_round_trips_tab_padded_setting_key_to_same_slot`.
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — rejects `settingValue` failing `ThrowIfNullOrWhiteSpace` before MERGE — locus: ~81; input: `EnsureSettingValueLength_rejects_whitespace_only_value`.
+- [ ] (candidate) `CachingTenantSettingsRepository.DeleteAsync` — bumps cache generation twice around inner delete — locus: `BumpCacheGeneration` / `InvalidateCurrentGenerationCacheAsync` (~80–86); input: delete-after-upsert cache coherence tests in `CachingReferenceDataRepositoryTests`.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 55 scoped tenant-settings tests passed.
 
@@ -4302,12 +4318,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `SqlTenantSettingsRepository.DeleteCoreAsync` — concurrent upsert loses to delete without transaction — **cheap-disproof 2026-10-07 thorough hunt:** last-writer SQL semantics; wrapper generation bumps and write-in-flight bypass expose latest committed value; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`.
 - [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — missing read-time `Trim()` vs SQL — **cheap-disproof 2026-10-07 thorough hunt:** duplicate of 2026-10-06 row; `UpsertAsync` stores trimmed values and rejects whitespace-only writes; no production path seeds interior-whitespace-only in-memory rows.
 
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — `SettingValue.Trim()` on write vs `value.Trim()` on read hides interior whitespace legacy rows from operator settings consumers — locus: asymmetric trim (`SqlTenantSettingsRepository.cs` ~68 vs ~107).
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — `TenantSettingCacheEntry.IsPresent=false` negative cache survives hybrid TTL expiry when generation unchanged — locus: `GetOrCreateAsync` miss slot (`CachingTenantSettingsRepository.cs` ~43–44).
-- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — accepts JSON with `\u0000` embedded within the 512 trim budget — locus: length guard without scalar validation (`TenantSettingsWriteGuard.cs`).
-- [ ] (candidate) `SqlTenantSettingsRepository` — `SqlResilientOperationExecutor` surfaces `OperationCanceledException` as retry-eligible transient failure — locus: `ExecuteAsync` policy vs `CancellationToken` on MERGE (`SqlTenantSettingsRepository.cs` ~33–36).
-- [ ] (candidate) `InMemoryTenantSettingsRepository` — concurrent `UpsertAsync`/`DeleteAsync` on same slot without generation stamps can serve stale reads in dev-only stacks — locus: `ConcurrentDictionary` last-writer (`InMemoryTenantSettingsRepository.cs`).
-
 2026-10-07 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; regressions `EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget`, `EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget`, `TenantSettings_TryGetAsync_reflects_upsert_after_cancel_when_upsert_ran_during_delayed_cold_load`, and `UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot`; seeded five follow-on `(candidate)` rows; 54 scoped tenant-settings tests passed.
 
 - **id:** tenant-settings-sql
@@ -4316,9 +4326,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
