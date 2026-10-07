@@ -8780,3 +8780,4 @@
 {"at":"2026-10-07T12:53:07.9836649Z","zoneId":"host-infra-evidence-composition","outcome":"dry","productLine":"securenow"}
 {"at":"2026-10-07T13:01:52.7833166Z","zoneId":"orchestrator-transient-retry","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T13:06:02.3824729Z","zoneId":"ui-auth-callback","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T13:10:12.9451825Z","zoneId":"cli-terraform-evidence","outcome":"dry","productLine":"archlucid-shared"}
