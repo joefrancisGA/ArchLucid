@@ -308,6 +308,148 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_task_ids_differ_only_by_full_width_digits_form_separate_groups()
+    {
+        AgentExecutionTrace asciiDigitTask = new()
+        {
+            TraceId = "trace-ascii",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace fullWidthDigitTask = new()
+        {
+            TraceId = "trace-fullwidth",
+            // U+FF11 FULLWIDTH DIGIT ONE — not normalized by trim-only keys.
+            TaskId = "task-\uFF11",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([asciiDigitTask, fullWidthDigitTask]);
+
+        latest.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void Select_when_task_ids_differ_only_by_variation_selector_form_separate_groups()
+    {
+        AgentExecutionTrace visibleTask = new()
+        {
+            TraceId = "trace-visible",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace variationSelectorTask = new()
+        {
+            TraceId = "trace-fe0f",
+            TaskId = "manifest-task\uFE0F",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([visibleTask, variationSelectorTask]);
+
+        latest.Should().HaveCount(2);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-visible", "trace-fe0f"]);
+    }
+
+    [Fact]
+    public void Select_when_task_ids_differ_only_by_zero_width_characters_form_separate_groups()
+    {
+        AgentExecutionTrace visibleTask = new()
+        {
+            TraceId = "trace-visible",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace zwspTask = new()
+        {
+            TraceId = "trace-zwsp",
+            TaskId = "manifest-task\u200B",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+        AgentExecutionTrace zwnjTask = new()
+        {
+            TraceId = "trace-zwnj",
+            TaskId = "manifest-task\u200C",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([visibleTask, zwspTask, zwnjTask]);
+
+        latest.Should().HaveCount(3);
+        latest.Select(static t => t.TraceId).Should().BeEquivalentTo(["trace-visible", "trace-zwsp", "trace-zwnj"]);
+    }
+
+    [Fact]
+    public void Select_when_negative_attempt_index_does_not_win_over_attempt_zero()
+    {
+        AgentExecutionTrace negativeRejected = new()
+        {
+            TraceId = "trace-negative-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = -1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace zeroAccepted = new()
+        {
+            TraceId = "trace-zero",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([negativeRejected, zeroAccepted]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-zero");
+    }
+
+    [Fact]
+    public void Select_when_same_attempt_quality_warning_flag_and_rejected_duplicate_prefers_rejected_trace()
+    {
+        DateTime sharedUtc = new(2026, 12, 20, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace warningPatchedDuplicate = new()
+        {
+            TraceId = "trace-a-warning-patched",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = true,
+            RecordedQualityGateOutcome = null,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([warningPatchedDuplicate, rejectedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-z-rejected");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_rejected_newer_and_warned_older_prefers_warned_trace()
     {
         DateTime olderUtc = new(2026, 12, 3, 10, 0, 0, DateTimeKind.Utc);

@@ -54,4 +54,33 @@ public sealed class DraftNewCommandOptionsTests
         options.Should().BeNull();
         error.Should().Contain("--bogus");
     }
+
+    [Fact]
+    public void Parse_preserves_surrounding_whitespace_on_system_name_flag()
+    {
+        DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(
+            ["--system-name", "  Contoso API  "],
+            out string? error);
+
+        error.Should().BeNull();
+        options.Should().NotBeNull();
+        options!.SystemName.Should().Be("  Contoso API  ");
+    }
+
+    [Fact]
+    public void Parse_duplicate_text_flag_uses_last_value()
+    {
+        const string firstIntent =
+            "First intent that is long enough to pass validation when mistakenly treated as authoritative for draft new intake.";
+        const string secondIntent =
+            "Second intent that is long enough to pass validation and should win when --text is specified twice on the CLI.";
+
+        DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(
+            ["--text", firstIntent, "--text", secondIntent],
+            out string? error);
+
+        error.Should().BeNull();
+        options.Should().NotBeNull();
+        options!.IntentText.Should().Be(secondIntent);
+    }
 }

@@ -160,10 +160,39 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
+
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts));
+    }
+
+    [Fact]
+    public void Outer_commit_max_attempts_exceeds_inner_polly_retry_attempt_budget_by_design()
+    {
+        CommitRunTransientRetryPolicy.MaxAttempts.Should().BeGreaterThan(4);
+    }
+
+    [Fact]
     public void Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget()
     {
         TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
 
         minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                11,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse(
+                "authority commit loop may still run one more attempt while inner Polly backoff remains bounded by RetryBudget");
     }
 }

@@ -7,12 +7,18 @@ using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Graphviz;
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
+using ArchLucid.Application.InfraEvidence.RemediationMetrics;
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
+using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -366,6 +372,278 @@ public sealed class InfraEvidenceCompositionModuleTests
         result.Succeeded.Should().BeTrue(result.ErrorMessage);
         result.Hub.Should().NotBeNull();
         result.Hub!.CloudResourceId.Should().Be(upserted.CloudResourceId);
+    }
+
+    [Fact]
+    public void InfraEvidenceCompositionModule_repeated_register_duplicates_diff_consumer_descriptors()
+    {
+        ServiceCollection services = [];
+        IConfiguration configuration = new ConfigurationBuilder().Build();
+        InfraEvidenceCompositionModule.Register(services, configuration);
+        InfraEvidenceCompositionModule.Register(services, configuration);
+
+        int diffConsumerRegistrations = services.Count(
+            static descriptor => descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer));
+
+        diffConsumerRegistrations.Should().Be(4,
+            "MS DI collects every IAzureInventoryDiffConsumer registration; production calls Register once via AddInfraEvidenceCapability");
+
+        services.Count(static descriptor =>
+                descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer)
+                && descriptor.ImplementationType == typeof(AuditContinuousReadinessDiffConsumer))
+            .Should().Be(2);
+
+        services.Count(static descriptor =>
+                descriptor.ServiceType == typeof(IAzureInventoryDiffConsumer)
+                && descriptor.ImplementationType == typeof(SecureNowArchitectDiffConsumer))
+            .Should().Be(2);
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_diagram_advisory_services()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IStructuredDiagramIngestService>()
+            .Should().BeOfType<StructuredDiagramIngestService>();
+        serviceScope.ServiceProvider.GetRequiredService<IDiagramInfrastructureReconciliationService>()
+            .Should().BeOfType<DiagramInfrastructureReconciliationService>();
+        serviceScope.ServiceProvider.GetRequiredService<IInfrastructureDiagramComparisonService>()
+            .Should().BeOfType<InfrastructureDiagramComparisonService>();
+        serviceScope.ServiceProvider.GetRequiredService<IVisionDiagramIngestService>()
+            .Should().BeOfType<VisionDiagramIngestService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_ask_grounding_sparse_identifiers_returns_insufficient_evidence()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IInfraEvidenceAskGroundingService askGroundingService =
+            serviceScope.ServiceProvider.GetRequiredService<IInfraEvidenceAskGroundingService>();
+
+        InfraEvidenceAskGroundingResult result = await askGroundingService.TryAnswerAsync(
+            scope,
+            new InfraEvidenceAskRequest
+            {
+                Question = "What infrastructure changed in this workspace?",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue(result.ErrorMessage);
+        result.Response.Should().NotBeNull();
+        result.Response!.InsufficientEvidence.Should().BeTrue(
+            "collector returns an empty bundle when no CloudResourceId, DiffId, or topic-specific identifiers are supplied");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_remediation_factory_workbench_and_brand_asset_blob_store()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        IRemediationFactoryWorkbenchQueryService workbenchQueryService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationFactoryWorkbenchQueryService>();
+
+        RemediationFactoryWorkbenchSummary summary = await workbenchQueryService.GetSummaryAsync(
+            scope,
+            CancellationToken.None);
+
+        summary.FactoryMetrics.Should().NotBeNull();
+        summary.OpenInstancesByStatus.Should().NotBeNull();
+        summary.Waves.Should().NotBeNull();
+
+        serviceScope.ServiceProvider.GetRequiredService<ITenantBrandAssetBlobStore>()
+            .Should().BeOfType<NullTenantBrandAssetBlobStore>(
+                "OpenAPI-like InMemory hosts disable artifact blob offload; brand uploads fail at WriteAsync with an explicit operator message");
+
+        serviceScope.ServiceProvider.GetRequiredService<IBrandAssetService>()
+            .Should().BeOfType<BrandAssetService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_operator_inferred_questionnaire_returns_empty_without_snapshot_detail()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        Guid snapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IOperatorInferredConnectionService operatorInferredService =
+            serviceScope.ServiceProvider.GetRequiredService<IOperatorInferredConnectionService>();
+
+        IReadOnlyList<OperatorInferredConnectionRecord> questionnaire =
+            await operatorInferredService.ListQuestionnaireBySnapshotAsync(
+                scope,
+                snapshotId,
+                CancellationToken.None);
+
+        questionnaire.Should().BeEmpty(
+            "InMemory NoOp repository returns no rows; empty questionnaire is the expected local-host outcome, not a DI failure");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_operator_inferred_disposition_lineage_and_hybrid_audit_services()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IOperatorInferredConnectionService>()
+            .Should().BeOfType<OperatorInferredConnectionService>();
+        serviceScope.ServiceProvider.GetRequiredService<IInferenceQuestionnaireItemGenerator>()
+            .Should().BeOfType<InferenceQuestionnaireItemGenerator>();
+        serviceScope.ServiceProvider.GetRequiredService<ISecureNowQuestionDispositionService>()
+            .Should().BeOfType<SecureNowQuestionDispositionService>();
+        serviceScope.ServiceProvider.GetRequiredService<ICloudResourceAuditLineageResolver>()
+            .Should().BeOfType<CloudResourceAuditLineageResolver>();
+        serviceScope.ServiceProvider.GetRequiredService<IAuditHybridEvidenceQueryService>()
+            .Should().BeOfType<AuditHybridEvidenceQueryService>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_worker_role_validates_infra_evidence_post_materialize_wiring()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        configuration["Hosting:Role"] = "Worker";
+
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        serviceScope.ServiceProvider.GetRequiredService<IAzureInventorySnapshotPostMaterializeCoordinator>()
+            .Should().BeOfType<AzureInventorySnapshotPostMaterializeCoordinator>();
+        serviceScope.ServiceProvider.GetServices<IAzureInventoryDiffConsumer>()
+            .Select(consumer => consumer.GetType())
+            .Should()
+            .Contain(typeof(AuditContinuousReadinessDiffConsumer))
+            .And.Contain(typeof(SecureNowArchitectDiffConsumer));
+    }
+
+    [Fact]
+    public async Task InMemory_composition_resolves_drift_workbench_path_routing_and_snapshot_graph_boundaries()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+
+        IInfraEvidenceDriftWorkbenchQueryService driftWorkbench =
+            serviceScope.ServiceProvider.GetRequiredService<IInfraEvidenceDriftWorkbenchQueryService>();
+
+        PagedResponse<AzureInventorySnapshotRecord> snapshots = await driftWorkbench.ListSnapshotsAsync(
+            scope,
+            page: 1,
+            pageSize: 10,
+            subscriptionId: null,
+            CancellationToken.None);
+
+        snapshots.Items.Should().NotBeNull();
+        snapshots.TotalCount.Should().BeGreaterThanOrEqualTo(0);
+
+        IAzureInventorySnapshotGraphResolver graphResolver =
+            serviceScope.ServiceProvider.GetRequiredService<IAzureInventorySnapshotGraphResolver>();
+
+        AzureInventorySnapshotGraphResolveResult missingSnapshot = await graphResolver.TryResolveGraphAsync(
+            scope,
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            cancellationToken: CancellationToken.None);
+
+        missingSnapshot.Succeeded.Should().BeFalse();
+        missingSnapshot.ErrorMessage.Should().Contain("not found");
+
+        ISecurityEvidencePathRoutingSyncService pathRoutingSync =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityEvidencePathRoutingSyncService>();
+
+        await pathRoutingSync.SyncSnapshotAsync(scope, Guid.Empty, CancellationToken.None);
+
+        IBrandedDiagramExportComposer composer =
+            serviceScope.ServiceProvider.GetRequiredService<IBrandedDiagramExportComposer>();
+        IBrandedDiagramExportService exportService =
+            serviceScope.ServiceProvider.GetRequiredService<IBrandedDiagramExportService>();
+
+        composer.Should().BeOfType<BrandedDiagramExportComposer>();
+        exportService.Should().BeOfType<BrandedDiagramExportService>();
+        composer.DecorateMermaidSource("graph TD\n  A-->B", "Acme").Should().Contain("%% title: Acme");
     }
 
     private static ScopeContext CreateDefaultScope() =>

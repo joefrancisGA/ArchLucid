@@ -275,6 +275,26 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_TryGetAsync_returns_null_after_second_delete_on_already_absent_key()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "cached", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("cached");
+
+        await repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+
+        await repo.DeleteAsync(tenantId, "feature.x", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task TenantSettings_TryGetAsync_returns_null_after_delete_on_absent_key_without_poisoning_other_cached_keys()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

@@ -54,6 +54,18 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim()
+    {
+        string exactLimit = new('v', TenantSettingsSchemaLimits.SettingValueMaxLength);
+        string padded = "  " + exactLimit + "  ";
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(padded);
+
+        act.Should().NotThrow();
+        padded.Trim().Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
     public void EnsureSettingValueLength_rejects_whitespace_only_value()
     {
         Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");

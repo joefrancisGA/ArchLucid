@@ -80,7 +80,7 @@ public static class GraphSnapshotKnowledgeModelMerger
         };
     }
 
-    private static string NormalizeNodeId(string nodeId) => nodeId.Trim();
+    private static string NormalizeNodeId(string nodeId) => (nodeId ?? string.Empty).Trim();
 
     private static GraphNode NormalizeNodeIdWhitespace(GraphNode node)
     {

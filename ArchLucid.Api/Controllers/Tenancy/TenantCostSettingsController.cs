@@ -2,6 +2,7 @@
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -31,6 +32,7 @@ public sealed class TenantCostSettingsController(
     ITenantCostSettingsRepository repository,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
+    IActorContext actorContext,
     IOptions<ValueReportComputationOptions> computationOptions,
     ITenantRepository tenantRepository) : ControllerBase
 {
@@ -38,6 +40,9 @@ public sealed class TenantCostSettingsController(
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ValueReportComputationOptions _defaults =
         computationOptions?.Value ?? throw new ArgumentNullException(nameof(computationOptions));
@@ -122,7 +127,8 @@ public sealed class TenantCostSettingsController(
 
         decimal eaDiscountMultiplier = ResolveEaDiscountMultiplier(body, existing);
 
-        string actor = User.Identity?.Name ?? "operator";
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
 
         TenantCostSettingsRecord record = new()
@@ -132,7 +138,7 @@ public sealed class TenantCostSettingsController(
             AverageIncidentCostUsd = body.AverageIncidentCostUsd,
             EaDiscountMultiplier = eaDiscountMultiplier,
             UpdatedUtc = updatedUtc,
-            UpdatedByActorId = actor,
+            UpdatedByActorId = actorUserId,
         };
 
         await _repository.UpsertAsync(record, cancellationToken);
@@ -148,8 +154,8 @@ public sealed class TenantCostSettingsController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantCostSettingsUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

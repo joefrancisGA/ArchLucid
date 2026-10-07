@@ -10,8 +10,48 @@ namespace ArchLucid.Api.Middleware;
 /// </summary>
 internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 {
+    private static PathString NormalizeRequestPath(PathString path)
+    {
+        string? value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
+            return path;
+
+        while (value.StartsWith("//", StringComparison.Ordinal))
+            value = value[1..];
+
+        while (value.Contains("//", StringComparison.Ordinal))
+            value = value.Replace("//", "/", StringComparison.Ordinal);
+
+        string[] segments = value.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        List<string> normalizedSegments = [];
+
+        foreach (string segment in segments)
+        {
+            if (segment == ".")
+                continue;
+
+            if (segment == "..")
+            {
+                if (normalizedSegments.Count > 0)
+                    normalizedSegments.RemoveAt(normalizedSegments.Count - 1);
+
+                continue;
+            }
+
+            normalizedSegments.Add(segment);
+        }
+
+        if (normalizedSegments.Count == 0)
+            return new PathString("/");
+
+        return new PathString("/" + string.Join('/', normalizedSegments));
+    }
+
     private static bool Skip(PathString path)
     {
+        path = NormalizeRequestPath(path);
+
         if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -29,7 +69,7 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
     /// <summary>Runs after authentication; denies tenant routes during erasure quarantine.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (Skip(context.Request.Path) || context.User.Identity?.IsAuthenticated != true)
+        if (Skip(NormalizeRequestPath(context.Request.Path)) || context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
 

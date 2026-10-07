@@ -250,6 +250,115 @@ public sealed class ArtifactExportControllerRunExportTests
     }
 
     [Fact]
+    public async Task DownloadTerraformAdvisoryExport_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService(),
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId));
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = Guid.NewGuid(),
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
+            });
+
+        IActionResult result = await sut.DownloadTerraformAdvisoryExport(runId, CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateTerraformPr_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+        Mock<ITerraformGitHubPrService> terraformPr = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            terraformGitHubPrService: terraformPr.Object,
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService(),
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId));
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    GoldenManifestId = Guid.NewGuid(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = Guid.NewGuid(),
+                    ManifestHash = SealedManifestHashTestSupport.DefaultHash,
+                },
+            });
+
+        IActionResult result = await sut.CreateTerraformPr(runId, CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        terraformPr.Verify(
+            t => t.CreatePrAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DownloadRunExport_returns_409_when_authority_lifecycle_not_complete()
     {
         Guid runId = Guid.NewGuid();
@@ -534,6 +643,74 @@ public sealed class ArtifactExportControllerRunExportTests
             Times.Never);
         builder.Verify(
             b => b.BuildAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<byte[]?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ListArtifactsForRun_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactQueryService> artifacts = new();
+
+        ArtifactExportController sut = CreateController(
+            out _,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId),
+            artifactQueryService: artifacts.Object);
+
+        IActionResult result = await sut.ListArtifactsForRun(runId, CancellationToken.None);
+
+        ObjectResult blocked = result.Should().BeOfType<ObjectResult>().Subject;
+        blocked.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            blocked.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions["blockReasonCode"].Should().Be(CareerArtifactCompletenessValidator.SimulatorRehearsalCode);
+        artifacts.Verify(
+            q => q.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadBundleForRun_returns_409_when_working_career_simulator_unlabeled()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+
+        ArtifactExportController sut = CreateController(
+            out _,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            runDetailQueryService: CreateBlockedSimulatorRunDetails(runId),
+            artifactPackagingService: packaging.Object);
+
+        IActionResult result = await sut.DownloadBundleForRun(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        packaging.Verify(
+            p => p.BuildBundlePackage(It.IsAny<Guid>(), It.IsAny<IReadOnlyList<SynthesizedArtifact>>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

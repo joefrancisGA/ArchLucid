@@ -153,7 +153,6 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "quick-scan",
   "rag-health",
   "recommendation-learning",
-  "report-a-problem-help",
   "repeat-review-loop-help",
   "reviews-new",
   "risk-exceptions",
@@ -181,7 +180,6 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "trial-funnel",
   "trust-center",
   "troubleshooting-help",
-  "users-and-roles-help",
   "validate-route",
   "webhooks-integration",
   "welcome",
@@ -202,6 +200,7 @@ const CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES: ReadonlyMap<string, string>
   ["glossary-help", "help-glossary"],
   ["pilot-guide-help", "help-pilot-guide"],
   ["procurement-help", "procurement"],
+  ["policy-packs-help", "help-policy-packs"],
   ["help-path-chooser-bottom", "help-path-chooser"],
 ]);
 

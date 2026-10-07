@@ -52,4 +52,47 @@ public sealed class AgentProposalStructuralPostProcessorEnricherTests
         evidence.StructuralGroundingDropLog.Should().ContainSingle()
             .Which.Should().Contain("contradicts confirmed HTTPS constraint");
     }
+
+    [Fact]
+    public async Task EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "HTTPS-only brief",
+            SystemName = "brief-grounding-enricher",
+            Constraints = ["HTTPS only for all public endpoints"],
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "run-1",
+            RequestId = "req-1",
+            StructuralGroundingDropLog = ["prior-batch drop"],
+        };
+
+        AgentResult retryResult = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "public-http-gateway",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentProposalStructuralPostProcessorEnricher enricher = new();
+
+        await enricher.EnrichAsync("run-1", request, evidence, [retryResult]);
+
+        evidence.StructuralGroundingDropLog.Should().HaveCount(2);
+        evidence.StructuralGroundingDropLog[0].Should().Be("prior-batch drop");
+        evidence.StructuralGroundingDropLog[1].Should().Contain("contradicts confirmed HTTPS constraint");
+    }
 }

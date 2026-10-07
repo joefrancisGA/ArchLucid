@@ -160,6 +160,15 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_classifies_pipeline_dead_letter_after_leading_unicode_whitespace_before_open_brace()
+    {
+        const string json = "\u2003{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
+
+        // Leading-brace gate uses TrimStart (ASCII whitespace only); writers emit trimmed object JSON (#1203).
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_json_array_root_even_when_element_has_pipeline_dead_letter()
     {
         const string json = """

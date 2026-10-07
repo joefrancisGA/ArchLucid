@@ -5,6 +5,9 @@ public interface IRunExecuteOwnershipLeaseService
 {
     bool IsEnabled { get; }
 
+    /// <summary>True when this process instance has successfully acquired execute ownership for the run on this host.</summary>
+    bool IsLocallyHoldingExecuteOwnership(Guid runId);
+
     /// <summary>Throws <see cref="ArchLucid.Contracts.Common.ConflictException" /> when another holder owns a live lease.</summary>
     Task AcquireAsync(Guid runId, CancellationToken cancellationToken);
 

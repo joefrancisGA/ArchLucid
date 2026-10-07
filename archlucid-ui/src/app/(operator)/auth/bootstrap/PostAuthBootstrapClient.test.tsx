@@ -201,6 +201,50 @@ describe("PostAuthBootstrapClient (TB-1469 mid-flow recovery)", () => {
   });
 });
 
+describe("PostAuthBootstrapClient returnUrl hygiene (/al-bug ui-auth-proxy)", () => {
+  beforeEach(() => {
+    fetchPostAuthBootstrapStatus.mockReset();
+    acceptPostAuthInvitation.mockReset();
+    selectPostAuthWorkspace.mockReset();
+    navigationState.search = `returnUrl=${encodeURIComponent("//evil.example/phish")}`;
+  });
+
+  it("passes sanitized returnUrl into bootstrap status and accept/select helpers", async () => {
+    fetchPostAuthBootstrapStatus.mockResolvedValue({
+      destination: "AcceptInvitation",
+      pendingInvitations: [
+        {
+          invitationId: "inv-1",
+          label: "Northwind",
+          maskedInvitedEmail: "a***@example.com",
+          requiresEmailMismatchConfirmation: false,
+        },
+      ],
+      workspaces: [],
+      canCreateWorkspace: false,
+    });
+    acceptPostAuthInvitation.mockResolvedValue(null);
+
+    render(<PostAuthBootstrapClient />);
+
+    await waitFor(() => {
+      expect(fetchPostAuthBootstrapStatus).toHaveBeenCalled();
+    });
+
+    expect(fetchPostAuthBootstrapStatus).toHaveBeenCalledWith(undefined, null);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("bootstrap-accept-invitation-inv-1")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("bootstrap-accept-invitation-inv-1"));
+
+    await waitFor(() => {
+      expect(acceptPostAuthInvitation).toHaveBeenCalledWith("inv-1", null, undefined, false);
+    });
+  });
+});
+
 describe("PostAuthBootstrapClient (TB-927 invitation query token)", () => {
   beforeEach(() => {
     fetchPostAuthBootstrapStatus.mockReset();

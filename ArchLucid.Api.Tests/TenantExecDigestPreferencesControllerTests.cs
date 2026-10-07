@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Serialization;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -878,11 +879,83 @@ public sealed class TenantExecDigestPreferencesControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task PostExecDigestPreferences_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        ExecDigestPreferencesResponse saved = new()
+        {
+            TenantId = Scope.TenantId,
+            IsConfigured = true,
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+            IanaTimeZoneId = "America/New_York",
+            DayOfWeek = 1,
+            HourOfDay = 8,
+        };
+
+        Mock<ITenantExecDigestPreferencesRepository> repository = new();
+        repository
+            .Setup(r => r.GetByTenantAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ExecDigestPreferencesResponse?)null);
+        repository
+            .Setup(r => r.UpsertAsync(
+                Scope.TenantId,
+                true,
+                It.IsAny<IReadOnlyList<string>>(),
+                "America/New_York",
+                1,
+                8,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(saved);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantExecDigestPreferencesController controller = CreateController(
+            scopeProvider.Object,
+            repository.Object,
+            audit.Object,
+            actorContext: actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new System.Security.Claims.ClaimsPrincipal(
+                    new System.Security.Claims.ClaimsIdentity(
+                        [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  Display Name  ")],
+                        "test")),
+            },
+        };
+
+        ExecDigestPreferencesUpsertRequest body = new()
+        {
+            EmailEnabled = true,
+            RecipientEmails = ["exec@contoso.test"],
+        };
+
+        await controller.PostExecDigestPreferences(body, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("actor-id@test");
+        captured.ActorUserName.Should().Be("  Display Name  ");
+    }
+
     private static TenantExecDigestPreferencesController CreateController(
         IScopeContextProvider scopeProvider,
         ITenantExecDigestPreferencesRepository preferencesRepository,
         IAuditService auditService,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IActorContext? actorContext = null)
     {
         Mock<ITenantRepository> tenants = new();
         tenants
@@ -893,6 +966,7 @@ public sealed class TenantExecDigestPreferencesControllerTests
             scopeProvider,
             preferencesRepository,
             auditService,
+            actorContext ?? Mock.Of<IActorContext>(),
             tenantRepository ?? tenants.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

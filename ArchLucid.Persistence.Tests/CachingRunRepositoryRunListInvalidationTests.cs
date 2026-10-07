@@ -107,4 +107,58 @@ public sealed class CachingRunRepositoryRunListInvalidationTests
 
         afterUpdate.Items.Single().LegacyRunStatus.Should().Be("Committed");
     }
+
+    [SkippableFact]
+    public async Task ListRecentInScope_first_page_cache_isolated_per_list_shape()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryRunRepository inner = new();
+        CachingRunRepository repo = new(inner, hotPath);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime now = TimeProvider.System.UtcNowDateTime();
+
+        RunRecord newer = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "default",
+            CreatedUtc = now,
+        };
+
+        RunRecord older = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "default",
+            CreatedUtc = now.AddHours(-1),
+        };
+
+        await inner.SaveAsync(older, CancellationToken.None);
+        await inner.SaveAsync(newer, CancellationToken.None);
+
+        RunListPage keysetPage =
+            await repo.ListRecentInScopeKeysetAsync(scope, null, null, 10, CancellationToken.None);
+
+        IReadOnlyList<RunRecord> unpagedList =
+            await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None);
+
+        unpagedList.Select(r => r.RunId).Should().Equal(newer.RunId, older.RunId);
+
+        RunListPage offsetPage =
+            await repo.ListRecentInScopeOffsetAsync(scope, 0, 10, CancellationToken.None);
+
+        offsetPage.Items.Select(r => r.RunId).Should().Equal(keysetPage.Items.Select(r => r.RunId));
+    }
 }

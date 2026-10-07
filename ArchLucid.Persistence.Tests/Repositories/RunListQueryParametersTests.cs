@@ -127,6 +127,35 @@ public sealed class RunListQueryParametersTests
         Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
     }
 
+    /// <summary>
+    ///     Project list filters use <see cref="RunRepositoryCore.AuthorityProjectSlugMatches" /> in-memory without
+    ///     <c>Require*</c> Unicode trim, so SQL bind values must not strip tabs on seeks either.
+    /// </summary>
+    [Fact]
+    public void ForProjectList_preserves_tab_prefix_in_normalized_slug_like_in_memory_list_filter()
+    {
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), "\tbilling", 10);
+
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestCommittedByManifestCreatedUtc_preserves_tab_prefix_in_normalized_slug_like_in_memory_committed_seek()
+    {
+        object parameters = RunListQueryParameters.ForLatestCommittedByManifestCreatedUtc(Scope(), "\tbilling");
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks()
+    {
+        DateTime asOfUtc = new(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+        object parameters = RunListQueryParameters.ForLatestGraphAtOrBefore(Scope(), "\tbilling", asOfUtc);
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
     [Fact]
     public void ForActiveRunWithSystemNameInWorkspace_normalizes_tab_prefixed_seek_like_in_memory_require()
     {

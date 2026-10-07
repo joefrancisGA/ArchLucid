@@ -333,6 +333,17 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         leaves.IndexOf("infra/terraform-monitoring").Should().BeGreaterThan(leaves.IndexOf("infra/terraform"));
     }
 
+    [Fact]
+    public void DefaultApplyOrderRoots_leaf_order_differs_from_lexicographic_sort_of_paths()
+    {
+        List<string> leaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+        List<string> lexicographic = leaves.OrderBy(leaf => leaf, StringComparer.Ordinal).ToList();
+
+        lexicographic.Should().NotEqual(leaves, "hosted apply order is authoritative sequence, not sorted paths");
+        leaves.IndexOf("infra/terraform").Should().BeLessThan(leaves.IndexOf("infra/terraform-monitoring"));
+        leaves.IndexOf("infra/terraform-private").Should().BeLessThan(leaves.IndexOf("infra/terraform-keyvault"));
+    }
+
     private static string RequireRepositoryRoot()
     {
         string? repoRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot(AppContext.BaseDirectory);

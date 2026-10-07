@@ -95,6 +95,22 @@ public sealed class UnsupportedSemanticSupportFinalizeHoldEvaluatorTests
     }
 
     [Fact]
+    public void Applies_is_false_when_warn_only_even_with_unsupported_hold_flag_on()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            PilotStrictHoldOnUnsupportedSemanticSupport = true,
+        };
+
+        UnsupportedSemanticSupportFinalizeHoldEvaluator
+            .Applies(new ArchitectureRun { StructuralExecutionMode = StructuralExecutionMode.Real }, options)
+            .Should()
+            .BeFalse("TB-1228 unsupported-band hold is PilotStrict-only like trace quality-gate blocking");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_flag_off_returns_empty()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
