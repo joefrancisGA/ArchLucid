@@ -988,6 +988,103 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders padded technical detail copy without an extra blank helper block", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="  Token exchange failed.  " />);
+
+    const detail = screen.getByTestId("auth-callback-technical-detail");
+    expect(detail).toBeInTheDocument();
+    expect(detail.textContent?.trim()).toBe("Token exchange failed.");
+  });
+
+  it("keeps optional fields editable while submit is in flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL })).toBeDisabled();
+    });
+
+    expect(screen.getByLabelText("Cloud / platform focus (optional)")).not.toHaveAttribute("disabled");
+    expect(screen.getByLabelText("Brief note (optional)")).not.toHaveAttribute("disabled");
+
+    resolveFetch?.(new Response(null, { status: 204 }));
+    vi.unstubAllGlobals();
+  });
+
+  it("omits report problem support on the success view", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 204 })),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("fatal-page-report-problem-row")).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("posts non-ASCII text in the JSON access request body", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Renée Müller" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Société Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { name: string; company: string };
+
+    expect(body.name).toBe("Renée Müller");
+    expect(body.company).toBe("Société Fabrikam");
+    expect(requestInit.headers).toMatchObject({ "Content-Type": "application/json" });
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the request access button label when the form is open", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+
+    expect(screen.getByTestId("auth-callback-request-access")).toHaveTextContent(AUTH_CALLBACK_ACCESS_REQUEST_ACTION);
+  });
+
   it("omits technical detail paragraph when technicalDetail is whitespace only", () => {
     render(<AuthCallbackAccessPanel technicalDetail="   " />);
 
