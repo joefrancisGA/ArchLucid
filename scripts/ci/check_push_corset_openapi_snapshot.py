@@ -61,6 +61,19 @@ def main(argv: list[str] | None = None) -> int:
                 "before snapshot compare (regen after a green compile, not against a broken tree)",
             )
 
+    ensure_build = root / "scripts" / "ci" / "ensure_openapi_contract_build.sh"
+
+    if ensure_build.is_file():
+        ensure_text = ensure_build.read_text(encoding="utf-8", errors="replace")
+        # setup-dotnet cache post-step looks at ~/.nuget/packages. A repo-local
+        # NUGET_PACKAGES redirect on GITHUB_ACTIONS fails the job after tests pass.
+
+        if "GITHUB_ACTIONS" not in ensure_text:
+            errors.append(
+                "scripts/ci/ensure_openapi_contract_build.sh: must keep the default "
+                "NuGet folder on GITHUB_ACTIONS so setup-dotnet cache post-step succeeds",
+            )
+
     api_tests = root / _API_TESTS_CSPROJ
 
     if not api_tests.is_file():
