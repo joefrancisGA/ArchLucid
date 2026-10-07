@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `security-analyzers` — proved `HttpMethodAttribute` POST/PUT/DELETE/PATCH was not tracked for AL0003; cheap-disproved extension `LogAsync`, partial-method body split, primary-constructor ARCH001, and `ArchLucid.Api.TestHost` AL0001 scope; regression `AL0003_reports_when_HttpMethod_post_action_lacks_IAudit_LogAsync`; 66 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `security-analyzers` — re-read `RequireAuthorizationAnalyzer`, `TenantIdentityBoundaryAnalyzer`, and `MutatingControllerAuditAnalyzer` after marketing churn; no hunt-ready row promoted; seeded five `(candidate)` rows; 61 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-07 thorough hunt (hit): `ui-marketing-surfaces` — proved `fetchShowcasePayload` accepted `runExplanation: null`; cheap-disproved get-started sign-in href parity, quick-scan privacy URL param preservation, see-it HTTP 304 snapshot contract, and showcase `api_fallback` telemetry mode; regression `treats API payloads missing runExplanation as invalid`; 20 scoped vitest tests passed.
@@ -13670,6 +13672,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: security-analyzers
 
+2026-10-07 thorough hunt #24 (hit): proved `MethodHasTrackedVerbAttribute` ignored `HttpMethodAttribute` mutating verbs; cheap-disproved four seeded candidates; seeded five follow-on `(candidate)` rows; 66 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt #23 (seed-only): re-read the three analyzer implementations and scoped regressions; no hunt-ready row promoted; seeded five `(candidate)` rows; 61 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 - **id:** security-analyzers
@@ -13678,11 +13682,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 23
-- **bugs-found:** 21
+- **hunts:** 24
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-30 — AL0003 false-positive for shadowed mutating actions in deeply nested controllers
+- **last-bug:** 2026-10-07 — AL0003 missed HttpMethodAttribute POST/PUT/DELETE/PATCH
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13750,11 +13754,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` reports referenced base actions conservatively without inspecting their compiled bodies, so a referenced `[HttpPost]` action that logs through a concrete `IAuditService` implementation may receive a false-positive AL0003 — **cheap-disproved 2026-09-30:** compiled metadata exposes no method body or operation graph to the analyzer, so the suspected audited-body distinction is not reachable as a falsifiable analyzer behavior without changing the analyzer's supported metadata contract; retain as a design limitation rather than a proven defect.
 - [x] (proven) `MutatingControllerAuditAnalyzer` misses shadowed virtual mutating actions in controllers nested more than one type level deep — **hit 2026-09-30 seed hunt:** `GetNamedTypesInAssembly` enumerated only direct and one-level nested types, so a deeply nested audited override was invisible to `IsShadowedVirtualMutatingAction` and the unaudited base action emitted a false-positive AL0003; fixed with recursive nested-type enumeration; regression `AL0003_does_not_report_shadowed_mutating_action_in_deeply_nested_controller`.
 
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.InvocationMatchesAuditInterfaceSemantic` — extension-method `LogAsync` calls may bind to a static extension container instead of `IAuditService` — locus: callee `ContainingType` / interface implementation walk (`MutatingControllerAuditAnalyzer.cs` ~574–624); input: `[HttpPost]` Api action that awaits `audit.LogAsync(...)` when the only `LogAsync` symbol is an extension method in the compilation; wrong outcome: false-positive AL0003 despite audited body.
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.MethodHasTrackedVerbAttribute` — `[HttpMethod("POST")]` / `[HttpMethod("PUT")]` are not tracked verb attributes — locus: `TrackedVerbAttribute` short-name filter (`MutatingControllerAuditAnalyzer.cs` ~360–363); input: Api controller action decorated with `HttpMethodAttribute` mutating verb without `IAuditService.LogAsync`; wrong outcome: AL0003 silent while endpoint still maps as POST/PUT.
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — primary-constructor parameters may not surface banned types via `IdentifierName`/`GenericName` syntax actions — locus: syntax registration (`TenantIdentityBoundaryAnalyzer.cs` ~36–37); input: inner-layer type `public sealed class Handler(ClaimsPrincipal user)` with no field or local referencing the parameter; wrong outcome: ARCH001 silent on tenant identity leakage surface.
-- [ ] (candidate) `RequireAuthorizationAnalyzer.ShouldAnalyzeAssembly` — only `*.Tests` suffix is excluded — locus: `EndsWith(".Tests")` (`RequireAuthorizationAnalyzer.cs` ~58–59); input: test-support assembly named `ArchLucid.Api.TestHost` hosting a `ControllerBase` derivative without `[Authorize]`; wrong outcome: AL0001 noise or missed policy depending on intended test-host scope.
-- [ ] (candidate) `MutatingControllerAuditAnalyzer.SemanticBodiesInvokeAuditLogAsync` — only inspects `DeclaringSyntaxReferences` in the current syntax tree — locus: `ReferenceEquals(declaringReference.SyntaxTree, semanticModelTreeScoped)` (`MutatingControllerAuditAnalyzer.cs` ~549–552); input: `partial` Api controller where `[HttpPost]` attributes live on a different partial declaration syntax tree than the method body containing `LogAsync`; wrong outcome: AL0003 false positive when body partial is not co-analyzed with attribute partial in the same semantic-model pass ordering.
+- [x] (proven) `MutatingControllerAuditAnalyzer.MethodHasTrackedVerbAttribute` — `[HttpMethod("POST")]` / PUT / DELETE / PATCH not tracked — **hit 2026-10-07 thorough hunt #24:** `HttpMethodAttributeDeclaresMutatingVerb` reads constructor HTTP method literals; regression `AL0003_reports_when_HttpMethod_post_action_lacks_IAudit_LogAsync`.
+- [x] (invalid) `MutatingControllerAuditAnalyzer.InvocationMatchesAuditInterfaceSemantic` — extension-method `LogAsync` false positive — **cheap-disproof 2026-10-07 thorough hunt #24:** extension invocation still satisfies audit detection; regression `AL0003_is_absent_when_LogAsync_is_called_via_extension_method`.
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer` — primary-constructor `ClaimsPrincipal` gap — **cheap-disproof 2026-10-07 thorough hunt #24:** parameter type surfaces ARCH001; regression `Reports_ClaimsPrincipal_primary_constructor_parameter_in_inner_layer_assembly`.
+- [x] (invalid) `RequireAuthorizationAnalyzer.ShouldAnalyzeAssembly` — `ArchLucid.Api.TestHost` exclusion gap — **cheap-disproof 2026-10-07 thorough hunt #24:** non-`.Tests` host assemblies are intentionally analyzed; regression `Reports_public_action_without_authorization_in_test_host_named_assembly`.
+- [x] (invalid) `MutatingControllerAuditAnalyzer.SemanticBodiesInvokeAuditLogAsync` — partial declaration/body split false positive — **cheap-disproof 2026-10-07 thorough hunt #24:** merged partial method with `[HttpPost]` on signature part and `LogAsync` on implementation part stays clean; regression `AL0003_is_absent_when_LogAsync_lives_on_partial_method_implementation`.
+
+- [ ] (candidate) `MutatingControllerAuditAnalyzer.HttpMethodAttributeDeclaresMutatingVerb` — only constructor literals are inspected — locus: `ConstructorArgumentContainsMutatingHttpMethod` (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpMethod]` with named property bag or attribute subclass supplying verbs outside constructor args; wrong outcome: AL0003 silent on mutating routes using non-constructor attribute shapes.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer.AnalyzeReferencedBaseActions` — still skips referenced-base actions that declare mutating verbs only via `HttpMethodAttribute` — locus: referenced-base traversal (`MutatingControllerAuditAnalyzer.cs` ~135–180); input: shared controller assembly with `[HttpMethod("POST")]` only; wrong outcome: derived Api controller inherits unaudited mutating action without AL0003 after #24 fix for in-compilation syntax only.
+- [ ] (candidate) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — inherited-action scan runs only when derived type has zero qualifying declared public methods — locus: `!hasQualifyingPublicMethods` gate (`RequireAuthorizationAnalyzer.cs` ~146–192); input: derived controller adds one authorized action while base still exposes a public unauthenticated action; wrong outcome: AL0001 misses inherited unauthorized action (re-open only if cheap-disproof from 2026-09-30 regresses).
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `global using` alias to banned type in file header may bypass `IdentifierName` parent checks — locus: `AnalyzeIdentifierOrGeneric` qualified-name pruning (`TenantIdentityBoundaryAnalyzer.cs` ~64–71); input: `global using Principal = System.Security.Claims.ClaimsPrincipal;` then `void M(Principal p)`; wrong outcome: ARCH001 silent when alias target is not re-walked.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `InvocationMatchesAuditInterfaceSemantic` ignores `LogAsync` invocations through `dynamic` or delegate-typed audit fields — locus: `GetSymbolInfo` callee resolution (`MutatingControllerAuditAnalyzer.cs` ~580–584); input: `[HttpPost]` action calling `await ((IAuditService)_field).LogAsync(...)` or delegate indirection; wrong outcome: false-positive AL0003 when audit call exists but callee symbol is not resolved to interface implementation.
 
 ---
 

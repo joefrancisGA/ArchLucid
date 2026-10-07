@@ -560,6 +560,42 @@ namespace N
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task Reports_public_action_without_authorization_in_test_host_named_assembly()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class TestHostController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(42, 30, 42, 33)
+            .WithArguments("TestHostController.Get()");
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms =
+            {
+                (solution, projectId) => solution.WithProjectAssemblyName(projectId, "ArchLucid.Api.TestHost"),
+            },
+        };
+
+        await test.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 }

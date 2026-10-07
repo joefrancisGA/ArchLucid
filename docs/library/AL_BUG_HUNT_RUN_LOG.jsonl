@@ -1,5 +1,3 @@
-{"at":"2026-09-07T23:34:46.0169358Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
-{"at":"2026-09-07T23:38:07.0788624Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
 {"at":"2026-09-07T23:47:03.8363957Z","zoneId":"application-pilots","outcome":"hit"}
 {"at":"2026-09-07T23:51:25.7066013Z","zoneId":"architecture-recommendation","outcome":"hit"}
 {"at":"2026-09-07T23:54:21.5882958Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
@@ -8798,3 +8796,4 @@
 {"at":"2026-10-07T23:19:47.0201585Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}
 {"at":"2026-10-07T23:26:29.6966903Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}
 {"at":"2026-10-07T23:32:04.5295086Z","zoneId":"security-analyzers","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs,ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs,ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs"]}
+{"at":"2026-10-07T23:43:09.6675351Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs,ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs,ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs"]}
