@@ -1226,6 +1226,47 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_list_by_architecture_id_clears_warning_projection_flags_like_sql_lightweight_select()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                HasWarnings = true,
+                HasGovernanceWarnings = true,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByArchitectureIdAsync(scope, architectureId, CancellationToken.None);
+
+        listed.Should().ContainSingle();
+        listed[0].HasWarnings.Should().BeFalse();
+        listed[0].HasGovernanceWarnings.Should().BeFalse();
+
+        RunRecord? stored = await runs.GetByIdAsync(scope, listed[0].RunId, CancellationToken.None);
+
+        stored.Should().NotBeNull();
+        stored!.HasWarnings.Should().BeTrue("detail reads retain in-memory warning flags; architecture list projection omits them like SQL.");
+        stored.HasGovernanceWarnings.Should().BeTrue();
+    }
+
+    [Fact]
     public void ListByArchitectureId_inline_select_omits_run_list_warning_joins()
     {
         const string architectureListProjection = """
@@ -1236,8 +1277,17 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
 
         architectureListProjection.Should().NotContain("HasWarnings");
         architectureListProjection.Should().NotContain("HasGovernanceWarnings");
+        architectureListProjection.Should().NotContain("ArchitectureRequestId");
+        architectureListProjection.Should().NotContain("KnowledgeModelId");
         RunListWarningFlagSql.SelectColumns.Should().Contain("HasWarnings");
         RunListWarningFlagSql.SelectColumns.Should().Contain("HasGovernanceWarnings");
+    }
+
+    [Fact]
+    public void SelectPriorCommittedRunIdForArchitectureBeforeCurrent_orders_by_run_created_utc_not_manifest_created_utc()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should().NotContain("gm.CreatedUtc");
     }
 
     [Fact]

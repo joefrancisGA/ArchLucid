@@ -26,6 +26,7 @@ public sealed partial class InMemoryRunRepository
                 && run.ArchitectureId == architectureId)
             .OrderByDescending(run => run.CreatedUtc)
             .ThenByDescending(run => run.RunId)
+            .Select(RunRepositoryCore.ForArchitectureListProjection)
             .ToList();
 
         return Task.FromResult<IReadOnlyList<RunRecord>>(runs);
