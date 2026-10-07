@@ -227,6 +227,65 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     }
 
     [Fact]
+    public async Task TryResolveGraphAsync_copies_firewall_ip_configurations_onto_the_graph()
+    {
+        Guid firewallRow = Guid.Parse("66666666-1111-4000-8000-000000000001");
+        Guid vnetRow = Guid.Parse("66666666-1111-4000-8000-000000000002");
+        const string firewallId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+        const string vnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetId = vnetId + "/subnets/AzureFirewallSubnet";
+        string ipConfigurations =
+            "[{\"properties\":{\"subnet\":{\"id\":\"" + subnetId + "\"}}}]";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = firewallRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = firewallId,
+                        ResourceType = "Microsoft.Network/azureFirewalls",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                    CreateVnet(vnetRow, vnetId),
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = firewallRow,
+                        PropertyKey = "ipConfigurations",
+                        PropertyValue = ipConfigurations,
+                    },
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = vnetRow,
+                        PropertyKey = "subnets",
+                        PropertyValue = "[{\"id\":\"" + subnetId + "\"}]",
+                    },
+                ],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode firewall = result.Graph!.Nodes.Single(node => node.Properties["arm.id"] == firewallId);
+        GraphNode vnet = result.Graph.Nodes.Single(node => node.Properties["arm.id"] == vnetId);
+
+        firewall.Properties["ipConfigurations"].Should().Contain(subnetId);
+        vnet.Properties["subnets"].Should().Contain(subnetId);
+        result.Graph.Nodes.Should().NotContain(node =>
+            (node.Properties.GetValueOrDefault("arm.type") ?? string.Empty)
+                .Contains("virtualNetworks/subnets", StringComparison.OrdinalIgnoreCase));
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(firewall, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().NotContain("is not in this inventory snapshot");
+    }
+
+    [Fact]
     public async Task TryResolveGraphAsync_copies_public_ip_ip_configuration_id()
     {
         Guid publicIpRow = Guid.Parse("55555555-1111-4000-8000-000000000001");

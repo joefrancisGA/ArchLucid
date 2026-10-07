@@ -506,6 +506,15 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             return;
         }
 
+        AddFirewallAssociationsFromIpConfigurations(resource, rows, keys);
+        AddFirewallAssociationsFromFlattenedSubnetIds(resource, rows, keys);
+    }
+
+    private static void AddFirewallAssociationsFromIpConfigurations(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
         string? ipConfigurationsJson = TryReadProperty(resource.Properties, "ipConfigurations");
 
         if (string.IsNullOrWhiteSpace(ipConfigurationsJson))
@@ -539,6 +548,32 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
         catch (JsonException)
         {
+        }
+    }
+
+    private static void AddFirewallAssociationsFromFlattenedSubnetIds(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        foreach (string subnetId in ReadDelimitedIds(resource.Properties, "ipConfiguration.subnet.id"))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                subnetId,
+                AzureInventoryRelationshipAssociationTypes.FirewallToSubnet);
+        }
+
+        foreach (string subnetId in ReadDelimitedIds(resource.Properties, "managementIpConfiguration.subnet.id"))
+        {
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                subnetId,
+                AzureInventoryRelationshipAssociationTypes.FirewallToSubnet);
         }
     }
 

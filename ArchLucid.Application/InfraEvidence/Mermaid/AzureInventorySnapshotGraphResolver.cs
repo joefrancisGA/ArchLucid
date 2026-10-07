@@ -360,8 +360,20 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 resourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
                 && (property.PropertyKey.Equals("ipConfiguration.id", StringComparison.OrdinalIgnoreCase)
                     || property.PropertyKey.Equals("natGateway.id", StringComparison.OrdinalIgnoreCase));
+            bool isFirewallSubnetProperty =
+                resourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)
+                && (property.PropertyKey.Equals("ipConfigurations", StringComparison.OrdinalIgnoreCase)
+                    || property.PropertyKey.Equals(
+                        "managementIpConfiguration.subnet.id",
+                        StringComparison.OrdinalIgnoreCase)
+                    || property.PropertyKey.StartsWith(
+                        "ipConfiguration.subnet.id[",
+                        StringComparison.OrdinalIgnoreCase));
 
-            if (isBastionSubnetProperty || isVirtualNetworkSubnetsProperty || isPublicIpIpConfigurationProperty)
+            if (isBastionSubnetProperty
+                || isVirtualNetworkSubnetsProperty
+                || isPublicIpIpConfigurationProperty
+                || isFirewallSubnetProperty)
             {
                 node.Properties[property.PropertyKey] = property.PropertyValue;
             }

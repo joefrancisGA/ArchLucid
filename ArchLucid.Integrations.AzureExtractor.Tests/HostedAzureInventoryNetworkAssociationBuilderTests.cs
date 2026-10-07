@@ -530,4 +530,41 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
             row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet
                    && row.FromResourceId == workspaceId);
     }
+
+    [Fact]
+    public void Build_emits_firewall_to_subnet_from_flattened_subnet_ids()
+    {
+        const string firewallId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+        const string dataSubnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureFirewallSubnet";
+        const string managementSubnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureFirewallManagementSubnet";
+
+        HostedAzureArmResourceRecord firewall = new(
+            ResourceType: "Microsoft.Network/azureFirewalls",
+            ResourceId: firewallId,
+            Name: "fw1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["ipConfiguration.subnet.id[0]"] = dataSubnetId,
+                ["managementIpConfiguration.subnet.id"] = managementSubnetId,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([firewall]);
+
+        Assert.Equal(2, associations.Count);
+        Assert.Contains(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.FirewallToSubnet
+                   && row.ToResourceId == dataSubnetId);
+        Assert.Contains(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.FirewallToSubnet
+                   && row.ToResourceId == managementSubnetId);
+    }
 }

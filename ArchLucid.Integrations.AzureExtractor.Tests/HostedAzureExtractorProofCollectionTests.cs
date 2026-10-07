@@ -3,6 +3,8 @@ using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
 
+using Xunit;
+
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class HostedAzureExtractorProofCollectionTests
