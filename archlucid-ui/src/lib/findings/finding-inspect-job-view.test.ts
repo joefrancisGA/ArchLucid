@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyInspectPayloadJobView } from "@/lib/findings/finding-inspect-job-view";
+import {
+  classifyInspectPayloadJobView,
+  mapInspectPayloadToQuickDecisionFinding,
+} from "@/lib/findings/finding-inspect-job-view";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 function basePayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -47,5 +50,9 @@ describe("finding-inspect-job-view", () => {
     );
 
     expect(jobView).toBe("answer-these-questions");
+  });
+
+  it("preserves missing severity when mapping an inspect payload", () => {
+    expect(mapInspectPayloadToQuickDecisionFinding(basePayload()).severityValue).toBeNull();
   });
 });

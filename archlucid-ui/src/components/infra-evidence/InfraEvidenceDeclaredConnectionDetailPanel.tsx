@@ -118,7 +118,7 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Approved by</dt>
-          <dd className="m-0">—</dd>
+          <dd className="m-0">Approver was not included on the loaded connection</dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Expires</dt>

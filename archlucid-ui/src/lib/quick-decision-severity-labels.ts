@@ -18,7 +18,11 @@ export function firstRecommendationSentence(text: string): string {
   return t;
 }
 
-export function severityBadgeLabel(severityValue: number): string {
+export function severityBadgeLabel(severityValue: number | null | undefined): string {
+  if (severityValue == null) {
+    return "Severity was not stored";
+  }
+
   switch (severityValue) {
     case 3:
       return "Critical";
@@ -33,7 +37,11 @@ export function severityBadgeLabel(severityValue: number): string {
 }
 
 /** Maps numeric quick-decision severity to SeverityTag kind. */
-export function severityKindFromNumericValue(severityValue: number): FindingSeverityKind {
+export function severityKindFromNumericValue(severityValue: number | null | undefined): FindingSeverityKind {
+  if (severityValue == null) {
+    return "unknown";
+  }
+
   switch (severityValue) {
     case 3:
       return "critical";
@@ -45,9 +53,31 @@ export function severityKindFromNumericValue(severityValue: number): FindingSeve
       return "medium";
 
     case 0:
-    default:
       return "info";
+
+    default:
+      return "unknown";
   }
+}
+
+export function compareFindingSeverity(
+  left: number | null,
+  right: number | null,
+  order: "ascending" | "descending" = "descending",
+): number {
+  if (left === null) {
+    return right === null ? 0 : 1;
+  }
+
+  if (right === null) {
+    return -1;
+  }
+
+  return order === "ascending" ? left - right : right - left;
+}
+
+export function hasFindingSeverityAtLeast(severityValue: number | null, minimum: number): boolean {
+  return severityValue !== null && severityValue >= minimum;
 }
 
 /** Display metadata for a raw `FindingHumanReviewStatus` wire value; `null` when there is nothing worth surfacing. */
@@ -112,9 +142,9 @@ export function humanReviewStatusDisplay(
   }
 }
 
-function normalizedSeverity(severityValue: number): number {
+function normalizedSeverity(severityValue: number): number | null {
   if (!Number.isFinite(severityValue)) {
-    return 0;
+    return null;
   }
 
   const n = Math.trunc(severityValue);
@@ -130,7 +160,7 @@ function normalizedSeverity(severityValue: number): number {
   return n;
 }
 
-export function coerceArchitectureFindingSeverity(raw: unknown): number {
+export function coerceArchitectureFindingSeverity(raw: unknown): number | null {
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return normalizedSeverity(raw);
   }
@@ -139,7 +169,7 @@ export function coerceArchitectureFindingSeverity(raw: unknown): number {
     const trimmed = raw.trim();
 
     if (trimmed.length === 0) {
-      return 0;
+      return null;
     }
 
     const parsed = /^-?\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : Number.NaN;
@@ -167,9 +197,9 @@ export function coerceArchitectureFindingSeverity(raw: unknown): number {
         return 0;
 
       default:
-        return 0;
+        return null;
     }
   }
 
-  return 0;
+  return null;
 }

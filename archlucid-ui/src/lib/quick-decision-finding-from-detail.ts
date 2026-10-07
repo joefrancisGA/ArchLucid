@@ -15,9 +15,10 @@ import {
 export type QuickDecisionFinding = {
   findingId: string;
   title: string;
+  category?: string | null;
   recommendation: string;
   /** Raw `FindingSeverity` enum numeric from API (higher = more severe). */
-  severityValue: number;
+  severityValue: number | null;
   /** Stable order within the flattened results/findings traversal. */
   findingOrder: number;
   /** Full finding record JSON + reasoning trace for optional Staged Critic / evaluation panel. */
@@ -156,7 +157,8 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
 
 /**
  * Flattens agent results findings from run detail (no extra HTTP calls).
- * Title prefers `message`, then `category`, then finding id.
+ * Title uses the stored message and does not substitute category or finding id
+ * when the message is absent.
  * Recommendation prefers `reasoningTrace`.
  */
 export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): QuickDecisionFinding[] {
@@ -202,8 +204,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const message = typeof fr.message === "string" ? fr.message.trim() : "";
       const category = typeof fr.category === "string" ? fr.category.trim() : "";
-      const title =
-        message.length > 0 ? message : category.length > 0 ? category : findingId;
+      const title = message.length > 0 ? message : "Finding title was not stored";
       const reasoning =
         typeof fr.reasoningTrace === "string" && fr.reasoningTrace.trim().length > 0
           ? fr.reasoningTrace.trim()
@@ -298,6 +299,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       out.push({
         findingId,
         title,
+        category: category.length > 0 ? category : null,
         recommendation: reasoning,
         severityValue,
         findingOrder: order++,

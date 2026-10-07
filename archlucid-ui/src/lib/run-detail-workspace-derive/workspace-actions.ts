@@ -75,6 +75,7 @@ export function deriveRecommendedWorkspaceActions(input: {
     (finding) =>
       !finding.isMuted &&
       !isFindingResolved(finding) &&
+      finding.severityValue !== null &&
       finding.severityValue >= 2 &&
       (finding.assignedToUserId?.trim() ?? "").length === 0,
   ).length;

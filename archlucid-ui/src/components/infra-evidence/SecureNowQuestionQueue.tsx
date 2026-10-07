@@ -25,10 +25,20 @@ export {
 
 type SecureNowQuestionQueueProps = SecureNowQuestionQueueProviderProps;
 
-function questionStatusLabel(status: string): string {
-  if (status === "Answered") return "Answered";
-  if (status === "Ignored" || status === "Dismissed") return "Dismissed";
-  return "Open";
+function questionStatusLabel(status: string | null): string {
+  if (status == null || status.trim().length === 0) {
+    return "Question status was not stored";
+  }
+
+  if (status === "Answered") {
+    return "Answered";
+  }
+
+  if (status === "Ignored" || status === "Dismissed") {
+    return "Dismissed";
+  }
+
+  return status;
 }
 
 function openQuestionsCountLabel(count: number): string {
@@ -105,7 +115,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     : null;
   const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
     ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
-    : null;
+    : "Resource name was not stored";
   const resourceOnDiagram = currentQuestion == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
@@ -118,22 +128,29 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-1">
-          {displayName != null ? (
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0" data-testid="infra-diagrams-question-resource-identity">
-              {friendlyType != null ? (
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{friendlyType}</span>
-              ) : null}
-              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-resource-name">
-                {displayName}
-              </span>
-            </div>
-          ) : null}
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0" data-testid="infra-diagrams-question-resource-identity">
+            {friendlyType != null ? (
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{friendlyType}</span>
+            ) : null}
+            <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-resource-name">
+              {displayName}
+            </span>
+          </div>
           {currentQuestion != null ? (
             <p
               className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
               data-testid="infra-diagrams-question-text"
             >
               {currentQuestion.questionText}
+            </p>
+          ) : null}
+          {currentQuestion != null && currentQuestion.status !== "Open" ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-question-answer">
+              Answer: {currentQuestion.answerText?.trim() || (
+                currentQuestion.answerCode != null
+                  ? secureNowQuestionAnswerLabel(currentQuestion.answerCode)
+                  : "Stored answer was not on this question"
+              )}
             </p>
           ) : null}
         </div>

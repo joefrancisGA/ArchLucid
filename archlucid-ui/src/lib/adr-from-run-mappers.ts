@@ -125,7 +125,7 @@ export function buildAdrGeneratorRunInput(args: {
   explanationSummary: RunExplanationSummary | null;
   quickDecisionFindings: readonly QuickDecisionFinding[];
   maxFindings?: number | null;
-  severityLabelForFinding: (severityValue: number) => string;
+  severityLabelForFinding: (severityValue: number | null) => string;
 }): AdrGeneratorRunInput {
   const maxFindings =
     args.maxFindings === null

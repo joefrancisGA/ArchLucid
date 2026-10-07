@@ -50,6 +50,24 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(md).toContain("| A/B C |");
     expect(md).not.toContain("|A|B");
   });
+
+  it("labels missing sponsor decision data without adding a generic action", () => {
+    const md = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ riskPosture: "", overallAssessment: "", themeSummaries: [], explanation: {
+        ...stubSummary().explanation!,
+        keyDrivers: [],
+        riskImplications: [],
+      } }),
+      [],
+    );
+
+    expect(md).toContain("Risk posture was not stored");
+    expect(md).toContain("Final decision was not stored");
+    expect(md).toContain("No sponsor action was stored on this review.");
+    expect(md).not.toContain("align owners");
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

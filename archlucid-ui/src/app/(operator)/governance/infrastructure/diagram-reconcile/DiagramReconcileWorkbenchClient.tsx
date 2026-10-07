@@ -118,6 +118,7 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { buildResourceHubDiagramsWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-ask-citations";
 import { InfraEvidenceSelectionAnnouncer } from "@/components/infra-evidence/InfraEvidenceSelectionAnnouncer";
+import { DiagramReconcileOverlay } from "@/components/infra-evidence/DiagramReconcileOverlay";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
 import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHubScopeLinks";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
@@ -160,6 +161,12 @@ import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governan
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { showSuccess } from "@/lib/toast";
+import {
+  buildDiagramReconcileCsv,
+  buildDiagramReconcileDenominatorSentence,
+  buildDiagramReconcileScorecard,
+  groupDiagramReconcileInventoryOnlyRows,
+} from "@/lib/infra-evidence/diagram-reconcile-scorecard";
 
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { DiagramReconcileClaimOrientationStrip } from "./DiagramReconcileClaimOrientationStrip";
@@ -318,6 +325,7 @@ export function DiagramReconcileWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [diagramSourceActionError, setDiagramSourceActionError] = useState<string | null>(null);
   const [reconcileActionError, setReconcileActionError] = useState<string | null>(null);
+  const [showMatchOnDrawing, setShowMatchOnDrawing] = useState(true);
   const [rowActionError, setRowActionError] = useState<{ correspondenceId: string; message: string } | null>(null);
   const [workbenchRetryNonce, setWorkbenchRetryNonce] = useState(0);
 
@@ -491,6 +499,40 @@ export function DiagramReconcileWorkbenchClient() {
     return visibleRows;
   }, [matchKindFilter, reconciliation?.rows, urlCloudResourceId]);
 
+  const displayedRows = useMemo(
+    () => {
+      const inventoryGroups = groupDiagramReconcileInventoryOnlyRows(filteredRows);
+      const nonInventoryRows = filteredRows.filter((row) => row.matchKind !== "InfrastructureOnly");
+
+      return {
+        inventoryGroups,
+        nonInventoryRows,
+        rowCount: inventoryGroups.length + nonInventoryRows.length,
+      };
+    },
+    [filteredRows],
+  );
+  const navigableRows = displayedRows.nonInventoryRows;
+
+  const scorecard = useMemo(
+    () => reconciliation == null ? null : buildDiagramReconcileScorecard(reconciliation),
+    [reconciliation],
+  );
+
+  const downloadReconciliationCsv = useCallback(() => {
+    if (reconciliation == null) {
+      return;
+    }
+
+    const blob = new Blob([buildDiagramReconcileCsv(reconciliation)], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `diagram-reconciliation-${reconciliation.snapshotId}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }, [reconciliation]);
+
   const deepLinkedCorrespondenceMissing = useMemo(() => {
     if (
       urlCorrespondenceId.length === 0
@@ -505,18 +547,8 @@ export function DiagramReconcileWorkbenchClient() {
       return true;
     }
 
-    return !reconciliation.rows.some((row) => {
-      if (row.correspondenceId !== urlCorrespondenceId) {
-        return false;
-      }
-
-      if (urlCloudResourceId.length === 0) {
-        return true;
-      }
-
-      return row.cloudResourceId === urlCloudResourceId;
-    });
-  }, [loadingReconciliation, reconciliation, runId, selectedSnapshotId, urlCloudResourceId, urlCorrespondenceId]);
+    return !navigableRows.some((row) => row.correspondenceId === urlCorrespondenceId);
+  }, [loadingReconciliation, navigableRows, reconciliation, runId, selectedSnapshotId, urlCorrespondenceId]);
 
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
   const hasStaleAuditUrlParams = useMemo(
@@ -551,7 +583,7 @@ export function DiagramReconcileWorkbenchClient() {
     document
       .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
       ?.scrollIntoView({ block: "nearest" });
-  }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
+  }, [navigableRows, selectedCorrespondenceId, urlCorrespondenceId]);
 
   useEffect(() => {
     if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
@@ -562,13 +594,13 @@ export function DiagramReconcileWorkbenchClient() {
       return;
     }
 
-    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+    const stillVisible = navigableRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
 
     if (!stillVisible) {
       setSelectedCorrespondenceId(null);
       syncUrl({ correspondenceId: "" });
     }
-  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
+  }, [loadingReconciliation, navigableRows, selectedCorrespondenceId, syncUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1076,19 +1108,19 @@ export function DiagramReconcileWorkbenchClient() {
 
   const selectAdjacentCorrespondenceRow = useCallback(
     (delta: number) => {
-      if (filteredRows.length === 0) {
+      if (navigableRows.length === 0) {
         return;
       }
 
       const currentIndex =
         selectedCorrespondenceId == null
           ? -1
-          : filteredRows.findIndex((row) => row.correspondenceId === selectedCorrespondenceId);
+          : navigableRows.findIndex((row) => row.correspondenceId === selectedCorrespondenceId);
       const nextIndex =
         currentIndex < 0
-          ? (delta > 0 ? 0 : filteredRows.length - 1)
-          : (currentIndex + delta + filteredRows.length) % filteredRows.length;
-      const nextRow = filteredRows[nextIndex];
+          ? (delta > 0 ? 0 : navigableRows.length - 1)
+          : (currentIndex + delta + navigableRows.length) % navigableRows.length;
+      const nextRow = navigableRows[nextIndex];
 
       if (nextRow == null) {
         return;
@@ -1100,7 +1132,7 @@ export function DiagramReconcileWorkbenchClient() {
         .querySelector(`[data-testid="infra-diagram-reconcile-row-${nextRow.correspondenceId}"]`)
         ?.scrollIntoView({ block: "nearest" });
     },
-    [filteredRows, selectedCorrespondenceId, syncUrl],
+    [navigableRows, selectedCorrespondenceId, syncUrl],
   );
 
   useDiagramReconcileWorkbenchShortcuts(
@@ -1192,14 +1224,14 @@ export function DiagramReconcileWorkbenchClient() {
       return null;
     }
 
-    const selectedRow = filteredRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
+    const selectedRow = navigableRows.find((row) => row.correspondenceId === selectedCorrespondenceId);
 
     if (selectedRow == null) {
       return `Showing diagram correspondence ${selectedCorrespondenceId}.`;
     }
 
     return `Showing diagram correspondence ${formatDiagramReconcileResourceLabelForDisplay(selectedRow)}.`;
-  }, [filteredRows, selectedCorrespondenceId]);
+  }, [navigableRows, selectedCorrespondenceId]);
 
   return (
     <OperatorPageContainer
@@ -1331,7 +1363,7 @@ export function DiagramReconcileWorkbenchClient() {
           data-testid="infra-diagram-reconcile-correspondence-deep-link-missing"
           role="status"
         >
-          The linked diagram correspondence row is not in the loaded reconciliation for this review and snapshot
+          The linked diagram correspondence row is not visible in the displayed results for this review and snapshot
           {urlCloudResourceId.length > 0 ? " for this scoped resource" : ""}.
         </p>
       ) : null}
@@ -1684,26 +1716,67 @@ export function DiagramReconcileWorkbenchClient() {
               </div>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {reconciliation.diagramNodeCount} diagram nodes · {reconciliation.inventoryResourceCount} inventory
-                resources · {filteredRows.length} visible row(s). Use <kbd className="font-mono text-xs">J</kbd> /{" "}
+                resources · {displayedRows.rowCount} visible row(s). Use <kbd className="font-mono text-xs">J</kbd> /{" "}
                 <kbd className="font-mono text-xs">K</kbd> to move between rows.
               </p>
             </div>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Filter</span>
-              <select
-                className={cnField}
-                data-testid="infra-diagram-reconcile-filter"
-                value={matchKindFilter}
-                onChange={(event) => handleFilterChange(event.target.value as DiagramReconcileMatchKindFilter)}
-              >
-                {MATCH_KIND_FILTERS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="flex flex-col gap-1">
+                <span className={OPERATOR_TYPOGRAPHY.helper}>Filter</span>
+                <select
+                  className={cnField}
+                  data-testid="infra-diagram-reconcile-filter"
+                  value={matchKindFilter}
+                  onChange={(event) => handleFilterChange(event.target.value as DiagramReconcileMatchKindFilter)}
+                >
+                  {MATCH_KIND_FILTERS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Button type="button" variant="outline" size="sm" onClick={downloadReconciliationCsv}>
+                Download CSV
+              </Button>
+            </div>
           </div>
+
+          {scorecard != null ? (
+            <div className="grid gap-2" data-testid="infra-diagram-reconcile-scorecard">
+              <div className="flex flex-wrap gap-2">
+                <StatusTag kind="ready" label={`Matched: ${scorecard.matched}`} />
+                <StatusTag kind="neutral" label={`Possible: ${scorecard.possible}`} />
+                <StatusTag kind="needs-attention" label={`Diagram only: ${scorecard.diagramOnly}`} />
+                <StatusTag kind="needs-attention" label={`Inventory only: ${scorecard.inventoryOnly}`} />
+                <StatusTag kind="blocked" label={`Conflicts: ${scorecard.conflicts}`} />
+                <StatusTag kind="needs-attention" label={`Connector gaps: ${scorecard.connectorGaps}`} />
+              </div>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-denominator">
+                {buildDiagramReconcileDenominatorSentence(reconciliation.inventoryResourceCount)}
+              </p>
+            </div>
+          ) : null}
+
+          {advisoryComparisonPath && diagramMermaid.trim().length > 0 ? (
+            <section className={cn(cnCard, "grid gap-3")} aria-label="Imported diagram match overlay">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={showMatchOnDrawing}
+                    onChange={(event) => setShowMatchOnDrawing(event.target.checked)}
+                  />
+                  <span className={OPERATOR_TYPOGRAPHY.body}>Show match on drawing</span>
+                </label>
+              </div>
+              <DiagramReconcileOverlay
+                source={diagramMermaid}
+                rows={reconciliation.rows}
+                enabled={showMatchOnDrawing}
+              />
+            </section>
+          ) : null}
 
           <EnterpriseTable ariaLabel="Diagram reconciliation correspondence rows">
             <EnterpriseTableHead>
@@ -1756,7 +1829,27 @@ export function DiagramReconcileWorkbenchClient() {
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               ) : null}
-              {filteredRows.map((row) => {
+              {displayedRows.inventoryGroups.map((group) => (
+                <EnterpriseTableRow key={group.correspondenceId} data-testid={`infra-diagram-reconcile-inventory-group-${group.correspondenceId}`}>
+                  <EnterpriseTableCell>
+                    <StatusTag kind="needs-attention" label="Inventory only" />
+                  </EnterpriseTableCell>
+                  <EnterpriseTableCell>Visible capture</EnterpriseTableCell>
+                  <EnterpriseTableCell>{group.resourceGroup}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{group.resourceType}</EnterpriseTableCell>
+                  <EnterpriseTableCell colSpan={2}>
+                    <details>
+                      <summary className="cursor-pointer text-al-link underline-offset-2 hover:underline">
+                        {group.count} resource(s)
+                      </summary>
+                      <ul className="m-0 mt-2 list-disc pl-5">
+                        {group.resourceNames.map((name) => <li key={name}>{name}</li>)}
+                      </ul>
+                    </details>
+                  </EnterpriseTableCell>
+                </EnterpriseTableRow>
+              ))}
+              {displayedRows.nonInventoryRows.map((row) => {
                 const resourceHubHref = row.cloudResourceId != null && row.cloudResourceId.trim().length > 0
                   ? resourceHubFilterHrefFromSearch(row.cloudResourceId, "", {
                     tab: "diagram",

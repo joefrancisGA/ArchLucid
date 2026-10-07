@@ -5,6 +5,7 @@ import {
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { countFindingsByTreatmentBand } from "@/lib/review-quality/compare-treatment-band-delta";
+import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
 import {
   countDecisionGradeSemanticSupportBandsForPresentation,
   formatStampSemanticSupportBandLineForPresentation,
@@ -56,7 +57,7 @@ function resolveTopDecisionGradeFinding(
     return null;
   }
 
-  return [...decisionGradeFindings].sort((left, right) => right.severityValue - left.severityValue)[0] ?? null;
+  return [...decisionGradeFindings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue))[0] ?? null;
 }
 
 export function countDispositionStats(findings: readonly QuickDecisionFinding[]): {
@@ -102,7 +103,11 @@ function formatTreatmentSummaryLine(
   return segments.join(" · ");
 }
 
-function severityLabelFromValue(severityValue: number): string {
+function severityLabelFromValue(severityValue: number | null): string {
+  if (severityValue === null) {
+    return "Severity was not stored";
+  }
+
   if (severityValue >= 3) {
     return "Critical";
   }

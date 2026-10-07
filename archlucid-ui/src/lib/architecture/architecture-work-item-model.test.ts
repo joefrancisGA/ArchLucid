@@ -58,4 +58,22 @@ describe("architecture-work-item-model", () => {
     expect(jiraBody).toContain(preview.sourceArchitectureLink);
     expect(serviceNowBody).toContain(preview.sourceArchitectureLink);
   });
+
+  it("keeps missing severity out of work-item priority and labels", () => {
+    const missingSeverity = finding({ findingId: "f-missing", severityValue: null });
+    const preview = buildArchitectureWorkItemPreview({
+      runId: "run-1",
+      architectureName: "Payments platform",
+      architectureOverview: "Overview",
+      ownerLabel: null,
+      findings: [missingSeverity],
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(preview.priority).toBe("Medium");
+    expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity was not stored");
+    expect(pickNativeCreateFindingId([missingSeverity, finding({ findingId: "f-low", severityValue: 0 })])).toBe(
+      "f-low",
+    );
+  });
 });

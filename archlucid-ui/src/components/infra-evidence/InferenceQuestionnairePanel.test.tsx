@@ -70,6 +70,18 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.getByTestId("inference-questionnaire-submit")).toBeEnabled();
   });
 
+  it("labels missing rule and question text as not stored", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{ ...questionnaireResponse.items[0], ruleName: null, questionText: null }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Rule name was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Question text was not stored")).toBeInTheDocument();
+  });
+
   it("keeps the questionnaire entry point visible when no questions are available", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
       items: [],

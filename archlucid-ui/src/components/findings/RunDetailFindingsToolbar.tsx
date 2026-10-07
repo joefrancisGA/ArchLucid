@@ -498,7 +498,7 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
 }
 
 export function defaultWorkspaceExpandedForFinding(finding: QuickDecisionFinding): boolean {
-  return finding.severityValue >= 2;
+  return finding.severityValue !== null && finding.severityValue >= 2;
 }
 
 export function workspaceFindingAreaLabel(finding: QuickDecisionFinding): string {

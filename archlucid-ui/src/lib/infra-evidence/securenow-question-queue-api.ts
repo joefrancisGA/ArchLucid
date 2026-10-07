@@ -8,7 +8,7 @@ export type SecureNowQuestion = {
   readonly questionKey: string;
   readonly source: string;
   readonly scopeKind: string;
-  readonly status: string;
+  readonly status: string | null;
   readonly questionText: string;
   readonly resourceType: string;
   readonly resourceName: string;
@@ -56,7 +56,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     questionKey: stringOrDefault(raw.questionKey),
     source: stringOrDefault(raw.source),
     scopeKind: stringOrDefault(raw.scopeKind),
-    status: stringOrDefault(raw.status, "Open"),
+    status: typeof raw.status === "string" ? raw.status : null,
     questionText: stringOrDefault(raw.questionText),
     resourceType: stringOrDefault(raw.resourceType),
     resourceName: stringOrDefault(raw.resourceName),

@@ -4,6 +4,7 @@ import {
 } from "@/lib/findings/finding-job-view";
 import { isRequiredCapabilityCoverageReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import { humanReviewStatusDisplay, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { hasFindingSeverityAtLeast } from "@/lib/quick-decision-severity-labels";
 
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
@@ -64,7 +65,7 @@ function isUnresolvedBlockingReviewFinding(finding: QuickDecisionFinding): boole
     return false;
   }
 
-  if (finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
+  if (!hasFindingSeverityAtLeast(finding.severityValue, 2) || isFinalizeResolvedReviewFinding(finding)) {
     return false;
   }
 
@@ -94,7 +95,7 @@ export function deriveFinalizeQualityScorecardInput(
   let lowExtractionConfidenceCount = 0;
 
   for (const finding of findings) {
-    if (finding.isMuted || finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
+    if (finding.isMuted || !hasFindingSeverityAtLeast(finding.severityValue, 2) || isFinalizeResolvedReviewFinding(finding)) {
       continue;
     }
 
@@ -128,7 +129,7 @@ export function deriveFinalizeQualityScorecardInput(
   let unresolvedHighSeverityDispositionCount = 0;
 
   for (const finding of findings) {
-    if (finding.isMuted || finding.severityValue < 2 || isFinalizeResolvedReviewFinding(finding)) {
+    if (finding.isMuted || !hasFindingSeverityAtLeast(finding.severityValue, 2) || isFinalizeResolvedReviewFinding(finding)) {
       continue;
     }
 
