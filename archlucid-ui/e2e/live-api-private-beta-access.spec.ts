@@ -35,7 +35,10 @@ import {
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
-import { assertLiveSeatOperatorScopeChrome } from "./helpers/live-seat-scope-assertions";
+import {
+  assertLiveSeatOperatorScopeChrome,
+  waitAndDismissFirstSessionPurposeChooser,
+} from "./helpers/live-seat-scope-assertions";
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
@@ -346,6 +349,7 @@ test.describe(
 
     await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitAndDismissFirstSessionPurposeChooser(page);
 
     const me = await fetchAuthMeViaProxy(page);
     const scope = resolveScopeFromAuthMe(me, expectedScope);
@@ -396,6 +400,7 @@ test.describe(
       await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
     }
 
+    await waitAndDismissFirstSessionPurposeChooser(page);
     await expect(reviewsNewTitle).toBeVisible({ timeout: 60_000 });
     await expect(reviewsNewTitle).toHaveText(START_REVIEW_LABEL);
 
