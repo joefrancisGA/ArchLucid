@@ -15,6 +15,9 @@ public sealed class SqlTransientDetectorTests
 {
     [Theory]
     [InlineData(-2)]
+    [InlineData(3960)]
+    [InlineData(41301)]
+    [InlineData(41302)]
     [InlineData(1204)]
     [InlineData(1205)]
     [InlineData(1222)]

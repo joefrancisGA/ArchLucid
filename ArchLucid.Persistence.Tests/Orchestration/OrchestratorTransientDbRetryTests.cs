@@ -14,6 +14,47 @@ namespace ArchLucid.Persistence.Tests.Orchestration;
 public sealed class OrchestratorTransientDbRetryTests
 {
     [SkippableFact]
+    public async Task ExecuteAsync_retries_sql_snapshot_update_conflict_error_3960()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(3960);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_wrapped_in_ioexception_without_aggregate()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new IOException("network read failed", deadlock);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_retries_sql_lock_resource_error_1204()
     {
         int attempts = 0;
