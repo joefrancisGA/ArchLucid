@@ -8760,3 +8760,4 @@
 {"at":"2026-10-07T07:47:43.2815286Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T07:54:02.2155762Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-07T08:05:44.8338455Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-07T08:15:07.5200650Z","zoneId":"alert-simulation","outcome":"hit","productLine":"archlucid-shared"}
