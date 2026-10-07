@@ -11,6 +11,10 @@ import {
 } from "@/lib/infra-evidence/diagram-reconcile-overlay";
 import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import { formatDiagramReconcileMatchKindLabel } from "@/lib/infra-evidence/diagram-reconcile-match-kind-display";
+import {
+  formatDiagramReconcileExplanation,
+  formatDiagramReconcileResourceLabelForDisplay,
+} from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
 import { prepareMermaidSvgForResponsiveLayout } from "@/lib/help/help-mermaid";
 
 type DiagramReconcileOverlayProps = {
@@ -113,6 +117,33 @@ export function DiagramReconcileOverlay(props: DiagramReconcileOverlayProps): Re
                 kind={style.statusKind}
                 label={formatDiagramReconcileMatchKindLabel(matchKind)}
               />
+            );
+          })}
+      </div>
+      <div className="grid gap-2" aria-label="Imported diagram match captions">
+        {props.rows
+          .filter((row) => row.diagramNodeId != null && row.diagramNodeId.trim().length > 0)
+          .map((row) => {
+            const style = resolveDiagramReconcileOverlayStyle(row.matchKind);
+            const explanation = formatDiagramReconcileExplanation(row);
+
+            return (
+              <div
+                key={row.correspondenceId}
+                className="flex flex-wrap items-start gap-2"
+                data-diagram-node-id={row.diagramNodeId ?? undefined}
+              >
+                <StatusTag
+                  kind={style.statusKind}
+                  label={formatDiagramReconcileMatchKindLabel(row.matchKind)}
+                />
+                <span className={OPERATOR_TYPOGRAPHY.body}>
+                  {formatDiagramReconcileResourceLabelForDisplay(row)} ({row.diagramNodeId})
+                </span>
+                {explanation.length > 0 ? (
+                  <span className={OPERATOR_TYPOGRAPHY.helper}>{explanation}</span>
+                ) : null}
+              </div>
             );
           })}
       </div>
