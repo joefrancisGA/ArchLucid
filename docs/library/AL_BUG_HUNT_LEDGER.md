@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 thorough hunt (hit): `core-findings-advice` — proved `!` and `*` resource token delimiter parity gaps in `InsightDensityTextSimilarity.Tokenize`; proved `breach of` and `contradicting` conflict wording gaps in `ConflictFindingPattern`; proved `prohibited from` prohibitive intent missed `EnglishNegationTokenizer` so `enable mfa` false-positive demotion; regressions `Jaccard_similarity_treats_exclamation_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_asterisk_separated_resource_tokens_as_space_separated_peers`, `HasFalsifiabilitySignal_recognizes_conflict_wording_variants` (breach/contradicting), and `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing` (`prohibited from enable mfa`); seeded five follow-on `(candidate)` rows; 1718 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+
 2026-10-07 seed hunt (seed→hit): `core-findings-advice` — promoted hash-delimited resource token parity; `InsightDensityTextSimilarity.Tokenize` left `prod#sql#db` intact so space-separated peer Jaccard 0.625 missed 0.85 high-duplication threshold; split on `#`; regression `Jaccard_similarity_treats_hash_separated_resource_tokens_as_space_separated_peers`; seeded five follow-on `(candidate)` rows; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-07 thorough hunt (dry): `ui-form-validation` — cheap-disproof closed five seeded `(candidate)` rows (funnel telemetry throw is test-only mock — production `recordFirstTenantFunnelEvent` never throws; navigation throw after `201` shows error toast but `registerCompletedRef` blocks duplicate POST; `1e4` exponent at 10,000 cap is intentional parity with `1e3`; non-enum `companySize` is schema-bypass misuse for server validation; any `res.ok` 2xx including `200` is intentional success gate vs strict `201`); regressions `surfaces signup error when navigation throws after successful register`, `navigates to verify on HTTP 200 when register response is ok`, `signupFormSchema accepts 1e4 optional architecture team size at the upper bound`, `serializes 1e4 optional architecture team size at the upper bound in the register payload builder`, and `passes non-enum company size through the payload builder when the schema is bypassed`; reaffirmed `surfaces signup error when first-tenant funnel telemetry throws unexpectedly`; seeded five follow-on `(candidate)` rows; 48 scoped SignupForm vitest tests passed.
@@ -21603,6 +21605,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
+2026-10-07 thorough hunt (hit): proved exclamation/asterisk token parity, breach/contradicting conflict falsifiability, and `prohibited from` negation parity; 1718 scoped tests passed.
+
 2026-10-07 seed hunt (seed→hit): proved hash-delimited resource token duplication parity; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 - **id:** core-findings-advice
@@ -21612,11 +21616,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 23
-- **bugs-found:** 15
+- **hunts:** 24
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — hash-delimited resource tokens under-penalized duplication parity
+- **last-bug:** 2026-10-07 — `prohibited from` negation gap on generic advice demotion
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -21652,11 +21656,19 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — equals-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-06 seed hunt (seed→hit):** `prod=sql=db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `=`; regression in `Jaccard_similarity_treats_equals_separated_resource_tokens_as_space_separated_peers`
 - [x] (proven) `InsightDensityTextSimilarity.Tokenize` — hash-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-10-07 seed hunt (seed→hit):** `prod#sql#db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `#`; regression in `Jaccard_similarity_treats_hash_separated_resource_tokens_as_space_separated_peers`
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — exclamation-separated resource tokens (`prod!sql!db`) vs space-separated peer may under-penalize duplication (delimiter not in split set).
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — asterisk-separated resource tokens (`prod*sql*db`) vs space-separated peer may under-penalize duplication.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `breach of the constraint` noun phrase may miss `HasFalsifiabilitySignal` (regex covers `violation of` but not `breach of`).
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `contradicting the constraint` progressive wording may miss falsifiability (`contradicts?` only).
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `prohibited from enabling mfa` prohibitive intent may still match affirmative `enable mfa` fragment.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — exclamation-separated resource tokens — **hit 2026-10-07 thorough hunt:** `prod!sql!db` vs `prod sql db` Jaccard 0.625 missed 0.85 threshold; split on `!`; regression `Jaccard_similarity_treats_exclamation_separated_resource_tokens_as_space_separated_peers`.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — asterisk-separated resource tokens — **hit 2026-10-07 thorough hunt:** split on `*`; regression `Jaccard_similarity_treats_asterisk_separated_resource_tokens_as_space_separated_peers`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `in breach of the constraint` — **hit 2026-10-07 thorough hunt:** extended regex with `(?:in )?breach of`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `contradicting the constraint` — **hit 2026-10-07 thorough hunt:** added `contradicting` branch; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `prohibited from enable mfa` — **hit 2026-10-07 thorough hunt:** `EnglishNegationTokenizer` `prohibited from` multi-word negation; regression `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — caret-separated resource tokens (`prod^sql^db`) vs space-separated peer may under-penalize duplication.
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — tilde-separated resource tokens (`prod~sql~db`) vs space-separated peer may under-penalize duplication.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `in conflict with the constraint` may miss falsifiability (`conflicts? with` requires trailing `with` only).
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `noncompliant with the constraint` regulatory wording may miss `HasFalsifiabilitySignal`.
+- [ ] (candidate) `EnglishNegationTokenizer` — `forbidden from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+
+2026-10-07 thorough hunt (hit): proved five open `(candidate)` rows; 1718 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 2026-10-07 seed hunt (seed→hit): proved hash-delimited resource token duplication parity; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
