@@ -855,4 +855,92 @@ public sealed class TopologyProposalConsensusMergerTests
         result.DisagreementCount.Should().Be(0);
         result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("SOC2");
     }
+
+    [Fact]
+    public void Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedServices.Should().BeEmpty();
+        result.DisagreementCount.Should().Be(2);
+        result.MergedProposal.Warnings.Should().ContainSingle(w => w.Contains("human review", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Merge_disagreement_count_includes_secondary_only_duplicate_relationship_rows()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-api",
+            TargetId = "ds-sql",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships = [relationship],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primary.AddedServices,
+            AddedDatastores = primary.AddedDatastores,
+            AddedRelationships = [relationship, relationship],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+        result.DisagreementCount.Should().Be(1);
+    }
 }
