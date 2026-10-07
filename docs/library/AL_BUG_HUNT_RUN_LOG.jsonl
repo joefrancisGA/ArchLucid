@@ -1,4 +1,3 @@
-{"at":"2026-09-07T22:35:00.6521705Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T22:38:35.4135878Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-07T22:43:02.0725082Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
 {"at":"2026-09-07T22:47:40.7930351Z","zoneId":"ui-claim-discipline-policy","outcome":"hit"}
@@ -8804,3 +8803,4 @@
 {"at":"2026-10-07T22:15:29.2393869Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
 {"at":"2026-10-07T22:23:33.1973112Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-07T22:29:34.1619027Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts"]}
+{"at":"2026-10-07T22:35:20.1628536Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}

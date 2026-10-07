@@ -5992,7 +5992,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 52 · **Bugs found:** 22 · **Consecutive dry hunts:** 5
+**Hunts:** 53 · **Bugs found:** 22 · **Consecutive dry hunts:** 6
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 181 scoped tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `TryNormalize` — U+2060 WORD JOINER inside path segments — **cheap-disproof 2026-10-07 seed hunt #53:** format character parity with ZWSP/ZWNJ; regression `TryNormalize_accepts_word_joiner_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — backslash only in fragment — **cheap-disproof 2026-10-07 seed hunt #53:** `candidate.Contains('\\')` conservative full-string scan by design; regression `TryNormalize_rejects_backslash_only_in_fragment_conservative_full_string_scan`.
+- [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — decoded normalized path vs raw `returnPath` query persistence — **cheap-disproof 2026-10-07 seed hunt #53:** guard returns decoded safe path for callers; regression `TryNormalize_returns_percent_decoded_path_for_callers_not_raw_query_encoding` (existing `TryNormalize_decodes_percent_encoded_slash_in_safe_paths`).
+- [x] (valid-no-repro) `ContainsControlCharacter` — `%1B` (ESC) in query after percent decode — **cheap-disproof 2026-10-07 seed hunt #53:** post-decode control rejection; regression `TryNormalize_rejects_percent_encoded_esc_control_in_query_after_decode`.
+- [x] (valid-no-repro) `TryNormalize` — bidi embedding marks U+202A/U+202C inside path segments — **cheap-disproof 2026-10-07 seed hunt #53:** not control/homoglyph; display reordering is out of scope for byte-stable guard; regression `TryNormalize_accepts_bidi_embedding_marks_inside_path_segment_without_open_redirect_shape`.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded WORD JOINER `%E2%81%A0` in path segments decodes like ZWSP `%E2%80%8B` — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%E2%81%A0/1` from Office paste.
+- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%5C%5C` in query values decoding to backslashes may trip post-decode `decoded.Contains('\\')` even when path portion is safe — locus: residual loop ~116–122; input: `/reviews?file=%5C%5Cserver%5Cshare`.
+- [ ] (candidate) `TryNormalizeRelativePath` — lone percent-encoded dot segment `%2e` without adjacent `%2e` may pass first pass then fail residual `%2e` scan — locus: `ContainsPercentEncodedPathSeparator`; input: `/segment/%2e/name`.
+- [ ] (candidate) `TryNormalize` — RIGHT-TO-LEFT OVERRIDE U+202E percent-encoded in query (`%E2%80%AE`) may decode without control rejection while affecting display — locus: decode + no bidi strip; input: `/reviews?note=%E2%80%AE`.
+- [ ] (candidate) `MaxPercentDecodePasses` — deeply nested `%25` chains in benign query literals may exhaust eight passes yet leave `%` tail rejected by `ContainsTrailingPercentAfterDecodeCap` — locus: decode cap ~59–87; input: `/reviews?pct=%2525252525252525`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 176 scoped tests passed (`RunAnalyzers=false`).
 
@@ -6001,12 +6015,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded ZWSP (`%E2%80%8B`) decodes to accepted in-path separator — **cheap-disproof 2026-10-07 seed hunt #52:** intentional decode normalization; regression `TryNormalize_decodes_percent_encoded_zwsp_in_path_segment`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — NUL only in fragment (`/reviews#%00note`) may decode without path-portion scan — **cheap-disproof 2026-10-07 seed hunt #52:** full-string decode loop rejects decoded NUL; regression `TryNormalize_rejects_percent_encoded_nul_in_fragment_after_decode`.
 - [x] (valid-no-repro) `TryNormalize` — no explicit max-length budget on return paths — **cheap-disproof 2026-10-07 seed hunt #52:** guard targets open-redirect shapes; Kestrel/request limits bound wire size; regression `TryNormalize_accepts_long_safe_relative_path_without_explicit_guard_length_cap` (2048-char segment).
-
-- [ ] (candidate) `TryNormalize` — U+2060 WORD JOINER and U+FEFF-adjacent format characters inside path segments mirror ZWSP/ZWNJ acceptance — locus: format-char gap vs homoglyph inventories; input: `/reviews\u2060/1` from pasted Office/HTML copy.
-- [ ] (candidate) `TryNormalizeRelativePath` — `candidate.Contains('\\')` scans the full return string so backslash only in fragment rejects otherwise safe paths — locus: `TryNormalizeRelativePath` ~37; input: `/reviews#notes\share` from Windows file-share fragments.
-- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — returns decoded `normalized` tail while callers persist raw `returnPath` query values — locus: `AuthSignInRoutingController` + `PostAuthBootstrapController.SanitizeReturnPath`; input: `/reviews%2F1` bookmarked before and after sign-in routing JSON.
-- [ ] (candidate) `ContainsSlashHomoglyph` — vertical tab or other C1 controls encoded as `%1B` only in query bypass pre-decode `ContainsControlCharacter` when hex decodes after first pass — locus: decode ordering in `TryNormalize`; input: `/reviews?x=%1B` (ESC) marketing query tails.
-- [ ] (candidate) `TryNormalize` — bidi embedding marks (U+202A/U+202C) inside path segments pass scans and may reorder display without changing stored bytes — locus: no bidi strip; input: `/reviews\u202A/evil\u202C` copied from RTL subject lines.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 170 scoped tests passed (`RunAnalyzers=false`).
 
