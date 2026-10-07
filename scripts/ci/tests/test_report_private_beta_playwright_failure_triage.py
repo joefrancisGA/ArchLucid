@@ -50,6 +50,25 @@ def test_render_markdown_includes_runbook_path() -> None:
     assert "live-api-scim-invite-substitute-smoke.spec.ts" in markdown
 
 
+def test_classifies_optional_warmup_http_400() -> None:
+    module = _load_module()
+    result = module.classify_warmup_log(
+        "Now listening on: http://127.0.0.1:5128\n"
+        "Warm create architecture run attempt 1/4 failed (HTTP 400)\n",
+    )
+
+    assert result["status"] == "EXPECTED_OPTIONAL_HTTP_400"
+
+
+def test_marks_retry_failure_for_reliability_review() -> None:
+    module = _load_module()
+    result = module.classify_retry_reliability(
+        "retry1 error: branded-not-found assertion failed\n",
+    )
+
+    assert result["status"] == "RETRY_RELIABILITY_REVIEW"
+
+
 def test_main_writes_json_output(tmp_path: Path) -> None:
     module = _load_module()
     json_out = tmp_path / "rollup.json"

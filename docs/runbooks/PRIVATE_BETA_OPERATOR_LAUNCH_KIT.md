@@ -245,6 +245,15 @@ python3 scripts/ci/report_real_mode_evidence_freshness.py \
   --markdown-out artifacts/release/real-mode-evidence-freshness.md
 ```
 
+For Gate 1, index every release-smoke artifact and fail closed when the
+expected JSON is absent or malformed:
+
+```bash
+python3 scripts/ci/validate_ship_gate_evidence_index.py \
+  artifacts/ship-gate-evidence \
+  --json-out artifacts/release/ship-gate-evidence-index.json
+```
+
 This kit makes Cursor-owned work repeatable. It does not close Gate 1,
 G-REAL-06, G-REAL-07, M-07, M-09, G-REAL-09, or G-REAL-08 without the required
 human execution.
