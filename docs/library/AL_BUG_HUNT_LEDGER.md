@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `ui-marketing-surfaces` — re-read see-it, showcase fetch, pricing signup attribution, quick-scan privacy URL param, and showcase static-only env gates; no hunt-ready row promoted; seeded five `(candidate)` rows; scoped marketing vitest 516 passed with 26 baseline failures.
+
 2026-10-07 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (trailing topology ref trim, ZWSP in labels, HasMatchingProposal ordering, substantive ref dedupe path, ordinal sub-key casing); seeded five follow-on `(candidate)` rows; 112 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows (missing vendor token 401, replay dedupe ack contract, in-flight HasSeen, malformed JSON validation, replay-ignored audit detail); seeded five follow-on `(candidate)` rows; 72 scoped `ItsmInboundWebhook` tests passed (62 Application + 10 Persistence).
@@ -31308,6 +31310,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-07 seed hunt #22 (seed-only): re-read `loadSeeItDemoPreview`, `fetchShowcasePayload`, `buildPricingSignupHref`, quick-scan privacy disclosure URL helpers, and `shouldServeShowcaseStaticOnly`; no hunt-ready row promoted; seeded five `(candidate)` rows; scoped marketing vitest 516 passed with 26 baseline failures.
+
 2026-09-26 seed hunt (seed→hit): reseeded ui-marketing-surfaces; proved sponsor run collateral issue shells (`ExecDigestSponsorRunCollateralMissingTokenPage` / unavailable) hardcoded sign-in `returnUrl` to `/digest/sponsor` instead of the run collateral path; fixed with `buildDigestSponsorRunCollateralEntryPath` + threaded `runIdHex`; regression in `digest/sponsor/run/[runId]/page.test.tsx`; digest sponsor issue/page tests passed.
 
 - **id:** ui-marketing-surfaces
@@ -31316,10 +31320,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-30 — showcase payload null timeline row
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -31379,6 +31383,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) Showcase `bad_json` hard-fails curated static-first run ids while `not_found`/`invalid` fall back to curated static payload — **hit 2026-08-27:** `bad_json` branch omitted curated fallback; aligned with sibling outage handling (`showcase-page.test.tsx`).
 
 2026-08-26 seed hunt #5: reseeded four hunt-ready rows from marketing source read; proved showcase outage fallback asymmetry.
+
+- [ ] (candidate) `fetchShowcasePayload` — empty `pipelineTimeline` passes validation while `artifacts` must be non-empty — locus: `pipelineTimeline` array check without minimum length (`showcase-page-server-resolution.ts` ~108–114); input: marketing showcase API 200 JSON with `pipelineTimeline: []` and populated `artifacts`; wrong outcome: `/showcase/[runId]` serves API payload with blank compact timeline instead of `invalid` or curated static fallback.
+- [ ] (candidate) `buildPricingSignupHref` — duplicate attribution keys from Next `searchParams` arrive as `string[]` and are skipped — locus: `typeof raw === "string"` guard (`pricing-signup-href.ts` ~9–13); input: `/pricing?utm_campaign=partner` when the framework surfaces repeated keys as an array; wrong outcome: tier/signup CTAs open `/signup` without forwarded `utm_campaign`.
+- [ ] (candidate) `shouldServeShowcaseStaticOnly` — only lowercase `true`/`1` enable static-only mode — locus: `trim().toLowerCase()` compare (`showcase-page-server-resolution.ts` ~36–39); input: deployment env `SHOWCASE_STATIC_ONLY=True` or `NEXT_PUBLIC_SHOWCASE_STATIC_ONLY=TRUE`; wrong outcome: showcase pages still resolve a live API base and fetch upstream marketing JSON.
+- [ ] (candidate) `isWeakPlaceholderRunId` — repeated-character weak placeholder gate requires length ≥ 16 — locus: `/^(.)\1+$/` with `t.length >= 16` (`normalize-see-it-payload.ts` ~6–16); input: live `GET /v1/demo/preview` returns `run.runId` of fifteen identical digits; wrong outcome: `/see-it` treats the placeholder as a usable live run id until other normalization rejects the payload.
+- [ ] (candidate) `parseQuickScanPrivacyDisclosureOpenFromSearch` — only `1` and `true` open the privacy disclosure from the URL — locus: trimmed lowercase compare (`quick-scan-privacy-disclosure-url.ts` ~3–10); input: `/quick-scan?quickScanPrivacyDisclosureOpen=yes` from shared help or email deep links; wrong outcome: disclosure stays collapsed despite the query flag.
 
 ## Zone: capabilities-cost-mcp
 
