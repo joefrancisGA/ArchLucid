@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`; reaffirmed `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`, `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`, `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`, and `RunCoreAsync_json_output_execute_failure_emits_structured_failure_and_stderr_guidance`; 60 scoped `DraftNewCommandCoreTests` passed.
+
 2026-10-07 seed hunt (seed-only): `core-safety-network` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `OutboundExternalHttpResilienceOptions_default_minimum_throughput_is_eight_before_normalize`, `OutboundExternalHttpResilienceOptions_default_sampling_duration_seconds_is_thirty_before_normalize`, `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`, `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`, and `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`; 72 scoped `FullyQualifiedName~PrivateNetwork` Core tests passed (`RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-operator-lib` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `leaves local continuity watermark unchanged when server hydrate omits updatedAtUtc`, `omits surface keys when optional counts are NaN`, `clamps negative nav badge counts to zero`, and `uses alertId preview for alerts when title is omitted`; reaffirmed pin-only favorite hydrate in `hydrates local storage when server watermark is newer`; 47 scoped operator vitest tests passed.
@@ -8580,7 +8582,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 43 · **Bugs found:** 17 · **Consecutive dry hunts:** 6
+**Hunts:** 44 · **Bugs found:** 17 · **Consecutive dry hunts:** 7
+
+2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`; 60 scoped `DraftNewCommandCoreTests` passed.
+
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — null `IntentText` fails before connect — **cheap-disproof 2026-10-07 seed hunt #44:** JSON preflight requires `--text`; regression `RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — semantic `Admitted=false` admission stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #44:** no success envelope on semantic rejection; regression `RunCoreAsync_json_output_when_admission_not_admitted_does_not_emit_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — `SubmitDraftAsync` HTTP failure stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #44:** API failure stderr-only parity; regression `RunCoreAsync_json_output_submit_failure_stderr_only_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — interactive whitespace MUST answer returns usage error without operator hints — **cheap-disproof 2026-10-07 seed hunt #44:** fail-closed usage on blank answer; regression `RunCoreAsync_must_question_whitespace_answer_returns_usage_error_without_operator_hints`.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — `ExecuteRunAsync` failure emits structured `execute_failed` JSON line — **cheap-disproof 2026-10-07 seed hunt #44:** structured failure for execute stage; regression `RunCoreAsync_json_output_execute_failure_emits_structured_failure_and_stderr_guidance`.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — null `BusinessOutcome` fails before connect — locus: ~168–172; input: `--json` with `IntentText` and `SystemName` set only.
+- [ ] (candidate) `DraftNewCommandConnectStage` — connect failure stderr-only in JSON mode before draft create — locus: connect stage early return; input: parity non-JSON connect failure tests under `CliExecutionContext.JsonOutput`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — `CreateDraftAsync` transport failure stderr-only in JSON mode — locus: create error path; input: HTTP 503 on draft create with `--json`.
+- [ ] (candidate) `DraftNewCommandAdmitStage` — `PatchDraftAsync` 409 conflict stderr-only in JSON mode — locus: patch error; input: `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true` (verify parity).
+- [ ] (candidate) `DraftNewCommandOptions.Parse` — unknown flag returns usage error and prints usage — locus: `DraftNewCommandArgParser.Parse`; input: `archlucid draft new --unknown-flag` argv parse test.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_json_output_submit_without_run_id_does_not_emit_ok_true`, `RunCoreAsync_json_output_whitespace_api_base_url_fails_connect_before_create`; 59 scoped `DraftNewCommandCoreTests` passed.
 

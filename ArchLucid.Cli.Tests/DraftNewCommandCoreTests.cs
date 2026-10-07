@@ -597,6 +597,51 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+            bool connectCalled = false;
+
+            DraftNewCommandOptions options = new()
+            {
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) =>
+                {
+                    connectCalled = true;
+
+                    return Task.FromResult(ApiConnectionOutcome.Connected);
+                },
+                CreateApiClient = (_, _) => CreateDraftFlowClient(),
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            connectCalled.Should().BeFalse();
+            error.ToString().Should().Contain("--text");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline()
     {
         bool previousJson = CliExecutionContext.JsonOutput;

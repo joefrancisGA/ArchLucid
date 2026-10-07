@@ -1,4 +1,3 @@
-{"at":"2026-09-07T19:43:47.4331564Z","zoneId":"sql-run-repository","outcome":"seed-only"}
 {"at":"2026-09-07T19:53:44.8312001Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-09-07T20:01:42.5068614Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only"}
 {"at":"2026-09-07T20:08:32.7884897Z","zoneId":"alert-simulation","outcome":"dry"}
@@ -8807,3 +8806,4 @@
 {"at":"2026-10-07T19:33:40.8750359Z","zoneId":"billing-webhooks","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Billing/;ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs;ArchLucid.Persistence/Billing/"]}
 {"at":"2026-10-07T19:36:23.7480723Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
 {"at":"2026-10-07T19:41:41.4955864Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/;ArchLucid.Core/Http/"]}
+{"at":"2026-10-07T19:47:28.9184346Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
