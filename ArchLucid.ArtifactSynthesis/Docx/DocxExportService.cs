@@ -246,7 +246,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddHeading(body, "Cost Posture");
         WordDocumentBuilder.AddBodyText(
             body,
-            $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+            $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Cost was not stored")}");
 
         foreach (string risk in manifest.Cost.CostRisks)
             WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");

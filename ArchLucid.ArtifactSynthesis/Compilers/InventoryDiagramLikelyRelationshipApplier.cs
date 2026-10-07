@@ -25,7 +25,7 @@ internal static class InventoryDiagramLikelyRelationshipApplier
                 continue;
             }
 
-            edge.Label = "Likely";
+            edge.Label = OutlineSentence;
             edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
 
             if (!nodesById.TryGetValue(edge.FromNodeId, out DiagramNode? sourceNode))

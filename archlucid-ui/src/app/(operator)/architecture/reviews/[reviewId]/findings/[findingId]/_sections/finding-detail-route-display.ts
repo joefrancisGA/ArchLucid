@@ -1,5 +1,6 @@
 import {
   findingInspectPrimaryLabels,
+  typedPayloadLookupString,
   isPhiMinimizationFindingId,
   isPhiMinimizationSampleFinding,
   phiMinimizationApprovalNarrative,
@@ -29,7 +30,10 @@ export type FindingDecisionSummary = {
 
 const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
 const NO_REMEDIATION_DUE_RECORDED = "No remediation due date recorded";
-const RISK_OWNER_NOT_ASSIGNED = "Not assigned";
+const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
+const STATUS_NOT_STORED = "Status was not stored";
+const SEVERITY_NOT_STORED = "Severity was not stored";
+const BUSINESS_IMPACT_NOT_STORED = "Business impact was not stored";
 
 export function deriveFindingDecisionSummary(
   payload: FindingInspectPayload | null,
@@ -221,7 +225,7 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     return "Accepted with monitoring";
   }
 
-  return "Requires review";
+  return STATUS_NOT_STORED;
 }
 
 export function fallbackSeverity(payload: FindingInspectPayload | null, findingId: string): string {
@@ -245,7 +249,7 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
     return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
   }
 
-  return "Severity pending";
+  return SEVERITY_NOT_STORED;
 }
 
 /**
@@ -284,11 +288,11 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
 
   const status = fallbackStatus(payload, findingId);
 
-  if (status !== "Requires review") {
-    return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+  if (status === STATUS_NOT_STORED) {
+    return "No disposition recorded for this finding.";
   }
 
-  return "No disposition recorded for this finding.";
+  return `Disposition: ${status}. See acceptance record below for recorded controls.`;
 }
 
 /** Top-of-page decision impact line for buyer-polished finding detail. */
@@ -301,13 +305,25 @@ export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | 
     return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
   }
 
-  const status = fallbackStatus(payload, findingId);
+  const storedImpact =
+    payload === null
+      ? null
+      : typedPayloadLookupString(payload, "businessImpact")
+        ?? typedPayloadLookupString(payload, "BusinessImpact")
+        ?? typedPayloadLookupString(payload, "impact")
+        ?? typedPayloadLookupString(payload, "Impact");
 
-  if (status === "Requires review") {
-    return "Resolve cited evidence gaps before governance sign-off on the review.";
+  if (storedImpact !== null) {
+    return storedImpact;
   }
 
-  return buyerFindingDecisionPanelCopy(payload, findingId);
+  const storedStatus = payload === null ? null : findingInspectPrimaryLabels(payload).statusLabel;
+
+  if (storedStatus === null || storedStatus.trim().length === 0) {
+    return BUSINESS_IMPACT_NOT_STORED;
+  }
+
+  return BUSINESS_IMPACT_NOT_STORED;
 }
 
 /** Top-of-page next step for buyer-polished finding detail. */
@@ -328,7 +344,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
     return "Recorded in the approval workflow with evidence trail linkage.";
   }
 
-  return "Validate that the related review decision, evidence citations, and remediation action are complete before approval.";
+  return "No audit requirement was stored on this finding.";
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */

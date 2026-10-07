@@ -79,7 +79,7 @@ describe("finding-detail-route-display buyer summary copy", () => {
   });
 
   it("fails closed on owner and next review when payload has neither", () => {
-    expect(resolveFindingRiskOwnerLabel(emptyPayload(), "generic-finding")).toBe("Not assigned");
+    expect(resolveFindingRiskOwnerLabel(emptyPayload(), "generic-finding")).toBe("Risk owner was not stored");
     expect(resolveFindingNextReviewLabel(emptyPayload(), "generic-finding")).toBe(
       "No remediation due date recorded",
     );

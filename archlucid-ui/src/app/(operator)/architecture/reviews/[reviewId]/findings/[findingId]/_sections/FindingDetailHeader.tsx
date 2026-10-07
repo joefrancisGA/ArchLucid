@@ -194,7 +194,7 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                   structuralExecutionMode={structuralExecutionMode}
                 />
               ) : null}
-              {labels.categoryLabel ? <StatusTag kind="neutral" label={labels.categoryLabel} /> : null}
+              <StatusTag kind="neutral" label={labels.categoryLabel ?? "Category was not stored"} />
               {labels.impactedAreaLabel ? (
                 <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
               ) : null}

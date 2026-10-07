@@ -17,6 +17,9 @@ export type InfraEvidenceInventoryEdgeDetailPanelProps = {
 
 function formatConfidenceBand(edge: InfraEvidenceMermaidOutlineEdge): string {
   switch (edge.confidenceBand) {
+    case "missing":
+      return "Confidence band was not stored";
+
     case "declared":
       return "Declared";
 

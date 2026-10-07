@@ -263,7 +263,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
                 {
                     FromNodeId = currentDiagramNodeId,
                     ToNodeId = targetDiagramNodeId,
-                    Label = terminalLink?.Evidence.DiagramLabel ?? "Routes to",
+                    Label = terminalLink?.Evidence.DiagramLabel ?? "Hop label was not stored",
                     InferenceSource = terminalLink?.Evidence.InferenceSource,
                     ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
                 });
@@ -355,7 +355,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             DiagramLabel = associationType.Contains("firewall", StringComparison.OrdinalIgnoreCase)
                 || associationType.Contains("route", StringComparison.OrdinalIgnoreCase)
                 ? "Routes through"
-                : "Routes to",
+                : "Hop label was not stored",
         };
     }
 

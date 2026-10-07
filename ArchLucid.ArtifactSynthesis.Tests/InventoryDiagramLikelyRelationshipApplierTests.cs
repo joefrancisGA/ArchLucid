@@ -19,7 +19,7 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
         InventoryDiagramLikelyRelationshipApplier.Apply(ast);
 
         DiagramEdge edge = ast.Edges.Single();
-        edge.Label.Should().Be("Likely");
+        edge.Label.Should().Be(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
         edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
         ast.Nodes[0].UnresolvedRelationshipDetails.Should()
             .Contain(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
@@ -34,7 +34,7 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
 
         InventoryDiagramLikelyRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Likely");
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
 
         InventoryDiagramLikelyRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().NotBe("Likely");
+        ast.Edges.Single().Label.Should().NotBe(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
         ast.Nodes[0].UnresolvedRelationshipDetails.Should().BeEmpty();
     }
 

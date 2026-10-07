@@ -332,7 +332,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 </p>
               </div>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.sourceLine}
+                {currentQuestion.sourceLine.trim().length > 0
+                  ? currentQuestion.sourceLine
+                  : "Source line was not stored"}
               </p>
             </div>
           </CollapsibleSection>

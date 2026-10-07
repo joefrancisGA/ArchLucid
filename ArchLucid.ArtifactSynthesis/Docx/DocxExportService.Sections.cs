@@ -18,7 +18,7 @@ public sealed partial class DocxExportService
 
         WordDocumentBuilder.AddHeading(body, "Summary Highlights", DocxStyleIds.Heading2);
         if (c.SummaryHighlights.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "—");
+            WordDocumentBuilder.AddBodyText(body, "No summary highlights were recorded.");
         else
             WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights.Select(SanitizeArtifactText));
 
@@ -128,7 +128,7 @@ public sealed partial class DocxExportService
 
     private static string FormatOptional(string? v)
     {
-        return string.IsNullOrEmpty(v) ? "—" : v;
+        return v is null ? "Compared value was not stored" : v;
     }
 
     private static string FormatCost(decimal? v)

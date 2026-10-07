@@ -13,6 +13,11 @@ export type FindingSeverityInspectCopy = {
 
 export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
   const trimmed = severityRaw.trim();
+
+  if (trimmed.length === 0 || trimmed === "Severity was not stored") {
+    return { meaningForOperators: "", suggestedNext: "" };
+  }
+
   const lowered = trimmed.toLowerCase();
 
   if (lowered.includes("critical") || lowered.includes(" blocker") || lowered === "blocking") {

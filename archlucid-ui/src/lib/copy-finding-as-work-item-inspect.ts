@@ -128,7 +128,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         title: heading,
         severity,
         recommendedAction: reco,
-        status: "Not available",
+        status: "Status was not included on this work item.",
         ruleId: ruleLine,
         ...trustJson,
         ...(semanticSupportFields === null
@@ -209,7 +209,8 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         ? input.evidenceExcerpts.map((e, index) => `${index + 1}. ${na(e)}`)
         : ["1. Not available"];
 
-    const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
+    const remediationStep =
+      reco !== "Not available" ? reco : "No recommended action recorded for this finding.";
     const descriptionLines = [`Severity: ${severity}`];
 
     if (trustLine !== null) {

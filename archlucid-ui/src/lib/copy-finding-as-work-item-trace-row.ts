@@ -80,11 +80,11 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
     schema: "archlucid.work-item.v1",
     findingId: input.findingId,
     runId: input.runId,
-    title: na(input.findingTitle),
-    severity: na(input.severityLabel),
-    recommendedAction: na(input.recommendedAction),
-    status: na(input.statusLabel),
-    ruleId: na(input.ruleId),
+    title: na(input.findingTitle, "Finding title was not stored"),
+    severity: na(input.severityLabel, "Severity was not stored"),
+    recommendedAction: na(input.recommendedAction, "No recommended action recorded for this finding."),
+    status: na(input.statusLabel, "Status was not stored"),
+    ruleId: na(input.ruleId, "Rule was not stored"),
     ...trustFields,
     ...(semanticSupportFields === null
       ? {}
@@ -104,11 +104,11 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
 /** Builds pasted text for queue rows and aggregate explanation tables. */
 export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input: TraceRowWorkItemInput): string {
   const links = traceRowWorkItemLinks(input);
-  const title = na(input.findingTitle);
-  const severity = na(input.severityLabel);
-  const reco = na(input.recommendedAction);
-  const status = na(input.statusLabel);
-  const rule = na(input.ruleId);
+  const title = na(input.findingTitle, "Finding title was not stored");
+  const severity = na(input.severityLabel, "Severity was not stored");
+  const reco = na(input.recommendedAction, "No recommended action recorded for this finding.");
+  const status = na(input.statusLabel, "Status was not stored");
+  const rule = na(input.ruleId, "Rule was not stored");
   const trustLine = formatFindingTrustExportLine(input);
   const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
 
@@ -150,7 +150,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
   }
 
   if (format === "serviceNowText") {
-    const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
+    const remediationStep = reco;
     const descriptionLines = [
       `Severity: ${severity}`,
       `Status: ${status}`,

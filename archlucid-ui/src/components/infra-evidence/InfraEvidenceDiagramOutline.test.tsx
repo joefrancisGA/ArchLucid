@@ -30,8 +30,8 @@ const outline: InfraEvidenceMermaidOutline = {
       from: "n_src",
       to: "n_missing",
       label: null,
-      source: "observed",
-      confidenceBand: "observed",
+      source: "missing",
+      confidenceBand: "missing",
       provenanceKind: null,
       inferenceSource: null,
       declaredConnectionId: null,
@@ -677,7 +677,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(unknownSection).getByText("Needs evidence (1)")).toBeTruthy();
     expect(
       within(unknownSection).getByText(
-        "No cited connection, and this type is not on the shared-service list.",
+        "No connection state detail was stored.",
       ),
     ).toBeTruthy();
     expect(within(unknownSection).queryByRole("textbox")).toBeNull();

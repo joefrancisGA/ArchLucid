@@ -92,7 +92,7 @@ internal static class InventoryDiagramParentAttachmentApplier
             }
 
             string childDetailLabel = BuildChildDetailLabel(diagramNode, category);
-            InventoryDiagramEvidenceCurrency evidenceCurrencyForDetail = ReadEvidenceCurrency(graphNode);
+            InventoryDiagramEvidenceCurrency? evidenceCurrencyForDetail = ReadEvidenceCurrency(graphNode);
             string formattedDetail = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrencyForDetail, childDetailLabel);
             int attachedParentCount = 0;
 
@@ -206,7 +206,7 @@ internal static class InventoryDiagramParentAttachmentApplier
             return false;
         }
 
-        InventoryDiagramEvidenceCurrency evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
+        InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(connectorGraphNode);
         string edgeLabel = InventoryDiagramEvidenceCurrencyLabels.Format(
             evidenceCurrency,
             ReadResourceName(connectorDiagramNode.ArmResourceId, connectorDiagramNode.Label));
@@ -319,14 +319,18 @@ internal static class InventoryDiagramParentAttachmentApplier
     {
         if (string.IsNullOrWhiteSpace(armResourceId))
         {
-            return fallbackLabel;
+            return string.IsNullOrWhiteSpace(fallbackLabel)
+                ? "Resource name was not stored"
+                : fallbackLabel;
         }
 
         int lastSlash = armResourceId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
         {
-            return fallbackLabel;
+            return string.IsNullOrWhiteSpace(fallbackLabel)
+                ? "Resource name was not stored"
+                : fallbackLabel;
         }
 
         return armResourceId[(lastSlash + 1)..];
@@ -400,7 +404,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         return nicOwnerArmIdByNicArmId;
     }
 
-    private static InventoryDiagramEvidenceCurrency ReadEvidenceCurrency(GraphNode graphNode)
+    private static InventoryDiagramEvidenceCurrency? ReadEvidenceCurrency(GraphNode graphNode)
     {
         if (graphNode.Properties.TryGetValue(
                 InventoryDiagramParentAttachmentPropertyKeys.EvidenceCurrency,
@@ -410,6 +414,6 @@ internal static class InventoryDiagramParentAttachmentApplier
             return parsed;
         }
 
-        return InventoryDiagramEvidenceCurrency.Current;
+        return null;
     }
 }

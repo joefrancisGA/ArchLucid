@@ -27,8 +27,8 @@ export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlinePr
         <tbody>
           {rows.map((node) => (
             <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-              <td className="px-3 py-2 font-mono text-sm">{node.label ?? node.id}</td>
-              <td className="px-3 py-2">{node.type ?? "Unknown"}</td>
+              <td className="px-3 py-2 font-mono text-sm">{node.label ?? "Node name was not stored"}</td>
+              <td className="px-3 py-2">{node.type ?? "Node type was not stored"}</td>
               <td className="px-3 py-2">{examinedSet.has(node.id) ? "Yes" : "No"}</td>
             </tr>
           ))}

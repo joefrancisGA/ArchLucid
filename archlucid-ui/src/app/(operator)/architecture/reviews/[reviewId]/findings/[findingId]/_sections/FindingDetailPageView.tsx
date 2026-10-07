@@ -69,7 +69,9 @@ export function FindingDetailPageView(props: Props) {
 
   const severityHeadline = fallbackSeverity(inspectPayload, decodedFindingId);
   const severityRationale =
-    severityHeadline.trim().length > 0 ? findingSeverityAudienceCopy(severityHeadline).meaningForOperators : "";
+    labels?.severityLabel?.trim().length
+      ? findingSeverityAudienceCopy(labels.severityLabel).meaningForOperators
+      : "";
   const severityConstraintNote =
     inspectPayload !== null
       ? buildSeverityConstraintNoteForInspectPayload(inspectPayload, statedConstraintContext)

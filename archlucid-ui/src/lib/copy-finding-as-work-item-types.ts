@@ -93,11 +93,11 @@ export type TraceRowWorkItemInput = {
   productLineId?: ProductLineId;
 };
 
-export function na(value: string | null | undefined): string {
+export function na(value: string | null | undefined, missingLabel = "Not available"): string {
   const t = value?.trim();
 
   if (t === undefined || t === null || t.length === 0) {
-    return "Not available";
+    return missingLabel;
   }
 
   return t;

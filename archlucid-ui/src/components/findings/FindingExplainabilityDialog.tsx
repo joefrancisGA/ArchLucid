@@ -157,7 +157,9 @@ export function FindingExplainabilityDialog({
   const technicalAuditSummary = buyerPolishedShell ? "Technical audit" : "Trace audit";
 
   const severityInspect =
-    data !== null ? findingSeverityAudienceCopy(data.severity) : { meaningForOperators: "", suggestedNext: "" };
+    data !== null
+      ? findingSeverityAudienceCopy(data.severity)
+      : { meaningForOperators: "Severity was not stored", suggestedNext: "" };
 
   // Suppressed when the persisted narrative only restates the finding title already shown above it.
   const rationalePreview =
@@ -228,11 +230,16 @@ export function FindingExplainabilityDialog({
                 </p>
               ) : null}
               <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-semibold">Severity:</span> {severityInspect.meaningForOperators}
+                <span className="font-semibold">Severity:</span>{" "}
+                {severityInspect.meaningForOperators.trim().length > 0
+                  ? severityInspect.meaningForOperators
+                  : "Severity was not stored"}
               </p>
-              <p className={cn("m-0 mt-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
-              </p>
+              {severityInspect.suggestedNext.trim().length > 0 ? (
+                <p className={cn("m-0 mt-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                  <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
+                </p>
+              ) : null}
               <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-semibold">{FINDING_TRACE_FIELD_FILL_LABEL}:</span>{" "}
                 {traceCompleteness?.summaryLine ?? "Not recorded"}

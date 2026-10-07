@@ -6,7 +6,8 @@ describe("buyerFindingSeverityDisplayLabel", () => {
     expect(buyerFindingSeverityDisplayLabel("Warning", "sensitive-data-minimization-risk")).toBe("High");
   });
 
-  it("maps warning labels to High for buyer consistency", () => {
-    expect(buyerFindingSeverityDisplayLabel("Warning")).toBe("High");
+  it("preserves stored warning labels", () => {
+    expect(buyerFindingSeverityDisplayLabel("Warning")).toBe("Warning");
+    expect(buyerFindingSeverityDisplayLabel("Medium")).toBe("Medium");
   });
 });

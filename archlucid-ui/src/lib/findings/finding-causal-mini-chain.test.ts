@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  FINDING_CAUSAL_STEP_MISSING,
+  FINDING_CAUSAL_EVIDENCE_MISSING,
+  FINDING_CAUSAL_RECOMMENDATION_MISSING,
+  FINDING_CAUSAL_RULE_MISSING,
   buildFindingCausalMiniChain,
   findingCausalMiniChainFromGovernanceQueueRow,
   findingCausalMiniChainFromInspectPayload,
@@ -31,7 +33,9 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
 
     expect(chain.hasAnyValue).toBe(false);
     expect(chain.steps.every((step) => step.value === null)).toBe(true);
-    expect(FINDING_CAUSAL_STEP_MISSING).toBe("Not available");
+    expect(FINDING_CAUSAL_RULE_MISSING).toBe("Rule was not stored");
+    expect(FINDING_CAUSAL_EVIDENCE_MISSING).toBe("Evidence was not stored");
+    expect(FINDING_CAUSAL_RECOMMENDATION_MISSING).toBe("Recommendation was not stored");
   });
 
   it("maps quick-decision, governance queue, and inspect payloads", () => {
