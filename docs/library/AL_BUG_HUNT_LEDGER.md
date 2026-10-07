@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-07 seed hunt (seed→hit): `ui-auth-callback` — proved bot-poisoned honeypot `websiteUrl` survived cancel/reopen and could yield silent `204` honeypot success on the next operator submit; `dismissAccessRequestForm` clears honeypot on cancel and request-access collapse; cheap-disproof closed four other `(candidate)` rows; regressions `clears honeypot websiteUrl when cancel closes the form` and `does not surface stale submit error after collapsing the form during an in-flight POST`; seeded five follow-on `(candidate)` rows; 30 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-07 thorough hunt (hit): `ui-auth-callback` — proved in-flight `POST /api/access-requests` was not invalidated on cancel, request-access collapse, or rapid double submit (late `204` could still flip to success / duplicate POST); `submitControlRef` generation + in-flight guard; proved blank `technicalDetail` rendered an empty helper paragraph; regressions `does not show success after cancel while submit is in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`, and `omits technical detail paragraph when technicalDetail is blank`; cheap-disproof closed honeypot `websiteUrl: ""` (server `trimOptional` → null per `route.test.ts`), success view omitting report-problem (intentional post-submit UX); reaffirmed `posts honeypot websiteUrl without client-side trim`; seeded five follow-on `(candidate)` rows; 28 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
 2026-10-07 seed hunt (seed-only): `worker-host` — re-read degraded-migration health wiring (`StartupMigrationHealthState` vs `StartupDatabaseMigrationHealthCheck`), worker `/health` route predicates, and OTel Prometheus exporter registration; no hunt-ready row promoted; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -8777,7 +8779,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 21 · **Bugs found:** 2 · **Consecutive dry hunts:** 0
+**Hunts:** 22 · **Bugs found:** 3 · **Consecutive dry hunts:** 0
+
+2026-10-07 seed hunt (seed→hit): cheap-disproof closed four open `(candidate)` rows; proved honeypot `websiteUrl` retention after dismiss; regressions `clears honeypot websiteUrl when cancel closes the form` and `does not surface stale submit error after collapsing the form during an in-flight POST`; seeded five follow-on `(candidate)` rows; 30 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (invalid) `onSubmit` — stale `4xx` sets `errorMessage` after request-access collapse invalidates submit — **cheap-disproof 2026-10-07 seed hunt:** generation guard returns before `setErrorMessage`; regression `does not surface stale submit error after collapsing the form during an in-flight POST`.
+- [x] (valid-no-repro) `invalidateInFlightSubmit` — does not abort in-flight `fetch` — **cheap-disproof 2026-10-07 seed hunt:** UI-state invalidation is the contract; network completion without UI mutation is acceptable; AbortController omitted intentionally.
+- [x] (valid-no-repro) Success view — omits report-problem row and callback `technicalDetail` — **cheap-disproof 2026-10-07 seed hunt:** duplicate of 2026-10-07 thorough hunt closure; success is request-sent confirmation only.
+- [x] (valid-no-repro) `workEmail` `type="email"` vs server `isWorkEmailAddress` — **cheap-disproof 2026-10-07 seed hunt:** plus-address and corporate domains pass both HTML5 and server checks; personal domains fail server validation with generic submit error.
+- [x] (proven) `showForm` dismiss — honeypot `websiteUrl` retained after cancel/reopen could poison the next submit into honeypot `204` — **hit 2026-10-07 seed hunt:** `dismissAccessRequestForm` clears `websiteUrl` while retaining visible fields; regression `clears honeypot websiteUrl when cancel closes the form`.
+
+- [ ] (candidate) `onSubmit` — `invalidateInFlightSubmit` does not clear `errorMessage` when collapsing the form during flight (only cancel clears errors explicitly) — locus: request-access toggle vs cancel button; input: error already shown then second submit started.
+- [ ] (candidate) `dismissAccessRequestForm` — clears honeypot but leaves `cloudPlatformFocus` / `note` whitespace that server trims to null — locus: optional field state; input: whitespace-only optional fields survive dismiss/reopen.
+- [ ] (candidate) Success view — no copy reminding operators that access approval is asynchronous (may retry sign-in before provisioning) — locus: `AUTH_CALLBACK_ACCESS_SUCCESS_BODY`; input: successful `204` with dry-run email misconfiguration.
+- [ ] (candidate) `FatalPageReportProblemSupportRow` — remains mounted while form is open so report payload may omit latest `technicalDetail` edits (props-only from parent) — locus: `CallbackClient` message state vs panel props; input: token exchange failure then immediate access request without remount.
+- [ ] (candidate) `submitting` — disables cancel during flight so operators cannot dismiss until response returns — locus: cancel `disabled={submitting}`; input: slow `POST /api/access-requests` on high-latency mobile.
 
 2026-10-07 thorough hunt (hit): cheap-disproof closed three open `(candidate)` rows; proved in-flight submit invalidation + blank `technicalDetail` rendering; regressions `does not show success after cancel while submit is in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`, `omits technical detail paragraph when technicalDetail is blank`, and `posts empty honeypot websiteUrl string for server trimOptional normalization`; seeded five follow-on `(candidate)` rows; 28 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8786,12 +8802,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Success view — omits `FatalPageReportProblemSupportRow` so operators cannot report the original callback failure after access request succeeds — **cheap-disproof 2026-10-07 thorough hunt:** success branch is request-sent confirmation; original failure detail was on the pre-submit panel; report-problem remains available until submit succeeds (`wires report problem errorTitle to the access heading, not technicalDetail`).
 - [x] (proven) `technicalDetail` — empty string prop still renders the helper paragraph (visual noise on blank callback errors) — **hit 2026-10-07 thorough hunt:** omit paragraph when `technicalDetail.trim()` is empty; regression `omits technical detail paragraph when technicalDetail is blank`.
 - [x] (proven) `onSubmit` — rapid double activation before `submitting` disables the submit button may enqueue duplicate `POST /api/access-requests` — **hit 2026-10-07 thorough hunt:** `submitControlRef.inFlight` blocks concurrent submits; regression `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
-
-- [ ] (candidate) `onSubmit` — request-access toggle closed while submit is in flight may still leave `errorMessage` set when a stale `4xx` returns after invalidation — locus: `invalidateInFlightSubmit` + error branch; input: slow `502` after operator collapses the form.
-- [ ] (candidate) `invalidateInFlightSubmit` — resets `submitting` but does not clear in-progress `fetch` (network bytes still sent) — locus: `AuthCallbackAccessPanel.tsx` `onSubmit`; input: cancel after POST started (behavioral cost only).
-- [ ] (candidate) Success view — omits `FatalPageReportProblemSupportRow` and callback `technicalDetail` so support cannot correlate access request with original Entra failure — locus: success branch ~99–110; input: successful submit after `technicalDetail` was shown.
-- [ ] (candidate) `workEmail` `type="email"` — browser may reject submit for addresses that server `isWorkEmailAddress` would accept — locus: required email input; input: plus-address or IDN domain allowed server-side only.
-- [ ] (candidate) `showForm` — reopening after cancel does not reset honeypot `websiteUrl` if a bot partially filled the hidden field — locus: hidden website input state; input: automated fill then operator cancel/reopen.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows (generic non-409 errors intentionally ignore JSON `message`; `type="email"` normalizes padded addresses before POST; only submit/cancel disable during flight; success view intentionally omits callback `technicalDetail`; honeypot `websiteUrl` posts raw value for server `trimOptional`); regressions `does not parse JSON message field on non-409 API failures`, `normalizes padded work email via the email input before POST`, `keeps required inputs editable while submit is in flight`, `omits callback technical detail on the success view`, and `posts honeypot websiteUrl without client-side trim`; seeded five follow-on `(candidate)` rows; 24 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -8803,11 +8813,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 21
-- **bugs-found:** 2
+- **hunts:** 22
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — In-flight access-request submit not invalidated on cancel/toggle/double-activate; blank technicalDetail rendered empty helper paragraph
+- **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
