@@ -21,7 +21,7 @@
      open heading do not say so.
      Do not implement from this index. -->
 
-# Data flow diagram — Luna prompt set (DFV-01–DFV-23)
+# Data flow diagram — Luna prompt set (DFV-01–DFV-25)
 
 **Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-*.md` file per GPT-5.6 Luna session.
 
