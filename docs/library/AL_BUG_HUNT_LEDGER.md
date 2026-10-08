@@ -34324,10 +34324,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-08
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34335,12 +34335,14 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
 2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
 2026-10-03 seed hunt (seed-only): reviewed snapshot-label formatting and diagram workbench picker behavior; the remaining UUID-label test failure is stale because resource counts were intentionally removed from picker labels, and no new mechanism-backed candidate met the reachability bar.
+2026-10-08 seed hunt (hit): Full subscription Show network details was dropped before compile. Merge kept a false default when another display flag built compile options, and the peel-budget options copy omitted IncludeNetworkDetails on every render. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set` passed with the preview-flag regression.
 
 ### Hypotheses
 
 - [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
 - [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
+- [x] (proven) `MergeDisplayCompileOptions` and `InventoryDiagramPeelBudgetApplier` — Full subscription `includeNetworkDetails=true` from the diagrams workbench Show network details control (including together with `includeCrossGroupFanOut=true`) reached the compiler as false. `??` does not replace a false bool on options built for another display flag, and every peel-budget options copy omitted `IncludeNetworkDetails`, so public IPs, NSGs, route tables, and private endpoints stayed hidden. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set`.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
 

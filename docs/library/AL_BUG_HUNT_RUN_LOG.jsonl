@@ -8917,3 +8917,4 @@
 {"at":"2026-10-08T20:35:55.5084081Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfPipelineFlowExtractor.cs"]}
 {"at":"2026-10-08T20:43:07.2748717Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AzureExtractor/GetOnlyHostedAzureArmReadClient.cs"]}
 {"at":"2026-10-08T20:55:43.3473568Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/DocxArchitectureAnalysisExportService.cs"]}
+{"at":"2026-10-08T21:09:28.0939172Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotMermaidService.cs","ArchLucid.ArtifactSynthesis/Mermaid/InventoryDiagramPeelBudgetApplier.cs"]}
