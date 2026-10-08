@@ -24,9 +24,13 @@
      from the firewall private IP and the route-table next hop, and
      attaches a private-endpoint target and a Function App VNet
      integration to that subnet.
+     Every workflow on Hmd_HI_HAP_Non_Prod is a stand-alone question.
+     logic-app-connections.json is empty, and adf-dataflows.json lists
+     data flows with empty source and sink arrays. DFV-27 collects
+     those linked services and the workflow peers.
      Do not implement from this index. -->
 
-# Data flow diagram — Luna prompt set (DFV-01–DFV-26)
+# Data flow diagram — Luna prompt set (DFV-01–DFV-27)
 
 **Do not implement from this index.** Paste **one** numbered `.cursor/prompts/data-flow-diagram-*.md` file per GPT-5.6 Luna session.
 
@@ -64,6 +68,7 @@ Canonical wave doc: [`docs/architecture/DATA_FLOW_DIAGRAM_LUNA_PROMPTS.md`](../.
 | **Rollup list invitation** | A count card such as `6 storage accounts` opens the member list, and the only mark is a 10px `[1]`. **Reading a card** never says that. The open heading says `Showing connections for`. | Composer only. The card says `Click to list the 6`. **Reading a card** says a count opens the list and a second click closes it. The open heading is the count. Members stay. | **DFV-24** |
 | **Firewall downstream** | `fw_hi_nprd_wwd` sits in Application with no line. `firewallToSubnet` is excluded, so the subnet hop never paints. | One **Routes through** line from the firewall to each Application or Ingestion card on that subnet. The subnet stays off the canvas. Shipped in PR 4319. The current ZIP still has no `firewallToSubnet` row. | **DFV-25** |
 | **Firewall routed subnets** | DFV-25 is on `master` and the firewall card still has no line. The package has `publicIpToNic` for `fw_hi_nprd_wvd` and `subnetToRouteTable` for `rt_hi_nprd_wvd`, and no firewall private IP or route next hop. Factory cards are private-endpoint targets. Function Apps have no `appServiceToSubnet` row. | The package emits `firewallToSubnet` for each subnet whose user route sends `VirtualAppliance` traffic to that firewall. A private-endpoint target and a Function App on that subnet become the **Routes through** ends. The subnet stays off the canvas. | **DFV-26** |
+| **Data-flow sources and workflow peers** | Every workflow is a stand-alone question. `logic-app-connections.json` is empty. `adf-dataflows.json` lists the data flows with `Succeeded` and empty source and sink arrays. | The package records each data flow's linked services, expands `ExecuteDataFlow` into `Read` and `Write`, and records a Logic App row when the workflow names an API connection or an allowed Azure resource. | **DFV-27** |
 
 ## What this set does not change
 
@@ -71,7 +76,7 @@ Keep the evidence catalog's exclusions. Do not put diagnostic settings, NIC, VNe
 
 ## Run order
 
-**01–07, 13, 14, 18, 19, and 25 are on `master`.** DFV-25 draws the line only when `firewallToSubnet` is already in the package. The current ZIP has no such row, so the firewall card stays unconnected until the owner re-collects. Next, one session: **26**. Collect the routed subnets and attach the factory and Function App that live on them. NAT gateways and the load balancer wait. **23** still paints **Reads from** and **Writes to** when those factory edges need labels. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
+**01–07, 13, 14, 18, 19, and 25 are on `master`.** DFV-25 draws the line only when `firewallToSubnet` is already in the package. The current ZIP has no such row, so the firewall card stays unconnected until the owner re-collects after **26**. Next, one session: **27**. Collect data-flow linked services and Logic App peers. Every workflow is stand-alone, `logic-app-connections.json` is empty, and `adf-dataflows.json` lists data flows with empty source and sink arrays. **26** stays a separate session for the firewall line. NAT gateways and the load balancer wait. **23** still paints **Reads from** and **Writes to** when those factory edges need labels. **21** stays unpasted until **12** has shipped and Source is still hard to read. Do not run two of these in one session.
 
 Each implementation prompt ends **before commit**. The owner looks, then says whether to commit.
 
@@ -105,3 +110,4 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 24 | `data-flow-diagram-24-rollup-list-invitation.md` | `dfv/24-rollup-list-invitation` |
 | 25 | `data-flow-diagram-25-firewall-downstream.md` | `dfv/25-firewall-downstream` |
 | 26 | `data-flow-diagram-26-firewall-routed-subnets.md` | `dfv/26-firewall-routed-subnets` |
+| 27 | `data-flow-diagram-27-adf-workflow-collection.md` | `dfv/27-adf-workflow-collection` |
