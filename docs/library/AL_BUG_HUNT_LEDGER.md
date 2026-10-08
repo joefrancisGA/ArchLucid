@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed keyset probe/assembly clamping, offset probe/assembly clamping, GUID project matching, archived-run list filtering, and timestamp/RunId ordering; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `worker-host` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed bootstrap-before-pipeline ordering, graceful shutdown registration, configuration validation, warning diagnostics, and Azure OpenAI bridge validation; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
@@ -6204,9 +6206,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 56 · **Bugs found:** 22 · **Consecutive dry hunts:** 9
+**Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`, `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`, `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
+
+- [x] (valid-no-repro) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — **cheap-disproof 2026-10-08 seed hunt #54:** separator is not a control/open-redirect shape; path remains relative and no protocol traversal is introduced.
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — **cheap-disproof 2026-10-08 seed hunt #54:** decode preserves the safe relative path and does not create a slash, dot, backslash, or userinfo shape.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — query-only `//` after decode without scheme — **cheap-disproof 2026-10-08 seed hunt #54:** conservative full-string scan rejects decoded `//`, even when it appears only in query data.
+- [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-10-08 seed hunt #54:** post-decode `char.IsControl` rejection covers vertical tab.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-10-08 seed hunt #54:** whole-string scheme delimiter rejection is conservative and prevents fragment-based redirect ambiguity.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop before `TryNormalizeRelativePath`; input: `/reviews%E2%80%A9/1`.
+- [ ] (candidate) `ContainsControlCharacter` — form feed `%0C` after percent decoding — locus: decoded control scan ~75; input: `/reviews/%0Csegment`.
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — encoded backslash plus slash `%5C%2F` in query — locus: residual traversal scan ~116–123; input: `/reviews?next=%5C%2Fevil.example`.
+- [ ] (candidate) `ContainsDotDotSegment` — percent-encoded dot pair `%2E%2E` in fragment — locus: full decode and path-only traversal split; input: `/reviews#next=%2E%2E/admin`.
+- [ ] (candidate) `ContainsAtSignInPath` — percent-encoded small commercial at `%EF%B9%AB` in path — locus: decoded path userinfo scan; input: `/reviews/%EF%B9%ABevil.example`.
 
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded POP `%E2%81%A9` — **cheap-disproof 2026-10-08 seed hunt #56:** decodes to in-path directional isolate; regression `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%0D` in path — **cheap-disproof 2026-10-08 seed hunt #56:** post-decode CR rejected; regression `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`.
@@ -6303,9 +6317,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
