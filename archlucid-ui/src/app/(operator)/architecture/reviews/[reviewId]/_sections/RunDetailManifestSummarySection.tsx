@@ -181,7 +181,7 @@ export function RunDetailManifestSummarySection(
                     These standards were recorded when the review was finalized.
                   </p>
                   <p className="m-0">
-                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "None"}
+                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "Cloud target was not stored."}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled
                       ? " · Focused review scope"
                       : null}

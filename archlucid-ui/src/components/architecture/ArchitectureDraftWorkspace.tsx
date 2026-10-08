@@ -152,7 +152,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const linkedReviewTitle = useMemo(() => {
     if (linkedReviewId === null) {
-      return "Untitled review";
+      return "No linked review was stored.";
     }
 
     if (linkedReviewSummaryQuery.data !== undefined) {
@@ -163,7 +163,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return linkedReviewId;
     }
 
-    return "Untitled review";
+    return "Linked review title has not loaded.";
   }, [linkedReviewId, linkedReviewSummaryQuery.data, linkedReviewSummaryQuery.isError]);
   const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);

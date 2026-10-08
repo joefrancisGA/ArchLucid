@@ -24,6 +24,7 @@ const chipClassByKind: Record<FindingTrustChipKind, string> = {
   "deterministic-rule": enterpriseStatusTagClass("ready"),
   "deterministic-fallback": enterpriseStatusTagClass("needs-attention"),
   degraded: enterpriseStatusTagClass("needs-attention"),
+  "trust-label-not-stored": enterpriseStatusTagClass("neutral"),
 };
 
 function toPresentationInput(

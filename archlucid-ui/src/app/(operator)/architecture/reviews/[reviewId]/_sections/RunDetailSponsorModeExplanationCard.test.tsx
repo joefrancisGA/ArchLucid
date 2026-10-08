@@ -110,8 +110,20 @@ describe("RunDetailSponsorModeExplanationCard", () => {
       />,
     );
 
-    expect(screen.getByText(/committed review and finding records/i)).toBeInTheDocument();
+    expect(screen.getByText("0 citations were stored.")).toBeInTheDocument();
     expect(screen.getByText("Low support")).toBeInTheDocument();
     expect(screen.getByText(/send the sponsor briefing export/i)).toBeInTheDocument();
+  });
+
+  it("distinguishes omitted citations from an empty citation list", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{ ...summary, citations: null }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Citations not returned")).toBeInTheDocument();
   });
 });

@@ -20,7 +20,7 @@ function firstNonEmptyLine(value: string | null | undefined): string {
   const text = value?.trim() ?? "";
 
   if (text.length === 0) {
-    return "This committed review is ready for sponsor discussion, but the narrative summary is not available yet.";
+    return "Narrative summary was not stored.";
   }
 
   return text.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? text;
@@ -59,7 +59,7 @@ export function RunDetailSponsorModeExplanationCard(
       ? "Citations not returned"
       : citationCount > 0
         ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
-        : "committed review and finding records";
+        : "0 citations were stored.";
 
   return (
     <section
@@ -87,7 +87,7 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Risk posture</dt>
-          <dd className="m-0 mt-1">{explanationSummary?.riskPosture?.trim() || "Review required"}</dd>
+          <dd className="m-0 mt-1">{explanationSummary?.riskPosture?.trim() || "Risk posture was not stored."}</dd>
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Trust label</dt>

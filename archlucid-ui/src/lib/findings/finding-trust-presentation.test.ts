@@ -5,7 +5,8 @@ import {
   formatFindingTrustCompareDeltaLabels,
 } from "@/lib/findings/finding-trust-presentation";
 
-const FIXTURE_INFERRED_POLICY_RULE = {
+const FIXTURE_WIRE_POLICY_RULE = {
+  trustLabel: "DeterministicRule",
   policyRuleId: "cis-az-001",
   evidenceRefCount: 0,
 } as const;
@@ -19,14 +20,14 @@ const FIXTURE_WIRE_FALLBACK = {
 } as const;
 
 describe("deriveFindingTrustPresentation", () => {
-  it("keeps inspect, compare-delta, and export chip sets aligned for inferred policy-rule findings", () => {
-    const presentation = deriveFindingTrustPresentation(FIXTURE_INFERRED_POLICY_RULE);
+  it("keeps inspect, compare-delta, and export chip sets aligned for wire policy-rule findings", () => {
+    const presentation = deriveFindingTrustPresentation(FIXTURE_WIRE_POLICY_RULE);
     const compareDelta = formatFindingTrustCompareDeltaLabels(presentation.chipSet);
 
     expect(presentation.chipSet.label).toBe("Deterministic rule");
     expect(presentation.chipSet.groundingLabel).toBe("Not applicable");
     expect(presentation.chipSet.canonicalTrustLabel).toBe("DeterministicRule");
-    expect(presentation.chipSet.trustSource).toBe("inferred");
+    expect(presentation.chipSet.trustSource).toBe("wire");
 
     expect(presentation.inspectRow.origin).toBe(compareDelta.origin);
     expect(presentation.inspectRow.grounding).toBe(compareDelta.grounding);
@@ -53,14 +54,15 @@ describe("deriveFindingTrustPresentation", () => {
     });
   });
 
-  it("does not invent export labels when inference would still resolve a canonical label", () => {
+  it("does not invent export labels when the wire label is absent", () => {
     const presentation = deriveFindingTrustPresentation({
       trustLabel: "  ",
       policyRuleId: "rule-1",
       evidenceRefCount: 0,
     });
 
-    expect(presentation.export.exportLine).toBe("DeterministicRule");
-    expect(presentation.chipSet.label).toBe("Deterministic rule");
+    expect(presentation.export.exportLine).toBe("Trust label was not stored.");
+    expect(presentation.chipSet.label).toBe("Trust label was not stored");
+    expect(presentation.chipSet.canonicalTrustLabel).toBe("NotStored");
   });
 });

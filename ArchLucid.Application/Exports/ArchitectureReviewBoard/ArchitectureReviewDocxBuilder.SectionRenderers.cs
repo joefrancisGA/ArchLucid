@@ -70,7 +70,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportEvidenceItem item in items)
         {
-            string headline = string.IsNullOrWhiteSpace(item.Title) ? "(Untitled evidence)" : item.Title.Trim();
+            string headline = string.IsNullOrWhiteSpace(item.Title) ? "Evidence title was not stored." : item.Title.Trim();
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, headline, "BodyText");
 
             if (!string.IsNullOrWhiteSpace(item.Detail))

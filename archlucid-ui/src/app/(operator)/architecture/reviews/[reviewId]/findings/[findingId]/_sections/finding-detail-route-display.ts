@@ -156,7 +156,7 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
   if (payload === null) {
-    return "Evidence basis will appear after the finding payload loads.";
+    return "Finding detail has not loaded.";
   }
 
   const evidenceCount = payload.evidence.length;
@@ -174,14 +174,14 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
       }
     }
 
-    return "No explicit evidence citations are attached yet; reviewers should treat this as requiring evidence completion before closure.";
+    return "0 evidence citations were stored.";
   }
 
   if (ruleLabel !== null && ruleLabel.trim().length > 0) {
     return `${evidenceCount} evidence ${citationLabel} tied to ${ruleLabel}.`;
   }
 
-  return `${evidenceCount} evidence ${citationLabel} tied to the persisted finding record.`;
+  return `${evidenceCount} evidence ${citationLabel}. Rule was not stored.`;
 }
 
 export function fallbackImpactedScope(payload: FindingInspectPayload | null, findingId: string): string {
@@ -209,10 +209,6 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     const status = findingInspectPrimaryLabels(payload).statusLabel;
 
     if (status !== null && status.trim().length > 0) {
-      if (resolveProductionEvalChromeFromStorage() && status.toLowerCase() === "triaged") {
-        return "Accepted with monitoring";
-      }
-
       return status;
     }
 
@@ -340,10 +336,6 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
     return phiMinimizationApprovalNarrative();
   }
 
-  if (resolveProductionEvalChromeFromStorage()) {
-    return "Recorded in the approval workflow with evidence trail linkage.";
-  }
-
   return "No audit requirement was stored on this finding.";
 }
 
@@ -353,7 +345,7 @@ export function findingDetailLeadFallback(findingId: string): string {
     return "Residual risk record for the finalized Claims Intake review.";
   }
 
-  return "Review this finding independently from the parent review before approval.";
+  return "Finding detail has not loaded.";
 }
 
 /** Map free-text finding status labels onto enterprise StatusTag kinds. */
