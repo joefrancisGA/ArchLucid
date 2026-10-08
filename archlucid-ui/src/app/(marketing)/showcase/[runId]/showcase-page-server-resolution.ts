@@ -101,7 +101,23 @@ function hasUsableShowcasePipelineTimeline(payload: DemoCommitPagePreviewRespons
     return false;
   }
 
-  return payload.pipelineTimeline.every((event) => isUsableShowcasePipelineTimelineRow(event));
+  const seenEventIds = new Set<string>();
+
+  for (const event of payload.pipelineTimeline) {
+    if (!isUsableShowcasePipelineTimelineRow(event)) {
+      return false;
+    }
+
+    const eventId = (event as { eventId: string }).eventId.trim();
+
+    if (seenEventIds.has(eventId)) {
+      return false;
+    }
+
+    seenEventIds.add(eventId);
+  }
+
+  return true;
 }
 
 export async function fetchShowcasePayload(

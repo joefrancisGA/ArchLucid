@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (hit): `ui-marketing-surfaces` — proved duplicate `pipelineTimeline` `eventId` values passed showcase fetch validation, risking collapsed React timeline rows; fixed with per-payload uniqueness in `hasUsableShowcasePipelineTimeline`; cheap-disproved `buildPricingSignupHref` dropping `utm_campaign` (`MARKETING_ATTRIBUTION_QUERY_KEYS` + `pricing-signup-href.test.ts`), Quick Scan capacity banner sticking after successful submit (`use-quick-scan-client.test.ts` recovery + submit clears `capacityMessage`), `/see-it` HTTP 304 empty body (`loadSeeItDemoPreview` returns snapshot file), and trust-center ZIP without API base (`TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF` uses `/api/proxy/...`); regression `treats API payloads with duplicate pipeline timeline eventId values as invalid`; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
+
 2026-10-08 thorough hunt (hit): `ui-marketing-surfaces` — proved `fetchShowcasePayload` accepted pipeline timeline rows missing `eventId`, letting `toAuthorityPipelineItems` synthesize unstable React keys; tightened timeline row validation (`eventId`, `occurredUtc`, `eventType`); cheap-disproved route vs payload `runId` telemetry mismatch (canonical payload id is intentional for operator deep links), outcome snapshot `artifacts.length` without array guard (API fetch already rejects), `/see-it` mixed-pattern placeholder run ids (documented weak-placeholder contract), and pricing quote `openOnMount` driven by `preferSalesLedQuoteCta` (`openOnMount` binds to `customPolicyPackQuoteInterest` only); regression `treats API payloads with timeline rows missing eventId as invalid`; seeded five follow-on `(candidate)` rows; 16 scoped showcase-page vitest tests passed.
 
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved `pulseBffSessionActivity` treated BFF activity `401`/`403` as benign keepalive success so long exports could retain client signed-in hints after server idle expiry; fixed by returning `unauthorized` and clearing OIDC session from keepalive pulses; cheap-disproved `buildAuthorizeUrl` missing `prompt=login` (intentional federated SSO), orphaned opposite-flow PKCE at callback (cleared on redirect in hunt #29), Google token exchange client id (already uses `getGoogleOidcClientId`), and synchronous `readSignedInDisplayName` after `clearOidcSession` (React commit ordering); regressions `reports unauthorized when the activity route rejects the BFF session` and `clears the OIDC session when the BFF activity pulse is unauthorized`; seeded five follow-on `(candidate)` rows; 73 scoped oidc vitest tests passed.
@@ -31428,6 +31430,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-08 thorough hunt #27 (hit): proved duplicate pipeline `eventId` values passed showcase validation; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
+
 2026-10-08 thorough hunt #26 (hit): proved sparse pipeline timeline rows missing `eventId` passed showcase fetch validation; cheap-disproved four other `(candidate)` rows from hunt #25; seeded five follow-on `(candidate)` rows; 16 scoped showcase-page vitest tests passed.
 
 2026-10-08 thorough hunt #25 (hit): proved negative/fractional `runExplanation` counts passed showcase and see-it marketing gates; cheap-disproved five open `(candidate)` rows from hunt #22; shared `hasUsableMarketingRunExplanationCounts`; seeded five follow-on `(candidate)` rows; 43 scoped vitest tests passed.
@@ -31446,11 +31450,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 26
-- **bugs-found:** 31
+- **hunts:** 27
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — showcase pipeline timeline rows missing eventId
+- **last-bug:** 2026-10-08 — duplicate showcase pipeline eventId values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31535,11 +31539,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `normalizeSeeItMarketingPayload` — weak placeholder gate ignores run ids with mixed repeated characters — **cheap-disproof 2026-10-08 thorough hunt #26:** `isWeakPlaceholderRunId` documents repeated-digit/single-char placeholders only; alternating patterns are not in the Azure-style placeholder contract.
 - [x] (invalid) `MarketingPricingQuotePanel.openOnMount` — `preferSalesLedQuoteCta` without matching `customPolicyPackQuoteInterest` still scroll-focuses quote panel — **cheap-disproof 2026-10-08 thorough hunt #26:** `pricing/page.tsx` sets `openOnMount={customPolicyPackQuoteInterest}`; trial nudge scroll focus does not open the quote drawer without `interest=custom-policy-pack`.
 
-- [ ] (candidate) `fetchShowcasePayload` — duplicate `eventId` values in `pipelineTimeline` still pass validation — locus: `hasUsableShowcasePipelineTimeline` (`showcase-page-server-resolution.ts`); input: API JSON with two timeline rows sharing the same `eventId`; wrong outcome: `DemoPreviewCompactTimeline` reuses React keys and collapses rows.
-- [ ] (candidate) `buildPricingSignupHref` — drops unknown `utm_*` keys not listed in `MARKETING_ATTRIBUTION_QUERY_KEYS` — locus: `pricing-signup-href.ts`; input: `/pricing?utm_campaign=partner` with tier CTA; wrong outcome: signup loses campaign attribution present on pricing view.
-- [ ] (candidate) `QuickScanClient` — capacity banner persists after successful resubmit clears `capacityMessage` — locus: `use-quick-scan-client.ts` post-submit status transitions; input: capacity-limited then successful analysis; wrong outcome: amber banner remains above fresh results.
-- [ ] (candidate) `loadSeeItDemoPreview` — HTTP 304 with empty body treated as success — locus: `load-see-it-demo-preview.ts`; input: CDN revalidation returns 304 without cached body in dev; wrong outcome: `/see-it` renders empty preview shell.
-- [ ] (candidate) `MarketingTrustCenterBuyerBody` — evidence pack ZIP link omits proxy prefix when `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` unset — locus: trust-center marketing href builder; input: static marketing deploy without API base env; wrong outcome: anonymous ZIP download 404.
+- [x] (proven) `fetchShowcasePayload` — duplicate `eventId` values in `pipelineTimeline` still pass validation — **hit 2026-10-08 thorough hunt #27:** duplicate ids reused React keys in `DemoPreviewCompactTimeline`; fixed uniqueness guard in `hasUsableShowcasePipelineTimeline`; regression `treats API payloads with duplicate pipeline timeline eventId values as invalid`.
+- [x] (invalid) `buildPricingSignupHref` — drops unknown `utm_*` keys not listed in `MARKETING_ATTRIBUTION_QUERY_KEYS` — **cheap-disproof 2026-10-08 thorough hunt #27:** `utm_campaign` is allowlisted; unknown keys like `ignored` are intentionally dropped (`pricing-signup-href.test.ts`).
+- [x] (valid-no-repro) `QuickScanClient` — capacity banner persists after successful resubmit clears `capacityMessage` — **cheap-disproof 2026-10-08 thorough hunt #27:** `onSubmit` clears `capacityMessage` before POST; status effect resyncs on recovery (`clears stale capacity banner when status recovers to Available`).
+- [x] (valid-no-repro) `loadSeeItDemoPreview` — HTTP 304 with empty body treated as success — **cheap-disproof 2026-10-08 thorough hunt #27:** 304 returns `readSnapshot()` payload, not empty JSON (`see-it.test.tsx`).
+- [x] (invalid) `MarketingTrustCenterBuyerBody` — evidence pack ZIP link omits proxy prefix when `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` unset — **cheap-disproof 2026-10-08 thorough hunt #27:** `TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF` is `/api/proxy/v1/marketing/trust-center/evidence-pack.zip` (fixed 2026-08-21).
+
+- [ ] (candidate) `fetchShowcasePayload` — whitespace-only `eventType` on timeline rows passes after trim guard omission — locus: `isUsableShowcasePipelineTimelineRow`; input: API row with `eventType: "   "`; wrong outcome: compact timeline renders blank event labels.
+- [ ] (candidate) `DemoPreviewMarketingBody` — `toAuthorityPipelineItems` accepts duplicate `eventId` on static demo payloads — locus: `DemoPreviewMarketingBody.tsx`; input: curated static fixture with colliding ids; wrong outcome: timeline UI collapses rows without API fetch gate.
+- [ ] (candidate) `resolveShowcasePageRenderPlan` — `http_error` serves static fallback for curated slug without `api_fallback` banner — locus: `showcase-page-server-resolution.ts` switch; input: curated slug with transient 503; wrong outcome: buyer sees live API chrome without offline disclosure.
+- [ ] (candidate) `SignupVerifyClient` — poll errors flip `initialLoadFailed` after successful probe — locus: `SignupVerifyClient.tsx` status poll; input: flaky poll after pending inbox state; wrong outcome: delivery-failure copy replaces check-inbox UX (reopen #813 scope).
+- [ ] (candidate) `get-started` trial href — `buildSignInTrialHref` omits marketing `source` query when only `utm_*` present — locus: `get-started-content.ts`; input: `/get-started?utm_source=email` without `source`; wrong outcome: post-sign-in trial attribution drops email source.
 
 ## Zone: capabilities-cost-mcp
 

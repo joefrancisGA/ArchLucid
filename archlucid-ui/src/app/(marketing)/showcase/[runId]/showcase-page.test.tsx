@@ -315,6 +315,41 @@ describe("MarketingShowcasePage", () => {
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
 
+  it("treats API payloads with duplicate pipeline timeline eventId values as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const duplicateEventId = payload.pipelineTimeline[0]!.eventId;
+    const duplicateTimelinePayload = {
+      ...payload,
+      pipelineTimeline: [
+        payload.pipelineTimeline[0],
+        {
+          ...payload.pipelineTimeline[0],
+          occurredUtc: "2026-04-23T00:00:01+00:00",
+          eventType: "Analyze",
+        },
+      ],
+    };
+
+    duplicateTimelinePayload.pipelineTimeline[1]!.eventId = duplicateEventId;
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(duplicateTimelinePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
   it("treats API payloads with timeline rows missing eventId as invalid", async () => {
     vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
 
