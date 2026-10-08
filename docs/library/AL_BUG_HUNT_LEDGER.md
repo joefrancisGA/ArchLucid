@@ -33354,13 +33354,14 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 33
-- **bugs-found:** 24
+- **hunts:** 34
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — last-visit restore did not notify the findings toolbar
+- **last-bug:** 2026-10-08 — findings toolbar published the previous review search and owner onto the next review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the review-detail route tree, page model, workspace presentation, findings workspace, and header state; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering remount restore guards, run-transition filter state, list-view state, persistence races, and same-document metadata URL synchronization.
 
@@ -33390,10 +33391,11 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
+- [x] (proven) `useRunDetailFindingsToolbarState` — a client-side move from `/architecture/reviews/run-1` to `/architecture/reviews/run-2` kept `q`, `owner`, and `findingsFilter` from the first review, then the 250ms search and owner effects wrote them onto the second review. Sync now follows `pathname` as well as `popstate`. Regression `does not publish the previous review toolbar onto the next review URL`.
 - [x] (proven) `useReviewFindingsLastVisitRestore` / `reviewFindingsLastVisitRestoredRunIds` — module-level restore guard kept `runId` after unmount, suppressing DR-13 toolbar restore when the same review remounted with a bare findings URL — **hit 2026-10-05 seed hunt:** clear guard entry on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`
 - [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
-- (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
+- [x] (proven) `useRunDetailFindingsToolbarState` — search, owner, and severity filter stayed on the previous review after a client-side path change, and the debounced search and owner writers then published that toolbar onto the next review URL — **hit 2026-10-08 seed hunt:** re-read the committed URL when `pathname` changes; regression `does not publish the previous review toolbar onto the next review URL`
 - [x] (proven) `useReviewFindingsLastVisitRestore` — `commitHrefIfChanged` updated the findings URL without notifying toolbar listeners, so a bare findings visit restored `findingsFilter=high` in the address bar while `useRunDetailFindingsToolbarState` stayed on `all` — **hit 2026-10-08 seed hunt:** mark the run restored, then `commitHrefIfChanged(nextHref, { notify: true })`; regression `updates the findings toolbar when last-visit restore writes the filter into the URL`
 - [x] (proven) `ReviewFailureTechnicalMetadataDisclosure` — `reviewFailureTechnicalMetadataOpen` synced only on mount/`popstate`, leaving `<details>` open state stale on Next.js soft navigation — **hit 2026-10-06 seed hunt:** reactive `useSearchParams` reconciliation; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event` (closes record-metadata disclosure candidate).
 - [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`

@@ -105,6 +105,9 @@ export function useRunDetailFindingsToolbarState(options?: {
   const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>("all");
   const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>("all");
 
+  // Pathname changes on a client-side review transition without popstate. Re-read the
+  // committed URL first so the debounced search, owner, and domain writers cannot publish
+  // the previous review's toolbar onto the next review.
   useEffect(() => {
     const syncFromCommittedUrl = (): void => {
       const next = readToolbarStateFromCommittedUrl();
@@ -125,7 +128,7 @@ export function useRunDetailFindingsToolbarState(options?: {
     return () => {
       window.removeEventListener("popstate", syncFromCommittedUrl);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (pathname.length === 0) {
