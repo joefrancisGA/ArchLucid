@@ -26,7 +26,7 @@
 
 9. **Advisory remediation.** Cut points (fixes that break the most paths), Terraform representation, ITSM handoff, humans apply changes.
 10. **Verification and outcome metrics.** Compare the next snapshot to claimed postconditions. Measure paths removed and crown-jewel exposure reduced, not findings closed.
-11. **Governing the AI tooling itself.** Tenant isolation, least privilege for the AI service, data residency, logging prompts and outputs, cost control.
+11. **Governing the AI tooling itself.** Tenant isolation, least privilege for the AI service, data residency, privacy-preserving audit metadata and controlled prompt/output retention, cost control.
 
 ## Appendices (planned)
 
