@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`, `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`, `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_left_to_right_isolate_in_path_segment`, `TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment`, `TryNormalize_rejects_horizontal_tab_control_character_in_path_segment`, `TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value`, and `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; 191 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_word_joiner_in_path_segment`, `TryNormalize_rejects_when_query_decodes_to_backslashes_conservative_full_string_scan`, `TryNormalize_accepts_lone_percent_encoded_dot_segment_decodes_to_single_dot_segment`, `TryNormalize_accepts_right_to_left_override_in_query_without_path_portion_bidi_strip`, and `TryNormalize_rejects_deeply_nested_percent_chain_in_query_after_decode_cap`; 186 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -6096,7 +6098,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 55 · **Bugs found:** 22 · **Consecutive dry hunts:** 8
+**Hunts:** 56 · **Bugs found:** 22 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`, `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`, `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded POP `%E2%81%A9` — **cheap-disproof 2026-10-08 seed hunt #56:** decodes to in-path directional isolate; regression `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`.
+- [x] (valid-no-repro) `ContainsControlCharacter` — `%0D` in path — **cheap-disproof 2026-10-08 seed hunt #56:** post-decode CR rejected; regression `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — query `://` after decode — **cheap-disproof 2026-10-08 seed hunt #56:** whole-string `://` check intentional; regression `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`.
+- [x] (valid-no-repro) `TryNormalize` — LINE SEPARATOR U+2028 — **cheap-disproof 2026-10-08 seed hunt #56:** not control/homoglyph open-redirect class; regression `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — interior `//` — **cheap-disproof 2026-10-08 seed hunt #56:** conservative `path.Contains("//")` rejects pasted empty segments; regression `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`.
+
+- [ ] (candidate) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — locus: separator vs control; input: `/reviews\u2029/1`.
+- [ ] (candidate) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%C2%AD/1`.
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — query-only `//` after decode (`/reviews?x=%2F%2F`) without scheme — locus: post-decode `//` substring; input: `/reviews?next=%2F%2Fevil.example`.
+- [ ] (candidate) `ContainsControlCharacter` — vertical tab `%0B` in path segment — locus: post-decode control scan; input: `/reviews/%0Bsegment`.
+- [ ] (candidate) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — locus: whole-string `://` check; input: `/reviews#note=http%3A%2F%2Fevil.example`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_left_to_right_isolate_in_path_segment`, `TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment`, `TryNormalize_rejects_horizontal_tab_control_character_in_path_segment`, `TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value`, and `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; 191 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
@@ -6105,12 +6121,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ContainsControlCharacter` — literal tab in path — **cheap-disproof 2026-10-08 seed hunt #55:** `char.IsControl` rejects HT; regression `TryNormalize_rejects_horizontal_tab_control_character_in_path_segment`.
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — uppercase `%2F` in query — **cheap-disproof 2026-10-08 seed hunt #55:** intentional query decode without residual `%2f` trip; regression `TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value`.
 - [x] (valid-no-repro) `TryNormalize` — SOFT HYPHEN U+00AD — **cheap-disproof 2026-10-08 seed hunt #55:** not control/homoglyph open-redirect class; regression `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`.
-
-- [ ] (candidate) `TryNormalize` — percent-encoded POP DIRECTIONAL ISOLATE `%E2%81%A9` in path segments — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%E2%81%A9/1`.
-- [ ] (candidate) `ContainsControlCharacter` — percent-encoded carriage return `%0D` in path segment — locus: post-decode control scan; input: `/reviews/%0Dsegment`.
-- [ ] (candidate) `TryNormalizeRelativePath` — query decoding to `://` substring without path `@` — locus: whole-string `://` check; input: `/reviews?next=http%3A%2F%2Fevil.example`.
-- [ ] (candidate) `TryNormalize` — LINE SEPARATOR U+2028 inside path segments — locus: format vs control; input: `/reviews\u2028/1`.
-- [ ] (candidate) `ContainsProtocolRelativeTraversal` — benign interior double slash `/reviews//details` may be rejected by `path.Contains("//")` — locus: `ContainsProtocolRelativeTraversal`; input: `/architecture/reviews//1` from pasted URL.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_word_joiner_in_path_segment`, `TryNormalize_rejects_when_query_decodes_to_backslashes_conservative_full_string_scan`, `TryNormalize_accepts_lone_percent_encoded_dot_segment_decodes_to_single_dot_segment`, `TryNormalize_accepts_right_to_left_override_in_query_without_path_portion_bidi_strip`, and `TryNormalize_rejects_deeply_nested_percent_chain_in_query_after_decode_cap`; 186 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
