@@ -18,6 +18,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PRIVATE_BETA_LIVE_RULESET_ID: ${{ vars.PRIVATE_BETA_LIVE_RULESET_ID }}
 
 jobs:
   ui-e2e-live-beta-access:
@@ -61,6 +62,25 @@ jobs:
         run: |
           python3 scripts/ci/check_buyer_claim_drift.py
           python3 scripts/ci/check_claim_evidence_consistency.py
+          python3 scripts/ci/check_private_beta_surface_claim_drift.py
+
+      - name: Report live ruleset context drift when configured
+        if: ${{ env.PRIVATE_BETA_LIVE_RULESET_ID != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p dist
+          gh api "repos/${GITHUB_REPOSITORY}/rulesets/${PRIVATE_BETA_LIVE_RULESET_ID}" \
+            > dist/private-beta-live-ruleset.json
+          python3 scripts/ci/report_private_beta_ruleset_drift.py \
+            --repository-ruleset .github/rulesets/golden-cohort-gate-required-check.json \
+            --live-ruleset dist/private-beta-live-ruleset.json \
+            --json-out dist/private-beta-ruleset-drift.json
+
+      - name: Note unavailable live ruleset context
+        if: ${{ env.PRIVATE_BETA_LIVE_RULESET_ID == '' }}
+        run: echo "Live ruleset drift is not collected; set repository variable PRIVATE_BETA_LIVE_RULESET_ID."
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -314,6 +334,28 @@ jobs:
             echo "## Private-beta Playwright failure triage" >> "$GITHUB_STEP_SUMMARY"
             cat dist/private-beta-playwright-failure-triage.md >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Validate private-beta rate-limit diagnostics when emitted
+        if: always()
+        run: |
+          set -e
+          if [ -f dist/private-beta-rate-limit-observations.json ]; then
+            python3 scripts/ci/report_private_beta_rate_limit_diagnostics.py \
+              --observations-json dist/private-beta-rate-limit-observations.json \
+              --json-out dist/private-beta-rate-limit-diagnostics.json
+          else
+            echo "Rate-limit observations were not emitted by this smoke run."
+          fi
+
+      - name: Upload private-beta diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-e2e-live-beta-access-on-push-diagnostics
+          path: |
+            dist/private-beta-rate-limit-diagnostics.json
+            dist/private-beta-ruleset-drift.json
+          if-no-files-found: warn
 
       - name: Upload private-beta Playwright failure triage rollup
         if: failure()

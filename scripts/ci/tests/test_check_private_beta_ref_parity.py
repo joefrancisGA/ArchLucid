@@ -19,10 +19,14 @@ import check_private_beta_ref_parity as sut
 class TestPrivateBetaRefParity(unittest.TestCase):
     def test_accepts_required_contracts_on_both_refs(self) -> None:
         workflow = "\n".join(sut.REQUIRED_MARKERS)
-        spec = "TB-927 JwtBearer"
+        spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
+        helper = " ".join(sut.REQUIRED_HELPER_MARKERS)
 
         def fake_show(ref: str, path: str) -> str:
-            return workflow if path == sut.WORKFLOW_PATH else spec
+            if path == sut.WORKFLOW_PATH:
+                return workflow
+
+            return spec if path == sut.SPEC_PATH else helper
 
         with patch.object(sut, "_show_ref", side_effect=fake_show):
             self.assertEqual(sut.compare_refs("base", "release"), [])

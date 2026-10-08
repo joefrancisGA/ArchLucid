@@ -46,6 +46,10 @@ def _check_required_files(root: Path) -> list[str]:
         "scripts/ci/check_private_beta_spend_freeze.py",
         "scripts/ci/private_beta_offboarding_dry_run.py",
         "scripts/ci/report_private_beta_funnel.py",
+        "scripts/ci/report_private_beta_rate_limit_diagnostics.py",
+        "scripts/ci/report_private_beta_ruleset_drift.py",
+        "scripts/ci/build_private_beta_evidence_records.py",
+        "scripts/ci/check_private_beta_surface_claim_drift.py",
     ) + REQUIRED_SPECS
 
     return [
@@ -70,6 +74,12 @@ def _check_workflow(root: Path) -> list[str]:
 
     if "live-api-private-beta-access.spec.ts" not in content:
         issues.append("private-beta workflow must run the canonical access-path spec")
+
+    if "report_private_beta_rate_limit_diagnostics.py" not in content:
+        issues.append("private-beta workflow must include rate-limit diagnostics wiring")
+
+    if "report_private_beta_ruleset_drift.py" not in content:
+        issues.append("private-beta workflow must include ruleset drift diagnostics wiring")
 
     return issues
 
@@ -118,6 +128,8 @@ def _check_operator_contracts(root: Path) -> list[str]:
         "validate_ship_gate_evidence_index.py",
         "private_beta_offboarding_dry_run.py",
         "report_private_beta_funnel.py",
+        "build_private_beta_evidence_records.py",
+        "check_private_beta_surface_claim_drift.py",
         "Disable the tenant's users or SCIM access",
         "Set the tenant budget to zero or deny execution",
         "tombstone or hard-purge policy",
