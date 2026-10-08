@@ -66,6 +66,14 @@
 - [ ] (candidate) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` intentionally omits the connect callback, so a caller that passes an external hostname through that profile relies entirely on a higher-level URL policy — locus: profile has `ConnectCallback = null`; input: external or rebinding URL supplied to an internal-loopback client.
 - [ ] (candidate) `ContextDocumentRequestValidator` — synchronous auto-validation only performs literal checks while async orchestration performs DNS checks later, leaving alternate validation entry points with different SSRF behavior — locus: validator calls `TryGetRejectionReason`, not the post-DNS method; input: document request accepted through a validator-only path.
 
+2026-10-08 seed hunt (seed-only): `billing-webhooks` — re-read the four selected webhook paths; 20 Persistence and 14 Application focused tests passed, with no hunt-ready wrong-outcome chain promoted. Seeded five fresh `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` — a cache write exception leaves `_claimedKeys` populated, unlike `TryRegisterEventAsync`, so a successfully processed webhook followed by transient cache failure may be suppressed as a replay for the process lifetime — locus: `RememberAsync` calls `TryAdd` before `_memoryCache.Set` without cleanup; input: valid Stripe or Marketplace delivery whose post-processing replay-cache write throws.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — the boolean result from `ApplyWebhookPaymentIntentSucceededAsync` is discarded, so a wallet service failure result may still allow the provider to acknowledge and mark the webhook handled — locus: awaited wallet call return value is ignored; input: valid `payment_intent.succeeded` with wallet service returning `false`.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — provider success is followed by integration-event publishing before the `202`/`200` response, so publisher failure may turn accepted Marketplace work into a retryable request after mutation — locus: `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync`; input: accepted `MarketplaceWebhookReceived` result with outbox/publisher failure.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — the cancellation token is ignored even though replay checks are called from cancellable webhook requests, so cancellation cannot stop a future blocking cache implementation — locus: `_ = cancellationToken`; input: request cancellation during a replay lookup.
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — replay rejection returns `200` before exposing whether the duplicate was signature-valid or rejected by an upstream identity mismatch, so malformed duplicate deliveries may be acknowledged silently — locus: `if (result.IsReplayRejected) return Ok()`; input: provider returns replay rejection for an event whose signature or route identity differs.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — re-read the proxy boundary and auth bootstrap callers; the five prior proxy candidates had no proven wrong outcome in the selected files. Seeded five new reachable `(candidate)` rows; 41 focused auth/proxy tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `fetchPostAuthBootstrapStatus` — a successful non-JSON upstream response is parsed without a schema check and can throw an unclassified client error — locus: direct `response.json()` cast; input: proxy returns `200` with malformed or HTML content.
@@ -11042,10 +11050,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 5
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-12 — padded payment_intent id bypassed wallet idempotency key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11277,6 +11285,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — whitespace-padded `paymentIntentId` forwarded without trim so wallet idempotency key diverged from Stripe canonical id — **hit 2026-09-12 seed hunt #1881 (seed→hit):** tenant metadata already trimmed in #1861 but payment intent id was not; fixed with trim after blank guard; regression `ProcessPaymentIntentEventAsync_trims_whitespace_from_payment_intent_id`
 
 2026-09-12 seed hunt #1867 (seed-only): reseeded billing-webhooks; no proven defect this pass.
+
+2026-10-08 seed hunt (seed-only): re-read the four selected webhook paths; 20 Persistence and 14 Application focused tests passed, with no hunt-ready wrong-outcome chain promoted. Seeded five fresh `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.RememberAsync` — a cache write exception leaves `_claimedKeys` populated, unlike `TryRegisterEventAsync`, so a successfully processed webhook followed by transient cache failure may be suppressed as a replay for the process lifetime — locus: `RememberAsync` calls `TryAdd` before `_memoryCache.Set` without cleanup; input: valid Stripe or Marketplace delivery whose post-processing replay-cache write throws.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor.ProcessPaymentIntentEventAsync` — the boolean result from `ApplyWebhookPaymentIntentSucceededAsync` is discarded, so a wallet service failure result may still allow the provider to acknowledge and mark the webhook handled — locus: awaited wallet call return value is ignored; input: valid `payment_intent.succeeded` with wallet service returning `false`.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — provider success is followed by integration-event publishing before the `202`/`200` response, so publisher failure may turn accepted Marketplace work into a retryable request after mutation — locus: `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync`; input: accepted `MarketplaceWebhookReceived` result with outbox/publisher failure.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — the cancellation token is ignored even though replay checks are called from cancellable webhook requests, so cancellation cannot stop a future blocking cache implementation — locus: `_ = cancellationToken`; input: request cancellation during a replay lookup.
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — replay rejection returns `200` before exposing whether the duplicate was signature-valid or rejected by an upstream identity mismatch, so malformed duplicate deliveries may be acknowledged silently — locus: `if (result.IsReplayRejected) return Ok()`; input: provider returns replay rejection for an event whose signature or route identity differs.
 
 2026-09-12 seed hunt #1995 (seed-only): reseeded billing-webhooks; 18 scoped unit tests passed; no new hunt-ready rows promoted.
 
