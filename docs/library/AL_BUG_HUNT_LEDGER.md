@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed→hit): `ui-review-detail-workspace` — last-visit restore wrote the findings filter into the address bar with `commitHrefIfChanged` and did not notify listeners, so `useRunDetailFindingsToolbarState` stayed on `all` after a bare findings URL restored `findingsFilter=high`. Mark the run restored before `replaceState` and dispatch `popstate`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed.
+
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (same-ref reseed does not update labels; cold-start mutates the instance about to be inserted; double-space region slugs stay distinct refs; null `TechnologyName` has no writer; inventory vs topology same display name is intentional); seeded five follow-on `(candidate)` rows; 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`); no production code changed.
 
 2026-10-08 thorough hunt (hit): `billing-webhooks` — reproduced a positive Stripe wallet payment being acknowledged when `ApplyWebhookPaymentIntentSucceededAsync` returned `false`; the processor discarded the failed-credit signal. Positive credit failures now throw so the provider marks the ledger `Failed` and permits retry; non-positive validation inputs retain existing behavior. Regression `ProcessPaymentIntentEventAsync_throws_when_wallet_credit_is_not_applied` passed.
@@ -33280,6 +33282,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-08 seed hunt (seed→hit): re-read findings last-visit restore against `useRunDetailFindingsToolbarState`. Restore updated the URL without `notify`, so the toolbar listener (registered on mount and `popstate` only) never applied the restored `findingsFilter`. Mark the run restored before the history update and pass `{ notify: true }`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed. Cheap-disproof closed the hidden evidence vocabulary-rail duplicate (hidden tab panels mount no content).
+
 2026-09-27 seed hunt #20 (seed→hit): reseeded ui-review-detail-workspace; proved `QuickDecisionSummaryEmptyState` treated omitted `analysisStagesComplete` as neither in-progress nor finalize-eligible on create-home (`packageCommitted === false`), falling through to buyer-polished finalized headline copy; default create-home pre-commit to in-progress empty unless `analysisStagesComplete === true`; regression `create-home treats missing analysisStagesComplete as in-progress for empty state (TB-1853)`; 23 `QuickDecisionSummary` create-home/buyer-polished tests + 34 review-detail band vitest tests passed.
 
 - [x] (proven) `QuickDecisionSummaryEmptyState` — omitted `analysisStagesComplete` on create-home skipped in-progress gate — **hit 2026-09-27 seed hunt #20:** only explicit `true` selects finalize-eligible empty; otherwise in-progress; regression above.
@@ -33309,11 +33313,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 32
-- **bugs-found:** 23
+- **hunts:** 33
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — technical failure metadata disclosure URL desync on soft navigation
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — last-visit restore did not notify the findings toolbar
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -33349,9 +33353,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`
 - [x] (proven) `RunDetailFindingsWorkspace` — list-view state could retain the prior run’s table/card preference during a client-side `runId` transition — **hit 2026-10-05 seed hunt:** same `runId` effect re-reads `reviewFindingsListView` from the URL (see classification-band regression above)
 - (candidate) `RunDetailFindingsWorkspace` — last-visit persistence can write toolbar state for a previous run after a rapid run transition because the persistence effect has no explicit transition cancellation; reachable by navigating between review IDs while a toolbar update is pending.
+- [x] (proven) `useReviewFindingsLastVisitRestore` — `commitHrefIfChanged` updated the findings URL without notifying toolbar listeners, so a bare findings visit restored `findingsFilter=high` in the address bar while `useRunDetailFindingsToolbarState` stayed on `all` — **hit 2026-10-08 seed hunt:** mark the run restored, then `commitHrefIfChanged(nextHref, { notify: true })`; regression `updates the findings toolbar when last-visit restore writes the filter into the URL`
 - [x] (proven) `ReviewFailureTechnicalMetadataDisclosure` — `reviewFailureTechnicalMetadataOpen` synced only on mount/`popstate`, leaving `<details>` open state stale on Next.js soft navigation — **hit 2026-10-06 seed hunt:** reactive `useSearchParams` reconciliation; regression `follows reviewFailureTechnicalMetadataOpen query changes without a popstate event` (closes record-metadata disclosure candidate).
 - [x] (proven) `ReviewDetailWorkspaceTabShell.renderTabPanel` — `inPipelineBanner` rendered in hidden tab panels as well as the active panel — **hit 2026-10-05 seed hunt:** omit banner content when `hidden`; regression `renders in-pipeline banner only once on the active tab when the workbench is hidden`
-- (candidate) `ReviewDetailWorkspaceTabShell` workbench composition — the evidence vocabulary rail is rendered once inside `WorkbenchLayoutBridge` and again in the hidden evidence tab panel; reachable Working-mode workbench input could duplicate vocabulary navigation or its identifiers, pending focused DOM/accessibility proof.
+- [x] (valid-no-repro) `ReviewDetailWorkspaceTabShell` workbench composition — evidence vocabulary rail in the hidden evidence tab — **cheap-disproof 2026-10-08 seed hunt:** `renderTabPanel` passes `alsoHidden: workbenchVisible` and mounts panel content only when `!hidden`, so the workbench column is the only mounted evidence rail.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused failure mocked `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; the hook intentionally reads presenter state from `window.location`, so the failure does not establish a product defect.
 - [x] (invalid) `ReviewDetailWorkspace` presenter query activation — the focused test failure came from mocking `useSearchParams` with `presenter=1` while leaving `window.location` without `presenter`; `useReviewDetailWorkspaceTabs` intentionally reads presenter state from `window.location`, so this does not establish a reachable product failure.
 

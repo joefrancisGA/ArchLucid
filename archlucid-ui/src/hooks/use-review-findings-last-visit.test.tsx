@@ -1,5 +1,7 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { useRunDetailFindingsToolbarState } from "@/components/findings/use-run-detail-findings-toolbar-state";
 
 import {
   buildReviewFindingsLastVisitHref,
@@ -8,9 +10,11 @@ import {
 import {
   clearReviewFindingsLastVisitStorage,
   patchReviewFindingsLastVisit,
+  readReviewFindingsLastVisit,
 } from "@/lib/findings/review-findings-last-visit-storage";
 import {
   resetReviewFindingsLastVisitRestoreStateForTests,
+  useReviewFindingsLastVisitPersist,
   useReviewFindingsLastVisitRestore,
 } from "@/hooks/use-review-findings-last-visit";
 
@@ -22,6 +26,28 @@ function RestoreProbe(props: { readonly runId: string }) {
   useReviewFindingsLastVisitRestore({ runId: props.runId, enabled: true });
 
   return null;
+}
+
+function ToolbarRestoreProbe() {
+  const toolbar = useRunDetailFindingsToolbarState();
+
+  useReviewFindingsLastVisitRestore({ runId: "run-1", enabled: true });
+  useReviewFindingsLastVisitPersist({
+    runId: "run-1",
+    enabled: true,
+    filter: toolbar.filter,
+    jobView: toolbar.jobView,
+    searchQuery: toolbar.searchQuery,
+    ownerFilter: toolbar.ownerFilter,
+    domainFilter: toolbar.domainFilter,
+    originFilter: toolbar.originFilter,
+    groundingFilter: toolbar.groundingFilter,
+    sort: toolbar.sort,
+    classificationBand: "decision-grade",
+    hideGenericLowDensity: false,
+  });
+
+  return <span data-testid="toolbar-filter">{toolbar.filter}</span>;
 }
 
 describe("useReviewFindingsLastVisitRestore", () => {
@@ -60,6 +86,19 @@ describe("useReviewFindingsLastVisitRestore", () => {
     expect(nextHref).toContain("findingsFilter=high");
 
     replaceState.mockRestore();
+  });
+
+  it("updates the findings toolbar when last-visit restore writes the filter into the URL", () => {
+    patchReviewFindingsLastVisit("run-1", {
+      filter: "high",
+    });
+
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+
+    render(<ToolbarRestoreProbe />);
+
+    expect(screen.getByTestId("toolbar-filter").textContent).toBe("high");
+    expect(readReviewFindingsLastVisit("run-1")?.filter).toBe("high");
   });
 
   it("restores stored filters on mount when the URL has no toolbar params", () => {
