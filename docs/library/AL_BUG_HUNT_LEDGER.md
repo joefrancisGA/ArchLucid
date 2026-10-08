@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -9340,7 +9342,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 38 · **Bugs found:** 2 · **Consecutive dry hunts:** 11
+**Hunts:** 39 · **Bugs found:** 2 · **Consecutive dry hunts:** 12
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `DefaultApplyOrderRoots` — the exact `infra/terraform` root can be mistaken for a prefix of `infra/terraform-edge` or `infra/terraform-foundation` by a path consumer using `StartsWith` — locus: adjacent root strings ~13–29; input: leaf extractor matching root directories without a separator boundary.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that glob-expands every returned root may include nested Terraform modules beneath metadata-only composition roots — locus: first three annotated roots and pilot metadata root; input: filesystem scanner treats “no Azure apply” prose as an ordinary directory path.
+- [ ] (candidate) `DocumentationRelativePath` — generated evidence can cite a missing or renamed reference document because the constant has no existence check — locus: single string constant ~6; input: deployment report generation after the reference markdown is moved.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a case-sensitive consumer may treat a casing-only directory rename as a missing root while Windows apply succeeds — locus: hardcoded lowercase paths ~12–31; input: checkout with one Terraform directory casing changed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — metadata annotations can become stale when a root changes from composition-only to executable without changing its path string — locus: prose suffixes on foundation/platform/app/pilot entries; input: Terraform root behavior changes but reference annotation is not updated.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -9412,9 +9422,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
