@@ -55,7 +55,11 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
             " · ",
             new[]
             {
-                string.IsNullOrWhiteSpace(rule.Access) ? "Access was not stored" : null,
+                string.IsNullOrWhiteSpace(rule.Access)
+                    ? "Access was not stored"
+                    : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
+                        ? null
+                        : $"Access: {rule.Access.Trim()}",
                 string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null,
             }.Where(static label => label is not null));
         string text = string.IsNullOrWhiteSpace(missingLabel)
