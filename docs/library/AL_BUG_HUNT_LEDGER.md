@@ -9289,7 +9289,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
@@ -9660,7 +9660,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 33
 - **last-hunt:** 2026-10-06
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -33098,7 +33098,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 48 · **Bugs found:** 22 · **Consecutive dry hunts:** 0
+**Hunts:** 49 · **Bugs found:** 22 · **Consecutive dry hunts:** 1
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (hit): proved that returning from Guided Intake to Quick Start removed `template` but preserved the supported legacy `example` alias, so the neutral quick-start path retained a template-start intent; fixed by deleting both aliases; the focused regression passed and 12 related route/restore tests passed; the broader route scope retained pre-existing baseline failures.
 
@@ -33202,6 +33204,12 @@ ABQ-09 churn hotspot; review detail route tree.
 ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
+
+- [ ] (candidate) `useNewRunWizardQueryPrefill` — policy-pack prefill can be erased when the same deep link also applies an accelerator or preset reset — locus: policy `setValue("policyReferences")` effect ~65–71 and later `reset(applyWizardPreset(...))` effects ~75–122; input: full-wizard URL containing `policyPackId` plus a valid `accelerator` or preset token.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — a session containing only scope bullets or L0 answers is treated as empty and is not persisted for resume — locus: `hasSaveableContent` checks only `runTitle` and `briefText` ~211–216; input: operator completes scope/L0 fields before entering a title or brief, then reloads the wizard.
+- [ ] (candidate) `useFirstPilotIntakeWizard.handleSessionRestore` — restoring a saved scope gate can update the URL from stale `window.location.search` and drop a concurrent query change — locus: `setScopeGateOpen` uses `scopeGateHrefFromSearch(readWindowLocationSearch(), ...)` ~122–145; input: browser Back/Forward or another path update races with session restoration.
+- [ ] (candidate) `useNewRunWizardClient` — a browser history update can restore pilot toggles from the URL while a current form edit is still pending — locus: URL synchronization effect ~104–129 and `setFocusedPilotModeEnabled`/`setAdvancedConfigurationOptIn` ~84–101; input: toggle a pilot option and immediately press Back before the committed search state settles.
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow.setViewAllClarifications` — replaying the functional updater can compare against a ref already changed by the first replay and skip URL synchronization for the final state — locus: ref-guarded updater ~140–153; input: Strict Mode or concurrent render replay while toggling the view-all clarifications disclosure.
 
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — **cheap-disproof 2026-10-08 thorough hunt:** `commitHrefIfChanged` makes the URL side effect idempotent when a React updater is replayed; the second invocation sees the committed href and does not add another history entry.
 - [x] (proven) `ReviewsNewPathSwitcher.selectPath` — **hit 2026-10-08 thorough hunt:** Quick Start deleted `template` but left the supported legacy `example` alias, preserving an example-start intent after a neutral path selection; fixed by deleting `example` alongside `template`; regression `clears the legacy example alias when returning to quick-review`.

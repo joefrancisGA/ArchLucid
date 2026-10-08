@@ -8859,3 +8859,4 @@
 {"at":"2026-10-08T08:03:55.4661599Z","zoneId":"alert-simulation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs,ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs"]}
 {"at":"2026-10-08T08:10:52.9763593Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs,ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs"]}
 {"at":"2026-10-08T08:17:32.0788929Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
+{"at":"2026-10-08T08:21:29.5081701Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
