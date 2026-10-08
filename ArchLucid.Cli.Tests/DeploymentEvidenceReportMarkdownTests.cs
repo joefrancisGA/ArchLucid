@@ -123,6 +123,30 @@ public sealed class DeploymentEvidenceReportMarkdownTests
     }
 
     [Fact]
+    public void Compose_terraform_section_never_uses_zero_based_list_index()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        md.Should().NotMatchRegex(@"(?m)^0\. infra/", "terraform apply-order list is one-based");
+    }
+
+    [Fact]
     public void Compose_when_repository_root_unresolved_cites_doc_path_without_checkout_root()
     {
         DeploymentEvidenceProbeResult live =

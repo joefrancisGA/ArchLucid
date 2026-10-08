@@ -129,6 +129,28 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void ReadApplySaasHostedWaveLeaves_equals_sum_of_foundation_platform_app_arrays()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> foundation = ReadApplySaasStringArray(repoRoot, "$foundationWaveLeaves");
+        IReadOnlyList<string> platform = ReadApplySaasStringArray(repoRoot, "$platformWaveLeaves");
+        IReadOnlyList<string> app = ReadApplySaasStringArray(repoRoot, "$appWaveLeaves");
+        IReadOnlyList<string> hosted = ReadApplySaasHostedWaveLeaves(repoRoot);
+
+        hosted.Should().Equal(foundation.Concat(platform).Concat(app));
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation()
+    {
+        IReadOnlyList<string> roots = DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots();
+        string orchestratorLine = roots.Single(line => line.Contains("infra/terraform-orchestrator", StringComparison.Ordinal));
+
+        orchestratorLine.Should().Contain("-LegacyLeafRoots");
+        orchestratorLine.Should().Contain("legacy isolation path only");
+    }
+
+    [Fact]
     public void ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator()
     {
         string repoRoot = RequireRepositoryRoot();
