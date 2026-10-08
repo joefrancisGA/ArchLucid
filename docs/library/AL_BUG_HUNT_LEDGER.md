@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — re-read the proxy boundary and auth bootstrap callers; the five prior proxy candidates had no proven wrong outcome in the selected files. Seeded five new reachable `(candidate)` rows; 41 focused auth/proxy tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `fetchPostAuthBootstrapStatus` — a successful non-JSON upstream response is parsed without a schema check and can throw an unclassified client error — locus: direct `response.json()` cast; input: proxy returns `200` with malformed or HTML content.
+- [ ] (candidate) `createPostAuthWorkspace` — any `2xx` response is returned as a success-shaped payload without validating `succeeded` or session fields — locus: `response.ok` gate plus unchecked JSON cast; input: intermediary returns `200` with an error-shaped body.
+- [ ] (candidate) `acceptPostAuthInvitation` / `selectPostAuthWorkspace` — successful responses are cast to session payloads without checking required token and redirect fields — locus: unchecked `response.json()`; input: partial `200` payload from an upstream compatibility mismatch.
+- [ ] (candidate) `initiatePostAuthAccessRequest` — only HTTP `202` is accepted, so a valid asynchronous access-request response using another documented success code would be reported as failure — locus: `response.status === 202`; input: proxy returns `200` or `204` for accepted request.
+- [ ] (candidate) `mergeRegistrationScopeForProxy` — readable browser scope headers may be attached to a pre-auth request when a stale session cookie survives sign-out — locus: helper composes client registration scope for proxy calls; input: stale tenant/workspace/project cookie during auth bootstrap.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — re-read proxy path validation, BFF session guarding, auth bootstrap clients, upstream forwarding, and focused tests; no hunt-ready hypothesis survived cheap-disproof. Seeded five reachable follow-on `(candidate)` rows; 41 focused auth/proxy tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `forward` — the private `/api/auth/me` pass-through receives a 60-second cache hint while the BFF session may slide or change scope — locus: `authMePrivateCacheSeconds` is selected by normalized path only; input: successive requests across session refresh or tenant/workspace scope changes.
