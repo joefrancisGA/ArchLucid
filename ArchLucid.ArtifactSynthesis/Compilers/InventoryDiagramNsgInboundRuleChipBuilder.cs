@@ -43,13 +43,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
     private static bool IsInboundRuleWithStoredAccessOrDirection(AzureInventoryNsgSecurityRule rule)
     {
-        bool inbound = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
-        bool allow = string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase);
-        bool accessMissing = string.IsNullOrWhiteSpace(rule.Access);
-        bool directionMissing = string.IsNullOrWhiteSpace(rule.Direction);
-
-        return (inbound && (allow || accessMissing))
-            || (allow && directionMissing);
+        return string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
     }
 
     private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
@@ -67,7 +61,9 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         string text = string.IsNullOrWhiteSpace(missingLabel)
             ? $"in {port}/{protocol} · {source}"
             : $"{missingLabel} · in {port}/{protocol} · {source}";
-        bool risky = string.Equals(source, "Internet", StringComparison.Ordinal)
+        bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(source, "Internet", StringComparison.Ordinal)
             && (port.Equals("3389", StringComparison.Ordinal)
                 || port.Equals("22", StringComparison.Ordinal)
                 || port.Equals("any", StringComparison.OrdinalIgnoreCase));
