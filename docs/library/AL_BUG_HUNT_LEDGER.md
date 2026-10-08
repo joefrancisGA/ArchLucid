@@ -8365,13 +8365,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 40 · **Bugs found:** 10 · **Consecutive dry hunts:** 12
+**Hunts:** 41 · **Bugs found:** 10 · **Consecutive dry hunts:** 12
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (dry): cheap-disproof closed the five alert-simulation candidates; comparison ordering matches the `IComparisonService` base/target contract, self-comparison and stale timestamps lacked a reachable wrong outcome, nullable recommendations and malformed comparison metadata require injected invalid collaborators, and 40 focused provider tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected alert controller and context-provider paths; no candidate met the hunt-ready bar because the remaining concerns require injected infrastructure failures or behavior outside these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
 
 - [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run-summary item from the authority list can fail the entire recent-run simulation before empty-id filtering — locus: `runs.OrderByDescending(x => x.CreatedUtc)` ~75; input: authority adapter returns a null item in an otherwise valid list.
 - [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run list from the authority query is enumerated without a defensive empty fallback — locus: `foreach` over `runs` ~75; input: unavailable project listing returns `null` instead of an empty collection.
@@ -8455,7 +8457,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
@@ -8466,6 +8468,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2078 (seed-only): reseeded alert-simulation; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AlertSimulationController.Simulate` — a successful simulation can be converted to an HTTP 400 when the post-simulation audit call throws `InvalidOperationException` — locus: audit await inside the broad validation catch ~48–66; input: valid simulation request followed by an audit provider failure.
+- [ ] (candidate) `AlertSimulationController.Simulate` — cancellation during post-simulation audit can discard an already-computed simulation result — locus: audit call reuses `ct` after `SimulateAsync` ~48–66; input: client disconnect after simulation completes but before audit persistence completes.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — comparison-adapter `InvalidOperationException` is surfaced to the controller’s generic validation response rather than producing a primary-only simulation context — locus: comparison call ~174–177 and controller catch ~65–68; input: valid scoped runs whose comparison adapter rejects a manifest pair.
 
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — **cheap-disproof 2026-10-08 thorough hunt #40:** `IComparisonService.Compare` defines `(baseManifest, targetManifest)` and `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` verifies `Compare(comparedManifest, primaryManifest)`.
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — **cheap-disproof 2026-10-08 thorough hunt #40:** the branch is reachable but no incorrect user-visible result was demonstrated; the request contract permits an optional baseline and the comparison service receives identical manifests.
