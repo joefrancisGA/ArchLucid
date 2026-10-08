@@ -26,7 +26,7 @@ export const CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN =
   "Remaining Unchecked decision-grade rows still warn after Record finalize. The judge may have reduced the count; remaining Unchecked is not hidden.";
 
 export type FindingSemanticSupportBandExportFields = {
-  readonly semanticSupportBand: FindingSemanticSupportBandValue;
+  readonly semanticSupportBand: FindingSemanticSupportBandValue | string;
   readonly semanticSupportBandScorerVersion: string;
 };
 
@@ -53,13 +53,7 @@ function isDecisionGradeForSemanticSupportExport(
     return false;
   }
 
-  const score = finding.insightDensityScore;
-
-  if (score === null || score === undefined) {
-    return true;
-  }
-
-  return score >= 50;
+  return false;
 }
 
 export function resolveFindingSemanticSupportBandExportFields(
@@ -69,9 +63,13 @@ export function resolveFindingSemanticSupportBandExportFields(
     return null;
   }
 
+  const semanticSupportBand = normalizeFindingSemanticSupportBand(finding.semanticSupportBand);
+
   return {
-    semanticSupportBand: resolveDecisionGradeSemanticSupportBand(finding.semanticSupportBand),
-    semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
+    semanticSupportBand: semanticSupportBand ?? "Semantic support band was not stored",
+    semanticSupportBandScorerVersion: semanticSupportBand === null
+      ? "Semantic support band scorer version was not stored"
+      : resolveFindingSemanticSupportBandScorerVersion(finding),
   };
 }
 
@@ -187,7 +185,11 @@ export function resolveSupportingFindingSemanticSupportBands(
       continue;
     }
 
-    bands[findingId] = fields.semanticSupportBand;
+    const band = normalizeFindingSemanticSupportBand(fields.semanticSupportBand);
+
+    if (band !== null) {
+      bands[findingId] = band;
+    }
   }
 
   return bands;

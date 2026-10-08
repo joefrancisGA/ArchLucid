@@ -107,7 +107,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
   const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
-    classification: input.classification ?? "DecisionGradeFinding",
+    classification: input.classification ?? null,
     semanticSupportBand: input.semanticSupportBand ?? null,
     semanticSupportBandScorerVersion: input.semanticSupportBandScorerVersion ?? null,
   });

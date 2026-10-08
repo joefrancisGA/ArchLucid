@@ -138,6 +138,40 @@ describe("ResourcesExplorerClient", () => {
     );
   });
 
+  it("uses omission sentences for absent inventory fields", async () => {
+    vi.mocked(fetchCloudResourceExplorerPage).mockResolvedValueOnce({
+      items: [
+        {
+          cloudResourceId: "missing-fields",
+          externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+          displayName: "storage",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: null,
+          region: " ",
+          lastSeenUtc: "",
+          workCounts: null,
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams("");
+    listOperatorSavedViews.mockResolvedValue([]);
+    render(<ResourcesExplorerClient />);
+
+    expect(await screen.findByTestId("infra-resource-row-missing-fields")).toHaveTextContent(
+      "Resource group was not stored",
+    );
+    expect(screen.getByTestId("infra-resource-row-missing-fields")).toHaveTextContent("Region was not stored");
+    expect(screen.getByTestId("infra-resource-last-seen-missing-fields")).toHaveTextContent(
+      "Last seen was not stored",
+    );
+    expect(screen.getByTestId("infra-resource-row-missing-fields")).not.toHaveTextContent("—");
+  });
+
   it("renders work queue chips and applies open-findings filter", async () => {
     searchParams = new URLSearchParams("");
     replace.mockClear();

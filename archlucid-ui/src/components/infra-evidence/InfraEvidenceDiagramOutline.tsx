@@ -84,6 +84,10 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
 function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   const details = node.unresolvedRelationshipDetails ?? [];
 
+  if (node.connectionState === null) {
+    return "No connection state detail was stored.";
+  }
+
   if (details.length > 0) {
     return details.join(" ");
   }
@@ -471,15 +475,17 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       stateByNodeId.set(node.id, node.connectionState);
     }
 
-    for (const node of allConnectedNodes) {
-      if (stateByNodeId.get(node.id) == null) {
-        stateByNodeId.set(node.id, "Connected");
-      }
-    }
-
     for (const node of allUnconnectedNodes) {
       if (stateByNodeId.get(node.id) == null) {
         stateByNodeId.set(node.id, "Unknown");
+      }
+    }
+
+    for (const node of allConnectedNodes) {
+      if (node.connectionState === null) {
+        stateByNodeId.set(node.id, "Unknown");
+      } else if (node.connectionState === undefined) {
+        stateByNodeId.set(node.id, "Connected");
       }
     }
 

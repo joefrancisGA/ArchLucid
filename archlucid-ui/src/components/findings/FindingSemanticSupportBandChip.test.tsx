@@ -26,8 +26,16 @@ function sampleFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDeci
 }
 
 describe("FindingSemanticSupportBandChip (AS-061)", () => {
-  it("renders NotScored for decision-grade rows without wire band", () => {
+  it("renders an omission sentence for decision-grade rows without wire band", () => {
     render(<FindingSemanticSupportBandChip finding={sampleFinding()} />);
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent(
+      "Semantic support band was not stored",
+    );
+  });
+
+  it("keeps stored NotScored distinct from a missing band", () => {
+    render(<FindingSemanticSupportBandChip finding={sampleFinding({ semanticSupportBand: "NotScored" })} />);
 
     expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Not scored");
   });

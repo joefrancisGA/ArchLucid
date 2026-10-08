@@ -17,12 +17,14 @@ const outline: InfraEvidenceMermaidOutline = {
       label: "core-vnet",
       resourceType: "Microsoft.Network/virtualNetworks",
       resourceGroup: "rg-network",
+      connectionState: "Connected",
     },
     {
       id: "n_dst",
       label: "app-storage",
       resourceType: "Microsoft.Storage/storageAccounts",
       resourceGroup: "rg-apps",
+      connectionState: "Connected",
     },
   ],
   edges: [
@@ -136,6 +138,20 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(nodesTable).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable).getByText("core-vnet")).toBeTruthy();
     expect(within(edgesTable).getByText("Endpoint was not in this diagram outline")).toBeTruthy();
+  });
+
+  it("does not infer Connected when a connected node has no stored state", () => {
+    const stateMissingOutline: InfraEvidenceMermaidOutline = {
+      ...outline,
+      nodes: outline.nodes.map((node) => ({ ...node, connectionState: null })),
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={stateMissingOutline} defaultNodesOpen={true} />);
+
+    expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+      "No connection state detail was stored.",
+    );
   });
 
   it("separates edge sources and lists probable edges before observed edges", () => {
