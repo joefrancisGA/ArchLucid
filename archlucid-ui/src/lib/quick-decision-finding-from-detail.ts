@@ -115,7 +115,7 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
   }
 
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
-  const title = titleRaw.length > 0 ? titleRaw : findingId;
+  const title = titleRaw.length > 0 ? titleRaw : "Finding title was not stored";
   const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
   const ruleIdRaw = typeof row.ruleId === "string" ? row.ruleId.trim() : "";
   let wireJson: string;
@@ -127,8 +127,8 @@ export function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto,
   }
 
   const evidenceRefCount =
-    typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount) && row.evidenceRefCount > 0
-      ? Math.trunc(row.evidenceRefCount)
+    typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
+      ? Math.max(0, Math.trunc(row.evidenceRefCount))
       : null;
 
   return {
@@ -233,9 +233,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       if (Array.isArray(evidenceRefsRaw)) {
         const n = evidenceRefsRaw.filter((x) => typeof x === "string" && String(x).trim().length > 0).length;
 
-        if (n > 0) {
-          evidenceRefCount = n;
-        }
+        evidenceRefCount = n;
       }
 
       const evaluationRaw = fr.evaluationConfidenceScore;

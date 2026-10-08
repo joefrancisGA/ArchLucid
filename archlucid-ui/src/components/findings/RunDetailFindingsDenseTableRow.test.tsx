@@ -81,7 +81,7 @@ describe("RunDetailFindingsDenseTableRow", () => {
     );
 
     expect(screen.getByText("Confidence was not stored")).toBeInTheDocument();
-    expect(screen.getByText("Review status was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Human review status was not stored")).toBeInTheDocument();
     expect(screen.getByText("Evidence link was not stored")).toBeInTheDocument();
   });
 });

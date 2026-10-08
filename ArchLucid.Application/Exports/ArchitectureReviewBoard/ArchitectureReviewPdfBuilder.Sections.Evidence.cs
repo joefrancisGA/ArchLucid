@@ -65,7 +65,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
             if (string.IsNullOrWhiteSpace(line.Label))
                 continue;
 
-            rows.Add((line.Label.Trim(), string.IsNullOrWhiteSpace(line.Value) ? "—" : line.Value.Trim()));
+            rows.Add((line.Label.Trim(), string.IsNullOrWhiteSpace(line.Value) ? "Value was not stored" : line.Value.Trim()));
         }
 
         if (rows.Count == 0)

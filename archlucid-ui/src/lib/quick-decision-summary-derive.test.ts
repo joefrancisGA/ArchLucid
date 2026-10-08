@@ -355,11 +355,23 @@ describe("quick-decision-summary-derive", () => {
       expect(humanReviewStatusDisplay(4)).toEqual({ label: "Overridden", statusKind: "in-progress" });
     });
 
-    it("returns null for NotRequired (0), null, undefined, and unrecognized values", () => {
-      expect(humanReviewStatusDisplay(0)).toBeNull();
-      expect(humanReviewStatusDisplay(null)).toBeNull();
-      expect(humanReviewStatusDisplay(undefined)).toBeNull();
-      expect(humanReviewStatusDisplay(99)).toBeNull();
+    it("labels not-required, missing, and unrecognized values explicitly", () => {
+      expect(humanReviewStatusDisplay(0)).toEqual({
+        label: "No human review required",
+        statusKind: "neutral",
+      });
+      expect(humanReviewStatusDisplay(null)).toEqual({
+        label: "Human review status was not stored",
+        statusKind: "neutral",
+      });
+      expect(humanReviewStatusDisplay(undefined)).toEqual({
+        label: "Human review status was not stored",
+        statusKind: "neutral",
+      });
+      expect(humanReviewStatusDisplay(99)).toEqual({
+        label: "Human review status unknown",
+        statusKind: "neutral",
+      });
     });
   });
 

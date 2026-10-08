@@ -106,9 +106,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               className={FINDINGS_ROW_METADATA_TAG_SIZE}
               data-testid={`finding-review-status-${finding.findingId}`}
             />
-          ) : (
-            <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
-          )}
+          ) : null}
           <StatusTag
             kind="neutral"
             label={findingEnforcementTierLabel(finding.enforcementTier)}
@@ -174,7 +172,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200"
             data-testid={`finding-owner-${finding.findingId}`}
           >
-            {owner.length > 0 ? owner : "No remediation owner assigned"}
+            {owner.length > 0 ? owner : "Risk owner was not stored"}
           </dd>
         </div>
         <div>
@@ -202,7 +200,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             </span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
-            {evidenceRefCount} reference{evidenceRefCount === 1 ? "" : "s"}
+            {finding.evidenceRefCount === null || finding.evidenceRefCount === undefined
+              ? "Evidence count was not stored"
+              : `${finding.evidenceRefCount} reference${finding.evidenceRefCount === 1 ? "" : "s"}`}
           </dd>
         </div>
         <div>
@@ -213,7 +213,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             </span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
-            {reviewStatus?.label ?? "Not recorded"}
+            {reviewStatus.label}
           </dd>
         </div>
       </dl>
@@ -241,7 +241,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
             href={viewEvidenceHref}
-            evidenceRefCount={evidenceRefCount}
+            evidenceRefCount={evidenceRefCount ?? 0}
             className="shrink-0"
           />
         ) : null}

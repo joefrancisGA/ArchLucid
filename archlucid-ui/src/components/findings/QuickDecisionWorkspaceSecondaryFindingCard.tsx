@@ -158,9 +158,7 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 label={reviewStatus.label}
                 className={FINDINGS_ROW_METADATA_TAG_SIZE}
               />
-            ) : (
-              <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
-            )}
+            ) : null}
             {architectWorkspaceChrome ? (
               <FindingInsightDensityBand
                 findingId={finding.findingId}

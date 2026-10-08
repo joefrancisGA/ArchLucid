@@ -43,7 +43,7 @@ export function deriveFindingDecisionSummary(
   const evidenceConfidenceLabel =
     confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low"
       ? `${confidenceLevel} confidence`
-      : summarizeEvidenceBasis(payload);
+      : "Confidence level was not stored";
 
   return {
     severity: fallbackSeverity(payload, findingId),

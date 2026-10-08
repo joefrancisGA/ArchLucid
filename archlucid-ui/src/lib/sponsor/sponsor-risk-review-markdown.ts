@@ -98,7 +98,7 @@ export function buildSponsorRiskReviewMarkdown(
               `| ${mdTableCell(trimLine(r.severity) || "Severity was not stored")} | ${mdTableCell(
                 trimLine(r.title) || "Finding title was not stored",
               )} | ${mdTableCell(
-                trimLine(r.recommended) || "No sponsor action was stored on this review.",
+                trimLine(r.recommended) || "No recommended action recorded for this finding.",
               )} |`,
           ),
           "",

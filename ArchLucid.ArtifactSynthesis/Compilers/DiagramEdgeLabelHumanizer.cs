@@ -318,7 +318,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Likely connected to";
+            humanized = "No stored link; hostname or linked-service text was inferred.";
 
             return true;
         }
@@ -356,9 +356,7 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryServiceConnectorLink, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.ServiceConnectorLink, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.ServiceConnectorLink, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "Connected to";
 
@@ -395,7 +393,7 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Likely connected to";
+            humanized = "No stored link; hostname or linked-service text was inferred.";
 
             return true;
         }
