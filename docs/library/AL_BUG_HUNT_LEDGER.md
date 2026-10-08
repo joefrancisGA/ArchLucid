@@ -6944,7 +6944,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
@@ -23655,6 +23655,8 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 2026-10-08 seed hunt (seed-only): re-read the selected transition-table and typestate sources after the prior reseed; no candidate met the in-zone reachability and user-visible wrong-outcome bar, so no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
 
 2026-10-08 seed hunt (seed-only): re-read the same selected run/authority sources; no new hunt-ready candidate emerged and no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected run transition, dead-letter, lifecycle, and authority option sources; no new hunt-ready candidate emerged and no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
