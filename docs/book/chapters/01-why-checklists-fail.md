@@ -13,7 +13,7 @@
 
 At the end of the third quarter, Contoso's cloud security team presented a good slide.
 
-Their posture score for the production subscriptions had climbed from 61% to 78%. Open recommendations had dropped from 512 to 371. Every high-severity item older than 30 days was closed or had an approved exception. The trend line pointed up and to the right, and the CISO said so in the leadership meeting.
+In this fictional scenario, the team's posture score for the production subscriptions had climbed from 61% to 78%. Open recommendations had dropped from 512 to 371. Every high-severity item older than 30 days was closed or had an approved exception. The trend line pointed up and to the right, and the CISO said so in the leadership meeting.
 
 Nothing on the slide was false. The team had worked hard. They had turned on encryption settings, removed stale guest accounts, enabled diagnostic settings on key vaults, and tagged two hundred resources with owners. Each of those changes made the environment a little better.
 
