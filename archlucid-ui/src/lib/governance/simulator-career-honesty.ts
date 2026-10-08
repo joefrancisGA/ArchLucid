@@ -141,7 +141,7 @@ export function presentDecisionGradeSemanticSupportBand(input: {
     return {
       displayBand: "NotScored",
       label: "Semantic support band was not stored",
-      reason: "Semantic support band was not stored",
+      reason: "The record did not include a semantic support value, so no support score can be displayed.",
       statusTagKind: "neutral",
       isRehearsalPresentation: false,
     };
