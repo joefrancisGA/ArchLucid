@@ -8886,3 +8886,4 @@
 {"at":"2026-10-08T15:07:20.4728402Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
 {"at":"2026-10-08T15:09:58.9112798Z","zoneId":"ui-form-validation","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
 {"at":"2026-10-08T15:13:52.8601185Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx,archlucid-ui/src/lib/signup-schema.ts"]}
+{"at":"2026-10-08T15:17:11.9087542Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx,archlucid-ui/src/lib/signup-schema.ts"]}

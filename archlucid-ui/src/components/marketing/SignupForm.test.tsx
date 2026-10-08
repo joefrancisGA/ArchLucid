@@ -157,6 +157,21 @@ describe("SignupForm", () => {
     expect(message).not.toMatch(/industry/i);
   });
 
+  it.each(["Healthcare\u0000Ops", "Healthcare\u202eOps"])(
+    "signupFormSchema rejects control and bidi-format characters in Other industry specification",
+    (industryVerticalOther) => {
+      const parsed = signupFormSchema.safeParse({
+        adminEmail: "ops@example.com",
+        adminDisplayName: "Ops User",
+        organizationName: "Contoso Trial Org",
+        industryVertical: "Other",
+        industryVerticalOther,
+      });
+
+      expect(parsed.success).toBe(false);
+    },
+  );
+
   it("includes maximum valid optional architecture team size in the register payload builder", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "ops@example.com",

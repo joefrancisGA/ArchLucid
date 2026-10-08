@@ -4820,11 +4820,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 53
-- **bugs-found:** 11
+- **hunts:** 54
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — response body stream failure reported committed signup as failed
+- **last-bug:** 2026-10-08 — Other-industry specification accepted control and bidi-format characters
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -4853,12 +4853,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SignupForm` required-name payload — Unicode bidi-format characters survived the required-field schema and could mislead metadata display; **hit 2026-10-08 thorough hunt:** same shared `Cc`/`Cf` Zod rejection and regression.
 - [x] (valid-no-repro) `SignupForm` first-touch header — non-string UTM members are discarded by the server parser and cannot block registration.
 - [x] (valid-no-repro) `SignupForm` first-touch header — invalid `capturedUtc` falls back to the server clock and does not create a registration failure.
+- [x] (proven) `SignupForm` `industryVerticalOther` — control and bidi-format characters survived the Other-industry schema and reached the registration payload; **hit 2026-10-08 seed hunt:** shared `Cc`/`Cf` validation now rejects them and readiness copy explains the correction; regression `signupFormSchema rejects control and bidi-format characters in Other industry specification`.
 
 2026-10-08 thorough hunt (hit): cheap-disproof closed four other `(candidate)` rows; proved a successful registration could be reported as failed when `Response.text()` rejected after a `201`; caught body-read failure and continued with status-based success handling; regression `still navigates after 201 when the response body stream fails`; 95 scoped SignupForm vitest tests passed and changed files linted cleanly.
 2026-10-08 thorough hunt (dry): cheap-disproof closed five candidates as unreachable against the registration controller's typed success contract; no failing-repro attempt was warranted; 95 scoped SignupForm vitest tests passed.
 2026-10-08 seed hunt (seed-only): re-read signup success/session ordering, funnel telemetry, and first-touch serialization; no hunt-ready row promoted; seeded five mechanism-specific `(candidate)` rows; 95 scoped SignupForm vitest tests passed.
 2026-10-08 thorough hunt (dry): cheap-disproof found no telemetry or first-touch repro; idempotent registration returns complete scope IDs, telemetry supports aggregate-only emission, and malformed attribution fields are dropped or defaulted server-side; two required-name character candidates remain unproven; 95 scoped SignupForm vitest tests passed.
 2026-10-08 thorough hunt (hit): proved control and bidi-format characters in required names reached registration metadata; Zod now rejects Unicode `Cc`/`Cf` characters; regression `signupFormSchema rejects control and bidi-format characters in required names`; 97 scoped SignupForm vitest tests passed.
+2026-10-08 seed hunt (seed→hit): proved control and bidi-format characters in `industryVerticalOther` reached the registration payload; shared schema guard and readiness copy now reject the class; regression `signupFormSchema rejects control and bidi-format characters in Other industry specification`; 99 scoped SignupForm vitest tests passed.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
