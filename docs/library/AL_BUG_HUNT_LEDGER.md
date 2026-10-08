@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `worker-host` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed bootstrap-before-pipeline ordering, graceful shutdown registration, configuration validation, warning diagnostics, and Azure OpenAI bridge validation; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed authority-list connection routing, distinct list telemetry, negative-offset normalization, cursor pass-through, and archived warning-snapshot exclusion; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
@@ -10418,9 +10420,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 36 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+**Hunts:** 37 · **Bugs found:** 8 · **Consecutive dry hunts:** 8
 
-2026-10-07 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+2026-10-08 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+
+- [x] (valid-no-repro) `Program.Main` — schema bootstrap and optional demo seed complete before `UseArchLucidWorkerPipeline`, delaying `/health/live` mapping during long migrations — **cheap-disproof 2026-10-08 seed hunt #37:** bootstrap-before-pipeline is intentional for SQL-backed workers and preserves startup ordering; worker startup tests pass.
+- [x] (valid-no-repro) `Program.Main` — graceful shutdown registration precedes application background processor registration and drain gate is not observed — **cheap-disproof 2026-10-08 seed hunt #37:** shared composition registers the drain gate and worker hosted services; `Worker_composition_registers_worker_host_drain_gate` and `Worker_starts_and_registers_expected_background_services` pass.
+- [x] (valid-no-repro) `Program.Main` — `ConfigurationValidationHostedService` may throw after HTTP pipeline mapping — **cheap-disproof 2026-10-08 seed hunt #37:** `ValidateOrThrow` runs before `Build()` and hosted validation remains a fail-fast startup contract.
+- [x] (valid-no-repro) `Program.Main` — configuration warnings emit staging SQL credential diagnostics for InMemory worker hosts — **cheap-disproof 2026-10-08 seed hunt #37:** warnings are advisory and configuration summary logging has an explicit opt-out; no worker behavior changes.
+- [x] (valid-no-repro) `AzureOpenAiEnvironmentConfigurationBridge.Apply` mutates configuration before worker role validation — **cheap-disproof 2026-10-08 seed hunt #37:** bridge application precedes `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` so environment aliases are validated consistently with the worker role.
+
+- [ ] (candidate) `Program.Main` — `app.RunAsync()` is reached only after schema bootstrap and pipeline mapping, so cancellation during bootstrap may not expose worker health routes — locus: `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` ~79; input: host shutdown token during migration.
+- [ ] (candidate) `Program.Main` — `AddArchLucidGracefulShutdown` may register a drain service before `IHostApplicationLifetime` is fully configured — locus: registration ~48; input: shutdown signal during WebApplicationFactory startup.
+- [ ] (candidate) `Program.Main` — environment-variable provider is added after optional overlay files, allowing worker env values to override SaaS/Pilot settings — locus: `AddEnvironmentVariables` ~38; input: conflicting `Demo` or `Hosting` environment keys.
+- [ ] (candidate) `Program.Main` — `UseSerilog` configuration before role validation may emit startup logs using an invalid service name — locus: `ArchLucidSerilogConfiguration.Configure` ~50; input: invalid `Hosting:Role` with custom Serilog sink.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — health and metrics routes are mapped after bootstrap and may inherit middleware not intended for probes — locus: pipeline call ~82; input: `/health/live` and `/metrics` requests with missing auth/correlation headers.
 
 - [x] (valid-no-repro) `Program.Main` — `StartupMigrationHealthState.MarkMigrationFailed` during degraded DbUp startup is not surfaced on worker `/health/ready` because `StartupDatabaseMigrationHealthCheck` registers only in `ApiWebLayerServiceCollectionExtensions` — **cheap-disproof 2026-10-07 seed hunt #36:** degraded migration signaling is API readiness contract; worker still records state via `RegisterHostedStartupProbes`; operators probe API `StartupDatabaseMigrationHealthCheck` or logs (`StartupDatabaseMigrationHealthCheckTests`).
 - [x] (valid-no-repro) `Program.Main` — `StartupConfigurationDiagnostics` logs `CorsOriginCount` on worker hosts that never call `AddArchLucidCors` — **cheap-disproof 2026-10-07 seed hunt #36:** shared `StartupConfigurationFactsReader` snapshot for pilot/support triage; informational only (parity rate-limit row); opt-out `Hosting:LogStartupConfigurationSummary=false`.
@@ -10482,9 +10496,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
