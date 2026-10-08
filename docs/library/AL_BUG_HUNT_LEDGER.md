@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -8289,7 +8291,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 37 · **Bugs found:** 10 · **Consecutive dry hunts:** 9
+**Hunts:** 38 · **Bugs found:** 10 · **Consecutive dry hunts:** 10
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run-summary item from the authority list can fail the entire recent-run simulation before empty-id filtering — locus: `runs.OrderByDescending(x => x.CreatedUtc)` ~75; input: authority adapter returns a null item in an otherwise valid list.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run list from the authority query is enumerated without a defensive empty fallback — locus: `foreach` over `runs` ~75; input: unavailable project listing returns `null` instead of an empty collection.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — a comparison service returning `null` for valid manifests silently drops `ComparedToRunId` from the context — locus: `comparison = comparisonService.Compare(...)` ~174 and output mapping ~202; input: comparison implementation cannot produce a result for an otherwise valid baseline.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — cancellation after primary detail load but during comparison detail load can abandon a valid primary context instead of returning primary-only simulation — locus: shared `ct` passed to the second authority query ~147; input: request cancellation while loading the compare-to run.
+- [ ] (candidate) `AlertSimulationContextProvider` constructor — null collaborator dependencies are not explicitly guarded before the first simulation call — locus: primary-constructor assignments have no `ArgumentNullException` checks; input: direct composition/test construction with a missing comparison or manifest-hash service.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8367,9 +8377,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
