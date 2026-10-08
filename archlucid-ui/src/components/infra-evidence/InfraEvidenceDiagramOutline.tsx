@@ -84,10 +84,6 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
 function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   const details = node.unresolvedRelationshipDetails ?? [];
 
-  if (node.connectionState === null) {
-    return "No connection state detail was stored.";
-  }
-
   if (details.length > 0) {
     return details.join(" ");
   }
