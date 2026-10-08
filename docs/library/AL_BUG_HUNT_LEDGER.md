@@ -33098,7 +33098,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 47 · **Bugs found:** 21 · **Consecutive dry hunts:** 11
+**Hunts:** 48 · **Bugs found:** 22 · **Consecutive dry hunts:** 0
+
+2026-10-08 thorough hunt (hit): proved that returning from Guided Intake to Quick Start removed `template` but preserved the supported legacy `example` alias, so the neutral quick-start path retained a template-start intent; fixed by deleting both aliases; the focused regression passed and 12 related route/restore tests passed; the broader route scope retained pre-existing baseline failures.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; scoped reviews/new Vitest reported 144 passed and 71 pre-existing baseline failures; no production code changed and no regression was added.
 
@@ -33172,11 +33174,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 47
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 11
+- **hunts:** 48
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
+- **last-bug:** 2026-10-08 — Quick Start retained the legacy example template alias after path switch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -33201,11 +33203,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
 
-- [ ] (candidate) `useGuidedIntakeWizard.setStep` — `syncIntakeStepToUrl` performs a URL side effect inside the functional state updater, so React Strict Mode or an updater replay can commit history twice for one step action — locus: `setStep` callback around lines 90–99; input: operator advances or rewinds a guided-intake step in a development/Strict Mode render.
-- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — switching to Quick Start deletes `template` but leaves the supported legacy `example` query alias, so the quick wizard can retain an example-start intent after the operator selected a neutral path — locus: quick-review cleanup around lines 176–186; input: `/architecture/reviews/new?path=guided-intake&example=<legacy-template>` followed by selecting Quick Start.
-- [ ] (candidate) `ReviewsNewRouteBody` — a whitespace-only `path` query suppresses the bare-route redirect because the effect checks `pathQuery.length` before normalization, leaving an unexpected path-switcher shell instead of resolving the working start — locus: redirect guard around lines 37–45; input: authenticated working-desk navigation to `/architecture/reviews/new?path=%20`.
-- [ ] (candidate) `useGuidedIntakeWizard.handleSessionRestore` — any restored snapshot at step 2 or later with a draft id is forced back to clarifications even when the saved draft already has persisted clarification answers — locus: restore branch around lines 214–222; input: browser session restore after a reload on a previously submitted clarification draft.
-- [ ] (candidate) `ReviewsNewPathSwitcher` — `activePath` starts as `quick-review` and the route effect reads only the query path, so a persisted full-guided path can be ignored on a bare route when no query override is present — locus: `activePath` initialization and `resolveInitialReviewsNewActivePath` call around lines 80 and 160–172; input: returning operator opens bare `/architecture/reviews/new` after previously selecting Guided Intake.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — **cheap-disproof 2026-10-08 thorough hunt:** `commitHrefIfChanged` makes the URL side effect idempotent when a React updater is replayed; the second invocation sees the committed href and does not add another history entry.
+- [x] (proven) `ReviewsNewPathSwitcher.selectPath` — **hit 2026-10-08 thorough hunt:** Quick Start deleted `template` but left the supported legacy `example` alias, preserving an example-start intent after a neutral path selection; fixed by deleting `example` alongside `template`; regression `clears the legacy example alias when returning to quick-review`.
+- [x] (invalid) `ReviewsNewRouteBody` — **cheap-disproof 2026-10-08 thorough hunt:** `pathQuery` is trimmed before the redirect guard, so a whitespace-only query has zero length and follows the normal working-start redirect.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** restored drafts are deliberately rewound to clarifications before `hydrateClarificationsFromDraft` restores persisted answers; focused session-restore and intake-step tests passed.
+- [x] (invalid) `ReviewsNewPathSwitcher` — **cheap-disproof 2026-10-08 thorough hunt:** bare routes intentionally ignore persisted path state and default to Quick Start; existing path-switcher state and component tests cover this contract.
 
 - [x] (proven) `useGuidedIntakeWizard` / `useGuidedIntakeDraftWorkflow` — `canSubmit` keyed on local `savedLocallyQuestionKeys` without requiring `reviewAnswers` API persistence — **hit 2026-09-07 (#1175):** `intakeStep=2` deep-link or stale URL could reach confirm with locally handled clarifications only; fixed with `areGuidedIntakeClarificationsPersistedForSubmit`, confirm-step clamp, and clearing `intakeStep`/`scopeGate` when leaving guided intake (`areGuidedIntakeClarificationsPersistedForSubmit`, `clears intakeStep when returning to quick-review`)
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — stale `rerun`/`policyPackId` preserved across path switches (only `intakeStep`/`scopeGate` cleared today) — **2026-09-07 (#1212):** quick-review ignores `rerun=` (guided intake only via `use-guided-intake-prior-run-prefill`); `policyPackId` prefill in quick review is intentional deeplink via `use-new-run-wizard-query-prefill`

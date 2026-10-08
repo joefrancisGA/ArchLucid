@@ -182,6 +182,7 @@ export function ReviewsNewPathSwitcher() {
       params.delete("accelerator");
       params.delete("preset");
       params.delete("template");
+      params.delete("example");
     }
 
     if (path === "guided-intake") {
