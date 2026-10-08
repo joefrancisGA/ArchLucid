@@ -290,6 +290,8 @@
 
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (zone ledger sync for regressions shipped in hunt #57); seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_outer_evidence_ref_differs_only_by_trailing_whitespace`, `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_embedded_zwsp`, `Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate`, `Resolve_skips_when_substantive_rows_share_topology_ref_before_name_dedupe_path`, and `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`; 112 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
+2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_candidate_when_proposal_id_differs_only_by_case_but_subkeys_differ`, `Resolve_skips_when_alternative_row_shares_topology_evidence_ref`, `Resolve_skips_when_inventory_evidence_refs_match_case_insensitively`, and `Resolve_skips_when_cloud_neutral_chosen_shares_technology_name_after_whitespace_normalization`; reaffirmed `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`; 116 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (negative schemaVersion; quality-reject vs dead-letter both `Failed`; `+5` ordinal parse; orphan golden manifest on `WaitingForResults`; lowercase `pipelinedeadletter`); seeded five follow-on `(candidate)` rows; regressions in `RunAuthorityPipelineDeadLetterDetectionTests`, `ArchitectureRunStatusTransitionTableCoercionTests`, and `AuthorityRunLifecyclePhaseListResolverTests`; 53 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (verify 5xx→`delivery_failed` shared mapper; `too_many_attempts` forward-compat only; resend cooldown UX vs server 429; Turnstile challenge on pre-auth anonymous proxy without BFF CSRF; livelihood replay CSRF peek/consume gap); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
@@ -5420,7 +5422,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
-**Hunts:** 57 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+**Hunts:** 58 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_candidate_when_proposal_id_differs_only_by_case_but_subkeys_differ`, `Resolve_skips_when_alternative_row_shares_topology_evidence_ref`, `Resolve_skips_when_inventory_evidence_refs_match_case_insensitively`, and `Resolve_skips_when_cloud_neutral_chosen_shares_technology_name_after_whitespace_normalization`; reaffirmed `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref`; 116 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `EvidenceRefsMatch` — case-only `proposalId` with distinct sub-keys — **cheap-disproof 2026-10-08 seed hunt #58:** `OrdinalIgnoreCase` on `proposalId` still requires ordinal sub-key equality; regression `Resolve_keeps_candidate_when_proposal_id_differs_only_by_case_but_subkeys_differ`.
+- [x] (valid-no-repro) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` ref dedupe — **cheap-disproof 2026-10-08 seed hunt #58:** status-agnostic ref guard is intentional; regression `Resolve_skips_when_alternative_row_shares_topology_evidence_ref`.
+- [x] (valid-no-repro) `Resolve` — unlocked authoritative `Chosen` same-name suppression — **cheap-disproof 2026-10-08 seed hunt #58:** non-locked branch blocks grounded same-family same-name candidates; reaffirmed `Resolve_skips_when_chosen_shares_technology_name_and_has_grounding_ref` and `Resolve_skips_duplicate_same_family_when_chosen_exists`.
+- [x] (valid-no-repro) `EvidenceRefsMatch` — inventory ref case-insensitive fallback — **cheap-disproof 2026-10-08 seed hunt #58:** non-topology refs use whole-string `OrdinalIgnoreCase`; regression `Resolve_skips_when_inventory_evidence_refs_match_case_insensitively`.
+- [x] (valid-no-repro) `SharesProviderFamilyGate` — cloud-neutral chosen name normalization — **cheap-disproof 2026-10-08 seed hunt #58:** `NormalizeTechnologyName` collapses tab/space separators before compare; regression `Resolve_skips_when_cloud_neutral_chosen_shares_technology_name_after_whitespace_normalization`.
+
+- [ ] (candidate) `Resolve` — `FirstOrDefault` chosen lookup ignores `TechnologyLedgerStatus` on non-chosen rows only, but multiple `Chosen` rows for one role are undefined — locus: ~18–19; input: two `Chosen` compute rows with different `TechnologyName` values.
+- [ ] (candidate) `HasMatchingProposal` — cross-provider rows with identical topology `EvidenceRef` dedupe before provider-family name gate — locus: ref check precedes `ProviderFamily` compare ~65–68; input: AWS assumed row shares ref with Azure candidate (parity `Resolve_keeps_compute_candidate_when_only_other_role_shares_evidence_ref`).
+- [ ] (candidate) `ShouldTreatAsDuplicateByName` — dual-ungrounded name match returns true even when `TechnologyNamesMatch` is false after normalization edge — locus: ~94–100; input: whitespace-normalized distinct labels both with null refs (extend whitespace-only ref row).
+- [ ] (candidate) `EvidenceRefsMatch` — `agentTopologyProposal:` prefix match is case-insensitive (`AGENTTOPOLOGYPROPOSAL:p1:svc`) — locus: `StartsWith(prefix, OrdinalIgnoreCase)`; input: uppercase prefix with lowercase body segments.
+- [ ] (candidate) `Resolve` locked gate — `IsLocked` false but `IsAuthoritativeChosenSource` true still suppresses exploration when chosen lacks substantive ref — locus: ~24–31 vs ~42–48; input: unlocked User chosen with null `EvidenceRef` and matching normalized name.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_outer_evidence_ref_differs_only_by_trailing_whitespace`, `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_embedded_zwsp`, `Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate`, `Resolve_skips_when_substantive_rows_share_topology_ref_before_name_dedupe_path`, and `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`; 112 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5429,12 +5445,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Resolve` — `HasMatchingProposal` before chosen exploration gate — **cheap-disproof 2026-10-08 seed hunt #57:** intentional ref dedupe ordering; regression `Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate`.
 - [x] (valid-no-repro) `ShouldTreatAsDuplicateByName` vs `EvidenceRefsMatch` ordering — **cheap-disproof 2026-10-08 seed hunt #57:** substantive ref match short-circuits before name-only path; regression `Resolve_skips_when_substantive_rows_share_topology_ref_before_name_dedupe_path`.
 - [x] (valid-no-repro) `TryParseAgentTopologyProposalRef` — ordinal sub-key casing — **cheap-disproof 2026-10-08 seed hunt #57:** intentional lossless sub-key casing; regression `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`.
-
-- [ ] (candidate) `EvidenceRefsMatch` — case-only `proposalId` segment matches via `OrdinalIgnoreCase` while stable topology identity may treat proposal ids as case-sensitive — locus: `EvidenceRefsMatch` ~127; input: `agentTopologyProposal:P1:svc-a` vs `agentTopologyProposal:p1:svc-b`.
-- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Alternative` rows with substantive topology refs dedupe new candidates before chosen gate — locus: status-agnostic loop ~60–66; input: alternative row shares `EvidenceRef` with incoming agent candidate.
-- [ ] (candidate) `Resolve` — unlocked authoritative `Chosen` suppresses same-family same-name candidates with distinct topology refs via non-locked branch (~35–39) — locus: `IsAuthoritativeChosenSource` without `IsLocked`; input: User chosen with inventory ref blocks second `Azure SQL` topology proposal.
-- [ ] (candidate) `EvidenceRefsMatch` — non-topology inventory refs fall back to whole-string `OrdinalIgnoreCase` equality — locus: ~131; input: `inventory:arm:sql` vs `INVENTORY:arm:sql` with distinct display names.
-- [ ] (candidate) `SharesProviderFamilyGate` — `CloudProvider.None` chosen with substantive ref blocks same-name concrete candidates even when technology names differ only by normalization — locus: cloud-neutral authoritative chosen; extend `Resolve_skips_when_cloud_neutral_authoritative_chosen_shares_technology_name` with NBSP/tab label variants.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions for empty sub-key topology refs, competing chosen order, and Turkish I labels; 109 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5491,7 +5501,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-08
