@@ -68,6 +68,11 @@ describe("SecureNowQuestionQueue", () => {
 
   it("shows the snapshot promo and opens the question bar", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(Element.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+    });
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
@@ -83,6 +88,9 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-reason")).toHaveTextContent(question.reasonText);
     expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Name the peer" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    });
   });
 
   it("shows a stored answer for answered questions", async () => {
