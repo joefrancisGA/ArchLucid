@@ -16,7 +16,6 @@
 {"at":"2026-09-08T13:21:27.8821905Z","zoneId":"core-tenancy-commercial","outcome":"dry"}
 {"at":"2026-09-08T13:55:15.9579444Z","zoneId":"tenant-settings-sql","outcome":"hit"}
 {"at":"2026-09-08T14:03:08.5127434Z","zoneId":"tenant-settings-sql","outcome":"hit"}
-{"at":"2026-09-08T14:16:21.0660104Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T14:22:57.3585401Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T14:28:03.3027856Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T14:36:31.7865225Z","zoneId":"artifact-synthesis","outcome":"hit"}
@@ -8880,3 +8879,4 @@
 {"at":"2026-10-08T13:55:59.3818542Z","zoneId":"ui-operator-lib","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/operator/"]}
 {"at":"2026-10-08T14:00:55.2254553Z","zoneId":"core-authority-runs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Runs/,ArchLucid.Core/Authority/"]}
 {"at":"2026-10-08T14:04:44.2641021Z","zoneId":"core-authority-runs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Runs/,ArchLucid.Core/Authority/"]}
+{"at":"2026-10-08T14:08:30.1019642Z","zoneId":"core-authority-runs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Runs/,ArchLucid.Core/Authority/"]}

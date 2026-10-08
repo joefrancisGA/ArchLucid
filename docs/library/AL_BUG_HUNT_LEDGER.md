@@ -14380,7 +14380,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
@@ -23651,6 +23651,8 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 
 - [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun` — a `Guid.Empty` run id reaches the `ReadyForCommitRun` constructor and throws from a `Try*` method — locus: `TryIssueReadyForCommitRun` in `ArchitectureRunStatusTransitionTable.cs`; input: `ReadyForCommit` plus an empty run id; wrong outcome: malformed commit input raises instead of returning `false`; reachability: the application commit orchestrator passes a parsed run id into this public transition helper.
 - [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
+
+2026-10-08 seed hunt (seed-only): re-read the selected transition-table and typestate sources after the prior reseed; no candidate met the in-zone reachability and user-visible wrong-outcome bar, so no repro or production change was attempted.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
