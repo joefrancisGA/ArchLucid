@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -32980,7 +32982,15 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 45 · **Bugs found:** 21 · **Consecutive dry hunts:** 9
+**Hunts:** 46 · **Bugs found:** 21 · **Consecutive dry hunts:** 10
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `useNewRunWizardClient` — `data-wizard-ready` is set before query-prefill and template-restore effects settle — locus: `wizardReadyRef` effect ~147–149; input: automation submits or snapshots the detailed wizard immediately after the readiness attribute appears on a deeplink.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — example-template prefill is one-shot for the mount and does not reapply when the `example=` query changes in place — locus: `exampleTemplatePrefillAppliedRef` ~232–241; input: change from one example template to another without remounting the quick-start wizard.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — restored session state can be overwritten by a later example-template effect — locus: session restore and example prefill both write `runTitle`/`briefText`; input: accept a saved quick-start session while an example-template query is active.
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — `viewAllClarifications` state may briefly diverge when router search params and `window.location.search` update on different ticks — locus: URL effect ~154–181; input: toggle disclosure and immediately use browser Back/Forward.
+- [ ] (candidate) `useNewRunWizardClient` — changing `embeddedInPathSwitcher` after mount can persist full wizard mode without clearing incompatible detailed-step query state — locus: mode effect ~61–68; input: switch route embedding state while `step`, `mode`, or `advancedConfig` remains in the URL.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -33044,9 +33054,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
