@@ -17408,6 +17408,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-07 seed hunt #25 (seed-only): re-read `initiate-redirect`, `discovery`, `session`, `bff-session-sync`, and `token-client` after bugsmash churn; no hunt-ready row promoted; seeded five `(candidate)` rows; 61 scoped vitest files under `src/lib/oidc` passed.
+
 2026-09-28 seed hunt #18 (seed→hit): reseeded ui-oidc; proved `POST /api/auth/bff-session` and refresh routes mapped `expires_in: 0` to a 3600s cookie TTL while `bff-session-sync` and client session hints honored zero after #1577/#1690; centralized `resolveExpiresInSeconds` under `archlucid-ui/src/lib/oidc/` and wired BFF routes to the same resolver; regressions `resolve-expires-in-seconds.test.ts`, `honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)`; 62 scoped ui-oidc + BFF session route tests passed.
 
 - [x] (proven) BFF session `POST` / refresh `resolveExpiresAtMs` — `expires_in: 0` from browser sync still issued a one-hour HttpOnly cookie — **hit 2026-09-28 seed hunt #18:** routes used `numericExpiresIn > 0` instead of shared `resolveExpiresInSeconds`; regression `honors zero expires_in when issuing the BFF cookie (parity with oidc session hints)`.
@@ -17418,10 +17420,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-30
+- **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-30 — failed OIDC discovery preserved a prior stale post-sign-in return path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -17479,6 +17481,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed→hit): proved failed discovery also left the newly stored post-sign-in return path despite no redirect; added cleanup for primary and supplemental redirects and regression `clears the stored return path when discovery fails before redirect`; 60 scoped OIDC tests passed.
 
 2026-09-30 seed hunt (seed→hit): proved a later failed redirect with no `returnUrl` also preserved a pre-existing stale post-sign-in path; discovery failure now clears the shared return-path key unconditionally; regression `clears a stale return path when a later discovery attempt has no return URL`; 61 scoped OIDC tests passed.
+
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — Google discovery failure calls `clearPostSignInReturnUrl` on the shared `OIDC_POST_SIGN_IN_RETURN_URL_KEY` — locus: supplemental `catch` in `initiate-redirect.ts` (~97–100); input: primary flow already stored a safe return path, then supplemental Google redirect fails discovery; wrong outcome: unrelated primary post-sign-in path cleared.
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — non-OK BFF `POST /api/auth/bff-session` responses are swallowed — locus: `bff-session-sync.ts` (`fetch` without status check, empty `catch`); input: BFF returns 503/500 during sign-in; wrong outcome: `persistTokenResponse` writes client expiry hints while HttpOnly session cookie missing (false signed-in UX).
+- [ ] (candidate) `ensureAccessTokenFresh` — BFF refresh returns 200 with non-finite `expires_at_ms` leaves session stale without clearing — locus: `session.ts` refresh branch (`result.ok` false, `shouldClearSession` false); input: `/api/auth/bff-session/refresh` body missing valid `expires_at_ms`; wrong outcome: operator stuck below skew with no retry until manual reload.
+- [ ] (candidate) `loadDiscoveryDocument` — successful discovery is cached for the SPA lifetime with no revalidation — locus: `discoveryPromises` Map in `discovery.ts`; input: IdP rotates `token_endpoint` after initial fetch; wrong outcome: token exchange/refresh targets stale endpoint until full page reload.
+- [ ] (candidate) `persistTokenResponse` — `void syncBffSessionCookieFromTokenResponse` races `clearOidcSession` during concurrent sign-out — locus: `session.ts` `persistTokenResponse` / `clearOidcSession`; input: sign-out starts while callback still persisting tokens; wrong outcome: cleared session resurrected via late BFF sync (generation guard missing on sync path).
 
 ---
 
