@@ -59,8 +59,8 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
-  const showConnectorLegend = hasDeclared || hasProbable || hasInferred;
   const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
+  const showConnectorLegend = hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
     return null;
