@@ -818,6 +818,8 @@
 
 2026-10-07 thorough hunt (hit): `host-core-jobs` — `BackgroundJobQueueProcessorHostedService` success path only re-read `Canceled` before `MarkSucceededAsync`, so a stale worker could mark `Succeeded` after `BackgroundJobStuckRunningWatchdogBackgroundWork` reclaimed the row to `Pending`; require `Running` on re-read and guard SQL `MarkSucceededAsync` with `State = N'Running'`; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`; cheap-disproof closed four reseeded candidates; 27 processor + 38 Host.Core BackgroundJob + 16 in-memory queue tests passed.
 
+2026-10-08 seed hunt (seed→hit): `archlucid-core` — `AzureInventoryRecoveryServicesProtectedItemSanitizer` stored Site Recovery `initialRecoveryFabricLocation` as the replication target region and never read the current `providerSpecificDetails.recoveryFabricLocation` from the replication protected-item list payload, so reprotected VMs kept the original region on `recoveryServices.targetRegion`; prefer the current fabric location and fall back to the initial location; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`; 1/1 scoped sanitizer tests passed.
+
 2026-10-07 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` called `Trim()` on null `GraphNode.NodeId` and null `GraphEdge` endpoint ids, crashing κ→Γ merge for in-memory partial graph rows (JSON deserializers already coalesce to empty); coalesce null ids before trim; regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`; scoped merger tests 12/12 Core + 7/7 KnowledgeGraph; `FullyQualifiedName~ArchLucid.Core` 7298 passed, 1 existing ADF pipeline baseline failure.
 
 2026-10-06 seed hunt (seed→hit): `archlucid-core` — `GraphSnapshotKnowledgeModelMerger.CanonicalizeEdgeEndpoints` called `EdgeType.Trim()` on null `GraphEdge.EdgeType`, crashing κ→Γ merge for malformed in-memory or deserialized edges; coalesce null edge types to empty before trim in canonicalization and edge keys; regression `Merge_treats_null_edge_type_as_empty_when_canonicalizing_model_edges`; scoped merger tests 10/10 Core + 7/7 KnowledgeGraph.
@@ -18436,6 +18438,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-08 seed hunt (seed→hit): promoted and proved Site Recovery replication rows kept `initialRecoveryFabricLocation` instead of current `recoveryFabricLocation`; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`; 1/1 scoped sanitizer tests passed.
+
 2026-10-07 seed hunt (seed→hit): promoted and proved null `GraphNode.NodeId` and null edge endpoint ids crashed merge via `NormalizeNodeId`; fixed null-coalescing before trim; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`; scoped merger 12/12 Core + 7/7 KnowledgeGraph; Core filter 7298 passed, 1 baseline ADF failure.
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved null `GraphEdge.EdgeType` crashed merge during endpoint canonicalization; fixed null-coalescing before trim; regression above.
@@ -18452,11 +18456,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 469
-- **last-hunt:** 2026-10-07
-- **bugs-found:** 3509
+- **hunts:** 470
+- **last-hunt:** 2026-10-08
+- **bugs-found:** 3510
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-07 — graph snapshot merge NRE on null NodeId / edge endpoints
+- **last-bug:** 2026-10-08 — Site Recovery target region kept the initial fabric location
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18485,6 +18489,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `AzureInventoryRecoveryServicesProtectedItemSanitizer.TryReadRecoveryTargetRegion` — Site Recovery list items (`HostedAzureInventoryRecoveryServicesCollector` → replication protected items) published the current failover region on `providerSpecificDetails.recoveryFabricLocation` while the sanitizer stored `initialRecoveryFabricLocation`, so reprotected VMs kept the original region on `recoveryServices.targetRegion` — **hit 2026-10-08 seed hunt:** prefer the current fabric location and fall back to the initial location; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` — null `GraphNode.NodeId` or null `GraphEdge.FromNodeId`/`ToNodeId` on in-memory graph rows caused `NullReferenceException` during κ→Γ merge (`KnowledgeModelGraphReprojector` / `KnowledgeModelAwareGraphSnapshotResolver` paths) — **hit 2026-10-07 seed hunt:** coalesce null ids before trim (parity with `GraphNodeJsonConverter` / `GraphEdgeJsonConverter` empty-string defaults); regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`.
 
