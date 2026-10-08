@@ -62,13 +62,62 @@ function Test-IsProductionEscalationPath {
         return $false
     }
 
-    $normalized = $Path.Replace('\', '/')
+    $normalized = $Path.Replace('\', '/').Trim()
+
+    # A trailing slash is a directory scope, not a file that can be hot on its own.
+    if ($normalized.EndsWith('/')) {
+        return $false
+    }
 
     if ($normalized -match '(?i)Tests|__tests__|\.md$|\.generated\.') {
         return $false
     }
 
+    # Run-log rewrites have packed several paths into one comma-joined string.
+    # That string is not a file, and prefix checks treated it as a parent of the first path.
+    if ($normalized.Contains(',')) {
+        return $false
+    }
+
+    $leaf = $normalized
+    $slash = $leaf.LastIndexOf('/')
+
+    if ($slash -ge 0) {
+        $leaf = $leaf.Substring($slash + 1)
+    }
+
+    # Directory prefixes recorded without a slash (and PowerShell array dumps) have no extension.
+    if (-not $leaf.Contains('.')) {
+        return $false
+    }
+
     return $true
+}
+
+function Test-EscalatedFileMatchesZonePath {
+    param(
+        [string] $ZonePath,
+        [string] $EscalatedFile
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ZonePath) -or [string]::IsNullOrWhiteSpace($EscalatedFile)) {
+        return $false
+    }
+
+    $zone = $ZonePath.Replace('\', '/').Trim()
+    $file = $EscalatedFile.Replace('\', '/').Trim()
+
+    if ($zone.Equals($file, [StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+
+    # A ledger directory owns hot files inside it. The reverse match (a directory
+    # hit cooling every sibling file zone) is what emptied the queue.
+    if (-not $zone.EndsWith('/')) {
+        return $false
+    }
+
+    return $file.StartsWith($zone, [StringComparison]::OrdinalIgnoreCase)
 }
 
 function Get-GitProductionPathsFromLogText {
