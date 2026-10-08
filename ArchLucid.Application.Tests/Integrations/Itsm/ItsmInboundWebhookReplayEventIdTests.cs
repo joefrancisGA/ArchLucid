@@ -73,4 +73,31 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
         second.Should().Be("Jira:KEY-1:In Progress");
         first.Should().NotBe(second);
     }
+
+    [Fact]
+    public void ResolveDeliveryIdFromHeaders_prefers_archlucid_header_over_atlassian_identifier()
+    {
+        string? deliveryId = ResolveDeliveryIdFromHeadersLikeController(
+            archLucidDeliveryId: "arch-delivery-primary",
+            atlassianWebhookIdentifier: "atlassian-delivery-secondary");
+
+        deliveryId.Should().Be("arch-delivery-primary");
+
+        ItsmInboundWebhookReplayEventId.Resolve(deliveryId, "Jira", "KEY-1", "Done")
+            .Should().Be("arch-delivery-primary");
+    }
+
+    /// <summary>Mirrors <c>ItsmInboundWebhooksController.ResolveDeliveryId</c> header precedence.</summary>
+    private static string? ResolveDeliveryIdFromHeadersLikeController(
+        string? archLucidDeliveryId,
+        string? atlassianWebhookIdentifier)
+    {
+        if (!string.IsNullOrWhiteSpace(archLucidDeliveryId))
+            return archLucidDeliveryId.Trim();
+
+        if (!string.IsNullOrWhiteSpace(atlassianWebhookIdentifier))
+            return atlassianWebhookIdentifier.Trim();
+
+        return null;
+    }
 }

@@ -69,6 +69,17 @@ public sealed class ItsmInboundJiraPayloadReaderTests
     }
 
     [Fact]
+    public void TryRead_returns_false_when_status_name_is_whitespace_only()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"   "}}}}""");
+
+        bool ok = new ItsmInboundJiraPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult _);
+
+        ok.Should().BeFalse("whitespace-only status names fail before mapper human-review guards");
+    }
+
+    [Fact]
     public void TryRead_rejects_issue_key_with_internal_zero_width_space()
     {
         using JsonDocument document = JsonDocument.Parse(

@@ -16,6 +16,29 @@ namespace ArchLucid.Application.Tests.Integrations.Itsm;
 public sealed class ItsmInboundWebhookSyncSupportTests
 {
     [Fact]
+    public async Task TryResolveCorrelationAsync_uses_tenant_scoped_lookup_when_authenticated_tenant_id_is_present()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyForTenantAsync(tenantId, "Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ItsmFindingCorrelationRecord?)null);
+
+        ItsmInboundWebhookSyncSupport sut = new(correlations.Object, Mock.Of<IItsmInboundWebhookReplayGuard>());
+
+        ItsmFindingCorrelationRecord? row =
+            await sut.TryResolveCorrelationAsync("Jira", "KEY-1", authenticatedTenantId: tenantId, CancellationToken.None);
+
+        row.Should().BeNull();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyForTenantAsync(tenantId, "Jira", "KEY-1", It.IsAny<CancellationToken>()),
+            Times.Once);
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryResolveCorrelationAsync_uses_unscoped_lookup_when_authenticated_tenant_id_is_null()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

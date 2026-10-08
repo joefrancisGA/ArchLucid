@@ -51,6 +51,39 @@ public sealed class ItsmInboundWebhookFacadeTests
     }
 
     [Fact]
+    public async Task ProcessAsync_accepts_sha256_prefixed_hmac_when_vendor_token_matches()
+    {
+        const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";
+        string hex = ComputeHmacSha256LowerHex(SharedSecret, body);
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> options = new();
+        options.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = true,
+            JiraWebhookSecret = SharedSecret,
+            RequireBodyHmacSignature = true,
+        });
+
+        Mock<IItsmTenantConnectorCredentialResolver> credentials = new(MockBehavior.Strict);
+        ItsmInboundWebhookSyncService sync = CreateSyncService();
+        ItsmInboundWebhookFacade sut = new(options.Object, credentials.Object, sync);
+
+        ItsmInboundWebhookProcessHttpResult result = await sut.ProcessAsync(
+            new ItsmInboundWebhookProcessRequest
+            {
+                Provider = TenantItsmConnectorProvider.Jira,
+                TenantId = null,
+                RawBody = body,
+                PayloadUtf8Bytes = Encoding.UTF8.GetByteCount(body),
+                VendorToken = SharedSecret,
+                HmacSignature = "sha256=" + hex,
+            },
+            CancellationToken.None);
+
+        result.Outcome.Should().NotBe(ItsmInboundWebhookHttpOutcome.Unauthorized);
+    }
+
+    [Fact]
     public async Task ProcessAsync_accepts_legacy_x_archlucid_signature_raw_hex_when_hmac_required()
     {
         const string body = """{"issue":{"key":"PROJ-1","fields":{"status":{"name":"Done"}}}}""";

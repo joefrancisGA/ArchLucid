@@ -75,6 +75,8 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
 
         ok.Should().BeTrue();
         result.StatusValue.Should().Be("6");
+        result.AlternateStatusValue.Should().BeNull(
+            "incident_state alone becomes primary StatusValue; alternate is only for divergent state+incident_state pairs");
     }
 
     [Fact]
