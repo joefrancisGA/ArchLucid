@@ -28,4 +28,17 @@ public sealed class ItsmInboundJsonElementReaderTests
 
         value.Should().BeNull();
     }
+
+    [Fact]
+    public void TryGetPropertyCaseInsensitive_returns_false_when_root_is_json_array()
+    {
+        using JsonDocument document = JsonDocument.Parse("""[1,2,3]""");
+
+        bool found = ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive(
+            document.RootElement,
+            "sys_id",
+            out JsonElement _);
+
+        found.Should().BeFalse("vendor webhook roots must be JSON objects before property lookup");
+    }
 }

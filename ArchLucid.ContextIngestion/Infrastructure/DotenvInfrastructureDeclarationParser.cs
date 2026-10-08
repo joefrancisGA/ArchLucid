@@ -55,6 +55,17 @@ public sealed class DotenvInfrastructureDeclarationParser(
             }
 
             string key = rawLine[..separatorIndex].Trim();
+
+            if (key.StartsWith("export ", StringComparison.OrdinalIgnoreCase))
+            {
+                key = key["export ".Length..].Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
             string value = rawLine[(separatorIndex + 1)..].Trim();
 
             if (value.Length >= 2

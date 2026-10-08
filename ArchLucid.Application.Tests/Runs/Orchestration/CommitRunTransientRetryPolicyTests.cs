@@ -160,10 +160,126 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void RetryDelay_and_manifest_poll_delay_use_bounded_authority_loop_indices()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
+
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts));
+    }
+
+    [Fact]
+    public void Outer_commit_max_attempts_exceeds_inner_polly_retry_attempt_budget_by_design()
+    {
+        CommitRunTransientRetryPolicy.MaxAttempts.Should().BeGreaterThan(4);
+    }
+
+    [Fact]
     public void Worst_case_inner_orchestrator_retry_backoff_fits_inside_commit_retry_budget()
     {
         TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
 
         minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void Manifest_reconcile_poll_cap_stays_below_commit_max_attempts()
+    {
+        CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts
+            .Should()
+            .BeLessThan(CommitRunTransientRetryPolicy.MaxAttempts);
+    }
+
+    [Fact]
+    public void ManifestReconcilePollDelay_sum_through_max_poll_index_stays_below_retry_budget()
+    {
+        TimeSpan pollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        pollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse("poll-delay totals and IsExhausted gates are independent bounded loops");
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                11,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse(
+                "authority commit loop may still run one more attempt while inner Polly backoff remains bounded by RetryBudget");
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_one_attempt_below_max_with_elapsed_just_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void Naive_serial_product_of_max_attempts_and_inner_polly_backoff_exceeds_retry_budget_by_design()
+    {
+        TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
+        TimeSpan naiveSerialWorstCase = TimeSpan.FromTicks(
+            minimumInnerRetryDelays.Ticks * CommitRunTransientRetryPolicy.MaxAttempts);
+
+        naiveSerialWorstCase.Should().BeGreaterThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void Snapshot_conflict_outer_poll_and_attempt_delay_totals_each_stay_below_retry_budget()
+    {
+        TimeSpan interPollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
+
+    [Fact]
+    public void Layered_outer_delays_and_inner_polly_backoff_are_not_one_serial_chain()
+    {
+        TimeSpan interAttemptDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.MaxAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.RetryDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan interPollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);
+
+        interAttemptDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+        minimumInnerRetryDelays.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+
+        (interAttemptDelayTotal + interPollDelayTotal + minimumInnerRetryDelays)
+            .Should()
+            .BeGreaterThan(CommitRunTransientRetryPolicy.RetryBudget,
+                "authority commit applies outer attempt/poll delays and inner orchestrator Polly backoff in separate layers, not as one additive sleep chain");
     }
 }

@@ -34,6 +34,15 @@ public sealed class CareerGravityCg028CareerBlocksApiExportArchitectureTests
     }
 
     [Fact]
+    public void Cg028_run_artifact_list_and_bundle_resolves_career_posture_gate()
+    {
+        string runArtifacts = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
+
+        runArtifacts.Should().Contain("ResolveRunExportCareerPostureBlockedResultAsync");
+    }
+
+    [Fact]
     public void Cg028_openapi_documents_run_export_career_blocked_409()
     {
         string transformer = File.ReadAllText(

@@ -49,6 +49,7 @@ import { resolveHelpTopicPermanentRedirect } from "@/lib/help/help-topic-permane
 import {
   USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY,
   USERS_AND_ROLES_HELP_CANONICAL_PATH,
+  USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
   USERS_AND_ROLES_HELP_SOURCES,
 } from "@/lib/users-and-roles-help-evidence-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -142,6 +143,10 @@ describe("HelpUsersAndRolesGuideView", () => {
     }
 
     render(<HelpUsersAndRolesGuideView entry={entry} />);
+
+    expect(screen.getByTestId("users-and-roles-help-claim-discipline")).toHaveTextContent(
+      USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
+    );
 
     const overview = screen.getByTestId("users-and-roles-role-overview-table");
     expect(within(overview).getByText("Admin")).toBeInTheDocument();

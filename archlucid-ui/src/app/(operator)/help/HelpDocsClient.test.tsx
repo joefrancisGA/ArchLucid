@@ -876,6 +876,184 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate a static quick link when fetched index repeats the path with only a query string", async () => {
+    const data = [
+      {
+        title: "Reviews list (tracked tab)",
+        summary: "Same reviews route with marketing query params in doc-index.",
+        category: "Operations",
+        url: "/architecture/reviews?tab=active",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Reviews list (tracked tab)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate a static quick link when fetched index repeats the path with only a hash fragment", async () => {
+    const data = [
+      {
+        title: "Reviews list (hash fragment)",
+        summary: "Same reviews route with in-page hash in doc-index.",
+        category: "Operations",
+        url: "/architecture/reviews#active",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Reviews list (hash fragment)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("matches every quick link when the filter token is a lone slash", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Reviews list" });
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "/" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Reviews list" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not reschedule the debounced q sync when unrelated URL params change but q is unchanged", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=alpha");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("alpha");
+
+    vi.useFakeTimers();
+    helpDocsNavigation.replace.mockClear();
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    const callsAfterInitialSync = helpDocsNavigation.replace.mock.calls.length;
+
+    helpDocsNavigation.params = new URLSearchParams("tab=security&q=alpha");
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    expect(helpDocsNavigation.replace.mock.calls.length).toBe(callsAfterInitialSync);
+
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("classifies external doc links consistently when url has surrounding whitespace", async () => {
+    const data = [
+      {
+        title: "Whitespace padded external",
+        summary: "Doc-index row with spaces around https url.",
+        category: "API",
+        url: "  https://example.com/docs/padded  ",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Whitespace padded external" });
+
+    expect(link).toHaveAttribute("href", "https://example.com/docs/padded");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not match Getting Started rows when search uses only the category anchor slug", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Choose your next step" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "getting-started" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("No results")).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not clear the URL when Escape is pressed on an empty search box", async () => {
     vi.stubGlobal(
       "fetch",
@@ -894,6 +1072,366 @@ describe("HelpDocsClient", () => {
     fireEvent.keyDown(searchbox, { key: "Escape" });
 
     expect(helpDocsNavigation.replace).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched external doc links when two rows differ only by query string on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "First outbound doc link.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (utm variant)",
+        summary: "Same https url with tracking query params.",
+        category: "API",
+        url: "https://example.com/docs/alpha?utm_source=doc-index",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "External alpha (utm variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters rows when the search query includes query-string tokens present on the doc-index url", async () => {
+    const data = [
+      {
+        title: "Tracked compliance topic",
+        summary: "Doc-index row whose url carries marketing query params.",
+        category: "Compliance",
+        url: "/help/compliance-tracked?ref=doc-index",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Tracked compliance topic" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "compliance-tracked?ref=doc-index" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Tracked compliance topic" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched doc links when two rows differ only by percent-encoding on the same path", async () => {
+    const data = [
+      {
+        title: "Encoded path doc",
+        summary: "Plain path segment in doc-index.",
+        category: "Compliance",
+        url: "/help/encoded-path",
+      },
+      {
+        title: "Encoded path doc (percent variant)",
+        summary: "Same path with percent-encoded letters in doc-index.",
+        category: "Compliance",
+        url: "/help/%65ncoded-path",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Encoded path doc" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Encoded path doc (percent variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves non-q URL parameters when debounced search sync updates q", async () => {
+    helpDocsNavigation.params = new URLSearchParams("tab=operations&q=alpha");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    expect(searchbox).toHaveValue("alpha");
+
+    vi.useFakeTimers();
+
+    fireEvent.change(searchbox, { target: { value: "beta" } });
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help?tab=operations&q=beta", { scroll: false });
+
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("filters a large fetched doc-index by title without dropping unrelated rows when localize is identity", async () => {
+    const data = Array.from({ length: 120 }, (_, index) => ({
+      title: `Topic ${index}`,
+      summary: `Summary for topic ${index}.`,
+      category: "Operations",
+      url: `/help/topic-${index}`,
+    }));
+
+    data.push({
+      title: "Needle topic",
+      summary: "Unique token needle-compliance for filter proof.",
+      category: "Compliance",
+      url: "/help/needle-compliance",
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Needle topic" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "needle-compliance" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Needle topic" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Topic 0" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched external doc links when https and scheme-relative urls target the same destination", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "Explicit https scheme in doc-index.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (scheme-relative variant)",
+        summary: "Same host and path without https prefix.",
+        category: "API",
+        url: "//example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "External alpha (scheme-relative variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched rows when category labels differ only by Unicode normalization", async () => {
+    const composedCategory = "Operations";
+    const decomposedCategory = composedCategory.normalize("NFD");
+
+    const data = [
+      {
+        title: "Unicode category doc",
+        summary: "First row with composed category label.",
+        category: composedCategory,
+        url: "/help/unicode-category-doc",
+      },
+      {
+        title: "Unicode category doc (nfd variant)",
+        summary: "Same title and url with decomposed category label.",
+        category: decomposedCategory,
+        url: "/help/unicode-category-doc",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Unicode category doc" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Unicode category doc (nfd variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters rows when the search query matches only the hash fragment on the doc-index url", async () => {
+    const data = [
+      {
+        title: "Anchor-only topic",
+        summary: "Title and summary omit the in-page anchor token.",
+        category: "Compliance",
+        url: "/help/anchor-only#sole-fragment-token",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Anchor-only topic" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "sole-fragment-token" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Anchor-only topic" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("clears search via Escape without leaving a bare question mark in the help hub url", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    fireEvent.keyDown(searchbox, { key: "Escape" });
+
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help", { scroll: false });
+    expect(helpDocsNavigation.replace).not.toHaveBeenCalledWith("/help?", { scroll: false });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("refetches the doc-index after remount when the prior response was an empty array", async () => {
+    const { createOperatorQueryClient } = await import("@/lib/query/operator-query-client");
+
+    const queryClient = createOperatorQueryClient();
+    let fetchAttempt = 0;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        fetchAttempt += 1;
+
+        if (fetchAttempt === 1) {
+          return {
+            ok: true,
+            json: async () => [],
+          } as Response;
+        }
+
+        return {
+          ok: true,
+          json: async () => [
+            {
+              title: "Recovered doc-index row",
+              summary: "Fetched after empty cache remount.",
+              category: "Compliance",
+              url: "/help/recovered-doc-index",
+            },
+          ],
+        } as Response;
+      }),
+    );
+
+    const { unmount } = renderWithOperatorQuery(<HelpDocsClient />, { queryClient });
+
+    await waitFor(() => {
+      expect(screen.getByText(/documentation index response was empty/i)).toBeInTheDocument();
+    });
+
+    unmount();
+
+    renderWithOperatorQuery(<HelpDocsClient />, { queryClient });
+
+    expect(await screen.findByRole("link", { name: "Recovered doc-index row" })).toBeInTheDocument();
+    expect(fetchAttempt).toBeGreaterThanOrEqual(2);
 
     vi.unstubAllGlobals();
   });

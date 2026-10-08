@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import * as bffSessionSync from "@/lib/oidc/bff-session-sync";
 import {
   clearOidcSession,
   consumePkceState,
@@ -142,6 +143,27 @@ describe("persistTokenResponse", () => {
     const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
 
     expect(expiresAtMs - before).toBe(10_000);
+  });
+
+  it("clears the BFF cookie again when sign-out runs while token sync is in flight", async () => {
+    let releaseSync: (() => void) | undefined;
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          releaseSync = () => {
+            resolve();
+          };
+        }),
+    );
+    vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
+
+    persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    clearOidcSession();
+    releaseSync?.();
+    await vi.waitUntil(() => vi.mocked(bffSessionSync.clearBffSessionCookie).mock.calls.length >= 2);
+
+    expect(bffSessionSync.clearBffSessionCookie).toHaveBeenCalledTimes(2);
   });
 
   it("stores non-sensitive display name and subject hints from JWT claims", () => {

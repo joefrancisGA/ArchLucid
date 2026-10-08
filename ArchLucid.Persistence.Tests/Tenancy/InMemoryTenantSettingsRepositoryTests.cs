@@ -21,6 +21,40 @@ public sealed class InMemoryTenantSettingsRepositoryTests
     }
 
     [Fact]
+    public async Task UpsertAsync_normalizes_workspace_suffix_guid_hex_casing_to_single_slot()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+        Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid workspaceId = Guid.Parse("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
+        string canonicalKey = $"{TenantSettingKeys.FeaturedCompletedSampleRunId}.{workspaceId:D}";
+        string upperHexKey = $"{TenantSettingKeys.FeaturedCompletedSampleRunId}.{workspaceId.ToString("D").ToUpperInvariant()}";
+
+        await repository.UpsertAsync(tenantId, upperHexKey, "run-1", CancellationToken.None);
+
+        string? loaded = await repository.TryGetAsync(tenantId, canonicalKey, CancellationToken.None);
+
+        loaded.Should().Be("run-1");
+    }
+
+    [Fact]
+    public async Task UpsertAsync_round_trips_tab_padded_setting_key_to_same_slot()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        await repository.UpsertAsync(
+            tenantId,
+            "\t" + TenantSettingKeys.AgentOutputQualityGateMode + "\t",
+            "PilotStrict",
+            CancellationToken.None);
+
+        string? loaded =
+            await repository.TryGetAsync(tenantId, TenantSettingKeys.AgentOutputQualityGateMode, CancellationToken.None);
+
+        loaded.Should().Be("PilotStrict");
+    }
+
+    [Fact]
     public async Task UpsertAsync_round_trips_trimmed_key_and_value()
     {
         InMemoryTenantSettingsRepository repository = new();

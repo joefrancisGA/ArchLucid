@@ -99,7 +99,18 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
   persistNonSensitiveSessionHints(tokens, expiresAtMs);
-  void syncBffSessionCookieFromTokenResponse(tokens);
+  const generationAtPersist = refreshSessionGeneration;
+  void (async () => {
+    if (generationAtPersist !== refreshSessionGeneration) {
+      return;
+    }
+
+    await syncBffSessionCookieFromTokenResponse(tokens);
+
+    if (generationAtPersist !== refreshSessionGeneration) {
+      await clearBffSessionCookie();
+    }
+  })();
 }
 
 export type ClearOidcSessionOptions = {

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -21,6 +22,7 @@ public sealed partial class TenantWorkspacesController(
     IArchitectureProjectRepository architectureProjectRepository,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
+    IActorContext actorContext,
     IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> retentionPurgeOptions) : ControllerBase
 {
     private readonly ITenantRepository _tenantRepository =
@@ -33,6 +35,9 @@ public sealed partial class TenantWorkspacesController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions> _retentionPurgeOptions =
         retentionPurgeOptions ?? throw new ArgumentNullException(nameof(retentionPurgeOptions));

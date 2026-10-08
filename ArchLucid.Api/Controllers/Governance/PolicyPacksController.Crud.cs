@@ -118,6 +118,13 @@ public sealed partial class PolicyPacksController
                 $"Policy pack '{policyPackId}' was not found in the current scope.");
         }
 
+        if (result.Outcome == PolicyPackHttpOutcome.ValidationFailed)
+        {
+            return this.BadRequestProblem(
+                result.Message ?? "Policy pack publish validation failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
         return Ok(result.Value!);
     }
 

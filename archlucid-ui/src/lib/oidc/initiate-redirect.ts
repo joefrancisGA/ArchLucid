@@ -11,6 +11,7 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   clearPkceState,
   clearPostSignInReturnUrl,
+  readPkceState,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
@@ -33,8 +34,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
   storePkceState(state, verifier, nonce, "primary");
 
+  let storedReturnUrlThisAttempt = false;
+
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
+    storedReturnUrlThisAttempt = true;
   }
 
   let doc;
@@ -43,7 +47,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("primary");
-    clearPostSignInReturnUrl();
+
+    if (storedReturnUrlThisAttempt || readPkceState("google") === null) {
+      clearPostSignInReturnUrl();
+    }
+
     throw error;
   }
   const url = buildAuthorizeUrl({
@@ -56,6 +64,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     nonce,
   });
 
+  clearPkceState("google");
   window.location.assign(url);
 }
 
@@ -86,8 +95,11 @@ export async function initiateSupplementalOidcRedirect(
 
   storePkceState(state, verifier, nonce, "google");
 
+  let storedReturnUrlThisAttempt = false;
+
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
+    storedReturnUrlThisAttempt = true;
   }
 
   let doc;
@@ -96,7 +108,11 @@ export async function initiateSupplementalOidcRedirect(
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("google");
-    clearPostSignInReturnUrl();
+
+    if (storedReturnUrlThisAttempt) {
+      clearPostSignInReturnUrl();
+    }
+
     throw error;
   }
   const url = buildAuthorizeUrl({
@@ -109,5 +125,6 @@ export async function initiateSupplementalOidcRedirect(
     nonce,
   });
 
+  clearPkceState("primary");
   window.location.assign(url);
 }

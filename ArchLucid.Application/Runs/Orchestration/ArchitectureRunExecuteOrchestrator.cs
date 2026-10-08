@@ -102,6 +102,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 await EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(runId, cancellationToken).ConfigureAwait(false);
 
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
+                EnsureExecuteOwnershipAcquiredLocally(runGuid);
 
                 using CancellationTokenSource executeCancellation =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -195,6 +196,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
             await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
             await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
+            EnsureExecuteOwnershipAcquiredLocally(runGuid);
 
             using CancellationTokenSource executeCancellation =
                 CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -299,6 +301,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(currentRun, runId, cancellationToken).ConfigureAwait(false);
 
         return currentRun;
+    }
+
+    private void EnsureExecuteOwnershipAcquiredLocally(Guid runGuid)
+    {
+        if (!_runExecuteOwnershipLeaseService.IsLocallyHoldingExecuteOwnership(runGuid))
+        {
+            throw new ConflictException(
+                $"Execute ownership lease was not acquired for run '{runGuid:D}' on this host instance.");
+        }
     }
 
     private async Task EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(string runId, CancellationToken cancellationToken)

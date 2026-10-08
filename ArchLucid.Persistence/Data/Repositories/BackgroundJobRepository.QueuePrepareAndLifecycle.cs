@@ -147,6 +147,7 @@ public sealed partial class BackgroundJobRepository
                                ContentType = @ContentType,
                                ResultBlobName = @ResultBlobName
                            WHERE JobId = @JobId
+                             AND State = N'Running'
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

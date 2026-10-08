@@ -77,4 +77,17 @@ describe("wizard-payload", () => {
     expect(mismatch).toContain("Azure-focused policy packs");
     expect(mismatch).toContain("AWS");
   });
+
+  it("flags cloud-specific policy packs when cloud target is still None", () => {
+    const mismatch = deriveWizardPolicyPackCloudMismatch(
+      {
+        ...buildDefaultWizardValues(),
+        cloudProvider: "None",
+        policyReferences: ["cis-azure-baseline"],
+      },
+      { focusedPilotModeEnabled: false },
+    );
+
+    expect(mismatch).toContain("cloud-neutral");
+  });
 });

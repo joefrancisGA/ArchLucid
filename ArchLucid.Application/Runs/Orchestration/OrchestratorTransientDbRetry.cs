@@ -61,8 +61,8 @@ public static class OrchestratorTransientDbRetry
     /// </summary>
     private static bool IsRetriableOrchestratorDbFailure(Exception ex)
     {
-        if (TryGetParallelPersistInners(ex, out IReadOnlyCollection<Exception> inners))
-            return inners.Count > 0 && inners.All(IsParallelPersistAggregateInnerRetriable);
+        if (TryGetParallelPersistInners(ex, out IReadOnlyCollection<Exception> inners) && inners.Count > 0)
+            return inners.All(IsParallelPersistAggregateInnerRetriable);
 
         return SqlTransientDetector.IsTransient(ex);
     }
@@ -89,16 +89,20 @@ public static class OrchestratorTransientDbRetry
         if (ex is AggregateException aggregate)
         {
             inners = aggregate.Flatten().InnerExceptions;
-            return true;
+
+            return inners.Count > 0;
         }
 
         for (Exception? current = ex.InnerException; current is not null; current = current.InnerException)
         {
-            if (current is AggregateException nested)
-            {
-                inners = nested.Flatten().InnerExceptions;
+            if (current is not AggregateException nested)
+                continue;
+
+            inners = nested.Flatten().InnerExceptions;
+
+            // Empty aggregate shells appear on some repository wrapper chains; skip them so a deeper mixed aggregate still fail-fasts.
+            if (inners.Count > 0)
                 return true;
-            }
         }
 
         inners = Array.Empty<Exception>();

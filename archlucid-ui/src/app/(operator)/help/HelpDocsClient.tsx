@@ -90,6 +90,14 @@ function normalizeHelpHubFilterQuery(query: string): string {
   return normalized;
 }
 
+function decodeDocIndexPathForDedupe(path: string): string {
+  try {
+    return decodeURI(path);
+  } catch {
+    return path;
+  }
+}
+
 function normalizeDocIndexUrlForDedupe(url: string): string {
   const trimmed = url.trim();
 
@@ -102,11 +110,15 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
         parsed.pathname = parsed.pathname.replace(/\/+$/, "");
       }
 
+      parsed.pathname = decodeDocIndexPathForDedupe(parsed.pathname);
+      parsed.search = "";
+      parsed.hash = "";
+
       if (schemeRelative) {
-        return `//${parsed.host}${parsed.pathname}${parsed.search}${parsed.hash}`;
+        return `//${parsed.host}${parsed.pathname}`;
       }
 
-      return parsed.toString();
+      return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
     } catch {
       if (trimmed.length > 1 && trimmed.endsWith("/") && !trimmed.includes("?")) {
         return trimmed.replace(/\/+$/, "");
@@ -116,11 +128,38 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
     }
   }
 
-  if (trimmed.length > 1 && trimmed.endsWith("/")) {
-    return trimmed.replace(/\/+$/, "");
+  const pathWithoutHash = trimmed.split("#", 1)[0] ?? trimmed;
+  const pathWithoutQuery = pathWithoutHash.split("?", 1)[0] ?? pathWithoutHash;
+  const decodedPath = decodeDocIndexPathForDedupe(pathWithoutQuery);
+
+  if (decodedPath.length > 1 && decodedPath.endsWith("/")) {
+    return decodedPath.replace(/\/+$/, "");
   }
 
-  return trimmed;
+  return decodedPath;
+}
+
+function docIndexMergeDedupeKey(url: string): string {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    try {
+      const schemeRelative = trimmed.startsWith("//");
+      const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
+
+      if (parsed.pathname.length > 1 && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+      }
+
+      parsed.pathname = decodeDocIndexPathForDedupe(parsed.pathname);
+
+      return `https://${parsed.host}${parsed.pathname}`;
+    } catch {
+      return normalizeDocIndexUrlForDedupe(url);
+    }
+  }
+
+  return normalizeDocIndexUrlForDedupe(url);
 }
 
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
@@ -133,16 +172,16 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
   for (const e of staticRows) {
     seenKeys.add(`${e.category}|${e.title}|${e.url}`);
-    claimedUrls.add(normalizeDocIndexUrlForDedupe(e.url));
+    claimedUrls.add(docIndexMergeDedupeKey(e.url));
   }
 
   const merged: DocIndexEntry[] = [...staticRows];
 
   for (const e of fetched) {
     const k = `${e.category}|${e.title}|${e.url}`;
-    const normalizedUrl = normalizeDocIndexUrlForDedupe(e.url);
+    const mergeDedupeKey = docIndexMergeDedupeKey(e.url);
     const duplicateNormalizedPath =
-      normalizedUrl !== "/help" && claimedUrls.has(normalizedUrl);
+      mergeDedupeKey !== "/help" && claimedUrls.has(mergeDedupeKey);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;
@@ -150,8 +189,8 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
 
     seenKeys.add(k);
 
-    if (normalizedUrl !== "/help") {
-      claimedUrls.add(normalizedUrl);
+    if (mergeDedupeKey !== "/help") {
+      claimedUrls.add(mergeDedupeKey);
     }
 
     merged.push(e);

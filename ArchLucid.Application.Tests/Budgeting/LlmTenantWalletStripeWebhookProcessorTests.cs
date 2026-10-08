@@ -183,6 +183,41 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPaymentIntentEventAsync_forwards_negative_amount_cents_to_wallet_service_on_success()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        Guid tenantId = Guid.NewGuid();
+
+        walletService
+            .Setup(s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_negative_amount",
+                -1.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_negative_amount",
+            tenantId.ToString("D"),
+            amountCents: -100,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_negative_amount",
+                -1.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ProcessPaymentIntentEventAsync_forwards_zero_amount_to_wallet_service_without_crediting()
     {
         Mock<ILlmTenantWalletService> walletService = new();
@@ -215,6 +250,127 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_null_event_type_skips_wallet_credit()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            eventType: null!,
+            "pi_null_event_type",
+            Guid.NewGuid().ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_ignores_unknown_event_type_without_wallet_call()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.canceled",
+            "pi_unknown_event",
+            Guid.NewGuid().ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_payment_failed_does_not_credit_wallet()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.payment_failed",
+            "pi_failed",
+            Guid.NewGuid().ToString("D"),
+            1000,
+            "card_declined",
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_payment_failed_ignores_missing_tenant_metadata_without_wallet_call()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        await sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.payment_failed",
+            "pi_failed_no_tenant",
+            null,
+            1000,
+            "insufficient_funds",
+            Guid.NewGuid());
+
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_whitespace_only_on_success()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        Func<Task> act = () => sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_whitespace_tenant",
+            tenantIdRaw: "   ",
+            1000,
+            null,
+            Guid.NewGuid());
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*tenant_id*");
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

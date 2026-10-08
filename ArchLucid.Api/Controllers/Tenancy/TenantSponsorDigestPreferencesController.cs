@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Contracts.User;
 using ArchLucid.Core.Audit;
@@ -31,10 +32,14 @@ public sealed class TenantSponsorDigestPreferencesController(
     IScopeContextProvider scopeProvider,
     ITenantSponsorDigestPreferencesRepository preferencesRepository,
     IAuditService auditService,
+    IActorContext actorContext,
     ITenantRepository tenantRepository) : ControllerBase
 {
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ITenantSponsorDigestPreferencesRepository _preferencesRepository =
         preferencesRepository ?? throw new ArgumentNullException(nameof(preferencesRepository));
@@ -176,12 +181,15 @@ public sealed class TenantSponsorDigestPreferencesController(
 
         if (!isIdenticalRetry)
         {
+            string actorUserId = _actorContext.GetActorId();
+            string actorUserName = User?.Identity?.Name ?? actorUserId;
+
             await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.SponsorDigestPreferencesUpdated,
-                ActorUserId = User.Identity?.Name ?? "operator",
-                ActorUserName = User.Identity?.Name ?? "operator",
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

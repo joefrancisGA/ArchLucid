@@ -7,7 +7,8 @@ namespace ArchLucid.Persistence.Connections;
 ///     Shared by <c>SqlConnectionHealthCheck</c> and <c>ResilientSqlConnectionFactory</c>.
 /// </summary>
 /// <remarks>
-///     Error numbers: <c>-2</c> = timeout; <c>1205</c> = deadlock victim (safe to retry when the UoW rolled back);
+///     Error numbers: <c>-2</c> = timeout; <c>1204</c> = lock resource pressure; <c>1205</c> = deadlock victim; <c>1222</c> = lock request timeout (safe to retry when the UoW rolled back);
+///     <c>3960</c> / <c>41301</c> / <c>41302</c> = snapshot or memory-optimized update conflicts under RCSI (safe to retry after the UoW rolled back);
 ///     <c>40613</c> / <c>40645</c> = Azure SQL DB unavailable; <c>40197</c> / <c>40501</c> = service / elastic pool capacity pressure;
 ///     <c>49918–49920</c> = Azure throttling; <c>10928</c> / <c>10929</c> = resource throttling;
 ///     <c>233</c> / <c>10053</c> / <c>10054</c> / <c>10060</c> = network-layer connection failures under CI SQL pressure.
@@ -23,8 +24,13 @@ public static class SqlTransientDetector
         if (ex is null)
             return false;
 
+        if (IsSnapshotOrUpdateConflict(ex))
+            return true;
+
         return ex.Number is -2
+            or 1204
             or 1205
+            or 1222
             or 233
             or 40613
             or 40645
@@ -67,4 +73,11 @@ public static class SqlTransientDetector
 
         return false;
     }
+
+    /// <summary>
+    ///     Snapshot isolation / RCSI update conflicts and memory-optimized table snapshot conflicts are retriable
+    ///     when the caller transaction was aborted and the unit of work will be replayed.
+    /// </summary>
+    private static bool IsSnapshotOrUpdateConflict(SqlException ex) =>
+        ex.Number is 3960 or 41301 or 41302;
 }

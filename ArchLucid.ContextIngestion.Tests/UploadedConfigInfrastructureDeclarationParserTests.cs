@@ -78,6 +78,27 @@ public sealed class UploadedConfigInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task Dotenv_export_prefixed_line_strips_export_for_setting_name()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = ".env",
+            Format = "dotenv",
+            DeclarationId = "dotenv-export-1",
+            Content = "export ARCHLUCID_API_BASE_URL=https://api.example.com\n",
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _dotenvParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.SettingName]
+            .Should().Be("ARCHLUCID_API_BASE_URL");
+        objects[0].Name.Should().StartWith("ARCHLUCID_API_BASE_URL:");
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("api.example.com");
+    }
+
+    [Fact]
     public async Task AppSettingsJson_password_key_with_random_string_is_dropped()
     {
         InfrastructureDeclarationReference declaration = new()
