@@ -167,6 +167,23 @@ public sealed class DiagramResourceGroupPackerTests
     }
 
     [Fact]
+    public void Render_vnet_primary_resource_group_frames_match_vnet_hero_stroke()
+    {
+        XElement layer = DiagramForestResourceGroupFrameSvgEmitter.EmitLayer(
+            XNamespace.Get("http://www.w3.org/2000/svg"),
+            [
+                new DiagramResourceGroupPacker.ResourceGroupFrameBounds("rg-app", "rg-app", 0, 0, 100, 100),
+            ],
+            vnetPrimary: true);
+
+        XElement plate = layer.Descendants()
+            .Single(element => string.Equals((string?)element.Attribute("class"), "rg-frame-plate", StringComparison.Ordinal));
+
+        plate.Attribute("stroke")?.Value.Should().Be("#334155");
+        plate.Attribute("stroke-width")?.Value.Should().Be("2.5");
+    }
+
+    [Fact]
     public void Render_places_resource_group_label_inside_frame()
     {
         DiagramAst ast = BuildTripleFixtureAst();

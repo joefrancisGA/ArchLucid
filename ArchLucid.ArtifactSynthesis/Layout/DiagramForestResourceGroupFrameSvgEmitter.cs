@@ -65,8 +65,8 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                 new XAttribute("width", Format(frame.Width)),
                 new XAttribute("height", Format(frame.Height)),
                 new XAttribute("fill", DiagramForestResourceGroupFrameStyle.Fill),
-                new XAttribute("stroke", vnetPrimary ? "#cbd5e1" : DiagramForestResourceGroupFrameStyle.Stroke),
-                new XAttribute("stroke-width", Format(vnetPrimary ? 1.0d : DiagramForestResourceGroupFrameStyle.StrokeWidth)),
+                new XAttribute("stroke", vnetPrimary ? "#334155" : DiagramForestResourceGroupFrameStyle.Stroke),
+                new XAttribute("stroke-width", Format(vnetPrimary ? 2.5d : DiagramForestResourceGroupFrameStyle.StrokeWidth)),
                 new XAttribute("rx", Format(DiagramForestResourceGroupFrameStyle.CornerRadius)),
                 new XAttribute("pointer-events", "none")),
             new XElement(
