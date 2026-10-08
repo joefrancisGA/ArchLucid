@@ -4688,7 +4688,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 46 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 47 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 94 scoped SignupForm vitest tests passed.
 
@@ -4786,9 +4788,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4801,6 +4803,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2089 (seed-only): reseeded ui-form-validation; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `buildSignupRegisterPayload` — `organizationName`, `adminEmail`, and `adminDisplayName` are copied without trimming when the builder is called with resolver-bypassing values — locus: initial payload object around lines 43–48; input: values supplied by a non-UI caller or a form adapter that bypasses the zod resolver.
+- [ ] (candidate) `SignupForm` success handling — a successful registration with no `companySize` leaves an older `archlucid_signup_company_size` session value intact — locus: conditional session-storage write around lines 170–177; input: operator registers once with a company-size selection, then registers again after choosing “Prefer not to say” in the same browser session.
+- [ ] (candidate) `SignupForm` success handling — a second successful registration overwrites `archlucid_last_registration` without preserving the prior tenant context — locus: unconditional session-storage write around lines 178–188; input: an operator completes registration twice after a recoverable navigation/session transition.
+- [ ] (candidate) `SignupForm` `onSubmit` — a `Response` whose `text()` rejects after an otherwise successful HTTP status reaches the generic error toast and leaves the completed registration state ambiguous — locus: `await res.text()` before the status branch around lines 143–149; input: same-origin proxy response body stream failure after registration has committed.
+- [ ] (candidate) `SignupForm` `onSubmit` — the error fallback can expose raw HTML or infrastructure text from a non-OK proxy response in a toast — locus: `text || \`Request failed...\`` fallback around lines 157–164; input: reachable proxy/API 502 response with an HTML or diagnostic body and no string `detail`.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
