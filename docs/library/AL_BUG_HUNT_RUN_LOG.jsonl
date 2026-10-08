@@ -8897,3 +8897,4 @@
 {"at":"2026-10-08T15:37:53.7021642Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
 {"at":"2026-10-08T15:44:09.1719746Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
 {"at":"2026-10-08T15:47:14.7261762Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
+{"at":"2026-10-08T15:52:54.6058852Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Safety/,ArchLucid.Core/Http/)"]}
