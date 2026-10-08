@@ -45,6 +45,11 @@ jobs:
       - name: Validate private-beta readiness contracts
         run: python3 scripts/ci/check_private_beta_readiness.py
 
+      - name: Validate private-beta access and provisioning coverage
+        run: |
+          python3 scripts/ci/check_private_beta_access_coverage.py
+          python3 scripts/ci/check_private_beta_openapi_provisioning_routes.py
+
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
