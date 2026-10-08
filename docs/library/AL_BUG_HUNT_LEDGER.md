@@ -9384,7 +9384,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 39 · **Bugs found:** 2 · **Consecutive dry hunts:** 12
+**Hunts:** 40 · **Bugs found:** 2 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -9401,6 +9401,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `DefaultApplyOrderRoots` — forward-slash root paths may fail exact platform-native path comparisons on a Windows consumer — locus: hardcoded `infra/...` strings ~12–31; input: consumer compares `Path.GetFullPath` output to the evidence entries without normalization.
 - [ ] (candidate) annotated roots — Unicode em-dash metadata separators may not be stripped by a parser that accepts only ASCII hyphen delimiters — locus: composition and legacy suffixes in the returned strings; input: external leaf extractor parsing the reference list.
 - [ ] (candidate) `DefaultApplyOrderRoots` — returning executable paths and metadata prose as one string type forces downstream consumers to parse applyability heuristically — locus: mixed annotated/unannotated list entries ~12–31; input: new consumer treats every returned entry as an Azure-apply root.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a classifier that recognizes only the `metadata composition root` and `no Azure apply` annotation phrases can treat the differently annotated orchestrator entry as executable — locus: annotated entries at lines ~12–31; input: consumer classifies root lines by annotation vocabulary before presenting apply candidates.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the documentation citation is rendered as an inline code span rather than a Markdown link, so a consumer that extracts links cannot discover the authoritative stack-order document — locus: Terraform-section citation around `DocumentationRelativePath`; input: generated deployment-evidence Markdown processed by a link-based documentation indexer.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the twenty-line evidence list can be compared directly with the sixteen-leaf reference table, producing a false drift report when metadata-only composition and pilot rows are included — locus: full `DefaultApplyOrderRoots()` enumeration; input: auditor or automation compares rendered entry count with advanced-table leaf count without removing annotations.
+- [ ] (candidate) `DefaultApplyOrderRoots` — wave labels describe only ordinal composition phases and do not encode dependencies between roots, so a consumer may parallelize roots that require ordered execution — locus: `wave 1`, `wave 2`, and `wave 3` annotation suffixes; input: deployment planner derives concurrency solely from the returned metadata labels.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a round-trip serializer that preserves only exact unannotated `infra/...` lines can silently discard the composition, orchestrator, and pilot semantics carried in annotation suffixes — locus: mixed annotated/plain entries across the returned list; input: evidence export/import path that normalizes entries to filesystem paths before re-emitting them.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
 
