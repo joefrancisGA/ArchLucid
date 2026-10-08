@@ -14,7 +14,7 @@ The AI system that reads your security evidence is itself a high-value target. G
 - Least privilege: read-only collection identity, no write roles, managed identity over keys.
 - Private endpoints for the model endpoint and evidence storage; deny public access.
 - Tenant and data isolation if multiple business units or customers share the tooling.
-- Log prompts and outputs for audit; avoid logging secrets.
+- Audit model use with correlation IDs, model/version metadata, and redacted payloads by default. If full prompts or outputs must be retained, encrypt them, restrict access, set short retention limits, and exclude secrets, PII, and sensitive tenant data.
 - Cost: token budgets, caching explanations per snapshot, cheaper models for triage.
 - Everything deployed with Terraform.
 
