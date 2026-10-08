@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -5777,7 +5779,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 57 · **Bugs found:** 9 · **Consecutive dry hunts:** 10
+**Hunts:** 58 · **Bugs found:** 9 · **Consecutive dry hunts:** 11
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — an action that throws cancellation after a transient failure may be classified as retryable before the caller token is observed — locus: shared Polly predicate and callback token boundary; input: first attempt raises transient SQL, retry attempt raises `TaskCanceledException` with an unrelated token.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync<T>` — generic result execution may differ from the void overload when the result task completes after the retry token is canceled — locus: generic callback expression ~29; input: `Task<string>` action completing during cancellation between retry attempts.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — elapsed time exactly equal to `RetryBudget` exhausts even when the attempt count is below the ceiling, which may discard a final allowed retry — locus: `elapsed >= RetryBudget`; input: commit loop clock at exactly 20 seconds with attempt 11.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — the final allowed attempt delay can consume a disproportionate part of the 20-second budget — locus: linear `150 * attempt`; input: commit retry attempt 12 after prior delays and reconciliation polls.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll zero returns no delay and can create a tight reconciliation loop — locus: linear `150 * poll`; input: first conflict poll with `poll == 0` while the manifest remains unavailable.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application).
 
@@ -5853,9 +5863,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
