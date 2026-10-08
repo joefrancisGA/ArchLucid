@@ -87,6 +87,85 @@ namespace N
     }
 
     [Fact]
+    public async Task Reports_type_level_AL0001_for_standalone_abstract_controller_with_unauthorized_action()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public abstract class StandaloneAbstractController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(39, 27, 39, 55)
+            .WithArguments("StandaloneAbstractController");
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_treat_unrelated_ControllerBase_type_in_another_namespace_as_mvc_controller_base()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace Evil
+{
+    public class ControllerBase
+    {
+    }
+
+    public sealed class EvilController : ControllerBase
+    {
+        public void Mutate() { }
+    }
+}
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class GoodController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(55, 30, 55, 33)
+            .WithArguments("GoodController.Get()");
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_inherited_unauthorized_action_when_derived_declares_only_public_NonAction_helper()
     {
         const string testCode = AspNetCoreStubs +
@@ -110,6 +189,10 @@ namespace N
 }
 """;
 
+        DiagnosticResult expectedOnAbstract = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+            .WithSpan(39, 27, 39, 61)
+            .WithArguments("SharedUnauthenticatedGetController");
+
         DiagnosticResult expectedOnDerived = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
             .WithSpan(45, 25, 45, 65)
             .WithArguments("SharedUnauthenticatedGetController.InheritedGet()");
@@ -117,7 +200,7 @@ namespace N
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
         {
             TestCode = testCode,
-            ExpectedDiagnostics = { expectedOnDerived },
+            ExpectedDiagnostics = { expectedOnAbstract, expectedOnDerived },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { ProductAssemblyNameTransform }
         };

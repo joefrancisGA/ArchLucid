@@ -89,6 +89,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         bool reportedAnyMethod = false;
         bool hasAnyDeclaredPublicMethods = false;
         bool hasDeclaredQualifyingApiActions = false;
+        bool hasUnauthorizedDeclaredApiActions = false;
 
         foreach (ISymbol member in symbol.GetMembers())
         {
@@ -141,7 +142,10 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 continue;
 
             if (symbol.IsAbstract)
+            {
+                hasUnauthorizedDeclaredApiActions = true;
                 continue;
+            }
 
             context.ReportDiagnostic(
                 Al0001Descriptor.Create(location, method.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
@@ -195,10 +199,25 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             }
         }
 
-        if (reportedAnyMethod || foundPublicApiAction)
+        if (reportedAnyMethod)
+            return;
+
+        if (foundPublicApiAction && !symbol.IsAbstract)
             return;
 
         if (!hasAnyDeclaredPublicMethods)
+        {
+            Location? typeLocation = symbol.Locations.FirstOrDefault();
+
+            if (typeLocation is null)
+                return;
+
+            context.ReportDiagnostic(
+                Al0001Descriptor.Create(typeLocation, symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+            return;
+        }
+
+        if (symbol.IsAbstract && hasUnauthorizedDeclaredApiActions)
         {
             Location? typeLocation = symbol.Locations.FirstOrDefault();
 
