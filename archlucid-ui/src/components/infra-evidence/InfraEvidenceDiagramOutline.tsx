@@ -471,15 +471,17 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       stateByNodeId.set(node.id, node.connectionState);
     }
 
-    for (const node of allConnectedNodes) {
-      if (stateByNodeId.get(node.id) == null) {
-        stateByNodeId.set(node.id, "Connected");
-      }
-    }
-
     for (const node of allUnconnectedNodes) {
       if (stateByNodeId.get(node.id) == null) {
         stateByNodeId.set(node.id, "Unknown");
+      }
+    }
+
+    for (const node of allConnectedNodes) {
+      if (node.connectionState === null) {
+        stateByNodeId.set(node.id, "Unknown");
+      } else if (node.connectionState === undefined) {
+        stateByNodeId.set(node.id, "Connected");
       }
     }
 

@@ -71,7 +71,7 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
   const trustFields = findingTrustExportJsonFields(input);
   const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
   const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
-    classification: input.classification ?? "DecisionGradeFinding",
+    classification: input.classification ?? null,
     semanticSupportBand: input.semanticSupportBand ?? null,
     semanticSupportBandScorerVersion: input.semanticSupportBandScorerVersion ?? null,
   });

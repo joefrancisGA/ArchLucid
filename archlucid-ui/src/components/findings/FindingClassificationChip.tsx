@@ -37,7 +37,14 @@ export function FindingClassificationChip(props: FindingClassificationChipProps)
   const label = resolveFindingClassificationLabel(props.classification, props.treatment);
 
   if (label === null) {
-    return null;
+    return (
+      <span
+        className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        data-testid={`finding-classification-chip-wrap-${props.findingId}`}
+      >
+        Classification was not stored
+      </span>
+    );
   }
 
   const showReason = props.showReason === true;

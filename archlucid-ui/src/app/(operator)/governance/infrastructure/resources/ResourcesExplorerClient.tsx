@@ -671,10 +671,14 @@ export function ResourcesExplorerClient() {
               <EnterpriseTableCell data-testid={`infra-resource-type-${row.cloudResourceId}`}>
                 {formatAzureResourceTypeForDisplay(row.resourceType)}
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.resourceGroup ?? "—"}</EnterpriseTableCell>
-              <EnterpriseTableCell>{row.region ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell>
+                {row.resourceGroup?.trim() || "Resource group was not stored"}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>{row.region?.trim() || "Region was not stored"}</EnterpriseTableCell>
               <EnterpriseTableCell data-testid={`infra-resource-last-seen-${row.cloudResourceId}`}>
-                {row.lastSeenUtc.length > 0 ? formatInstantCompactMilitary(row.lastSeenUtc) : "—"}
+                {row.lastSeenUtc.trim().length > 0
+                  ? formatInstantCompactMilitary(row.lastSeenUtc)
+                  : "Last seen was not stored"}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <div className="flex flex-wrap gap-2">
