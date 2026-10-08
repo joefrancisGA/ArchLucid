@@ -103,6 +103,26 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunAsync_missing_api_base_url_flag_value_returns_usage_error()
+    {
+        StringWriter capturedOut = new();
+        TextWriter prevOut = Console.Out;
+
+        try
+        {
+            Console.SetOut(capturedOut);
+            int exit = await DraftNewCommand.RunAsync(["--api-base-url"]);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            capturedOut.ToString().Should().Contain("Missing value for --api-base-url");
+        }
+        finally
+        {
+            Console.SetOut(prevOut);
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_short_intent_text_returns_usage_error()
     {
         DraftNewCommandOptions options = new() { IntentText = "short" };
@@ -132,6 +152,52 @@ public sealed class DraftNewCommandCoreTests
         connectCalled.Should().BeTrue("connect runs before intent length validation in connect stage");
         clientCreated.Should().BeFalse();
         error.ToString().Should().Contain("at least 100 characters after trim");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = "short",
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            bool connectCalled = false;
+            DraftNewCommandHooks hooks = new()
+            {
+                ConnectAsync = (_, _) =>
+                {
+                    connectCalled = true;
+
+                    return Task.FromResult(ApiConnectionOutcome.Connected);
+                },
+                CreateApiClient = (_, _) => CreateDraftFlowClient(),
+            };
+
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.UsageError);
+            connectCalled.Should().BeTrue();
+            error.ToString().Should().Contain("at least 100 characters after trim");
+            output.ToString().Should().NotContain("\"ok\":true");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
     }
 
     [Fact]
@@ -1901,6 +1967,43 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope()
+    {
+        using CancellationTokenSource cancellation = new();
+        SubmitDelayedCancellationHandler flowHandler = new();
+
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(flowHandler);
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        Task<int> runTask = DraftNewCommand.RunCoreAsync(
+            options,
+            hooks,
+            output,
+            error,
+            cancellation.Token);
+
+        SpinWait.SpinUntil(() => flowHandler.SubmitEntered, TimeSpan.FromSeconds(5));
+        cancellation.Cancel();
+
+        int exit = await runTask;
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("Request timed out");
+        output.ToString().Should().NotContain("\"ok\":true");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_must_question_read_line_cancellation_propagates_operation_canceled()
     {
         using CancellationTokenSource cancellation = new();
@@ -2115,6 +2218,30 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_create_failure_stderr_only_without_json_envelope()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new CreateDraftFailureHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("Error creating draft");
+        output.ToString().Should().NotContain("\"ok\":true");
+    }
+
+    [Fact]
     public async Task RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true()
     {
         bool previousJson = CliExecutionContext.JsonOutput;
@@ -2189,6 +2316,26 @@ public sealed class DraftNewCommandCoreTests
             }
 
             return null;
+        }
+    }
+
+    private sealed class SubmitDelayedCancellationHandler : DraftFlowHandler
+    {
+        public volatile bool SubmitEntered;
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            string path = request.RequestUri!.AbsolutePath.TrimEnd('/');
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
+            {
+                SubmitEntered = true;
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            }
+
+            return await base.SendAsync(request, cancellationToken);
         }
     }
 

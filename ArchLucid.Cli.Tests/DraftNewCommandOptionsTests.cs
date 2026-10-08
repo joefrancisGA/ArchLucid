@@ -47,6 +47,15 @@ public sealed class DraftNewCommandOptionsTests
     }
 
     [Fact]
+    public void Parse_missing_api_base_url_value_returns_null()
+    {
+        DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(["--api-base-url"], out string? error);
+
+        options.Should().BeNull();
+        error.Should().Contain("--api-base-url");
+    }
+
+    [Fact]
     public void Parse_unknown_flag_returns_null()
     {
         DraftNewCommandOptions? options = DraftNewCommandOptions.Parse(["--bogus"], out string? error);

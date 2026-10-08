@@ -286,6 +286,8 @@
 
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (idle OTP sessionStorage vs desk restore; bootstrap complete returnUrl ordering; verify POST stale scope; workspace select returnUrl encoding; marketing `/runs` host-gate before demo alias); seeded five follow-on `(candidate)` rows; regressions in `idle-desk-restore.test.ts`, `email-otp-post-auth.test.ts`, `email-otp-api.test.ts`, `post-auth-bootstrap-api.test.ts`, and `host-gate.test.ts`; scoped auth/proxy vitest 261 passed with 3 unrelated baseline seam failures.
 
+2026-10-08 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error`, `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`, `RunCoreAsync_create_failure_stderr_only_without_json_envelope`, `Parse_missing_api_base_url_value_returns_null`, and `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`; 75 scoped draft-new CLI tests passed (`DraftNewCommandCoreTests` + `DraftNewCommandOptionsTests`).
+
 2026-10-07 seed hunt (seed-only): `core-authority-runs` — cheap-disproof closed five open `(candidate)` rows (negative schemaVersion; quality-reject vs dead-letter both `Failed`; `+5` ordinal parse; orphan golden manifest on `WaitingForResults`; lowercase `pipelinedeadletter`); seeded five follow-on `(candidate)` rows; regressions in `RunAuthorityPipelineDeadLetterDetectionTests`, `ArchitectureRunStatusTransitionTableCoercionTests`, and `AuthorityRunLifecyclePhaseListResolverTests`; 53 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle`, `RunAnalyzers=false`).
 
 2026-10-07 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows (verify 5xx→`delivery_failed` shared mapper; `too_many_attempts` forward-compat only; resend cooldown UX vs server 429; Turnstile challenge on pre-auth anonymous proxy without BFF CSRF; livelihood replay CSRF peek/consume gap); seeded five follow-on `(candidate)` rows; regressions in `email-otp-api.test.ts` and `email-otp-resend.test.ts`; scoped auth/proxy vitest 247 passed with 3 unrelated baseline seam failures.
@@ -8724,7 +8726,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
-**Hunts:** 47 · **Bugs found:** 17 · **Consecutive dry hunts:** 10
+**Hunts:** 48 · **Bugs found:** 17 · **Consecutive dry hunts:** 10
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error`, `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`, `RunCoreAsync_create_failure_stderr_only_without_json_envelope`, `Parse_missing_api_base_url_value_returns_null`, and `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`; 75 scoped draft-new CLI tests passed.
+
+- [x] (valid-no-repro) `DraftNewCommandArgParser.Parse` — rejects `--api-base-url` without following value — **cheap-disproof 2026-10-08 seed hunt #48:** argv parse guard; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error` and `Parse_missing_api_base_url_value_returns_null`.
+- [x] (valid-no-repro) `DraftNewCommandConnectStage` — JSON mode short intent fails usage after connect without `ok:true` — **cheap-disproof 2026-10-08 seed hunt #48:** connect runs before intent length gate; regression `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`.
+- [x] (valid-no-repro) `DraftNewCommandAdmitStage` — `CreateDraftAsync` HTTP failure stderr-only in non-JSON mode — **cheap-disproof 2026-10-08 seed hunt #48:** parity JSON create failure path; regression `RunCoreAsync_create_failure_stderr_only_without_json_envelope`.
+- [x] (invalid) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` API failure stderr-only in JSON mode — **cheap-disproof 2026-10-08 seed hunt #48:** JSON mode with pending MUST exits via `must_questions_pending` before answer API (`RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`); interactive answer failures remain non-JSON only.
+- [x] (valid-no-repro) `DraftNewCommandIntakeLoop` — cooperative cancel during `SubmitDraftAsync` propagates `OperationCanceledException` — **cheap-disproof 2026-10-08 seed hunt #48:** `ArchLucidApiClient.SubmitDraftAsync` maps `TaskCanceledException` to fail-closed `OperationFailed` stderr (`Request timed out`); regression `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — cooperative cancel during `ExecuteRunAsync` may surface `OperationCanceledException` instead of `execute_failed` JSON — locus: ~101–117; input: cancel token while execute HTTP call is in flight with `--json`.
+- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `SkipDraftQuestionAsync` HTTP failure stderr-only in non-JSON mode when `--skip-must-questions` — locus: skip path ~60–65; input: parity with `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`.
+- [ ] (candidate) `DraftNewCommandConnectStage` — `ConnectAsync` `TaskCanceledException` during connect maps to connection failure exit without JSON envelope — locus: connect await; input: cancelled token mid-connect with global `--json`.
+- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — whitespace-only `--text` that trims below minimum length fails in connect stage without `CliJson.WriteFailureLine` — locus: connect intent length vs JSON preflight; input: `--json` with `--text` of 100+ spaces only.
+- [ ] (candidate) `DraftNewCommandAdmitStage` — `AdmitDraftAsync` transport failure stderr-only in non-JSON mode — locus: admit error path; input: parity with `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true` without JSON flag.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunCoreAsync_short_intent_text_returns_usage_error`, `Options_parse_duplicate_text_flag_uses_last_value`, `RunAsync_missing_system_name_flag_value_returns_usage_error`, and `RunAsync_missing_business_outcome_flag_value_returns_usage_error`; 65 scoped `DraftNewCommandCoreTests` passed.
 
@@ -8733,12 +8749,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DraftNewCommandAdmitStage` — admit transport failure stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #47:** HTTP admit failure stderr-only; regression `RunCoreAsync_json_output_admit_transport_failure_stderr_only_without_ok_true`.
 - [x] (valid-no-repro) `DraftNewCommandMustQuestionLoop` — skip MUST question API failure stderr-only in JSON mode — **cheap-disproof 2026-10-07 seed hunt #47:** skip endpoint failure parity; regression `RunCoreAsync_json_output_skip_must_question_failure_stderr_only_without_ok_true`.
 - [x] (valid-no-repro) `DraftNewCommandArgParser.Parse` — duplicate `--text` uses last value — **cheap-disproof 2026-10-07 seed hunt #47:** last-wins by design; regression `Options_parse_duplicate_text_flag_uses_last_value` (delegates to `DraftNewCommandArgParser`).
-
-- [ ] (candidate) `DraftNewCommandArgParser.Parse` — rejects `--api-base-url` without following value — locus: `DraftNewCommandArgParser` ~63–69; input: argv `--api-base-url` trailing flag `RunAsync` test.
-- [ ] (candidate) `DraftNewCommandConnectStage` — JSON mode short intent fails usage after connect without `ok:true` — locus: intent length ~40–45 under `CliExecutionContext.JsonOutput`; input: `--json` with `<100` char `--text` plus required metadata flags.
-- [ ] (candidate) `DraftNewCommandAdmitStage` — `CreateDraftAsync` HTTP failure stderr-only in non-JSON mode — locus: create error ~31–36; input: parity with `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true` without JSON envelope.
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — `AnswerDraftQuestionAsync` API failure stderr-only in JSON mode — locus: answer path when interactive MUST disabled; input: HTTP 500 on answer endpoint with `--json`.
-- [ ] (candidate) `DraftNewCommandIntakeLoop` — cooperative cancel during `SubmitDraftAsync` propagates `OperationCanceledException` — locus: submit await; input: cancelled token before submit returns.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_text_flag_value_returns_usage_error` and connect/client guards on JSON system-name + connection failure tests; 62 scoped `DraftNewCommandCoreTests` passed.
 
@@ -8827,10 +8837,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 41
+- **hunts:** 48
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 4
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 10
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-06 — `PromptRequiredAsync` infinite loop on stdin EOF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
