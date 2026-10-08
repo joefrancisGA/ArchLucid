@@ -7,6 +7,21 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
   const componentLabel = componentCount === 1 ? "component" : "components";
+  const sourceCounts = [
+    { source: "observed", count: outline.edges.filter((edge) => edge.source === "observed").length },
+    { source: "declared", count: outline.edges.filter((edge) => edge.source === "declared").length },
+    { source: "probable", count: outline.edges.filter((edge) => edge.source === "probable").length },
+    { source: "inferred", count: outline.edges.filter((edge) => edge.source === "inferred").length },
+  ].filter((entry) => entry.count > 0);
+  const relationshipSourceSummary = sourceCounts
+    .map((entry) => `${entry.count} ${entry.source}`)
+    .join(", ");
+  const notObservedSentence = sourceCounts.some((entry) => entry.source !== "observed")
+    ? " Relationships that are not observed are not inventory links."
+    : "";
+  const relationshipSummary = relationshipSourceSummary.length > 0
+    ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
+    : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentCount} connected ${componentLabel}. ${edgeCount} visible relationships.`;
+  return `${nodeCount} resources in ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
 }

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -332,6 +332,19 @@ describe("DiagramsWorkbenchClient", () => {
     expect(modePicker).toBeDisabled();
   });
 
+  it("describes the full subscription mode as backbone resources while preserving its value", async () => {
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
+
+    expect(within(modePicker).getByRole("option", {
+      name: "Full subscription — backbone resources; attachments may be hidden",
+    })).toHaveValue("full");
+  });
+
   it("does not auto-select a snapshot or render the Executive diagram until the user chooses one", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
@@ -488,6 +501,9 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-export-mmd")).toHaveTextContent(/^Export Mermaid$/);
+    expect(screen.getByText(
+      "An unchecked option leaves those resources or links out of this drawing. They can still be in the snapshot.",
+    )).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-export-advisory-status")).not.toBeInTheDocument();
     expect(screen.queryByText("Advisory export")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(

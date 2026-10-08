@@ -31,8 +31,8 @@ describe("security-evidence-path-presentation", () => {
 
   it("uses an explicit absence label when a relationship is not stored", () => {
     expect(formatSecurityEvidencePathRelationshipLabel("RoleAssignment")).toBe("RoleAssignment");
-    expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("No stored link");
-    expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("No stored link");
+    expect(formatSecurityEvidencePathRelationshipLabel("")).toBe("Relationship type was not stored");
+    expect(formatSecurityEvidencePathRelationshipLabel(null)).toBe("Relationship type was not stored");
   });
 
   it("leads hop labels with the trailing resource name", () => {

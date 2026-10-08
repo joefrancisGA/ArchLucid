@@ -36,6 +36,7 @@ describe("InfraEvidenceDiagramLegend", () => {
             },
           ],
         }}
+        layoutSvg='<svg><g class="private-endpoint-access"/></svg>'
       />,
     );
 
@@ -60,6 +61,7 @@ describe("InfraEvidenceDiagramLegend", () => {
             },
           ],
         }}
+        layoutSvg='<svg><g class="private-endpoint-access"/></svg>'
       />,
     );
 
@@ -83,6 +85,29 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
+  });
+
+  it("omits private endpoint when the layout has no access class", () => {
+    render(
+      <InfraEvidenceDiagramLegend
+        outline={{
+          nodes: [],
+          edges: [{
+            from: "a",
+            to: "b",
+            label: "declared",
+            source: "declared",
+            confidenceBand: "declared",
+            provenanceKind: null,
+            inferenceSource: null,
+            declaredConnectionId: null,
+          }],
+        }}
+        layoutSvg="<svg />"
+      />,
+    );
+
+    expect(screen.queryByTestId("infra-evidence-diagram-legend-private-endpoint")).not.toBeInTheDocument();
   });
 
   it("shows probable legend row when outline contains derived authorization edges", () => {
@@ -183,6 +208,7 @@ describe("InfraEvidenceDiagramLegend", () => {
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED)).toBeInTheDocument();
     expect(screen.getByTestId("infra-evidence-diagram-legend-resource-category")).toBeInTheDocument();
+    expect(screen.getByText("Dotted hostname edges are inferred. They are not observed connections.")).toBeInTheDocument();
   });
 
   it("lists one row when the same accent fill is repeated", () => {

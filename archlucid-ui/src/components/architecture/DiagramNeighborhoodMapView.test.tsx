@@ -44,6 +44,9 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText("app-vnet")).toBeInTheDocument();
     expect(screen.getByText("app-vnet")).not.toHaveAttribute("title");
     expect(screen.getByText("4 resources")).toBeInTheDocument();
+    expect(screen.getByText(
+      "These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.",
+    )).toBeInTheDocument();
     expect(screen.getByText("security — 1 — app-vnet")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app"));
@@ -59,5 +62,30 @@ describe("DiagramNeighborhoodMapView", () => {
     render(<DiagramNeighborhoodMapView map={{ ...map, links }} onOpenNeighborhood={vi.fn()} />);
 
     expect(screen.getByText("+ 1 more links")).toBeInTheDocument();
+  });
+
+  it("distinguishes missing counts from stored zero", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{
+            ...map.neighborhoods[0],
+            resourceCount: null,
+            types: [{ name: "virtualMachines", count: null }],
+          }, {
+            ...map.neighborhoods[1],
+            resourceCount: 0,
+            types: [{ name: "virtualMachines", count: 0 }],
+          }],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Resource count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("virtualMachines count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("0 resources")).toBeInTheDocument();
+    expect(screen.getByText("virtualMachines 0")).toBeInTheDocument();
   });
 });

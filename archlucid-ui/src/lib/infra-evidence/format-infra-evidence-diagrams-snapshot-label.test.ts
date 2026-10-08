@@ -36,4 +36,10 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
       "Contoso Production · 9/10/2026, 08:45 CDT",
     );
   });
+
+  it("states when capture time was not stored", () => {
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ capturedUtc: null }))).toContain(
+      "Captured time was not stored",
+    );
+  });
 });

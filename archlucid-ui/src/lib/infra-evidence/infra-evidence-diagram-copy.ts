@@ -12,7 +12,7 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
-  "Likely connected to edges may require Tier 1 -IncludeAppSettingsHosts or other ARM sources.";
+  "Dotted hostname edges are inferred. They are not observed connections.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY = "Resource category";
 
