@@ -9470,9 +9470,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -9481,6 +9481,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected the DOCX, inventory, icon-catalog, and Mermaid artifact paths; the exact picker filter ran 639 tests with 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped, while focused DOCX (11/11) and inventory-generator (5/5) tests passed; no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — locus: collection expression entries ~12–31; input: report/export consumer applies ordinal string sorting to the returned list.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — locus: `AppendLine` sequence around the Terraform section; input: downstream Markdown normalization that collapses section whitespace.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — locus: mixed annotated and plain entries ~12–31; input: leaf counter scans rendered evidence without annotation-aware extraction.
+- [ ] (candidate) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — locus: constant declaration ~6; input: report generation with `repositoryRoot` unavailable and a path validator requiring an on-disk file.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — locus: composition roots preceding `infra/terraform-private`; input: planner derives wave boundaries from raw list positions instead of annotations.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
 
