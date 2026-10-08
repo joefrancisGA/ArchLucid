@@ -25,6 +25,7 @@ def _as_non_negative_number(value: Any) -> float | None:
 
 def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
     issues: list[str] = []
+    warnings: list[str] = []
     normalized: list[dict[str, Any]] = []
 
     for index, observation in enumerate(observations):
@@ -40,6 +41,18 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
         if status == 429 and retry_after is None:
             issues.append(f"observation {index}: 429 response is missing Retry-After")
 
+        classification = "not-rate-limited"
+
+        if status == 429:
+            classification = "retry-after"
+
+            if retry_after is not None and retry_after >= 300:
+                classification = "long-retry-after"
+                warnings.append(
+                    f"observation {index}: Retry-After is {retry_after:g} seconds; "
+                    "classify as infrastructure throttling, not a retry-budget exhaustion"
+                )
+
         if budget_limit is not None and budget_remaining is not None:
 
             if budget_remaining > budget_limit:
@@ -47,6 +60,7 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
 
             if budget_remaining == 0:
                 issues.append(f"observation {index}: retry budget is exhausted")
+                classification = "retry-budget-exhausted"
 
         normalized.append(
             {
@@ -55,6 +69,7 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
                 "retryAfterSeconds": retry_after,
                 "retryBudgetRemaining": budget_remaining,
                 "retryBudgetLimit": budget_limit,
+                "classification": classification,
             }
         )
 
@@ -64,6 +79,7 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
         "rateLimitedCount": sum(1 for item in normalized if item["status"] == 429),
         "disposition": "PASS" if not issues else "HOLD",
         "issues": issues,
+        "warnings": warnings,
         "observations": normalized,
     }
 

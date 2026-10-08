@@ -18,6 +18,10 @@ REQUIRED_ROUTES: dict[str, tuple[str, ...]] = {
     "/scim/v2/Users": ("get", "post"),
     "/scim/v2/Users/{id}": ("delete", "get", "patch", "put"),
 }
+GENERATED_PATH_FILES = (
+    "archlucid-ui/src/lib/api-types/paths.generated.ts",
+    "archlucid-ui/packages/api-types/src/api-types/paths.generated.ts",
+)
 
 
 def _load_snapshot(path: Path) -> dict[str, Any]:
@@ -52,6 +56,25 @@ def collect_violations(payload: dict[str, Any]) -> list[str]:
     return violations
 
 
+def collect_generated_client_violations(root: Path) -> list[str]:
+    violations: list[str] = []
+
+    for relative_path in GENERATED_PATH_FILES:
+        path = root / relative_path
+
+        if not path.is_file():
+            violations.append(f"missing generated API paths file: {relative_path}")
+            continue
+
+        text = path.read_text(encoding="utf-8", errors="replace")
+        missing_routes = [route for route in REQUIRED_ROUTES if f'"{route}"' not in text]
+
+        if missing_routes:
+            violations.append(f"{relative_path} is missing generated routes: {', '.join(missing_routes)}")
+
+    return violations
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -63,6 +86,7 @@ def main() -> int:
 
     try:
         violations = collect_violations(_load_snapshot(args.snapshot.resolve()))
+        violations.extend(collect_generated_client_violations(REPO_ROOT))
     except (OSError, json.JSONDecodeError, ValueError) as error:
         parser.error(str(error))
 

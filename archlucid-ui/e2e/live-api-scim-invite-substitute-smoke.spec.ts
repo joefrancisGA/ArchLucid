@@ -19,6 +19,12 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await requireLiveScimAdminPreflight(request);
   });
 
+  test("unauthenticated SCIM provisioning request is rejected", async ({ request }) => {
+    const response = await request.get(`${liveApiBase}/scim/v2/Users`);
+
+    expect([401, 403]).toContain(response.status());
+  });
+
   test("SCIM provisioning page loads vocabulary rail linking to Identity providers", async ({ page }) => {
     test.setTimeout(120_000);
 

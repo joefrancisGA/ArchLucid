@@ -16,6 +16,9 @@ SCENARIO_MARKERS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "/auth/session-expired",
             "forged",
             "deep-link round-trip",
+            'appRole: "Operator"',
+            'appRole: "Reader"',
+            'appRole: "Auditor"',
         ),
     ),
     (
@@ -39,6 +42,7 @@ SCENARIO_MARKERS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "archlucid-ui/e2e/live-api-scim-invite-substitute-smoke.spec.ts",
         (
             "issue, list, and revoke",
+            "unauthenticated SCIM provisioning request",
             "scim-provisioning-settings-page",
             "scim-mutation-success-callout",
         ),

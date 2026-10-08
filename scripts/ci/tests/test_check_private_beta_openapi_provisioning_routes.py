@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -32,6 +33,18 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
 
         self.assertTrue(any("missing provisioning route" in violation for violation in violations))
         self.assertTrue(any("/scim/v2/Users is missing methods" in violation for violation in violations))
+
+    def test_generated_client_route_drift_is_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative_path in sut.GENERATED_PATH_FILES:
+                path = root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('"/v1/admin/users/invite"', encoding="utf-8")
+
+            violations = sut.collect_generated_client_violations(root)
+
+        self.assertTrue(any("missing generated routes" in violation for violation in violations))
 
 
 if __name__ == "__main__":
