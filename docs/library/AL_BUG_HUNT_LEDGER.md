@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `artifact-synthesis` — no hunt-ready hypothesis survived source review; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests; seeded three reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -28942,8 +28944,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 36
-- **last-hunt:** 2026-10-06
+- **hunts:** 37
+- **last-hunt:** 2026-10-08
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-06 — deterministic Mermaid repair dropped NSG inbound rule chips before forest layout
@@ -29062,6 +29064,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
 2026-09-04 thorough hunt #732 (hit): proved DOCX assumptions/constraints parity and posture-string sanitization; cheap-disproved mermaid typed-topology candidate.
+
+### Fresh candidates — 2026-10-08 seed hunt
+
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators in the exported DOCX; reachable from the committed manifest cost section passed to `ExportAsync`, but no deterministic-culture contract or failing export repro was established in this seed hunt.
+- [ ] (candidate) `InventoryDiagramExternalTargetApplier.ApplyConnectedPeerings` — a connected ARM VNet peering whose target has an AST node but no captured graph node can relabel that node as external and `continue` before adding the peering edge; reachable from `remoteVirtualNetwork.id` in Azure inventory peering JSON, but the required AST/graph mismatch was not produced by the current compiler path.
+- [ ] (candidate) `InventoryDiagramExternalTargetApplier.Apply` — duplicate `GraphNode.NodeId` values are grouped with `First()`, so ARM identity and diagram mapping may use an arbitrary duplicate node and attach external-target evidence to the wrong card; reachable only if a persisted graph snapshot admits duplicate node IDs, which was not demonstrated by the current source/tests.
 
 2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
 
