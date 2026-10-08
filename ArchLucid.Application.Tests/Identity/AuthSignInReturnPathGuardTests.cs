@@ -631,4 +631,34 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/reviews\u00AD/1").Should().Be("/reviews\u00AD/1");
     }
+
+    [Fact]
+    public void TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews%E2%81%A9/1").Should().Be("/reviews\u2069/1");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews/%0Dsegment").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews?next=http%3A%2F%2Fevil.example").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews\u2028/1").Should().Be("/reviews\u2028/1");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/architecture/reviews//1").Should().BeNull();
+    }
 }
