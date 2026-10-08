@@ -438,7 +438,7 @@ function Invoke-ArgQuery {
         $gaps.Add([pscustomobject]@{ kind = 'partialResult'; target = $Name; detail = $_.Exception.Message })
     }
 
-    $rows | ConvertTo-Json -Depth 20 | Set-Content (Join-Path $snapshotDir "$Name.json")
+    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 | Set-Content (Join-Path $snapshotDir "$Name.json")
 }
 
 Invoke-ArgQuery -Name 'storage-accounts' -Query (Get-Content queries/storage-accounts.kql -Raw)
