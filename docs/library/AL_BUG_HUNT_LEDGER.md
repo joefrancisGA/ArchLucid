@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -33452,7 +33454,15 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 38 · **Bugs found:** 6 · **Consecutive dry hunts:** 11
+**Hunts:** 39 · **Bugs found:** 6 · **Consecutive dry hunts:** 12
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — invoking the module twice duplicates every scoped descriptor and can make enumerable consumers run twice — locus: unconditional `AddScoped` calls throughout `Register`; input: host composition path registers the capability module more than once.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — concrete helper registrations without interface aliases may leave interface-based consumers unresolved — locus: `SecureNowArchitectPathCarryForwardService` and `TenantReportBrandingApplyHelper` registrations ~73 and ~132; input: downstream constructor requests an abstraction rather than the concrete helper.
+- [ ] (candidate) `RepositoryDiagramPeelCatalogProvider` — singleton catalog may retain the first repository snapshot while scoped bootstrapper later discovers new peel definitions — locus: singleton provider plus scoped bootstrapper ~51–53; input: add a repository peel definition after the first request and resolve the catalog again.
+- [ ] (candidate) `GraphvizOptions` — options binding is registered without validation, allowing an invalid configuration to reach `GraphvizFdpLayoutRenderer` at request time — locus: `services.Configure<GraphvizOptions>` ~37; input: host starts with malformed Graphviz settings and first resolves the renderer.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — no guard prevents registration against a null service collection or configuration, so partial host setup fails with an opaque null-reference exception — locus: first `Configure`/`AddScoped` calls ~37–38; input: test or optional host invokes `Register(null, configuration)` or passes null configuration.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -33522,9 +33532,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
