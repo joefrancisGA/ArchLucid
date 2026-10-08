@@ -16,7 +16,7 @@
 - [ ] (candidate) `ContentSafetyResult` — nullable `BlockReason`, `Category`, and `Severity` are accepted for blocked results, so a reachable guard failure may lose the reason needed by the caller to explain or audit the denial — locus: nullable result fields; input: `IsAllowed=false` with all diagnostic fields null.
 - [ ] (candidate) `OutboundSocketsHttpHandlerSettings.Apply` — profile application configures pool lifetime and concurrency but does not establish a per-connect timeout, so a reachable outbound client using only the profile can wait on a stalled socket until its separate client timeout — locus: profile switch lacks `ConnectTimeout`; input: external integration endpoint that accepts a TCP connection but stalls before response.
 
-2026-10-08 seed hunt (seed-only): `core-safety-network` — corrected the canonical hypotheses placement, re-read the scoped Safety/Http contracts, and found no hunt-ready wrong-outcome chain. No production code changed and no regression was added.
+2026-10-08 thorough hunt (dry): `core-safety-network` — cheap-disproved five candidates; 72 Core and 5 Host composition `PrivateNetwork` tests passed, with no failing repro and no production code changed.
 
 2026-10-08 seed hunt (seed-only): `auth-return-path` — re-read percent-decoding, homoglyph, query/fragment, and protocol-relative checks; 196 focused tests passed and no new hunt-ready failing repro emerged. Seeded five reachable `(candidate)` rows; no production code changed and no regression was added.
 
@@ -24058,14 +24058,14 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - **id:** core-safety-network
 - **split-from:** archlucid-core
-- **status:** open
+- **status:** exhausted
 - **impact:** high
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
@@ -24219,13 +24219,11 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - [x] (proven) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards/ITSM health/OAuth clients registered without `rejectPrivateNetworkConnectEndpoints: true` while webhook dry-run had connect guard — **hit 2026-09-12 thorough hunt #1928:** enabled `OutboundHttpsConnectGuard` on all integration outbound clients; regression `External_integration_http_clients_wire_private_network_connect_guard`.
 
-2026-10-08 seed hunt (seed-only): cheap-disproof found no hunt-ready wrong-outcome chain in the scoped Safety/Http contracts; the picker’s `PrivateNetwork` test filter remains covered by the existing 72 Core and 5 Host composition tests. Seeded five fresh `(candidate)` rows; no production code changed and no regression was added.
-
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — the retry delay does not inspect an upstream `Retry-After` header on throttled responses, so a reachable Azure pricing/ARM `429` can be retried outside the service-advised window — locus: `DelayGenerator` and `ShouldRetryHttpResponse`; input: `429 TooManyRequests` with `Retry-After` from a fixed public authority.
-- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — every `5xx` status is treated as transient, so a reachable fixed public authority response such as `501 NotImplemented` is retried three times instead of failing immediately — locus: numeric `500`–`599` range check; input: `501 NotImplemented` response from ARM or Retail Prices.
-- [ ] (candidate) `ContentSafetyResult` — the record permits `IsAllowed=true` alongside a block reason or out-of-range severity, allowing an implementation reached through `IContentSafetyGuard` to emit contradictory moderation state — locus: unconstrained positional record; input: guard result with `IsAllowed=true`, `BlockReason="blocked"`, and `Severity=1.5`.
-- [ ] (candidate) `ContentSafetyResult` — nullable `BlockReason`, `Category`, and `Severity` are accepted for blocked results, so a reachable guard failure may lose the reason needed by the caller to explain or audit the denial — locus: nullable result fields; input: `IsAllowed=false` with all diagnostic fields null.
-- [ ] (candidate) `OutboundSocketsHttpHandlerSettings.Apply` — profile application configures pool lifetime and concurrency but does not establish a per-connect timeout, so a reachable outbound client using only the profile can wait on a stalled socket until its separate client timeout — locus: profile switch lacks `ConnectTimeout`; input: external integration endpoint that accepts a TCP connection but stalls before response.
+- [x] (valid-no-repro) `AzureRmAndRetailPricesHttpRetryPolicy` — the retry delay does not inspect `Retry-After` on a throttled response — **dry 2026-10-08:** bounded fixed backoff is the documented policy in this scoped file; no caller-visible failure or failing repro was established.
+- [x] (valid-no-repro) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — every `5xx` response is retried — **dry 2026-10-08:** retries are bounded to three attempts for fixed public authorities; no reachable wrong outcome was established for `501`.
+- [x] (invalid) `ContentSafetyResult` — contradictory allowed/block fields can reach a consumer — **invalid 2026-10-08:** the scoped path contains only the result contract and no consumer or caller that interprets contradictory fields.
+- [x] (invalid) `ContentSafetyResult` — blocked results can omit diagnostic fields — **invalid 2026-10-08:** no scoped caller requires a non-null reason, category, or severity.
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings.Apply` — profiles do not set a connect timeout — **dry 2026-10-08:** the scoped profile only tunes pools; client timeout is configured outside this path and no stalled-endpoint failure was reproducible.
 
 2026-09-12 thorough hunt #1928 (hit): proved integration outbound HTTP clients lacked connect-time SSRF guard parity with webhook dry-run; 1 composition regression test passed.
 
