@@ -33100,6 +33100,8 @@ ABQ-09 churn hotspot; review detail route tree.
 
 **Hunts:** 49 · **Bugs found:** 22 · **Consecutive dry hunts:** 1
 
+2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
+
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (hit): proved that returning from Guided Intake to Quick Start removed `template` but preserved the supported legacy `example` alias, so the neutral quick-start path retained a template-start intent; fixed by deleting both aliases; the focused regression passed and 12 related route/restore tests passed; the broader route scope retained pre-existing baseline failures.
@@ -33176,11 +33178,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 48
-- **bugs-found:** 22
+- **hunts:** 50
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — Quick Start retained the legacy example template alias after path switch
+- **last-bug:** 2026-10-08 — policy-pack deeplink was erased by accelerator/preset form reset
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -33205,11 +33207,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
 
-- [ ] (candidate) `useNewRunWizardQueryPrefill` — policy-pack prefill can be erased when the same deep link also applies an accelerator or preset reset — locus: policy `setValue("policyReferences")` effect ~65–71 and later `reset(applyWizardPreset(...))` effects ~75–122; input: full-wizard URL containing `policyPackId` plus a valid `accelerator` or preset token.
-- [ ] (candidate) `useFirstPilotIntakeWizard` — a session containing only scope bullets or L0 answers is treated as empty and is not persisted for resume — locus: `hasSaveableContent` checks only `runTitle` and `briefText` ~211–216; input: operator completes scope/L0 fields before entering a title or brief, then reloads the wizard.
-- [ ] (candidate) `useFirstPilotIntakeWizard.handleSessionRestore` — restoring a saved scope gate can update the URL from stale `window.location.search` and drop a concurrent query change — locus: `setScopeGateOpen` uses `scopeGateHrefFromSearch(readWindowLocationSearch(), ...)` ~122–145; input: browser Back/Forward or another path update races with session restoration.
-- [ ] (candidate) `useNewRunWizardClient` — a browser history update can restore pilot toggles from the URL while a current form edit is still pending — locus: URL synchronization effect ~104–129 and `setFocusedPilotModeEnabled`/`setAdvancedConfigurationOptIn` ~84–101; input: toggle a pilot option and immediately press Back before the committed search state settles.
-- [ ] (candidate) `useGuidedIntakeDraftWorkflow.setViewAllClarifications` — replaying the functional updater can compare against a ref already changed by the first replay and skip URL synchronization for the final state — locus: ref-guarded updater ~140–153; input: Strict Mode or concurrent render replay while toggling the view-all clarifications disclosure.
+- [x] (proven) `useNewRunWizardQueryPrefill` — **hit 2026-10-08 thorough hunt:** policy-pack `setValue("policyReferences")` ran before an accelerator/preset `reset`, so the reset erased the explicit policy deeplink; reapplied the policy pack after both reset paths; regression `retains policy-pack prefill when an accelerator reset runs on the same mount`.
+- [x] (invalid) `useFirstPilotIntakeWizard` — **cheap-disproof 2026-10-08 thorough hunt:** scope bullets and L0 answers are only reachable after the operator has entered the title/brief content that `hasSaveableContent` requires, so the proposed content-only session cannot occur.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** scope restoration reads the committed browser search through `readWindowLocationSearch`, and the focused session/URL tests found no concurrent-update loss.
+- [x] (valid-no-repro) `useNewRunWizardClient` — **cheap-disproof 2026-10-08 thorough hunt:** pilot toggles commit through the guarded URL helper and the dedicated pilot URL tests cover URL-to-state synchronization and browser-history restoration.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow.setViewAllClarifications` — **cheap-disproof 2026-10-08 thorough hunt:** the ref guard prevents duplicate history writes on updater replay, matching the same idempotent URL pattern already covered for guided step navigation.
 
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — **cheap-disproof 2026-10-08 thorough hunt:** `commitHrefIfChanged` makes the URL side effect idempotent when a React updater is replayed; the second invocation sees the committed href and does not add another history entry.
 - [x] (proven) `ReviewsNewPathSwitcher.selectPath` — **hit 2026-10-08 thorough hunt:** Quick Start deleted `template` but left the supported legacy `example` alias, preserving an example-start intent after a neutral path selection; fixed by deleting `example` alongside `template`; regression `clears the legacy example alias when returning to quick-review`.
