@@ -237,6 +237,45 @@ describe("useNewRunWizardQueryPrefill", () => {
     );
   });
 
+  it("does not re-apply specialty cloud when example template prefill already ran in the same session", async () => {
+    const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ cloud }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            exampleTemplate,
+            reviewIntakeCloudProvider: cloud,
+          },
+          stepIndex: 2,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { cloud: "Aws" as const } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("cloudProvider", "Aws", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ cloud: "Gcp" });
+
+    await waitFor(() => {
+      expect(setValue).not.toHaveBeenCalled();
+    });
+  });
+
   it("applies specialty cloud with example template prefill at step 2", async () => {
     const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
     const setValue = vi.fn();
