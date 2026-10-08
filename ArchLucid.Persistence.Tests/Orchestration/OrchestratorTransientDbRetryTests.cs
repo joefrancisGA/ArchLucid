@@ -1931,6 +1931,111 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(deadlock, new ObjectDisposedException("SqlConnection"));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new FormatException(
+                    "parallel persist failed",
+                    new AggregateException(deadlock, fkViolation));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<FormatException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        TargetInvocationException wrapper = new(
+            "reflection invoke failed",
+            new AggregateException(deadlock, fkViolation));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                return Task.FromException<int>(wrapper);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<TargetInvocationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_reflection_type_load_has_empty_loader_exceptions_and_sibling_deadlock_only()
+    {
+        int attempts = 0;
+        ReflectionTypeLoadException reflectionLoad = new(Array.Empty<Type>(), Array.Empty<Exception>());
+        SqlException siblingDeadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(reflectionLoad, siblingDeadlock);
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_aggregate_sole_inner_is_target_invocation_wrapping_all_transient_nested_aggregate()
+    {
+        int attempts = 0;
+        SqlException firstDeadlock = SqlExceptionTestFactory.Create(1205);
+        SqlException secondDeadlock = SqlExceptionTestFactory.Create(1204);
+        TargetInvocationException wrapper = new(
+            "reflection invoke failed",
+            new AggregateException(firstDeadlock, secondDeadlock));
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(wrapper);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
     public void Third_orchestrator_retry_delay_with_max_negative_jitter_stays_positive()
     {
         TimeSpan baseDelay = TimeSpan.FromSeconds(2);
