@@ -8327,7 +8327,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 38 · **Bugs found:** 10 · **Consecutive dry hunts:** 10
+**Hunts:** 39 · **Bugs found:** 10 · **Consecutive dry hunts:** 11
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8413,9 +8415,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -8424,6 +8426,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2078 (seed-only): reseeded alert-simulation; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — locus: `comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest)` around lines 173–176; input: explicit simulation request with a baseline run and a newer primary run.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — locus: comparison guard around lines 142–177; input: API simulation payload names the same run as both primary and comparison.
+- [ ] (candidate) `FindingsSnapshotMatchesGoldenManifest` — a snapshot with matching IDs but stale `CreatedUtc` is accepted, allowing findings from a different capture generation to feed simulation — locus: helper around lines 218–222; input: historical run detail contains reused snapshot IDs with a newer/older timestamp.
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — a null recommendation element from the repository causes the entire context build to fail during scope filtering — locus: `record.TenantId` predicate around lines 238–246; input: repository returns a nullable/partially hydrated recommendation row in an otherwise valid run.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — a non-null comparison result can be attached even when its internal baseline/current run identifiers do not match the requested pair — locus: comparison result assignment around lines 174–176 and output around lines 198–203; input: comparison adapter returns a result with mismatched run identity metadata.
 
 - [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
