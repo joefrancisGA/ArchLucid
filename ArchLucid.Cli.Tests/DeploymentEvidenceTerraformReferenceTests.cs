@@ -480,6 +480,50 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void DefaultApplyOrderRoots_hardcoded_leaf_array_matches_ExtractLeafPaths_helper()
+    {
+        string[] expectedLeafPaths =
+        [
+            "infra/terraform-private",
+            "infra/terraform-keyvault",
+            "infra/terraform-sql-failover",
+            "infra/terraform-storage",
+            "infra/terraform-redis",
+            "infra/terraform-cosmos",
+            "infra/terraform-servicebus",
+            "infra/terraform-logicapps",
+            "infra/terraform-openai",
+            "infra/terraform-acr",
+            "infra/terraform-entra",
+            "infra/terraform-container-apps",
+            "infra/terraform-edge",
+            "infra/terraform",
+            "infra/terraform-monitoring",
+            "infra/terraform-orchestrator",
+        ];
+
+        ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots())
+            .Should()
+            .Equal(expectedLeafPaths);
+    }
+
+    [Fact]
+    public void DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> foundation = ReadApplySaasStringArray(repoRoot, "$foundationWaveLeaves");
+        IReadOnlyList<string> platform = ReadApplySaasStringArray(repoRoot, "$platformWaveLeaves");
+        IReadOnlyList<string> app = ReadApplySaasStringArray(repoRoot, "$appWaveLeaves");
+        List<string> hostedLeaves = ExtractLeafPaths(DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots())
+            .Where(path => !string.Equals(path, "infra/terraform-orchestrator", StringComparison.Ordinal))
+            .ToList();
+
+        hostedLeaves.Take(foundation.Count).Should().Equal(foundation);
+        hostedLeaves.Skip(foundation.Count).Take(platform.Count).Should().Equal(platform);
+        hostedLeaves.Skip(foundation.Count + platform.Count).Should().Equal(app);
+    }
+
+    [Fact]
     public void Apply_saas_ps1_multiRootSequence_entries_use_double_quoted_string_literals()
     {
         string repoRoot = RequireRepositoryRoot();
