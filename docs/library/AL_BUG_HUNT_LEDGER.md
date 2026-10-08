@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -4448,7 +4450,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 47 · **Bugs found:** 7 · **Consecutive dry hunts:** 9
+**Hunts:** 48 · **Bugs found:** 7 · **Consecutive dry hunts:** 10
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process restart resets generation counters while a shared cache can still contain old `:g0` entries — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
+- [ ] (candidate) `CachingTenantSettingsRepository.BuildCacheKey` — tenant-setting keys containing the cache-key delimiter may collide with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after `QuerySingleOrDefaultAsync` completes but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -4508,9 +4518,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
