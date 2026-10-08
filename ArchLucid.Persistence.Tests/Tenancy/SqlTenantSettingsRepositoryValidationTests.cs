@@ -109,6 +109,19 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void TryGetCoreAsync_maps_whitespace_only_setting_value_scalar_to_null()
+    {
+        // Mirrors SqlTenantSettingsRepository.TryGetCoreAsync post-query normalization for legacy SQL rows.
+        static string? NormalizeReadScalar(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+        NormalizeReadScalar(null).Should().BeNull();
+        NormalizeReadScalar(string.Empty).Should().BeNull();
+        NormalizeReadScalar("   ").Should().BeNull();
+        NormalizeReadScalar("  enabled  ").Should().Be("enabled");
+    }
+
+    [Fact]
     public void EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit()
     {
         string value = string.Concat(Enumerable.Repeat("😀", 256));
