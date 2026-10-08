@@ -205,6 +205,16 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void IsExhausted_returns_false_one_attempt_below_max_with_elapsed_just_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public void Naive_serial_product_of_max_attempts_and_inner_polly_backoff_exceeds_retry_budget_by_design()
     {
         TimeSpan minimumInnerRetryDelays = TimeSpan.FromSeconds(2 + 4 + 8);

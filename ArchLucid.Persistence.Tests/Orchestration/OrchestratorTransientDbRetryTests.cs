@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
@@ -1750,6 +1751,107 @@ public sealed class OrchestratorTransientDbRetryTests
 
         voidAttempts.Should().Be(2);
         genericAttempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_argument_exception_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(deadlock, new ArgumentException("validation fault"));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_unauthorized_access_exception_wrapper()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new UnauthorizedAccessException(
+                    "parallel persist failed",
+                    new AggregateException(deadlock, fkViolation));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_mixed_aggregate_behind_unauthorized_access_when_permanent_sql_is_listed_first()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new UnauthorizedAccessException(
+                    "parallel persist failed",
+                    new AggregateException(fkViolation, deadlock));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_when_aggregate_lists_http_wrapper_and_transient_sql_siblings()
+    {
+        int attempts = 0;
+        SqlException unavailable = SqlExceptionTestFactory.Create(40613);
+        HttpRequestException httpWrapper = new("azure sql gateway", unavailable);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(httpWrapper, unavailable);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_win32_exception_wrapping_socket_exception()
+    {
+        int attempts = 0;
+        Win32Exception win32 = new(10054, "connection reset");
+        SetInnerException(win32, new SocketException((int)SocketError.ConnectionReset));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw win32;
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<Win32Exception>();
+        attempts.Should().Be(1);
     }
 
     [SkippableFact]
