@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -33504,7 +33506,15 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 39 · **Bugs found:** 6 · **Consecutive dry hunts:** 12
+**Hunts:** 40 · **Bugs found:** 6 · **Consecutive dry hunts:** 13
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `MermaidDiagramReadabilityThresholds` — direct singleton construction gives every tenant and request one mutable threshold object, so one consumer’s adjustment can affect another — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` ~50; input: concurrent diagrams with tenant-specific readability expectations.
+- [ ] (candidate) `GraphvizOptions` — `Configure` binds one options snapshot while runtime configuration reloads may not reach an already-resolved renderer — locus: options registration ~37; input: change Graphviz configuration after the host starts, then render in an existing scope.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — an earlier registration for `IGraphvizLayoutRenderer` or an evidence interface can be silently shadowed by this module’s later descriptor — locus: unconditional `AddScoped` registrations ~38–132; input: host composes another infrastructure module before this one.
+- [ ] (candidate) `IAzureInventorySnapshotMaterializer` / `IAzureInventorySnapshotPostMaterializeCoordinator` — separate scoped registrations may resolve separate coordination state when one operation expects a shared materialization transaction — locus: materializer ~40 and coordinator ~101; input: resolve both services in one request and materialize a snapshot.
+- [ ] (candidate) `IBrandAssetService` / `TenantBrandingResolvedProfileCache` — scoped branding service backed by singleton profile cache may retain configuration from a disposed request scope — locus: registrations ~124–129; input: update tenant branding, dispose the scope, and resolve exports in a new scope.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -33582,9 +33592,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
