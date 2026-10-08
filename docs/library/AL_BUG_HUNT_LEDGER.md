@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`, `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`, `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`, `InMemory_get_by_id_including_archived_returns_soft_archived_run`, and `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; scoped zone filter tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify` and `VerifyCodeAsync_rejects_expired_code`; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` and 9 Api controller tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves`; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves`, `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, and `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`; 51 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
@@ -6802,7 +6804,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
-**Hunts:** 63 · **Bugs found:** 27 · **Consecutive dry hunts:** 2
+**Hunts:** 64 · **Bugs found:** 27 · **Consecutive dry hunts:** 3
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design` and `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`; reaffirmed project-list cache key isolation, archived read vs recent list filter, and in-memory keyset warning retention; scoped zone filter tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `CachingRunRepository.ListByProjectAsync` — first-page cache uses `safeTake` up to 200 while keyset caches `RunPagination.ClampTake` — **cheap-disproof 2026-10-08 seed hunt #64:** hot-path cache keys include clamped take so unpaged and keyset shapes do not collide; regression `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectList` vs `ForRecentInScope` — zero take defaults to 20 on project lists but 200 on recent-in-scope unpaged — **cheap-disproof 2026-10-08 seed hunt #64:** intentional API split documented on `DefaultProjectListTake` vs `MaxUnpagedTake`; regression `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`.
+- [x] (valid-no-repro) `SqlRunRepository.GetByIdIncludingArchivedAsync` — archived run visible to admin read while `ListRecentInScopeAsync` filters `ArchivedUtc IS NULL` — **cheap-disproof 2026-10-08 seed hunt #64:** intentional operator support vs dashboard list contract; regression `InMemory_get_by_id_including_archived_returns_soft_archived_run`.
+- [x] (valid-no-repro) `RunRepositoryCore.ValidateRunKeysetCursor` — partial cursor with only `cursorCreatedUtc` or only `cursorRunId` throws — **cheap-disproof 2026-10-08 seed hunt #64:** paired cursor required before SQL seek; regressions `ValidateRunKeysetCursor_rejects_partial_cursor` and `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`.
+- [x] (valid-no-repro) `InMemoryRunRepository.ListByProjectKeysetAsync` — continuation page retains stored warning flags without SQL aggregate hydration — **cheap-disproof 2026-10-08 seed hunt #64:** in-memory lists echo persisted `HasWarnings` / `HasGovernanceWarnings`; regression `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`.
+
+- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — unset `take` uses `RunPagination.ClampTake` default (25) for `@Fetch` probe, not project-list default 20 — locus: `Fetch(take)` ~307–310; input: `ForProjectKeysetPage` with `take=0`.
+- [ ] (candidate) `CachingRunRepository.ListRecentInScopeOffsetAsync` — offset continuation with `offset > 0` bypasses first-page cache while unpaged recent list remains cached — locus: `CachingRunRepository.Lists.cs`; input: two offset pages within TTL.
+- [ ] (candidate) `RunListWarningFlagSql.KeysetCursorPredicate` — `CreatedUtc` equality branch uses `RunId` strict inequality for stable seek — locus: `KeysetCursorPredicate`; input: `RunListWarningFlagSqlTests` keyset shape assertions.
+- [ ] (candidate) `InMemoryRunRepository.CountByArchitectureIdAsync` — excludes archived rows same as architecture-attached list — locus: `InMemoryRunRepository.Architecture.cs`; input: `InMemory_count_by_architecture_id_excludes_archived_runs`.
+- [ ] (candidate) `RunRepositoryCore.NormalizeArchitectureRequestId` — collapses internal double spaces before uppercase seek — locus: `NormalizeArchitectureRequestId` ~40–47; input: padded multi-space request id in `RunRepositoryArchitectureRequestSqlTests` parity family.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
@@ -6903,9 +6919,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none

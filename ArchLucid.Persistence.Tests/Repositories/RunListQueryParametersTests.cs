@@ -111,6 +111,13 @@ public sealed class RunListQueryParametersTests
     }
 
     [Fact]
+    public void ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 0), "Take").Should().Be(20);
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 0), "Take").Should().Be(200);
+    }
+
+    [Fact]
     public void ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design()
     {
         Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
