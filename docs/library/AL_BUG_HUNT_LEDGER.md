@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
@@ -32926,7 +32928,15 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 44 · **Bugs found:** 21 · **Consecutive dry hunts:** 8
+**Hunts:** 45 · **Bugs found:** 21 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `useGuidedIntakeBriefForm` — starter-template and example-template effects can both write the same brief fields on one mount — locus: independent `exampleTemplate` and `starterTemplate` prefill effects; input: `/architecture/reviews/new?example=...&preset=...` with both templates resolving.
+- [ ] (candidate) `useGuidedIntakeWizard` — a browser back/popstate update can be overwritten by the Next `useSearchParams` effect before the wizard settles on the URL step — locus: two URL-to-step synchronization effects; input: edit `intakeStep`, then press browser Back while the guided wizard is mounted.
+- [ ] (candidate) `useNewRunWizardSubmit` — pending-evidence upload failure can surface after the run has advanced to tracking without a submit-error result — locus: `uploadPendingEvidence(id)` runs after `setRunId` and `goToStep`; input: successful create followed by rejected evidence upload.
+- [ ] (candidate) `useGuidedIntakeWizard` / `rerunAutoSubmitStartedRef` — the one-shot rerun guard can suppress a later eligible rerun when the prior-run identity changes without remounting — locus: ref is set once and never reset; input: switch from one `priorRunId` deep link to another in the same mounted wizard.
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — path-specific query cleanup can remove an unrelated accelerator or template intent needed by the newly selected wizard — locus: `quick-review` branch deletes `accelerator`, `preset`, and `template`; input: select Quick Start after opening a path with one of those query parameters and inspect the return URL.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `recomputes mismatch when template session state updates on the same mount`, `auto-uploads after platform detection when a quick-start run id already exists`, and `does not re-apply specialty cloud when example template prefill already ran in the same session`; reaffirmed `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing` and `rewinds restored confirm bookmarks to clarifications when draftId is present`; scoped reviews/new vitest 144 passed with 71 pre-existing baseline failures.
 
@@ -32982,9 +32992,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none

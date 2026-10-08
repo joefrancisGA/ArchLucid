@@ -8833,3 +8833,4 @@
 {"at":"2026-10-08T06:39:22.4427749Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T06:45:18.2085907Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T06:47:40.7108202Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T06:49:35.2665486Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared"}
