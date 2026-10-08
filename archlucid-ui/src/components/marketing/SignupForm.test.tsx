@@ -104,6 +104,19 @@ describe("SignupForm", () => {
     expect(parsed.success).toBe(false);
   });
 
+  it.each(["Ops\u0000User", "Ops\u202eUser"])(
+    "signupFormSchema rejects control and bidi-format characters in required names",
+    (unsafeName) => {
+      const parsed = signupFormSchema.safeParse({
+        adminEmail: "ops@example.com",
+        adminDisplayName: unsafeName,
+        organizationName: "Contoso Trial Org",
+      });
+
+      expect(parsed.success).toBe(false);
+    },
+  );
+
   it("includes trimmed industry vertical other in the register payload builder when industry is Other", () => {
     const payload = buildSignupRegisterPayload({
       adminEmail: "ops@example.com",

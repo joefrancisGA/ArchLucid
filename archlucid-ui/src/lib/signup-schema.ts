@@ -30,11 +30,14 @@ export const signupFormSchema = z
     adminDisplayName: z
       .string()
       .trim()
+      // Reject invisible control and bidi-format characters before they enter tenant metadata.
+      .refine((value) => !/[\p{Cc}\p{Cf}]/u.test(value), "Full name contains unsupported characters.")
       .min(1, "Full name is required.")
       .max(200, "Full name must be at most 200 characters."),
     organizationName: z
       .string()
       .trim()
+      .refine((value) => !/[\p{Cc}\p{Cf}]/u.test(value), "Organization name contains unsupported characters.")
       .min(1, "Organization name is required.")
       .max(200, "Organization name must be at most 200 characters."),
     companySize: z.enum(companySizeOptions).optional(),
