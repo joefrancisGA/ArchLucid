@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `auth-return-path` — re-read percent-decoding, homoglyph, query/fragment, and protocol-relative checks; 196 focused tests passed and no new hunt-ready failing repro emerged. Seeded five reachable `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `TryNormalizeAfterPercentDecoding` — the guard decodes query and fragment content as well as path content, potentially changing a caller’s return-path semantics while validating it — locus: `Uri.UnescapeDataString(working)` over the entire candidate; input: encoded separators or reserved characters in query/fragment values.
+- [ ] (candidate) `ContainsResidualEncodedTraversal` — the eight-pass decode cap rejects any remaining percent sign, including benign percent-encoded data, after traversal checks — locus: `ContainsTrailingPercentAfterDecodeCap`; input: deeply encoded but non-traversal query value.
+- [ ] (candidate) `ContainsAtSignInPath` — only the path before query/fragment is checked for at-sign homoglyphs, while a downstream redirect builder may combine query/fragment values into a URL-like destination — locus: `GetPathWithoutQueryOrFragment`; input: userinfo-shaped material in query or fragment.
+- [ ] (candidate) `TryNormalizeRelativePath` — a path containing semicolon parameters is accepted after only slash/dot checks, so framework path-parameter normalization may reinterpret encoded traversal or authority-like content — locus: raw candidate accepted before downstream routing; input: matrix-style segments with encoded delimiters.
+- [ ] (candidate) `ContainsControlCharacter` — control-character rejection is applied before percent decoding and then again after each decode, but Unicode format characters remain allowed in path segments and may be normalized by a browser or framework — locus: `char.IsControl` only; input: bidi/isolate or zero-width format characters in a return path.
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — re-read the repository partials and focused scope/listing tests; the selected filter passed 172 tests with one expected SQL integration skip, and no failing repro was proven. Seeded five reachable `(candidate)` rows; no production code changed and no regression was added.
 
 - [ ] (candidate) `ListByArchitectureIdAsync` — its projection omits several `RunRecord` fields such as `ArchitectureRequestId`, snapshots, lifecycle metadata, and warning flags, so callers can receive incomplete records — locus: inline `SELECT` projection; input: run lookup by non-empty architecture id.
