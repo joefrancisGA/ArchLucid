@@ -32,6 +32,12 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
   });
 
+  it("falls back to consumed safe desk path when explicit returnUrl is unsafe", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/architecture/reviews/1");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/architecture/reviews/1");
+  });
+
   it("rejects an unsafe consumed return URL", () => {
     vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("https://evil.example");
 

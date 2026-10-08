@@ -178,6 +178,19 @@ describe("decideHostGateRedirect", () => {
     ).toEqual({ kind: "next" });
   });
 
+  it("does not redirect marketing-host post-auth bootstrap proxy POST paths to the app origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/api/proxy/v1/auth/bootstrap/status",
+        search: "?returnUrl=%2Farchitecture%2Freviews",
+      }),
+    ).toEqual({ kind: "next" });
+  });
+
   it("leaves marketing paths on the marketing host alone", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";

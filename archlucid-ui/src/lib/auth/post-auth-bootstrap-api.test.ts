@@ -207,6 +207,29 @@ describe("acceptPostAuthInvitation", () => {
 
     await expect(acceptPostAuthInvitation("inv-1", null)).resolves.toBeNull();
   });
+
+  it("encodes whitespace-only returnUrl on accept the same way as bootstrap status URLSearchParams", async () => {
+    const returnUrl = "   ";
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        accessToken: "token",
+        tokenType: "Bearer",
+        expiresInSeconds: 3600,
+        redirectPath: "/",
+      }),
+    });
+
+    await fetchPostAuthBootstrapStatus(returnUrl);
+    await acceptPostAuthInvitation("inv-1", null, returnUrl);
+
+    const statusUrl = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+    const acceptUrl = String(vi.mocked(fetch).mock.calls[1]?.[0]);
+
+    expect(statusUrl).toContain("returnUrl=+++");
+    expect(acceptUrl).toContain(`returnUrl=${encodeURIComponent(returnUrl)}`);
+  });
 });
 
 describe("selectPostAuthWorkspace", () => {
