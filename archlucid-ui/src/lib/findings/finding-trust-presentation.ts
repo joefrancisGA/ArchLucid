@@ -134,17 +134,16 @@ function buildExportPresentation(
 ): FindingTrustExportPresentation {
   const reason = input.trustLabelReason?.trim();
   const hasReason = reason !== undefined && reason.length > 0;
-  const exportLine = canonicalTrustLabel === "NotStored"
+  const exportLabel = canonicalTrustLabel === "NotStored"
     ? "Trust label was not stored."
-    : hasReason
-      ? `${canonicalTrustLabel} — ${reason}`
-      : canonicalTrustLabel;
+    : canonicalTrustLabel;
+  const exportLine = hasReason
+    ? `${exportLabel} — ${reason}`
+    : exportLabel;
 
-  const jsonFields: FindingTrustExportPresentation["jsonFields"] = canonicalTrustLabel === "NotStored"
-    ? { trustLabel: "Trust label was not stored." }
-    : hasReason
-    ? { trustLabel: canonicalTrustLabel, trustLabelReason: reason }
-    : { trustLabel: canonicalTrustLabel };
+  const jsonFields: FindingTrustExportPresentation["jsonFields"] = hasReason
+    ? { trustLabel: exportLabel, trustLabelReason: reason }
+    : { trustLabel: exportLabel };
 
   return {
     canonicalTrustLabel,
