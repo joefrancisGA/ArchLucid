@@ -33560,7 +33560,9 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 40 · **Bugs found:** 6 · **Consecutive dry hunts:** 13
+**Hunts:** 41 · **Bugs found:** 6 · **Consecutive dry hunts:** 14
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -33646,9 +33648,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 13
+- **consecutive-dry-hunts:** 14
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
@@ -33695,6 +33697,12 @@ ABQ-09 churn hotspot.
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — registering both `IAzureInventoryDiffConsumer` implementations in scoped lifetime leaves an enumeration consumer dependent on descriptor order, so SecureNow processing may run before audit readiness — locus: adjacent consumer registrations around lines 106–107; input: `IEnumerable<IAzureInventoryDiffConsumer>` resolved by snapshot materialization.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — the directly constructed `MermaidDiagramReadabilityThresholds` singleton cannot receive tenant/configuration-specific thresholds — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` around line 50; input: host configuration supplies custom diagram readability settings.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `TenantBrandingResolvedProfileCache` is process-wide while branding service is scoped, so a cache key or invalidation gap can reuse one tenant’s resolved profile in another scope — locus: singleton cache registrations around lines 124–126; input: concurrent branding resolution and update for two tenants.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IDiagramPeelCatalogProvider` singleton can serve a stale catalog after scoped bootstrapper data changes during process lifetime — locus: singleton provider and scoped bootstrapper around lines 51–53; input: repository peel definitions change after the first catalog read.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `GraphvizOptions` is bound without startup validation, allowing an invalid executable/layout configuration to fail only when a request first resolves the renderer — locus: `Configure<GraphvizOptions>` around lines 37–38; input: deployed host configuration with an invalid Graphviz executable path.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / audit evidence selectors (lines 103–111) — missing selector implementation breaks registry descriptor count — **cheap-disproof 2026-10-07 seed hunt:** module registers all nine selector types; regression `InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations`.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `Configure<GraphvizOptions>` (line 37) — appsettings `ArchLucid:Graphviz` ignored when only module `Register` runs — **cheap-disproof 2026-10-07 seed hunt:** `IOptions<GraphvizOptions>` binds section; regression `InfraEvidenceCompositionModule_configure_graphviz_options_binds_configuration_section`.

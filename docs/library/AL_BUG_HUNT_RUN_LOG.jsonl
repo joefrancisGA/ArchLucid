@@ -8855,3 +8855,4 @@
 {"at":"2026-10-08T07:50:12.6910705Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
 {"at":"2026-10-08T07:53:36.7247694Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs,ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-10-08T07:57:03.7049676Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs,ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs"]}
+{"at":"2026-10-08T08:00:43.6334849Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow","paths":["ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs"]}
