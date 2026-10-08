@@ -10696,7 +10696,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 37 · **Bugs found:** 8 · **Consecutive dry hunts:** 8
+**Hunts:** 38 · **Bugs found:** 8 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): re-read `ArchLucid.Worker/Program.cs`; no fresh hunt-ready promotion; 31 scoped worker host/composition tests passed.
 
 2026-10-08 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
 
