@@ -87,6 +87,14 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Runs_list_recent_in_scope_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain("SELECT TOP (@Take)");
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().NotContain("@Fetch");
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock.Should().Contain("SELECT TOP (@Fetch)");
+    }
+
+    [SkippableFact]
     public void Runs_list_by_project_keyset_retains_cursor_predicate_and_run_id_tie_break()
     {
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
@@ -305,6 +313,13 @@ public sealed class HotPathRelationalQueryShapeTests
         RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
             .Contain("CASE WHEN EXISTS");
         RunListWarningFlagSql.LeftJoinAggregates.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
+    }
+
+    [SkippableFact]
+    public void Run_detail_and_list_governance_open_filters_both_target_open_alert_status()
+    {
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should().Contain("ar.Status = 'Open'");
+        RunListWarningFlagSql.LeftJoinAggregates.Should().Contain("ar.Status = N'Open'");
     }
 
     [SkippableFact]

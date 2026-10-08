@@ -2930,6 +2930,41 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         keyset.Items.Should().HaveCount(25);
     }
 
+    [SkippableFact]
+    public async Task InMemory_list_recent_in_scope_defaults_to_two_hundred_while_keyset_defaults_to_run_pagination_take()
+    {
+        InMemoryRunRepository runs = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime now = TimeProvider.System.UtcNowDateTime();
+
+        for (int index = 0; index < 210; index++)
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = Guid.NewGuid(),
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    CreatedUtc = now.AddMinutes(-index),
+                },
+                CancellationToken.None);
+        }
+
+        IReadOnlyList<RunRecord> unpaged = await runs.ListRecentInScopeAsync(scope, 0, CancellationToken.None);
+        RunListPage keyset = await runs.ListRecentInScopeKeysetAsync(scope, null, null, 0, CancellationToken.None);
+
+        unpaged.Should().HaveCount(200);
+        keyset.Items.Should().HaveCount(25);
+    }
+
     [Fact]
     public void SampleRunPurgeBatch_optional_tenant_filter_spans_workspaces_by_contract()
     {

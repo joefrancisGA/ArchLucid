@@ -99,6 +99,17 @@ public sealed class RunListQueryParametersTests
             .Be(RunPagination.MaxTake + 1);
     }
 
+    [Fact]
+    public void ForRecentInScope_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForRecentInScopeKeysetPage(Scope(), null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
     [Theory]
     [InlineData(-10, 0)]
     [InlineData(0, 0)]

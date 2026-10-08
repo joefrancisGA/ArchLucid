@@ -132,6 +132,24 @@ public sealed class HotPathCacheKeysTests
     }
 
     [SkippableFact]
+    public void RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        string unpagedCeilingKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 200, 3);
+        string keysetCeilingKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 100, 3);
+
+        unpagedCeilingKey.Should().NotBe(keysetCeilingKey);
+        unpagedCeilingKey.Should().EndWith(":200");
+        keysetCeilingKey.Should().EndWith(":100");
+    }
+
+    [SkippableFact]
     public void FindingsSnapshot_includes_scope_and_id()
     {
         ScopeContext scope = new()
