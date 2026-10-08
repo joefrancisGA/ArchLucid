@@ -1022,6 +1022,46 @@ public sealed class OrchestratorTransientDbRetryTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_ioexception_siblings()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new AggregateException(deadlock, new IOException("parallel transport read failed"));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<AggregateException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        TargetInvocationException wrapper = new(
+            "reflection invoke failed",
+            new AggregateException(deadlock, fkViolation));
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw wrapper;
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<TargetInvocationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_operation_canceled_siblings()
     {
         int attempts = 0;

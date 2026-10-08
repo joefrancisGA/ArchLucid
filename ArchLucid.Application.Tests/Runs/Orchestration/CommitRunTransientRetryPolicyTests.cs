@@ -194,6 +194,23 @@ public sealed class CommitRunTransientRetryPolicyTests
     }
 
     [Fact]
+    public void ManifestReconcilePollDelay_sum_through_max_poll_index_stays_below_retry_budget()
+    {
+        TimeSpan pollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        pollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+
+        CommitRunTransientRetryPolicy.IsExhausted(
+                CommitRunTransientRetryPolicy.MaxAttempts - 1,
+                CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse("poll-delay totals and IsExhausted gates are independent bounded loops");
+    }
+
+    [Fact]
     public void IsExhausted_returns_false_at_attempt_eleven_one_tick_below_retry_budget()
     {
         CommitRunTransientRetryPolicy.IsExhausted(
