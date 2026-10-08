@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (dry): `artifact-synthesis` — cheap-disproof closed the DOCX culture candidate as `(valid-no-repro)` because no deterministic-culture contract or sibling-output disagreement was present, and retired the duplicate-`NodeId` candidate as `(invalid)` because graph validation permits the shape but the selected production paths do not create or persist duplicate node IDs; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
 2026-10-08 seed hunt (seed-only): `artifact-synthesis` — cheap-disproof closed the reachable Network-mode peering candidate as `(valid-no-repro)` because an existing relationship applier already emits the edge; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests; retained two source-backed `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -10131,9 +10133,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
 - **last-bug:** 2026-10-04 — case-variant OnCallWebhook channelType hidden from webhookRows
 - **related-pd-tb:** none
@@ -28954,9 +28956,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators in the exported DOCX; reachable from the committed manifest cost section passed to `ExportAsync`, but no deterministic-culture contract or failing export repro was established.
+- [x] (valid-no-repro) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators — **cheap-disproof 2026-10-08 thorough hunt:** no deterministic-culture contract or disagreement with sibling markdown exports was present in the selected paths; no failing repro was established.
 - [x] (valid-no-repro) `InventoryDiagramExternalTargetApplier.ApplyConnectedPeerings` — a connected ARM VNet peering whose target has an AST stub but no captured graph node might relabel the stub without adding the peering edge — **cheap-disproof 2026-10-08 seed hunt:** the focused Network-mode repro passed because the compiler's existing VNet peering relationship applier emits the edge; no defect was reproduced.
-- [ ] (candidate) `InventoryDiagramExternalTargetApplier.Apply` — duplicate `GraphNode.NodeId` values are grouped with `First()`, so ARM identity and diagram mapping may use an arbitrary duplicate node and attach external-target evidence to the wrong card; reachable only if a persisted graph snapshot admits duplicate node IDs, which was not demonstrated by the current source/tests.
+- [x] (invalid) `InventoryDiagramExternalTargetApplier.Apply` — duplicate `GraphNode.NodeId` values are grouped with `First()`, so ARM identity and diagram mapping may use an arbitrary duplicate node — **cheap-disproof 2026-10-08 thorough hunt:** `GraphValidator` permits duplicate IDs, but the selected production graph builders and overlay merger deduplicate node identities; no reachable persisted duplicate-input path or wrong diagram outcome was found.
 
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a direct source-to-target data-flow edge won over a longer cited traversal path ending at an intermediate hop, so a missing terminal hop was bridged in the diagram — **hit 2026-10-01 seed hunt:** partial traversal paths now win whenever they contain a hop, preserving the unresolved-gap marker and removing the unsupported direct edge; regression `Compile_data_flow_missing_intermediate_hop_does_not_bridge_gap`.
 
