@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Billing;
 using FluentAssertions;
 
 using Microsoft.Extensions.Caching.Memory;
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
@@ -225,5 +226,21 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
         Func<Task> act = () => sut.HasSeenAsync("stripe", "   ", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task RememberAsync_cache_failure_does_not_leave_event_claimed()
+    {
+        Mock<IMemoryCache> cache = new();
+        cache
+            .Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Throws<InvalidOperationException>();
+
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache.Object, TimeProvider.System);
+
+        Func<Task> act = () => sut.RememberAsync("stripe", "evt_cache_failure", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await sut.HasSeenAsync("stripe", "evt_cache_failure", CancellationToken.None)).Should().BeFalse();
     }
 }
