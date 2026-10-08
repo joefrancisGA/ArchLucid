@@ -331,4 +331,39 @@ describe("useNewRunWizardQueryPrefill", () => {
       expect(reset).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("retains policy-pack prefill when an accelerator reset runs on the same mount", async () => {
+    const values = { policyReferences: [] as string[] };
+    const reset = vi.fn((nextValues: WizardFormValues) => {
+      values.policyReferences = nextValues.policyReferences;
+    });
+    const setValue = vi.fn((field: keyof WizardFormValues, value: unknown) => {
+      if (field === "policyReferences") {
+        values.policyReferences = value as string[];
+      }
+    });
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams("ai-llm-workload"),
+          deeplinkPolicyPackId: "cis-azure-baseline",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset,
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledTimes(1);
+    });
+
+    expect(values.policyReferences).toEqual(["cis-azure-baseline"]);
+  });
 });

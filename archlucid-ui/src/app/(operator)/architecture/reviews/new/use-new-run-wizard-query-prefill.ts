@@ -24,6 +24,17 @@ type QueryPrefillOptions = {
   readonly showToast: (kind: "ok" | "err", message: string) => void;
 };
 
+function applyPolicyPackPrefill(
+  deeplinkPolicyPackId: string | null,
+  setValue: UseFormSetValue<WizardFormValues>,
+): void {
+  if (deeplinkPolicyPackId === null) {
+    return;
+  }
+
+  setValue("policyReferences", [deeplinkPolicyPackId], { shouldValidate: true, shouldDirty: true });
+}
+
 /**
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.
@@ -68,7 +79,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
     }
 
     policyPackPrefillAppliedRef.current = true;
-    setValue("policyReferences", [deeplinkPolicyPackId], { shouldValidate: true, shouldDirty: true });
+    applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
   }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
@@ -84,12 +95,13 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
 
     acceleratorPrefillAppliedRef.current = true;
     reset(applyWizardPreset(buildDefaultWizardValues(), preset));
+    applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);
 
     if (!baselineFirst) {
       persistWizardMode("full");
     }
-  }, [acceleratorPackId, baselineFirst, goToStep, persistWizardMode, reset]);
+  }, [acceleratorPackId, baselineFirst, deeplinkPolicyPackId, goToStep, persistWizardMode, reset, setValue]);
 
   useEffect(() => {
     if (presetDeeplinkToken === null || presetDeeplinkPresetId === null || presetPrefillAppliedRef.current) {
@@ -110,16 +122,19 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
 
     presetPrefillAppliedRef.current = true;
     reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
+    applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);
     persistWizardMode("full");
   }, [
     acceleratorPackId,
     baselineFirst,
+    deeplinkPolicyPackId,
     goToStep,
     persistWizardMode,
     presetDeeplinkPresetId,
     presetDeeplinkToken,
     reset,
+    setValue,
   ]);
 
   useEffect(() => {

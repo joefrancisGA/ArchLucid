@@ -1,5 +1,59 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
+
+2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed keyset probe/assembly clamping, offset probe/assembly clamping, GUID project matching, archived-run list filtering, and timestamp/RunId ordering; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `worker-host` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed bootstrap-before-pipeline ordering, graceful shutdown registration, configuration validation, warning diagnostics, and Azure OpenAI bridge validation; 31 scoped worker host/composition tests passed (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed authority-list connection routing, distinct list telemetry, negative-offset normalization, cursor pass-through, and archived warning-snapshot exclusion; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed run-id binding for compare manifests, foreign-project scope rejection, recommendation filtering, and sealed-manifest failure handling; 40 focused `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`, `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`, `InMemory_count_by_architecture_id_excludes_archived_runs`, and `NormalizeArchitectureRequestId_collapses_internal_whitespace`; 219 focused Persistence tests passed (`RunAnalyzers=false`).
+
+2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`, `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`, `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`, `InMemory_get_by_id_including_archived_returns_soft_archived_run`, and `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; scoped zone filter tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify` and `VerifyCodeAsync_rejects_expired_code`; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` and 9 Api controller tests passed (`RunAnalyzers=false`).
@@ -4402,9 +4456,35 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 45 · **Bugs found:** 7 · **Consecutive dry hunts:** 7
+**Hunts:** 53 · **Bugs found:** 7 · **Consecutive dry hunts:** 13
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression in `SqlTenantSettingsRepositoryValidationTests`; 43 scoped `SqlTenantSettingsRepository` + `TenantSettings_` tests passed.
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (dry): cheap-disproof closed the five caching/SQL candidates below; existing cache concurrency and failure-path regressions cover the read/write races and generation behavior, while duplicate rows are excluded by the composite primary key and concurrent `MERGE` behavior had no failing repro; 17 focused `SqlTenantSettingsRepository` tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected SQL and caching repositories and migration contract; no candidate met the hunt-ready bar because the remaining concerns require a production SQL collation or unbounded-input observation not demonstrated by these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
+
+2026-10-08 thorough hunt (dry): cheap-disproof closed the three seeded candidates; invariant key normalization has no demonstrated collation divergence in the supported setting-key family, overlong keys fail closed at the SQL schema boundary rather than producing incorrect state, and cross-instance cache staleness is outside the decorator’s write contract; 17 focused `SqlTenantSettingsRepository` tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected SQL, cache, migration, and focused test paths; no fresh reachable mechanism-backed candidate remained after prior cache, normalization, schema, and concurrency coverage; added no regression and no new candidate row.
+
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process restart resets generation counters while a shared cache can still contain old `:g0` entries — locus: static dictionary initialization ~13; input: application restart followed by a read before the shared cache TTL expires.
+- [ ] (candidate) `CachingTenantSettingsRepository.BuildCacheKey` — tenant-setting keys containing the cache-key delimiter may collide with another normalized key — locus: string interpolation ~103; input: two setting keys whose serialized key segments produce the same cache key.
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — cancellation after `QuerySingleOrDefaultAsync` completes but before the method returns can surface cancellation despite a committed read — locus: awaited Dapper query and post-query trim ~62–68; input: request token canceled in the return boundary.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process-local generation keys may not invalidate a shared cache after another application instance writes the same setting — locus: static generation dictionary ~13 and generation-stamped cache key ~103; input: read on node A, upsert on node B, then read on node A.
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — generation entries grow without eviction for every tenant/key ever written — locus: static `ConcurrentDictionary` ~13 and unconditional `BumpCacheGeneration`; input: many ephemeral tenant setting keys over the process lifetime.
+- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — cancellation during cache invalidation after a successful inner write leaves a generation gap and repeated cold reads — locus: `InvalidateCurrentGenerationCacheAsync` ~64; input: SQL upsert succeeds, cache removal observes cancellation, then a read starts.
+- [ ] (candidate) `CachingTenantSettingsRepository.DeleteAsync` — cancellation during invalidation after a successful delete leaves the new generation without a negative cache entry — locus: delete path ~83–88; input: delete succeeds, cache removal is canceled, then repeated reads request the deleted key.
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — concurrent `MERGE` operations for one tenant/key may race without an explicit serializing hint — locus: `MERGE dbo.TenantSettings` ~88–97; input: parallel upserts for the same normalized tenant/key under a unique constraint.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed.
 
 - [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` — whitespace-only `SettingValue` row in SQL maps to `null` — **cheap-disproof 2026-10-08 seed hunt #45:** `string.IsNullOrWhiteSpace` coalesces legacy blanks; regression `TryGetCoreAsync_maps_whitespace_only_setting_value_scalar_to_null`.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — `WriteInFlightKeys` bypasses cache and reads inner during in-flight upsert — **cheap-disproof 2026-10-08 seed hunt #45:** intentional read-through while upsert/delete in flight; regression `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`.
@@ -4417,6 +4497,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [ ] (candidate) `SqlTenantSettingsRepository.TryGetAsync` — rejects `Guid.Empty` tenant id before opening SQL connection — locus: ~45–46; input: `TryGetAsync_throws_when_tenant_id_empty` on in-memory parity contract.
 - [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — measures length after `Trim()` so padded values at exact NVARCHAR budget pass — locus: guard implementation; input: `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
 - [ ] (candidate) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — locus: `TryGetAsync` ~43–44; input: `TenantSettings_TryGetAsync_returns_null_after_cached_miss_before_generation_bump`.
+
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — persists `settingValue.Trim()` on MERGE while read path also trims scalars — **cheap-disproof 2026-10-08 seed hunt #46:** write/read trimming is symmetric; regression `UpsertAsync_round_trips_trimmed_key_and_value`.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — normalizes setting key before cache slot and inner delegate — **cheap-disproof 2026-10-08 seed hunt #46:** casing variants share one normalized cache slot; regression `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetAsync` — rejects `Guid.Empty` tenant id before opening SQL connection — **cheap-disproof 2026-10-08 seed hunt #46:** tenant guard fails closed before connection access; regression `TryGetAsync_throws_when_tenant_id_empty`.
+- [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — measures length after `Trim()` so padded values at exact NVARCHAR budget pass — **cheap-disproof 2026-10-08 seed hunt #46:** trimmed persisted value fits the migration limit; regression `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository` — `TenantSettingCacheEntry.IsPresent` distinguishes cached miss from HybridCache absent entry — **cheap-disproof 2026-10-08 seed hunt #46:** cached miss is refreshed after generation bump; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`.
+
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — normalizes the key before `TenantSettingsWriteGuard` but trims the value only in SQL parameters — locus: `normalizedKey` and `SettingValue = settingValue.Trim()` ~83–107; input: setting value containing leading/trailing Unicode whitespace.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — invalid `settingKey` is normalized before the cache read and may throw outside the inner repository's validation boundary — locus: `TenantSettingKeyNormalizer.Normalize` ~26; input: null or whitespace key through the caching decorator.
+- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — `WriteInFlightKeys.TryAdd` does not record whether a prior writer owns the slot — locus: `WriteInFlightKeys` ~59–67; input: concurrent upserts for the same tenant/key with one cancellation.
+- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — `QuerySingleOrDefaultAsync` assumes one row per tenant/key and surfaces duplicate-row data errors — locus: scalar Dapper query ~62–68; input: legacy duplicate `TenantSettings` rows before unique-key repair.
+- [ ] (candidate) `TenantSettingsWriteGuard.EnsureSettingValueLength` — .NET `Trim()` and SQL `SettingValue` storage may disagree for non-breaking-space edge padding — locus: `settingValue.Trim()` ~11; input: value padded with `U+00A0` at the NVARCHAR boundary.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 16 scoped `SqlTenantSettingsRepository` tests plus 42 `TenantSettings_` caching tests passed.
 
@@ -4442,9 +4534,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 45
+- **hunts:** 53
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
@@ -4469,6 +4561,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (valid-no-repro) `TenantSettingKeyNormalizer.Normalize` plus `SqlTenantSettingsRepository` — .NET invariant lower-casing may produce a cache key different from the SQL collation’s equality for a non-ASCII setting key, splitting cache entries for one database row — **cheap-disproof 2026-10-08 thorough hunt #52:** the supported setting-key family is ASCII/canonical and the selected files provide no reachable non-ASCII production key or demonstrated collation mismatch.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — setting keys longer than the migration’s `nvarchar(128)` column fail only at SQL execution because the repository validates non-blank keys but not storage length — **cheap-disproof 2026-10-08 thorough hunt #52:** an overlong key is rejected by the database boundary before incorrect setting state is committed; the repository’s known production-key validation confirms shipped keys fit the schema.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — cache lookup can retain a negative result for the hot-path TTL when an external SQL writer changes the setting without using this decorator — **cheap-disproof 2026-10-08 thorough hunt #52:** generation invalidation is intentionally tied to writes through this decorator; an out-of-band writer bypasses the selected cache contract and has no failing scoped repro.
+
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — a normalized-key cache read can occur after a concurrent delete has marked the slot in-flight but before the write marker becomes visible, allowing a stale positive entry to be returned — **cheap-disproof 2026-10-08 thorough hunt #50:** `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed` and related write-in-flight regressions return the committed post-delete state.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — a canceled inner upsert leaves the first generation bump in place even though the SQL write did not commit, causing avoidable cache misses and generation growth — **cheap-disproof 2026-10-08 thorough hunt #50:** canceled cold-load/upsert tests show the wrapper refreshes from the current generation and preserves the last committed value.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — an inner delete exception leaves the pre-delete cache generation advanced without invalidating the previous generation entry — **cheap-disproof 2026-10-08 thorough hunt #50:** `TenantSettings_TryGetAsync_returns_last_committed_value_when_delete_fails_after_generation_bump` confirms failed deletes do not expose stale or missing data.
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — duplicate rows for a tenant/key cause `QuerySingleOrDefaultAsync` to throw instead of returning a deterministic setting — **cheap-disproof 2026-10-08 thorough hunt #50:** `dbo.TenantSettings` has a composite primary key on `(TenantId, SettingKey)`, so duplicate rows are not reachable under the selected schema.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — SQL `MERGE` can report a duplicate-key or concurrency error when parallel writers target the same normalized tenant/key — **cheap-disproof 2026-10-08 thorough hunt #50:** parallel writer behavior had no failing repro in the available scoped suite; the composite primary key constrains the row shape and last-writer semantics remain deterministic.
 
 - [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — padding whitespace around near-limit payloads — **cheap-disproof 2026-10-06 thorough hunt:** guard and MERGE both use trimmed length/value; cannot exceed `NVARCHAR(512)` when trim fits; regression `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
 - [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — whitespace-only read parity vs SQL — **cheap-disproof 2026-10-06 thorough hunt:** `UpsertAsync` rejects whitespace values; no production caller seeds whitespace rows in SQL or in-memory paths in this zone.
@@ -4606,7 +4708,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
-**Hunts:** 46 · **Bugs found:** 9 · **Consecutive dry hunts:** 8
+**Hunts:** 47 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 94 scoped SignupForm vitest tests passed.
 
@@ -4704,9 +4808,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
 - **related-pd-tb:** TB-2005
@@ -4719,6 +4823,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2089 (seed-only): reseeded ui-form-validation; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `buildSignupRegisterPayload` — `organizationName`, `adminEmail`, and `adminDisplayName` are copied without trimming when the builder is called with resolver-bypassing values — locus: initial payload object around lines 43–48; input: values supplied by a non-UI caller or a form adapter that bypasses the zod resolver.
+- [ ] (candidate) `SignupForm` success handling — a successful registration with no `companySize` leaves an older `archlucid_signup_company_size` session value intact — locus: conditional session-storage write around lines 170–177; input: operator registers once with a company-size selection, then registers again after choosing “Prefer not to say” in the same browser session.
+- [ ] (candidate) `SignupForm` success handling — a second successful registration overwrites `archlucid_last_registration` without preserving the prior tenant context — locus: unconditional session-storage write around lines 178–188; input: an operator completes registration twice after a recoverable navigation/session transition.
+- [ ] (candidate) `SignupForm` `onSubmit` — a `Response` whose `text()` rejects after an otherwise successful HTTP status reaches the generic error toast and leaves the completed registration state ambiguous — locus: `await res.text()` before the status branch around lines 143–149; input: same-origin proxy response body stream failure after registration has committed.
+- [ ] (candidate) `SignupForm` `onSubmit` — the error fallback can expose raw HTML or infrastructure text from a non-OK proxy response in a toast — locus: `text || \`Request failed...\`` fallback around lines 157–164; input: reachable proxy/API 502 response with an HTML or diagnostic body and no string `detail`.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
@@ -5737,9 +5847,47 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 56 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+**Hunts:** 61 · **Bugs found:** 9 · **Consecutive dry hunts:** 14
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings`, `ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper`, `ExecuteAsync_generic_overload_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate`, `ExecuteAsync_does_not_retry_when_reflection_type_load_has_empty_loader_exceptions_and_sibling_deadlock_only`, and `ExecuteAsync_retries_when_aggregate_sole_inner_is_target_invocation_wrapping_all_transient_nested_aggregate`; 125 scoped transient-retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — a non-aggregate wrapper with sibling inner exception branches may inspect only the first nested aggregate and miss a permanent sibling in another branch — locus: linear `current.InnerException` walk ~95–104; input: wrapper containing two sibling exception chains, one transient aggregate and one permanent aggregate.
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — nested aggregate inspection can stop at the first non-empty nested aggregate and fail to classify sibling wrapper branches consistently — locus: recursive single-chain call ~73–79; input: a repository wrapper with multiple nested parallel-persist aggregates.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — static pipeline retries are not isolated by caller, so a shared pipeline diagnostic or callback state could leak between concurrent orchestration operations — locus: static `Pipeline` ~16; input: concurrent callers with different cancellation tokens and retry outcomes.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — delay arithmetic has no explicit guard that the returned delay remains within `RetryBudget` when callers pass a valid-but-unexpected attempt below `MaxAttempts` — locus: public linear delay method ~23–25; input: attempt 11 after reconciliation polling consumed most of the budget.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll delay is independent of elapsed retry budget, so repeated polls can exceed the documented hard ceiling before `IsExhausted` is checked — locus: public poll delay method ~26–28; input: eight reconciliation polls interleaved with near-budget outer retries.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — null `action` is discovered only when Polly invokes the pipeline rather than at the public boundary — locus: delegate invocation ~22; input: caller passes a null persistence delegate.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync<T>` — generic null `action` follows a different exception/diagnostic path from the void overload — locus: expression-bodied delegate invocation ~29; input: caller passes a null result-producing delegate.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — large attempt values can overflow `150 * attempt` and return a negative delay — locus: integer multiplication ~24; input: caller supplies `int.MaxValue` while validating a corrupted retry counter.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — large poll values can overflow `150 * poll` and return a negative delay — locus: integer multiplication ~27; input: reconciliation loop receives a corrupted poll index near `int.MaxValue`.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — a negative attempt with elapsed below budget is accepted as not exhausted — locus: only upper-bound attempt check ~20; input: retry-loop state is initialized or restored with `attempt = -1`.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — an action that throws cancellation after a transient failure may be classified as retryable before the caller token is observed — locus: shared Polly predicate and callback token boundary; input: first attempt raises transient SQL, retry attempt raises `TaskCanceledException` with an unrelated token.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync<T>` — generic result execution may differ from the void overload when the result task completes after the retry token is canceled — locus: generic callback expression ~29; input: `Task<string>` action completing during cancellation between retry attempts.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — elapsed time exactly equal to `RetryBudget` exhausts even when the attempt count is below the ceiling, which may discard a final allowed retry — locus: `elapsed >= RetryBudget`; input: commit loop clock at exactly 20 seconds with attempt 11.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — the final allowed attempt delay can consume a disproportionate part of the 20-second budget — locus: linear `150 * attempt`; input: commit retry attempt 12 after prior delays and reconciliation polls.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll zero returns no delay and can create a tight reconciliation loop — locus: linear `150 * poll`; input: first conflict poll with `poll == 0` while the manifest remains unavailable.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — top-level `AggregateException` with `NotSupportedException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #57:** `inners.All` rejects the permanent sibling; aggregate retries require every flattened inner to be transient.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `JsonException` wrapping mixed parallel-persist `AggregateException` — **cheap-disproof 2026-10-08 seed hunt #57:** wrapper traversal reaches the mixed aggregate and fails closed on the non-transient inner.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — generic `ExecuteAsync<T>` retries when sole aggregate inner is nested all-transient aggregate — **cheap-disproof 2026-10-08 seed hunt #57:** generic overload shares the static resilience pipeline; regression `ExecuteAsync_void_and_generic_overloads_match_attempt_counts_for_nested_all_transient_aggregate`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `AggregateException` listing `BadImageFormatException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #57:** loader fault is non-transient and blocks retry even beside SQL deadlock.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy` — `IsExhausted` true at max attempts even when elapsed is zero — **cheap-disproof 2026-10-08 seed hunt #57:** attempt ceiling is an independent hard stop; regression `IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget`.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — nested `AggregateException` with a null/empty inner collection may be treated as ordinary exception — locus: `TryGetParallelPersistInners` ~87–110; input: empty aggregate shell with a transient outer wrapper.
+- [ ] (candidate) `OrchestratorTransientDbRetry` — retry jitter can produce a delay outside the intended exponential envelope — locus: `Random.Shared.Next` ~43–51; input: retry attempts at jitter-span boundaries.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — cancellation token is replaced by Polly callback token during retry — locus: `Pipeline.ExecuteAsync` callbacks ~17–27; input: cancellation between failed attempt and retry delay.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — zero or negative attempt produces a non-positive delay — locus: `150 * attempt` ~24; input: first-attempt and invalid-attempt callers.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll index beyond configured attempts creates a delay beyond the retry budget — locus: `150 * poll` ~27; input: poll index equal to or greater than `ManifestReconcilePollAttempts`.
 
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `ObjectDisposedException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #56:** `inners.All` fail-fast; regression `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `FormatException` wrapping mixed parallel-persist aggregate — **cheap-disproof 2026-10-08 seed hunt #56:** wrapper walk parity with `InvalidCastException` family; regression `ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper`.
@@ -5801,9 +5949,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 56
+- **hunts:** 60
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
@@ -5816,6 +5964,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2019 (seed-only): reseeded orchestrator-transient-retry; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — a top-level aggregate containing a nested aggregate plus a direct transient sibling may flatten to a classification that differs from the wrapper-recursive path — locus: `TryGetParallelPersistInners` and `IsParallelPersistAggregateInnerRetriable` ~65–80; input: parallel persistence failure with both direct and nested aggregate inners.
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — an exception chain that contains an empty aggregate before a populated aggregate may return the populated branch but discard a direct transient exception outside that branch — locus: wrapper-chain scan ~95–108; input: repository wrapper with an empty aggregate, a transient SQL sibling, and a later populated aggregate.
+- [ ] (candidate) `OrchestratorTransientDbRetry` — retry-delay jitter is sampled even when cancellation is already requested, potentially consuming retry-policy work before cancellation is observed — locus: `DelayGenerator` ~40–52; input: cancellation requested during the first transient failure’s retry scheduling.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — a negative elapsed duration is accepted as within budget and can postpone exhaustion after a clock or state restoration anomaly — locus: upper-bound-only comparison ~20; input: retry state restored with `elapsed = TimeSpan.FromMilliseconds(-1)` and attempt below `MaxAttempts`.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — a poll index at `ManifestReconcilePollAttempts` still produces a delay even though that index is outside the intended poll range — locus: public linear delay method ~26–28; input: reconciliation loop or caller invokes the delay helper after the final allowed poll.
 
 - [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) Î“Ã‡Ã¶ fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
@@ -6011,7 +6165,35 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 36 · **Bugs found:** 11 · **Consecutive dry hunts:** 8
+**Hunts:** 43 · **Bugs found:** 13 · **Consecutive dry hunts:** 0
+
+2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected email-OTP controller and service; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected email-OTP controller and service; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (hit): proved that notifier cancellation after challenge persistence left the active challenge eligible for resend-cooldown suppression even though no code was delivered; cleanup now runs with `CancellationToken.None` on notifier failure and regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence` passed; the cleanup-storage-failure, whitespace display-email, inconsistent delivery metadata, and mutable-options-provider candidates were classified as `(valid-no-repro)`, `(invalid)`, `(invalid)`, and `(valid-no-repro)`.
+
+2026-10-08 seed hunt (seed-only): re-read the selected controller and service paths; no candidate met the hunt-ready bar without relying on an injected service result or behavior outside these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
+
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
+- [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` is copied into a successful response without verifying it belongs to the issued challenge — locus: direct `result.InvitationId` mapping ~145–149; input: service returns a mismatched invitation id alongside a valid code result.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — upper access-token lifetime clamp may differ from the configured contract — locus: `Math.Clamp(..., 5, 24 * 60)` ~128; input: successful verify with `AccessTokenLifetimeMinutes` above 1440.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — cancellation from an aborted challenge request may not prevent a completed response or downstream audit — locus: request cancellation token is passed directly to `RequestCodeAsync`; input: disconnect while notifier/repository work is pending.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — cancellation from an aborted verify request may arrive after challenge completion — locus: request cancellation token is passed directly to `VerifyCodeAsync`; input: disconnect during challenge completion and identity lookup.
+- [ ] (candidate) `EmailOtpRequestFlow` reached through `RequestChallengeAsync` — invitation-token whitespace or surrounding text may be interpreted inconsistently between challenge creation and verify — locus: controller forwards `InvitationToken` without normalization; input: challenge and verify requests using the same padded invitation token.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace `DisplayEmail` still satisfies the null-only token guard — locus: `result.DisplayEmail is null` check ~109; input: mocked or corrupted identity result with `DisplayEmail = "   "`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed resend cooldown and expired-verify service paths; 44 scoped Application tests + 9 Api controller tests passed.
 
@@ -6049,11 +6231,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 36
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 8
+- **hunts:** 43
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
+- **last-bug:** 2026-10-08 — notifier cancellation left an undelivered OTP challenge active
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -6081,6 +6263,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2074 (seed-only): reseeded email-otp-auth; 41 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — invitation routing may be lost when an invitation-link token arrives with surrounding whitespace because the controller forwards the token unchanged to the service — locus: `InvitationToken` mapping ~60–66; input: OpenAPI challenge request with a padded invitation token.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a padded invitation token may cause a valid challenge verification to omit invitation acceptance context because the controller forwards it unchanged — locus: `InvitationToken` mapping ~101–106; input: OpenAPI verify request with the invitation token copied with surrounding whitespace.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — the response lifetime clamp may disagree with the JWT lifetime when `AccessTokenLifetimeMinutes` exceeds 1440 because the controller clamps only `ExpiresInSeconds` while the issuer receives no lifetime argument — locus: lifetime calculation and `IssueAccessToken` call ~130–143; input: deployed `Auth:EmailOtp:AccessTokenLifetimeMinutes` configuration above 1440.
+
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — **cheap-disproof 2026-10-08 thorough hunt #42:** the repository failure is an infrastructure outage outside the normal notifier input path; cleanup remains best effort and the flow preserves the original notifier failure rather than returning a successful challenge result.
+- [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — **hit 2026-10-08 thorough hunt #42:** notifier exceptions previously escaped before active-challenge cleanup, so resend cooldown suppressed a retry; cleanup now uses `CancellationToken.None`; regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence`.
+- [x] (invalid) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace-only `DisplayEmail` passes the token guard and issues a token containing an unusable identity email — **cheap-disproof 2026-10-08 thorough hunt #42:** the controller receives the application result, whose real request/verify path derives `DisplayEmail` through email normalization; a whitespace value requires an injected corrupted service result and is not reachable through these files.
+- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — a service result can expose a `ChallengeId` alongside `EmailDeliverySucceeded = false` if a custom flow returns inconsistent delivery metadata — **cheap-disproof 2026-10-08 thorough hunt #42:** the controller only maps the application result and has no independent delivery state; the inconsistent combination requires an injected fake service result rather than a reachable production path.
+- [x] (valid-no-repro) `EmailOtpAuthService` — two option reads during construction can create request and verify flows with different hash peppers or attempt limits — **cheap-disproof 2026-10-08 thorough hunt #42:** the service is constructed with an `IOptions<T>` snapshot and runtime option mutation between constructor reads is outside the supported request contract.
+
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` — **hit 2026-10-08 thorough hunt:** a successful service result with `PlatformUserId = Guid.Empty` passed the null-only guard and issued a token for an empty identity; the controller now rejects null or empty platform-user IDs; regression `VerifyAsync_rejects_success_result_with_empty_platform_user_id`.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — **cheap-disproof 2026-10-08 thorough hunt:** `EmailOtpAuthNextStep` values are consumed by the UI using the same PascalCase enum names emitted by `ToString`; existing post-auth parity tests cover all current members and safe handling of unknown future values.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — **cheap-disproof 2026-10-08 thorough hunt:** the controller forwards `User-Agent` only to the application flow, which hashes it before persistence; no raw header is written to audit or challenge storage.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — **cheap-disproof 2026-10-08 thorough hunt:** nullable `ClientIp` is intentionally accepted by optional metadata hashing and rate-limit helpers; absent proxy addresses do not collapse tenant or identity scope.
+- [x] (valid-no-repro) `EmailOtpAuthService` — **cheap-disproof 2026-10-08 thorough hunt:** the service receives an options snapshot by design and constructs both flows from the same value; runtime configuration reload is not a supported mid-request contract.
 
 - [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary — service-level normalization returns the neutral result before side effects.
@@ -6164,9 +6362,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 56 · **Bugs found:** 22 · **Consecutive dry hunts:** 9
+**Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`, `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`, `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
+
+- [x] (valid-no-repro) `TryNormalize` — PARAGRAPH SEPARATOR U+2029 inside path segments — **cheap-disproof 2026-10-08 seed hunt #54:** separator is not a control/open-redirect shape; path remains relative and no protocol traversal is introduced.
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded soft hyphen `%C2%AD` in path — **cheap-disproof 2026-10-08 seed hunt #54:** decode preserves the safe relative path and does not create a slash, dot, backslash, or userinfo shape.
+- [x] (valid-no-repro) `ContainsProtocolRelativeTraversal` — query-only `//` after decode without scheme — **cheap-disproof 2026-10-08 seed hunt #54:** conservative full-string scan rejects decoded `//`, even when it appears only in query data.
+- [x] (valid-no-repro) `ContainsControlCharacter` — vertical tab `%0B` in path segment — **cheap-disproof 2026-10-08 seed hunt #54:** post-decode `char.IsControl` rejection covers vertical tab.
+- [x] (valid-no-repro) `TryNormalizeRelativePath` — fragment containing `://` without path `@` — **cheap-disproof 2026-10-08 seed hunt #54:** whole-string scheme delimiter rejection is conservative and prevents fragment-based redirect ambiguity.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded paragraph separator `%E2%80%A9` in path segment — locus: percent-decode loop before `TryNormalizeRelativePath`; input: `/reviews%E2%80%A9/1`.
+- [ ] (candidate) `ContainsControlCharacter` — form feed `%0C` after percent decoding — locus: decoded control scan ~75; input: `/reviews/%0Csegment`.
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — encoded backslash plus slash `%5C%2F` in query — locus: residual traversal scan ~116–123; input: `/reviews?next=%5C%2Fevil.example`.
+- [ ] (candidate) `ContainsDotDotSegment` — percent-encoded dot pair `%2E%2E` in fragment — locus: full decode and path-only traversal split; input: `/reviews#next=%2E%2E/admin`.
+- [ ] (candidate) `ContainsAtSignInPath` — percent-encoded small commercial at `%EF%B9%AB` in path — locus: decoded path userinfo scan; input: `/reviews/%EF%B9%ABevil.example`.
 
 - [x] (valid-no-repro) `TryNormalize` — percent-encoded POP `%E2%81%A9` — **cheap-disproof 2026-10-08 seed hunt #56:** decodes to in-path directional isolate; regression `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`.
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%0D` in path — **cheap-disproof 2026-10-08 seed hunt #56:** post-decode CR rejected; regression `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`.
@@ -6263,9 +6473,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 22
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
@@ -6804,9 +7014,47 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
-**Hunts:** 64 · **Bugs found:** 27 · **Consecutive dry hunts:** 3
+**Hunts:** 67 · **Bugs found:** 27 · **Consecutive dry hunts:** 6
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design` and `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`; reaffirmed project-list cache key isolation, archived read vs recent list filter, and in-memory keyset warning retention; scoped zone filter tests passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed keyset probe/assembly clamping, offset probe/assembly clamping, GUID project matching, archived-run list filtering, and timestamp/RunId ordering; 172 focused Persistence tests passed and 1 SQL integration test skipped.
+
+- [x] (valid-no-repro) `SqlRunRepository.ListByProjectKeysetAsync` — `RunListPageAssembler.FromProbedRows` receives `RunPagination.ClampTake(take)` while SQL fetch uses `Fetch(take)` — **cheap-disproof 2026-10-08 seed hunt #67:** SQL requests one probe row and assembly clamps to the caller page size; existing keyset boundary tests cover the split.
+- [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeOffsetAsync` — offset path uses `RunPagination.ClampLimit(limit)` for assembly while SQL fetch adds one probe row — **cheap-disproof 2026-10-08 seed hunt #67:** offset SQL and result assembly share the same clamped limit contract; focused offset tests pass.
+- [x] (valid-no-repro) `RunListWarningFlagSql.ProjectWherePrefix` — project list matches normalized display slug or parses scope project GUID with `TRY_CONVERT` — **cheap-disproof 2026-10-08 seed hunt #67:** GUID project matching is explicit and remains an alternate path to normalized slug matching; focused SQL shape tests pass.
+- [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeAsync` — recent scope filter excludes archived runs while project list path may include them — **cheap-disproof 2026-10-08 seed hunt #67:** archived exclusion is intentional for recent-in-scope dashboard lists; archived support remains an explicit detail-read contract.
+- [x] (valid-no-repro) `SqlRunRepository.ListByProjectAsync` — project list ordering remains `CreatedUtc DESC, RunId DESC` under timestamp ties — **cheap-disproof 2026-10-08 seed hunt #67:** shared list ordering includes the RunId tie-break; focused stable-page tests pass.
+
+- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — `projectId` is passed both as raw `ProjectSlug` and normalized `NormalizedProjectSlug`, so GUID and display-slug branches may diverge on surrounding whitespace — locus: `ForProjectList` parameter object; input: padded scope-project GUID.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeKeysetAsync` — nullable cursor pair is validated before `PersistenceTenantScope.RequireScopedTenant`, changing which exception wins for an unscoped malformed request — locus: method ordering ~126–130; input: missing tenant scope plus partial cursor.
+- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — telemetry is recorded in `finally` even when connection creation is canceled, potentially recording misleading successful latency — locus: `finally` ~49; input: cancellation before authority connection opens.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeOffsetAsync` — `RunListPageAssembler.FromProbedRows` may report `HasMore` from the probe row after negative offset normalization — locus: offset query/assembly ~170–175; input: negative offset with one extra row.
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — open alert aggregate is not filtered by tenant/workspace/project before joining on `RunId` — locus: `govWarn` subquery ~99–104; input: globally unique vs mis-scoped duplicated alert RunId.
+
+- [x] (valid-no-repro) `SqlRunRepository.ListByProjectAsync` — project list uses the authority-list connection factory while keyset list uses the same hot-path SQL route — **cheap-disproof 2026-10-08 seed hunt #66:** both project list shapes use `authorityRunListConnectionFactory`; regression `SqlRunRepository_list_paths_use_authority_run_list_factory_while_get_by_id_uses_primary`.
+- [x] (valid-no-repro) `SqlRunRepository.ListRecentInScopeAsync` — recent list records `GetRunsByTenantId` telemetry while keyset and offset paths use distinct names — **cheap-disproof 2026-10-08 seed hunt #66:** telemetry names identify each list shape and do not alter result semantics; focused repository shape tests passed.
+- [x] (valid-no-repro) `RunListQueryParameters.ForRecentInScopeOffsetPage` — negative offset normalizes to zero before SQL bind — **cheap-disproof 2026-10-08 seed hunt #66:** `RunPagination.NormalizeOffset` fail-safely binds zero; regression `ForRecentInScopeOffsetPage_normalizes_a_negative_offset`.
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — cursor values pass through unchanged after paired-cursor validation — **cheap-disproof 2026-10-08 seed hunt #66:** nullable cursor values are bound directly after `ValidateRunKeysetCursor`; focused keyset parameter tests passed.
+- [x] (valid-no-repro) `RunListWarningFlagSql.LeftJoinAggregates` — archived finding snapshots are excluded from `HasWarnings` aggregate while active run rows remain listable — **cheap-disproof 2026-10-08 seed hunt #66:** aggregate explicitly filters `fs.ArchivedUtc IS NULL`; focused SQL shape tests passed.
+
+- [ ] (candidate) `SqlRunRepository.ListByProjectKeysetAsync` — `RunListPageAssembler.FromProbedRows` receives `RunPagination.ClampTake(take)` while SQL fetch uses `Fetch(take)` — locus: keyset return ~79; input: take below, at, and above the max page size.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeOffsetAsync` — offset path uses `RunPagination.ClampLimit(limit)` for assembly while SQL fetch adds one probe row — locus: ~173–175; input: limit zero, negative, and max values.
+- [ ] (candidate) `RunListWarningFlagSql.ProjectWherePrefix` — project list matches normalized display slug or parses scope project GUID with `TRY_CONVERT` — locus: ~58–63; input: project id supplied as a scope-project GUID string.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeAsync` — recent scope filter excludes archived runs while project list path may include them — locus: `ScopeWhereTail` and project list SQL shape; input: archived run queried through both list APIs.
+- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — project list ordering remains `CreatedUtc DESC, RunId DESC` under timestamp ties — locus: `CreatedUtcDescOrderBy`; input: two same-timestamp runs in one project.
+
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — unset `take` uses `RunPagination.ClampTake` default (25) for `@Fetch` probe, not project-list default 20 — **cheap-disproof 2026-10-08 seed hunt #65:** keyset pagination intentionally uses the shared 25-row cursor default; regression `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`.
+- [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeOffsetAsync` — offset continuation with `offset > 0` bypasses first-page cache while unpaged recent list remains cached — **cheap-disproof 2026-10-08 seed hunt #65:** only the first offset page is cacheable; continuation reaches the inner repository; focused cache invalidation tests passed.
+- [x] (valid-no-repro) `RunListWarningFlagSql.KeysetCursorPredicate` — `CreatedUtc` equality branch uses `RunId` strict inequality for stable seek — **cheap-disproof 2026-10-08 seed hunt #65:** SQL shape includes the descending `RunId` tie-break; regression `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`.
+- [x] (valid-no-repro) `InMemoryRunRepository.CountByArchitectureIdAsync` — excludes archived rows same as architecture-attached list — **cheap-disproof 2026-10-08 seed hunt #65:** `IsActiveInScope` excludes archived rows; regression `InMemory_count_by_architecture_id_excludes_archived_runs`.
+- [x] (valid-no-repro) `RunRepositoryCore.NormalizeArchitectureRequestId` — collapses internal double spaces before uppercase seek — **cheap-disproof 2026-10-08 seed hunt #65:** normalization collapses space runs while preserving tab semantics matching SQL; regression `NormalizeArchitectureRequestId_collapses_internal_whitespace`.
+
+- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — project list uses the authority-list connection factory while keyset list uses the same hot-path SQL route — locus: connection factory calls ~37 and ~72; input: project list under a replica-routing configuration.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeAsync` — recent list records `GetRunsByTenantId` telemetry while keyset and offset paths use distinct names — locus: `RecordNamedQueryLatencyMilliseconds` ~114; input: mixed list shapes in telemetry aggregation.
+- [ ] (candidate) `RunListQueryParameters.ForRecentInScopeOffsetPage` — negative offset normalizes to zero before SQL bind — locus: `RunPagination.NormalizeOffset(offset)` ~102; input: offset API request with `offset=-1`.
+- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — cursor values pass through unchanged after paired-cursor validation — locus: `CursorCreatedUtc` / `CursorRunId` ~53; input: UTC cursor at a `CreatedUtc` tie.
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — archived finding snapshots are excluded from `HasWarnings` aggregate while active run rows remain listable — locus: `fs.ArchivedUtc IS NULL` ~95; input: run with only archived warning snapshot rows.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `CachingRunRepository.ListByProjectAsync` — first-page cache uses `safeTake` up to 200 while keyset caches `RunPagination.ClampTake` — **cheap-disproof 2026-10-08 seed hunt #64:** hot-path cache keys include clamped take so unpaged and keyset shapes do not collide; regression `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectList` vs `ForRecentInScope` — zero take defaults to 20 on project lists but 200 on recent-in-scope unpaged — **cheap-disproof 2026-10-08 seed hunt #64:** intentional API split documented on `DefaultProjectListTake` vs `MaxUnpagedTake`; regression `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`.
@@ -6919,9 +7167,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 64
+- **hunts:** 67
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none
@@ -8119,9 +8367,43 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 35 · **Bugs found:** 10 · **Consecutive dry hunts:** 7
+**Hunts:** 41 · **Bugs found:** 10 · **Consecutive dry hunts:** 12
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetContextsAsync_when_compared_to_run_has_null_findings_snapshot_still_compares_manifests_with_primary_findings`, `GetContextsAsync_excludes_learning_profile_when_project_id_mismatches_caller_scope`, and `GetContextsAsync_explicit_run_path_ignores_recent_run_count_before_listing`; reaffirmed `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws` and `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority`; 40 scoped `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (dry): cheap-disproof closed the five alert-simulation candidates; comparison ordering matches the `IComparisonService` base/target contract, self-comparison and stale timestamps lacked a reachable wrong outcome, nullable recommendations and malformed comparison metadata require injected invalid collaborators, and 40 focused provider tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected alert controller and context-provider paths; no candidate met the hunt-ready bar because the remaining concerns require injected infrastructure failures or behavior outside these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run-summary item from the authority list can fail the entire recent-run simulation before empty-id filtering — locus: `runs.OrderByDescending(x => x.CreatedUtc)` ~75; input: authority adapter returns a null item in an otherwise valid list.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run list from the authority query is enumerated without a defensive empty fallback — locus: `foreach` over `runs` ~75; input: unavailable project listing returns `null` instead of an empty collection.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — a comparison service returning `null` for valid manifests silently drops `ComparedToRunId` from the context — locus: `comparison = comparisonService.Compare(...)` ~174 and output mapping ~202; input: comparison implementation cannot produce a result for an otherwise valid baseline.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — cancellation after primary detail load but during comparison detail load can abandon a valid primary context instead of returning primary-only simulation — locus: shared `ct` passed to the second authority query ~147; input: request cancellation while loading the compare-to run.
+- [ ] (candidate) `AlertSimulationContextProvider` constructor — null collaborator dependencies are not explicitly guarded before the first simulation call — locus: primary-constructor assignments have no `ArgumentNullException` checks; input: direct composition/test construction with a missing comparison or manifest-hash service.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison of a run to itself may produce a misleading non-null comparison result — locus: comparison branch only excludes `Guid.Empty`, not `compareRunId == runId`; input: explicit simulation request with identical primary and comparison run ids.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — empty tenant/workspace/project ids are accepted into the authority query and scope filters — locus: `ScopeContext` is constructed without identity guards ~42–48; input: caller scope provider returns one or more `Guid.Empty` ids.
+- [ ] (candidate) `FindingsSnapshotMatchesGoldenManifest` — a findings snapshot with matching ids but incompatible schema or timestamp is accepted — locus: helper checks only four snapshot ids ~218–222; input: historical findings payload reusing manifest identifiers with a changed schema version.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — same-run summaries with equal `CreatedUtc` are selected by source order after `DistinctBy` — locus: `OrderByDescending(...).DistinctBy(...)` ~75; input: authority returns duplicate run ids with equal timestamps but different summary payloads.
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation ordering from the repository is preserved without a deterministic timestamp/id sort — locus: scope filter ends in `ToList()` ~239–246; input: same-scope recommendations returned in different database orders for one simulated run.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed compare-manifest run-id binding, foreign-project comparison scope, recommendation run-id filtering, and explicit sealed-manifest conflict handling; 40 focused `AlertSimulationContextProviderTests` passed.
+
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to baseline with `GoldenManifest.RunId` != `compareToRunId` skips comparison — **cheap-disproof 2026-10-08 seed hunt #36:** compared manifest must bind to `compareToRunId`; existing run-id mismatch guard returns primary-only context.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to baseline with `comparedDetail.Run.RunId` != `compareToRunId` skips comparison — **cheap-disproof 2026-10-08 seed hunt #36:** compared run detail must bind to the requested compare id; existing run-id guard rejects mismatched detail.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to foreign `ScopeProjectId` on compared run drops comparison — **cheap-disproof 2026-10-08 seed hunt #36:** `RunMatchesCallerScope` requires tenant, workspace, and project equality; the primary foreign-project guard is covered by `GetContextsAsync_when_authority_returns_foreign_project_run_returns_empty`, with tenant/workspace compare parity in the adjacent compare tests.
+- [x] (valid-no-repro) `FilterRecommendationsForSimulationScope` — recommendation row with `RunId == Guid.Empty` dropped even when tenant/workspace/project match — **cheap-disproof 2026-10-08 seed hunt #36:** recommendation filtering requires the requested run id in addition to caller scope; existing recommendation scope tests cover mismatched run rows.
+- [x] (valid-no-repro) `AlertSimulationController.Simulate` — sealed-manifest block on primary explicit run maps to `409 Conflict` — **cheap-disproof 2026-10-08 seed hunt #36:** `IsSealedManifestSimulationBlock` catches the provider's explicit-path failure and maps it through `ConflictProblem`.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch `DistinctBy(x => x.RunId)` keeps the first duplicate before ordering — locus: `runs.OrderByDescending(...).DistinctBy(...)` ~75; input: authority list with duplicate run ids at different timestamps.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch skips `Guid.Empty` rows before `BuildContextAsync` — locus: `if (run.RunId == Guid.Empty)` ~77; input: authority list containing an empty run id.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — null primary findings synthesizes manifest-bound empty findings before comparison — locus: `detail.FindingsSnapshot ?? CreateEmptyFindings(...)` ~137; input: primary detail with null findings and a valid compare-to run.
+- [ ] (candidate) `AlertSimulationContextProvider.FilterLearningProfileForSimulationScope` — profile requires all three caller scope ids, including project — locus: scope filter ~253; input: matching tenant/workspace with foreign project profile.
+- [ ] (candidate) `AlertSimulationController.Simulate` — null request is rejected before scope resolution or simulation service call — locus: `request is null` ~25; input: HTTP POST with null JSON body.
 
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to with null `FindingsSnapshot` still compares manifests using primary findings — **cheap-disproof 2026-10-08 seed hunt #35:** compare branch never reads compare findings; `CreateEmptyFindings` not applied to compare row; regression `GetContextsAsync_when_compared_to_run_has_null_findings_snapshot_still_compares_manifests_with_primary_findings`.
 - [x] (invalid) `AlertSimulationSealedManifestHashGuard` — recent-run batch `skipOnSealedHashFailure` on compare-to during explicit-run simulate — **cheap-disproof 2026-10-08 seed hunt #35:** explicit path calls `BuildContextAsync` with `skipOnSealedHashFailure: false` once; compare-to uses `EnsureRunSealedManifestHashOrThrow` (not batch skip); regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`.
@@ -8177,9 +8459,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 35
+- **hunts:** 41
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -8188,6 +8470,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2078 (seed-only): reseeded alert-simulation; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AlertSimulationController.Simulate` — a successful simulation can be converted to an HTTP 400 when the post-simulation audit call throws `InvalidOperationException` — locus: audit await inside the broad validation catch ~48–66; input: valid simulation request followed by an audit provider failure.
+- [ ] (candidate) `AlertSimulationController.Simulate` — cancellation during post-simulation audit can discard an already-computed simulation result — locus: audit call reuses `ct` after `SimulateAsync` ~48–66; input: client disconnect after simulation completes but before audit persistence completes.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — comparison-adapter `InvalidOperationException` is surfaced to the controller’s generic validation response rather than producing a primary-only simulation context — locus: comparison call ~174–177 and controller catch ~65–68; input: valid scoped runs whose comparison adapter rejects a manifest pair.
+
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — **cheap-disproof 2026-10-08 thorough hunt #40:** `IComparisonService.Compare` defines `(baseManifest, targetManifest)` and `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` verifies `Compare(comparedManifest, primaryManifest)`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — **cheap-disproof 2026-10-08 thorough hunt #40:** the branch is reachable but no incorrect user-visible result was demonstrated; the request contract permits an optional baseline and the comparison service receives identical manifests.
+- [x] (valid-no-repro) `FindingsSnapshotMatchesGoldenManifest` — a snapshot with matching IDs but stale `CreatedUtc` is accepted, allowing findings from a different capture generation to feed simulation — **cheap-disproof 2026-10-08 thorough hunt #40:** snapshot identity is bound by run and snapshot IDs; no reachable path showed those IDs being reused with a different capture generation.
+- [x] (invalid) `FilterRecommendationsForSimulationScope` — a null recommendation element from the repository causes the entire context build to fail during scope filtering — **cheap-disproof 2026-10-08 thorough hunt #40:** the repository contract returns `IReadOnlyList<RecommendationRecord>`, and a null element requires an injected malformed collaborator result rather than a reachable persisted row.
+- [x] (invalid) `AlertSimulationContextProvider.BuildContextAsync` — a non-null comparison result can be attached even when its internal baseline/current run identifiers do not match the requested pair — **cheap-disproof 2026-10-08 thorough hunt #40:** the provider consumes the comparison service contract; a malformed result requires an injected invalid comparison implementation and is not produced by the selected production path.
 
 - [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
@@ -9037,7 +9329,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
@@ -9172,9 +9464,43 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 36 · **Bugs found:** 2 · **Consecutive dry hunts:** 9
+**Hunts:** 40 · **Bugs found:** 2 · **Consecutive dry hunts:** 13
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves`; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves`, `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, and `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`; 51 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `DefaultApplyOrderRoots` — the exact `infra/terraform` root can be mistaken for a prefix of `infra/terraform-edge` or `infra/terraform-foundation` by a path consumer using `StartsWith` — locus: adjacent root strings ~13–29; input: leaf extractor matching root directories without a separator boundary.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that glob-expands every returned root may include nested Terraform modules beneath metadata-only composition roots — locus: first three annotated roots and pilot metadata root; input: filesystem scanner treats “no Azure apply” prose as an ordinary directory path.
+- [ ] (candidate) `DocumentationRelativePath` — generated evidence can cite a missing or renamed reference document because the constant has no existence check — locus: single string constant ~6; input: deployment report generation after the reference markdown is moved.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a case-sensitive consumer may treat a casing-only directory rename as a missing root while Windows apply succeeds — locus: hardcoded lowercase paths ~12–31; input: checkout with one Terraform directory casing changed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — metadata annotations can become stale when a root changes from composition-only to executable without changing its path string — locus: prose suffixes on foundation/platform/app/pilot entries; input: Terraform root behavior changes but reference annotation is not updated.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — callers can cast the `IReadOnlyList<string>` result to its runtime array and mutate their local ordering — locus: collection expression return ~10–32; input: consumer casts the result to `string[]` before generating evidence.
+- [ ] (candidate) `DocumentationRelativePath` — a repo-relative path without a leading `./` may resolve against a generated document’s directory instead of repository root — locus: constant declaration ~6; input: markdown consumer resolves the link from a nested output directory.
+- [ ] (candidate) `DefaultApplyOrderRoots` — forward-slash root paths may fail exact platform-native path comparisons on a Windows consumer — locus: hardcoded `infra/...` strings ~12–31; input: consumer compares `Path.GetFullPath` output to the evidence entries without normalization.
+- [ ] (candidate) annotated roots — Unicode em-dash metadata separators may not be stripped by a parser that accepts only ASCII hyphen delimiters — locus: composition and legacy suffixes in the returned strings; input: external leaf extractor parsing the reference list.
+- [ ] (candidate) `DefaultApplyOrderRoots` — returning executable paths and metadata prose as one string type forces downstream consumers to parse applyability heuristically — locus: mixed annotated/unannotated list entries ~12–31; input: new consumer treats every returned entry as an Azure-apply root.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a classifier that recognizes only the `metadata composition root` and `no Azure apply` annotation phrases can treat the differently annotated orchestrator entry as executable — locus: annotated entries at lines ~12–31; input: consumer classifies root lines by annotation vocabulary before presenting apply candidates.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the documentation citation is rendered as an inline code span rather than a Markdown link, so a consumer that extracts links cannot discover the authoritative stack-order document — locus: Terraform-section citation around `DocumentationRelativePath`; input: generated deployment-evidence Markdown processed by a link-based documentation indexer.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the twenty-line evidence list can be compared directly with the sixteen-leaf reference table, producing a false drift report when metadata-only composition and pilot rows are included — locus: full `DefaultApplyOrderRoots()` enumeration; input: auditor or automation compares rendered entry count with advanced-table leaf count without removing annotations.
+- [ ] (candidate) `DefaultApplyOrderRoots` — wave labels describe only ordinal composition phases and do not encode dependencies between roots, so a consumer may parallelize roots that require ordered execution — locus: `wave 1`, `wave 2`, and `wave 3` annotation suffixes; input: deployment planner derives concurrency solely from the returned metadata labels.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a round-trip serializer that preserves only exact unannotated `infra/...` lines can silently discard the composition, orchestrator, and pilot semantics carried in annotation suffixes — locus: mixed annotated/plain entries across the returned list; input: evidence export/import path that normalizes entries to filesystem paths before re-emitting them.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
+
+- [x] (valid-no-repro) `infra/apply-saas.ps1` — operator-supplied `$TerraformRoots` must bypass legacy and hosted wave branches — **cheap-disproof 2026-10-08 seed hunt #37:** explicit roots take the first branch and are not replaced by legacy/hosted arrays; focused apply-root parity tests pass.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — pilot profile line must remain last entry after orchestrator annotation — **cheap-disproof 2026-10-08 seed hunt #37:** canonical pilot metadata is the final root after the legacy orchestrator annotation; focused order tests pass.
+- [x] (valid-no-repro) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table row numbers must stay contiguous 1–16 when a row is inserted — **cheap-disproof 2026-10-08 seed hunt #37:** reference-table row validation rejects gaps or duplicates before leaf parity is accepted.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — Terraform section must cite `DocumentationRelativePath` exactly once — **cheap-disproof 2026-10-08 seed hunt #37:** report composition uses the canonical documentation path and focused report tests cover citation shape.
+- [x] (valid-no-repro) `scripts/ci/assert_terraform_root_ordering_sync.py` — landing-zone wrapper scripts must invoke `apply-saas.ps1` rather than duplicating leaf arrays — **cheap-disproof 2026-10-08 seed hunt #37:** ordering guard returned `OK` and wrapper delegation checks passed.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — composition-wave metadata lines may be mistaken for executable Terraform leaves by a consumer that strips only the first annotation delimiter — locus: first three annotated roots ~13–16; input: parser that extracts root paths from em-dash text.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — orchestrator legacy-only annotation may be omitted by consumers that assume every root is a hosted-wave leaf — locus: orchestrator line ~30; input: hosted-wave parity parser consuming the full list.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — documentation link may be emitted before root numbering and become detached from the Terraform section heading — locus: compose header ordering; input: markdown consumer that anchors on the first documentation path.
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — pilot canonical-profile wording may drift from `DefaultApplyOrderRoots` final entry without changing leaf count — locus: pilot row documentation; input: wording-only reference-doc edit.
+- [ ] (candidate) `scripts/ci/assert_terraform_root_ordering_sync.py` — wrapper detection may miss a new landing-zone script that delegates through a relative path variant — locus: wrapper discovery and apply-saas invocation check; input: new `infra/landing-zone/*.ps1` wrapper.
 
 - [x] (valid-no-repro) `infra/apply-saas.ps1` — `-LegacyLeafRoots` selects `$multiRootSequence` not hosted flatten — **cheap-disproof 2026-10-08 seed hunt #36:** legacy vs hosted `$roots` branches are distinct; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves` (parity `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`).
 - [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — consumption root precedes monitoring — **cheap-disproof 2026-10-08 seed hunt #36:** index guards; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves` and `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
@@ -9224,9 +9550,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 36
+- **hunts:** 40
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -9235,6 +9561,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected the DOCX, inventory, icon-catalog, and Mermaid artifact paths; the exact picker filter ran 639 tests with 624 passed, 13 pre-existing diagram expectation failures, and 2 skipped, while focused DOCX (11/11) and inventory-generator (5/5) tests passed; no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — a caller that orders roots by the raw strings can sort annotated composition entries differently from their path-only order — locus: collection expression entries ~12–31; input: report/export consumer applies ordinal string sorting to the returned list.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — the Terraform heading and its authoritative citation can be separated from the numbered roots when a Markdown consumer removes blank lines — locus: `AppendLine` sequence around the Terraform section; input: downstream Markdown normalization that collapses section whitespace.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that treats every line containing `infra/` as a leaf can count the three composition roots and pilot metadata as deployable leaves — locus: mixed annotated and plain entries ~12–31; input: leaf counter scans rendered evidence without annotation-aware extraction.
+- [ ] (candidate) `DocumentationRelativePath` — a consumer that treats the repository-relative citation as a filesystem path can reject valid evidence generated outside a checkout — locus: constant declaration ~6; input: report generation with `repositoryRoot` unavailable and a path validator requiring an on-disk file.
+- [ ] (candidate) `DefaultApplyOrderRoots` — a consumer that uses the list index as an execution wave can assign hosted leaf four to the metadata wave because composition entries occupy indices 1–3 — locus: composition roots preceding `infra/terraform-private`; input: planner derives wave boundaries from raw list positions instead of annotations.
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed five seeded `(candidate)` rows; no failing repro; 25 scoped tests passed; python ordering guard OK.
 
@@ -9368,7 +9700,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 33
 - **last-hunt:** 2026-10-06
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9485,7 +9817,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 29 · **Bugs found:** 3 · **Consecutive dry hunts:** 7
+**Hunts:** 30 · **Bugs found:** 3 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `onSubmit` / toggle close-and-reopen — a second submit can begin while the first cancelled-generation request is still in flight — locus: `invalidateInFlightSubmit` clears the local in-flight flag without aborting `fetch`; input: submit, close the form, reopen it, and submit again before the first response arrives.
+- [ ] (candidate) `onSubmit` — a stale first response can still complete server-side after the UI ignores it — locus: generation guard only surrounds client state updates; input: delayed first POST followed by a second POST after form dismissal and reopening.
+- [ ] (candidate) `submitting` — required inputs remain editable while the submit request is pending — locus: only the submit button receives `disabled`; input: keyboard focus and edit `workEmail` or `company` while the button says `Sending`.
+- [ ] (candidate) honeypot `websiteUrl` — programmatic assignment can populate the hidden field despite `tabIndex={-1}` and `aria-hidden` — locus: controlled hidden input remains mounted; input: script calls `focus()`/sets its value before submit.
+- [ ] (candidate) success branch — a successful `204` response permanently removes the report-problem and access-request recovery controls — locus: `submitted` replaces the entire panel; input: valid request receives `204`, then the operator needs to report a second callback failure without remounting.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -9575,9 +9915,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
@@ -10344,9 +10684,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: worker-host
 
-**Hunts:** 36 · **Bugs found:** 8 · **Consecutive dry hunts:** 7
+**Hunts:** 37 · **Bugs found:** 8 · **Consecutive dry hunts:** 8
 
-2026-10-07 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+2026-10-08 seed hunt (seed-only): re-read `Program.Main` bootstrap ordering and worker pipeline wiring; no hunt-ready promotion; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 31 scoped worker host/composition tests passed.
+
+- [x] (valid-no-repro) `Program.Main` — schema bootstrap and optional demo seed complete before `UseArchLucidWorkerPipeline`, delaying `/health/live` mapping during long migrations — **cheap-disproof 2026-10-08 seed hunt #37:** bootstrap-before-pipeline is intentional for SQL-backed workers and preserves startup ordering; worker startup tests pass.
+- [x] (valid-no-repro) `Program.Main` — graceful shutdown registration precedes application background processor registration and drain gate is not observed — **cheap-disproof 2026-10-08 seed hunt #37:** shared composition registers the drain gate and worker hosted services; `Worker_composition_registers_worker_host_drain_gate` and `Worker_starts_and_registers_expected_background_services` pass.
+- [x] (valid-no-repro) `Program.Main` — `ConfigurationValidationHostedService` may throw after HTTP pipeline mapping — **cheap-disproof 2026-10-08 seed hunt #37:** `ValidateOrThrow` runs before `Build()` and hosted validation remains a fail-fast startup contract.
+- [x] (valid-no-repro) `Program.Main` — configuration warnings emit staging SQL credential diagnostics for InMemory worker hosts — **cheap-disproof 2026-10-08 seed hunt #37:** warnings are advisory and configuration summary logging has an explicit opt-out; no worker behavior changes.
+- [x] (valid-no-repro) `AzureOpenAiEnvironmentConfigurationBridge.Apply` mutates configuration before worker role validation — **cheap-disproof 2026-10-08 seed hunt #37:** bridge application precedes `WorkerProcessHostingRoleConfiguration.ValidateOrThrow` so environment aliases are validated consistently with the worker role.
+
+- [ ] (candidate) `Program.Main` — `app.RunAsync()` is reached only after schema bootstrap and pipeline mapping, so cancellation during bootstrap may not expose worker health routes — locus: `RunSchemaBootstrapMigrationsAndOptionalDemoSeedAsync` ~79; input: host shutdown token during migration.
+- [ ] (candidate) `Program.Main` — `AddArchLucidGracefulShutdown` may register a drain service before `IHostApplicationLifetime` is fully configured — locus: registration ~48; input: shutdown signal during WebApplicationFactory startup.
+- [ ] (candidate) `Program.Main` — environment-variable provider is added after optional overlay files, allowing worker env values to override SaaS/Pilot settings — locus: `AddEnvironmentVariables` ~38; input: conflicting `Demo` or `Hosting` environment keys.
+- [ ] (candidate) `Program.Main` — `UseSerilog` configuration before role validation may emit startup logs using an invalid service name — locus: `ArchLucidSerilogConfiguration.Configure` ~50; input: invalid `Hosting:Role` with custom Serilog sink.
+- [ ] (candidate) `UseArchLucidWorkerPipeline` — health and metrics routes are mapped after bootstrap and may inherit middleware not intended for probes — locus: pipeline call ~82; input: `/health/live` and `/metrics` requests with missing auth/correlation headers.
 
 - [x] (valid-no-repro) `Program.Main` — `StartupMigrationHealthState.MarkMigrationFailed` during degraded DbUp startup is not surfaced on worker `/health/ready` because `StartupDatabaseMigrationHealthCheck` registers only in `ApiWebLayerServiceCollectionExtensions` — **cheap-disproof 2026-10-07 seed hunt #36:** degraded migration signaling is API readiness contract; worker still records state via `RegisterHostedStartupProbes`; operators probe API `StartupDatabaseMigrationHealthCheck` or logs (`StartupDatabaseMigrationHealthCheckTests`).
 - [x] (valid-no-repro) `Program.Main` — `StartupConfigurationDiagnostics` logs `CorsOriginCount` on worker hosts that never call `AddArchLucidCors` — **cheap-disproof 2026-10-07 seed hunt #36:** shared `StartupConfigurationFactsReader` snapshot for pilot/support triage; informational only (parity rate-limit row); opt-out `Hosting:LogStartupConfigurationSummary=false`.
@@ -10408,9 +10760,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
@@ -32786,7 +33138,31 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 44 · **Bugs found:** 21 · **Consecutive dry hunts:** 8
+**Hunts:** 49 · **Bugs found:** 22 · **Consecutive dry hunts:** 1
+
+2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (hit): proved that returning from Guided Intake to Quick Start removed `template` but preserved the supported legacy `example` alias, so the neutral quick-start path retained a template-start intent; fixed by deleting both aliases; the focused regression passed and 12 related route/restore tests passed; the broader route scope retained pre-existing baseline failures.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; scoped reviews/new Vitest reported 144 passed and 71 pre-existing baseline failures; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `useNewRunWizardClient` — `data-wizard-ready` is set before query-prefill and template-restore effects settle — locus: `wizardReadyRef` effect ~147–149; input: automation submits or snapshots the detailed wizard immediately after the readiness attribute appears on a deeplink.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — example-template prefill is one-shot for the mount and does not reapply when the `example=` query changes in place — locus: `exampleTemplatePrefillAppliedRef` ~232–241; input: change from one example template to another without remounting the quick-start wizard.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — restored session state can be overwritten by a later example-template effect — locus: session restore and example prefill both write `runTitle`/`briefText`; input: accept a saved quick-start session while an example-template query is active.
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — `viewAllClarifications` state may briefly diverge when router search params and `window.location.search` update on different ticks — locus: URL effect ~154–181; input: toggle disclosure and immediately use browser Back/Forward.
+- [ ] (candidate) `useNewRunWizardClient` — changing `embeddedInPathSwitcher` after mount can persist full wizard mode without clearing incompatible detailed-step query state — locus: mode effect ~61–68; input: switch route embedding state while `step`, `mode`, or `advancedConfig` remains in the URL.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `useGuidedIntakeBriefForm` — starter-template and example-template effects can both write the same brief fields on one mount — locus: independent `exampleTemplate` and `starterTemplate` prefill effects; input: `/architecture/reviews/new?example=...&preset=...` with both templates resolving.
+- [ ] (candidate) `useGuidedIntakeWizard` — a browser back/popstate update can be overwritten by the Next `useSearchParams` effect before the wizard settles on the URL step — locus: two URL-to-step synchronization effects; input: edit `intakeStep`, then press browser Back while the guided wizard is mounted.
+- [ ] (candidate) `useNewRunWizardSubmit` — pending-evidence upload failure can surface after the run has advanced to tracking without a submit-error result — locus: `uploadPendingEvidence(id)` runs after `setRunId` and `goToStep`; input: successful create followed by rejected evidence upload.
+- [ ] (candidate) `useGuidedIntakeWizard` / `rerunAutoSubmitStartedRef` — the one-shot rerun guard can suppress a later eligible rerun when the prior-run identity changes without remounting — locus: ref is set once and never reset; input: switch from one `priorRunId` deep link to another in the same mounted wizard.
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — path-specific query cleanup can remove an unrelated accelerator or template intent needed by the newly selected wizard — locus: `quick-review` branch deletes `accelerator`, `preset`, and `template`; input: select Quick Start after opening a path with one of those query parameters and inspect the return URL.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `recomputes mismatch when template session state updates on the same mount`, `auto-uploads after platform detection when a quick-start run id already exists`, and `does not re-apply specialty cloud when example template prefill already ran in the same session`; reaffirmed `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing` and `rewinds restored confirm bookmarks to clarifications when draftId is present`; scoped reviews/new vitest 144 passed with 71 pre-existing baseline failures.
 
@@ -32842,11 +33218,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 44
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 8
+- **hunts:** 50
+- **bugs-found:** 23
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
+- **last-bug:** 2026-10-08 — policy-pack deeplink was erased by accelerator/preset form reset
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -32870,6 +33246,18 @@ ABQ-09 churn hotspot; review detail route tree.
 ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
+
+- [x] (proven) `useNewRunWizardQueryPrefill` — **hit 2026-10-08 thorough hunt:** policy-pack `setValue("policyReferences")` ran before an accelerator/preset `reset`, so the reset erased the explicit policy deeplink; reapplied the policy pack after both reset paths; regression `retains policy-pack prefill when an accelerator reset runs on the same mount`.
+- [x] (invalid) `useFirstPilotIntakeWizard` — **cheap-disproof 2026-10-08 thorough hunt:** scope bullets and L0 answers are only reachable after the operator has entered the title/brief content that `hasSaveableContent` requires, so the proposed content-only session cannot occur.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** scope restoration reads the committed browser search through `readWindowLocationSearch`, and the focused session/URL tests found no concurrent-update loss.
+- [x] (valid-no-repro) `useNewRunWizardClient` — **cheap-disproof 2026-10-08 thorough hunt:** pilot toggles commit through the guarded URL helper and the dedicated pilot URL tests cover URL-to-state synchronization and browser-history restoration.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow.setViewAllClarifications` — **cheap-disproof 2026-10-08 thorough hunt:** the ref guard prevents duplicate history writes on updater replay, matching the same idempotent URL pattern already covered for guided step navigation.
+
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — **cheap-disproof 2026-10-08 thorough hunt:** `commitHrefIfChanged` makes the URL side effect idempotent when a React updater is replayed; the second invocation sees the committed href and does not add another history entry.
+- [x] (proven) `ReviewsNewPathSwitcher.selectPath` — **hit 2026-10-08 thorough hunt:** Quick Start deleted `template` but left the supported legacy `example` alias, preserving an example-start intent after a neutral path selection; fixed by deleting `example` alongside `template`; regression `clears the legacy example alias when returning to quick-review`.
+- [x] (invalid) `ReviewsNewRouteBody` — **cheap-disproof 2026-10-08 thorough hunt:** `pathQuery` is trimmed before the redirect guard, so a whitespace-only query has zero length and follows the normal working-start redirect.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** restored drafts are deliberately rewound to clarifications before `hydrateClarificationsFromDraft` restores persisted answers; focused session-restore and intake-step tests passed.
+- [x] (invalid) `ReviewsNewPathSwitcher` — **cheap-disproof 2026-10-08 thorough hunt:** bare routes intentionally ignore persisted path state and default to Quick Start; existing path-switcher state and component tests cover this contract.
 
 - [x] (proven) `useGuidedIntakeWizard` / `useGuidedIntakeDraftWorkflow` — `canSubmit` keyed on local `savedLocallyQuestionKeys` without requiring `reviewAnswers` API persistence — **hit 2026-09-07 (#1175):** `intakeStep=2` deep-link or stale URL could reach confirm with locally handled clarifications only; fixed with `areGuidedIntakeClarificationsPersistedForSubmit`, confirm-step clamp, and clearing `intakeStep`/`scopeGate` when leaving guided intake (`areGuidedIntakeClarificationsPersistedForSubmit`, `clears intakeStep when returning to quick-review`)
 - [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — stale `rerun`/`policyPackId` preserved across path switches (only `intakeStep`/`scopeGate` cleared today) — **2026-09-07 (#1212):** quick-review ignores `rerun=` (guided intake only via `use-guided-intake-prior-run-prefill`); `policyPackId` prefill in quick review is intentional deeplink via `use-new-run-wizard-query-prefill`
@@ -33240,9 +33628,47 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 36 · **Bugs found:** 6 · **Consecutive dry hunts:** 9
+**Hunts:** 41 · **Bugs found:** 6 · **Consecutive dry hunts:** 14
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run`, `InMemory_composition_audit_hybrid_evidence_query_returns_null_when_snapshot_header_missing`, `InMemory_composition_diagram_reconciliation_fails_when_diagram_model_missing_for_sealed_run`, `InMemory_composition_audit_evidence_lineage_returns_not_found_when_assessment_missing`, and `InMemory_composition_remediation_factory_metrics_returns_zeroed_aggregates_on_empty_scope`; 50 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `MermaidDiagramReadabilityThresholds` — direct singleton construction gives every tenant and request one mutable threshold object, so one consumer’s adjustment can affect another — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` ~50; input: concurrent diagrams with tenant-specific readability expectations.
+- [ ] (candidate) `GraphvizOptions` — `Configure` binds one options snapshot while runtime configuration reloads may not reach an already-resolved renderer — locus: options registration ~37; input: change Graphviz configuration after the host starts, then render in an existing scope.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — an earlier registration for `IGraphvizLayoutRenderer` or an evidence interface can be silently shadowed by this module’s later descriptor — locus: unconditional `AddScoped` registrations ~38–132; input: host composes another infrastructure module before this one.
+- [ ] (candidate) `IAzureInventorySnapshotMaterializer` / `IAzureInventorySnapshotPostMaterializeCoordinator` — separate scoped registrations may resolve separate coordination state when one operation expects a shared materialization transaction — locus: materializer ~40 and coordinator ~101; input: resolve both services in one request and materialize a snapshot.
+- [ ] (candidate) `IBrandAssetService` / `TenantBrandingResolvedProfileCache` — scoped branding service backed by singleton profile cache may retain configuration from a disposed request scope — locus: registrations ~124–129; input: update tenant branding, dispose the scope, and resolve exports in a new scope.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — invoking the module twice duplicates every scoped descriptor and can make enumerable consumers run twice — locus: unconditional `AddScoped` calls throughout `Register`; input: host composition path registers the capability module more than once.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — concrete helper registrations without interface aliases may leave interface-based consumers unresolved — locus: `SecureNowArchitectPathCarryForwardService` and `TenantReportBrandingApplyHelper` registrations ~73 and ~132; input: downstream constructor requests an abstraction rather than the concrete helper.
+- [ ] (candidate) `RepositoryDiagramPeelCatalogProvider` — singleton catalog may retain the first repository snapshot while scoped bootstrapper later discovers new peel definitions — locus: singleton provider plus scoped bootstrapper ~51–53; input: add a repository peel definition after the first request and resolve the catalog again.
+- [ ] (candidate) `GraphvizOptions` — options binding is registered without validation, allowing an invalid configuration to reach `GraphvizFdpLayoutRenderer` at request time — locus: `services.Configure<GraphvizOptions>` ~37; input: host starts with malformed Graphviz settings and first resolves the renderer.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — no guard prevents registration against a null service collection or configuration, so partial host setup fails with an opaque null-reference exception — locus: first `Configure`/`AddScoped` calls ~37–38; input: test or optional host invokes `Register(null, configuration)` or passes null configuration.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `IAzureInventorySnapshotPostMaterializeCoordinator` — post-materialization consumers may observe a different order than the registration order assumed by the coordinator — locus: coordinator plus two `IAzureInventoryDiffConsumer` registrations; input: materialize a snapshot that triggers both audit-readiness and SecureNow consumers.
+- [ ] (candidate) `IAzureInventorySnapshotDeleteService` / `IAzureInventorySnapshotGraphResolver` — deleting a snapshot may leave graph resolution able to return stale evidence within the same request scope — locus: adjacent scoped delete/resolver registrations; input: delete an inventory snapshot, then resolve its graph before the scope ends.
+- [ ] (candidate) `TenantBrandingResolvedProfileCache` — singleton cache invalidation may evict or reuse a resolved profile across tenant scopes — locus: singleton cache and singleton invalidator registrations; input: resolve branding for tenant A, update tenant B, then resolve both profiles concurrently.
+- [ ] (candidate) `GraphvizFdpLayoutRenderer` — malformed or partial `GraphvizOptions` configuration may fail only when the scoped renderer is first resolved — locus: options binding and renderer registration; input: host configuration with an invalid executable path or empty layout command.
+- [ ] (candidate) `IAuditEvidenceSelectorRegistry` — a selector registered as scoped may retain per-request selection state when the registry is reused by a downstream service — locus: registry and selector registrations ~101–109; input: resolve the registry in two scopes while selecting different evidence categories.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed.
+
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IInfrastructureDiagramComparisonService` — compare without both diagram models may return success with empty diff vs explicit not-found — **cheap-disproof 2026-10-08 seed hunt #37:** composition registers the concrete comparison service; existing service contract tests distinguish missing models from empty comparison results.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAuditFrameworkImportService` — duplicate framework import on InMemory may overwrite silently vs conflict — **cheap-disproof 2026-10-08 seed hunt #37:** composition registration is scoped and delegates duplicate semantics to the import service; no alternate registration or bypass exists in this module.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IBrandedDiagramExportService` — export without tenant branding profile may succeed with default theme vs fail-closed — **cheap-disproof 2026-10-08 seed hunt #37:** branding service and resolved-profile cache are registered together; missing-profile behavior remains inside the service contract.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IInfraEvidenceAskGroundingService` — ask grounding with valid question but no inventory snapshots may return `Succeeded: true` with insufficient evidence vs hard failure — **cheap-disproof 2026-10-08 seed hunt #37:** ask grounding is explicitly registered as a scoped service and its sparse-evidence contract is exercised by composition tests.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IFourRealityDriftEngine` — drift evaluation on empty snapshot may return empty result set vs unavailable signal — **cheap-disproof 2026-10-08 seed hunt #37:** the concrete drift engine is registered independently of snapshot materialization; empty-scope behavior is an engine contract, not a missing composition binding.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `MermaidDiagramReadabilityThresholds` singleton is constructed directly and ignores configuration overrides — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` ~50; input: host configuration with custom readability thresholds.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IAzureInventoryDiffConsumer` has two scoped registrations and an enumeration consumer may omit one or invoke both out of order — locus: registrations ~106–107; input: `IEnumerable<IAzureInventoryDiffConsumer>` resolution.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IBrandedDiagramExportComposer` singleton depends on no scoped services while export service remains scoped — locus: singleton/scoped pairing ~127–130; input: multiple requests with different tenant branding profiles.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IAuditEvidenceSelectorRegistry` and selector implementations are all scoped, so selector state may be rebuilt per request — locus: registrations ~101–109; input: selector registry resolved across two scopes.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IDiagramPeelCatalogProvider` singleton plus scoped `DiagramPeelCatalogBootstrapper` may expose an unbootstrapped catalog on first request — locus: registrations ~51–53; input: first composition scope before bootstrapper execution.
 
 - [x] (valid-no-repro) `IVisionDiagramIngestService` — InMemory ingest without sealed run — **cheap-disproof 2026-10-08 seed hunt #36:** `VisionDiagramIngestSealedManifestHashGuard` parity with structured ingest; regression `InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run`.
 - [x] (valid-no-repro) `IAuditHybridEvidenceQueryService` — empty inventory hybrid query — **cheap-disproof 2026-10-08 seed hunt #36:** missing snapshot header returns `null`, not an empty success record; regression `InMemory_composition_audit_hybrid_evidence_query_returns_null_when_snapshot_header_missing`.
@@ -33290,9 +33716,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 36
+- **hunts:** 41
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 14
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
@@ -33339,6 +33765,12 @@ ABQ-09 churn hotspot.
 ABQ-09 churn hotspot.
 
 ### Hypotheses
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — registering both `IAzureInventoryDiffConsumer` implementations in scoped lifetime leaves an enumeration consumer dependent on descriptor order, so SecureNow processing may run before audit readiness — locus: adjacent consumer registrations around lines 106–107; input: `IEnumerable<IAzureInventoryDiffConsumer>` resolved by snapshot materialization.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — the directly constructed `MermaidDiagramReadabilityThresholds` singleton cannot receive tenant/configuration-specific thresholds — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` around line 50; input: host configuration supplies custom diagram readability settings.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `TenantBrandingResolvedProfileCache` is process-wide while branding service is scoped, so a cache key or invalidation gap can reuse one tenant’s resolved profile in another scope — locus: singleton cache registrations around lines 124–126; input: concurrent branding resolution and update for two tenants.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IDiagramPeelCatalogProvider` singleton can serve a stale catalog after scoped bootstrapper data changes during process lifetime — locus: singleton provider and scoped bootstrapper around lines 51–53; input: repository peel definitions change after the first catalog read.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `GraphvizOptions` is bound without startup validation, allowing an invalid executable/layout configuration to fail only when a request first resolves the renderer — locus: `Configure<GraphvizOptions>` around lines 37–38; input: deployed host configuration with an invalid Graphviz executable path.
 
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / audit evidence selectors (lines 103–111) — missing selector implementation breaks registry descriptor count — **cheap-disproof 2026-10-07 seed hunt:** module registers all nine selector types; regression `InfraEvidenceCompositionModule_registers_nine_audit_evidence_selector_implementations`.
 - [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `Configure<GraphvizOptions>` (line 37) — appsettings `ArchLucid:Graphviz` ignored when only module `Register` runs — **cheap-disproof 2026-10-07 seed hunt:** `IOptions<GraphvizOptions>` binds section; regression `InfraEvidenceCompositionModule_configure_graphviz_options_binds_configuration_section`.

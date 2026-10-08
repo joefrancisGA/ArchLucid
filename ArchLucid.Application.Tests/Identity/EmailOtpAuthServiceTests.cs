@@ -853,6 +853,55 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 60
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _,
+            options);
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => sut.RequestCodeAsync(
+                new EmailOtpChallengeRequest { Email = "cancelled-send@example.com" },
+                CancellationToken.None));
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        EmailOtpChallengeRequestResult retry = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "cancelled-send@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(retry.ChallengeId);
+        Assert.True(retry.EmailDeliverySucceeded);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_rate_limits_per_email()
     {
         EmailOtpAuthOptions options = new()
