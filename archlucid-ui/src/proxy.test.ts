@@ -42,6 +42,28 @@ describe("proxy synthetic forbidden shell", () => {
   });
 });
 
+describe("proxy api passthrough vs demo alias", () => {
+  it("passes through /api/proxy paths without demo-run alias rewrite", () => {
+    const request = new NextRequest("http://localhost:3000/api/proxy/v1/auth/bootstrap/status");
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("still rewrites /runs alias paths on the same app host", () => {
+    const request = new NextRequest(
+      "http://localhost:3000/runs/customer-intake-modernization-run/findings",
+    );
+
+    const response = proxy(request);
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toContain("/architecture/reviews/customer-intake-modernization/");
+  });
+});
+
 describe("proxy demo-run alias redirect", () => {
   it("preserves query string when rewriting /runs alias paths", () => {
     const request = new NextRequest(

@@ -57,6 +57,12 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
   });
 
+  it("falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/architecture/reviews/1");
+
+    expect(resolveBootstrapCompletePath("https://evil.example")).toBe("/architecture/reviews/1");
+  });
+
   it("routes AcceptInvitation to bootstrap", () => {
     expect(resolveEmailOtpPostAuthPath("AcceptInvitation", "/")).toBe("/auth/bootstrap");
   });

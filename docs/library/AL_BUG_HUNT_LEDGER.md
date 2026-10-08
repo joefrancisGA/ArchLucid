@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-fetch-registration-scope.test.ts`, and `proxy.test.ts`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-fetch-registration-scope.test.ts`, and `host-gate.test.ts`; reaffirmed `allows anonymous marketing mutations with a valid BFF session and no CSRF token`; scoped auth/proxy vitest 270 passed with 3 unrelated baseline seam failures.
 
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `auth-sign-in-routing-api.test.ts`, `post-auth-bootstrap-api.test.ts`, and `proxy.test.ts`; scoped auth/proxy vitest 267 passed with 3 unrelated baseline seam failures.
@@ -13542,7 +13544,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
-**Hunts:** 67 · **Bugs found:** 35 · **Consecutive dry hunts:** 8
+**Hunts:** 68 · **Bugs found:** 35 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`, `encodes invitationToken on status GET and returnUrl on workspace select when both are present`, `passes through /api/proxy paths without demo-run alias rewrite`, `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`, and `returns false when the proxy responds with 204 No Content`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
+
+- [x] (valid-no-repro) `resolveBootstrapCompletePath` — consumed OIDC return consumed before unsafe explicit `returnUrl` arg is ignored — **cheap-disproof 2026-10-08 seed hunt #68:** mirrors `resolveEmailOtpPostAuthPath` fallback to consumed safe desk path; regression `falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe`; reaffirmed `prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete`.
+- [x] (valid-no-repro) `selectPostAuthWorkspace` — POST body workspace selection vs GET status `returnUrl` encoding when invitation token present — **cheap-disproof 2026-10-08 seed hunt #68:** `URLSearchParams` encodes `invitationToken` on status only; workspace select uses manual `encodeURIComponent` for `returnUrl`; regression `encodes invitationToken on status GET and returnUrl on workspace select when both are present`.
+- [x] (valid-no-repro) `proxy.ts` matcher — `/api/proxy` routes skip demo-run alias rewrite but still run host gate on app origin — **cheap-disproof 2026-10-08 seed hunt #68:** `/api/proxy` passthrough without `308` alias rewrite; `/runs` aliases still rewrite on same host; regressions `passes through /api/proxy paths without demo-run alias rewrite` and `still rewrites /runs alias paths on the same app host`.
+- [x] (valid-no-repro) `verifyEmailOtpCode` — verify POST omits scope headers while subsequent `fetchPostAuthBootstrapStatus` attaches stale scope — **cheap-disproof 2026-10-08 seed hunt #68:** intentional pre-auth vs post-auth split; reaffirmed `does not forward stale operator scope headers on verify POST`; regression `attaches operator scope headers on GET bootstrap status reads when localStorage still has scope`.
+- [x] (valid-no-repro) `initiatePostAuthAccessRequest` — 202 vs 200 distinction may strand UI when proxy returns 204 No Content — **cheap-disproof 2026-10-08 seed hunt #68:** contract accepts only HTTP 202; 204 returns false like 200; regression `returns false when the proxy responds with 204 No Content`; reaffirmed `returns true only for HTTP 202 Accepted`.
+
+- [ ] (candidate) `acceptPostAuthInvitation` — `confirmEmailMismatch` POST body vs `returnUrl` query ordering when both invitation token and unsafe returnUrl supplied — locus: `acceptPostAuthInvitation`; input: mismatch confirm with open-redirect query.
+- [ ] (candidate) `resolveEmailOtpPostAuthPath` — bootstrap routing for `ResumeWorkflow` nextStep (if API adds it) may skip bootstrap query builder — locus: `email-otp-post-auth.ts` default branch; input: unknown `nextStep` with safe returnUrl.
+- [ ] (candidate) `enforceProxyBffSessionGuard` — operator `/api/proxy` POST without CSRF when cookie expired but readable — locus: `proxy-bff-session-guard.ts`; input: expired session cookie on bootstrap workspace create.
+- [ ] (candidate) `decideHostGateRedirect` — app-host marketing path redirect may drop `returnUrl` when query uses encoded ampersands — locus: `host-gate.ts` `pathAndQuery`; input: `/pricing` with `utm_source=a&returnUrl=%2Fdesk`.
+- [ ] (candidate) `requestEmailOtpChallenge` — Turnstile token omitted from JSON body when `botChallengeToken` whitespace-only — locus: `email-otp-api.ts` challenge POST body; input: spaces-only token after trim.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `falls back to consumed safe desk path when explicit returnUrl is unsafe`, `encodes whitespace-only returnUrl on accept the same way as bootstrap status URLSearchParams`, `attaches operator scope headers on HEAD bootstrap polls when localStorage still has scope`, and `does not redirect marketing-host post-auth bootstrap proxy POST paths to the app origin`; reaffirmed `allows anonymous marketing mutations with a valid BFF session and no CSRF token`; scoped auth/proxy vitest 270 passed with 3 unrelated baseline seam failures.
 

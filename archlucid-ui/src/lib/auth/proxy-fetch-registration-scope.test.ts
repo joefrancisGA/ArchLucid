@@ -73,4 +73,27 @@ describe("mergeRegistrationScopeForProxy (post-auth bootstrap clients)", () => {
     expect(headers.get("x-tenant-id")).toBe("11111111-1111-1111-1111-111111111111");
     expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
   });
+
+  it("attaches operator scope headers on GET bootstrap status reads when localStorage still has scope", () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: "11111111-1111-1111-1111-111111111111",
+        workspaceId: "22222222-2222-2222-2222-222222222222",
+        projectId: "33333333-3333-3333-3333-333333333333",
+        workspaceLabel: "w",
+        projectLabel: "p",
+      }),
+    );
+
+    const init = mergeRegistrationScopeForProxy({
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+
+    const headers = new Headers(init.headers);
+
+    expect(headers.get("x-workspace-id")).toBe("22222222-2222-2222-2222-222222222222");
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
+  });
 });

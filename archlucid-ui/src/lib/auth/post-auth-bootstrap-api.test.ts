@@ -191,6 +191,12 @@ describe("initiatePostAuthAccessRequest", () => {
 
     await expect(initiatePostAuthAccessRequest("hello")).resolves.toBe(false);
   });
+
+  it("returns false when the proxy responds with 204 No Content", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 204 }));
+
+    await expect(initiatePostAuthAccessRequest("hello")).resolves.toBe(false);
+  });
 });
 
 describe("acceptPostAuthInvitation", () => {
@@ -278,5 +284,35 @@ describe("selectPostAuthWorkspace", () => {
         "22222222-2222-2222-2222-222222222222",
       ),
     ).resolves.toBeNull();
+  });
+
+  it("encodes invitationToken on status GET and returnUrl on workspace select when both are present", async () => {
+    const returnUrl = "/architecture/reviews?filter=a&sort=desc";
+    const invitationToken = "invite-token&suffix";
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        accessToken: "token",
+        tokenType: "Bearer",
+        expiresInSeconds: 3600,
+        redirectPath: "/",
+      }),
+    });
+
+    await fetchPostAuthBootstrapStatus(returnUrl, invitationToken);
+    await selectPostAuthWorkspace(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+      returnUrl,
+    );
+
+    const statusUrl = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+    const selectUrl = String(vi.mocked(fetch).mock.calls[1]?.[0]);
+
+    expect(statusUrl).toContain(`invitationToken=${encodeURIComponent(invitationToken)}`);
+    expect(statusUrl).toContain(`returnUrl=${encodeURIComponent(returnUrl)}`);
+    expect(selectUrl).toContain(`returnUrl=${encodeURIComponent(returnUrl)}`);
+    expect(selectUrl).not.toContain("invitationToken");
   });
 });
