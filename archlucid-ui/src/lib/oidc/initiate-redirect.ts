@@ -11,6 +11,7 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   clearPkceState,
   clearPostSignInReturnUrl,
+  readPkceState,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
@@ -33,8 +34,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
   storePkceState(state, verifier, nonce, "primary");
 
+  let storedReturnUrlThisAttempt = false;
+
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
+    storedReturnUrlThisAttempt = true;
   }
 
   let doc;
@@ -43,7 +47,11 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("primary");
-    clearPostSignInReturnUrl();
+
+    if (storedReturnUrlThisAttempt || readPkceState("google") === null) {
+      clearPostSignInReturnUrl();
+    }
+
     throw error;
   }
   const url = buildAuthorizeUrl({

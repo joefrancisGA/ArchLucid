@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (hit): `ui-oidc` — proved primary `initiateOidcRedirect` discovery failure unconditionally cleared the shared post-sign-in return URL while supplemental Google PKCE remained pending; fixed by preserving return paths when `readPkceState("google")` is active unless primary stored a return URL this attempt; cheap-disproved RP logout 503 swallowing, DELETE CSRF parity, refresh tight-loop without backoff, and shared discovery rejection fan-out; regression `preserves post-sign-in return path when primary discovery fails but supplemental Google PKCE is pending`; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved `refreshBffSessionCookie` accepted any finite positive `expires_at_ms`, writing epoch-era client expiry hints from malformed refresh JSON; fixed with skew-aware future validation; cheap-disproved RP logout URL ordering (hint captured before cookie delete), POST CSRF omission (same-origin guard on session POST), pulse activity CSRF bootstrap contract, and duplicate PKCE `state` collision (independent opaque states); regressions `rejects refresh responses whose expires_at_ms is far in the past` and `accepts refresh responses whose expires_at_ms is in the future`; seeded five follow-on `(candidate)` rows; 62 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved supplemental Google discovery failure cleared a primary-flow post-sign-in return URL from the shared session key; proved late `syncBffSessionCookieFromTokenResponse` could resurrect the HttpOnly BFF cookie after `clearOidcSession`; cheap-disproved swallowed non-OK BFF session POST (intentional fail-open), non-finite BFF refresh `expires_at_ms` (transient refresh contract), and lifetime discovery cache (failed fetches already evicted); regressions `preserves an existing post-sign-in return path when supplemental Google discovery fails without a new return URL`, `clears the BFF cookie again when sign-out runs while token sync is in flight`; seeded five follow-on `(candidate)` rows; 60 scoped oidc vitest tests passed.
@@ -17414,6 +17416,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-08 thorough hunt #28 (hit): proved primary discovery failure cleared supplemental return paths; cheap-disproved four other `(candidate)` rows from hunt #27; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt #27 (hit): proved stale BFF refresh `expires_at_ms` acceptance; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 62 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt #26 (hit): proved supplemental discovery failure cleared unrelated post-sign-in return paths and BFF session sync raced sign-out; cheap-disproved three other `(candidate)` rows from seed hunt #25; seeded five follow-on `(candidate)` rows; 60 scoped oidc vitest tests passed.
@@ -17430,11 +17434,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 27
-- **bugs-found:** 29
+- **hunts:** 28
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — BFF refresh accepted past expires_at_ms client hints
+- **last-bug:** 2026-10-08 — primary OIDC discovery cleared supplemental return URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17504,11 +17508,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `consumePkceState` — duplicate `state` across flows — **cheap-disproof 2026-10-08 thorough hunt #27:** `randomOpaqueState` values are independent per redirect; collision would require a broken IdP, not reachable from these client files alone.
 - [x] (proven) `refreshBffSessionCookie` — past `expires_at_ms` accepted when finite — **hit 2026-10-08 thorough hunt #27:** parser required only `> 0`, so `expires_at_ms: 1` rewrote client expiry backward without clearing session; fixed with `expiresAtMs > Date.now() - BFF_REFRESH_EXPIRY_SKEW_MS`; regressions in `bff-session-sync.test.ts`.
 
-- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` — swallows non-OK BFF responses as `null` — locus: `bff-session-sync.ts` GET handler; input: BFF `rp-logout-url` returns 503 during sign-out; wrong outcome: local session cleared but operator not redirected to IdP end_session when cookie still held id_token.
-- [ ] (candidate) `clearBffSessionCookie` — DELETE omits CSRF while refresh requires it — locus: `bff-session-sync.ts` vs `bff-session/route.ts` DELETE; input: cross-site DELETE blocked only by same-origin guard; wrong outcome: logout CSRF class diverges from refresh CSRF class.
-- [ ] (candidate) `initiateOidcRedirect` — primary discovery failure still clears return URL when supplemental flow stored it — locus: primary `catch` unconditional `clearPostSignInReturnUrl` (`initiate-redirect.ts`); input: Google PKCE pending with stored return, primary retry fails discovery; wrong outcome: supplemental return path cleared (inverse of #26 supplemental bug).
-- [ ] (candidate) `ensureAccessTokenFresh` — refresh `ok: false` without `shouldClearSession` leaves expired `OIDC_EXPIRES_AT_MS_KEY` unchanged — locus: `session.ts` refresh branch; input: repeated malformed refresh JSON; wrong outcome: tight refresh loop on every API call without backoff.
-- [ ] (candidate) `loadDiscoveryDocument` — concurrent callers share one rejected promise before cache eviction completes — locus: `discoveryPromises` set before fetch settles; input: parallel sign-in tabs on flaky network; wrong outcome: sibling tab inherits first tab's transient discovery failure.
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — swallows non-OK BFF responses — **cheap-disproof 2026-10-08 thorough hunt #28:** `signOutAndRedirectHome` still clears local session and falls back to `/`; missing IdP logout on transient 503 is acceptable degradation.
+- [x] (invalid) `clearBffSessionCookie` — DELETE omits CSRF — **cheap-disproof 2026-10-08 thorough hunt #28:** DELETE uses the same `isSameOriginBffRequest` guard as POST; CSRF on refresh protects cookie-bearing mutations, not teardown.
+- [x] (proven) `initiateOidcRedirect` — primary discovery failure cleared supplemental return URL — **hit 2026-10-08 thorough hunt #28:** unconditional `clearPostSignInReturnUrl` after primary failure; fixed by skipping return cleanup when Google PKCE remains pending unless primary stored the return URL this attempt; regression `preserves post-sign-in return path when primary discovery fails but supplemental Google PKCE is pending`.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — malformed refresh JSON tight loop — **cheap-disproof 2026-10-08 thorough hunt #28:** transient refresh failure intentionally retains session for retry (`session-ensure-fresh.test.ts`); BFF route returns 503 not 200 with bad JSON in production.
+- [x] (invalid) `loadDiscoveryDocument` — shared rejected promise across tabs — **cheap-disproof 2026-10-08 thorough hunt #28:** failed promises are evicted before rethrow; concurrent callers observe the same transient failure, then the next call retries fresh.
+
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — success path does not clear stale primary PKCE before storing Google state — locus: `initiate-redirect.ts` supplemental branch; input: abandoned primary PKCE plus fresh Google redirect; wrong outcome: `consumePkceState` matches wrong flow on callback.
+- [ ] (candidate) `consumePostSignInReturnUrl` — removes key before validating safe path — locus: `session.ts` `consumePostSignInReturnUrl`; input: sessionStorage tampered to unsafe path between store and callback; wrong outcome: return URL consumed without navigation.
+- [ ] (candidate) `refreshBffSessionCookie` — does not surface 503 `shouldClearSession` distinction to UI — locus: `bff-session-sync.ts` refresh status mapping; input: BFF refresh outage during presenter mode; wrong outcome: operator sees signed-in chrome with failing API calls.
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — omits `id_token` when blank string — locus: POST body `id_token: tokens.id_token ?? undefined`; input: IdP returns `id_token: ""`; wrong outcome: RP logout URL unavailable after sign-in despite valid token response.
+- [ ] (candidate) `signOutAndRedirectHome` — clears operator scope before RP logout redirect completes — locus: `session.ts` ordering with `clearOperatorScopeStorage`; input: slow IdP end_session redirect; wrong outcome: workspace continuity lost before federated logout finishes.
 
 ---
 
