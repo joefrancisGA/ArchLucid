@@ -107,11 +107,15 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
                 ast,
                 workloadDiagramNode.NodeId,
                 nextHopDiagramNodeId);
+            string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
+                ? "Next hop name was not stored."
+                : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
+
             InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                 ast,
                 workloadDiagramNode.NodeId,
                 nextHopDiagramNodeId,
-                InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName ?? "next hop"),
+                edgeLabel,
                 GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                 ProvenanceKind.ObservedFact.ToString());
 

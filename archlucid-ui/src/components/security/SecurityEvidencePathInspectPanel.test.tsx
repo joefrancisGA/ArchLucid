@@ -148,9 +148,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
           },
           {
             hopOrdinal: 2,
-            fromNodeLabel: "App gateway",
-            toNodeLabel: "Key vault",
-            edgeType: "RoleAssignment",
+            fromNodeLabel: "Hop source was not stored.",
+            toNodeLabel: "Hop destination was not stored.",
+            edgeType: "Relationship type was not stored",
             provenanceKind: "DerivedFact",
             hopConfidenceBand: "Possible",
             inferenceSource: "tag:owner",
@@ -263,6 +263,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
     expect(screen.getByText("This hop limits how strong the path evidence can be.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
+    expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Relationship type was not stored").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);

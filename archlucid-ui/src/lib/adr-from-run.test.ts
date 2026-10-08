@@ -238,6 +238,31 @@ describe("adr-from-run", () => {
     expect(input.findings[0]?.trustLabelReason).toBe("Rule hit.");
   });
 
+  it("uses omission copy when a finding trust label is not stored", () => {
+    const input = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [
+        {
+          findingId: "f-missing-trust",
+          title: "Finding",
+          recommendation: "Fix",
+          severityValue: 2,
+          aiReasoning: { reasoningTrace: "trace" },
+        } as QuickDecisionFinding,
+      ],
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(buildMadrMarkdownFromRun(input)).toContain("**Provenance:** Provenance kind was not stored.");
+  });
+
   it("buildAdrExplanationSlice maps provenance and faithfulness flags", () => {
     const summary: RunExplanationSummary = {
       explanation: {

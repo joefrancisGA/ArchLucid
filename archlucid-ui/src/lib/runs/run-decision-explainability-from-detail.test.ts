@@ -58,4 +58,38 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.findingEngineFailures).toHaveLength(1);
     expect(model?.manifestHonestyWarnings).toHaveLength(1);
   });
+
+  it("uses omission copy for absent decision explainability fields", () => {
+    const detail = {
+      decisionExplainability: {
+        manifestDecisions: [
+          {
+            decisionId: "dec-missing",
+            category: "Security",
+            selectedOption: "Required",
+          },
+        ],
+        coordinatorDecisionNodes: [
+          {
+            decisionId: "node-missing",
+            confidence: 0.5,
+          },
+        ],
+        findingEngineFailures: [
+          {
+            engineType: "SecurityEngine",
+            category: "Security",
+          },
+        ],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.manifestDecisions[0]?.title).toBe("Decision title was not stored.");
+    expect(model?.manifestDecisions[0]?.pipeline).toBe("Pipeline was not stored.");
+    expect(model?.coordinatorDecisionNodes[0]?.topic).toBe("Decision topic was not stored.");
+    expect(model?.coordinatorDecisionNodes[0]?.pipeline).toBe("Pipeline was not stored.");
+    expect(model?.findingEngineFailures[0]?.exceptionType).toBe("Exception type was not stored.");
+  });
 });

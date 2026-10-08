@@ -28,12 +28,20 @@ function finiteNumberOrNull(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function mapStoredLabel(value: unknown, omissionLabel: string): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return omissionLabel;
+  }
+
+  return value;
+}
+
 function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
   return {
     hopOrdinal: finiteNumberOrDefault(raw.hopOrdinal, 0),
-    fromNodeLabel: String(raw.fromNodeLabel ?? "—"),
-    toNodeLabel: String(raw.toNodeLabel ?? "—"),
-    edgeType: String(raw.edgeType ?? "—"),
+    fromNodeLabel: mapStoredLabel(raw.fromNodeLabel, "Hop source was not stored."),
+    toNodeLabel: mapStoredLabel(raw.toNodeLabel, "Hop destination was not stored."),
+    edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
     provenanceKind: String(raw.provenanceKind ?? ""),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     inferenceSource: raw.inferenceSource != null ? String(raw.inferenceSource) : null,
@@ -45,7 +53,7 @@ function mapHop(raw: Record<string, unknown>): SecurityEvidencePathHop {
 function mapWeakestHop(raw: Record<string, unknown>): SecurityEvidencePathWeakestHop {
   return {
     hopOrdinal: Number(raw.hopOrdinal ?? 0),
-    edgeType: String(raw.edgeType ?? "—"),
+    edgeType: mapStoredLabel(raw.edgeType, "Relationship type was not stored"),
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     provenanceKind: String(raw.provenanceKind ?? ""),
     reason: String(raw.reason ?? ""),
