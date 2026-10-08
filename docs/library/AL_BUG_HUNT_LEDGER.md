@@ -4820,7 +4820,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-08
@@ -4848,8 +4848,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `SignupForm` success response parsing — a `201` `detail` envelope is not a controller success response; `detail` belongs to problem responses and the documented success schema is `TenantProvisioningResult`.
 - [x] (invalid) `SignupForm` response parsing — numeric workspace/project identifiers are excluded by the API's GUID-valued `TenantProvisioningResult` contract.
 
+- [ ] (candidate) `SignupForm` signup telemetry — a successful `201` body that omits scope IDs causes the post-registration funnel event to be sent without registration scope headers; locus: `recordFirstTenantFunnelEvent("signup")` after session persistence; input: reachable idempotent registration response that returns `wasAlreadyProvisioned` without tenant/workspace/project IDs.
+- [ ] (candidate) `SignupForm` required-name payload — control characters that survive the required-field schema are posted and persisted in tenant metadata; locus: `buildSignupRegisterPayload` required fields; input: operator enters a newline or NUL-adjacent character in full name or organization name.
+- [ ] (candidate) `SignupForm` required-name payload — Unicode bidi control characters are accepted and preserved in registration metadata, potentially making organization/name display order misleading; locus: required field inputs and payload builder; input: operator pastes a name containing a right-to-left override character.
+- [ ] (candidate) `SignupForm` first-touch header — a browser-modified first-touch cookie with non-string UTM members is serialized and sent instead of being discarded; locus: `readFirstTouchCookie`/`serializeFirstTouchHeader` before register fetch; input: reachable existing `archlucid.firstTouch.v1` cookie with JSON values of the wrong type.
+- [ ] (candidate) `SignupForm` first-touch header — a browser-modified first-touch cookie with an invalid `capturedUtc` value is forwarded to the registration API; locus: first-touch header construction before `POST /api/proxy/v1/register`; input: reachable existing attribution cookie containing a non-ISO timestamp.
+
 2026-10-08 thorough hunt (hit): cheap-disproof closed four other `(candidate)` rows; proved a successful registration could be reported as failed when `Response.text()` rejected after a `201`; caught body-read failure and continued with status-based success handling; regression `still navigates after 201 when the response body stream fails`; 95 scoped SignupForm vitest tests passed and changed files linted cleanly.
 2026-10-08 thorough hunt (dry): cheap-disproof closed five candidates as unreachable against the registration controller's typed success contract; no failing-repro attempt was warranted; 95 scoped SignupForm vitest tests passed.
+2026-10-08 seed hunt (seed-only): re-read signup success/session ordering, funnel telemetry, and first-touch serialization; no hunt-ready row promoted; seeded five mechanism-specific `(candidate)` rows; 95 scoped SignupForm vitest tests passed.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
