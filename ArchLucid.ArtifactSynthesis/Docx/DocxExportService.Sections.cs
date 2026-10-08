@@ -68,7 +68,7 @@ public sealed partial class DocxExportService
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
         if (c.CostChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "Maximum monthly cost unchanged.");
+            WordDocumentBuilder.AddBodyText(body, "No cost changes were recorded.");
         else
 
             foreach (CostDelta x in c.CostChanges)
@@ -133,6 +133,6 @@ public sealed partial class DocxExportService
 
     private static string FormatCost(decimal? v)
     {
-        return v.HasValue ? v.Value.ToString("0.00") : "—";
+        return v.HasValue ? v.Value.ToString("0.00") : "Cost was not stored";
     }
 }

@@ -6,7 +6,11 @@ import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,
 } from "@/lib/findings/finding-semantic-support-band-export";
-import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  humanReviewStatusDisplay,
+  severityBadgeLabel,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
 import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
@@ -119,13 +123,13 @@ export function buildQuickDecisionFindingsCsv(
       severityLabelFromQuickDecisionFinding(finding),
       escapeCsvCell(finding.title),
       escapeCsvCell(finding.recommendation),
-      finding.confidenceLevel ?? "",
+      finding.confidenceLevel ?? "Confidence level was not stored",
       finding.policyRuleId ?? "",
       "trustLabel" in trustFields ? trustFields.trustLabel : "",
       "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
       semanticSupportBand,
       semanticSupportBand.length > 0 ? resolveFindingSemanticSupportBandScorerVersion(finding) : "",
-      finding.isMuted ? "Muted" : "Open",
+      finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
       escapeCsvCell(recordStatus),
     ].join(",");
   });
@@ -157,7 +161,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       findingTitle: finding.title,
       severityLabel: severityLabelFromQuickDecisionFinding(finding),
       recommendedAction: finding.recommendation,
-      statusLabel: finding.isMuted ? "Muted" : "Open",
+      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
