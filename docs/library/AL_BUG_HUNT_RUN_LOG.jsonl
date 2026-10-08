@@ -8851,3 +8851,4 @@
 {"at":"2026-10-08T07:33:47.4836595Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:38:25.5233519Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:41:14.8065314Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T07:46:57.0243926Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
