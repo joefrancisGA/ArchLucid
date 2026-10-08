@@ -8839,3 +8839,4 @@
 {"at":"2026-10-08T07:01:21.1437409Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:03:56.1272033Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:06:33.6329883Z","zoneId":"alert-simulation","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T07:09:07.4735171Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}

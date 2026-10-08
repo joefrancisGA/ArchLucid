@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -9324,7 +9326,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 37 · **Bugs found:** 2 · **Consecutive dry hunts:** 10
+**Hunts:** 38 · **Bugs found:** 2 · **Consecutive dry hunts:** 11
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected Terraform reference source; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — callers can cast the `IReadOnlyList<string>` result to its runtime array and mutate their local ordering — locus: collection expression return ~10–32; input: consumer casts the result to `string[]` before generating evidence.
+- [ ] (candidate) `DocumentationRelativePath` — a repo-relative path without a leading `./` may resolve against a generated document’s directory instead of repository root — locus: constant declaration ~6; input: markdown consumer resolves the link from a nested output directory.
+- [ ] (candidate) `DefaultApplyOrderRoots` — forward-slash root paths may fail exact platform-native path comparisons on a Windows consumer — locus: hardcoded `infra/...` strings ~12–31; input: consumer compares `Path.GetFullPath` output to the evidence entries without normalization.
+- [ ] (candidate) annotated roots — Unicode em-dash metadata separators may not be stripped by a parser that accepts only ASCII hyphen delimiters — locus: composition and legacy suffixes in the returned strings; input: external leaf extractor parsing the reference list.
+- [ ] (candidate) `DefaultApplyOrderRoots` — returning executable paths and metadata prose as one string type forces downstream consumers to parse applyability heuristically — locus: mixed annotated/unannotated list entries ~12–31; input: new consumer treats every returned entry as an Azure-apply root.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
 
@@ -9388,9 +9398,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
