@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected intake orchestration files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -5797,7 +5799,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 58 · **Bugs found:** 9 · **Consecutive dry hunts:** 11
+**Hunts:** 59 · **Bugs found:** 9 · **Consecutive dry hunts:** 12
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — null `action` is discovered only when Polly invokes the pipeline rather than at the public boundary — locus: delegate invocation ~22; input: caller passes a null persistence delegate.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync<T>` — generic null `action` follows a different exception/diagnostic path from the void overload — locus: expression-bodied delegate invocation ~29; input: caller passes a null result-producing delegate.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — large attempt values can overflow `150 * attempt` and return a negative delay — locus: integer multiplication ~24; input: caller supplies `int.MaxValue` while validating a corrupted retry counter.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — large poll values can overflow `150 * poll` and return a negative delay — locus: integer multiplication ~27; input: reconciliation loop receives a corrupted poll index near `int.MaxValue`.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — a negative attempt with elapsed below budget is accepted as not exhausted — locus: only upper-bound attempt check ~20; input: retry-loop state is initialized or restored with `attempt = -1`.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -5881,9 +5891,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
