@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — re-read proxy path validation, BFF session guarding, auth bootstrap clients, upstream forwarding, and focused tests; no hunt-ready hypothesis survived cheap-disproof. Seeded five reachable follow-on `(candidate)` rows; 41 focused auth/proxy tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `forward` — the private `/api/auth/me` pass-through receives a 60-second cache hint while the BFF session may slide or change scope — locus: `authMePrivateCacheSeconds` is selected by normalized path only; input: successive requests across session refresh or tenant/workspace scope changes.
+- [ ] (candidate) `handleRateLimitedForward` — malformed/traversal proxy paths consume the same rate-limit budget before path validation — locus: rate limiting precedes `context.params` and `buildProxyUpstreamPath`; input: repeated invalid path requests followed by a valid request.
+- [ ] (candidate) `forward` — query strings are appended after path construction without an explicit query normalization policy — locus: `targetUrl = base/path + request.nextUrl.search`; input: encoded duplicate keys, delimiter characters, or sensitive query values on auth endpoints.
+- [ ] (candidate) `forward` — upstream response pass-through may preserve cache or content headers for authenticated responses unless `passThrough` overrides them — locus: auth/me and general GET responses share the pass-through helper; input: upstream cacheable response carrying user/session data.
+- [ ] (candidate) `enforceProxyBffSessionGuard` ordering — the BFF guard runs before sandbox mocks, so demo-mode auth/proxy fixtures may require a real session unexpectedly — locus: guard precedes `trySandboxProxyMock`; input: sandbox request to an auth bootstrap path without a BFF cookie.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — seventh consecutive seed selection produced no hunt-ready hypothesis after reviewing the submit lifecycle and scoped tests. Seeded five follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `onSubmit` — a valid submit after an invisible-character rejection clears the error only when the next request begins, not when corrected input is entered — locus: `setErrorMessage(null)` occurs after in-flight setup; input: invalid submit, edit field, inspect stale alert before resubmitting.

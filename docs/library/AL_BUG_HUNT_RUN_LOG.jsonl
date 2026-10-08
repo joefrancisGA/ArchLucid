@@ -8895,3 +8895,4 @@
 {"at":"2026-10-08T15:32:41.4951124Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
 {"at":"2026-10-08T15:35:01.1626693Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
 {"at":"2026-10-08T15:37:53.7021642Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
+{"at":"2026-10-08T15:44:09.1719746Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/auth/,archlucid-ui/src/app/api/proxy/,archlucid-ui/src/proxy.ts)"]}
