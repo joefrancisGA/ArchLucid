@@ -8809,3 +8809,4 @@
 {"at":"2026-10-08T03:55:29.5283653Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T03:58:09.3651634Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T04:00:51.2148685Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T04:07:06.1388114Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `InMemory_composition_audit_evidence_freshness_dashboard_returns_empty_counts_without_snapshots`, `InMemory_composition_audit_continuous_readiness_skips_reevaluation_when_diff_has_no_impacted_evidence`, `InMemory_composition_security_asset_assertion_create_succeeds_without_durable_noop_repository_row`, `InMemory_composition_cloud_resource_lineage_reports_unavailable_without_audit_snapshot_rows`, and `InMemory_composition_structured_diagram_ingest_fails_closed_without_sealed_run_even_with_empty_sources`; 45 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_pop_directional_isolate_in_path_segment`, `TryNormalize_rejects_percent_encoded_carriage_return_in_path_segment_after_decode`, `TryNormalize_rejects_when_query_decodes_to_scheme_delimiter_substring`, `TryNormalize_accepts_line_separator_inside_path_segment_without_open_redirect_shape`, and `TryNormalize_rejects_interior_double_slash_segments_conservative_protocol_relative_scan`; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_left_to_right_isolate_in_path_segment`, `TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment`, `TryNormalize_rejects_horizontal_tab_control_character_in_path_segment`, `TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value`, and `TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape`; 191 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -33116,7 +33118,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 34 · **Bugs found:** 6 · **Consecutive dry hunts:** 7
+**Hunts:** 35 · **Bugs found:** 6 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `InMemory_composition_audit_evidence_freshness_dashboard_returns_empty_counts_without_snapshots`, `InMemory_composition_audit_continuous_readiness_skips_reevaluation_when_diff_has_no_impacted_evidence`, `InMemory_composition_security_asset_assertion_create_succeeds_without_durable_noop_repository_row`, `InMemory_composition_cloud_resource_lineage_reports_unavailable_without_audit_snapshot_rows`, and `InMemory_composition_structured_diagram_ingest_fails_closed_without_sealed_run_even_with_empty_sources`; 45 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `IAuditEvidenceFreshnessService` — dashboard without snapshots — **cheap-disproof 2026-10-08 seed hunt #35:** zeroed dashboard when no assessment snapshots; regression `InMemory_composition_audit_evidence_freshness_dashboard_returns_empty_counts_without_snapshots`.
+- [x] (valid-no-repro) `IAuditContinuousReadinessService` — empty diff changes — **cheap-disproof 2026-10-08 seed hunt #35:** no impacted evidence types yields succeeded no-op, not green readiness; regression `InMemory_composition_audit_continuous_readiness_skips_reevaluation_when_diff_has_no_impacted_evidence`.
+- [x] (valid-no-repro) `ISecurityAssetAssertionService` — InMemory noop repository — **cheap-disproof 2026-10-08 seed hunt #35:** create succeeds without durable rows like other noop infra repos; regression `InMemory_composition_security_asset_assertion_create_succeeds_without_durable_noop_repository_row`.
+- [x] (valid-no-repro) `ICloudResourceAuditLineageResolver` — hub identity without audit rows — **cheap-disproof 2026-10-08 seed hunt #35:** `Available: false` with explicit degraded reason; regression `InMemory_composition_cloud_resource_lineage_reports_unavailable_without_audit_snapshot_rows`.
+- [x] (valid-no-repro) `IStructuredDiagramIngestService` — empty sources without sealed run — **cheap-disproof 2026-10-08 seed hunt #35:** sealed-manifest guard fails closed before empty ingest; regression `InMemory_composition_structured_diagram_ingest_fails_closed_without_sealed_run_even_with_empty_sources`.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IVisionDiagramIngestService` (line 117) — vision ingest on InMemory may succeed without sealed run parity to structured ingest guard.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditHybridEvidenceQueryService` (line 63) — hybrid query on empty inventory may return success with empty pages vs assessment-not-found.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IDiagramInfrastructureReconciliationService` (line 115) — reconciliation without prior diagram model may report success with zero rows.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidenceLineageService` (line 65) — lineage for missing snapshot id may return empty graph vs explicit not-found.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IRemediationFactoryMetricsService` (line 97) — metrics rollup on empty remediation catalog may return zeroed aggregates without distinguishing uninitialized factory.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_operational_security_finding_ingest_succeeds_without_durable_noop_row`, `InMemory_composition_audit_evidence_snapshot_collection_fails_closed_without_inventory_snapshots`, `InMemory_composition_path_explanation_and_inspector_agree_on_unknown_path_id`, `InMemory_composition_remediation_instance_create_fails_without_pattern_match`, and `InMemory_composition_ask_grounding_blank_question_fails_while_sparse_identifiers_mark_insufficient_evidence`; seeded five follow-on `(candidate)` rows; 40 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
@@ -33125,12 +33141,6 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `ISecurityEvidencePathExplanationService` vs path inspector — unknown path id shape divergence — **cheap-disproof 2026-10-07 seed hunt:** inspector returns null detail; explanation returns `Succeeded: false` with not-found message; regression `InMemory_composition_path_explanation_and_inspector_agree_on_unknown_path_id`.
 - [x] (valid-no-repro) `IRemediationInstanceService` — instance creation without patterns returns success without durable rows — **cheap-disproof 2026-10-07 seed hunt:** `CreateFromMatchAsync` fails when no active match; repository stays empty; regression `InMemory_composition_remediation_instance_create_fails_without_pattern_match`.
 - [x] (valid-no-repro) `IInfraEvidenceAskGroundingService` — sparse identifiers indistinguishable from misconfiguration — **cheap-disproof 2026-10-07 seed hunt:** blank question fails validation; sparse bundle returns `InsufficientEvidence` with `Succeeded: true`; regression `InMemory_composition_ask_grounding_blank_question_fails_while_sparse_identifiers_mark_insufficient_evidence`.
-
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditEvidenceFreshnessService` (line 60) — freshness evaluation on InMemory with no audit evidence snapshots may report stale without distinguishing missing baseline.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IAuditContinuousReadinessService` (line 99) — readiness diff consumer on empty inventory may emit green readiness without control evaluations.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ISecurityAssetAssertionService` (line 84) — assertion upsert on InMemory noop graph may succeed without durable assertion rows.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `ICloudResourceAuditLineageResolver` (line 119) — lineage resolve for hub-upserted identity without audit snapshot may return empty lineage vs not-found inconsistently.
-- [ ] (candidate) `InfraEvidenceCompositionModule.Register` / `IStructuredDiagramIngestService` (line 114) — ingest of empty diagram payload on InMemory may return success without reconciliation rows.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions `InMemory_composition_operational_security_exception_create_succeeds_without_durable_noop_row`, `InMemory_composition_path_inspector_and_rank_queries_use_consistent_empty_shapes`, `InMemory_composition_audit_evidence_package_export_fails_when_assessment_missing`, `InMemory_composition_remediation_pattern_match_reports_no_match_without_patterns`, and `InMemory_composition_tenant_branding_repository_writes_invalidate_resolved_profile_cache`; seeded five follow-on `(candidate)` rows; 35 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
 
@@ -33150,10 +33160,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
 - **code-changed-since:** yes

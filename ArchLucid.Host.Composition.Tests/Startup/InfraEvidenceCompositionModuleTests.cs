@@ -19,10 +19,12 @@ using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
+using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
 using ArchLucid.ArtifactSynthesis.Branding;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Ask;
@@ -1345,6 +1347,210 @@ public sealed class InfraEvidenceCompositionModuleTests
         sparseIdentifiers.Succeeded.Should().BeTrue(sparseIdentifiers.ErrorMessage);
         sparseIdentifiers.Response!.InsufficientEvidence.Should().BeTrue(
             "empty collector bundle is insufficient evidence, not a request validation failure");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_evidence_freshness_dashboard_returns_empty_counts_without_snapshots()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditEvidenceFreshnessService freshnessService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditEvidenceFreshnessService>();
+
+        AuditEvidenceFreshnessDashboardRecord dashboard = await freshnessService.GetDashboardCountsAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            CancellationToken.None);
+
+        dashboard.CurrentCount.Should().Be(0);
+        dashboard.StaleCount.Should().Be(0);
+        dashboard.MissingCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_continuous_readiness_skips_reevaluation_when_diff_has_no_impacted_evidence()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditContinuousReadinessService readinessService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditContinuousReadinessService>();
+
+        AuditContinuousReadinessProcessResult result = await readinessService.ProcessInventoryDiffAsync(
+            scope,
+            new AzureInventoryDiffSummaryRecord
+            {
+                DiffId = Guid.NewGuid(),
+                SnapshotAId = Guid.NewGuid(),
+                SnapshotBId = Guid.NewGuid(),
+                TotalChanges = 0,
+            },
+            [],
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.AffectedControlIds.Should().BeEmpty();
+        result.ReEvaluatedControlIds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_security_asset_assertion_create_succeeds_without_durable_noop_repository_row()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        DateTime utcNow = DateTime.UtcNow;
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ICloudResourceIdentityDirectory identityDirectory =
+            serviceScope.ServiceProvider.GetRequiredService<ICloudResourceIdentityDirectory>();
+        ISecurityAssetAssertionService assertionService =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityAssetAssertionService>();
+        ISecurityAssetAssertionRepository assertionRepository =
+            serviceScope.ServiceProvider.GetRequiredService<ISecurityAssetAssertionRepository>();
+
+        CloudResourceIdentityRecord upserted = await identityDirectory.UpsertOnSnapshotAsync(
+            scope,
+            CloudProvider.Azure,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/acct",
+            Guid.NewGuid(),
+            resourceType: "Microsoft.Storage/storageAccounts",
+            subscriptionOrAccountId: "sub",
+            resourceGroupOrProject: "rg",
+            region: "eastus",
+            displayName: "acct",
+            CancellationToken.None);
+
+        SecurityAssetAssertionCreateResult createResult = await assertionService.CreateAsync(
+            scope,
+            new SecurityAssetAssertionCreateRequest
+            {
+                CloudResourceId = upserted.CloudResourceId,
+                DataSensitivity = SecurityAssetDataSensitivity.Phi,
+                RegulatoryClass = SecurityAssetRegulatoryClass.Hipaa,
+                DeploymentEnvironment = SecurityAssetDeploymentEnvironment.Production,
+                BusinessCriticality = SecurityAssetBusinessCriticality.CrownJewel,
+                IsPatientImpact = true,
+                Rationale = new string('x', FindingDispositionValidation.MinimumRationaleLength),
+                ExpirationUtc = utcNow.AddDays(30),
+                RequestedByActorKey = "requester",
+                ApprovedByActorKey = "approver",
+            },
+            CancellationToken.None);
+
+        createResult.Succeeded.Should().BeTrue(createResult.ErrorMessage);
+        createResult.AssertionId.Should().NotBe(Guid.Empty);
+
+        IReadOnlyList<SecurityAssetAssertionRecord> persisted =
+            await assertionRepository.ListByScopeAsync(scope.ToProjectScopeKey(), CancellationToken.None);
+
+        persisted.Should().BeEmpty(
+            "InMemory composition wires NoOpSecurityAssetAssertionRepository; create succeeds without durable rows by design");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_cloud_resource_lineage_reports_unavailable_without_audit_snapshot_rows()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        ICloudResourceIdentityDirectory identityDirectory =
+            serviceScope.ServiceProvider.GetRequiredService<ICloudResourceIdentityDirectory>();
+        ICloudResourceAuditLineageResolver lineageResolver =
+            serviceScope.ServiceProvider.GetRequiredService<ICloudResourceAuditLineageResolver>();
+
+        CloudResourceIdentityRecord upserted = await identityDirectory.UpsertOnSnapshotAsync(
+            scope,
+            CloudProvider.Azure,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv-1",
+            Guid.NewGuid(),
+            resourceType: "Microsoft.KeyVault/vaults",
+            subscriptionOrAccountId: "sub",
+            resourceGroupOrProject: "rg",
+            region: "eastus",
+            displayName: "kv-1",
+            CancellationToken.None);
+
+        CloudResourceAuditLineageLink link = await lineageResolver.ResolveAsync(
+            scope,
+            upserted.CloudResourceId,
+            new CloudResourceEvidenceHubQuery(),
+            CancellationToken.None);
+
+        link.Available.Should().BeFalse();
+        link.DegradedReason.Should().Contain("No audit evidence snapshot rows");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_structured_diagram_ingest_fails_closed_without_sealed_run_even_with_empty_sources()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IStructuredDiagramIngestService ingestService =
+            serviceScope.ServiceProvider.GetRequiredService<IStructuredDiagramIngestService>();
+
+        Func<Task> act = () => ingestService.IngestAsync(
+            scope,
+            Guid.NewGuid(),
+            new StructuredDiagramIngestRequest { Sources = [] },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
