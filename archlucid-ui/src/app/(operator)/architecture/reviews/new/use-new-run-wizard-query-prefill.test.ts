@@ -202,6 +202,71 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
   });
 
+  it("does not apply specialty cloud query on mount when only packId and cloud are present", async () => {
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          deeplinkPolicyPackId: "aws-baseline-pack",
+          reviewIntakeCloudProvider: "Aws",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["aws-baseline-pack"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    expect(setValue).not.toHaveBeenCalledWith(
+      "cloudProvider",
+      "Aws",
+      expect.anything(),
+    );
+  });
+
+  it("applies specialty cloud with example template prefill at step 2", async () => {
+    const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          exampleTemplate,
+          reviewIntakeCloudProvider: "Aws",
+        },
+        stepIndex: 2,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("cloudProvider", "Aws", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+  });
+
   it("applies accelerator prefill and skips preset when both query params are present", async () => {
     const reset = vi.fn<UseFormReset<WizardFormValues>>();
 

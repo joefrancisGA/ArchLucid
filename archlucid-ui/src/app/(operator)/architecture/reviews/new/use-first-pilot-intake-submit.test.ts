@@ -112,4 +112,47 @@ describe("useFirstPilotIntakeSubmit", () => {
     expect(clearWizardSession).toHaveBeenCalledTimes(1);
     expect(callOrder).toEqual(["upload", "clear"]);
   });
+
+  it("retains evidence files when post-create upload is deferred", async () => {
+    const file = new File(["evidence"], "brief.pdf", { type: "application/pdf" });
+    const setEvidenceFiles = vi.fn();
+
+    createArchitectureRun.mockResolvedValueOnce({ run: { runId: "run-pilot" } });
+    uploadWizardPendingDocumentEvidence.mockResolvedValueOnce({ ok: false });
+
+    const creationProgress = buildCreationProgress();
+
+    const { result } = renderHook(() =>
+      useFirstPilotIntakeSubmit({
+        startBlockerInput: {
+          intake: {
+            title: "Retail API review",
+            brief: "Enough operator context for the architecture review.",
+            evidenceFileCount: 1,
+            evidenceFileNames: ["brief.pdf"],
+            limitedEvidenceAnalysisAcknowledged: true,
+            l0Must: { complete: true, gaps: [] },
+          },
+          policyPackCloudMismatch: null,
+          scopeGateOpen: true,
+          briefExceedsMaxLength: false,
+          maxBriefLength: 10_000,
+        },
+        canStart: true,
+        resolvedBrief: "Enough context for submit.",
+        evidenceFiles: [file],
+        setEvidenceFiles,
+        exampleTemplate: null,
+        buildSubmitBody: () => ({ description: "Enough context for submit." }),
+        clearWizardSession: vi.fn(),
+        creationProgress,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.submitRun();
+    });
+
+    expect(setEvidenceFiles).not.toHaveBeenCalled();
+  });
 });

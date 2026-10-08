@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped `reviews/new` vitest 141 passed with 71 pre-existing baseline failures.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-fetch-registration-scope.test.ts`, and `proxy.test.ts`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
 
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-fetch-registration-scope.test.ts`, and `host-gate.test.ts`; reaffirmed `allows anonymous marketing mutations with a valid BFF session and no CSRF token`; scoped auth/proxy vitest 270 passed with 3 unrelated baseline seam failures.
@@ -32640,6 +32642,20 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped reviews/new vitest 141 passed with 71 pre-existing baseline failures.
+
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` / `reviewIntakeCloudProvider` — **cheap-disproof 2026-10-08 seed hunt #43:** specialty `cloud=` hydrates only with example template at step 2, not on the packId-only mount tick; regressions `does not apply specialty cloud query on mount when only packId and cloud are present` and `applies specialty cloud with example template prefill at step 2`.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` / session restore — **cheap-disproof 2026-10-08 seed hunt #43:** confirm bookmarks intentionally rewind to clarifications when `draftId` is restored; regression `rewinds restored confirm bookmarks to clarifications when draftId is present`.
+- [x] (valid-no-repro) `useNewRunWizardTrackStream` — **cheap-disproof 2026-10-08 seed hunt #43:** quick mode keeps summary polling on every step by design; regression `keeps summary polling enabled on every quick-review step after a run is spawned`.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` / `packId` deeplink — **cheap-disproof 2026-10-08 seed hunt #43:** accepted template restore replaces the whole form via `reset`, so governance deeplink must not assume pack prefill survives resume; regression `restores saved template form values wholesale via reset`.
+- [x] (valid-no-repro) `useFirstPilotIntakeSubmit` — **cheap-disproof 2026-10-08 seed hunt #43:** deferred upload keeps evidence files in hook state while session clears after navigation handoff; regression `retains evidence files when post-create upload is deferred` (parity `clears wizard session after post-create evidence upload attempt finishes`).
+
+- [ ] (candidate) `useNewRunWizardPolicyPackMismatch` / `useWatch` lag — pack deeplink `setValue` on first paint may leave mismatch callout stale for one render before `watchedWizardValues` catches up; locus: `use-new-run-wizard-client.tsx` ordering; input: `packId` for a cloud-specific pack on cold load.
+- [ ] (candidate) `useGuidedIntakeDraftAdmit` / `runAdmission` — admission may create a fresh draft when `core.draftId` is null even though guided session restore repopulated answers; locus: `use-guided-intake-draft-admit.ts` ~72–120; input: operator accepts resume snapshot without `draftId` on confirm step.
+- [ ] (candidate) `useNewRunWizardPendingEvidence` / quick `autoUploadOnCreate` — pending inventory selection with pre-existing `runId` from quick spawn may auto-upload before operator confirms recap; locus: `use-new-run-wizard-pending-evidence.ts` + client `autoUploadOnCreate`; input: quick mode `runId` set then inventory file picked on step 0.
+- [ ] (candidate) `guided-intake-example-template-prefill-once` / specialty cloud — `example=` prefill and `cloud=` query may disagree when operator swaps example ids without remount; locus: `guided-intake-example-template-prefill-once.ts` + query prefill; input: second `example=` link in same tab with conflicting `cloud=`.
+- [ ] (candidate) `useGuidedIntakeWizard` / `isSubmitBlocked` rewind — submit-blocked effect may fight restored confirm step when clarifications are not yet hydrated; locus: `use-guided-intake-wizard.ts` ~247–253 vs `handleSessionRestore`; input: restored step 2 with `draftId` while `clarificationsPersistedForSubmit` is false.
+
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `retains pending inventory selection in hook state for post-submit upload retries`, `applies policy pack deeplink prefill only once when packId changes without remounting`, `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`, `shows quick track chrome when quick mode already has a run id even on a non-track step deep link`, and `flags cloud-specific policy packs when cloud target is still None`; reaffirmed `awaits pending evidence upload after clearing wizard session storage`; scoped reviews/new vitest 136 passed with 71 pre-existing baseline failures.
 
 - [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — pending files survive `clearWizardSession` — **cheap-disproof 2026-10-08 seed hunt #42:** upload reads hook state; regression `retains pending inventory selection in hook state for post-submit upload retries` (parity `awaits pending evidence upload after clearing wizard session storage`).
@@ -32647,12 +32663,6 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useGuidedIntakeWizard` / deep-linked `intakeStep=2` — **cheap-disproof 2026-10-08 seed hunt #42:** clarifications gate rewinds confirm bookmarks; regression `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`.
 - [x] (valid-no-repro) `useNewRunWizardSteps` / quick `runId` + `step` deep link — **cheap-disproof 2026-10-08 seed hunt #42:** `showQuickTrack` intentionally hides quick-start chrome; regression `shows quick track chrome when quick mode already has a run id even on a non-track step deep link`.
 - [x] (valid-no-repro) `deriveWizardPolicyPackCloudMismatch` — deeplink pack before `cloud=` hydration — **cheap-disproof 2026-10-08 seed hunt #42:** cloud-neutral target surfaces mismatch copy immediately; regression `flags cloud-specific policy packs when cloud target is still None`.
-
-- [ ] (candidate) `useNewRunWizardQueryPrefill` / `reviewIntakeCloudProvider` — specialty `cloud=` query may apply after policy pack prefill in the same mount tick; locus: separate effects in `use-new-run-wizard-query-prefill.ts`; input: `packId` + `cloud=Aws` on first paint with default form cloud still `None`.
-- [ ] (candidate) `useGuidedIntakeWizard` / session restore — `handleSessionRestore` may rewind `intakeStep=2` bookmarks to clarifications when restored `draftId` is present; locus: `handleSessionRestore` ~218–225; input: restored snapshot at step 2 with non-null `draftId`.
-- [ ] (candidate) `useNewRunWizardTrackStream` — quick mode with `runId` may keep summary polling enabled on every step unlike full wizard track gating; locus: `use-new-run-wizard-track-stream.ts`; input: quick mode + `runId` + `step=0` deep link after spawn.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — template session restore vs governance `packId` prefill ordering when both session snapshot and `packId` query are present; locus: `NewRunWizardTemplateRestore.ts` + query prefill hook; input: resumed template with `policyReferences` plus `packId` deeplink.
-- [ ] (candidate) `useFirstPilotIntakeSubmit` — post-create evidence upload failure may leave wizard session cleared while quick path still shows track chrome; locus: `use-first-pilot-intake-submit.ts`; input: failed `uploadPendingEvidence` after `clearWizardSession`.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows and reconciled five stale duplicate open rows at zone tail; seeded five new `(candidate)` rows; scoped reviews/new vitest 132 passed with 71 pre-existing baseline failures.
 
@@ -32678,9 +32688,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
