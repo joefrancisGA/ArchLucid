@@ -934,7 +934,7 @@ export function SecurityEvidencePathInspectPanel(props: {
                     <EnterpriseTableRow key={`${row.role}-${row.principalId ?? row.displayName ?? row.sourceReference}`}>
                       <EnterpriseTableCell>{row.role}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {row.displayName ?? row.principalId ?? "Owner was not stored"}
+                        {row.displayName?.trim() || row.principalId?.trim() || "Owner was not stored"}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatSecurityEvidenceProvenanceKindLabel(row.provenanceKind)}</EnterpriseTableCell>
                     </EnterpriseTableRow>
