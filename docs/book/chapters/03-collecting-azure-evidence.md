@@ -330,7 +330,7 @@ A security evidence store is a tempting place to put everything: connection stri
 
 The reasons are practical:
 
-1. **It turns the evidence store into a target.** A snapshot that contains keys is worth stealing. One that contains only configuration isn't worth much to an attacker.
+1. **It turns the evidence store into a higher-value target.** A snapshot that contains keys is immediately exploitable. One that contains only configuration has lower impact, but its inventory, network topology, identities, and privilege relationships are still valuable reconnaissance and must remain protected.
 2. **It doesn't help the analysis.** To show that a path exists, you need to know that a key-based route is *possible*: shared key access enabled, and an identity that can list keys. You never need the key itself.
 3. **It breaks the read-only guarantee.** Listing keys or reading secret values requires permissions beyond Reader. Granting them makes the collector a path to every secret in scope.
 
