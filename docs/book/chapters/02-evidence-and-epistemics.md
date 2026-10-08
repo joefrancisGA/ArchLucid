@@ -351,7 +351,7 @@ This lab uses no special tooling. It builds the habit the rest of the book depen
 
 **Step 3 — Compute.** Apply Rule 1 to get the path's overall grounding, and assign a confidence band using the definitions in section 2.5.
 
-**Step 4 — Ask a model.** Give a language model the hop table as structured data and this instruction:
+**Step 4 — Ask an approved model.** Use the synthetic payments example unless your organization's data-handling policy authorizes the selected model to process the real hop table. Remove or anonymize tenant IDs, resource IDs, identity names, and other sensitive metadata before giving the approved model the structured data and this instruction:
 
 ```text
 Explain this access path to a security director in under 150 words.
