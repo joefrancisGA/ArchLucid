@@ -14,9 +14,14 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (contentType.Length > 0)
             contentType = contentType.ToLowerInvariant();
 
+        string fileName = source.FileName?.Trim() ?? string.Empty;
+
+        if (fileName.Length > 0)
+            fileName = fileName.Replace('\\', '/');
+
         return new ClosedLoopReasoningSourceText
         {
-            FileName = source.FileName?.Trim() ?? string.Empty,
+            FileName = fileName,
             ContentType = contentType,
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty

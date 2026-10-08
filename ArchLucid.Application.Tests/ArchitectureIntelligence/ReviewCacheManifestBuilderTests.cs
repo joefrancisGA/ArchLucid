@@ -416,6 +416,36 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_path_separator()
+    {
+        ClosedLoopReasoningRequest forwardSlash = CreateRequest("Same body.");
+        forwardSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest backslash = CreateRequest("ignored");
+        backslash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs\\arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter()
     {
         ClosedLoopReasoningRequest bare = CreateRequest("Same body.");

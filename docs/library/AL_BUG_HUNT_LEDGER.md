@@ -32068,14 +32068,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-07 seed hunt #33 (seed→hit): promoted `ClosedLoopReasoningSourceTextNormalizer` path-separator candidate; proved `docs\arch.md` vs `docs/arch.md` split `ContentHash`; fixed by normalizing backslashes to forward slashes in `FileName`; regression `Build_matches_content_hash_when_file_name_differs_only_by_path_separator`; seeded five follow-on candidates; 84 scoped tests passed (`RunAnalyzers=false`).
+
 2026-10-06 seed hunt (seed→hit): MIME charset parameter on `SourceTexts.ContentType` split cache manifest hash; `NormalizeContentTypeForLookup` + lowercase in normalizer; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on candidates; 83 scoped tests passed.
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters on `SourceTexts.ContentType` (`text/markdown; charset=utf-8` vs bare) split `ContentHash` — **hit 2026-10-06 seed hunt:** `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` before lowercase; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`.
-- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — `FileName` path segments with backslash vs forward slash may split cache keys for the same logical upload — **seed 2026-10-06:** Windows-style vs POSIX declaration names on architecture requests.
-- [ ] (candidate) `ReviewCacheModelFingerprint` — baseline model property ordering or casing in JSON projection may change `modelfp` without semantic model drift — **seed 2026-10-06:** reachable when persisted model round-trips through different serializers.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — blank vs omitted `WorkspaceId`/`ProjectId` may diverge from scope normalizer empty forms — **seed 2026-10-06:** partial scope on closed-loop requests.
-- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — leader exception after partial `Set` may leave followers without cache entry while single-flight completes — **seed 2026-10-06:** concurrent identical analysis requests under failure injection.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — client `RunId` with surrounding whitespace vs normalized compact id may build different pin scopes — **seed 2026-10-06:** `NormalizeRequired` at entry vs raw `request.RunId` on manifest build paths.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — `FileName` path segments with backslash vs forward slash split cache keys — **hit 2026-10-07 seed hunt #33:** `FileName` hashed literally; fixed by `Replace('\\', '/')` after trim; regression `Build_matches_content_hash_when_file_name_differs_only_by_path_separator`.
+- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — leading `./` or duplicate slashes in `FileName` after separator normalization may still split cache keys — locus: `FileName` trim + `Replace` (`ClosedLoopReasoningSourceTextNormalizer.cs`); input: `./docs/arch.md` vs `docs/arch.md`; wrong outcome: false cache miss for equivalent relative paths.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `Content` line endings `\\r\\n` vs `\\n` after trim may split hash for otherwise identical uploads — locus: source append loop (`ReviewCacheManifestBuilder.cs` ~109–111); input: same markdown with CRLF vs LF only; wrong outcome: duplicate review work on Windows uploads.
+- [ ] (candidate) `ReviewResultCache.TryGet` — manifest key built from request snapshot before `RunId` normalization vs after may miss pin scope hits — locus: `RunAsync` pin scope branch (`ClosedLoopArchitectureReasoningOrchestrator.cs` ~81–89); input: client `RunId` with surrounding spaces on first request; wrong outcome: cache miss despite identical normalized run.
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key omits `PublishToProduct` while storage manifest includes publish policy partition — locus: `BuildCoalesceKey` vs `ReviewCacheKeyBuilder` (`ClosedLoopContinueRunSingleFlight.cs`); input: identical continue payloads differing only on publish flag; wrong outcome: cross-talk cache hit.
+- [ ] (candidate) `ReviewCacheLedgerFingerprint` — ledger entries with equivalent technology ids differing only by Unicode normalization form may change `ledgerfp` — locus: `ReviewCacheLedgerFingerprint.Compute`; input: NFC vs NFD technology name on ledger reload; wrong outcome: stale continue coalesce after ledger re-import.
 
 2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
 
@@ -32114,11 +32117,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 32
-- **bugs-found:** 12
+- **hunts:** 33
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — MIME charset parameter split review cache manifest hash
+- **last-hunt:** 2026-10-07
+- **last-bug:** 2026-10-07 — source `FileName` path separator split review cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
