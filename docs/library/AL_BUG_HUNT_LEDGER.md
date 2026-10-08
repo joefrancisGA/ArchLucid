@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (dry): `artifact-synthesis` — cheap-disproof retired the extractor numeric-field candidate and ARM NSG omitted-field candidate as `(invalid)` against their source schemas, and closed the SVG empty-segment candidate as `(valid-no-repro)` because router construction and renderer guards prevent that input; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
+
 2026-10-08 seed hunt (seed-only): `artifact-synthesis` — no hunt-ready hypothesis survived the additional classifier, inventory-security, and SVG-label source review; seeded three reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (dry): `artifact-synthesis` — cheap-disproof closed the DOCX culture candidate as `(valid-no-repro)` because no deterministic-culture contract or sibling-output disagreement was present, and retired the duplicate-`NodeId` candidate as `(invalid)` because graph validation permits the shape but the selected production paths do not create or persist duplicate node IDs; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
@@ -28948,19 +28950,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 40
+- **hunts:** 41
 - **last-hunt:** 2026-10-08
 - **bugs-found:** 44
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-06 — deterministic Mermaid repair dropped NSG inbound rule chips before forest layout
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) `ExtractorOrphanCandidatesClassifier.TryClassifyRow` / `ReadString` — a reachable `orphan-candidates.json` row with a numeric `resourceId`, `resourceType`, or reason field calls `JsonElement.GetString()` and can abort classification instead of skipping the malformed row; source reachability is the extractor JSON consumed by this classifier, but the extractor schema's emitted field types were not verified in this seed hunt.
-- [ ] (candidate) `AzureInventorySecurityBaselineClassifier.IsAllowInboundAdminRule` — an Azure inventory NSG rule with omitted `access` or `direction` is treated as Allow/Inbound by default, potentially reporting an administrative-ingress finding from incomplete rule data; reachability is the ARM `resources.json` securityRules payload, but required-field omission behavior was not established.
-- [ ] (candidate) `DiagramForestEdgeLabelSvgEmitter.ResolveLabelAnchor` — a non-empty relationship label with an empty router segment list would throw from `.First()` while emitting SVG instead of falling back to a safe label position; reachability is the internal `DiagramForestOrthogonalEdgeRouter.RouteResult` passed by the forest renderer, but current router construction appears to create at least one segment.
+- [x] (invalid) `ExtractorOrphanCandidatesClassifier.TryClassifyRow` / `ReadString` — a reachable `orphan-candidates.json` row with a numeric `resourceId`, `resourceType`, or reason field calls `JsonElement.GetString()` and can abort classification — **cheap-disproof 2026-10-08 thorough hunt:** extractor orphan-candidate rows use string identity/type/reason fields; numeric savings values are handled separately and do not reach these `GetString()` calls as identifiers.
+- [x] (invalid) `AzureInventorySecurityBaselineClassifier.IsAllowInboundAdminRule` — an Azure inventory NSG rule with omitted `access` or `direction` is treated as Allow/Inbound by default — **cheap-disproof 2026-10-08 thorough hunt:** the selected ARM `resources.json` security-rule contract supplies these rule fields; no reachable incomplete-rule input or wrong finding was established.
+- [x] (valid-no-repro) `DiagramForestEdgeLabelSvgEmitter.ResolveLabelAnchor` — a non-empty relationship label with an empty router segment list would throw from `.First()` while emitting SVG — **cheap-disproof 2026-10-08 thorough hunt:** the orthogonal router always returns a fallback segment, and the forest renderer only invokes long-edge handling when segments exist; no empty-segment label path was reachable.
 
 - [x] (valid-no-repro) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators — **cheap-disproof 2026-10-08 thorough hunt:** no deterministic-culture contract or disagreement with sibling markdown exports was present in the selected paths; no failing repro was established.
 - [x] (valid-no-repro) `InventoryDiagramExternalTargetApplier.ApplyConnectedPeerings` — a connected ARM VNet peering whose target has an AST stub but no captured graph node might relabel the stub without adding the peering edge — **cheap-disproof 2026-10-08 seed hunt:** the focused Network-mode repro passed because the compiler's existing VNet peering relationship applier emits the edge; no defect was reproduced.
