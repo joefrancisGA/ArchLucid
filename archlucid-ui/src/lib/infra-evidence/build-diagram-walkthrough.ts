@@ -12,11 +12,14 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
     { source: "declared", count: outline.edges.filter((edge) => edge.source === "declared").length },
     { source: "probable", count: outline.edges.filter((edge) => edge.source === "probable").length },
     { source: "inferred", count: outline.edges.filter((edge) => edge.source === "inferred").length },
+    { source: "source not stored", count: outline.edges.filter((edge) => edge.source === "missing").length },
   ].filter((entry) => entry.count > 0);
   const relationshipSourceSummary = sourceCounts
     .map((entry) => `${entry.count} ${entry.source}`)
     .join(", ");
-  const notObservedSentence = sourceCounts.some((entry) => entry.source !== "observed")
+  const notObservedSentence = outline.edges.some(
+    (edge) => edge.source === "declared" || edge.source === "probable" || edge.source === "inferred",
+  )
     ? " Relationships that are not observed are not inventory links."
     : "";
   const relationshipSummary = relationshipSourceSummary.length > 0
