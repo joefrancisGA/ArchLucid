@@ -15693,11 +15693,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 38
-- **bugs-found:** 36
+- **hunts:** 39
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — DOCX architecture-analysis export omitted execution traces
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — DOCX architecture-analysis export omitted evidence assumptions, policies, catalog, and patterns
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -15708,6 +15708,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — the sealed-manifest hash guard covered only the primary `RunId`, while `IncludeAgentResultCompare` loaded a separate `CompareRunId` without an equivalent check; **hit 2026-10-03 seed hunt:** an analysis request with `IncludeAgentResultCompare=true` returned an agent diff for an unsealed compare run; guard now validates the compare run before diffing; regression `BuildAsync_blocks_unsealed_compare_run_when_agent_result_compare_is_requested`.
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — report-level `ArchitectureAnalysisReport.Warnings` were omitted from DOCX output even though the markdown export rendered them; **hit 2026-10-03 seed hunt:** a reachable missing-manifest warning disappeared from the downloadable DOCX; fixed with a Report Warnings section and bullet rendering; regression `GenerateDocxAsync_includes_report_warnings`.
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — `ArchitectureAnalysisReport.ExecutionTraces` were omitted from DOCX output even though the markdown export rendered full trace prompts and responses; **hit 2026-10-03 seed hunt:** a reachable persisted agent trace disappeared from the downloadable DOCX; fixed with ordered trace metadata and prompt/response sections; regression `GenerateDocxAsync_includes_execution_traces`.
+- [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence assumptions, policy evidence, service-catalog hints, and pattern hints were omitted from DOCX output even though the markdown export rendered them; **hit 2026-10-08 seed hunt:** a reachable evidence package's assumption text never appeared in the DOCX body; fixed by rendering those four evidence sections; regression `GenerateDocxAsync_includes_evidence_assumptions_policies_catalog_and_patterns`.
+
+2026-10-08 seed hunt (hit): proved DOCX architecture-analysis exports dropped evidence assumptions, policies, service-catalog hints, and pattern hints that markdown already rendered; added those sections. `DocxArchitectureAnalysisExportServiceTests` passed 4/4.
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` directly without proving that the comparison manifest belongs to the current scoped tenant/run lineage (reachable input: caller-supplied compare manifest version on an analysis request; needs a concrete cross-run/tenant lookup path and wrong-result repro).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — a supplied `PreloadedRunDetail.Manifest` is accepted after validating only `PreloadedRunDetail.Run.RunId`, so a stale preloaded detail could carry a manifest from another run into the report (reachable input: internal export/analysis caller supplying a preloaded detail; needs proof that such preloaded details can be assembled with mismatched manifest provenance).
 

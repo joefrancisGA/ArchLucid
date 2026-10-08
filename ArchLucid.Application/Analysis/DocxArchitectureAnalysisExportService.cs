@@ -56,10 +56,15 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 builder.AddHeading("Required Capabilities", 3);
+
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
                     builder.AddBullet(item);
             }
 
+            AddEvidenceAssumptions(builder, report.Evidence);
+            AddEvidencePolicies(builder, report.Evidence);
+            AddEvidenceServiceCatalog(builder, report.Evidence);
+            AddEvidencePatterns(builder, report.Evidence);
             builder.AddSpacer();
         }
 
@@ -225,5 +230,70 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         }
 
         return builder.Build();
+    }
+
+    private static void AddEvidenceAssumptions(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Request.Assumptions.Count == 0)
+            return;
+
+        builder.AddHeading("Assumptions", 3);
+
+        foreach (string assumption in evidence.Request.Assumptions)
+            builder.AddBullet(assumption);
+    }
+
+    private static void AddEvidencePolicies(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Policies.Count == 0)
+            return;
+
+        builder.AddHeading("Policy Evidence", 3);
+
+        foreach (PolicyEvidence policy in evidence.Policies.OrderBy(static item => item.Title))
+        {
+            builder.AddParagraph(policy.Title, true);
+            builder.AddBullet($"Policy ID: {policy.PolicyId}");
+            builder.AddBullet($"Summary: {policy.Summary}");
+
+            if (policy.RequiredControls.Count > 0)
+                builder.AddBullet($"Required Controls: {string.Join(", ", policy.RequiredControls)}");
+        }
+    }
+
+    private static void AddEvidenceServiceCatalog(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.ServiceCatalog.Count == 0)
+            return;
+
+        builder.AddHeading("Service Catalog Hints", 3);
+
+        foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(static item => item.ServiceName))
+        {
+            builder.AddParagraph(service.ServiceName, true);
+            builder.AddBullet($"Category: {service.Category}");
+            builder.AddBullet($"Summary: {service.Summary}");
+
+            if (service.RecommendedUseCases.Count > 0)
+                builder.AddBullet($"Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
+        }
+    }
+
+    private static void AddEvidencePatterns(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Patterns.Count == 0)
+            return;
+
+        builder.AddHeading("Pattern Hints", 3);
+
+        foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(static item => item.Name))
+        {
+            builder.AddParagraph(pattern.Name, true);
+            builder.AddBullet($"Pattern ID: {pattern.PatternId}");
+            builder.AddBullet($"Summary: {pattern.Summary}");
+
+            if (pattern.SuggestedServices.Count > 0)
+                builder.AddBullet($"Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
+        }
     }
 }

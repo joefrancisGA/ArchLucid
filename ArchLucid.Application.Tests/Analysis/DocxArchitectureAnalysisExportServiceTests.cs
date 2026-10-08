@@ -115,6 +115,74 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain("{\"result\":\"accepted\"}");
     }
 
+    [Fact]
+    public async Task GenerateDocxAsync_includes_evidence_assumptions_policies_catalog_and_patterns()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Checkout API",
+                    Assumptions = ["Traffic stays in one region"],
+                },
+                Policies =
+                [
+                    new PolicyEvidence
+                    {
+                        PolicyId = "policy-encrypt",
+                        Title = "Encrypt at rest",
+                        Summary = "Stored data uses platform encryption",
+                        RequiredControls = ["cmk"],
+                    },
+                ],
+                ServiceCatalog =
+                [
+                    new ServiceCatalogEvidence
+                    {
+                        ServiceName = "Azure Service Bus",
+                        Category = "Messaging",
+                        Summary = "Durable queues",
+                        RecommendedUseCases = ["Async fan-out"],
+                    },
+                ],
+                Patterns =
+                [
+                    new PatternEvidence
+                    {
+                        PatternId = "pattern-event-driven",
+                        Name = "Event-Driven Architecture",
+                        Summary = "Decouple producers from consumers",
+                        SuggestedServices = ["Azure Service Bus"],
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Traffic stays in one region");
+        text.Should().Contain("Encrypt at rest");
+        text.Should().Contain("policy-encrypt");
+        text.Should().Contain("Azure Service Bus");
+        text.Should().Contain("Async fan-out");
+        text.Should().Contain("Event-Driven Architecture");
+        text.Should().Contain("pattern-event-driven");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream memoryStream = new(docxBytes);
