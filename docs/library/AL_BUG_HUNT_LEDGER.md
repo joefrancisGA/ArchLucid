@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `billing-webhooks` — reran the selected replay/provider suites with `--no-build`; no new hunt-ready hypothesis or failing repro appeared. Seeded five follow-on `(candidate)` rows; 59 focused tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — replay rejection returns `200 OK` even when a provider retry may expect a non-2xx signal to stop delivery — locus: `IsReplayRejected` branch; input: duplicate signed Stripe event delivery.
+- [ ] (candidate) `BillingMarketplaceWebhookController.MarketplaceAsync` — duplicate ignored events return `200` after provider handling but before any outbox confirmation, so operational delivery semantics depend on provider result flags — locus: `DuplicateIgnored` branch; input: duplicate Marketplace notification after outbox delay.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — unknown payment-intent event types are silently ignored after payment ID normalization — locus: only succeeded/failed branches have behavior; input: new Stripe event type with wallet-relevant semantics.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.HasSeenAsync` — cancellation tokens are intentionally discarded, so cancelled duplicate checks can still complete and participate in webhook processing — locus: `_ = cancellationToken`; input: request cancellation during a replay lookup.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.TryRegisterEventAsync` — failed cache writes remove the in-process claim but may leave a partially visible external cache state depending on `IMemoryCache` implementation — locus: catch removes only `_claimedKeys`; input: cache provider throws after accepting the entry.
+
 2026-10-08 seed hunt (seed-only): `billing-webhooks` — re-read the selected webhook controllers, wallet processor, and replay guard; no hunt-ready row survived cheap-disproof. No production code changed and no regression was added; 59 focused replay/provider tests passed with `--no-build`.
 
 - [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — cache eviction can remove the process-local claim and permit a replay before the nominal 24-hour retention if memory pressure evicts the entry — locus: eviction callback removes `_claimedKeys`; input: cache pressure followed by the same provider/event id.
