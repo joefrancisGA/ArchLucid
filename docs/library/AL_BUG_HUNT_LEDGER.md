@@ -6153,7 +6153,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 42 · **Bugs found:** 13 · **Consecutive dry hunts:** 0
+**Hunts:** 43 · **Bugs found:** 13 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6166,6 +6166,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (hit): proved that notifier cancellation after challenge persistence left the active challenge eligible for resend-cooldown suppression even though no code was delivered; cleanup now runs with `CancellationToken.None` on notifier failure and regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence` passed; the cleanup-storage-failure, whitespace display-email, inconsistent delivery metadata, and mutable-options-provider candidates were classified as `(valid-no-repro)`, `(invalid)`, `(invalid)`, and `(valid-no-repro)`.
+
+2026-10-08 seed hunt (seed-only): re-read the selected controller and service paths; no candidate met the hunt-ready bar without relying on an injected service result or behavior outside these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
 
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
@@ -6217,7 +6219,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
@@ -6249,6 +6251,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2074 (seed-only): reseeded email-otp-auth; 41 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — invitation routing may be lost when an invitation-link token arrives with surrounding whitespace because the controller forwards the token unchanged to the service — locus: `InvitationToken` mapping ~60–66; input: OpenAPI challenge request with a padded invitation token.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a padded invitation token may cause a valid challenge verification to omit invitation acceptance context because the controller forwards it unchanged — locus: `InvitationToken` mapping ~101–106; input: OpenAPI verify request with the invitation token copied with surrounding whitespace.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — the response lifetime clamp may disagree with the JWT lifetime when `AccessTokenLifetimeMinutes` exceeds 1440 because the controller clamps only `ExpiresInSeconds` while the issuer receives no lifetime argument — locus: lifetime calculation and `IssueAccessToken` call ~130–143; input: deployed `Auth:EmailOtp:AccessTokenLifetimeMinutes` configuration above 1440.
 
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — **cheap-disproof 2026-10-08 thorough hunt #42:** the repository failure is an infrastructure outage outside the normal notifier input path; cleanup remains best effort and the flow preserves the original notifier failure rather than returning a successful challenge result.
 - [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — **hit 2026-10-08 thorough hunt #42:** notifier exceptions previously escaped before active-challenge cleanup, so resend cooldown suppressed a retry; cleanup now uses `CancellationToken.None`; regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence`.
