@@ -285,6 +285,30 @@ python3 scripts/ci/validate_ship_gate_evidence_index.py \
   --json-out artifacts/release/ship-gate-evidence-index.json
 ```
 
+Generate the beta-critical evidence records directly from the current Gate 1
+run IDs instead of hand-copying paths:
+
+```bash
+python3 scripts/ci/build_private_beta_evidence_records.py \
+  --evidence-root artifacts/ship-gate-evidence \
+  --run-id <beta-critical-run-id> \
+  --json-out artifacts/release/private-beta-evidence-records.json
+```
+
+When the access lane emits structured rate-limit observations, validate the
+identity, `Retry-After`, and retry-budget contract:
+
+```bash
+python3 scripts/ci/report_private_beta_rate_limit_diagnostics.py \
+  --observations-json artifacts/private-beta/rate-limit-observations.json \
+  --json-out artifacts/release/private-beta-rate-limit-diagnostics.json
+```
+
+The CI lane also checks the final landing/showcase route inventory with
+`check_private_beta_surface_claim_drift.py` and can compare the committed
+required-check contract with a live ruleset using
+`report_private_beta_ruleset_drift.py`.
+
 This kit makes Cursor-owned work repeatable. It does not close Gate 1,
 G-REAL-06, G-REAL-07, M-07, M-09, G-REAL-09, or G-REAL-08 without the required
 human execution.

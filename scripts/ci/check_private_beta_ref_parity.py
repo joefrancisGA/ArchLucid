@@ -10,11 +10,14 @@ from pathlib import Path
 
 WORKFLOW_PATH = ".github/workflows/private-beta-access-on-push.yml"
 SPEC_PATH = "archlucid-ui/e2e/live-api-private-beta-access.spec.ts"
+HELPER_PATH = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
 REQUIRED_MARKERS = (
     "branches: [main, master, RC34]",
     "LIVE_E2E_PRIVATE_BETA_ACCESS",
     "live-api-private-beta-access.spec.ts",
 )
+REQUIRED_SPEC_MARKERS = ("TB-927", "JwtBearer", "getRunDetailsWithTransientRetries")
+REQUIRED_HELPER_MARKERS = ("LIVE_JWT_TOKEN", "private-beta", "resolveLiveJwtMode")
 
 
 def _show_ref(ref: str, path: str) -> str:
@@ -38,6 +41,7 @@ def compare_refs(base_ref: str, release_ref: str) -> list[str]:
         try:
             workflow = _show_ref(ref, WORKFLOW_PATH)
             spec = _show_ref(ref, SPEC_PATH)
+            helper = _show_ref(ref, HELPER_PATH)
         except ValueError as error:
             issues.append(str(error))
             continue
@@ -46,8 +50,13 @@ def compare_refs(base_ref: str, release_ref: str) -> list[str]:
             if marker not in workflow:
                 issues.append(f"{ref}:{WORKFLOW_PATH} is missing marker: {marker}")
 
-        if "TB-927" not in spec or "JwtBearer" not in spec:
-            issues.append(f"{ref}:{SPEC_PATH} is missing the invitee JwtBearer proof")
+        for marker in REQUIRED_SPEC_MARKERS:
+            if marker not in spec:
+                issues.append(f"{ref}:{SPEC_PATH} is missing marker: {marker}")
+
+        for marker in REQUIRED_HELPER_MARKERS:
+            if marker not in helper:
+                issues.append(f"{ref}:{HELPER_PATH} is missing marker: {marker}")
 
     return issues
 

@@ -25,6 +25,7 @@ _CANONICAL_ROWS: tuple[tuple[str, str, str, bool], ...] = (
     ("Ship gate evidence", "ship-gate-evidence.json", "Release-smoke first-review witness (Gate 1)", True),
     ("Offline faithfulness nightly warn", "faithfulness-nightly-warn-status.json", "G-FAITH-01 async quality scaffold", False),
     ("Real-mode AI evidence", "real-llm-evidence-gate.json", "Owner-approved real AOAI gate", True),
+    ("G5 evidence freshness", "real-mode-evidence-freshness.json", "Freshness attachment for real-mode claims", False),
     ("Real-mode claim gate", "real-mode-claim-gate.json", "Claim wording boundary for RC", True),
     ("RC go/no-go verdict", "rc-go-no-go-verdict.json", "Machine-readable RC signoff", True),
     ("Data consistency readiness", "data-consistency-readiness.json", "Cross-store consistency posture", False),

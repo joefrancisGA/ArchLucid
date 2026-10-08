@@ -27,7 +27,7 @@ def _normalize_status(raw: Any) -> str:
 
     normalized = str(raw).strip().upper()
 
-    if normalized in {"PASS", "READY", "VALID", "TRUE"}:
+    if normalized in {"PASS", "READY", "VALID", "TRUE", "FRESH", "SIMULATOR_ONLY", "WAIVED"}:
         return "PASS"
 
     if normalized in _WARN_STATUSES:
@@ -360,6 +360,31 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
             "highRisk": True,
             "simulatorOnlyOverridePresent": bool(real_mode_row.get("simulatorOnlyOverridePresent")),
         }
+    )
+
+    freshness_path, freshness_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "real-mode-evidence-freshness.json",
+            "artifacts/release/real-mode-evidence-freshness.json",
+        ],
+    )
+    freshness_payload = load_json(freshness_path) if freshness_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="real-mode-evidence-freshness",
+            label="G5 real-mode evidence freshness attachment",
+            artifact_path=freshness_rel,
+            payload=freshness_payload,
+            status_keys=("freshnessStatus", "status", "disposition"),
+            reason_keys=("bundleDetail", "detail", "reason"),
+            high_risk=False,
+            skipped_reason=(
+                "real-mode-evidence-freshness.json not attached — generate it with "
+                "report_real_mode_evidence_freshness.py"
+            ),
+        )
     )
 
     faithfulness_warn_path, faithfulness_warn_rel = _resolve_artifact(
