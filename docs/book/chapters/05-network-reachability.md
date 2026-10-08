@@ -7,7 +7,7 @@
 
 ## Reader takeaway
 
-Configuration tells you **intended** reachability. Proving actual reachability needs observation. Keep the two separate.
+Configuration tells you **configured** reachability. Proving actual reachability needs observation. Keep intended, configured, and observed reachability separate.
 
 ## Key points
 
