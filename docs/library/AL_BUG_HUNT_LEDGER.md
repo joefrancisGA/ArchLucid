@@ -13969,7 +13969,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
@@ -23653,6 +23653,8 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
 
 2026-10-08 seed hunt (seed-only): re-read the selected transition-table and typestate sources after the prior reseed; no candidate met the in-zone reachability and user-visible wrong-outcome bar, so no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the same selected run/authority sources; no new hunt-ready candidate emerged and no repro or production change was attempted; 29 scoped `RunAuthority` tests passed.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
