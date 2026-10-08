@@ -22,6 +22,12 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
   });
 
+  it("prefers explicit default return path over idle-persisted sign-in URL in OIDC return storage", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/auth/signin?step=code");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "/")).toBe("/");
+  });
+
   it("rejects open redirects for Complete", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
   });

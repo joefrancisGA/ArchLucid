@@ -61,6 +61,26 @@ describe("fetchPostAuthBootstrapStatus", () => {
     await expect(fetchPostAuthBootstrapStatus()).rejects.toThrow("bootstrap_status_failed");
     expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
   });
+
+  it("forwards whitespace-only returnUrl when callers bypass resolveSafeReturnPath", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          destination: "Complete",
+          pendingInvitations: [],
+          workspaces: [],
+          canCreateWorkspace: false,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await fetchPostAuthBootstrapStatus("   ");
+
+    const url = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+
+    expect(url).toContain("returnUrl=+++");
+  });
 });
 
 describe("createPostAuthWorkspace", () => {
@@ -108,6 +128,40 @@ describe("createPostAuthWorkspace", () => {
     expect(result.succeeded).toBe(false);
     expect(result.customerMessage).toBe("Organization already exists.");
     expect(result.duplicateOrganization?.accessRequestRecommended).toBe(true);
+  });
+
+  it("keeps succeeded false when HTTP 200 includes duplicateOrganization and a session payload", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          succeeded: false,
+          customerMessage: "Organization already exists.",
+          session: {
+            accessToken: "token-duplicate",
+            tokenType: "Bearer",
+            expiresInSeconds: 3600,
+            redirectPath: "/architecture/reviews",
+          },
+          duplicateOrganization: {
+            detected: true,
+            accessRequestRecommended: true,
+            customerMessage: "Request access.",
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const result = await createPostAuthWorkspace({
+      workspaceName: "Workspace",
+      organizationName: "Org",
+      termsAccepted: true,
+      includeDemoSeed: false,
+    });
+
+    expect(result.succeeded).toBe(false);
+    expect(result.session?.redirectPath).toBe("/architecture/reviews");
+    expect(result.duplicateOrganization?.detected).toBe(true);
   });
 });
 

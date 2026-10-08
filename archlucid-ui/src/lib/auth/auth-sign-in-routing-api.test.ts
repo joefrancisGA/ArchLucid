@@ -53,4 +53,12 @@ describe("evaluateAuthSignInRouting (pre-auth proxy)", () => {
 
     expect(result).toBeNull();
   });
+
+  it("returns null when the proxy responds with 403 (same shape as network failure)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 403 }));
+
+    const result = await evaluateAuthSignInRouting("operator@example.com", "invite-token", "/reviews");
+
+    expect(result).toBeNull();
+  });
 });
