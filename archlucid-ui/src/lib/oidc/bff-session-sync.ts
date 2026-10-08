@@ -110,20 +110,22 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
   }
 }
 
+export type BffSessionActivityPulseResult = "ok" | "unauthorized" | "ignored";
+
 /** Slides server-side BFF idle activity during presenter / print / export keepalive (LK-07). */
-export async function pulseBffSessionActivity(): Promise<void> {
+export async function pulseBffSessionActivity(): Promise<BffSessionActivityPulseResult> {
   if (typeof fetch === "undefined") {
-    return;
+    return "ignored";
   }
 
   const csrfToken = readBffCsrfTokenFromDocument();
 
   if (csrfToken === undefined) {
-    return;
+    return "ignored";
   }
 
   try {
-    await fetch(BFF_SESSION_ACTIVITY_PATH, {
+    const response = await fetch(BFF_SESSION_ACTIVITY_PATH, {
       method: "POST",
       credentials: "same-origin",
       headers: buildBffMutationHeaders(),
@@ -131,8 +133,19 @@ export async function pulseBffSessionActivity(): Promise<void> {
         working_mode: resolveWorkingModeForBffSession(),
       }),
     });
+
+    if (response.status === 401 || response.status === 403) {
+      return "unauthorized";
+    }
+
+    if (!response.ok) {
+      return "ignored";
+    }
+
+    return "ok";
   } catch {
     // Client idle UX still runs when the activity route is unavailable.
+    return "ignored";
   }
 }
 

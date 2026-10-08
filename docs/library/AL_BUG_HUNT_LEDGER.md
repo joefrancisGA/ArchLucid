@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (hit): `ui-oidc` — proved `pulseBffSessionActivity` treated BFF activity `401`/`403` as benign keepalive success so long exports could retain client signed-in hints after server idle expiry; fixed by returning `unauthorized` and clearing OIDC session from keepalive pulses; cheap-disproved `buildAuthorizeUrl` missing `prompt=login` (intentional federated SSO), orphaned opposite-flow PKCE at callback (cleared on redirect in hunt #29), Google token exchange client id (already uses `getGoogleOidcClientId`), and synchronous `readSignedInDisplayName` after `clearOidcSession` (React commit ordering); regressions `reports unauthorized when the activity route rejects the BFF session` and `clears the OIDC session when the BFF activity pulse is unauthorized`; seeded five follow-on `(candidate)` rows; 73 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved dual primary/Google PKCE could coexist at callback time so `consumePkceState` preferred primary on state collisions; fixed by clearing the other flow's PKCE only after successful discovery immediately before redirect; cheap-disproved `consumePostSignInReturnUrl` remove-before-validate (single-use defense in depth), refresh 503 UI surfacing, blank `id_token` sync (BFF trims), and sign-out operator-scope ordering (intentional sign-out); regressions `clears stale primary PKCE state when supplemental Google redirect succeeds` and `clears stale Google PKCE state when primary redirect succeeds`; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved primary `initiateOidcRedirect` discovery failure unconditionally cleared the shared post-sign-in return URL while supplemental Google PKCE remained pending; fixed by preserving return paths when `readPkceState("google")` is active unless primary stored a return URL this attempt; cheap-disproved RP logout 503 swallowing, DELETE CSRF parity, refresh tight-loop without backoff, and shared discovery rejection fan-out; regression `preserves post-sign-in return path when primary discovery fails but supplemental Google PKCE is pending`; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
@@ -17418,6 +17420,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-08 thorough hunt #30 (hit): proved BFF activity pulse ignored `401`/`403`; keepalive now clears client session on unauthorized pulse; cheap-disproved four other `(candidate)` rows from hunt #29; seeded five follow-on `(candidate)` rows; 73 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt #29 (hit): proved stale cross-flow PKCE retention on successful redirect; cheap-disproved four other `(candidate)` rows from hunt #28; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt #28 (hit): proved primary discovery failure cleared supplemental return paths; cheap-disproved four other `(candidate)` rows from hunt #27; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
@@ -17438,8 +17442,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 29
-- **bugs-found:** 31
+- **hunts:** 30
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-08 — stale cross-flow PKCE on OIDC redirect
@@ -17524,11 +17528,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — blank `id_token` string — **cheap-disproof 2026-10-08 thorough hunt #29:** BFF `createBffSessionCookieValue` trims and omits empty `it` claims server-side.
 - [x] (valid-no-repro) `signOutAndRedirectHome` — operator scope cleared before RP logout redirect — **cheap-disproof 2026-10-08 thorough hunt #29:** local sign-out is expected to clear operator scope; federated logout is best-effort afterward.
 
-- [ ] (candidate) `buildAuthorizeUrl` — omits `prompt=login` when switching flows mid-session — locus: `build-authorize-url.ts`; input: operator abandons primary IdP session and completes Google redirect; wrong outcome: silent SSO reattaches wrong work account without fresh auth.
-- [ ] (candidate) `CallbackClient` — does not clear opposite-flow PKCE when callback state is consumed — locus: `CallbackClient.tsx` after `consumePkceState`; input: successful Google callback leaves orphaned primary PKCE until next redirect; wrong outcome: stale primary state survives until next primary redirect success.
-- [ ] (candidate) `exchangeAuthorizationCode` — uses primary `getOidcClientId` for supplemental Google flow — locus: `CallbackClient.tsx` token exchange branch; input: Google callback with distinct client id env; wrong outcome: token exchange posts wrong client_id.
-- [ ] (candidate) `pulseBffSessionActivity` — ignores non-OK responses — locus: `bff-session-sync.ts` activity POST; input: BFF idle timeout during long PDF export; wrong outcome: client keepalive thinks activity slid while server already expired session.
-- [ ] (candidate) `readSignedInDisplayName` — returns JWT display name after `clearOidcSession` until storage flush — locus: `session.ts` hint readers vs `clearOidcSession`; input: synchronous sign-out then immediate render; wrong outcome: header still shows prior display name for one frame.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — omits `prompt=login` when switching flows mid-session — **cheap-disproof 2026-10-08 thorough hunt #30:** supplemental vs primary flows use distinct IdP authorities; forced re-auth is an operator/tenant policy choice, not a client bug in authorize URL construction.
+- [x] (invalid) `CallbackClient` — does not clear opposite-flow PKCE when callback state is consumed — **cheap-disproof 2026-10-08 thorough hunt #30:** hunt #29 clears opposite-flow PKCE before redirect; callback consumption no longer needs a second wipe.
+- [x] (invalid) `exchangeAuthorizationCode` — uses primary `getOidcClientId` for supplemental Google flow — **cheap-disproof 2026-10-08 thorough hunt #30:** `CallbackClient.tsx` branches on `stored.flow === "google"`; regression `exchanges Google callbacks with the Google client id and discovery authority`.
+- [x] (proven) `pulseBffSessionActivity` — ignores non-OK responses — **hit 2026-10-08 thorough hunt #30:** activity `401`/`403` returned void; keepalive left client hints signed-in; fixed with `BffSessionActivityPulseResult` and `clearOidcSession` from `use-oidc-session-keepalive`; regressions in `bff-session-sync.test.ts` and `use-oidc-session-keepalive.test.ts`.
+- [x] (valid-no-repro) `readSignedInDisplayName` — returns JWT display name after `clearOidcSession` until storage flush — **cheap-disproof 2026-10-08 thorough hunt #30:** hint readers re-read storage on render; one-frame staleness requires a synchronous render in the same tick as clear without state update — not reachable as a durable signed-in bug.
+
+- [ ] (candidate) `ensureAccessTokenFresh` — BFF refresh `403` does not clear session when activity pulse already returned unauthorized — locus: `session.ts` refresh vs `use-oidc-session-keepalive.ts` pulse ordering; input: parallel heartbeat refresh and activity pulse during idle expiry; wrong outcome: refresh failure revives signed-in hints after pulse cleared session.
+- [ ] (candidate) `signOutAndRedirectHome` — activity pulse races federated logout redirect — locus: `sign-out.ts` vs keepalive interval; input: operator signs out while print keepalive still enabled; wrong outcome: pulse re-syncs BFF cookie after DELETE.
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — omits `working_mode` when workspace mode storage unreadable — locus: `bff-session-sync.ts` `resolveWorkingModeForBffSession`; input: private mode toggle during callback token sync; wrong outcome: HttpOnly cookie pins wrong working_mode flag.
+- [ ] (candidate) `loadDiscoveryDocument` — caches Google vs primary metadata under one key — locus: `discovery.ts` cache key; input: operator switches from Entra to Google without reload; wrong outcome: authorize uses wrong JWKS endpoints.
+- [ ] (candidate) `consumePostSignInReturnUrl` — accepts protocol-relative `//evil` paths — locus: `session.ts` `isSafeReturnPath`; input: tampered sessionStorage return URL before callback; wrong outcome: post-sign-in navigation leaves origin.
 
 ---
 

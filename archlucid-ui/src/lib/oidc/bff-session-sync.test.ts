@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   clearBffSessionCookie,
+  pulseBffSessionActivity,
   refreshBffSessionCookie,
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
@@ -103,6 +104,27 @@ describe("bff-session-sync (LK-05 P1)", () => {
         }),
       }),
     );
+  });
+});
+
+describe("pulseBffSessionActivity (LK-07)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.cookie = "archlucid-bff-csrf=; Max-Age=0";
+  });
+
+  it("reports unauthorized when the activity route rejects the BFF session", async () => {
+    document.cookie = "archlucid-bff-csrf=csrf-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 401,
+      })),
+    );
+    const result = await pulseBffSessionActivity();
+
+    expect(result).toBe("unauthorized");
   });
 });
 
