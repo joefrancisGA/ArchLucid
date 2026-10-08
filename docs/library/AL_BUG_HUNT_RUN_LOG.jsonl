@@ -8853,3 +8853,4 @@
 {"at":"2026-10-08T07:41:14.8065314Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:46:57.0243926Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-08T07:50:12.6910705Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
+{"at":"2026-10-08T07:53:36.7247694Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs,ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}

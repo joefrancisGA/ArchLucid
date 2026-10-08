@@ -6137,7 +6137,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 38 · **Bugs found:** 11 · **Consecutive dry hunts:** 10
+**Hunts:** 39 · **Bugs found:** 11 · **Consecutive dry hunts:** 11
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected email-OTP controller and service; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -6191,9 +6193,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -6223,6 +6225,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2074 (seed-only): reseeded email-otp-auth; 41 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with `PlatformUserId == Guid.Empty` passes the null-only guard and issues a token for an empty identity — locus: success guard around lines 108–111; input: persisted or service-returned identity result with an empty platform-user GUID.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `NextStep.ToString()` exposes CLR enum casing instead of the API’s documented wire-value casing — locus: response mapping around lines 142–149; input: successful verify result whose `NextStep` is a non-default enum member.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — attacker-controlled `User-Agent` text is forwarded unchanged into the application flow and its audit context — locus: request mapping around lines 60–67; input: challenge POST with a control-character or very long `User-Agent` header.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — an absent remote address is forwarded as null while the request still proceeds, so audit/rate-limit code may classify local and unknown callers identically — locus: `RemoteIpAddress?.ToString()` around line 64; input: anonymous challenge request through a test host or proxy that provides no remote address.
+- [ ] (candidate) `EmailOtpAuthService` — controller enablement and service flow options can diverge after runtime `EmailOtpAuthOptions` changes because the controller and each flow capture separate option values — locus: `_emailOtpOptions` plus `_requestFlow`/`_verifyFlow` construction around lines 24–42; input: configuration reload toggles OTP enablement or lifetime while the process remains running.
 
 - [x] A consumed or expired OTP still issues a session Î“Ã‡Ã¶ retired: `VerifyCodeAsync_rejects_expired_code`, `VerifyCodeAsync_rejects_reused_code`, and `TryCompleteAsync` completion paths reject expired/already-completed challenges
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` accepts a non-null whitespace-only `Email` and delegates it rather than rejecting it at the API boundary — service-level normalization returns the neutral result before side effects.
