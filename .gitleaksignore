@@ -16,3 +16,18 @@ bbf8d44bd1956eeebbc44cc44b5e21da6e1b8eca:docs/library/TECH_BACKLOG.md:generic-ap
 
 # infra resource row ARM id disclosure URL Vitest fixture; generic-api-key false positive on a UUID query value, not a credential
 4cf02950ee9f8ef48ad83de828a20182d08fb175:archlucid-ui/src/lib/infra-evidence/infra-resource-row-arm-id-disclosure-url.test.ts:generic-api-key:46
+
+# Hunt ledger prose (a5dff22): generic-api-key false positive on "token parity" wording; not a credential. Later commits moved this line.
+a5dff22bb134d8c663a8a769e808762904e2cc8d:docs/library/AL_BUG_HUNT_LEDGER.md:generic-api-key:21608
+
+# Hunt ledger prose (50fae271): generic-api-key false positive on "sub-key casing" wording; not a credential. Later commits moved this line.
+50fae27180fea27c7284062da4a39bc32dea435d:docs/library/AL_BUG_HUNT_LEDGER.md:generic-api-key:4789
+
+# Evergreen cache-id fixtures (13da0bb): generic-api-key false positive on a JSON field named key. HEAD keeps those literals off that field.
+13da0bb98354406b0121226bc56bd912f56bca8a:scripts/ci/tests/test_evergreen_github_state.py:generic-api-key:34
+13da0bb98354406b0121226bc56bd912f56bca8a:scripts/ci/tests/test_evergreen_github_state.py:generic-api-key:35
+13da0bb98354406b0121226bc56bd912f56bca8a:scripts/ci/tests/test_evergreen_github_state.py:generic-api-key:36
+13da0bb98354406b0121226bc56bd912f56bca8a:scripts/ci/tests/test_evergreen_launch_policy.py:generic-api-key:96
+
+# Cosmos connection-string redaction fixture (4b9fd5f9): generic-api-key false positive on a retired AccountKey test literal; HEAD uses a low-entropy placeholder.
+4b9fd5f9680886607247c6a2e5ded26b699157a9:ArchLucid.Core.Tests/Configuration/ConfigurationEffectiveValueResolverTests.cs:generic-api-key:383
