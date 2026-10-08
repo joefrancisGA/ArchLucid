@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — sixth consecutive seed selection produced no new hunt-ready hypothesis after reviewing the submit lifecycle and 63 scoped tests. Seeded five follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `onSubmit` — the early invisible-character rejection does not increment the submit generation, so a prior in-flight generation could remain relevant if a later invalid submit occurs during a state transition — locus: validation return precedes generation assignment; input: submit valid data, then submit invalid data while the first request is unresolved.
+- [ ] (candidate) `onSubmit` — a failed request leaves `form` values intact but does not distinguish server-rejected normalization from client-side invalid text — locus: generic error branch; input: server `400` after optional-field normalization.
+- [ ] (candidate) `invalidateInFlightSubmit` — cancellation resets the local submitting flag but does not expose whether the server accepted the request — locus: no cancellation result or correlation state; input: cancel during a request that commits before its response arrives.
+- [ ] (candidate) `technicalDetail` — a callback detail containing line breaks renders as a multi-line text node without explicit overflow treatment — locus: helper paragraph receives raw detail; input: multi-line callback failure detail.
+- [ ] (candidate) form toggle — the request-access button label stays constant when the form is open, leaving no explicit close affordance in the primary control — locus: `AUTH_CALLBACK_ACCESS_REQUEST_ACTION` used for both states; input: operator opens the form and attempts to collapse it via the same button.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the submit lifecycle and response paths after the fifth consecutive seed-only selection; no reachable failing repro was identified. Seeded five follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `invalidateInFlightSubmit` — generation invalidation does not abort the network request, allowing an intentionally dismissed request to continue consuming server-side resources — locus: ref guard without `AbortController`; input: slow POST followed by cancel or toggle dismissal.
