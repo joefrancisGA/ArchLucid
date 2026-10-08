@@ -16,7 +16,6 @@
 {"at":"2026-09-08T13:21:27.8821905Z","zoneId":"core-tenancy-commercial","outcome":"dry"}
 {"at":"2026-09-08T13:55:15.9579444Z","zoneId":"tenant-settings-sql","outcome":"hit"}
 {"at":"2026-09-08T14:03:08.5127434Z","zoneId":"tenant-settings-sql","outcome":"hit"}
-{"at":"2026-09-08T15:41:59.3318362Z","zoneId":"core-requests-constraints","outcome":"hit"}
 {"at":"2026-09-08T15:58:16.2122061Z","zoneId":"ui-governance-findings-queue","outcome":"hit"}
 {"at":"2026-09-08T16:03:47.3870868Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-09-08T16:13:16.2591598Z","zoneId":"application-governance-policy","outcome":"hit"}
@@ -8880,3 +8879,4 @@
 {"at":"2026-10-08T14:41:00.422452Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-08T14:44:57.8516325Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-08T14:48:55.5995635Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
+{"at":"2026-10-08T14:52:49.6631827Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
