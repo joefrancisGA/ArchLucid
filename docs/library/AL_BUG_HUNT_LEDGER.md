@@ -288,6 +288,10 @@
 
 2026-10-08 seed hunt (seed-only): `cli-draft-new` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunAsync_missing_api_base_url_flag_value_returns_usage_error`, `RunCoreAsync_json_output_short_intent_text_returns_usage_error_without_ok_true`, `RunCoreAsync_create_failure_stderr_only_without_json_envelope`, `Parse_missing_api_base_url_value_returns_null`, and `RunCoreAsync_submit_draft_cancellation_returns_operation_failed_without_ok_envelope`; 75 scoped draft-new CLI tests passed (`DraftNewCommandCoreTests` + `DraftNewCommandOptionsTests`).
 
+2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions in pending-evidence, query-prefill, guided-intake URL sync, wizard steps, and wizard-payload tests; scoped `reviews/new` vitest 136 passed with 71 pre-existing baseline failures.
+
+2026-10-08 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; two new compare-to guard regressions plus reaffirmed batch, recommendation filter, and explicit-run short-circuit tests; 37 scoped `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (zone ledger sync for regressions shipped in hunt #57); seeded five follow-on `(candidate)` rows; regressions `Resolve_skips_when_outer_evidence_ref_differs_only_by_trailing_whitespace`, `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_embedded_zwsp`, `Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate`, `Resolve_skips_when_substantive_rows_share_topology_ref_before_name_dedupe_path`, and `Resolve_keeps_distinct_agent_topology_subkeys_when_subkey_differs_only_by_case`; 112 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_distinct_topology_subkeys_when_proposal_id_contains_extra_colons`, `Resolve_skips_when_later_chosen_row_shares_topology_ref_before_first_chosen_gate`, `Resolve_keeps_candidate_when_subkey_has_leading_whitespace_in_topology_ref`, `Resolve_keeps_topology_candidate_when_locked_agent_chosen_has_whitespace_only_ref`, and `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_hyphen_vs_space`; 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
@@ -7983,7 +7987,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 33 · **Bugs found:** 10 · **Consecutive dry hunts:** 6
+**Hunts:** 34 · **Bugs found:** 10 · **Consecutive dry hunts:** 6
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetContextsAsync_when_compared_to_run_has_no_golden_manifest_builds_primary_without_comparison` and `GetContextsAsync_when_compared_to_run_has_null_run_record_builds_primary_without_comparison`; reaffirmed `GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`, `GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows`, and `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`; 37 scoped `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to missing baseline `GoldenManifest` — **cheap-disproof 2026-10-08 seed hunt #34:** comparison branch skipped; primary plan still built; regression `GetContextsAsync_when_compared_to_run_has_no_golden_manifest_builds_primary_without_comparison`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to missing baseline `Run` — **cheap-disproof 2026-10-08 seed hunt #34:** parity primary `detail.Run` guard; regression `GetContextsAsync_when_compared_to_run_has_null_run_record_builds_primary_without_comparison`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch ignores `comparedToRunId` — **cheap-disproof 2026-10-08 seed hunt #34:** intentional batch contract; regression `GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`.
+- [x] (valid-no-repro) `FilterRecommendationsForSimulationScope` — `RunId` defense-in-depth filter — **cheap-disproof 2026-10-08 seed hunt #34:** repository drift rows dropped; regression `GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` short-circuit — **cheap-disproof 2026-10-08 seed hunt #34:** no `ListRunsByProjectAsync` on explicit path; regression `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`.
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch skips comparison when baseline findings snapshot ids mismatch manifest (foreign snapshot on compare run) — locus: primary path uses manifest-bound findings only; input: extend `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` parity for missing compare findings row.
+- [ ] (candidate) `AlertSimulationSealedManifestHashGuard` — recent-run batch `skipOnSealedHashFailure` on compare-to baseline during explicit-run simulate — locus: explicit path uses `skipOnSealedHashFailure: false` for primary only; input: compare-to sealed-hash failure on baseline should throw (`GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws` parity).
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` clamp does not cap explicit `runId` path — locus: early return ~50–66; input: explicit run with `recentRunCount=999` still returns single context.
+- [ ] (candidate) `FilterLearningProfileForSimulationScope` — profile with matching tenant/workspace but foreign `ProjectId` — locus: ~254–257; input: `GetContextsAsync_excludes_learning_profile_outside_caller_scope` project-id variant.
+- [ ] (candidate) `AlertSimulationController` — simulate endpoint maps empty explicit `runId` without querying authority — locus: controller delegates to provider; input: parity `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` passed.
 
@@ -7992,12 +8010,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RuleSimulationService.SimulateAsync` — zero contexts after batch sweep returns success with summary note — **cheap-disproof 2026-10-07 seed hunt #33:** dry-run simulation (not HTTP); regression `SimulateAsync_WhenNoContexts_AddsNoRunsNote` in `RuleSimulationServiceTests`.
 - [x] (valid-no-repro) `FilterLearningProfileForSimulationScope` — foreign `GetLatestProfileAsync` with empty recommendations — **cheap-disproof 2026-10-07 seed hunt #33:** profile filter independent of recommendation rows; regression `GetContextsAsync_excludes_learning_profile_outside_caller_scope` (`LearningProfile` null).
 - [x] (valid-no-repro) `AlertSimulationContextProvider.GetContextsAsync` — `recentRunCount` clamp without `SummaryNotes` entry — **cheap-disproof 2026-10-07 seed hunt #33:** clamp is provider-side; documented on `RuleSimulationRequest`; regression `GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs`.
-
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch skips comparison when baseline `GetRunDetailAsync` returns null `GoldenManifest` — locus: ~150–176 (`AlertSimulationContextProvider.cs`); input: valid primary run with `comparedToRunId` pointing at missing manifest row.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — compare-to branch requires non-null `comparedDetail.Run` before comparison — locus: ~150–152; input: baseline manifest present but `Run` record null (parity primary `detail.Run` guard).
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch never forwards `comparedToRunId` into `BuildContextAsync` — locus: ~79–84 (`comparedToRunId: null`); input: regression `GetContextsAsync_recent_run_batch_ignores_compared_to_run_id`.
-- [ ] (candidate) `FilterRecommendationsForSimulationScope` — drops in-scope rows when `RunId` differs from requested run — locus: ~240–244; input: `GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows`.
-- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — explicit `runId` short-circuits before `ListRunsByProjectAsync` — locus: ~50–66; input: `GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug`.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 35 scoped `AlertSimulationContextProviderTests` and 8 scoped `RuleSimulationServiceTests` passed (`RunAnalyzers=false`).
 
@@ -8025,10 +8037,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
 - **code-changed-since:** 0
