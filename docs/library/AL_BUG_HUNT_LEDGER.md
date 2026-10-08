@@ -32266,7 +32266,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 43 · **Bugs found:** 34 · **Consecutive dry hunts:** 15
+**Hunts:** 37 · **Bugs found:** 34 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): re-read continuity hydration, recent-view mapping, workspace metrics, and freshness helpers; no hunt-ready row promoted; scoped `lib/operator` tests completed with known baseline failures outside the reviewed utility behavior.
+
+- [ ] (candidate) `shouldHydrateWorkingWorkspaceContinuityFromServer` — malformed non-empty server `updatedAtUtc` is compared as `NaN` — locus: `Date.parse` comparison in `working-workspace-continuity-sync.ts`; input: API continuity payload with an invalid timestamp and an existing local watermark; wrong outcome: hydration decision may overwrite local state instead of failing closed; reachability: `updatedAtUtc` is a nullable server DTO string.
+- [ ] (candidate) `toRecentViewEntries` — server-provided `kind` is cast into `OperatorRecentViewKind` without runtime validation — locus: `working-workspace-continuity-sync.ts`; input: continuity API row with an unrecognized kind; wrong outcome: invalid kind is persisted into local recent-view state; reachability: `OperatorRecentViewEntryDto.kind` is an API response string.
+- [ ] (candidate) `deriveOperatorHomeWorkspaceMetrics` — non-finite `totalCount` is only lower-bounded, not normalized — locus: `operator-home-workspace-metrics.ts`; input: dashboard response whose `totalCount` is `NaN` or infinite; wrong outcome: home metrics expose a non-finite review total; reachability: `totalCount` is consumed from the loaded runs-dashboard response.
+- [ ] (candidate) `operatorLastRefreshedLabel` — invalid `Date` input is passed to `toISOString` through relative-time formatting — locus: `operator-last-refreshed-label.ts`; input: invalid parsed refresh timestamp; wrong outcome: freshness rendering can throw instead of showing an empty-state label; reachability: refresh timestamps originate in loaded operator data.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `readOperatorScopeFromStorage_returns_null_when_project_id_missing`, `defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id`, `defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id`, and `retains runs whose runId is whitespace-only when exclusions are nonempty`; 58 scoped operator vitest tests passed.
 
