@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_code_is_whitespace_only` and `RequestChallengeAsync_returns_bad_request_when_email_is_null`; reaffirmed `RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`, `TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count`, and `ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge`; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_ioexception_siblings`, `ExecuteAsync_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate`, and `ManifestReconcilePollDelay_sum_through_max_poll_index_stays_below_retry_budget`; reaffirmed `ExecuteAsync_does_not_retry_when_aggregate_sole_inner_is_http_request_without_sql` and `ExecuteAsync_does_not_retry_when_aggregate_lists_type_initialization_with_permanent_sql_beside_deadlock`; 120 scoped transient-retry tests passed (93 Persistence + 27 Application, `RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `itsm-inbound-webhooks` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ResolveDeliveryIdFromHeaders_prefers_archlucid_header_over_atlassian_identifier`, `TryRead_accepts_numeric_incident_state`, `ProcessAsync_accepts_sha256_prefixed_hmac_when_vendor_token_matches`, `TryResolveCorrelationAsync_uses_tenant_scoped_lookup_when_authenticated_tenant_id_is_present`, and `TryRead_returns_false_when_status_name_is_whitespace_only`; 81 scoped `ItsmInboundWebhook` tests passed (70 Application + 11 Persistence).
@@ -5975,7 +5977,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 34 · **Bugs found:** 11 · **Consecutive dry hunts:** 6
+**Hunts:** 35 · **Bugs found:** 11 · **Consecutive dry hunts:** 7
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `EmailOtpAuthControllerVerifyTests` and `EmailOtpAuthControllerChallengeTests`; 44 scoped service/repository tests passed.
+
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — returns HTTP 400 for whitespace-only `Code` before calling service — **cheap-disproof 2026-10-08 seed hunt #35:** API boundary rejects before `VerifyCodeAsync`; regression `VerifyAsync_returns_bad_request_when_code_is_whitespace_only` (service parity `VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — returns HTTP 400 when `body.Email` is null — **cheap-disproof 2026-10-08 seed hunt #35:** `body?.Email is null` guard; regression `RequestChallengeAsync_returns_bad_request_when_email_is_null`.
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — missing bot challenge token returns neutral result without `ChallengeId` — **cheap-disproof 2026-10-08 seed hunt #35:** bot verifier fail-closed to neutral anti-enumeration response; regression `RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`.
+- [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong codes increment `FailedAttemptCount` to attempt count — **cheap-disproof 2026-10-08 seed hunt #35:** concurrent invalid completes accumulate failures; regression `TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count`.
+- [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.ReplaceActiveChallengeForEmailAsync` — concurrent replace leaves a single active challenge per email — **cheap-disproof 2026-10-08 seed hunt #35:** replace-active serialization; regression `ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge`.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` `ChallengeId` returns HTTP 400 before calling service — locus: `body.ChallengeId == Guid.Empty` ~95 (`EmailOtpAuthController.cs`); input: verify POST with empty challenge id.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — null request body returns HTTP 400 — locus: `body?.Email is null` when `body` is null ~53–56; input: challenge POST with null body.
+- [ ] (candidate) `EmailOtpAuthController` — `Enabled=false` returns HTTP 404 on challenge and verify before service delegation — locus: `IsEmailOtpEnabled` ~48–50 / ~90–92; input: disabled options on both endpoints.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — second request inside `ResendCooldownSeconds` returns neutral result without new `ChallengeId` — locus: cooldown gate ~154–157; input: paired `RequestCodeAsync` calls in `EmailOtpAuthServiceTests` cooldown family.
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — expired challenge rejects verify without success path — locus: `TryCompleteAsync` expired outcome; input: `VerifyCodeAsync_rejects_expired_code`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed service-layer fail-closed guards and repository concurrency; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` passed.
 
@@ -5985,22 +6001,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — whitespace-only code fails before `TryCompleteAsync` — **cheap-disproof 2026-10-07 seed hunt #34:** `IsNullOrWhiteSpace` guard; regression `VerifyCodeAsync_returns_failure_when_code_is_whitespace_only`.
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — disabled OTP returns neutral result without notifier side effects — **cheap-disproof 2026-10-07 seed hunt #34:** `Enabled=false` path; regression `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`.
 
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — returns HTTP 400 for whitespace-only `Code` before calling service — locus: `string.IsNullOrWhiteSpace(body.Code)` ~95 (`EmailOtpAuthController.cs`); input: `EmailOtpAuthControllerVerifyTests` BadRequest regression.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — returns HTTP 400 when `body.Email` is null — locus: ~53–56; input: challenge endpoint with null email body.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — missing bot challenge token returns neutral result without `ChallengeId` — locus: bot verifier gate; input: `RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`.
-- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong codes increment `FailedAttemptCount` to attempt count — locus: completion race; input: `TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count`.
-- [ ] (candidate) `InMemoryEmailOtpChallengeRepository.ReplaceActiveChallengeForEmailAsync` — concurrent replace leaves a single active challenge per email — locus: replace-active serialization; input: `ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge`.
-
 - **id:** email-otp-auth
 - **status:** open
 - **impact:** high
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 7
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
 - **code-changed-since:** unknown

@@ -86,6 +86,25 @@ public sealed class EmailOtpAuthControllerChallengeTests
             .Should()
             .Be(1);
     }
+
+    [Fact]
+    public async Task RequestChallengeAsync_returns_bad_request_when_email_is_null()
+    {
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            Mock.Of<IEmailOtpAuthService>(),
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.RequestChallengeAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest { Email = null! },
+            CancellationToken.None);
+
+        ObjectResult badRequest = actionResult.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
 }
 
 internal sealed class InMemoryTenantIdentityProviderConfigurationRepository : ITenantIdentityProviderConfigurationRepository

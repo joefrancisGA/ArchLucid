@@ -100,6 +100,35 @@ public sealed class EmailOtpAuthControllerVerifyTests
     }
 
     [Fact]
+    public async Task VerifyAsync_returns_bad_request_when_code_is_whitespace_only()
+    {
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = Guid.NewGuid(),
+                Code = "   "
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = actionResult.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        emailOtpAuth.Verify(
+            service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task VerifyAsync_does_not_log_email_otp_code_requested_audit()
     {
         Guid challengeId = Guid.NewGuid();
