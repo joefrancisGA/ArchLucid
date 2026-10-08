@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
@@ -50,7 +52,23 @@ function openQuestionsCountLabel(count: number): string {
 }
 
 export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null {
-  const { openQuestions, setFilter, setCurrentIndex, setDrawerOpen } = useSecureNowQuestionQueue();
+  const {
+    drawerOpen,
+    openQuestions,
+    setFilter,
+    setCurrentIndex,
+    setDrawerOpen,
+  } = useSecureNowQuestionQueue();
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      return;
+    }
+
+    document
+      .getElementById("infra-diagrams-question-bar")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [drawerOpen]);
 
   if (openQuestions.length === 0) {
     return null;
@@ -123,7 +141,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
 
   return (
     <div
-      className="border-b border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/60"
+      id="infra-diagrams-question-bar"
+      className="scroll-mt-24 border-b border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/60"
       data-testid="infra-diagrams-question-bar"
       aria-label="SecureNow subscription questions"
     >
