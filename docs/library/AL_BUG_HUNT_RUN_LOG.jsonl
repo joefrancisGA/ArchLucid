@@ -8825,3 +8825,4 @@
 {"at":"2026-10-08T05:39:37.3354035Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T05:45:15.5133327Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T05:51:29.3432233Z","zoneId":"alert-simulation","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T05:58:34.2482398Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}

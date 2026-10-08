@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed run-id binding for compare manifests, foreign-project scope rejection, recommendation filtering, and sealed-manifest failure handling; 40 focused `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`, `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`, `InMemory_count_by_architecture_id_excludes_archived_runs`, and `NormalizeArchitectureRequestId_collapses_internal_whitespace`; 219 focused Persistence tests passed (`RunAnalyzers=false`).
@@ -33284,9 +33286,21 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 36 · **Bugs found:** 6 · **Consecutive dry hunts:** 9
+**Hunts:** 37 · **Bugs found:** 6 · **Consecutive dry hunts:** 10
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run`, `InMemory_composition_audit_hybrid_evidence_query_returns_null_when_snapshot_header_missing`, `InMemory_composition_diagram_reconciliation_fails_when_diagram_model_missing_for_sealed_run`, `InMemory_composition_audit_evidence_lineage_returns_not_found_when_assessment_missing`, and `InMemory_composition_remediation_factory_metrics_returns_zeroed_aggregates_on_empty_scope`; 50 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed.
+
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IInfrastructureDiagramComparisonService` — compare without both diagram models may return success with empty diff vs explicit not-found — **cheap-disproof 2026-10-08 seed hunt #37:** composition registers the concrete comparison service; existing service contract tests distinguish missing models from empty comparison results.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IAuditFrameworkImportService` — duplicate framework import on InMemory may overwrite silently vs conflict — **cheap-disproof 2026-10-08 seed hunt #37:** composition registration is scoped and delegates duplicate semantics to the import service; no alternate registration or bypass exists in this module.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IBrandedDiagramExportService` — export without tenant branding profile may succeed with default theme vs fail-closed — **cheap-disproof 2026-10-08 seed hunt #37:** branding service and resolved-profile cache are registered together; missing-profile behavior remains inside the service contract.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IInfraEvidenceAskGroundingService` — ask grounding with valid question but no inventory snapshots may return `Succeeded: true` with insufficient evidence vs hard failure — **cheap-disproof 2026-10-08 seed hunt #37:** ask grounding is explicitly registered as a scoped service and its sparse-evidence contract is exercised by composition tests.
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule.Register` / `IFourRealityDriftEngine` — drift evaluation on empty snapshot may return empty result set vs unavailable signal — **cheap-disproof 2026-10-08 seed hunt #37:** the concrete drift engine is registered independently of snapshot materialization; empty-scope behavior is an engine contract, not a missing composition binding.
+
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `MermaidDiagramReadabilityThresholds` singleton is constructed directly and ignores configuration overrides — locus: `AddSingleton(new MermaidDiagramReadabilityThresholds())` ~50; input: host configuration with custom readability thresholds.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IAzureInventoryDiffConsumer` has two scoped registrations and an enumeration consumer may omit one or invoke both out of order — locus: registrations ~106–107; input: `IEnumerable<IAzureInventoryDiffConsumer>` resolution.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IBrandedDiagramExportComposer` singleton depends on no scoped services while export service remains scoped — locus: singleton/scoped pairing ~127–130; input: multiple requests with different tenant branding profiles.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IAuditEvidenceSelectorRegistry` and selector implementations are all scoped, so selector state may be rebuilt per request — locus: registrations ~101–109; input: selector registry resolved across two scopes.
+- [ ] (candidate) `InfraEvidenceCompositionModule.Register` — `IDiagramPeelCatalogProvider` singleton plus scoped `DiagramPeelCatalogBootstrapper` may expose an unbootstrapped catalog on first request — locus: registrations ~51–53; input: first composition scope before bootstrapper execution.
 
 - [x] (valid-no-repro) `IVisionDiagramIngestService` — InMemory ingest without sealed run — **cheap-disproof 2026-10-08 seed hunt #36:** `VisionDiagramIngestSealedManifestHashGuard` parity with structured ingest; regression `InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run`.
 - [x] (valid-no-repro) `IAuditHybridEvidenceQueryService` — empty inventory hybrid query — **cheap-disproof 2026-10-08 seed hunt #36:** missing snapshot header returns `null`, not an empty success record; regression `InMemory_composition_audit_hybrid_evidence_query_returns_null_when_snapshot_header_missing`.
@@ -33334,9 +33348,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
