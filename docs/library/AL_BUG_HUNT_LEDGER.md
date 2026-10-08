@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the selected component and its complete scoped test matrix; no new hunt-ready input/mechanism/wrong-outcome chain survived cheap-disproof. Seeded five reachable follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — the hidden `websiteUrl` value is intentionally excluded from the invisible-character guard, so a scripted field injection can send format characters to the honeypot branch — locus: guard’s six-field list omits `websiteUrl`; input: populated hidden website field containing `\u202e`.
+- [ ] (candidate) `onSubmit` — error copy is not cleared when a user edits a field after a rejected submit, so corrected input can retain stale failure feedback — locus: all field handlers only call `setForm`; input: submit invalid text, edit it to valid text without resubmitting.
+- [ ] (candidate) `onSubmit` — whitespace-only `technicalDetail` is omitted, but a value containing only format characters passes the trimmed-empty guard and renders invisible helper content — locus: `trim()` does not remove every `Cf` character; input: callback detail made solely of a bidi-format character.
+- [ ] (candidate) response status branch — `409` is mapped to duplicate-request copy regardless of response body or conflict cause — locus: status-only conflict classification; input: future API conflict response with a non-duplicate error.
+- [ ] (candidate) success branch — any `response.ok` status marks the access request sent, so a successful intermediary response can hide an upstream malformed success payload — locus: no status/body contract check beyond `ok`; input: `200` response with an unexpected JSON error body.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the complete submit/error matrix and all 63 scoped component tests; existing guards and response paths matched their documented contracts, with no hunt-ready failing repro. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 - [ ] (candidate) `onSubmit` — after a rejected invisible-character submission, correcting the field does not clear the old generic error before the next submit — locus: field `onChange` handlers only update `form`; input: failed submit followed by editing `note` or `cloudPlatformFocus`.
