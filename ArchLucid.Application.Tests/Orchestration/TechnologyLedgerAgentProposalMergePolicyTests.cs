@@ -1553,6 +1553,93 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeNull();
     }
 
+    [Fact]
+    public void Resolve_keeps_distinct_topology_subkeys_when_proposal_id_contains_extra_colons()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:urn:azure:segment:svc-a";
+        existing.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:urn:azure:segment:svc-b";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_later_chosen_row_shares_topology_ref_before_first_chosen_gate()
+    {
+        TechnologyLedgerEntry unrelatedAssumed = CreateCandidate(CloudProvider.Azure);
+        unrelatedAssumed.EvidenceRef = "agentTopologyProposal:p0:other";
+        unrelatedAssumed.TechnologyName = "Other runtime";
+
+        TechnologyLedgerEntry chosenWithRef = CreateChosen(CloudProvider.Azure);
+        chosenWithRef.TechnologyName = "Azure SQL";
+        chosenWithRef.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "Azure Container Apps";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [unrelatedAssumed, chosenWithRef])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_candidate_when_subkey_has_leading_whitespace_in_topology_ref()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1: svc-api";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_topology_candidate_when_locked_agent_chosen_has_whitespace_only_ref()
+    {
+        TechnologyLedgerEntry chosen = CreateCandidate(CloudProvider.Azure);
+        chosen.TechnologyName = "shared-display";
+        chosen.EvidenceRef = "   ";
+        chosen = TechnologyLedgerColdStartChosenPromoter.Apply(chosen, []);
+        chosen.IsLocked = true;
+        chosen.Source = TechnologyLedgerSource.AgentProposed;
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "shared-display";
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-b";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_hyphen_vs_space()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = null;
+        existing.TechnologyName = "Azure-SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = null;
+        candidate.TechnologyName = "Azure SQL";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
