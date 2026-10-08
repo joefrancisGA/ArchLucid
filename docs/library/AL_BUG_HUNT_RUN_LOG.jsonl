@@ -8921,3 +8921,4 @@
 {"at":"2026-10-08T21:21:46.7767561Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Composition/Metering/ApiRequestUsageEventBatchFlushHostedService.cs"]}
 {"at":"2026-10-08T21:39:05.5464952Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRecoveryServicesProtectedItemSanitizer.cs"]}
 {"at":"2026-10-08T21:53:40.5699286Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.cs","ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.Put.cs"]}
+{"at":"2026-10-08T22:15:47.4406557Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/Preview/GovernancePreviewService.cs"]}

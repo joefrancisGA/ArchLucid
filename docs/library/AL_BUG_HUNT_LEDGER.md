@@ -31843,13 +31843,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 36
-- **bugs-found:** 29
+- **hunts:** 37
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — submit and activate validation rejected equivalent dashed and canonical-N GUID run IDs
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — preview activation rejected equivalent dashed and canonical-N GUID run IDs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-08 seed hunt (seed→hit): proved governance preview compared manifest and caller GUID run IDs as ordinal strings, so a dashed preview request for a canonical-N manifest returned manifest-not-found, and a current activation stored in the other format was dropped from the diff; fixed with `GovernanceRunIdNormalizer.AreEquivalent`; regressions `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats` and `PreviewActivationAsync_keeps_current_activation_when_run_id_formats_differ`; 16 GovernancePreviewServiceTests passed.
 
 2026-10-03 seed hunt (hit): promoted the empty not-assessed baseline candidate; `PreFinalizeExecuteBaselineDriftEvaluator` compared `NotAssessedQualityDimensions` only when the execute snapshot list was non-empty, so newly uncovered dimensions at finalize could pass without a blocking drift item. Fixed by comparing empty and non-empty snapshots symmetrically; regression `EvaluateAsync_adds_blocking_item_when_execute_snapshot_had_no_not_assessed_dimensions`; 12 focused tests passed.
 
@@ -31931,6 +31933,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PreFinalizeExecuteBaselineDriftEvaluator` — `FocusedPilotModeEnabled` flag drift after execute — **cheap-disproof 2026-09-26 seed hunt:** flag is derived only from `request.PolicyReferences` focused-pilot token; execute `RequestFingerprintHex` already blocks policy-reference changes.
 - [x] (proven) `GovernanceWorkflowPromoteValidateStage` — manifest run-id validation rejected equivalent GUID formatting — **hit 2026-10-03 seed hunt:** persisted manifests use canonical `"N"` GUIDs while callers can provide dashed `"D"` GUIDs; ordinal string comparison raised `GoldenManifestVersionNotFoundException` for the same run; fixed with `SameArchitectureRunKey` semantic GUID comparison; regression `PromoteAsync_accepts_equivalent_guid_run_id_formats`.
 - [x] (proven) `GovernanceWorkflowSubmitStage` and `GovernanceWorkflowActivateStage` — sibling manifest run-id validation rejected equivalent GUID formatting — **hit 2026-10-03 seed hunt:** both stages repeated ordinal comparison after promotion had been fixed; shared `GovernanceRunIdNormalizer.AreEquivalent` now accepts equivalent GUID formats while preserving opaque-ID equality; regression `SubmitApprovalRequestAsync_accepts_equivalent_guid_run_id_formats`.
+- [x] (proven) `GovernancePreviewService.PreviewActivationAsync` and `LoadManifestForActivationAsync` — preview run-id checks rejected equivalent GUID formatting — **hit 2026-10-08 seed hunt:** persisted manifests use canonical `"N"` GUIDs while the preview POST body and activation rows can carry dashed `"D"` GUIDs; ordinal comparison threw `GoldenManifestVersionNotFoundException` for the candidate and omitted the current environment manifest from the diff; fixed with `GovernanceRunIdNormalizer.AreEquivalent`; regressions `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats` and `PreviewActivationAsync_keeps_current_activation_when_run_id_formats_differ`.
 - [x] (valid-no-repro) `GovernanceDigestDecisionNeededComposer.IsHighSeverity` — persisted `ArchitectureRiskRegisterEntry.Severity` values such as `not-critical` or `highly-relevant` are classified as high severity by substring matching — **cheap-disproof 2026-10-03 thorough hunt:** `ArchitectureRiskRegisterReader` projects the persisted finding severity value, whose application callers derive from the defined `FindingSeverity` enum; no accepted reachable severity vocabulary produces those strings.
 - [x] (valid-no-repro) `DefaultPolicyPackCatalog.IsStandardBaselineDisplayName` — persisted platform-default `PolicyPack.Name` values with casing different from the bundled display-name constants are not recognized by the cloud baseline applicator — **cheap-disproof 2026-10-03 thorough hunt:** platform-default names come from embedded bundled manifest metadata during seeding, and no in-scope rename path mutates their casing; exact ordinal matching is intentional.
 
