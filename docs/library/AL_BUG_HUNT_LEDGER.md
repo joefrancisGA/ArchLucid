@@ -8,6 +8,14 @@
 - [ ] (candidate) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — Unicode/IDN host text is not normalized beyond the caller’s `IdnHost` conversion, so visually deceptive hostnames may receive inconsistent literal treatment across callers — locus: raw host utility versus URI callers; input: Unicode hostname that maps to a private-looking label.
 - [ ] (candidate) outbound HTTP profile separation — `CloudControlPlane` and `InternalLoopback` rely on caller-selected profile semantics rather than enforcing destination classes in the handler settings — locus: profile settings alone do not install a guard; input: misregistered client targeting a tenant-controlled URL.
 
+2026-10-08 seed hunt (seed-only): `core-safety-network` — re-read the scoped Safety/Http contracts and transport policy; 72 Core and 5 Host composition `PrivateNetwork` tests passed, with no hunt-ready wrong-outcome chain. Seeded five fresh `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — the retry delay does not inspect an upstream `Retry-After` header on throttled responses, so a reachable Azure pricing/ARM `429` can be retried outside the service-advised window — locus: `DelayGenerator` and `ShouldRetryHttpResponse`; input: `429 TooManyRequests` with `Retry-After` from a fixed public authority.
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — every `5xx` status is treated as transient, so a reachable fixed public authority response such as `501 NotImplemented` is retried three times instead of failing immediately — locus: numeric `500`–`599` range check; input: `501 NotImplemented` response from ARM or Retail Prices.
+- [ ] (candidate) `ContentSafetyResult` — the record permits `IsAllowed=true` alongside a block reason or out-of-range severity, allowing an implementation reached through `IContentSafetyGuard` to emit contradictory moderation state — locus: unconstrained positional record; input: guard result with `IsAllowed=true`, `BlockReason="blocked"`, and `Severity=1.5`.
+- [ ] (candidate) `ContentSafetyResult` — nullable `BlockReason`, `Category`, and `Severity` are accepted for blocked results, so a reachable guard failure may lose the reason needed by the caller to explain or audit the denial — locus: nullable result fields; input: `IsAllowed=false` with all diagnostic fields null.
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings.Apply` — profile application configures pool lifetime and concurrency but does not establish a per-connect timeout, so a reachable outbound client using only the profile can wait on a stalled socket until its separate client timeout — locus: profile switch lacks `ConnectTimeout`; input: external integration endpoint that accepts a TCP connection but stalls before response.
+
 2026-10-08 seed hunt (seed-only): `auth-return-path` — re-read percent-decoding, homoglyph, query/fragment, and protocol-relative checks; 196 focused tests passed and no new hunt-ready failing repro emerged. Seeded five reachable `(candidate)` rows; no production code changed and no regression was added.
 
 - [ ] (candidate) `TryNormalizeAfterPercentDecoding` — the guard decodes query and fragment content as well as path content, potentially changing a caller’s return-path semantics while validating it — locus: `Uri.UnescapeDataString(working)` over the entire candidate; input: encoded separators or reserved characters in query/fragment values.
@@ -24056,7 +24064,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **hunts:** 28
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 5
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-12 — integration outbound HTTP clients lacked connect-time private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24068,6 +24076,14 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AzureRmAndRetailPricesHttpRetryPolicy` — HTTP `404 Not Found` is not retried — **cheap-disproof 2026-10-07 seed hunt #28:** client-error no-retry posture; regression `AzureRmAndRetailPricesHttpRetryPolicy_does_not_retry_http_404_not_found`.
 - [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — `InternalLoopback` sets `EnableMultipleHttp2Connections` to `false` — **cheap-disproof 2026-10-07 seed hunt #28:** loopback profile tuning; regression `OutboundSocketsHttpHandlerSettings_internal_loopback_disables_multiple_http2_connections`.
 - [x] (valid-no-repro) `OutboundHttpClientTimeoutSeconds` — `ExternalIntegration` constant is `30` seconds — **cheap-disproof 2026-10-07 seed hunt #28:** integration client budget; regression `OutboundHttpClientTimeoutSeconds_external_integration_budget_is_thirty_seconds`.
+
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy` — the retry delay does not inspect an upstream `Retry-After` header on throttled responses, so a reachable Azure pricing/ARM `429` can be retried outside the service-advised window — locus: `DelayGenerator` and `ShouldRetryHttpResponse`; input: `429 TooManyRequests` with `Retry-After` from a fixed public authority.
+- [ ] (candidate) `AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse` — every `5xx` status is treated as transient, so a reachable fixed public authority response such as `501 NotImplemented` is retried three times instead of failing immediately — locus: numeric `500`–`599` range check; input: `501 NotImplemented` response from ARM or Retail Prices.
+- [ ] (candidate) `ContentSafetyResult` — the record permits `IsAllowed=true` alongside a block reason or out-of-range severity, allowing an implementation reached through `IContentSafetyGuard` to emit contradictory moderation state — locus: unconstrained positional record; input: guard result with `IsAllowed=true`, `BlockReason="blocked"`, and `Severity=1.5`.
+- [ ] (candidate) `ContentSafetyResult` — nullable `BlockReason`, `Category`, and `Severity` are accepted for blocked results, so a reachable guard failure may lose the reason needed by the caller to explain or audit the denial — locus: nullable result fields; input: `IsAllowed=false` with all diagnostic fields null.
+- [ ] (candidate) `OutboundSocketsHttpHandlerSettings.Apply` — profile application configures pool lifetime and concurrency but does not establish a per-connect timeout, so a reachable outbound client using only the profile can wait on a stalled socket until its separate client timeout — locus: profile switch lacks `ConnectTimeout`; input: external integration endpoint that accepts a TCP connection but stalls before response.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof found no hunt-ready wrong-outcome chain in the scoped Safety/Http contracts; 72 Core and 5 Host composition `FullyQualifiedName~PrivateNetwork` tests passed. Seeded five fresh `(candidate)` rows; no production code changed and no regression was added.
 
 - [ ] (candidate) `OutboundExternalHttpResilienceOptions` — default `BreakDurationSeconds` is `60` before `Normalize` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~24).
 - [ ] (candidate) `OutboundExternalHttpResilienceOptions` — `CircuitBreakerEnabled` defaults to `true` — locus: property initializer (`OutboundExternalHttpResilienceOptions.cs` ~12).
