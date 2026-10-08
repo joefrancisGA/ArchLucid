@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — re-read the repository partials and focused scope/listing tests; the selected filter passed 172 tests with one expected SQL integration skip, and no failing repro was proven. Seeded five reachable `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `ListByArchitectureIdAsync` — its projection omits several `RunRecord` fields such as `ArchitectureRequestId`, snapshots, lifecycle metadata, and warning flags, so callers can receive incomplete records — locus: inline `SELECT` projection; input: run lookup by non-empty architecture id.
+- [ ] (candidate) `ListWithNullArchitectureIdAsync` — its projection omits fields present in `RunRecord`, producing defaults for callers that use the null-architecture migration queue — locus: inline `SELECT TOP` projection; input: unassociated run with populated lifecycle or provenance fields.
+- [ ] (candidate) `ListByProjectAsync` — the unpaged list delegates `take` normalization to `RunListQueryParameters`, while the return path does not report whether more rows exist — locus: raw list API versus keyset page API; input: project with more rows than the requested take.
+- [ ] (candidate) `ListRecentInScopeAsync` — the raw list uses `ToList()` without the keyset page assembler, so stored warning/provenance enrichment may differ from continuation pages — locus: separate list assembly paths; input: recent run with warning flags and a page boundary.
+- [ ] (candidate) `GetByRunIdAdminAsync` — operational lookup intentionally omits tenant/workspace/project scope and can return an archived run, requiring every caller to enforce its own authorization boundary — locus: exempt admin method; input: admin lookup for a run outside the caller’s active catalog.
+
 2026-10-08 seed hunt (seed-only): `billing-webhooks` — reran the selected replay/provider suites with `--no-build`; no new hunt-ready hypothesis or failing repro appeared. Seeded five follow-on `(candidate)` rows; 59 focused tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `BillingStripeWebhookController.HandleStripeWebhookAsync` — replay rejection returns `200 OK` even when a provider retry may expect a non-2xx signal to stop delivery — locus: `IsReplayRejected` branch; input: duplicate signed Stripe event delivery.
