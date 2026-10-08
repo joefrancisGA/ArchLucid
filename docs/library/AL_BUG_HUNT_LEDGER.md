@@ -538,6 +538,8 @@
 
 2026-10-07 seed hunt (seed→hit): `orchestrator-transient-retry` — `TryGetParallelPersistInners` treated empty nested `AggregateException` as parallel-persist shape (`inners.Count == 0`), so `IsRetriableOrchestratorDbFailure` returned false before `SqlTransientDetector` could classify transient `SqlException` on the same chain; skip empty shells and require populated inners; regression `ExecuteAsync_retries_transient_sql_when_inner_chain_has_empty_aggregate_shell`; 74 scoped transient-retry tests passed (56 Persistence + 18 Application).
 
+2026-10-08 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `TenantBaselineController.PutAsync` logged `User.Identity?.Name` as both `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline audits (`PUT /v1/tenant/baseline`); inject `IActorContext` and keep the display name only on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; 15 scoped baseline controller tests passed.
+
 2026-10-07 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `TenantExecDigestPreferencesController.PostExecDigestPreferences` logged `User.Identity?.Name` as both `ActorUserId` and `ActorUserName` (sponsor/cost/homepage parity); inject `IActorContext`; regression `PostExecDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; 23 exec-digest + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration constructor failures on Linux VM).
 
 2026-10-07 thorough hunt (dry): `orchestrator-transient-retry` — cheap-disproof closed five seeded `(candidate)` rows (snapshot `41301`/`41302` through orchestrator pipeline; Polly `AttemptNumber + 1` delay exponent; cancellation during retry backoff; empty nested aggregate shell before deeper mixed aggregate; outer `IsExhausted` vs inner Polly sleep); regressions `ExecuteAsync_retries_sql_snapshot_update_conflict_error_41301`, `ExecuteAsync_retries_sql_snapshot_update_conflict_error_41302`, `Orchestrator_retry_delay_exponential_base_matches_polly_attempt_number_plus_one`, `ExecuteAsync_honors_cancellation_during_retry_backoff_after_transient_sql`, and `ExecuteAsync_does_not_retry_when_first_nested_aggregate_on_chain_is_empty_shell_before_mixed_aggregate`; 73 scoped transient-retry tests passed (55 Persistence + 18 Application).
@@ -29968,6 +29970,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-08 seed hunt (seed→hit): promoted `TenantBaselineController.PutAsync` audit actor parity; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; trial and legal-hold actor `(candidate)` rows remain open.
+
 2026-10-07 seed hunt (seed→hit): promoted `TenantExecDigestPreferencesController` audit actor parity; regression `PostExecDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; three audit-actor sibling `(candidate)` rows remain open.
 
 2026-10-07 seed hunt (seed→hit): promoted `TenantSponsorDigestPreferencesController` audit actor parity; regression above; four audit-actor sibling `(candidate)` rows remain open.
@@ -29978,11 +29982,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 311
-- **last-hunt:** 2026-10-07
-- **bugs-found:** 516
+- **hunts:** 312
+- **last-hunt:** 2026-10-08
+- **bugs-found:** 517
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-07 — exec digest preferences audit used display name as ActorUserId
+- **last-bug:** 2026-10-08 — baseline put audit used display name as ActorUserId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29993,7 +29997,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TenantCostSettingsController.PutAsync` — audit `ActorUserId` and `UpdatedByActorId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for stable id; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
 - [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — audit `ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` — **hit 2026-10-07 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PostSponsorDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; reachable `POST /v1/tenant/sponsor-digest-preferences`.
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — audit `ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` — **hit 2026-10-07 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PostExecDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; reachable `POST /v1/tenant/exec-digest-preferences`.
-- [ ] (candidate) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` on baseline put paths (`TenantBaselineController.Put.cs` ~91, 136, 177, 218); reachable tenant baseline PUT routes under `v1/tenant/baseline`.
+- [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
 - [ ] (candidate) `TenantTrialController` — trial lifecycle calls pass `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable trial admin POST routes.
 - [ ] (candidate) `TenantErasureLegalHoldController` — legal-hold approve/release audit uses `user.Identity?.Name ?? "unknown"` for actor fields (`TenantErasureLegalHoldController.cs` ~79, 122); reachable erasure legal-hold routes under tenant erasure API.
 
@@ -30058,6 +30062,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-13 seed hunt #2298 (seed-only): reseeded api-governance-tenancy-controllers; cheap-disproof closed mutation-corrections and insights tenant preflight siblings; 128 scoped Api tests passed (25 SQL integration skipped); no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `TenantBaselineController.PutAsync` — baseline audit events used the sign-in display name as `ActorUserId` — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
 
 - [x] (proven) `GovernancePreCommitSimulationController.TryParseRunId` / `GetChecklistAsync` / `GetReadinessAsync` / `SimulateAsync` — interior no-break space (U+00A0) inside run id failed `Guid.TryParse` after trim-only while `ValidateGovernanceRouteRunId` on submit normalized the same literal — **hit 2026-10-06 seed hunt (seed→hit):** `GovernanceRunIdNormalizer.Normalize` in `TryParseRunId`; regression `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`.
 - [x] (proven) `GovernanceController.TryParseArchitectureRunIdForAudit` / `LogGovernanceApprovalRequestedAuditAsync` — same interior invisible separator dropped `RunId` on audit events while submit succeeded — **hit 2026-10-06 seed hunt (seed→hit):** normalize before audit parse; regression `SubmitApprovalRequest_logs_normalized_run_id_in_audit_when_run_id_has_interior_no_break_space`.

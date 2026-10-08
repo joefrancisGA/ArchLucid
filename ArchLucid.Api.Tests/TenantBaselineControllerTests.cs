@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -646,12 +647,77 @@ public sealed class TenantBaselineControllerTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            audit.Object,
+            actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new System.Security.Claims.ClaimsPrincipal(
+                    new System.Security.Claims.ClaimsIdentity(
+                        [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "Display Name")],
+                        "test")),
+            },
+        };
+
+        await controller.PutAsync(
+            new TenantBaselinePutRequest
+            {
+                ManualPrepHoursPerReview = 6m,
+                PeoplePerReview = 4,
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("actor-id@test");
+        captured.ActorUserName.Should().Be("Display Name");
+        captured.EventType.Should().Be(AuditEventTypes.TrialBaselineManualPrepCaptured);
+    }
+
     private static TenantBaselineController CreateController(
         ITenantRepository tenantRepository,
         IScopeContextProvider scopeProvider,
-        IAuditService auditService) =>
-        new(tenantRepository, scopeProvider, auditService)
+        IAuditService auditService,
+        IActorContext? actorContext = null)
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("operator");
+
+        return new TenantBaselineController(tenantRepository, scopeProvider, auditService, actorContext ?? actor.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
 }

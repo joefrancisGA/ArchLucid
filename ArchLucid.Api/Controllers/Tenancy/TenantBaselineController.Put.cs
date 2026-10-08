@@ -88,7 +88,9 @@ public sealed partial class TenantBaselineController
         if (!touchManual && !touchReview && !touchReviewSourceNote)
             return Ok(ProjectBaselineResponse(existing));
 
-        string actor = User.Identity?.Name ?? "operator";
+        // Identity.Name is the sign-in display name. Audit correlation uses the stable actor id.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User.Identity?.Name ?? actorUserId;
 
         if (touchManual)
         {
@@ -133,8 +135,8 @@ public sealed partial class TenantBaselineController
                     EventType = firstManualCapture
                         ? AuditEventTypes.TrialBaselineManualPrepCaptured
                         : AuditEventTypes.TrialBaselineManualPrepUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
@@ -174,8 +176,8 @@ public sealed partial class TenantBaselineController
                     EventType = firstReviewCycleCapture
                         ? AuditEventTypes.TrialBaselineReviewCycleCaptured
                         : AuditEventTypes.TrialBaselineReviewCycleUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
@@ -215,8 +217,8 @@ public sealed partial class TenantBaselineController
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TrialBaselineReviewCycleUpdated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
