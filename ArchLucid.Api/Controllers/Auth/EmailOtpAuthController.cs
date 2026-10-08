@@ -106,7 +106,10 @@ public sealed class EmailOtpAuthController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        if (!result.Succeeded || result.PlatformUserId is null || result.DisplayEmail is null)
+        if (!result.Succeeded ||
+            result.PlatformUserId is null ||
+            result.PlatformUserId == Guid.Empty ||
+            result.DisplayEmail is null)
         {
             return Unauthorized();
         }
