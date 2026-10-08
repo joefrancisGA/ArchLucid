@@ -8923,3 +8923,4 @@
 {"at":"2026-10-08T21:53:40.5699286Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.cs","ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.Put.cs"]}
 {"at":"2026-10-08T22:15:47.4406557Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/Preview/GovernancePreviewService.cs"]}
 {"at":"2026-10-08T22:39:10.8591023Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Services/ArchLucidSaml2ServiceExtensions.cs"]}
+{"at":"2026-10-08T22:59:19.7297622Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Auth/Services/RoleSyncService.cs"]}

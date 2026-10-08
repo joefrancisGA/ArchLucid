@@ -12,6 +12,8 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
 
     private const string MappedRoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
+    private const string Soap2005RoleClaimUri = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
     private readonly IScimUserRepository _scimUsers = scimUsers ?? throw new ArgumentNullException(nameof(scimUsers));
 
     /// <inheritdoc />
@@ -95,6 +97,10 @@ public sealed class RoleSyncService(IScimUserRepository scimUsers) : IRoleSyncSe
             return true;
 
         if (string.Equals(c.Type, MappedRoleClaimType, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // SAML IdPs emit this URI. ArchLucidRoleClaimsTransformation still maps it onto permissions.
+        if (string.Equals(c.Type, Soap2005RoleClaimUri, StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;
