@@ -284,6 +284,113 @@ public sealed class AzureInventoryAdfPipelineFlowExtractorTests
     }
 
     [Fact]
+    public void ExtractFlows_reads_copy_nested_in_foreach_and_if_condition()
+    {
+        // ADF ARM stores Copy inside ForEach.typeProperties.activities and
+        // IfCondition ifTrueActivities / ifFalseActivities, not on the pipeline activity list.
+        JsonElement pipeline = Parse("""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1",
+              "name": "p1",
+              "properties": {
+                "activities": [
+                  {
+                    "name": "ForEachTables",
+                    "type": "ForEach",
+                    "typeProperties": {
+                      "items": { "value": "@pipeline().parameters.tables", "type": "Expression" },
+                      "activities": [
+                        {
+                          "name": "CopyTable",
+                          "type": "Copy",
+                          "inputs": [ { "referenceName": "SourceDs", "type": "DatasetReference" } ],
+                          "outputs": [ { "referenceName": "SinkDs", "type": "DatasetReference" } ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "RouteByCase",
+                    "type": "Switch",
+                    "typeProperties": {
+                      "on": { "value": "@pipeline().parameters.mode", "type": "Expression" },
+                      "cases": [
+                        {
+                          "value": "copy",
+                          "activities": [
+                            {
+                              "name": "CopyCase",
+                              "type": "Copy",
+                              "inputs": [ { "referenceName": "CaseSource", "type": "DatasetReference" } ]
+                            }
+                          ]
+                        }
+                      ],
+                      "defaultActivities": [
+                        {
+                          "name": "CopyDefault",
+                          "type": "Copy",
+                          "outputs": [ { "referenceName": "DefaultSink", "type": "DatasetReference" } ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "ChoosePath",
+                    "type": "IfCondition",
+                    "typeProperties": {
+                      "expression": { "value": "@pipeline().parameters.copy", "type": "Expression" },
+                      "ifTrueActivities": [
+                        {
+                          "name": "CopyWhenTrue",
+                          "type": "Copy",
+                          "inputs": [ { "referenceName": "TrueSource", "type": "DatasetReference" } ]
+                        }
+                      ],
+                      "ifFalseActivities": [
+                        {
+                          "name": "CopyWhenFalse",
+                          "type": "Copy",
+                          "outputs": [ { "referenceName": "FalseSink", "type": "DatasetReference" } ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+            """);
+
+        IReadOnlyList<AzureInventoryAdfPipelineFlowRow> flows =
+            AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(FactoryId, [pipeline]);
+
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyTable"
+            && flow.DatasetName == "SourceDs"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Read);
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyTable"
+            && flow.DatasetName == "SinkDs"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Write);
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyWhenTrue"
+            && flow.DatasetName == "TrueSource"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Read);
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyWhenFalse"
+            && flow.DatasetName == "FalseSink"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Write);
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyCase"
+            && flow.DatasetName == "CaseSource"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Read);
+        flows.Should().Contain(flow =>
+            flow.ActivityName == "CopyDefault"
+            && flow.DatasetName == "DefaultSink"
+            && flow.FlowDirection == AzureInventoryAdfPipelineFlowDirection.Write);
+    }
+
+    [Fact]
     public void ExtractFlows_does_not_cycle_on_recursive_execute_pipeline()
     {
         JsonElement pipelineA = Parse("""

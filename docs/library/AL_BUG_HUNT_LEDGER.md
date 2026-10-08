@@ -23233,13 +23233,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 48
-- **bugs-found:** 30
+- **hunts:** 49
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — ADF dataset top-level `fileName` omitted from folder path hints
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — ADF Copy inside ForEach, If Condition, and Switch omitted from pipeline flows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-08 seed hunt (hit): promoted nested control-flow dataset candidate; `AzureInventoryAdfPipelineFlowExtractor` read only `properties.activities`, so a Copy stored in ForEach `typeProperties.activities`, If Condition `ifTrueActivities` / `ifFalseActivities`, or Switch `cases[].activities` / `defaultActivities` produced no flow rows on reachable ADF ARM pipelines; fixed by walking those nested activity arrays with a depth cap; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`; scoped `AzureExtractor` tests passed 1466/1466 (1439 Core + 27 Application).
 
 2026-10-04 seed hunt (hit): promoted top-level `fileName`-only blob dataset candidate; `AzureInventoryAdfDatasetLocationExtractor` ignored typeProperties `fileName` when `folderPath` was absent, leaving companion `folderPath` null on reachable Azure Blob ARM payloads that only name the blob file; fixed by treating top-level `fileName` as a folder-path fallback after `folderPath`/`directory`; regression `Extract_reads_top_level_file_name_as_folder_path_when_folder_path_absent`; scoped `AzureExtractor` tests passed 1452/1452 (1425 Core + 27 Application).
 
@@ -23278,6 +23280,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
+
+- [x] (proven) `AzureInventoryAdfPipelineFlowExtractor.WalkActivityArray` — Copy activities nested under ForEach, If Condition, and Switch were omitted from pipeline flows — **hit 2026-10-08 seed hunt:** top-level `properties.activities` never entered `typeProperties.activities`, `ifTrueActivities`, `ifFalseActivities`, `defaultActivities`, or Switch `cases[].activities`; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`.
 
 - [x] (valid-no-repro) `AzureInventoryMessagingAssociationExtractor.IsEnabled` — string `"true"` for `captureDescription.enabled` does not enable capture while absent `enabled` defaults to on — **cheap-disproof 2026-10-04 thorough hunt:** Event Hub ARM capture metadata uses boolean `enabled`; string tokens are not a reachable collector contract; regression `TryExtractEventHub_ignores_capture_when_enabled_is_string_true`.
 - [x] (valid-no-repro) `AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar` / `AzureInventoryAdfLinkedServiceTargetExtractor.TryExtractTargetResourceId` — JSON object `serviceEndpoint` values are ignored and leave blob linked services `TargetUnresolved` — **cheap-disproof 2026-10-04 thorough hunt:** `HostedAzureInventoryAdfLinkedServiceCollector` feeds raw ADF ARM `typeProperties` scalars only; object ARM-reference blobs are not on this path; regression `TrySanitizeFromArmResource_marks_blob_linked_service_unresolved_when_service_endpoint_is_json_object`.
