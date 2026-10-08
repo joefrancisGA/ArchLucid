@@ -206,13 +206,13 @@ observed fact  >  derived fact  >  deterministic inference  >  AI inference
 
 Human assertions sit outside that line, because their strength depends on who made them and how recently. In practice, treat a current, in-scope human assertion as roughly as strong as a deterministic inference, and an expired one as no evidence at all.
 
-In code, the rule is a minimum over an ordered scale:
+The code example below applies Rule 1 only to the four ordered machine-grounding categories. Human assertions are excluded; assess their source, scope, and freshness separately before using one as a required input.
 
 ```python
 from enum import IntEnum
 
 
-class Evidence(IntEnum):
+class MachineEvidence(IntEnum):
     # Higher value means more directly grounded in the environment.
     AI_INFERENCE = 1
     DETERMINISTIC_INFERENCE = 2
@@ -220,8 +220,8 @@ class Evidence(IntEnum):
     OBSERVED_FACT = 4
 
 
-def path_grounding(hops: list[Evidence]) -> Evidence:
-    """A path is only as grounded as its least-grounded required hop."""
+def path_machine_grounding(hops: list[MachineEvidence]) -> MachineEvidence:
+    """A path is only as machine-grounded as its least-grounded required hop."""
     if not hops:
         raise ValueError("A path must have at least one hop.")
 
