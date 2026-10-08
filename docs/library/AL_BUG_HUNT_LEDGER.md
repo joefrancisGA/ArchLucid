@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `alert-simulation` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed run-id binding for compare manifests, foreign-project scope rejection, recommendation filtering, and sealed-manifest failure handling; 40 focused `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`, `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`, `InMemory_count_by_architecture_id_excludes_archived_runs`, and `NormalizeArchitectureRequestId_collapses_internal_whitespace`; 219 focused Persistence tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed (`RunAnalyzers=false`).
@@ -8149,9 +8151,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 35 · **Bugs found:** 10 · **Consecutive dry hunts:** 7
+**Hunts:** 36 · **Bugs found:** 10 · **Consecutive dry hunts:** 8
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `GetContextsAsync_when_compared_to_run_has_null_findings_snapshot_still_compares_manifests_with_primary_findings`, `GetContextsAsync_excludes_learning_profile_when_project_id_mismatches_caller_scope`, and `GetContextsAsync_explicit_run_path_ignores_recent_run_count_before_listing`; reaffirmed `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws` and `GetContextsAsync_when_explicit_run_id_is_empty_returns_empty_without_querying_authority`; 40 scoped `AlertSimulationContextProviderTests` passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed compare-manifest run-id binding, foreign-project comparison scope, recommendation run-id filtering, and explicit sealed-manifest conflict handling; 40 focused `AlertSimulationContextProviderTests` passed.
+
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to baseline with `GoldenManifest.RunId` != `compareToRunId` skips comparison — **cheap-disproof 2026-10-08 seed hunt #36:** compared manifest must bind to `compareToRunId`; existing run-id mismatch guard returns primary-only context.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to baseline with `comparedDetail.Run.RunId` != `compareToRunId` skips comparison — **cheap-disproof 2026-10-08 seed hunt #36:** compared run detail must bind to the requested compare id; existing run-id guard rejects mismatched detail.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to foreign `ScopeProjectId` on compared run drops comparison — **cheap-disproof 2026-10-08 seed hunt #36:** `RunMatchesCallerScope` requires tenant, workspace, and project equality; the primary foreign-project guard is covered by `GetContextsAsync_when_authority_returns_foreign_project_run_returns_empty`, with tenant/workspace compare parity in the adjacent compare tests.
+- [x] (valid-no-repro) `FilterRecommendationsForSimulationScope` — recommendation row with `RunId == Guid.Empty` dropped even when tenant/workspace/project match — **cheap-disproof 2026-10-08 seed hunt #36:** recommendation filtering requires the requested run id in addition to caller scope; existing recommendation scope tests cover mismatched run rows.
+- [x] (valid-no-repro) `AlertSimulationController.Simulate` — sealed-manifest block on primary explicit run maps to `409 Conflict` — **cheap-disproof 2026-10-08 seed hunt #36:** `IsSealedManifestSimulationBlock` catches the provider's explicit-path failure and maps it through `ConflictProblem`.
+
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch `DistinctBy(x => x.RunId)` keeps the first duplicate before ordering — locus: `runs.OrderByDescending(...).DistinctBy(...)` ~75; input: authority list with duplicate run ids at different timestamps.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — recent-run batch skips `Guid.Empty` rows before `BuildContextAsync` — locus: `if (run.RunId == Guid.Empty)` ~77; input: authority list containing an empty run id.
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — null primary findings synthesizes manifest-bound empty findings before comparison — locus: `detail.FindingsSnapshot ?? CreateEmptyFindings(...)` ~137; input: primary detail with null findings and a valid compare-to run.
+- [ ] (candidate) `AlertSimulationContextProvider.FilterLearningProfileForSimulationScope` — profile requires all three caller scope ids, including project — locus: scope filter ~253; input: matching tenant/workspace with foreign project profile.
+- [ ] (candidate) `AlertSimulationController.Simulate` — null request is rejected before scope resolution or simulation service call — locus: `request is null` ~25; input: HTTP POST with null JSON body.
 
 - [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — compare-to with null `FindingsSnapshot` still compares manifests using primary findings — **cheap-disproof 2026-10-08 seed hunt #35:** compare branch never reads compare findings; `CreateEmptyFindings` not applied to compare row; regression `GetContextsAsync_when_compared_to_run_has_null_findings_snapshot_still_compares_manifests_with_primary_findings`.
 - [x] (invalid) `AlertSimulationSealedManifestHashGuard` — recent-run batch `skipOnSealedHashFailure` on compare-to during explicit-run simulate — **cheap-disproof 2026-10-08 seed hunt #35:** explicit path calls `BuildContextAsync` with `skipOnSealedHashFailure: false` once; compare-to uses `EnsureRunSealedManifestHashOrThrow` (not batch skip); regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`.
@@ -8207,9 +8221,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
