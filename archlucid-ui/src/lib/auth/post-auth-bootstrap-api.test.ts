@@ -164,6 +164,34 @@ describe("selectPostAuthWorkspace", () => {
     vi.unstubAllGlobals();
   });
 
+  it("encodes returnUrl on workspace select the same way as bootstrap status URLSearchParams", async () => {
+    const returnUrl = "/architecture/reviews?filter=a+b";
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        accessToken: "token",
+        tokenType: "Bearer",
+        expiresInSeconds: 3600,
+        redirectPath: "/",
+      }),
+    });
+
+    await fetchPostAuthBootstrapStatus(returnUrl);
+    await selectPostAuthWorkspace(
+      "11111111-1111-1111-1111-111111111111",
+      "22222222-2222-2222-2222-222222222222",
+      returnUrl,
+    );
+
+    const statusUrl = String(vi.mocked(fetch).mock.calls[0]?.[0]);
+    const selectUrl = String(vi.mocked(fetch).mock.calls[1]?.[0]);
+    const expectedQuery = `returnUrl=${encodeURIComponent(returnUrl)}`;
+
+    expect(statusUrl).toContain(expectedQuery);
+    expect(selectUrl).toContain(expectedQuery);
+  });
+
   it("returns null when the proxy responds with 401", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
 

@@ -126,6 +126,23 @@ describe("decideHostGateRedirect", () => {
     });
   });
 
+  it("hands off marketing-host legacy /runs alias bookmarks to the app origin before demo alias canonicalization", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/runs/customer-intake-modernization-run/findings",
+        search: "?src=email",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location:
+        "https://app.archlucid.net/runs/customer-intake-modernization-run/findings?src=email",
+    });
+  });
+
   it("redirects marketing-host / to /welcome on the public origin", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";

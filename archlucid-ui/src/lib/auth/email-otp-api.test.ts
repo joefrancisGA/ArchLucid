@@ -180,6 +180,35 @@ describe("verifyEmailOtpCode (pre-auth proxy)", () => {
     expect(result).not.toEqual({ kind: "failure", category: "too_many_attempts" });
   });
 
+  it("does not forward stale operator scope headers on verify POST (pre-auth anonymous proxy)", async () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: "11111111-1111-1111-1111-111111111111",
+        workspaceId: "22222222-2222-2222-2222-222222222222",
+        projectId: "33333333-3333-3333-3333-333333333333",
+        workspaceLabel: "w",
+        projectLabel: "p",
+      }),
+    );
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ accessToken: "token", tokenType: "Bearer", expiresInSeconds: 3600, platformUserId: "p", nextStep: "Complete" }), {
+        status: 200,
+      }),
+    );
+
+    await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+
+    expect(headers.get("x-tenant-id")).toBeNull();
+    expect(headers.get("x-workspace-id")).toBeNull();
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
+    localStorage.clear();
+  });
+
   it("still POSTs when challengeId is empty (callers must guard before invoke)", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
       new Response(JSON.stringify({ accessToken: "token" }), { status: 200 }),

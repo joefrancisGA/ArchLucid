@@ -38,6 +38,13 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveBootstrapCompletePath("https://evil.example")).toBe("/");
   });
 
+  it("prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/saved-return");
+
+    expect(resolveBootstrapCompletePath("/architecture/reviews/1")).toBe("/architecture/reviews/1");
+    expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
   it("routes AcceptInvitation to bootstrap", () => {
     expect(resolveEmailOtpPostAuthPath("AcceptInvitation", "/")).toBe("/auth/bootstrap");
   });
