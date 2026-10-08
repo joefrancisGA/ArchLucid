@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the complete submit/error matrix and all 63 scoped component tests; existing guards and response paths matched their documented contracts, with no hunt-ready failing repro. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `onSubmit` — after a rejected invisible-character submission, correcting the field does not clear the old generic error before the next submit — locus: field `onChange` handlers only update `form`; input: failed submit followed by editing `note` or `cloudPlatformFocus`.
+- [ ] (candidate) `onSubmit` — a successful response that is not `204` is accepted by the client even though the route contract currently emits `204` — locus: `if (!response.ok)` only; input: proxy returns `200` or another successful status with an unexpected body.
+- [ ] (candidate) hidden `websiteUrl` — a browser extension or autofill script can populate the controlled honeypot without user focus, and the component sends that value unchanged — locus: hidden input’s `onChange` plus raw POST field; input: programmatic autofill before submit.
+- [ ] (candidate) `technicalDetail` — repeated callback details are displayed verbatim on every render without client-side length normalization — locus: `technicalDetail` is only trimmed for the empty check; input: oversized upstream detail string.
+- [ ] (candidate) `dismissAccessRequestForm` — toggling the form closed invalidates the generation but retains the previous error message, making stale failure copy visible on reopen — locus: dismiss path differs from Cancel path; input: failed submit, toggle closed, toggle open.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the submit guard, response classification, form-state transitions, hidden honeypot, and technical-detail rendering; no hunt-ready hypothesis survived cheap-disproof. Seeded five reachable follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `containsUnsupportedAccessRequestText` — an invalid invisible character in an optional field produces only the generic form-level error and does not identify the blocked field — locus: one boolean guard covers six values; input: control/bidi-format character in `note` or `cloudPlatformFocus`.
