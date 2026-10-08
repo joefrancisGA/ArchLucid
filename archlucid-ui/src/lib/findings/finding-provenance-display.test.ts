@@ -74,38 +74,30 @@ describe("deriveFindingTrustLabelName", () => {
     ).toBe("RealModel");
   });
 
-  it("infers deterministic when a policy rule id is present", () => {
-    expect(deriveFindingTrustLabelName({ policyRuleId: "cis-az-001" })).toBe("DeterministicRule");
+  it("preserves missing labels when only a policy rule id is present", () => {
+    expect(deriveFindingTrustLabelName({ policyRuleId: "cis-az-001" })).toBe("NotStored");
   });
 
-  it("infers simulator when the parent review is simulator-mode", () => {
-    expect(deriveFindingTrustLabelName({ isSimulatorRun: true, evidenceRefCount: 2 })).toBe(
-      "SimulatorDerived",
-    );
+  it("preserves missing labels when the parent review is simulator-mode", () => {
+    expect(deriveFindingTrustLabelName({ isSimulatorRun: true, evidenceRefCount: 2 })).toBe("NotStored");
   });
 
-  it("infers grounding from evidence and confidence", () => {
-    expect(deriveFindingTrustLabelName({ evidenceRefCount: 2, confidenceLevel: "High" })).toBe(
-      "EvidenceBacked",
-    );
-    expect(deriveFindingTrustLabelName({ evidenceRefCount: 1, confidenceLevel: "Low" })).toBe(
-      "Estimated",
-    );
-    expect(deriveFindingTrustLabelName({ evidenceRefCount: 0, confidenceLevel: "Low" })).toBe(
-      "Heuristic",
-    );
-    expect(deriveFindingTrustLabelName({ evidenceRefCount: 0 })).toBe("MissingCitation");
+  it("preserves missing labels when evidence and confidence are present", () => {
+    expect(deriveFindingTrustLabelName({ evidenceRefCount: 2, confidenceLevel: "High" })).toBe("NotStored");
+    expect(deriveFindingTrustLabelName({ evidenceRefCount: 1, confidenceLevel: "Low" })).toBe("NotStored");
+    expect(deriveFindingTrustLabelName({ evidenceRefCount: 0, confidenceLevel: "Low" })).toBe("NotStored");
+    expect(deriveFindingTrustLabelName({ evidenceRefCount: 0 })).toBe("NotStored");
   });
 });
 
 describe("aggregateFindingProvenance", () => {
   it("formats a quiet scorecard line", () => {
     const counts = aggregateFindingProvenance([
-      { policyRuleId: "r1" },
-      { policyRuleId: "r2" },
-      { evidenceRefCount: 2, confidenceLevel: "High" },
-      { evidenceRefCount: 1, confidenceLevel: "High" },
-      { evidenceRefCount: 0, confidenceLevel: "Low" },
+      { trustLabel: "DeterministicRule", policyRuleId: "r1" },
+      { trustLabel: "DeterministicRule", policyRuleId: "r2" },
+      { trustLabel: "EvidenceBacked", evidenceRefCount: 2, confidenceLevel: "High" },
+      { trustLabel: "EvidenceBacked", evidenceRefCount: 1, confidenceLevel: "High" },
+      { trustLabel: "Heuristic", evidenceRefCount: 0, confidenceLevel: "Low" },
     ]);
 
     expect(counts).toEqual({
@@ -127,7 +119,7 @@ describe("aggregateFindingProvenance", () => {
 
   it("counts deterministic fallback separately from policy rules", () => {
     const counts = aggregateFindingProvenance([
-      { policyRuleId: "r1" },
+      { trustLabel: "DeterministicRule", policyRuleId: "r1" },
       { trustLabel: "DeterministicFallback" },
     ]);
 
