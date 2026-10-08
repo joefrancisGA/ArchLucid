@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed authority-list connection routing, distinct list telemetry, negative-offset normalization, cursor pass-through, and archived warning-snapshot exclusion; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed (`RunAnalyzers=false`).
@@ -5759,9 +5761,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 56 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+**Hunts:** 57 · **Bugs found:** 9 · **Consecutive dry hunts:** 10
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings`, `ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper`, `ExecuteAsync_generic_overload_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate`, `ExecuteAsync_does_not_retry_when_reflection_type_load_has_empty_loader_exceptions_and_sibling_deadlock_only`, and `ExecuteAsync_retries_when_aggregate_sole_inner_is_target_invocation_wrapping_all_transient_nested_aggregate`; 125 scoped transient-retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed aggregate sibling fail-fast, wrapper traversal, nested all-transient retry parity, loader-fault handling, and max-attempt exhaustion; 125 scoped retry tests passed (98 Persistence + 27 Application).
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — top-level `AggregateException` with `NotSupportedException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #57:** `inners.All` rejects the permanent sibling; aggregate retries require every flattened inner to be transient.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `JsonException` wrapping mixed parallel-persist `AggregateException` — **cheap-disproof 2026-10-08 seed hunt #57:** wrapper traversal reaches the mixed aggregate and fails closed on the non-transient inner.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — generic `ExecuteAsync<T>` retries when sole aggregate inner is nested all-transient aggregate — **cheap-disproof 2026-10-08 seed hunt #57:** generic overload shares the static resilience pipeline; regression `ExecuteAsync_void_and_generic_overloads_match_attempt_counts_for_nested_all_transient_aggregate`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `AggregateException` listing `BadImageFormatException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #57:** loader fault is non-transient and blocks retry even beside SQL deadlock.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy` — `IsExhausted` true at max attempts even when elapsed is zero — **cheap-disproof 2026-10-08 seed hunt #57:** attempt ceiling is an independent hard stop; regression `IsExhausted_returns_true_at_max_attempts_with_elapsed_below_budget`.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — nested `AggregateException` with a null/empty inner collection may be treated as ordinary exception — locus: `TryGetParallelPersistInners` ~87–110; input: empty aggregate shell with a transient outer wrapper.
+- [ ] (candidate) `OrchestratorTransientDbRetry` — retry jitter can produce a delay outside the intended exponential envelope — locus: `Random.Shared.Next` ~43–51; input: retry attempts at jitter-span boundaries.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — cancellation token is replaced by Polly callback token during retry — locus: `Pipeline.ExecuteAsync` callbacks ~17–27; input: cancellation between failed attempt and retry delay.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — zero or negative attempt produces a non-positive delay — locus: `150 * attempt` ~24; input: first-attempt and invalid-attempt callers.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll index beyond configured attempts creates a delay beyond the retry budget — locus: `150 * poll` ~27; input: poll index equal to or greater than `ManifestReconcilePollAttempts`.
 
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `ObjectDisposedException` sibling beside transient deadlock — **cheap-disproof 2026-10-08 seed hunt #56:** `inners.All` fail-fast; regression `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings`.
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry` — `FormatException` wrapping mixed parallel-persist aggregate — **cheap-disproof 2026-10-08 seed hunt #56:** wrapper walk parity with `InvalidCastException` family; regression `ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper`.
@@ -5823,9 +5837,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
