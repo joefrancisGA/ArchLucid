@@ -8838,3 +8838,4 @@
 {"at":"2026-10-08T06:56:05.091219Z","zoneId":"host-infra-evidence-composition","outcome":"seed-only","productLine":"securenow"}
 {"at":"2026-10-08T07:01:21.1437409Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T07:03:56.1272033Z","zoneId":"tenant-settings-sql","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T07:06:33.6329883Z","zoneId":"alert-simulation","outcome":"seed-only","productLine":"archlucid-shared"}

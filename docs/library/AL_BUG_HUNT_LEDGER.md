@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -8249,7 +8251,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 36 · **Bugs found:** 10 · **Consecutive dry hunts:** 8
+**Hunts:** 37 · **Bugs found:** 10 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison of a run to itself may produce a misleading non-null comparison result — locus: comparison branch only excludes `Guid.Empty`, not `compareRunId == runId`; input: explicit simulation request with identical primary and comparison run ids.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — empty tenant/workspace/project ids are accepted into the authority query and scope filters — locus: `ScopeContext` is constructed without identity guards ~42–48; input: caller scope provider returns one or more `Guid.Empty` ids.
+- [ ] (candidate) `FindingsSnapshotMatchesGoldenManifest` — a findings snapshot with matching ids but incompatible schema or timestamp is accepted — locus: helper checks only four snapshot ids ~218–222; input: historical findings payload reusing manifest identifiers with a changed schema version.
+- [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — same-run summaries with equal `CreatedUtc` are selected by source order after `DistinctBy` — locus: `OrderByDescending(...).DistinctBy(...)` ~75; input: authority returns duplicate run ids with equal timestamps but different summary payloads.
+- [ ] (candidate) `FilterRecommendationsForSimulationScope` — recommendation ordering from the repository is preserved without a deterministic timestamp/id sort — locus: scope filter ends in `ToList()` ~239–246; input: same-scope recommendations returned in different database orders for one simulated run.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed compare-manifest run-id binding, foreign-project comparison scope, recommendation run-id filtering, and explicit sealed-manifest conflict handling; 40 focused `AlertSimulationContextProviderTests` passed.
 
@@ -8319,9 +8329,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
