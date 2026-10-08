@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -4432,7 +4434,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 46 · **Bugs found:** 7 · **Consecutive dry hunts:** 8
+**Hunts:** 47 · **Bugs found:** 7 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — process-local generation keys may not invalidate a shared cache after another application instance writes the same setting — locus: static generation dictionary ~13 and generation-stamped cache key ~103; input: read on node A, upsert on node B, then read on node A.
+- [ ] (candidate) `CachingTenantSettingsRepository.CacheGenerations` — generation entries grow without eviction for every tenant/key ever written — locus: static `ConcurrentDictionary` ~13 and unconditional `BumpCacheGeneration`; input: many ephemeral tenant setting keys over the process lifetime.
+- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — cancellation during cache invalidation after a successful inner write leaves a generation gap and repeated cold reads — locus: `InvalidateCurrentGenerationCacheAsync` ~64; input: SQL upsert succeeds, cache removal observes cancellation, then a read starts.
+- [ ] (candidate) `CachingTenantSettingsRepository.DeleteAsync` — cancellation during invalidation after a successful delete leaves the new generation without a negative cache entry — locus: delete path ~83–88; input: delete succeeds, cache removal is canceled, then repeated reads request the deleted key.
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — concurrent `MERGE` operations for one tenant/key may race without an explicit serializing hint — locus: `MERGE dbo.TenantSettings` ~88–97; input: parallel upserts for the same normalized tenant/key under a unique constraint.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed.
 
@@ -4484,9 +4494,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
