@@ -32,7 +32,8 @@ public interface IArchitectureIdentityService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Links a review-origin run to the architecture identity of its source run when resolvable.
+    ///     Links a review-origin run to the architecture identity of its source run or draft when resolvable;
+    ///     otherwise mints a new identity for greenfield reviews (no <c>PriorRunId</c> / draft spawn).
     /// </summary>
     Task<ArchitectureIdentityRecord?> TryEnsureReviewRunLinkedAsync(
         ScopeContext scope,
@@ -206,7 +207,14 @@ public sealed class ArchitectureIdentityService(
             sourceRunId = await TryResolveSourceRunFromDraftSpawnedAsync(scope, request, cancellationToken).ConfigureAwait(false);
 
         if (!sourceRunId.HasValue)
-            return null;
+        {
+            // Direct POST /v1/architecture/request (golden cohort, API tests) is Reviewed-origin with no prior run.
+            return await EnsureCreatedRunIdentityAsync(
+                scope,
+                reviewRunId,
+                knowledgeModelId,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         return await EnsureReviewRunLinkedFromSourceRunAsync(
             scope,

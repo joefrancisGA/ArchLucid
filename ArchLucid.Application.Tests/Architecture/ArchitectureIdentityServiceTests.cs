@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -235,5 +236,62 @@ public sealed class ArchitectureIdentityServiceTests
         runRepository.Verify(
             r => r.GetByIdAsync(Scope, spawnedRunId, It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task TryEnsureReviewRunLinkedAsync_mints_identity_for_greenfield_review_without_source()
+    {
+        Guid reviewRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid architectureId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        const string description =
+            "Baseline Azure web workload (single region). Provide a concise target architecture suitable for automated merge tests; prefer Azure patterns.";
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(r => r.GetByIdAsync(Scope, reviewRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = reviewRunId, Description = description });
+        runRepository
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureIdentityRepository> identityRepository = new();
+        identityRepository
+            .Setup(r => r.CreateAsync(Scope, description, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord
+            {
+                ArchitectureId = architectureId,
+                DisplayName = description,
+            });
+
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(
+            identityRepository.Object,
+            runRepository.Object,
+            Mock.Of<IDraftRequestRepository>());
+
+        ArchitectureRequest request = GoldenCohortArchitectureRequestFactory.FromCohortItem(
+            new GoldenCohortItem
+            {
+                Id = "gc-001",
+                Title = "Baseline Azure web workload (single region)",
+            });
+
+        ArchitectureIdentityRecord? linked = await sut.TryEnsureReviewRunLinkedAsync(Scope, reviewRunId, request);
+
+        linked.Should().NotBeNull();
+        linked!.ArchitectureId.Should().Be(architectureId);
+        runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(run => run.RunId == reviewRunId && run.ArchitectureId == architectureId),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()),
+            Times.Once);
+        identityRepository.Verify(
+            r => r.CreateAsync(Scope, description, null, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }
