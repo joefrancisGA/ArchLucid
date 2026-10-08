@@ -68,10 +68,11 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 "/v1/architecture/request",
                 JsonContent(GoldenCohortArchitectureRequestFactory.FromCohortItem(item)));
 
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+            string createBody = await createResponse.Content.ReadAsStringAsync();
+            createResponse.StatusCode.Should().Be(HttpStatusCode.Created, createBody);
 
             CreateRunResponseDto? created =
-                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                JsonSerializer.Deserialize<CreateRunResponseDto>(createBody, JsonOptions);
             created.Should().NotBeNull();
 
             string runId = created.Run.RunId;
