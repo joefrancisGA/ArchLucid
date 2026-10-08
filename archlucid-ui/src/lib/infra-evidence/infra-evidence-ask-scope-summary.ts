@@ -66,8 +66,8 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
     snapshotId: trimmedSnapshotId,
     capturedLabel,
     ageLabel,
-    statusKind: stale ? "needs-attention" : "ready",
-    statusLabel: stale ? "Stale snapshot" : "Current snapshot",
+    statusKind: stale || !hasCaptureTime ? "needs-attention" : "ready",
+    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Freshness unknown",
   };
 }
 

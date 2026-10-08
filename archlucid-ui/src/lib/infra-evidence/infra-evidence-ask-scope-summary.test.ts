@@ -52,4 +52,14 @@ describe("resolveInfraEvidenceAskSnapshotFreshness", () => {
     expect(freshness?.statusLabel).toBe("Stale snapshot");
     expect(freshness?.snapshotId).toBe("22222222-2222-2222-2222-222222222222");
   });
+
+  it("marks snapshots without a capture time as having unknown freshness", () => {
+    const freshness = resolveInfraEvidenceAskSnapshotFreshness(
+      "22222222-2222-2222-2222-222222222222",
+      "",
+    );
+
+    expect(freshness?.statusKind).toBe("needs-attention");
+    expect(freshness?.statusLabel).toBe("Freshness unknown");
+  });
 });
