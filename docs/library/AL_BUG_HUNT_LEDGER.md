@@ -10439,7 +10439,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
@@ -10775,7 +10775,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 37
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — Worker host ignored Pilot/Advanced/SaaS configuration overlays in shared /app image
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23638,6 +23638,14 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-08 seed hunt (seed-only): re-read run transition parsing, lifecycle projection, dead-letter detection, typestate finalization, and authority pipeline options; no in-zone hunt-ready row promoted; scoped `RunAuthority` tests were run before recording the outcome.
+
+- [ ] (candidate) `AuthorityPipelineConcurrencyOptions.LeaseRecognitionHorizon` — accepts a negative duration that can make every current lease appear stale — locus: option property in `AuthorityPipelineConcurrencyOptions.cs`; input: `AuthorityPipeline:Concurrency:LeaseRecognitionHorizon` configured below zero; wrong outcome: SQL concurrency capacity accounting can discard active tenant slots; reachability: this property is bound from application configuration and consumed by the SQL concurrency gate.
+- [ ] (candidate) `AuthorityPipelineConcurrencyOptions.WaitPollMilliseconds` — accepts a negative polling delay — locus: option property in `AuthorityPipelineConcurrencyOptions.cs`; input: `AuthorityPipeline:Concurrency:WaitPollMilliseconds` below zero; wrong outcome: saturated-slot retry can fail instead of waiting; reachability: this property is bound from application configuration and passed to the SQL concurrency gate.
+- [ ] (candidate) `AuthorityPipelineOptions.PipelineTimeout` — accepts a negative timeout — locus: option property in `AuthorityPipelineOptions.cs`; input: `AuthorityPipeline:PipelineTimeout` below zero; wrong outcome: pipeline execution can fail during cancellation-token timeout setup; reachability: the option is bound from application configuration and consumed by authority orchestration.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — casts a finite whole-number double outside `Int32` range after the integer parse fails — locus: `TryParseWholeNumberString` fallback in `ArchitectureRunStatusTransitionTable.cs`; input: an oversized numeric legacy-status string; wrong outcome: an out-of-range value could alias to an enum status; reachability: in-memory legacy status strings reach this parser from run headers.
+- [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — schema-version parsing accepts a floating whole number but does not visibly bound precision — locus: `TryReadSupportedSchemaVersion` and `StrictSchemaVersionReader` call; input: a very large fractional JSON schema version that rounds to a supported integer; wrong outcome: malformed failure payload may be treated as a supported dead-letter record; reachability: `LastFailureReason` is persisted JSON read from run records.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
