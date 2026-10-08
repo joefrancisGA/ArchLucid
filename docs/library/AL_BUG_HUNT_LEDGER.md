@@ -11834,13 +11834,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 20
-- **bugs-found:** 19
+- **hunts:** 21
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — conflicting long-form `objectidentifier` claims bound SCIM directory key via `FindFirst`
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — SAML coexistence dropped inline-PEM hosts back to DevelopmentBypass or ApiKey
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
+
+2026-10-08 seed hunt (seed→hit): proved SAML coexistence chose the API scheme from `Mode` alone, so an inline `JwtSigningPublicKeyPem` with `DevelopmentBypass` or `ApiKey` stopped being JwtBearer after SAML registration; fixed by honoring path or inline PEM the same way `AddArchLucidAuth` does; regressions `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_is_set` and `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_overrides_api_key_mode`; 6 scoped SAML scheme tests passed.
 
 2026-09-12 seed hunt #2132 (seed-only): reseeded saml-jwt-bearer; no new hunt-ready rows.
 
@@ -11909,6 +11911,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ArchLucidSamlInboundClaimsNormalizer` — duplicate direct `workspace_id` / `project_id` claims may still surface when values differ only by GUID format (`N` vs `D`) before `DeduplicateCanonicalGuidScopeClaims` normalizes — **cheap-disproof 2026-10-06 thorough hunt:** `DeduplicateCanonicalGuidScopeClaim` parses GUIDs and emits canonical `D` format; regressions `Apply_collapses_duplicate_direct_workspace_id_claims_when_values_differ_only_by_guid_format` and `Apply_collapses_duplicate_direct_project_id_claims_when_values_differ_only_by_guid_format`
 - [x] (valid-no-repro) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — `auth_time` claims using `ClaimValueTypes.Integer64` (JWT handler shape) vs string-encoded epoch seconds on cookie principals — **cheap-disproof 2026-10-06 thorough hunt:** `long.TryParse` on `Claim.Value` handles `Integer64` value type; regressions `HasRecentAuthentication_returns_true_when_auth_time_uses_integer64_value_type_on_cookie_principal` and `TryGetAuthenticationInstant_parses_integer64_auth_time_without_falling_back_to_iat`
 - [x] (proven) `RoleSyncService.TryDirectoryObjectKey` — duplicate long-form `objectidentifier` URI claims with conflicting values when short `oid` is absent — **hit 2026-10-06 thorough hunt:** `FindFirst` returned attacker-controlled first value; require exactly one distinct non-empty long-form claim; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`
+- [x] (proven) `ArchLucidSaml2ServiceExtensions.ResolvePrimaryApiAuthenticationScheme` — inline PEM JWT hosts lost JwtBearer when SAML coexistence ran — **hit 2026-10-08 seed hunt:** `NormalizeModeForJwtLocalSigning` rewrites `Mode` only for a PEM path, while `AddArchLucidAuth` also nominates JwtBearer for inline `JwtSigningPublicKeyPem`; coexistence then restored `DevelopmentBypass` or `ApiKey`, so a development host authenticated as the dev admin and an API-key mode host stopped validating the local JWT; fixed with `JwtPemKeyMaterial.HasAnyPemSource`; regressions `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_is_set` and `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_overrides_api_key_mode`.
 
 2026-10-06 seed hunt (seed→hit): promoted duplicate direct SAML `oid` claims; proved and fixed; reseeded three follow-on candidates; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
 - [x] (valid-no-repro) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` string claim type vs `iat` `Integer64` on trial JWTs — **cheap-disproof 2026-10-06 thorough hunt:** `RecentAuthenticationEvaluator` parses epoch seconds from JWT round-tripped `auth_time`/`iat` pair; regression `HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`
