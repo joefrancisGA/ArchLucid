@@ -29356,13 +29356,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 55
-- **bugs-found:** 34
+- **hunts:** 56
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — null-bound `AgentExecution:Mode` registered Real executor instead of Simulator
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — API usage flush dropped dequeued events when batch persist failed
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-08 seed hunt (hit): API request usage flush dequeued events before persist and discarded the batch when `RecordBatchAsync` threw, so a transient usage-store failure undercounted metering. Failed batches return to `ApiRequestUsageEventBuffer` for the next interval. Regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.
 
 2026-09-27 seed hunt #44 (seed→hit): reseeded host-composition; proved `TryResolveRedisHealthProbeConnectionString` preferred unused `ProjectionCache:RedisConnectionString` over LLM/hot-path Redis when graph projection cache was in-process memory, so optional `redis` readiness and value-report poll-state fallback probed the wrong host; fixed by delegating to `TryResolveGraphProjectionDistributedRedisConnectionString` when distributed and dropping orphan projection strings from the generic fallback; regressions `TryResolve_skips_orphan_projection_string_when_graph_cache_is_memory` and `TryResolve_projection_string_wins_over_llm_and_hot_path_when_graph_cache_is_distributed`; 403 scoped host-composition tests passed.
 
@@ -29438,6 +29440,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.FlushPendingAsync` — API request metering dequeued `UsageEvent` rows from `ApiRequestUsageEventBuffer` and then swallowed a failed `IUsageMeteringService.RecordBatchAsync`, so a transient store error dropped the batch. Failed batches are returned to the buffer and the flush stops so the next interval can retry. Regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.
 - [x] (proven) `DraftIntakeCompositionRegistrar` registers `ArchitectureWorkLeaseService` without `IArchitectureShareAccessService` — **hit 2026-09-11 seed hunt #1712:** work-lease service depends on share-access evaluation but composition only registered it in `ApiWebLayerServiceCollectionExtensions`, so `ValidateOnBuild` failed for Worker/Combined and standalone composition tests; fixed by registering `ArchitectureShareAccessService` in draft-intake composition; regressions `DraftIntakeCompositionRegistrar_registers_architecture_share_access_for_work_lease_service` and `StorageProviderDiGraphValidationTests`
 - [x] (proven) `SqlDtfOrchestrationInfrastructureRegistrar` registers Durable Task worker on Api role — **hit 2026-09-11 seed hunt #1711:** `Register` wired `AddDurableTaskWorker` + client for every SQL host role, so split Api+Worker deployments with `OrchestratorBackend=DurableTask` started competing worker infrastructure on Api replicas; fixed by registering client in storage bootstrap and gating worker registration to Worker+Combined in authority capability; regressions `AddArchLucidApplicationServices_Api_role_with_DurableTask_backend_registers_client_not_worker` and `AddArchLucidApplicationServices_Worker_role_with_DurableTask_backend_registers_client_and_worker`
 - [x] (proven) `AddPlatformCapability` double-registers `IProductLineRequestAccessor` — **hit 2026-09-11 seed hunt #1710:** root `AddArchLucidApplicationServices` and `PlatformCapabilityCompositionRegistrar` each called `RegisterProductLineRequestAccessor`, yielding two singleton descriptors per replica; fixed by removing the duplicate from platform capability; regression `AddArchLucidApplicationServices_registers_product_line_accessor_once`
