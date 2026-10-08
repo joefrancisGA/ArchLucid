@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `billing-webhooks` — re-read the selected webhook controllers, wallet processor, and replay guard; no hunt-ready row survived cheap-disproof. No production code changed and no regression was added; 59 focused replay/provider tests passed with `--no-build`.
+
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — cache eviction can remove the process-local claim and permit a replay before the nominal 24-hour retention if memory pressure evicts the entry — locus: eviction callback removes `_claimedKeys`; input: cache pressure followed by the same provider/event id.
+- [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard` — event-id normalization trims and lowercases identifiers without a provider-specific canonicalization contract — locus: `BuildCacheKey`; input: semantically distinct identifiers with whitespace or case differences.
+- [ ] (candidate) `StripeBillingProvider` dispatch — replay registration and event handling may use different route/provider dimensions for wallet versus subscription events — locus: controller supplies `StripeWebhookRoute` while replay keys are provider/event based; input: same event id delivered across routes.
+- [ ] (candidate) `AzureMarketplaceBillingProvider` dispatch — duplicate suppression and `DuplicateIgnored` state may diverge from the integration-event outbox publication branch — locus: controller publishes only for `Succeeded && !DuplicateIgnored`; input: retried accepted notification with a changed dedupe key.
+- [ ] (candidate) `LlmTenantWalletStripeWebhookProcessor` — payment-intent event types are compared case-insensitively after trimming, while decline-code telemetry is recorded without normalization — locus: failure branch passes raw `declineCode`; input: inconsistent provider decline-code casing or whitespace.
+
 2026-10-08 seed hunt (seed-only): `billing-webhooks` — re-read Stripe and Marketplace controller branching, wallet event processing, and in-memory replay registration; no hunt-ready wrong-outcome chain survived source review. Seeded five reachable `(candidate)` rows; focused build/test execution was started, with no production code changed and no regression added.
 
 - [ ] (candidate) `MemoryCacheBillingWebhookReplayGuard.BuildCacheKey` — lowercasing event IDs can collapse distinct provider identifiers if a provider treats event IDs as case-sensitive — locus: `eventId.Trim().ToLowerInvariant()`; input: two otherwise distinct event IDs differing only by case.
