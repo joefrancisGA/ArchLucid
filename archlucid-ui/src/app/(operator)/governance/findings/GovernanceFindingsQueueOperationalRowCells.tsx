@@ -45,11 +45,14 @@ import {
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
-function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
+function formatRiskRegisterUtcLabel(
+  utc: string | null | undefined,
+  missingLabel: string,
+): string {
   const raw = (utc ?? "").trim();
 
   if (raw.length === 0) {
-    return "No due date";
+    return missingLabel;
   }
 
   const parsed = Date.parse(raw);
@@ -85,12 +88,12 @@ export function GovernanceFindingsQueueDueCell(props: { readonly row: Governance
   const dueUtc = resolveGovernanceQueueDueUtc(props.row);
 
   if (dueUtc === null) {
-    return <span className="text-al-text-secondary">—</span>;
+    return <span className="text-al-text-secondary">Due date was not stored</span>;
   }
 
   return (
     <time dateTime={dueUtc} className="text-al-text-primary">
-      {formatRiskRegisterUtcLabel(dueUtc)}
+      {formatRiskRegisterUtcLabel(dueUtc, "Due date was not stored")}
     </time>
   );
 }
@@ -250,10 +253,14 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : "Does not apply to decision rows"}
+        {row.recordKind === "finding"
+          ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc, "No exception expiry recorded")
+          : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "Does not apply to decision rows"}
+        {row.recordKind === "finding"
+          ? formatRiskRegisterUtcLabel(row.lastReviewedUtc, "Last decision was not stored")
+          : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />

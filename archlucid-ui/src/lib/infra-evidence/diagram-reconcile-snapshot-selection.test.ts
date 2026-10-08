@@ -24,4 +24,23 @@ describe("diagram-reconcile-snapshot-selection", () => {
     expect(summary?.selectionMarker).toBe("Auto-selected");
     expect(summary?.stale).toBe(false);
   });
+
+  it("states missing capture time without marking the snapshot ready", () => {
+    const summary = resolveDiagramReconcileSnapshotSelectionSummary({
+      snapshots: [{
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        subscriptionId: "sub-1",
+        subscriptionName: "Prod",
+        capturedUtc: "",
+        captureStatus: 1,
+        resourceCount: 12,
+        relationshipCount: 4,
+      }],
+      selectedSnapshotId: "11111111-1111-1111-1111-111111111111",
+      urlSnapshotId: "",
+    });
+
+    expect(summary?.ageLabel).toBe("Captured time was not stored");
+    expect(summary?.selectionMarker).toBeNull();
+  });
 });
