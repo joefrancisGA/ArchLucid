@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  findingSemanticSupportBandFromTypedPayload,
   normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
   semanticSupportBandShortReason,
@@ -30,5 +31,13 @@ describe("semantic support band presentation (AS-061)", () => {
     expect(semanticSupportBandShortReason("Supported")).toMatch(/heuristic/i);
     expect(semanticSupportBandShortReason("Unchecked")).toMatch(/async|partial/i);
     expect(semanticSupportBandShortReason("NotScored")).toMatch(/not scored|exempt/i);
+  });
+
+  it("maps typed payload bands without importing a client module", () => {
+    expect(
+      findingSemanticSupportBandFromTypedPayload({ semanticSupportBand: "Supported" }, "DecisionGradeFinding"),
+    ).toBe("Supported");
+    expect(findingSemanticSupportBandFromTypedPayload(null, "DecisionGradeFinding")).toBe("NotScored");
+    expect(findingSemanticSupportBandFromTypedPayload(null, "ChecklistCoverage")).toBeNull();
   });
 });

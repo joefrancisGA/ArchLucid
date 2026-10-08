@@ -3,6 +3,7 @@
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import type { APIRequestContext, Page } from "@playwright/test";
 
@@ -46,7 +47,9 @@ export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
 
 /** Repo root (ArchLucid) from `archlucid-ui/e2e/**.ts`. */
 export function demoScreenshotsRepoRoot(): string {
-  return path.resolve(__dirname, "..", "..", "..");
+  const here = path.dirname(fileURLToPath(import.meta.url));
+
+  return path.resolve(here, "..", "..", "..");
 }
 
 export function demoScreenshotsOutputDir(timestamp: string): string {

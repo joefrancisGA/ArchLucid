@@ -1,4 +1,5 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 import { SEMANTIC_SUPPORT_BAND_VALUES } from "@/lib/semantic-support-band-adr-inventory";
 
@@ -45,6 +46,20 @@ export function resolveDecisionGradeSemanticSupportBand(
   raw: unknown,
 ): FindingSemanticSupportBandValue {
   return normalizeFindingSemanticSupportBand(raw) ?? "NotScored";
+}
+
+/** Pure mapper — keep out of `"use client"` modules so RSC finding inspect can call it. */
+export function findingSemanticSupportBandFromTypedPayload(
+  typedPayload: Record<string, unknown> | null,
+  classification: QuickDecisionFinding["classification"],
+): QuickDecisionFinding["semanticSupportBand"] {
+  const band = normalizeFindingSemanticSupportBand(typedPayload?.semanticSupportBand);
+
+  if (classification === "ChecklistCoverage") {
+    return band;
+  }
+
+  return band ?? resolveDecisionGradeSemanticSupportBand(null);
 }
 
 export function semanticSupportBandStatusTagKind(

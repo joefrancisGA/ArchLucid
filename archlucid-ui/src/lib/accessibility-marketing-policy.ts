@@ -5,21 +5,26 @@ import { join } from "node:path";
  * Loads repo-root `ACCESSIBILITY.md` for policy metadata (e.g. Last reviewed).
  * Public buyer-facing statement copy lives in `accessibility-marketing-public-statement.ts`.
  */
+export function accessibilityPolicyMarkdownCandidatePaths(cwd: string): string[] {
+  return [
+    join(cwd, "go-to-market-samples", "ACCESSIBILITY.md"),
+    join(cwd, "..", "ACCESSIBILITY.md"),
+    join(cwd, "..", "..", "ACCESSIBILITY.md"),
+    join(cwd, "ACCESSIBILITY.md"),
+  ];
+}
+
 export function readAccessibilityPolicyMarkdown(): string {
   const cwd = process.cwd();
 
-  const dockerPath = join(cwd, "go-to-market-samples", "ACCESSIBILITY.md");
-  if (existsSync(dockerPath)) {
-    return readFileSync(dockerPath, "utf8").replace(/\r\n/g, "\n");
-  }
-
-  const monorepoPath = join(cwd, "..", "ACCESSIBILITY.md");
-  if (existsSync(monorepoPath)) {
-    return readFileSync(monorepoPath, "utf8").replace(/\r\n/g, "\n");
+  for (const candidate of accessibilityPolicyMarkdownCandidatePaths(cwd)) {
+    if (existsSync(candidate)) {
+      return readFileSync(candidate, "utf8").replace(/\r\n/g, "\n");
+    }
   }
 
   throw new Error(
-    "ACCESSIBILITY.md not found. Expected go-to-market-samples/ACCESSIBILITY.md (Docker) or ../ACCESSIBILITY.md (monorepo).",
+    "ACCESSIBILITY.md not found. Expected go-to-market-samples/ACCESSIBILITY.md (Docker), ../ACCESSIBILITY.md (monorepo), or ../../ACCESSIBILITY.md (Next standalone).",
   );
 }
 
