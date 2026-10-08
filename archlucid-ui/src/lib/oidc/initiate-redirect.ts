@@ -86,8 +86,11 @@ export async function initiateSupplementalOidcRedirect(
 
   storePkceState(state, verifier, nonce, "google");
 
+  let storedReturnUrlThisAttempt = false;
+
   if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
     storePostSignInReturnUrl(returnUrl);
+    storedReturnUrlThisAttempt = true;
   }
 
   let doc;
@@ -96,7 +99,11 @@ export async function initiateSupplementalOidcRedirect(
     doc = await loadDiscoveryDocument(authority);
   } catch (error) {
     clearPkceState("google");
-    clearPostSignInReturnUrl();
+
+    if (storedReturnUrlThisAttempt) {
+      clearPostSignInReturnUrl();
+    }
+
     throw error;
   }
   const url = buildAuthorizeUrl({

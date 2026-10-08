@@ -88,6 +88,57 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
   });
 
+  it("preserves an existing post-sign-in return path when supplemental Google discovery fails without a new return URL", async () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/architecture/reviews/primary-flow");
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("google discovery unavailable");
+      }),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(initiateSupplementalOidcRedirect("google")).rejects.toThrow("google discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe("/architecture/reviews/primary-flow");
+    expect(sessionStorage.getItem(OIDC_GOOGLE_OAUTH_STATE_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_OAUTH_STATE_KEY)).toBe("primary-state");
+  });
+
+  it("clears the post-sign-in return path when supplemental Google discovery fails after storing a return URL", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => {
+        throw new Error("google discovery unavailable");
+      }),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await expect(
+      initiateSupplementalOidcRedirect("google", "/architecture/reviews/google-attempt"),
+    ).rejects.toThrow("google discovery unavailable");
+    expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBeNull();
+  });
+
   it("clears a stale return path when a later discovery attempt has no return URL", async () => {
     sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "/stale-review");
     vi.doMock("@/lib/oidc/config", () => ({
