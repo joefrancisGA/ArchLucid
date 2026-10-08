@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`, `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`, `InMemory_count_by_architecture_id_excludes_archived_runs`, and `NormalizeArchitectureRequestId_collapses_internal_whitespace`; 219 focused Persistence tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `tenant-settings-sql` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed `UpsertAsync_round_trips_trimmed_key_and_value`, `TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`, `TryGetAsync_throws_when_tenant_id_empty`, `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`, and `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump`; 17 scoped `SqlTenantSettingsRepository` tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`, `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`, `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`, `InMemory_get_by_id_including_archived_returns_soft_archived_run`, and `InMemory_list_by_project_keyset_retains_stored_warning_flags_on_continuation_page`; scoped zone filter tests passed (`RunAnalyzers=false`).
@@ -6818,9 +6820,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
-**Hunts:** 64 · **Bugs found:** 27 · **Consecutive dry hunts:** 3
+**Hunts:** 65 · **Bugs found:** 27 · **Consecutive dry hunts:** 4
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design` and `ValidateRunKeysetCursor_rejects_run_id_without_created_utc`; reaffirmed project-list cache key isolation, archived read vs recent list filter, and in-memory keyset warning retention; scoped zone filter tests passed (`RunAnalyzers=false`).
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed project-keyset probe clamping, offset continuation cache bypass, stable keyset tie-break, archived architecture counts, and architecture-request normalization; 219 focused Persistence tests passed.
+
+- [x] (valid-no-repro) `RunListQueryParameters.ForProjectKeysetPage` — unset `take` uses `RunPagination.ClampTake` default (25) for `@Fetch` probe, not project-list default 20 — **cheap-disproof 2026-10-08 seed hunt #65:** keyset pagination intentionally uses the shared 25-row cursor default; regression `ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned`.
+- [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeOffsetAsync` — offset continuation with `offset > 0` bypasses first-page cache while unpaged recent list remains cached — **cheap-disproof 2026-10-08 seed hunt #65:** only the first offset page is cacheable; continuation reaches the inner repository; focused cache invalidation tests passed.
+- [x] (valid-no-repro) `RunListWarningFlagSql.KeysetCursorPredicate` — `CreatedUtc` equality branch uses `RunId` strict inequality for stable seek — **cheap-disproof 2026-10-08 seed hunt #65:** SQL shape includes the descending `RunId` tie-break; regression `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`.
+- [x] (valid-no-repro) `InMemoryRunRepository.CountByArchitectureIdAsync` — excludes archived rows same as architecture-attached list — **cheap-disproof 2026-10-08 seed hunt #65:** `IsActiveInScope` excludes archived rows; regression `InMemory_count_by_architecture_id_excludes_archived_runs`.
+- [x] (valid-no-repro) `RunRepositoryCore.NormalizeArchitectureRequestId` — collapses internal double spaces before uppercase seek — **cheap-disproof 2026-10-08 seed hunt #65:** normalization collapses space runs while preserving tab semantics matching SQL; regression `NormalizeArchitectureRequestId_collapses_internal_whitespace`.
+
+- [ ] (candidate) `SqlRunRepository.ListByProjectAsync` — project list uses the authority-list connection factory while keyset list uses the same hot-path SQL route — locus: connection factory calls ~37 and ~72; input: project list under a replica-routing configuration.
+- [ ] (candidate) `SqlRunRepository.ListRecentInScopeAsync` — recent list records `GetRunsByTenantId` telemetry while keyset and offset paths use distinct names — locus: `RecordNamedQueryLatencyMilliseconds` ~114; input: mixed list shapes in telemetry aggregation.
+- [ ] (candidate) `RunListQueryParameters.ForRecentInScopeOffsetPage` — negative offset normalizes to zero before SQL bind — locus: `RunPagination.NormalizeOffset(offset)` ~102; input: offset API request with `offset=-1`.
+- [ ] (candidate) `RunListQueryParameters.ForProjectKeysetPage` — cursor values pass through unchanged after paired-cursor validation — locus: `CursorCreatedUtc` / `CursorRunId` ~53; input: UTC cursor at a `CreatedUtc` tie.
+- [ ] (candidate) `RunListWarningFlagSql.LeftJoinAggregates` — archived finding snapshots are excluded from `HasWarnings` aggregate while active run rows remain listable — locus: `fs.ArchivedUtc IS NULL` ~95; input: run with only archived warning snapshot rows.
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `CachingRunRepository.ListByProjectAsync` — first-page cache uses `safeTake` up to 200 while keyset caches `RunPagination.ClampTake` — **cheap-disproof 2026-10-08 seed hunt #64:** hot-path cache keys include clamped take so unpaged and keyset shapes do not collide; regression `RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`.
 - [x] (valid-no-repro) `RunListQueryParameters.ForProjectList` vs `ForRecentInScope` — zero take defaults to 20 on project lists but 200 on recent-in-scope unpaged — **cheap-disproof 2026-10-08 seed hunt #64:** intentional API split documented on `DefaultProjectListTake` vs `MaxUnpagedTake`; regression `ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design`.
@@ -6933,9 +6949,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — InMemory null-architecture backfill list exposed warning flags omitted by SQL backfill select
 - **related-pd-tb:** none
