@@ -253,6 +253,35 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPaymentIntentEventAsync_throws_when_wallet_credit_is_not_applied()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        Guid tenantId = Guid.NewGuid();
+
+        walletService
+            .Setup(s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                tenantId,
+                "pi_credit_failure",
+                10.00m,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        Func<Task> act = () => sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_credit_failure",
+            tenantId.ToString("D"),
+            1000,
+            null,
+            Guid.NewGuid());
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*pi_credit_failure*");
+    }
+
+    [Fact]
     public async Task ProcessPaymentIntentEventAsync_null_event_type_skips_wallet_credit()
     {
         Mock<ILlmTenantWalletService> walletService = new();
