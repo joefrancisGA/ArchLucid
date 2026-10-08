@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-08 seed hunt (seed-only): `artifact-synthesis` — no hunt-ready hypothesis survived source review; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests; seeded three reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+2026-10-08 seed hunt (seed-only): `artifact-synthesis` — cheap-disproof closed the reachable Network-mode peering candidate as `(valid-no-repro)` because an existing relationship applier already emits the edge; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests; retained two source-backed `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -10131,7 +10131,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -28954,6 +28954,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators in the exported DOCX; reachable from the committed manifest cost section passed to `ExportAsync`, but no deterministic-culture contract or failing export repro was established.
+- [x] (valid-no-repro) `InventoryDiagramExternalTargetApplier.ApplyConnectedPeerings` — a connected ARM VNet peering whose target has an AST stub but no captured graph node might relabel the stub without adding the peering edge — **cheap-disproof 2026-10-08 seed hunt:** the focused Network-mode repro passed because the compiler's existing VNet peering relationship applier emits the edge; no defect was reproduced.
+- [ ] (candidate) `InventoryDiagramExternalTargetApplier.Apply` — duplicate `GraphNode.NodeId` values are grouped with `First()`, so ARM identity and diagram mapping may use an arbitrary duplicate node and attach external-target evidence to the wrong card; reachable only if a persisted graph snapshot admits duplicate node IDs, which was not demonstrated by the current source/tests.
+
 - [x] (proven) `InventoryDiagramDataFlowTraversalHopProjector.TryFindPartialPath` — a direct source-to-target data-flow edge won over a longer cited traversal path ending at an intermediate hop, so a missing terminal hop was bridged in the diagram — **hit 2026-10-01 seed hunt:** partial traversal paths now win whenever they contain a hop, preserving the unresolved-gap marker and removing the unsupported direct edge; regression `Compile_data_flow_missing_intermediate_hop_does_not_bridge_gap`.
 
 - [x] (invalid) Generated document embeds unsanitized user HTML/script — `LlmArtifactFreeTextSanitizer` and `WordDocumentBuilder` emit plain OpenXML text nodes (control/bidi strip only); DOCX does not execute embedded markup as script
@@ -29064,12 +29068,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
 2026-09-04 thorough hunt #732 (hit): proved DOCX assumptions/constraints parity and posture-string sanitization; cheap-disproved mermaid typed-topology candidate.
-
-### Fresh candidates — 2026-10-08 seed hunt
-
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` / `DocxExportService.FormatCost` — a non-US process culture may serialize `manifest.Cost.MaxMonthlyCost` with locale-specific decimal separators in the exported DOCX; reachable from the committed manifest cost section passed to `ExportAsync`, but no deterministic-culture contract or failing export repro was established in this seed hunt.
-- [ ] (candidate) `InventoryDiagramExternalTargetApplier.ApplyConnectedPeerings` — a connected ARM VNet peering whose target has an AST node but no captured graph node can relabel that node as external and `continue` before adding the peering edge; reachable from `remoteVirtualNetwork.id` in Azure inventory peering JSON, but the required AST/graph mismatch was not produced by the current compiler path.
-- [ ] (candidate) `InventoryDiagramExternalTargetApplier.Apply` — duplicate `GraphNode.NodeId` values are grouped with `First()`, so ARM identity and diagram mapping may use an arbitrary duplicate node and attach external-target evidence to the wrong card; reachable only if a persisted graph snapshot admits duplicate node IDs, which was not demonstrated by the current source/tests.
 
 2026-09-02 thorough hunt #536: proved architecture narrative decisions parity gap vs reference-architecture markdown and DOCX export.
 
