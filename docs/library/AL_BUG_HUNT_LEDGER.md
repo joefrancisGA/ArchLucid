@@ -11834,13 +11834,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 22
-- **bugs-found:** 21
+- **hunts:** 23
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — manual SCIM role override left the SAML SOAP 2005 role claim in place
+- **last-bug:** 2026-10-08 — SAML startup fetched IdP metadata from a non-HTTPS URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-08 seed hunt (seed→hit): proved SAML startup registered an HTTP or relative `IdPMetadata` URL and would fetch signing certificates from it, while diagnostics and operational health already require an absolute HTTPS URL; fixed by rejecting that URL before the metadata client is registered; regressions `AddArchLucidSaml2IfEnabled_rejects_http_idp_metadata_url` and `AddArchLucidSaml2IfEnabled_rejects_idp_metadata_that_is_not_an_absolute_url`; 3 ArchLucidSaml2ServiceExtensionsTests passed.
 
 2026-10-08 seed hunt (seed→hit): proved a manual SCIM role override stripped `roles` and the 2008 role URI but left `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role`, which `ArchLucidRoleClaimsTransformation` still maps to permissions; fixed by stripping that SAML role URI with the other inbound role claims; regression `ApplyEntraJwtAndDirectoryOverridesAsync_manual_scim_role_replaces_saml_soap_role_claim`; 6 RoleSyncServiceTests passed.
 
@@ -11915,6 +11917,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RoleSyncService.TryDirectoryObjectKey` — duplicate long-form `objectidentifier` URI claims with conflicting values when short `oid` is absent — **hit 2026-10-06 thorough hunt:** `FindFirst` returned attacker-controlled first value; require exactly one distinct non-empty long-form claim; regression `TryDirectoryObjectKey_returns_null_when_multiple_objectidentifier_claims_disagree_and_oid_absent`
 - [x] (proven) `ArchLucidSaml2ServiceExtensions.ResolvePrimaryApiAuthenticationScheme` — inline PEM JWT hosts lost JwtBearer when SAML coexistence ran — **hit 2026-10-08 seed hunt:** `NormalizeModeForJwtLocalSigning` rewrites `Mode` only for a PEM path, while `AddArchLucidAuth` also nominates JwtBearer for inline `JwtSigningPublicKeyPem`; coexistence then restored `DevelopmentBypass` or `ApiKey`, so a development host authenticated as the dev admin and an API-key mode host stopped validating the local JWT; fixed with `JwtPemKeyMaterial.HasAnyPemSource`; regressions `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_is_set` and `ResolvePrimaryApiAuthenticationScheme_keeps_jwt_bearer_when_inline_pem_overrides_api_key_mode`.
 - [x] (proven) `RoleSyncService.IsInboundRoleClaim` — manual SCIM role override left the SAML SOAP 2005 role claim — **hit 2026-10-08 seed hunt:** `ArchLucidRoleClaimsTransformation.BuildRoleSet` reads `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role`, but the override strip list only removed `roles`, `ClaimTypes.Role`, and the 2008 role URI; an IdP Admin value on the SOAP URI still mapped to admin permissions after a directory Reader override; fixed by stripping the SOAP 2005 URI; regression `ApplyEntraJwtAndDirectoryOverridesAsync_manual_scim_role_replaces_saml_soap_role_claim`.
+- [x] (proven) `ArchLucidSaml2ServiceExtensions.AddArchLucidSaml2IfEnabled` — startup fetched IdP metadata that was not an absolute HTTPS URL — **hit 2026-10-08 seed hunt:** `SamlSpConfigurationDiagnostics` and `SamlOperationalDiagnosticsService` already reject cleartext or relative `IdPMetadata`, but registration still bound that URL and loaded signing certificates from the response; fixed with `EnsureIdpMetadataIsAbsoluteHttps`; regressions `AddArchLucidSaml2IfEnabled_rejects_http_idp_metadata_url` and `AddArchLucidSaml2IfEnabled_rejects_idp_metadata_that_is_not_an_absolute_url`.
 
 2026-10-06 seed hunt (seed→hit): promoted duplicate direct SAML `oid` claims; proved and fixed; reseeded three follow-on candidates; 73 scoped SAML/JWT/SCIM bearer tests passed (3 integration tests unavailable).
 - [x] (valid-no-repro) `LocalTrialJwtIssuer.IssueAccessToken` — `auth_time` string claim type vs `iat` `Integer64` on trial JWTs — **cheap-disproof 2026-10-06 thorough hunt:** `RecentAuthenticationEvaluator` parses epoch seconds from JWT round-tripped `auth_time`/`iat` pair; regression `HasRecentAuthentication_returns_true_for_trial_jwt_auth_time_shape_after_jwt_serialization_round_trip`

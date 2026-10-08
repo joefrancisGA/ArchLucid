@@ -47,6 +47,8 @@ public static class ArchLucidSaml2ServiceExtensions
             throw new InvalidOperationException(
                 "ArchLucidAuth:Saml2:Enabled is true but IdPMetadata URL is empty.");
 
+        EnsureIdpMetadataIsAbsoluteHttps(samlOptions.IdPMetadata);
+
         services.AddHttpClient(
             Options.DefaultName,
             static client =>
@@ -89,6 +91,22 @@ public static class ArchLucidSaml2ServiceExtensions
             new ArchLucidSaml2AuthenticationCoexistenceConfigurer(primaryApiScheme));
 
         return services;
+    }
+
+    /// <summary>
+    ///     Diagnostics and operational health already refuse cleartext IdP metadata. Startup was still
+    ///     fetching that document and trusting the signing certificates in the response.
+    /// </summary>
+    private static void EnsureIdpMetadataIsAbsoluteHttps(string idpMetadata)
+    {
+        string trimmed = idpMetadata.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? metadataUri)
+            || metadataUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new InvalidOperationException(
+                "ArchLucidAuth:Saml2:IdPMetadata must be an absolute HTTPS URL.");
+        }
     }
 
     /// <summary>Matches <see cref="AuthServiceCollectionExtensions.AddArchLucidAuth" /> default schemes for the active mode.</summary>
