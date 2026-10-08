@@ -54,13 +54,17 @@ export function deriveReviewNextActionLabel(input: {
     const isUnresolved = status?.label !== "Approved" && status?.label !== "Overridden";
 
     if (isUnresolved) {
+      if (primary.severityValue === null) {
+        return "Confirm evidence and remediation ownership for the open finding. Severity was not stored.";
+      }
+
       const severity = severityBadgeLabel(primary.severityValue).toLowerCase();
 
       return `Confirm evidence and remediation ownership for the open ${severity}-severity finding`;
     }
   }
 
-  if (primary !== null && (primary.evidenceRefCount ?? 0) === 0) {
+  if (primary !== null && primary.evidenceRefCount === 0) {
     return `Confirm evidence and remediation ownership for ${primary.title}`;
   }
 

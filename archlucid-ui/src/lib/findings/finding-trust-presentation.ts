@@ -4,8 +4,8 @@ import {
   mapFindingTrustLabelToProvenance,
   type DeriveFindingTrustLabelInput,
   type FindingProvenanceGrounding,
-  type FindingProvenanceOrigin,
-  type FindingTrustLabelName,
+  type FindingProvenanceOriginDisplay,
+  type FindingTrustPresentationLabel,
 } from "@/lib/findings/finding-provenance-display";
 
 export type FindingTrustChipKind =
@@ -16,7 +16,8 @@ export type FindingTrustChipKind =
   | "heuristic"
   | "deterministic-rule"
   | "deterministic-fallback"
-  | "degraded";
+  | "degraded"
+  | "trust-label-not-stored";
 
 /** Shared input for inspect, compare-delta chips, and export footers (TB-2135). */
 export type FindingTrustPresentationInput = DeriveFindingTrustLabelInput & {
@@ -37,14 +38,14 @@ export type FindingTrustChipSet = {
   /** Grounding axis — secondary text / tooltip detail. */
   readonly groundingLabel: string;
   readonly title: string;
-  readonly origin: FindingProvenanceOrigin;
+  readonly origin: FindingProvenanceOriginDisplay;
   readonly grounding: FindingProvenanceGrounding;
-  readonly trustSource: "wire" | "inferred";
-  readonly canonicalTrustLabel: FindingTrustLabelName;
+  readonly trustSource: "wire" | "inferred" | "not-stored";
+  readonly canonicalTrustLabel: FindingTrustPresentationLabel;
 };
 
 export type FindingTrustExportPresentation = {
-  readonly canonicalTrustLabel: FindingTrustLabelName;
+  readonly canonicalTrustLabel: FindingTrustPresentationLabel;
   readonly exportLine: string | null;
   readonly jsonFields: { trustLabel: string; trustLabelReason?: string } | Record<string, never>;
 };
@@ -56,7 +57,7 @@ export type FindingTrustPresentation = {
 };
 
 function kindFromProvenance(
-  origin: FindingProvenanceOrigin,
+  origin: FindingProvenanceOriginDisplay,
   grounding: FindingProvenanceGrounding,
 ): FindingTrustChipKind {
   if (origin === "Deterministic rule") {
@@ -69,6 +70,10 @@ function kindFromProvenance(
 
   if (origin === "Simulated") {
     return "simulator-derived";
+  }
+
+  if (origin === "Trust label was not stored") {
+    return "trust-label-not-stored";
   }
 
   switch (grounding) {
@@ -108,7 +113,7 @@ function refineUngroundedKind(
 
 function buildInspectRow(
   input: FindingTrustPresentationInput,
-  provenance: { readonly origin: FindingProvenanceOrigin; readonly grounding: FindingProvenanceGrounding },
+  provenance: { readonly origin: FindingProvenanceOriginDisplay; readonly grounding: FindingProvenanceGrounding },
 ): FindingModelProvenanceRow {
   const trustLabelReason =
     typeof input.trustLabelReason === "string" && input.trustLabelReason.trim().length > 0
@@ -125,15 +130,19 @@ function buildInspectRow(
 
 function buildExportPresentation(
   input: FindingTrustPresentationInput,
-  canonicalTrustLabel: FindingTrustLabelName,
+  canonicalTrustLabel: FindingTrustPresentationLabel,
 ): FindingTrustExportPresentation {
   const reason = input.trustLabelReason?.trim();
   const hasReason = reason !== undefined && reason.length > 0;
-  const exportLine = hasReason
-    ? `${canonicalTrustLabel} — ${reason}`
-    : canonicalTrustLabel;
+  const exportLine = canonicalTrustLabel === "NotStored"
+    ? "Trust label was not stored."
+    : hasReason
+      ? `${canonicalTrustLabel} — ${reason}`
+      : canonicalTrustLabel;
 
-  const jsonFields = hasReason
+  const jsonFields: FindingTrustExportPresentation["jsonFields"] = canonicalTrustLabel === "NotStored"
+    ? { trustLabel: "Trust label was not stored." }
+    : hasReason
     ? { trustLabel: canonicalTrustLabel, trustLabelReason: reason }
     : { trustLabel: canonicalTrustLabel };
 
@@ -149,7 +158,9 @@ export function deriveFindingTrustPresentation(
   input: FindingTrustPresentationInput,
 ): FindingTrustPresentation {
   const derived = deriveFindingTrustLabel(input);
-  const provenance = mapFindingTrustLabelToProvenance(derived.label);
+  const provenance = derived.label === "NotStored"
+    ? { origin: "Trust label was not stored" as const, grounding: "Not applicable" as const }
+    : mapFindingTrustLabelToProvenance(derived.label);
 
   let kind = kindFromProvenance(provenance.origin, provenance.grounding);
 

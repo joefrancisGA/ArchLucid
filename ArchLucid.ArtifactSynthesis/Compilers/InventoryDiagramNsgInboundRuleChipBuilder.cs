@@ -13,7 +13,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
         List<AzureInventoryNsgSecurityRule> inboundAllows = rules
-            .Where(IsAllowInboundRule)
+            .Where(IsInboundRuleWithStoredAccessOrDirection)
             .Where(rule => int.TryParse(rule.Priority, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
             .OrderBy(rule => int.Parse(rule.Priority!, CultureInfo.InvariantCulture))
             .ThenBy(rule => rule.RuleName ?? string.Empty, StringComparer.Ordinal)
@@ -41,10 +41,15 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         return chips;
     }
 
-    private static bool IsAllowInboundRule(AzureInventoryNsgSecurityRule rule)
+    private static bool IsInboundRuleWithStoredAccessOrDirection(AzureInventoryNsgSecurityRule rule)
     {
-        return string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-            && string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
+        bool inbound = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
+        bool allow = string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase);
+        bool accessMissing = string.IsNullOrWhiteSpace(rule.Access);
+        bool directionMissing = string.IsNullOrWhiteSpace(rule.Direction);
+
+        return (inbound && (allow || accessMissing))
+            || (allow && directionMissing);
     }
 
     private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
@@ -52,7 +57,16 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         string port = FormatPort(rule.DestinationPortRange);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
-        string text = $"in {port}/{protocol} · {source}";
+        string missingLabel = string.Join(
+            " · ",
+            new[]
+            {
+                string.IsNullOrWhiteSpace(rule.Access) ? "Access was not stored" : null,
+                string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null,
+            }.Where(static label => label is not null));
+        string text = string.IsNullOrWhiteSpace(missingLabel)
+            ? $"in {port}/{protocol} · {source}"
+            : $"{missingLabel} · in {port}/{protocol} · {source}";
         bool risky = string.Equals(source, "Internet", StringComparison.Ordinal)
             && (port.Equals("3389", StringComparison.Ordinal)
                 || port.Equals("22", StringComparison.Ordinal)
