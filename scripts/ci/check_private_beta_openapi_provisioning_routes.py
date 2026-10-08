@@ -18,6 +18,11 @@ REQUIRED_ROUTES: dict[str, tuple[str, ...]] = {
     "/scim/v2/Users": ("get", "post"),
     "/scim/v2/Users/{id}": ("delete", "get", "patch", "put"),
 }
+REQUIRED_OPERATION_CONTRACTS: dict[tuple[str, str], dict[str, object]] = {
+    (route, method): {"audience": "operator", "responses": ("401", "403")}
+    for route, methods in REQUIRED_ROUTES.items()
+    for method in methods
+}
 GENERATED_PATH_FILES = (
     "archlucid-ui/src/lib/api-types/paths.generated.ts",
     "archlucid-ui/packages/api-types/src/api-types/paths.generated.ts",
@@ -52,6 +57,31 @@ def collect_violations(payload: dict[str, Any]) -> list[str]:
 
         if missing_methods:
             violations.append(f"{route} is missing methods: {', '.join(missing_methods)}")
+
+    for (route, method), contract in REQUIRED_OPERATION_CONTRACTS.items():
+        operation = paths.get(route, {}).get(method)
+
+        if not isinstance(operation, dict):
+            continue
+
+        audience = contract["audience"]
+        if operation.get("x-archlucid-audience") != audience:
+            violations.append(
+                f"{route} {method} must declare x-archlucid-audience={audience}"
+            )
+
+        responses = operation.get("responses")
+        if not isinstance(responses, dict):
+            violations.append(f"{route} {method} must declare responses")
+            continue
+
+        missing_responses = [
+            status for status in contract["responses"] if status not in responses
+        ]
+        if missing_responses:
+            violations.append(
+                f"{route} {method} is missing auth responses: {', '.join(missing_responses)}"
+            )
 
     return violations
 

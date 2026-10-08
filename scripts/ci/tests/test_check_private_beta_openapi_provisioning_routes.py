@@ -19,7 +19,13 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
     def test_snapshot_passes(self) -> None:
         payload = {
             "paths": {
-                route: {method: {} for method in methods}
+                route: {
+                    method: {
+                        "responses": {"401": {}, "403": {}},
+                        "x-archlucid-audience": "operator",
+                    }
+                    for method in methods
+                }
                 for route, methods in sut.REQUIRED_ROUTES.items()
             }
         }
@@ -33,6 +39,42 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
 
         self.assertTrue(any("missing provisioning route" in violation for violation in violations))
         self.assertTrue(any("/scim/v2/Users is missing methods" in violation for violation in violations))
+
+    def test_missing_auth_contract_is_reported(self) -> None:
+        payload = {
+            "paths": {
+                route: {
+                    method: {
+                        "responses": {"200": {}},
+                        "x-archlucid-audience": "operator",
+                    }
+                    for method in methods
+                }
+                for route, methods in sut.REQUIRED_ROUTES.items()
+            }
+        }
+
+        violations = sut.collect_violations(payload)
+
+        self.assertTrue(any("missing auth responses" in violation for violation in violations))
+
+    def test_non_operator_audience_is_reported(self) -> None:
+        payload = {
+            "paths": {
+                route: {
+                    method: {
+                        "responses": {"401": {}, "403": {}},
+                        "x-archlucid-audience": "reader",
+                    }
+                    for method in methods
+                }
+                for route, methods in sut.REQUIRED_ROUTES.items()
+            }
+        }
+
+        violations = sut.collect_violations(payload)
+
+        self.assertTrue(any("x-archlucid-audience=operator" in violation for violation in violations))
 
     def test_generated_client_route_drift_is_reported(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
