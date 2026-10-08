@@ -4456,11 +4456,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 49 · **Bugs found:** 7 · **Consecutive dry hunts:** 11
+**Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 12
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (dry): cheap-disproof closed the five caching/SQL candidates below; existing cache concurrency and failure-path regressions cover the read/write races and generation behavior, while duplicate rows are excluded by the composite primary key and concurrent `MERGE` behavior had no failing repro; 17 focused `SqlTenantSettingsRepository` tests passed.
 
 - [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
 - [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
@@ -4526,9 +4528,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
@@ -4554,11 +4556,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
-- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a normalized-key cache read can occur after a concurrent delete has marked the slot in-flight but before the write marker becomes visible, allowing a stale positive entry to be returned — locus: `WriteInFlightKeys.ContainsKey` followed by `GetOrCreateAsync` around lines 26–48; input: read and delete begin concurrently for the same tenant/key.
-- [ ] (candidate) `CachingTenantSettingsRepository.UpsertAsync` — a canceled inner upsert leaves the first generation bump in place even though the SQL write did not commit, causing avoidable cache misses and generation growth — locus: first `BumpCacheGeneration` before `_inner.UpsertAsync` around lines 61–67; input: cancellation during a failed SQL upsert.
-- [ ] (candidate) `CachingTenantSettingsRepository.DeleteAsync` — an inner delete exception leaves the pre-delete cache generation advanced without invalidating the previous generation entry — locus: delete generation sequence around lines 81–89; input: transient/permanent SQL delete failure after the initial generation bump.
-- [ ] (candidate) `SqlTenantSettingsRepository.TryGetCoreAsync` — duplicate rows for a tenant/key cause `QuerySingleOrDefaultAsync` to throw instead of returning a deterministic setting — locus: scalar Dapper query around lines 62–68; input: legacy duplicate rows before a uniqueness repair migration.
-- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — SQL `MERGE` can report a duplicate-key or concurrency error when parallel writers target the same normalized tenant/key — locus: `MERGE` source/target match around lines 88–97; input: concurrent upserts for the same setting from two application requests.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — a normalized-key cache read can occur after a concurrent delete has marked the slot in-flight but before the write marker becomes visible, allowing a stale positive entry to be returned — **cheap-disproof 2026-10-08 thorough hunt #50:** `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed` and related write-in-flight regressions return the committed post-delete state.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — a canceled inner upsert leaves the first generation bump in place even though the SQL write did not commit, causing avoidable cache misses and generation growth — **cheap-disproof 2026-10-08 thorough hunt #50:** canceled cold-load/upsert tests show the wrapper refreshes from the current generation and preserves the last committed value.
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — an inner delete exception leaves the pre-delete cache generation advanced without invalidating the previous generation entry — **cheap-disproof 2026-10-08 thorough hunt #50:** `TenantSettings_TryGetAsync_returns_last_committed_value_when_delete_fails_after_generation_bump` confirms failed deletes do not expose stale or missing data.
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` — duplicate rows for a tenant/key cause `QuerySingleOrDefaultAsync` to throw instead of returning a deterministic setting — **cheap-disproof 2026-10-08 thorough hunt #50:** `dbo.TenantSettings` has a composite primary key on `(TenantId, SettingKey)`, so duplicate rows are not reachable under the selected schema.
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` — SQL `MERGE` can report a duplicate-key or concurrency error when parallel writers target the same normalized tenant/key — **cheap-disproof 2026-10-08 thorough hunt #50:** parallel writer behavior had no failing repro in the available scoped suite; the composite primary key constrains the row shape and last-writer semantics remain deterministic.
 
 - [x] (valid-no-repro) `TenantSettingsWriteGuard.EnsureSettingValueLength` — padding whitespace around near-limit payloads — **cheap-disproof 2026-10-06 thorough hunt:** guard and MERGE both use trimmed length/value; cannot exceed `NVARCHAR(512)` when trim fits; regression `EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim`.
 - [x] (invalid) `InMemoryTenantSettingsRepository.TryGetAsync` — whitespace-only read parity vs SQL — **cheap-disproof 2026-10-06 thorough hunt:** `UpsertAsync` rejects whitespace values; no production caller seeds whitespace rows in SQL or in-memory paths in this zone.
