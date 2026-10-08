@@ -102,9 +102,9 @@ Here's the Contoso chain again, this time viewed as a combination:
 | A | GitHub Actions on `main` can sign in as `payments-deploy` | Good practice (no stored secret) | Entry point: anyone who can merge to `main` |
 | B | `payments-deploy` holds Contributor on `rg-payments-prod` | Broad, but common for deployment identities | Turns the entry point into control of every resource in the group |
 | C | `custdata` allows shared key access | Legacy setting, widely tolerated | Lets Contributor become *data* access by listing keys |
-| D | No blob read logging on `custdata` | Missing telemetry | Use of the path would leave no record |
+| D | No blob read logging on `custdata` | Missing telemetry | Blob reads through the path would not be captured by storage diagnostic logs |
 
-Remove any one of A, B, or C and the path breaks. D doesn't create the path, but it means you'd never know whether it had been used. Chapter 2 returns to why that matters for what you're allowed to claim.
+Remove any one of A, B, or C and the path breaks. D doesn't create the path, but without blob-read diagnostics the storage logs can't tell you whether it had been used. Chapter 2 returns to why that matters for what you're allowed to claim.
 
 Notice two things about this table.
 
