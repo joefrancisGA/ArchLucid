@@ -23631,10 +23631,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 26
+- **hunts:** 28
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -23646,6 +23646,11 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - [ ] (candidate) `AuthorityPipelineOptions.PipelineTimeout` — accepts a negative timeout — locus: option property in `AuthorityPipelineOptions.cs`; input: `AuthorityPipeline:PipelineTimeout` below zero; wrong outcome: pipeline execution can fail during cancellation-token timeout setup; reachability: the option is bound from application configuration and consumed by authority orchestration.
 - [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryParseStatus` — casts a finite whole-number double outside `Int32` range after the integer parse fails — locus: `TryParseWholeNumberString` fallback in `ArchitectureRunStatusTransitionTable.cs`; input: an oversized numeric legacy-status string; wrong outcome: an out-of-range value could alias to an enum status; reachability: in-memory legacy status strings reach this parser from run headers.
 - [ ] (candidate) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — schema-version parsing accepts a floating whole number but does not visibly bound precision — locus: `TryReadSupportedSchemaVersion` and `StrictSchemaVersionReader` call; input: a very large fractional JSON schema version that rounds to a supported integer; wrong outcome: malformed failure payload may be treated as a supported dead-letter record; reachability: `LastFailureReason` is persisted JSON read from run records.
+
+2026-10-08 seed hunt (seed-only): re-read the public transition-table surface and ready-for-commit typestate boundary; no hunt-ready row promoted; the existing configuration candidates remain outside the selected source paths.
+
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.TryIssueReadyForCommitRun` — a `Guid.Empty` run id reaches the `ReadyForCommitRun` constructor and throws from a `Try*` method — locus: `TryIssueReadyForCommitRun` in `ArchitectureRunStatusTransitionTable.cs`; input: `ReadyForCommit` plus an empty run id; wrong outcome: malformed commit input raises instead of returning `false`; reachability: the application commit orchestrator passes a parsed run id into this public transition helper.
+- [ ] (candidate) `ArchitectureRunStatusTransitionTable.DocumentedRules` — exposes the mutable backing array through an `IReadOnlyList` return type — locus: `DocumentedRules` in `ArchitectureRunStatusTransitionTable.cs`; input: a caller casts the returned collection to the runtime array and changes a rule; wrong outcome: process-wide transition documentation and behavior can diverge after mutation; reachability: the property is public and consumed by architecture/test callers.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `ArchitectureRunStatusTransitionTableCoercionTests`, `AuthorityRunLifecyclePhaseListResolverTests`, and `RunAuthorityPipelineDeadLetterDetectionTests`; 92 scoped Core tests passed (`RunAuthority` + `AuthorityRunLifecycle` + Authority concurrency/async, `RunAnalyzers=false`).
 
