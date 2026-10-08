@@ -116,6 +116,25 @@ describe("useNewRunWizardSteps", () => {
     expect(result.current.stepIndex).toBe(0);
   });
 
+  it("shows quick track chrome when quick mode already has a run id even on a non-track step deep link", () => {
+    wizardSearchParamsHarness.state.query = "step=0";
+
+    const { result } = renderHook(
+      () =>
+        useNewRunWizardSteps({
+          ...baseOptions,
+          wizardMode: "quick",
+          runId: "run-quick",
+          showQuickTrack: true,
+        }),
+      { wrapper: WizardSearchParamsRerenderHost },
+    );
+
+    expect(result.current.stepIndex).toBe(0);
+    expect(result.current.showQuickStartWizard).toBe(false);
+    expect(result.current.showSimplifiedPilotWizard).toBe(false);
+  });
+
   it("canonicalizes an out-of-range deep-linked step in the URL", async () => {
     wizardSearchParamsHarness.state.query = "step=999";
     const { result } = renderHook(() => useNewRunWizardSteps(baseOptions), {

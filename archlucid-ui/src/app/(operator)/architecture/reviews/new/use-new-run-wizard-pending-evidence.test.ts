@@ -172,4 +172,26 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     expect(uploadWizardPendingInventoryEvidence).not.toHaveBeenCalled();
     expect(result.current.evidenceUploadState).toBe("success");
   });
+
+  it("retains pending inventory selection in hook state for post-submit upload retries", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+
+    const file = buildAwsInventoryZipFile();
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: null,
+        autoUploadOnCreate: false,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(file);
+    });
+
+    await waitFor(() => {
+      expect(result.current.pendingEvidenceFile).toBe(file);
+    });
+  });
 });

@@ -32556,6 +32556,20 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `retains pending inventory selection in hook state for post-submit upload retries`, `applies policy pack deeplink prefill only once when packId changes without remounting`, `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`, `shows quick track chrome when quick mode already has a run id even on a non-track step deep link`, and `flags cloud-specific policy packs when cloud target is still None`; reaffirmed `awaits pending evidence upload after clearing wizard session storage`; scoped reviews/new vitest 136 passed with 71 pre-existing baseline failures.
+
+- [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — pending files survive `clearWizardSession` — **cheap-disproof 2026-10-08 seed hunt #42:** upload reads hook state; regression `retains pending inventory selection in hook state for post-submit upload retries` (parity `awaits pending evidence upload after clearing wizard session storage`).
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` / `policyPackPrefillAppliedRef` — **cheap-disproof 2026-10-08 seed hunt #42:** one-shot deeplink guard is intentional; regression `applies policy pack deeplink prefill only once when packId changes without remounting`.
+- [x] (valid-no-repro) `useGuidedIntakeWizard` / deep-linked `intakeStep=2` — **cheap-disproof 2026-10-08 seed hunt #42:** clarifications gate rewinds confirm bookmarks; regression `rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing`.
+- [x] (valid-no-repro) `useNewRunWizardSteps` / quick `runId` + `step` deep link — **cheap-disproof 2026-10-08 seed hunt #42:** `showQuickTrack` intentionally hides quick-start chrome; regression `shows quick track chrome when quick mode already has a run id even on a non-track step deep link`.
+- [x] (valid-no-repro) `deriveWizardPolicyPackCloudMismatch` — deeplink pack before `cloud=` hydration — **cheap-disproof 2026-10-08 seed hunt #42:** cloud-neutral target surfaces mismatch copy immediately; regression `flags cloud-specific policy packs when cloud target is still None`.
+
+- [ ] (candidate) `useNewRunWizardQueryPrefill` / `reviewIntakeCloudProvider` — specialty `cloud=` query may apply after policy pack prefill in the same mount tick; locus: separate effects in `use-new-run-wizard-query-prefill.ts`; input: `packId` + `cloud=Aws` on first paint with default form cloud still `None`.
+- [ ] (candidate) `useGuidedIntakeWizard` / session restore — `handleSessionRestore` may rewind `intakeStep=2` bookmarks to clarifications when restored `draftId` is present; locus: `handleSessionRestore` ~218–225; input: restored snapshot at step 2 with non-null `draftId`.
+- [ ] (candidate) `useNewRunWizardTrackStream` — quick mode with `runId` may keep summary polling enabled on every step unlike full wizard track gating; locus: `use-new-run-wizard-track-stream.ts`; input: quick mode + `runId` + `step=0` deep link after spawn.
+- [ ] (candidate) `NewRunWizardTemplateRestore` — template session restore vs governance `packId` prefill ordering when both session snapshot and `packId` query are present; locus: `NewRunWizardTemplateRestore.ts` + query prefill hook; input: resumed template with `policyReferences` plus `packId` deeplink.
+- [ ] (candidate) `useFirstPilotIntakeSubmit` — post-create evidence upload failure may leave wizard session cleared while quick path still shows track chrome; locus: `use-first-pilot-intake-submit.ts`; input: failed `uploadPendingEvidence` after `clearWizardSession`.
+
 2026-10-07 thorough hunt (dry): cheap-disproof closed five follow-on `(candidate)` rows and reconciled five stale duplicate open rows at zone tail; seeded five new `(candidate)` rows; scoped reviews/new vitest 132 passed with 71 pre-existing baseline failures.
 
 2026-10-07 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in wizard hook tests; scoped reviews/new vitest 126 passed with 71 pre-existing baseline failures.
@@ -32572,12 +32586,6 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (valid-no-repro) `useFirstPilotIntakeSubmit` — **cheap-disproof 2026-10-07 thorough hunt #41:** quick-start path clears session only after post-create upload attempt (unlike full wizard ordering); regression `clears wizard session after post-create evidence upload attempt finishes`.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / policy deeplink — **cheap-disproof 2026-10-07 thorough hunt #41:** template session restore uses `WIZARD_SESSION_IDS.reviewsNewTemplates` while governance `packId` prefill is immediate `setValue`; no shared run-once ref; resume prompt gated by `useReviewsNewSuppressWizardResumePrompt` separately from policy prefill.
 
-- [ ] (candidate) `useNewRunWizardPendingEvidence` — pending file handles survive `clearWizardSession` on full wizard submit because uploads read hook state, not session storage; reachable when operators retry evidence upload after a failed post-create upload on the track step.
-- [ ] (candidate) `useNewRunWizardQueryPrefill` — `policyPackPrefillAppliedRef` blocks a later corrected `packId` query change in the same mounted wizard; reachable when governance links are edited client-side without remounting `NewRunWizardClient`.
-- [ ] (candidate) `useGuidedIntakeWizard` — deep-linked `intakeStep=2` on guided-intake mount still clamps confirm UI but leaves URL non-canonical until operator navigates steps; reachable from bookmarked confirm URLs (distinct from LLM inference disable on step 2).
-- [ ] (candidate) `useNewRunWizardSteps` — `wizardMode=quick` with active `runId` and `step` deep link may show track UI on a non-track step index until mode switch; reachable when quick-start spawn coincides with a bookmarked `step=` param.
-- [ ] (candidate) `deriveWizardPolicyPackCloudMismatch` — deeplink `packId` prefill can set `policyReferences` before cloud provider fields hydrate, briefly surfacing mismatch copy on submit; reachable when specialty `cloud=` query arrives one render after `packId` prefill.
-
 2026-10-07 seed hunt (seed-only): re-read reviews/new submit, prefill, track, and guided-intake inference hooks; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused vitest tests passed.
 
 - **id:** ui-review-intake-wizards
@@ -32586,10 +32594,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 6
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-04 — out-of-range wizard step remained in the deep-link URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes

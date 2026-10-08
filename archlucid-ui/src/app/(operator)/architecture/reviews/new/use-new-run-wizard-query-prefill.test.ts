@@ -165,6 +165,43 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
   });
 
+  it("applies policy pack deeplink prefill only once when packId changes without remounting", async () => {
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ packId }: { packId: string }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            deeplinkPolicyPackId: packId,
+          },
+          stepIndex: 0,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { packId: "pack-a" } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["pack-a"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ packId: "pack-b" });
+
+    await waitFor(() => {
+      expect(setValue).not.toHaveBeenCalled();
+    });
+  });
+
   it("applies accelerator prefill and skips preset when both query params are present", async () => {
     const reset = vi.fn<UseFormReset<WizardFormValues>>();
 
