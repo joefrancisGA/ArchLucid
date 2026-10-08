@@ -100,6 +100,64 @@ public sealed class EmailOtpAuthControllerVerifyTests
     }
 
     [Fact]
+    public async Task VerifyAsync_returns_bad_request_when_challenge_id_is_empty()
+    {
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true }),
+            emailOtpAuth.Object,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = Guid.Empty,
+                Code = "123456"
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = actionResult.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        emailOtpAuth.Verify(
+            service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_returns_not_found_when_otp_auth_is_disabled()
+    {
+        Mock<IEmailOtpAuthService> emailOtpAuth = new();
+
+        EmailOtpAuthController controller = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = false }),
+            emailOtpAuth.Object,
+            Mock.Of<ILocalTrialJwtIssuer>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult actionResult = await controller.VerifyAsync(
+            new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+            {
+                ChallengeId = Guid.NewGuid(),
+                Code = "123456"
+            },
+            CancellationToken.None);
+
+        ObjectResult notFound = actionResult.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+
+        emailOtpAuth.Verify(
+            service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task VerifyAsync_returns_bad_request_when_code_is_whitespace_only()
     {
         Mock<IEmailOtpAuthService> emailOtpAuth = new();

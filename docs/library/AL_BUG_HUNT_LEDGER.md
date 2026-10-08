@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `email-otp-auth` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify` and `VerifyCodeAsync_rejects_expired_code`; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` and 9 Api controller tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves`; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves`, `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, and `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`; 51 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
 
 2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `ExecuteAsync_does_not_retry_aggregate_with_deadlock_and_object_disposed_siblings`, `ExecuteAsync_does_not_retry_mixed_aggregate_behind_format_exception_wrapper`, `ExecuteAsync_generic_overload_does_not_retry_when_target_invocation_wraps_mixed_parallel_persist_aggregate`, `ExecuteAsync_does_not_retry_when_reflection_type_load_has_empty_loader_exceptions_and_sibling_deadlock_only`, and `ExecuteAsync_retries_when_aggregate_sole_inner_is_target_invocation_wrapping_all_transient_nested_aggregate`; 125 scoped transient-retry tests passed (98 Persistence + 27 Application, `RunAnalyzers=false`).
@@ -6007,7 +6009,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 35 · **Bugs found:** 11 · **Consecutive dry hunts:** 7
+**Hunts:** 36 · **Bugs found:** 11 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed resend cooldown and expired-verify service paths; 44 scoped Application tests + 9 Api controller tests passed.
+
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` `ChallengeId` returns HTTP 400 before calling service — **cheap-disproof 2026-10-08 seed hunt #36:** `body.ChallengeId == Guid.Empty` guard ~95; regression `VerifyAsync_returns_bad_request_when_challenge_id_is_empty` (service parity `VerifyCodeAsync_returns_failure_when_challenge_id_is_empty`).
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — null request body returns HTTP 400 — **cheap-disproof 2026-10-08 seed hunt #36:** `body?.Email is null` when `body` is null ~53–56; regression `RequestChallengeAsync_returns_bad_request_when_body_is_null`.
+- [x] (valid-no-repro) `EmailOtpAuthController` — `Enabled=false` returns HTTP 404 on challenge and verify before service delegation — **cheap-disproof 2026-10-08 seed hunt #36:** `IsEmailOtpEnabled` ~48–50 / ~90–92; regressions `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled` and `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`.
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — second request inside `ResendCooldownSeconds` returns neutral result without new `ChallengeId` — **cheap-disproof 2026-10-08 seed hunt #36:** cooldown gate preserves active challenge; regression `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`.
+- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` — expired challenge rejects verify without success path — **cheap-disproof 2026-10-08 seed hunt #36:** `TryCompleteAsync` expired outcome; regression `VerifyCodeAsync_rejects_expired_code`.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — null request body returns HTTP 400 before calling service — locus: `body is null` ~95 (`EmailOtpAuthController.cs`); input: verify POST with null body.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed service verify returns HTTP 401 without response body leak — locus: `!result.Succeeded` ~109–111; input: mock service failure in `EmailOtpAuthControllerVerifyTests`.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — empty string `Email` delegates to service (not API 400) — locus: only null-email guard ~53–56; input: challenge POST `{ "email": "" }`.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `ExpiresInSeconds` clamps sub-5-minute `AccessTokenLifetimeMinutes` via `Math.Clamp` — locus: ~128; input: options `AccessTokenLifetimeMinutes` below 5 on successful verify.
+- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — repeated incorrect codes invalidate challenge after max attempts — locus: verify attempt counter in `EmailOtpVerifyFlow`; input: `VerifyCodeAsync_rejects_incorrect_code_and_invalidates_after_max_attempts`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `EmailOtpAuthControllerVerifyTests` and `EmailOtpAuthControllerChallengeTests`; 44 scoped service/repository tests passed.
 
@@ -6016,12 +6032,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — missing bot challenge token returns neutral result without `ChallengeId` — **cheap-disproof 2026-10-08 seed hunt #35:** bot verifier fail-closed to neutral anti-enumeration response; regression `RequestCodeAsync_returns_neutral_result_when_bot_challenge_required_but_missing`.
 - [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.TryCompleteAsync` — parallel wrong codes increment `FailedAttemptCount` to attempt count — **cheap-disproof 2026-10-08 seed hunt #35:** concurrent invalid completes accumulate failures; regression `TryCompleteAsync_parallel_wrong_codes_increment_failed_attempt_count`.
 - [x] (valid-no-repro) `InMemoryEmailOtpChallengeRepository.ReplaceActiveChallengeForEmailAsync` — concurrent replace leaves a single active challenge per email — **cheap-disproof 2026-10-08 seed hunt #35:** replace-active serialization; regression `ReplaceActiveChallengeForEmailAsync_parallel_calls_leave_single_active_challenge`.
-
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` `ChallengeId` returns HTTP 400 before calling service — locus: `body.ChallengeId == Guid.Empty` ~95 (`EmailOtpAuthController.cs`); input: verify POST with empty challenge id.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — null request body returns HTTP 400 — locus: `body?.Email is null` when `body` is null ~53–56; input: challenge POST with null body.
-- [ ] (candidate) `EmailOtpAuthController` — `Enabled=false` returns HTTP 404 on challenge and verify before service delegation — locus: `IsEmailOtpEnabled` ~48–50 / ~90–92; input: disabled options on both endpoints.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — second request inside `ResendCooldownSeconds` returns neutral result without new `ChallengeId` — locus: cooldown gate ~154–157; input: paired `RequestCodeAsync` calls in `EmailOtpAuthServiceTests` cooldown family.
-- [ ] (candidate) `EmailOtpVerifyFlow.ExecuteAsync` — expired challenge rejects verify without success path — locus: `TryCompleteAsync` expired outcome; input: `VerifyCodeAsync_rejects_expired_code`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed service-layer fail-closed guards and repository concurrency; 44 scoped `EmailOtpAuthServiceTests` + `EmailOtpChallengeRepositoryConcurrencyTests` passed.
 
@@ -6037,9 +6047,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
