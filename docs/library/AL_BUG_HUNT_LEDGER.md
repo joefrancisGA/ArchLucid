@@ -8357,11 +8357,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: alert-simulation
 
-**Hunts:** 39 · **Bugs found:** 10 · **Consecutive dry hunts:** 11
+**Hunts:** 40 · **Bugs found:** 10 · **Consecutive dry hunts:** 12
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected alert controller and context provider; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (dry): cheap-disproof closed the five alert-simulation candidates; comparison ordering matches the `IComparisonService` base/target contract, self-comparison and stale timestamps lacked a reachable wrong outcome, nullable recommendations and malformed comparison metadata require injected invalid collaborators, and 40 focused provider tests passed.
 
 - [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run-summary item from the authority list can fail the entire recent-run simulation before empty-id filtering — locus: `runs.OrderByDescending(x => x.CreatedUtc)` ~75; input: authority adapter returns a null item in an otherwise valid list.
 - [ ] (candidate) `AlertSimulationContextProvider.GetContextsAsync` — a null run list from the authority query is enumerated without a defensive empty fallback — locus: `foreach` over `runs` ~75; input: unavailable project listing returns `null` instead of an empty collection.
@@ -8445,9 +8447,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — learning profile outside caller scope attached to simulation context
 - **related-pd-tb:** none
@@ -8457,11 +8459,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — locus: `comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest)` around lines 173–176; input: explicit simulation request with a baseline run and a newer primary run.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — locus: comparison guard around lines 142–177; input: API simulation payload names the same run as both primary and comparison.
-- [ ] (candidate) `FindingsSnapshotMatchesGoldenManifest` — a snapshot with matching IDs but stale `CreatedUtc` is accepted, allowing findings from a different capture generation to feed simulation — locus: helper around lines 218–222; input: historical run detail contains reused snapshot IDs with a newer/older timestamp.
-- [ ] (candidate) `FilterRecommendationsForSimulationScope` — a null recommendation element from the repository causes the entire context build to fail during scope filtering — locus: `record.TenantId` predicate around lines 238–246; input: repository returns a nullable/partially hydrated recommendation row in an otherwise valid run.
-- [ ] (candidate) `AlertSimulationContextProvider.BuildContextAsync` — a non-null comparison result can be attached even when its internal baseline/current run identifiers do not match the requested pair — locus: comparison result assignment around lines 174–176 and output around lines 198–203; input: comparison adapter returns a result with mismatched run identity metadata.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — comparison arguments may be passed in current-vs-baseline order opposite to the `IComparisonService` contract, reversing “added/removed” findings in A/B output — **cheap-disproof 2026-10-08 thorough hunt #40:** `IComparisonService.Compare` defines `(baseManifest, targetManifest)` and `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings` verifies `Compare(comparedManifest, primaryManifest)`.
+- [x] (valid-no-repro) `AlertSimulationContextProvider.BuildContextAsync` — an explicit comparison request with `comparedToRunId == runId` performs a self-comparison instead of rejecting or omitting the redundant baseline — **cheap-disproof 2026-10-08 thorough hunt #40:** the branch is reachable but no incorrect user-visible result was demonstrated; the request contract permits an optional baseline and the comparison service receives identical manifests.
+- [x] (valid-no-repro) `FindingsSnapshotMatchesGoldenManifest` — a snapshot with matching IDs but stale `CreatedUtc` is accepted, allowing findings from a different capture generation to feed simulation — **cheap-disproof 2026-10-08 thorough hunt #40:** snapshot identity is bound by run and snapshot IDs; no reachable path showed those IDs being reused with a different capture generation.
+- [x] (invalid) `FilterRecommendationsForSimulationScope` — a null recommendation element from the repository causes the entire context build to fail during scope filtering — **cheap-disproof 2026-10-08 thorough hunt #40:** the repository contract returns `IReadOnlyList<RecommendationRecord>`, and a null element requires an injected malformed collaborator result rather than a reachable persisted row.
+- [x] (invalid) `AlertSimulationContextProvider.BuildContextAsync` — a non-null comparison result can be attached even when its internal baseline/current run identifiers do not match the requested pair — **cheap-disproof 2026-10-08 thorough hunt #40:** the provider consumes the comparison service contract; a malformed result requires an injected invalid comparison implementation and is not produced by the selected production path.
 
 - [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
