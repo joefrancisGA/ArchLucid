@@ -4820,9 +4820,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-08 — response body stream failure reported committed signup as failed
 - **related-pd-tb:** TB-2005
@@ -4857,6 +4857,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-08 thorough hunt (hit): cheap-disproof closed four other `(candidate)` rows; proved a successful registration could be reported as failed when `Response.text()` rejected after a `201`; caught body-read failure and continued with status-based success handling; regression `still navigates after 201 when the response body stream fails`; 95 scoped SignupForm vitest tests passed and changed files linted cleanly.
 2026-10-08 thorough hunt (dry): cheap-disproof closed five candidates as unreachable against the registration controller's typed success contract; no failing-repro attempt was warranted; 95 scoped SignupForm vitest tests passed.
 2026-10-08 seed hunt (seed-only): re-read signup success/session ordering, funnel telemetry, and first-touch serialization; no hunt-ready row promoted; seeded five mechanism-specific `(candidate)` rows; 95 scoped SignupForm vitest tests passed.
+2026-10-08 thorough hunt (dry): cheap-disproof found no telemetry or first-touch repro; idempotent registration returns complete scope IDs, telemetry supports aggregate-only emission, and malformed attribution fields are dropped or defaulted server-side; two required-name character candidates remain unproven; 95 scoped SignupForm vitest tests passed.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
