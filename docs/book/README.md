@@ -49,7 +49,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 |---|---------|--------|----------------|
 | 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | stub | 6,000 |
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | first draft (~5,000) | 7,000 |
-| 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | stub | 8,000 |
+| 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | first draft (~4,700) | 8,000 |
 | 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | stub | 9,000 |
 | 5 | [Network reachability](chapters/05-network-reachability.md) | stub | 7,000 |
 | 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | stub | 6,000 |
