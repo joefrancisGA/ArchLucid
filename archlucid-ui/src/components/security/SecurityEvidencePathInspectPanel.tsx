@@ -513,8 +513,8 @@ function InspectSelectionIdentityHeader(props: {
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
-          {props.findingSummary.rankOrder ?? "Rank was not stored"} · control{" "}
-          {props.findingSummary.controlId ?? "Control was not stored"}
+          {props.findingSummary.rankOrder ?? "was not stored"} · control{" "}
+          {props.findingSummary.controlId?.trim() || "was not stored"}
         </p>
         <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
           {formatRemediationPrioritySortKeyLine(props.findingSummary.totalScore)}
