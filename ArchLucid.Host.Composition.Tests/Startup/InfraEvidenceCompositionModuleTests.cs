@@ -37,6 +37,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Composition.Tests;
+using ArchLucid.Host.Composition.Tests.Coordination;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Diagrams;
 using ArchLucid.Persistence.InfraEvidence;
@@ -1551,6 +1552,162 @@ public sealed class InfraEvidenceCompositionModuleTests
             CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_vision_diagram_ingest_fails_closed_without_sealed_run()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IVisionDiagramIngestService ingestService =
+            serviceScope.ServiceProvider.GetRequiredService<IVisionDiagramIngestService>();
+
+        Func<Task> act = () => ingestService.IngestAsync(
+            scope,
+            Guid.NewGuid(),
+            new VisionDiagramIngestRequest
+            {
+                Format = "png",
+                Name = "diagram",
+                ContentBase64 = "dGVzdA==",
+                UseSimulator = true,
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_hybrid_evidence_query_returns_null_when_snapshot_header_missing()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditHybridEvidenceQueryService hybridQuery =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditHybridEvidenceQueryService>();
+
+        AuditHybridControlEvidenceRecord? record = await hybridQuery.TryGetControlEvidenceSourcesAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            CancellationToken.None);
+
+        record.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_composition_diagram_reconciliation_fails_when_diagram_model_missing_for_sealed_run()
+    {
+        ScopeContext scope = CreateDefaultScope();
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IDiagramInfrastructureReconciliationService reconciliationService =
+            serviceScope.ServiceProvider.GetRequiredService<IDiagramInfrastructureReconciliationService>();
+
+        Func<Task> act = () => reconciliationService.ReconcileAsync(
+            scope,
+            runId,
+            new DiagramInfrastructureReconciliationRequest { SnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee") },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Architecture diagram model was not found*");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_audit_evidence_lineage_returns_not_found_when_assessment_missing()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IAuditEvidenceLineageService lineageService =
+            serviceScope.ServiceProvider.GetRequiredService<IAuditEvidenceLineageService>();
+
+        AuditEvidenceLineageQueryResult result = await lineageService.TryGetControlLineageAsync(
+            scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Assessment was not found");
+    }
+
+    [Fact]
+    public async Task InMemory_composition_remediation_factory_metrics_returns_zeroed_aggregates_on_empty_scope()
+    {
+        ScopeContext scope = CreateDefaultScope();
+
+        IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration, scope);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true,
+        });
+
+        using IServiceScope serviceScope = provider.CreateScope();
+        IRemediationFactoryMetricsService metricsService =
+            serviceScope.ServiceProvider.GetRequiredService<IRemediationFactoryMetricsService>();
+
+        RemediationFactoryMetrics metrics = await metricsService.GetMetricsAsync(scope, CancellationToken.None);
+
+        metrics.OpenFindings.Should().Be(0);
+        metrics.RiskWeightedOpen.Should().Be(0m);
+        metrics.PatternCoverageExactMatchPercent.Should().Be(0m);
+        metrics.AutomationPercent.Should().Be(0m);
     }
 
     [Fact]
