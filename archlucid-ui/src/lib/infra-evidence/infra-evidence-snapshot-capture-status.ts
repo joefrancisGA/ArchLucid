@@ -2,7 +2,7 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type InfraEvidenceSnapshotCaptureStatusPresentation = {
   readonly kind: EnterpriseStatusKind;
-  readonly label: "Ready" | "Needs attention" | "In progress" | "Blocked";
+  readonly label: "Ready" | "Needs attention" | "In progress" | "Blocked" | "Capture status was not stored";
   readonly description: string;
 };
 
@@ -34,6 +34,12 @@ const UNRECOGNIZED: InfraEvidenceSnapshotCaptureStatusPresentation = {
   kind: "needs-attention",
   label: "Needs attention",
   description: "Inventory capture status is not recognized.",
+};
+
+const MISSING: InfraEvidenceSnapshotCaptureStatusPresentation = {
+  kind: "needs-attention",
+  label: "Capture status was not stored",
+  description: "Inventory capture status was not stored.",
 };
 
 type CaptureLifecycle = "pending" | "succeeded" | "partial" | "failed";
@@ -84,6 +90,13 @@ function parseCaptureLifecycle(captureStatus: number | string | null | undefined
 export function resolveInfraEvidenceSnapshotCaptureStatusPresentation(
   captureStatus: number | string | null | undefined,
 ): InfraEvidenceSnapshotCaptureStatusPresentation {
+  if (
+    captureStatus == null
+    || (typeof captureStatus === "string" && captureStatus.trim().length === 0)
+  ) {
+    return MISSING;
+  }
+
   switch (parseCaptureLifecycle(captureStatus)) {
     case "succeeded":
       return READY;

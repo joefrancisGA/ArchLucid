@@ -90,7 +90,7 @@ function formatSnapshotScopeSegment(
   const capturedSuffix =
     snapshotCapturedUtc != null && snapshotCapturedUtc.trim().length > 0
       ? ` (captured ${freshness.capturedLabel})`
-      : "";
+      : " (captured time was not stored)";
 
   return `snapshot ${trimmedSnapshotId}${capturedSuffix}`;
 }

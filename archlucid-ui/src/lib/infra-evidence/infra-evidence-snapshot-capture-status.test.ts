@@ -64,10 +64,18 @@ describe("resolveInfraEvidenceSnapshotCaptureStatusPresentation", () => {
       label: "Needs attention",
       description: "Inventory capture status is not recognized.",
     });
-    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation(undefined)).toEqual({
+    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("nope")).toEqual({
       kind: "needs-attention",
       label: "Needs attention",
       description: "Inventory capture status is not recognized.",
+    });
+  });
+
+  it("labels a missing capture status separately from an unrecognized status", () => {
+    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation(null)).toEqual({
+      kind: "needs-attention",
+      label: "Capture status was not stored",
+      description: "Inventory capture status was not stored.",
     });
   });
 });
