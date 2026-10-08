@@ -125,7 +125,7 @@ When at least one item shipped, open a pull request. Skip this step when `--sugg
 1. Fetch `origin/master`.
 2. Create a new branch from `origin/master`. Name it `cursor/al-polish-<short-topic>`. Do not ask for a branch name. Do not commit on `master`.
 3. Stage only the files Luna changed for this batch. Leave unrelated dirty and untracked files unstaged, including SQL, package zips, and `next-env.d.ts` when those were already dirty and were not in Luna's file list.
-4. Commit those files. The message says why a reviewer was seeing a guessed or blank value.
+4. Commit only Luna's paths with `git commit --only -- <Luna-file-list>` so any unrelated paths staged before this run remain outside the commit. The message says why a reviewer was seeing a guessed or blank value.
 5. Push with an explicit refspec: `git push -u origin HEAD:cursor/al-polish-<short-topic>`. Do not push that commit to `master`. Do not force-push.
 6. Open the pull request with base `master` and that branch as the head.
 
