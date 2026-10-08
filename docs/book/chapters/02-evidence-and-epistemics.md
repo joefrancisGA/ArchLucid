@@ -325,6 +325,7 @@ Everything in this chapter fits into one small record per claim. You don't need 
 
 | Field | Purpose |
 |-------|---------|
+| `id` | Stable identifier referenced by other records' `inputs` |
 | `claim` | The statement, in plain language |
 | `category` | One of the five categories |
 | `source` | API, log, rule name, model and version, or person |
