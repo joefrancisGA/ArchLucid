@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
 
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
@@ -9603,7 +9605,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 29 · **Bugs found:** 3 · **Consecutive dry hunts:** 7
+**Hunts:** 30 · **Bugs found:** 3 · **Consecutive dry hunts:** 8
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `onSubmit` / toggle close-and-reopen — a second submit can begin while the first cancelled-generation request is still in flight — locus: `invalidateInFlightSubmit` clears the local in-flight flag without aborting `fetch`; input: submit, close the form, reopen it, and submit again before the first response arrives.
+- [ ] (candidate) `onSubmit` — a stale first response can still complete server-side after the UI ignores it — locus: generation guard only surrounds client state updates; input: delayed first POST followed by a second POST after form dismissal and reopening.
+- [ ] (candidate) `submitting` — required inputs remain editable while the submit request is pending — locus: only the submit button receives `disabled`; input: keyboard focus and edit `workEmail` or `company` while the button says `Sending`.
+- [ ] (candidate) honeypot `websiteUrl` — programmatic assignment can populate the hidden field despite `tabIndex={-1}` and `aria-hidden` — locus: controlled hidden input remains mounted; input: script calls `focus()`/sets its value before submit.
+- [ ] (candidate) success branch — a successful `204` response permanently removes the report-problem and access-request recovery controls — locus: `submitted` replaces the entire panel; input: valid request receives `204`, then the operator needs to report a second callback failure without remounting.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; regressions `snapshots work email in the POST body at submit start even if the field changes during flight`, `retains note field edits made during flight after collapsing the form`, `does not expose aria-controls on the request access toggle button`, `posts access requests via fetch rather than native form method`, and `uses a non-submit cancel button that does not post the access form`; seeded five follow-on `(candidate)` rows; 62 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -9693,9 +9703,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
 - **related-pd-tb:** none
