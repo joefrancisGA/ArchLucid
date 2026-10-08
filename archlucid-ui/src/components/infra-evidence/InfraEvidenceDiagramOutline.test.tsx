@@ -135,7 +135,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(nodesTable).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
     expect(within(nodesTable).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable).getByText("core-vnet")).toBeTruthy();
-    expect(within(edgesTable).getByText("n_missing")).toBeTruthy();
+    expect(within(edgesTable).getByText("Endpoint was not in this diagram outline")).toBeTruthy();
   });
 
   it("separates edge sources and lists probable edges before observed edges", () => {
@@ -143,6 +143,16 @@ describe("InfraEvidenceDiagramOutline", () => {
       ...outline,
       edges: [
         ...outline.edges,
+        {
+          from: "n_src",
+          to: "n_dst",
+          label: "connects",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
         {
           from: "n_dst",
           to: "n_src",
@@ -255,7 +265,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable).getByText("peering")).toBeTruthy();
+    expect(within(edgesTable).getByText("Not recorded")).toBeTruthy();
     expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 
@@ -534,7 +544,9 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
 
     fireEvent.click(screen.getByTestId("infra-diagrams-declared-edge-n_src-n_dst"));
-    expect(screen.getByTestId("infra-evidence-declared-connection-panel")).toBeInTheDocument();
+    const declaredPanel = screen.getByTestId("infra-evidence-declared-connection-panel");
+    expect(declaredPanel).toBeInTheDocument();
+    expect(within(declaredPanel).queryByText("Approver was not included on the loaded connection")).not.toBeInTheDocument();
 
     rerender(<InfraEvidenceDiagramOutline outline={outline} defaultEdgesOpen={true} />);
 
@@ -552,7 +564,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(downloadSpy).toHaveBeenNthCalledWith(
       1,
       expect.stringMatching(/^infra-diagram-nodes-.*\.json$/u),
-      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.nodes.v1"'),
+      expect.stringContaining('"note": "These rows are the diagram outline. Edges may be observed, declared, probable, or inferred. A property that is absent was not stored."'),
       "application/json;charset=utf-8",
     );
     expect(downloadSpy).toHaveBeenNthCalledWith(
@@ -561,6 +573,9 @@ describe("InfraEvidenceDiagramOutline", () => {
       expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.edges.v1"'),
       "application/json;charset=utf-8",
     );
+    expect(screen.getByText(
+      "Download the nodes and edges for this diagram. The file includes observed, declared, probable, and inferred rows. An absent property was not stored.",
+    )).toBeInTheDocument();
 
     downloadSpy.mockRestore();
   });

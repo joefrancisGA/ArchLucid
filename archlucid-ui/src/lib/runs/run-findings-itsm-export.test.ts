@@ -150,6 +150,27 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
+  it("writes explicit absence copy for omitted finding fields", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [{
+      findingId: "f-missing",
+      title: "Missing fields",
+      recommendation: "",
+      severityValue: 1,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+      isMuted: false,
+      muteReason: null,
+      enforcementTier: "PolicyViolation",
+    }]);
+
+    expect(csv).toContain("No recommended action recorded for this finding.");
+    expect(csv).toContain("Policy rule was not stored");
+    expect(csv).toContain("Trust label was not stored");
+    expect(csv).toContain("Trust label reason was not stored");
+    expect(csv).toContain("Semantic support band was not stored");
+    expect(csv).toContain("Semantic support band scorer version was not stored");
+  });
+
   it("exports only decision-grade findings rows", () => {
     const findings: QuickDecisionFinding[] = [
       {

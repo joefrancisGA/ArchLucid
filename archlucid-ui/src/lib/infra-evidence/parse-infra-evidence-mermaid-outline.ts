@@ -627,7 +627,7 @@ export function resolveInfraEvidenceOutlineNodeLabel(
   const match = nodes.find((node) => node.id === nodeId);
 
   if (match == null) {
-    return "No stored link";
+    return "Endpoint was not in this diagram outline";
   }
 
   if (match.label.trim().length === 0) {

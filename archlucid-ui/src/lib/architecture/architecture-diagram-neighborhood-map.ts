@@ -1,13 +1,13 @@
 export type DiagramNeighborhoodType = {
   readonly name: string;
-  readonly count: number;
+  readonly count: number | null;
 };
 
 export type DiagramNeighborhood = {
   readonly id: string;
   readonly kind: string;
   readonly title: string;
-  readonly resourceCount: number;
+  readonly resourceCount: number | null;
   readonly memberIds: readonly string[];
   readonly frameIds: readonly string[];
   readonly types: readonly DiagramNeighborhoodType[];
@@ -27,9 +27,16 @@ export type DiagramNeighborhoodMap = {
 export const DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT = 4;
 export const DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT = 40;
 
-function readNonNegativeInteger(element: Element, attribute: string): number {
-  const value = Number.parseInt(element.getAttribute(attribute) ?? "", 10);
-  return Number.isFinite(value) && value >= 0 ? value : 0;
+function readNonNegativeInteger(element: Element, attribute: string): number | null {
+  const rawValue = element.getAttribute(attribute);
+
+  if (rawValue == null) {
+    return null;
+  }
+
+  const value = Number.parseInt(rawValue, 10);
+
+  return Number.isFinite(value) && value >= 0 ? value : null;
 }
 
 export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhoodMap | null {
@@ -68,7 +75,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
     .map((element): DiagramNeighborhoodLink => ({
       from: element.getAttribute("from") ?? "",
       to: element.getAttribute("to") ?? "",
-      count: readNonNegativeInteger(element, "count"),
+      count: readNonNegativeInteger(element, "count") ?? 0,
     }))
     .filter((link) => link.from.length > 0 && link.to.length > 0);
 
@@ -77,6 +84,6 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
 
 export function shouldAutoOpenDiagramNeighborhoodMap(map: DiagramNeighborhoodMap): boolean {
   return map.neighborhoods.length >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT
-    || map.neighborhoods.reduce((sum, neighborhood) => sum + neighborhood.resourceCount, 0)
+    || map.neighborhoods.reduce((sum, neighborhood) => sum + (neighborhood.resourceCount ?? 0), 0)
       >= DIAGRAM_NEIGHBORHOOD_MAP_MIN_RESOURCE_COUNT;
 }

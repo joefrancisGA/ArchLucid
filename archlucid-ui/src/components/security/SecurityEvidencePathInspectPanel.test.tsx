@@ -192,8 +192,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
         routing: [
           {
             role: "TechnicalOwner",
-            principalId: "owner-1",
-            displayName: "Platform team",
+            principalId: null,
+            displayName: null,
             provenanceKind: "DerivedFact",
             sourceReference: "tag:technicalOwner",
           },
@@ -232,11 +232,28 @@ describe("SecurityEvidencePathInspectPanel", () => {
       isError: false,
     } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
 
-    renderPanel("finding-1");
+    renderPanel("finding-1", {
+      selectedFinding: {
+        findingId: "finding-1",
+        totalScore: 0.5,
+        explanationSummary: "Sample",
+        breakdownJson: "[]",
+        rankOrder: null,
+        controlId: null,
+        patternKey: null,
+      },
+    });
 
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
+      "Rank was not stored",
+    );
+    expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
+      "Control was not stored",
+    );
+    expect(screen.getByTestId("security-evidence-path-routing")).toHaveTextContent("Owner was not stored");
     expect(screen.getByTestId("security-evidence-path-rank-dimension-blastRadius")).toHaveTextContent(
       "Shared control blast radius elevated.",
     );

@@ -55,7 +55,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
 export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | null | undefined): string {
   const trimmed = edgeType?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : "No stored link";
+  return trimmed.length > 0 ? trimmed : "Relationship type was not stored";
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {
