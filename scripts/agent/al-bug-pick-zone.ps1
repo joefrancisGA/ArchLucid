@@ -1139,6 +1139,7 @@ function Read-AlBugHuntLedger {
             SeedOnly24h            = 0
             SeedOnlySaturated      = $false
             EscalatedFiles         = @()
+            CooldownFallback       = $false
         }
 
         [void]$zones.Add($zone)
@@ -1272,7 +1273,12 @@ function Get-ZoneScoreBreakdown {
     }
 
     if ($Zone.CooledByHitRate) {
-        [void]$why.Add('hit-rate cooldown')
+        if (@($Zone.OpenHypotheses).Count -eq 0) {
+            [void]$why.Add('hit-rate cooldown waived (hypothesis list empty)')
+        }
+        else {
+            [void]$why.Add('hit-rate cooldown')
+        }
     }
 
     if ($Zone.PSObject.Properties.Name -contains 'SeedOnlySaturated' -and $Zone.SeedOnlySaturated) {
@@ -1365,7 +1371,7 @@ function Set-ZoneComputedFields {
 
         foreach ($path in @($zone.Paths)) {
             foreach ($escalated in @($EscalatedFiles)) {
-                if ($path -eq $escalated -or $path.StartsWith($escalated, [StringComparison]::OrdinalIgnoreCase) -or $escalated.StartsWith($path, [StringComparison]::OrdinalIgnoreCase)) {
+                if (Test-EscalatedFileMatchesZonePath -ZonePath $path -EscalatedFile $escalated) {
                     $zoneEscalated += $escalated
                 }
             }
@@ -1382,6 +1388,49 @@ function Set-ZoneComputedFields {
     }
 }
 
+function Test-ZoneHitRateCooldownApplies {
+    param($Zone)
+
+    if ($null -eq $Zone -or -not [bool]$Zone.CooledByHitRate) {
+        return $false
+    }
+
+    # Eight hits in seven days pauses a zone that still has rows to grind.
+    # An empty list is the seed reread, so the pause must not hide that zone.
+    return @($Zone.OpenHypotheses).Count -gt 0
+}
+
+function Test-ZoneForcedCooling {
+    param(
+        $Zone,
+        [bool] $HasUnsaturatedOpen
+    )
+
+    if ($null -eq $Zone -or $Zone.Status -eq 'exhausted') {
+        return $false
+    }
+
+    if (Test-ZoneHitRateCooldownApplies -Zone $Zone) {
+        return $true
+    }
+
+    # A seed-only streak yields to any open zone that has not saturated.
+    # When every open zone is saturated, keep them eligible.
+    if ($Zone.SeedOnlySaturated -and $HasUnsaturatedOpen) {
+        return $true
+    }
+
+    if ($Zone.CooledByClass) {
+        return $true
+    }
+
+    if (@($Zone.EscalatedFiles).Count -gt 0) {
+        return $true
+    }
+
+    return $false
+}
+
 function Get-EligibleZones {
     param($Zones)
 
@@ -1393,25 +1442,12 @@ function Get-EligibleZones {
         }
     ).Count -gt 0
     $eligible = New-Object System.Collections.ArrayList
+    $demotedOpen = New-Object System.Collections.ArrayList
 
     foreach ($zone in $Zones) {
         $effectiveStatus = $zone.Status
 
-        if ($zone.CooledByHitRate -and $zone.Status -ne 'exhausted') {
-            $effectiveStatus = 'cooling'
-        }
-
-        # A seed-only streak yields to any open zone that has not saturated.
-        # When every open zone is saturated, keep them eligible.
-        if ($zone.SeedOnlySaturated -and $hasUnsaturatedOpen -and $zone.Status -ne 'exhausted') {
-            $effectiveStatus = 'cooling'
-        }
-
-        if ($zone.CooledByClass -and $zone.Status -ne 'exhausted') {
-            $effectiveStatus = 'cooling'
-        }
-
-        if (@($zone.EscalatedFiles).Count -gt 0 -and $zone.Status -ne 'exhausted') {
+        if (Test-ZoneForcedCooling -Zone $zone -HasUnsaturatedOpen $hasUnsaturatedOpen) {
             $effectiveStatus = 'cooling'
         }
 
@@ -1423,9 +1459,13 @@ function Get-EligibleZones {
                 [void]$eligible.Add($zone)
             }
             'cooling' {
-                # Cooling waits while any open or unseeded zone still has work.
+                # Ledger cooling waits while any open or unseeded zone still has work.
+                # Open zones demoted only by a cooldown are remembered for the fallback below.
                 if (-not $hasOpen) {
                     [void]$eligible.Add($zone)
+                }
+                elseif ($zone.Status -eq 'open' -or $zone.Status -eq 'unseeded') {
+                    [void]$demotedOpen.Add($zone)
                 }
             }
             'exhausted' {
@@ -1433,6 +1473,15 @@ function Get-EligibleZones {
                     [void]$eligible.Add($zone)
                 }
             }
+        }
+    }
+
+    # Demoting every open zone used to leave eligibleCount at 0 while status stayed open.
+    # Admit those zones instead of reporting the catalog exhausted.
+    if ($eligible.Count -eq 0) {
+        foreach ($zone in $demotedOpen) {
+            $zone.CooldownFallback = $true
+            [void]$eligible.Add($zone)
         }
     }
 
@@ -1817,10 +1866,20 @@ function ConvertTo-PickResult {
             mutationScore          = $null
             mutationScoreMissing   = $true
             escalatedFiles         = @()
+            cooldownFallback       = $false
         }
     }
 
     $why = ConvertTo-ObjectArray -Value $Zone.Why
+    $cooldownFallback = $false
+
+    if ($Zone.PSObject.Properties.Name -contains 'CooldownFallback') {
+        $cooldownFallback = [bool]$Zone.CooldownFallback
+    }
+
+    if ($cooldownFallback) {
+        $why = @('cooldown fallback (every open zone was demoted)') + @($why)
+    }
 
     if ($HintOverride) {
         $why = @('hint override') + @($why)
@@ -1875,6 +1934,7 @@ function ConvertTo-PickResult {
         mutationScore          = $Zone.MutationScore
         mutationScoreMissing   = [bool]$Zone.MutationScoreMissing
         escalatedFiles         = ConvertTo-ObjectArray -Value $Zone.EscalatedFiles
+        cooldownFallback       = $cooldownFallback
     }
 }
 
@@ -1907,6 +1967,7 @@ function Write-ZonePreview {
     Write-Host ("| Score | {0} |" -f $Result.score)
     Write-Host ("| Impact | {0} |" -f $(if ($null -eq $Result.impact) { 'n/a' } else { $Result.impact }))
     Write-Host ("| Cooled | {0} |" -f $Result.cooledByHitRate)
+    Write-Host ("| Cooldown fallback | {0} |" -f $Result.cooldownFallback)
     Write-Host ("| Hunts | {0} |" -f $Result.hunts)
     Write-Host ("| Bugs found (raw) | {0} |" -f $Result.bugsFound)
     Write-Host ("| Bugs found (effective) | {0} |" -f $Result.effectiveBugs)
