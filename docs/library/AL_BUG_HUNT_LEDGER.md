@@ -6153,7 +6153,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 39 · **Bugs found:** 11 · **Consecutive dry hunts:** 11
+**Hunts:** 41 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+
+2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected email-OTP controller and service; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6211,9 +6215,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-08 — empty platform-user identity issued an OTP token
 - **related-pd-tb:** none
@@ -6243,6 +6247,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2074 (seed-only): reseeded email-otp-auth; 41 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — locus: delivery-failure cleanup ~191–210; input: notifier returns false while `DeleteActiveChallengesForEmailAsync` throws or is canceled.
+- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — locus: send call after `ReplaceActiveChallengeForEmailAsync` ~171–190; input: request cancellation during `TrySendSignInCodeAsync`.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace-only `DisplayEmail` passes the token guard and issues a token containing an unusable identity email — locus: null-only display-email guard ~108–115; input: corrupted identity result with `DisplayEmail = "   "`.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a service result can expose a `ChallengeId` alongside `EmailDeliverySucceeded = false` if a custom flow returns inconsistent delivery metadata — locus: direct response mapping ~68–77; input: injected service result with failed delivery and non-null challenge id.
+- [ ] (candidate) `EmailOtpAuthService` — two option reads during construction can create request and verify flows with different hash peppers or attempt limits — locus: separate `options.Value` reads ~24–42; input: an options provider that changes its returned instance between the two reads during DI construction.
 
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` — **hit 2026-10-08 thorough hunt:** a successful service result with `PlatformUserId = Guid.Empty` passed the null-only guard and issued a token for an empty identity; the controller now rejects null or empty platform-user IDs; regression `VerifyAsync_rejects_success_result_with_empty_platform_user_id`.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — **cheap-disproof 2026-10-08 thorough hunt:** `EmailOtpAuthNextStep` values are consumed by the UI using the same PascalCase enum names emitted by `ToString`; existing post-auth parity tests cover all current members and safe handling of unknown future values.
