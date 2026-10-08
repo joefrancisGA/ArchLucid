@@ -64,10 +64,10 @@ describe("resolveInfraEvidenceSnapshotCaptureStatusPresentation", () => {
       label: "Needs attention",
       description: "Inventory capture status is not recognized.",
     });
-    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("nope")).toEqual({
+    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("   ")).toEqual({
       kind: "needs-attention",
-      label: "Needs attention",
-      description: "Inventory capture status is not recognized.",
+      label: "Capture status was not stored",
+      description: "Inventory capture status was not stored.",
     });
   });
 
