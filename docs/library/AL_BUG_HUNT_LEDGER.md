@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `artifact-synthesis` — no hunt-ready hypothesis survived the inventory, Mermaid, and Graphviz generator review; seeded three renderer-identity `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 thorough hunt (dry): `artifact-synthesis` — cheap-disproof retired the extractor numeric-field candidate and ARM NSG omitted-field candidate as `(invalid)` against their source schemas, and closed the SVG empty-segment candidate as `(valid-no-repro)` because router construction and renderer guards prevent that input; the focused filter reported 689 passed, 16 pre-existing diagram expectation failures, and 2 skipped Terraform tests.
 
 2026-10-08 seed hunt (seed-only): `artifact-synthesis` — no hunt-ready hypothesis survived the additional classifier, inventory-security, and SVG-label source review; seeded three reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -28950,15 +28952,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 41
+- **hunts:** 42
 - **last-hunt:** 2026-10-08
 - **bugs-found:** 44
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-06 — deterministic Mermaid repair dropped NSG inbound rule chips before forest layout
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [ ] (candidate) `DiagramAstGraphvizDotEmitter.AppendNodeStatement` / `MermaidIdSanitizer.Sanitize` — two reachable `DiagramNode.NodeId` values that sanitize to the same identifier could be emitted as one Graphviz node, hiding a card; input originates from compiled or structured `DiagramAst` node IDs, but collision behavior is not established by the current tests.
+- [ ] (candidate) `DiagramAstGraphvizDotEmitter.EmitSubgraphTree` / `GraphvizIdEscaper.SanitizeClusterId` — distinct reachable subgraph IDs such as punctuation variants can sanitize to the same `cluster_*` identifier, causing Graphviz cluster merging or invalid DOT; input originates from `DiagramAst.Subgraphs`, but no collision repro exists.
+- [ ] (candidate) `MermaidDiagramArtifactGenerator.GenerateAsync` — duplicate or unstable decision identifiers could create duplicate Mermaid node IDs while the manifest contains multiple decisions; input originates from committed `ResolvedArchitectureDecision.DecisionId`, but the decision-id uniqueness invariant was not verified in this seed hunt.
 
 - [x] (invalid) `ExtractorOrphanCandidatesClassifier.TryClassifyRow` / `ReadString` — a reachable `orphan-candidates.json` row with a numeric `resourceId`, `resourceType`, or reason field calls `JsonElement.GetString()` and can abort classification — **cheap-disproof 2026-10-08 thorough hunt:** extractor orphan-candidate rows use string identity/type/reason fields; numeric savings values are handled separately and do not reach these `GetString()` calls as identifiers.
 - [x] (invalid) `AzureInventorySecurityBaselineClassifier.IsAllowInboundAdminRule` — an Azure inventory NSG rule with omitted `access` or `direction` is treated as Allow/Inbound by default — **cheap-disproof 2026-10-08 thorough hunt:** the selected ARM `resources.json` security-rule contract supplies these rule fields; no reachable incomplete-rule input or wrong finding was established.
