@@ -25,7 +25,7 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
-import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
 import { resolveFindingWorkItemCoverageHonesty, resolveTraceRowWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";

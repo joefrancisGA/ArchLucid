@@ -12,8 +12,10 @@ import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
-import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
-import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
+import {
+  findingSemanticSupportBandFromTypedPayload,
+  normalizeFindingSemanticSupportBand,
+} from "@/lib/findings/semantic-support-band-presentation";
 import {
   classifyReviewFindingJobView,
   type FindingJobView,

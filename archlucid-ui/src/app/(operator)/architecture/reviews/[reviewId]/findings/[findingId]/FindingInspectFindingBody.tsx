@@ -18,10 +18,8 @@ import {
   LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER,
   LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_LABEL,
 } from "@/lib/livelihood-grade-no-finding-inspect-citation-chips";
-import {
-  FindingSemanticSupportBandInspectSection,
-  findingSemanticSupportBandFromTypedPayload,
-} from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import { FindingSemanticSupportBandInspectSection } from "@/components/findings/FindingSemanticSupportBandInspectSection";
+import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";

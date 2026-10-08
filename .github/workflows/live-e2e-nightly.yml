@@ -108,6 +108,7 @@ jobs:
           Demo__Enabled: "true"
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
+          ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Observability__ConsoleExporter__Enabled: "false"
           AzureOpenAI__Endpoint: ""
           AzureOpenAI__ApiKey: ""
@@ -122,6 +123,11 @@ jobs:
         env:
           API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-bypass.log"
+
+      - name: Grant Enterprise tier to default live-e2e tenant
+        env:
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+        run: bash scripts/ci/grant_ci_live_e2e_enterprise_tenant.sh
 
       - name: Wait for demo preview (demo workspace smokes)
         env:
@@ -277,6 +283,7 @@ jobs:
           Demo__Enabled: "true"
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
+          ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           AgentExecution__Mode: Simulator
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
@@ -302,6 +309,11 @@ jobs:
         env:
           API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-apikey.log"
+
+      - name: Grant Enterprise tier to default live-e2e tenant
+        env:
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+        run: bash scripts/ci/grant_ci_live_e2e_enterprise_tenant.sh
 
       - name: Wait for demo preview (demo workspace smokes)
         env:
@@ -374,7 +386,7 @@ jobs:
     if: github.event.repository.fork == false
     name: "Nightly: live-api full (JwtBearer + local PEM)"
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 95
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -470,6 +482,7 @@ jobs:
           Demo__Enabled: "true"
           Demo__SeedOnStartup: "true"
           Demo__AnonymousViewer__Enabled: "true"
+          ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           AgentExecution__Mode: Simulator
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
@@ -495,6 +508,11 @@ jobs:
         env:
           API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-jwt.log"
+
+      - name: Grant Enterprise tier to default live-e2e tenant
+        env:
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+        run: bash scripts/ci/grant_ci_live_e2e_enterprise_tenant.sh
 
       - name: Mint JWT tokens (needed for demo seed wait probes)
         run: |

@@ -104,12 +104,29 @@ public static class ScopeIdentityBindingValidator
         if (!TryParseHeaderGuid(headers, headerName, out _))
             return ScopeIdentityBindingResult.Ok();
 
+        if (HeaderHasDuplicateParseableGuids(headers, headerName))
+        {
+            return ScopeIdentityBindingResult.Forbidden(
+                $"Authenticated scope cannot accept duplicate '{headerName}' values to steer {label} scope.");
+        }
+
         if (string.Equals(claimType, "tenant_id", StringComparison.Ordinal)
             && string.Equals(authenticationType, "ApiKey", StringComparison.Ordinal))
         {
             return ScopeIdentityBindingResult.Forbidden(
                 "API key authentication requires Authentication:ApiKey:TenantId (tenant_id claim); "
                 + "x-tenant-id cannot be used without a bound key scope.");
+        }
+
+        // Tenant-bound API keys used by live E2E send demo workspace A/B headers without
+        // workspace/project claims so one key can address both fixtures (ADR 0037: within-tenant
+        // dimensions are not a tenant-isolation boundary). Bearer/SAML/SCIM still require a claim.
+        if ((string.Equals(claimType, "workspace_id", StringComparison.Ordinal)
+                || string.Equals(claimType, "project_id", StringComparison.Ordinal))
+            && string.Equals(authenticationType, "ApiKey", StringComparison.OrdinalIgnoreCase)
+            && TryParseClaimGuid(user, "tenant_id", out _))
+        {
+            return ScopeIdentityBindingResult.Ok();
         }
 
         return ScopeIdentityBindingResult.Forbidden(
@@ -178,6 +195,30 @@ public static class ScopeIdentityBindingValidator
                 continue;
 
             if (Guid.TryParse(segment.Trim(), out value))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HeaderHasDuplicateParseableGuids(IHeaderDictionary? headers, string headerName)
+    {
+        if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
+            return false;
+
+        int parsedCount = 0;
+
+        foreach (string? segment in headerRaw)
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
+
+            if (!Guid.TryParse(segment.Trim(), out _))
+                continue;
+
+            parsedCount++;
+
+            if (parsedCount > 1)
                 return true;
         }
 

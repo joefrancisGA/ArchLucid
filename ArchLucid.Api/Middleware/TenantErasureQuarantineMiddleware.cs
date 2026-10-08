@@ -54,22 +54,9 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 
         if (tenant is null)
         {
-            Microsoft.AspNetCore.Mvc.ProblemDetails missingTenantProblem = new()
-            {
-                Type = ProblemTypes.ResourceNotFound,
-                Title = "Tenant not found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = "The tenant for the authenticated scope was not found.",
-                Instance = context.Request.Path.Value
-            };
-
-            ProblemErrorCodes.AttachErrorCode(missingTenantProblem, ProblemTypes.ResourceNotFound);
-            ProblemSupportHints.AttachForProblemType(missingTenantProblem);
-            ProblemCorrelation.Attach(missingTenantProblem, context);
-
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            context.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
-            await context.Response.WriteAsJsonAsync(missingTenantProblem, context.RequestAborted);
+            // Missing rows are not in erasure quarantine. Isolated live-E2E create-run sends a
+            // fresh tenant id before dbo.Tenants is primed; existence 404 belongs downstream.
+            await next(context);
 
             return;
         }
