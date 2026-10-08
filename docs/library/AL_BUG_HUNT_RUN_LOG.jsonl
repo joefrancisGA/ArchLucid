@@ -1,5 +1,3 @@
-{"at":"2026-09-08T01:10:29.0982286Z","zoneId":"tenant-data-export","outcome":"hit"}
-{"at":"2026-09-08T01:16:42.780765Z","zoneId":"tenant-settings-sql","outcome":"hit"}
 {"at":"2026-09-08T01:26:25.7160432Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-09-08T01:32:52.2780268Z","zoneId":"run-execute-ownership","outcome":"hit"}
 {"at":"2026-09-08T01:38:01.800538Z","zoneId":"core-findings-advice","outcome":"hit"}
@@ -8793,4 +8791,5 @@
 {"at":"2026-10-08T00:40:14.5042268Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-08T00:43:40.3833432Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-08T00:49:11.5504497Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-08T01:00:43.6083020Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/,archlucid-ui/src/hooks/use-oidc-session-keepalive.ts)"]}
+{"at":"2026-10-08T01:00:43.608302Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/lib/oidc/,archlucid-ui/src/hooks/use-oidc-session-keepalive.ts)"]}
+{"at":"2026-10-08T01:24:24.4357581Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared"}

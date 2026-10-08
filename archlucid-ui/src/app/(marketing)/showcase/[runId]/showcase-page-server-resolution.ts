@@ -70,6 +70,40 @@ function hasUsableShowcaseRunExplanation(payload: DemoCommitPagePreviewResponse)
   return hasUsableMarketingRunExplanationCounts(payload.runExplanation);
 }
 
+function isUsableShowcasePipelineTimelineRow(event: unknown): boolean {
+  if (event === null || typeof event !== "object" || Array.isArray(event)) {
+    return false;
+  }
+
+  const row = event as {
+    eventId?: unknown;
+    occurredUtc?: unknown;
+    eventType?: unknown;
+  };
+
+  if (typeof row.eventId !== "string" || row.eventId.trim().length === 0) {
+    return false;
+  }
+
+  if (typeof row.occurredUtc !== "string" || row.occurredUtc.trim().length === 0) {
+    return false;
+  }
+
+  if (typeof row.eventType !== "string" || row.eventType.trim().length === 0) {
+    return false;
+  }
+
+  return true;
+}
+
+function hasUsableShowcasePipelineTimeline(payload: DemoCommitPagePreviewResponse): boolean {
+  if (!Array.isArray(payload.pipelineTimeline) || payload.pipelineTimeline.length === 0) {
+    return false;
+  }
+
+  return payload.pipelineTimeline.every((event) => isUsableShowcasePipelineTimelineRow(event));
+}
+
 export async function fetchShowcasePayload(
   url: string,
 ): Promise<ShowcaseFetchResult> {
@@ -110,13 +144,7 @@ export async function fetchShowcasePayload(
       return { kind: "invalid" };
     }
 
-    if (
-      !Array.isArray(payload.artifacts) ||
-      payload.artifacts.length === 0 ||
-      !Array.isArray(payload.pipelineTimeline) ||
-      payload.pipelineTimeline.length === 0 ||
-      payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
-    ) {
+    if (!Array.isArray(payload.artifacts) || payload.artifacts.length === 0 || !hasUsableShowcasePipelineTimeline(payload)) {
       return { kind: "invalid" };
     }
 
