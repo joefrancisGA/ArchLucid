@@ -601,4 +601,34 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/reviews?pct=%2525252525252525").Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalize_decodes_percent_encoded_left_to_right_isolate_in_path_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews%E2%81%A6/1").Should().Be("/reviews\u2066/1");
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_matrix_style_path_when_percent_encoded_protocol_relative_slashes_decode_in_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews;next=%2F%2Fevil.example").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_rejects_horizontal_tab_control_character_in_path_segment()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews\tactive").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalize_decodes_uppercase_percent_encoded_slash_in_query_value()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews?path=%2Fsegment").Should().Be("/reviews?path=/segment");
+    }
+
+    [Fact]
+    public void TryNormalize_accepts_soft_hyphen_inside_path_segment_without_open_redirect_shape()
+    {
+        AuthSignInReturnPathGuard.TryNormalize("/reviews\u00AD/1").Should().Be("/reviews\u00AD/1");
+    }
 }
