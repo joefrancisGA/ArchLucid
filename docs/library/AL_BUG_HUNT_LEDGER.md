@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — seventh consecutive seed selection produced no hunt-ready hypothesis after reviewing the submit lifecycle and scoped tests. Seeded five follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `onSubmit` — a valid submit after an invisible-character rejection clears the error only when the next request begins, not when corrected input is entered — locus: `setErrorMessage(null)` occurs after in-flight setup; input: invalid submit, edit field, inspect stale alert before resubmitting.
+- [ ] (candidate) `onSubmit` — browser-native required/email validation can prevent the React submit handler from running, leaving any prior custom error visible — locus: HTML constraints precede `onSubmit`; input: prior custom error followed by clearing a required field and submitting.
+- [ ] (candidate) `invalidateInFlightSubmit` — generation increments on dismissal but the ref’s in-flight flag is reset before the old promise settles, permitting a reopened form to issue a second request — locus: dismissal state reset without abort; input: slow first request, dismiss/reopen, second submit.
+- [ ] (candidate) `onSubmit` — a response arriving after form values are edited still reports success for the original snapshot without showing which values were accepted — locus: request body captured at fetch call; input: edit fields while request is pending.
+- [ ] (candidate) technical-detail paragraph — raw newline and whitespace content can expand the failure panel beyond the intended max-width despite the outer `max-w-[560px]` constraint — locus: helper text receives unnormalized `technicalDetail`; input: long unbroken callback detail.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — sixth consecutive seed selection produced no new hunt-ready hypothesis after reviewing the submit lifecycle and 63 scoped tests. Seeded five follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 - [ ] (candidate) `onSubmit` — the early invisible-character rejection does not increment the submit generation, so a prior in-flight generation could remain relevant if a later invalid submit occurs during a state transition — locus: validation return precedes generation assignment; input: submit valid data, then submit invalid data while the first request is unresolved.
