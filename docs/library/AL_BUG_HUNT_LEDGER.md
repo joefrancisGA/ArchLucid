@@ -6153,7 +6153,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 41 · **Bugs found:** 12 · **Consecutive dry hunts:** 1
+**Hunts:** 42 · **Bugs found:** 13 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6164,6 +6164,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected email-OTP controller and service; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-08 thorough hunt (hit): proved that notifier cancellation after challenge persistence left the active challenge eligible for resend-cooldown suppression even though no code was delivered; cleanup now runs with `CancellationToken.None` on notifier failure and regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence` passed; the cleanup-storage-failure, whitespace display-email, inconsistent delivery metadata, and mutable-options-provider candidates were classified as `(valid-no-repro)`, `(invalid)`, `(invalid)`, and `(valid-no-repro)`.
 
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
@@ -6215,11 +6217,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 41
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
+- **hunts:** 42
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — empty platform-user identity issued an OTP token
+- **last-bug:** 2026-10-08 — notifier cancellation left an undelivered OTP challenge active
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -6248,11 +6250,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — locus: delivery-failure cleanup ~191–210; input: notifier returns false while `DeleteActiveChallengesForEmailAsync` throws or is canceled.
-- [ ] (candidate) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — locus: send call after `ReplaceActiveChallengeForEmailAsync` ~171–190; input: request cancellation during `TrySendSignInCodeAsync`.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace-only `DisplayEmail` passes the token guard and issues a token containing an unusable identity email — locus: null-only display-email guard ~108–115; input: corrupted identity result with `DisplayEmail = "   "`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a service result can expose a `ChallengeId` alongside `EmailDeliverySucceeded = false` if a custom flow returns inconsistent delivery metadata — locus: direct response mapping ~68–77; input: injected service result with failed delivery and non-null challenge id.
-- [ ] (candidate) `EmailOtpAuthService` — two option reads during construction can create request and verify flows with different hash peppers or attempt limits — locus: separate `options.Value` reads ~24–42; input: an options provider that changes its returned instance between the two reads during DI construction.
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — **cheap-disproof 2026-10-08 thorough hunt #42:** the repository failure is an infrastructure outage outside the normal notifier input path; cleanup remains best effort and the flow preserves the original notifier failure rather than returning a successful challenge result.
+- [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — **hit 2026-10-08 thorough hunt #42:** notifier exceptions previously escaped before active-challenge cleanup, so resend cooldown suppressed a retry; cleanup now uses `CancellationToken.None`; regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence`.
+- [x] (invalid) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace-only `DisplayEmail` passes the token guard and issues a token containing an unusable identity email — **cheap-disproof 2026-10-08 thorough hunt #42:** the controller receives the application result, whose real request/verify path derives `DisplayEmail` through email normalization; a whitespace value requires an injected corrupted service result and is not reachable through these files.
+- [x] (invalid) `EmailOtpAuthController.RequestChallengeAsync` — a service result can expose a `ChallengeId` alongside `EmailDeliverySucceeded = false` if a custom flow returns inconsistent delivery metadata — **cheap-disproof 2026-10-08 thorough hunt #42:** the controller only maps the application result and has no independent delivery state; the inconsistent combination requires an injected fake service result rather than a reachable production path.
+- [x] (valid-no-repro) `EmailOtpAuthService` — two option reads during construction can create request and verify flows with different hash peppers or attempt limits — **cheap-disproof 2026-10-08 thorough hunt #42:** the service is constructed with an `IOptions<T>` snapshot and runtime option mutation between constructor reads is outside the supported request contract.
 
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` — **hit 2026-10-08 thorough hunt:** a successful service result with `PlatformUserId = Guid.Empty` passed the null-only guard and issued a token for an empty identity; the controller now rejects null or empty platform-user IDs; regression `VerifyAsync_rejects_success_result_with_empty_platform_user_id`.
 - [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — **cheap-disproof 2026-10-08 thorough hunt:** `EmailOtpAuthNextStep` values are consumed by the UI using the same PascalCase enum names emitted by `ToString`; existing post-auth parity tests cover all current members and safe handling of unknown future values.
