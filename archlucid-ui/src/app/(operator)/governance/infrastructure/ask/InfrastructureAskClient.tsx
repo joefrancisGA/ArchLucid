@@ -909,10 +909,10 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                           </Link>
                         ) : (
                           <span>
-                            This citation has no page to open.
                             {citation.label == null || citation.label.trim().length === 0
-                              ? " Citation label was not stored."
-                              : ""}
+                              ? "Citation label was not stored."
+                              : citation.label.trim()}
+                            {" This citation has no page to open."}
                           </span>
                         )}
                       </li>
