@@ -5835,7 +5835,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 60 · **Bugs found:** 9 · **Consecutive dry hunts:** 13
+**Hunts:** 61 · **Bugs found:** 9 · **Consecutive dry hunts:** 14
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -5950,6 +5952,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2019 (seed-only): reseeded orchestrator-transient-retry; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — a top-level aggregate containing a nested aggregate plus a direct transient sibling may flatten to a classification that differs from the wrapper-recursive path — locus: `TryGetParallelPersistInners` and `IsParallelPersistAggregateInnerRetriable` ~65–80; input: parallel persistence failure with both direct and nested aggregate inners.
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — an exception chain that contains an empty aggregate before a populated aggregate may return the populated branch but discard a direct transient exception outside that branch — locus: wrapper-chain scan ~95–108; input: repository wrapper with an empty aggregate, a transient SQL sibling, and a later populated aggregate.
+- [ ] (candidate) `OrchestratorTransientDbRetry` — retry-delay jitter is sampled even when cancellation is already requested, potentially consuming retry-policy work before cancellation is observed — locus: `DelayGenerator` ~40–52; input: cancellation requested during the first transient failure’s retry scheduling.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.IsExhausted` — a negative elapsed duration is accepted as within budget and can postpone exhaustion after a clock or state restoration anomaly — locus: upper-bound-only comparison ~20; input: retry state restored with `elapsed = TimeSpan.FromMilliseconds(-1)` and attempt below `MaxAttempts`.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — a poll index at `ManifestReconcilePollAttempts` still produces a delay even though that index is outside the intended poll range — locus: public linear delay method ~26–28; input: reconciliation loop or caller invokes the delay helper after the final allowed poll.
 
 - [x] Retry policy retries a non-transient SQL error (constraint / timeout misclassified) Î“Ã‡Ã¶ fixed: `SqlTransientDetector` treated outer `TimeoutException` before inner non-transient `SqlException`
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
