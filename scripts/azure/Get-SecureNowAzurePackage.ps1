@@ -797,10 +797,14 @@ try
             -ManagementGroupId $ManagementGroupId)
         [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
         [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
-        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows `
+            -InventoryResources @($resources) `
+            -DatasetRows @($adfDatasetRows))
+        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows `
+            -InventoryResources @($resources) `
+            -DataflowRows @($adfDataflowRows))
         [object[]]$adfTriggerRows = @(Get-ArchLucidAzureAdfTriggerCompanionRows -InventoryResources @($resources))
         [object[]]$adfIntegrationRuntimeRows = @(Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows -InventoryResources @($resources))
-        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows -InventoryResources @($resources))
         [object[]]$eventGridSubscriptionRows = @(Get-ArchLucidAzureEventGridSubscriptionCompanionRows -InventoryResources @($resources) -SubscriptionId $SubscriptionId)
         [object[]]$logicAppConnectionRows = @(Get-ArchLucidAzureLogicAppConnectionCompanionRows -InventoryResources @($resources))
         [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))

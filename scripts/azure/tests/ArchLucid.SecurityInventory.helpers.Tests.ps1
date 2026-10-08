@@ -814,4 +814,110 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         @($rows | ForEach-Object datasetName) | Should -Contain 'SinkSql'
         ($rows | ConvertTo-Json -Depth 8) | Should -Not -Contain 'secret-value'
     }
+
+    It 'collects mapping data-flow linked services without parameter values' {
+        $dataflow = ConvertFrom-Json @'
+{
+  "properties": {
+    "typeProperties": {
+      "sources": [
+        {
+          "linkedService": { "referenceName": "BlobLS" },
+          "parameters": { "path": "secret-value" }
+        }
+      ],
+      "sinks": [
+        {
+          "dataset": { "referenceName": "SinkSet" },
+          "parameters": { "table": "secret-table" }
+        }
+      ]
+    }
+  }
+}
+'@
+
+        @(
+            Get-ArchLucidAzureAdfDataflowLinkedServiceNames `
+                -Items @($dataflow.properties.typeProperties.sources)
+            Get-ArchLucidAzureAdfDataflowLinkedServiceNames `
+                -Items @($dataflow.properties.typeProperties.sinks) `
+                -DatasetLinkedServiceNames @{ SinkSet = 'SqlLS' }
+        ) | Should -Contain 'BlobLS'
+        @(
+            Get-ArchLucidAzureAdfDataflowLinkedServiceNames `
+                -Items @($dataflow.properties.typeProperties.sinks) `
+                -DatasetLinkedServiceNames @{ SinkSet = 'SqlLS' }
+        ) | Should -Contain 'SqlLS'
+        ($dataflow | ConvertTo-Json -Depth 8) | Should -Not -Contain 'secret-value'
+    }
+
+    It 'expands ExecuteDataFlow into linked-service read and write rows' {
+        $activity = [PSCustomObject]@{
+            name = 'Transform'
+            type = 'ExecuteDataFlow'
+            typeProperties = [PSCustomObject]@{
+                dataFlow = [PSCustomObject]@{ referenceName = 'df1' }
+            }
+        }
+        $rows = [System.Collections.ArrayList]::new()
+        $flowKeys = [System.Collections.Generic.HashSet[string]]::new()
+
+        Add-ArchLucidAzureAdfPipelineActivityFlows `
+            -FactoryResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1' `
+            -PipelineResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1/pipelines/p1' `
+            -PipelineName 'p1' `
+            -PipelineResource $([PSCustomObject]@{ properties = [PSCustomObject]@{ activities = @($activity) } }) `
+            -PipelinesByName @{} `
+            -DataflowsByName @{
+                df1 = [PSCustomObject]@{
+                    sourceLinkedServiceNames = @('BlobLS')
+                    sinkLinkedServiceNames = @('SqlLS')
+                }
+            } `
+            -RemainingNestedDepth 0 `
+            -PipelineVisitStack @('p1') `
+            -Rows $rows `
+            -FlowKeys $flowKeys
+
+        @($rows).Count | Should -Be 2
+        @($rows | ForEach-Object datasetName) | Should -Contain '__linkedService:BlobLS'
+        @($rows | ForEach-Object datasetName) | Should -Contain '__linkedService:SqlLS'
+        @($rows | ForEach-Object flowDirection) | Should -Contain 'Read'
+        @($rows | ForEach-Object flowDirection) | Should -Contain 'Write'
+    }
+
+    It 'collects safe Azure resource ids from Logic App action definitions' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $definition = ConvertFrom-Json @'
+{
+  "actions": {
+    "RunFactory": {
+      "inputs": {
+        "uri": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1"
+      },
+      "secret": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/secret"
+    },
+    "Expression": {
+      "inputs": {
+        "uri": "@parameters('factoryId')"
+      }
+    }
+  }
+}
+'@
+
+        Add-ArchLucidAzureLogicAppActionConnectionRows `
+            -Node $definition `
+            -ActionName 'workflow' `
+            -WorkflowResourceId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Logic/workflows/wf1' `
+            -WorkflowName 'wf1' `
+            -Rows $rows `
+            -Seen $seen
+
+        @($rows).Count | Should -Be 1
+        $rows[0].connectionName | Should -Be 'RunFactory'
+        $rows[0].connectionResourceId | Should -Be '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1'
+    }
 }

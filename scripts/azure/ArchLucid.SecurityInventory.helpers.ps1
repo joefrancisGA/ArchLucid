@@ -2699,7 +2699,10 @@ function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
         [object[]] $InventoryResources,
 
         [Parameter(Mandatory = $false)]
-        [int] $MaxNestedPipelineDepth = 3
+        [int] $MaxNestedPipelineDepth = 3,
+
+        [Parameter(Mandatory = $false)]
+        [object[]] $DataflowRows = @()
     )
 
     if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
@@ -2738,6 +2741,18 @@ function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
             }
 
             $flowKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+            $dataflowsByName = @{}
+            foreach ($dataflowRow in @($DataflowRows))
+            {
+                if ($null -eq $dataflowRow) { continue }
+                if ("$( $dataflowRow.factoryResourceId )".Trim() -ne $factoryResourceId) { continue }
+
+                [string]$dataflowName = "$( $dataflowRow.dataflowName )".Trim()
+                if (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $dataflowName)
+                {
+                    $dataflowsByName[$dataflowName] = $dataflowRow
+                }
+            }
 
             foreach ($pipeline in $pipelineResources)
             {
@@ -2755,6 +2770,7 @@ function Get-ArchLucidAzureAdfPipelineFlowCompanionRows
                     -PipelineName $pipelineName `
                     -PipelineResource $pipeline `
                     -PipelinesByName $pipelinesByName `
+                    -DataflowsByName $dataflowsByName `
                     -RemainingNestedDepth $MaxNestedPipelineDepth `
                     -PipelineVisitStack @() `
                     -Rows $rows `
@@ -2788,6 +2804,9 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
         [Parameter(Mandatory = $true)]
         [hashtable] $PipelinesByName,
 
+        [Parameter(Mandatory = $false)]
+        [hashtable] $DataflowsByName = @{},
+
         [Parameter(Mandatory = $true)]
         [int] $RemainingNestedDepth,
 
@@ -2795,9 +2814,11 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
         [string[]] $PipelineVisitStack,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.ArrayList] $Rows,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.Generic.HashSet[string]] $FlowKeys
     )
 
@@ -2843,8 +2864,25 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
                 -PipelineName $nestedPipelineName `
                 -PipelineResource $nestedPipeline `
                 -PipelinesByName $PipelinesByName `
+                -DataflowsByName $DataflowsByName `
                 -RemainingNestedDepth ($RemainingNestedDepth - 1) `
                 -PipelineVisitStack (@($PipelineVisitStack) + @($nestedPipelineName)) `
+                -Rows $Rows `
+                -FlowKeys $FlowKeys
+
+            continue
+        }
+
+        if ($activityType -eq 'ExecuteDataFlow')
+        {
+            Add-ArchLucidAzureAdfExecuteDataflowFlows `
+                -FactoryResourceId $FactoryResourceId `
+                -PipelineResourceId $PipelineResourceId `
+                -PipelineName $PipelineName `
+                -ActivityName $activityName `
+                -ActivityType $activityType `
+                -Activity $activity `
+                -DataflowsByName $DataflowsByName `
                 -Rows $Rows `
                 -FlowKeys $FlowKeys
 
@@ -2915,6 +2953,66 @@ function Add-ArchLucidAzureAdfPipelineActivityFlows
                 -PropertyName 'sink' `
                 -Rows $Rows `
                 -FlowKeys $FlowKeys
+        }
+    }
+}
+
+function Add-ArchLucidAzureAdfExecuteDataflowFlows
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $FactoryResourceId,
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineResourceId,
+        [Parameter(Mandatory = $true)]
+        [string] $PipelineName,
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityName,
+        [Parameter(Mandatory = $true)]
+        [string] $ActivityType,
+        [Parameter(Mandatory = $true)]
+        [object] $Activity,
+        [Parameter(Mandatory = $true)]
+        [hashtable] $DataflowsByName,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [System.Collections.ArrayList] $Rows,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [System.Collections.Generic.HashSet[string]] $FlowKeys
+    )
+
+    [string]$dataflowName = ''
+    try { $dataflowName = "$( $Activity.typeProperties.dataFlow.referenceName )".Trim() } catch { }
+    if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $dataflowName) `
+        -or -not $DataflowsByName.ContainsKey($dataflowName))
+    {
+        return
+    }
+
+    $dataflow = $DataflowsByName[$dataflowName]
+    foreach ($direction in @(
+            [ordered]@{ Name = 'sourceLinkedServiceNames'; Value = 'Read' },
+            [ordered]@{ Name = 'sinkLinkedServiceNames'; Value = 'Write' }))
+    {
+        foreach ($linkedServiceName in @($dataflow.($direction.Name)))
+        {
+            [string]$name = "$( $linkedServiceName )".Trim()
+            if (-not (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $name)) { continue }
+
+            [string]$flowKey = "$FactoryResourceId|$PipelineResourceId|$ActivityName|$($direction.Value)|ls:$name"
+            if (-not $FlowKeys.Add($flowKey)) { continue }
+
+            [void]$Rows.Add([ordered]@{
+                factoryResourceId = $FactoryResourceId
+                pipelineResourceId = $PipelineResourceId
+                pipelineName = $PipelineName
+                activityName = $ActivityName
+                activityType = $ActivityType
+                flowDirection = $direction.Value
+                datasetName = "__linkedService:$name"
+                collectionStatus = 'Succeeded'
+            })
         }
     }
 }
@@ -3178,11 +3276,61 @@ function Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows
     return @($rows.ToArray())
 }
 
+function Get-ArchLucidAzureAdfDataflowLinkedServiceNames
+{
+    param(
+        [Parameter(Mandatory = $false)]
+        [object[]] $Items,
+
+        [Parameter(Mandatory = $false)]
+        [hashtable] $DatasetLinkedServiceNames
+    )
+
+    $names = [System.Collections.Generic.List[string]]::new()
+    foreach ($item in @($Items))
+    {
+        if ($null -eq $item) { continue }
+
+        [string]$linkedServiceName = ''
+        try { $linkedServiceName = "$( $item.linkedService.referenceName )".Trim() } catch { }
+
+        if ([string]::IsNullOrWhiteSpace($linkedServiceName))
+        {
+            try { $linkedServiceName = "$( $item.dataset.linkedService.referenceName )".Trim() } catch { }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($linkedServiceName) -and $null -ne $DatasetLinkedServiceNames)
+        {
+            [string]$datasetName = ''
+            try { $datasetName = "$( $item.dataset.referenceName )".Trim() } catch { }
+
+            if (-not [string]::IsNullOrWhiteSpace($datasetName) `
+                -and $DatasetLinkedServiceNames.ContainsKey($datasetName))
+            {
+                $linkedServiceName = "$( $DatasetLinkedServiceNames[$datasetName] )".Trim()
+            }
+        }
+
+        if ((Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $linkedServiceName) `
+            -and -not @($names | Where-Object {
+                $_.Equals($linkedServiceName, [System.StringComparison]::OrdinalIgnoreCase)
+            }))
+        {
+            $names.Add($linkedServiceName)
+        }
+    }
+
+    return @($names.ToArray())
+}
+
 function Get-ArchLucidAzureAdfDataflowCompanionRows
 {
     param(
         [Parameter(Mandatory = $true)]
-        [object[]] $InventoryResources
+        [object[]] $InventoryResources,
+
+        [Parameter(Mandatory = $false)]
+        [object[]] $DatasetRows = @()
     )
 
     if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
@@ -3208,6 +3356,21 @@ function Get-ArchLucidAzureAdfDataflowCompanionRows
             [string]$path = "$factoryResourceId/dataflows?api-version=$apiVersion"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+            $datasetLinkedServiceNames = @{}
+
+            foreach ($datasetRow in @($DatasetRows))
+            {
+                if ($null -eq $datasetRow) { continue }
+                if ("$( $datasetRow.factoryResourceId )".Trim() -ne $factoryResourceId) { continue }
+
+                [string]$datasetName = "$( $datasetRow.datasetName )".Trim()
+                [string]$linkedServiceName = "$( $datasetRow.linkedServiceName )".Trim()
+                if (-not [string]::IsNullOrWhiteSpace($datasetName) `
+                    -and (Test-ArchLucidAzureAdfStaticReferenceName -ReferenceName $linkedServiceName))
+                {
+                    $datasetLinkedServiceNames[$datasetName] = $linkedServiceName
+                }
+            }
 
             foreach ($dataflow in @($payload.value))
             {
@@ -3219,12 +3382,36 @@ function Get-ArchLucidAzureAdfDataflowCompanionRows
                     continue
                 }
 
+                $dataflowDetails = $dataflow
+                $typeProperties = $null
+                try { $typeProperties = $dataflow.properties.typeProperties } catch { }
+
+                if ($null -eq $typeProperties)
+                {
+                    try
+                    {
+                        $detailResponse = Invoke-AzRestMethod -Method GET `
+                            -Path "$dataflowResourceId?api-version=$apiVersion" `
+                            -ErrorAction Stop
+                        $dataflowDetails = $detailResponse.Content | ConvertFrom-Json -ErrorAction Stop
+                        $typeProperties = $dataflowDetails.properties.typeProperties
+                    }
+                    catch
+                    {
+                        continue
+                    }
+                }
+
                 [void]$rows.Add([ordered]@{
                     factoryResourceId = $factoryResourceId
                     dataflowResourceId = $dataflowResourceId
                     dataflowName = $dataflowName
-                    sourceLinkedServiceNames = @()
-                    sinkLinkedServiceNames = @()
+                    sourceLinkedServiceNames = @(Get-ArchLucidAzureAdfDataflowLinkedServiceNames `
+                        -Items @($typeProperties.sources) `
+                        -DatasetLinkedServiceNames $datasetLinkedServiceNames)
+                    sinkLinkedServiceNames = @(Get-ArchLucidAzureAdfDataflowLinkedServiceNames `
+                        -Items @($typeProperties.sinks) `
+                        -DatasetLinkedServiceNames $datasetLinkedServiceNames)
                     collectionStatus = 'Succeeded'
                 })
             }
@@ -3364,6 +3551,133 @@ function Get-ArchLucidAzureEventGridSubscriptionCompanionRows
     return @($rows.ToArray())
 }
 
+function Test-ArchLucidAzureLogicAppActionResourceId
+{
+    param(
+        [AllowEmptyString()]
+        [string] $Value,
+
+        [string] $WorkflowResourceId
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value) `
+        -or $Value.Contains('@') `
+        -or -not $Value.Trim().StartsWith('/subscriptions/', [System.StringComparison]::OrdinalIgnoreCase))
+    {
+        return $false
+    }
+
+    [string]$candidate = $Value.Trim()
+    if ($candidate.Equals($WorkflowResourceId, [System.StringComparison]::OrdinalIgnoreCase)) { return $false }
+
+    [string[]]$segments = @($candidate.Trim('/').Split('/'))
+    [int]$providerIndex = [System.Array]::IndexOf(
+        $segments,
+        ($segments | Where-Object { $_ -ieq 'providers' } | Select-Object -First 1))
+    if ($providerIndex -lt 0 -or $providerIndex + 2 -ge $segments.Count) { return $false }
+
+    [string]$providerAndType = "$($segments[$providerIndex + 1])/$($segments[$providerIndex + 2])".ToLowerInvariant()
+    return $providerAndType -in @(
+        'microsoft.datafactory/factories',
+        'microsoft.synapse/workspaces',
+        'microsoft.storage/storageaccounts',
+        'microsoft.web/sites',
+        'microsoft.servicebus/namespaces',
+        'microsoft.eventhub/namespaces',
+        'microsoft.sql/servers',
+        'microsoft.documentdb/databaseaccounts')
+}
+
+function Test-ArchLucidAzureLogicAppSensitiveProperty
+{
+    param([string] $PropertyName)
+
+    [string]$normalized = "$( $PropertyName )".Replace('_', '').Replace('-', '').ToLowerInvariant()
+    return $normalized -match 'password|secret|connectionstring|securedata|accesskey|accountkey|token|sas|authentication'
+}
+
+function Add-ArchLucidAzureLogicAppActionConnectionRows
+{
+    param(
+        [object] $Node,
+        [string] $ActionName,
+        [string] $WorkflowResourceId,
+        [string] $WorkflowName,
+        [System.Collections.ArrayList] $Rows,
+        [hashtable] $Seen
+    )
+
+    if ($null -eq $Node) { return }
+
+    if ($Node -is [System.Array])
+    {
+        foreach ($item in $Node)
+        {
+            Add-ArchLucidAzureLogicAppActionConnectionRows `
+                -Node $item `
+                -ActionName $ActionName `
+                -WorkflowResourceId $WorkflowResourceId `
+                -WorkflowName $WorkflowName `
+                -Rows $Rows `
+                -Seen $Seen
+        }
+        return
+    }
+
+    if ($Node -is [string]) { return }
+
+    foreach ($property in @($Node.PSObject.Properties))
+    {
+        if (Test-ArchLucidAzureLogicAppSensitiveProperty -PropertyName $property.Name) { continue }
+
+        if ($property.Name -ieq 'actions' -and $null -ne $property.Value)
+        {
+            foreach ($actionProperty in @($property.Value.PSObject.Properties))
+            {
+                Add-ArchLucidAzureLogicAppActionConnectionRows `
+                    -Node $actionProperty.Value `
+                    -ActionName $actionProperty.Name `
+                    -WorkflowResourceId $WorkflowResourceId `
+                    -WorkflowName $WorkflowName `
+                    -Rows $Rows `
+                    -Seen $Seen
+            }
+            continue
+        }
+
+        if ($property.Value -is [string])
+        {
+            if (Test-ArchLucidAzureLogicAppActionResourceId `
+                    -Value $property.Value `
+                    -WorkflowResourceId $WorkflowResourceId)
+            {
+                [string]$resourceId = $property.Value.Trim()
+                [string]$key = "$WorkflowResourceId|$resourceId"
+                if (-not $Seen.ContainsKey($key))
+                {
+                    $Seen[$key] = $true
+                    [void]$Rows.Add([ordered]@{
+                        workflowResourceId = $WorkflowResourceId
+                        workflowName = $WorkflowName
+                        connectionName = $ActionName
+                        connectionResourceId = $resourceId
+                        collectionStatus = 'Succeeded'
+                    })
+                }
+            }
+            continue
+        }
+
+        Add-ArchLucidAzureLogicAppActionConnectionRows `
+            -Node $property.Value `
+            -ActionName $ActionName `
+            -WorkflowResourceId $WorkflowResourceId `
+            -WorkflowName $WorkflowName `
+            -Rows $Rows `
+            -Seen $Seen
+    }
+}
+
 function Get-ArchLucidAzureLogicAppConnectionCompanionRows
 {
     param(
@@ -3406,6 +3720,7 @@ function Get-ArchLucidAzureLogicAppConnectionCompanionRows
                     [string]$key = "$resourceId|$connectionName|$connectionResourceId"
                     if ($seen.ContainsKey($key)) { continue }
                     $seen[$key] = $true
+                    $seen["$resourceId|$connectionResourceId"] = $true
 
                     [void]$rows.Add([ordered]@{
                         workflowResourceId = $resourceId
@@ -3415,6 +3730,14 @@ function Get-ArchLucidAzureLogicAppConnectionCompanionRows
                         collectionStatus = 'Succeeded'
                     })
                 }
+
+                Add-ArchLucidAzureLogicAppActionConnectionRows `
+                    -Node $workflow.properties.definition `
+                    -ActionName $workflow.name `
+                    -WorkflowResourceId $resourceId `
+                    -WorkflowName "$( $workflow.name )".Trim() `
+                    -Rows $rows `
+                    -Seen $seen
             }
             catch
             {

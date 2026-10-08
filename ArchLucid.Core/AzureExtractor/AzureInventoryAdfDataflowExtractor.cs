@@ -10,6 +10,7 @@ public static class AzureInventoryAdfDataflowExtractor
     public static bool TryExtractFromArmResource(
         string factoryResourceId,
         JsonElement dataflowResource,
+        IReadOnlyDictionary<string, string>? datasetLinkedServiceNames,
         out AzureInventoryAdfDataflowRow? row)
     {
         row = null;
@@ -41,8 +42,10 @@ public static class AzureInventoryAdfDataflowExtractor
             typePropertiesElement = default;
         }
 
-        List<string> sourceLinkedServiceNames = ExtractLinkedServiceNames(typePropertiesElement, "sources");
-        List<string> sinkLinkedServiceNames = ExtractLinkedServiceNames(typePropertiesElement, "sinks");
+        List<string> sourceLinkedServiceNames =
+            ExtractLinkedServiceNames(typePropertiesElement, "sources", datasetLinkedServiceNames);
+        List<string> sinkLinkedServiceNames =
+            ExtractLinkedServiceNames(typePropertiesElement, "sinks", datasetLinkedServiceNames);
 
         row = new AzureInventoryAdfDataflowRow
         {
@@ -57,7 +60,18 @@ public static class AzureInventoryAdfDataflowExtractor
         return true;
     }
 
-    private static List<string> ExtractLinkedServiceNames(JsonElement typePropertiesElement, string collectionPropertyName)
+    public static bool TryExtractFromArmResource(
+        string factoryResourceId,
+        JsonElement dataflowResource,
+        out AzureInventoryAdfDataflowRow? row)
+    {
+        return TryExtractFromArmResource(factoryResourceId, dataflowResource, null, out row);
+    }
+
+    private static List<string> ExtractLinkedServiceNames(
+        JsonElement typePropertiesElement,
+        string collectionPropertyName,
+        IReadOnlyDictionary<string, string>? datasetLinkedServiceNames)
     {
         List<string> linkedServiceNames = [];
 
@@ -75,23 +89,43 @@ public static class AzureInventoryAdfDataflowExtractor
                 continue;
             }
 
-            if (!item.TryGetProperty("dataset", out JsonElement datasetElement)
-                || datasetElement.ValueKind is not JsonValueKind.Object
-                || !datasetElement.TryGetProperty("linkedService", out JsonElement linkedServiceElement)
-                || linkedServiceElement.ValueKind is not JsonValueKind.Object)
+            string? linkedServiceName = TryReadLinkedServiceReferenceName(item);
+
+            if (string.IsNullOrWhiteSpace(linkedServiceName)
+                && item.TryGetProperty("dataset", out JsonElement datasetElement)
+                && datasetElement.ValueKind is JsonValueKind.Object)
             {
-                continue;
+                linkedServiceName = TryReadLinkedServiceReferenceName(datasetElement);
+
+                if (string.IsNullOrWhiteSpace(linkedServiceName)
+                    && datasetLinkedServiceNames is not null)
+                {
+                    string? datasetName = TryReadString(datasetElement, "referenceName");
+                    if (!string.IsNullOrWhiteSpace(datasetName))
+                    {
+                        datasetLinkedServiceNames.TryGetValue(datasetName.Trim(), out linkedServiceName);
+                    }
+                }
             }
 
-            string? referenceName = TryReadString(linkedServiceElement, "referenceName");
-
-            if (AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(referenceName))
+            if (AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(linkedServiceName))
             {
-                linkedServiceNames.Add(referenceName!.Trim());
+                linkedServiceNames.Add(linkedServiceName!.Trim());
             }
         }
 
         return linkedServiceNames.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static string? TryReadLinkedServiceReferenceName(JsonElement element)
+    {
+        if (!element.TryGetProperty("linkedService", out JsonElement linkedServiceElement)
+            || linkedServiceElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return TryReadString(linkedServiceElement, "referenceName");
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
