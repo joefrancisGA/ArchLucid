@@ -43,6 +43,7 @@ SCENARIO_MARKERS: tuple[tuple[str, tuple[str, ...]], ...] = (
         (
             "issue, list, and revoke",
             "unauthenticated SCIM provisioning request",
+            "different tenant",
             "scim-provisioning-settings-page",
             "scim-mutation-success-callout",
         ),
