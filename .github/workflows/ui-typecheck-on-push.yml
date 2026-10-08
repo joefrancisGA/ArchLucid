@@ -168,6 +168,7 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_tb325_327.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_warm_private_beta_live_api_paths.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_cancel_stale_pending_ci_runs.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"

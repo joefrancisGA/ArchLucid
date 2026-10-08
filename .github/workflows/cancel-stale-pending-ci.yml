@@ -23,6 +23,9 @@ jobs:
     name: Cancel pending CI runs with 0 jobs
     runs-on: ubuntu-latest
     steps:
+      # Runner workspace is empty until checkout; the cancel script lives in the repo.
+      - uses: actions/checkout@v7
+
       - name: Cancel stale pending CI runs
         env:
           DRY_RUN: ${{ inputs.dry_run }}
