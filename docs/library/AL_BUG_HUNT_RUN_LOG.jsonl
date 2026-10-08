@@ -8904,4 +8904,4 @@
 {"at":"2026-10-08T16:15:41.1779976Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Repositories/SqlRunRepository.cs"]}
 {"at":"2026-10-08T16:19:53.8796967Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs"]}
 {"at":"2026-10-08T16:27:34.2984507Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/,ArchLucid.Core/Http/"]}
-{"at":"2026-10-08T16:39:34.9416683Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Core/Safety/,ArchLucid.Core/Http/)"]}
+{"at":"2026-10-08T16:39:34.9416683Z","zoneId":"core-safety-network","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Safety/","ArchLucid.Core/Http/"]}
