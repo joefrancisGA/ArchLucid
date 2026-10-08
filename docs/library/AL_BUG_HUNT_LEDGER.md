@@ -1,5 +1,13 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the submit lifecycle and response paths after the fifth consecutive seed-only selection; no reachable failing repro was identified. Seeded five follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
+
+- [ ] (candidate) `invalidateInFlightSubmit` — generation invalidation does not abort the network request, allowing an intentionally dismissed request to continue consuming server-side resources — locus: ref guard without `AbortController`; input: slow POST followed by cancel or toggle dismissal.
+- [ ] (candidate) `onSubmit` — a rejected invisible-character value leaves `submitting` false but retains the prior error state across later valid edits — locus: early return before normal error reset; input: invalid submit followed by field correction and toggle reopen.
+- [ ] (candidate) `onSubmit` — optional fields are trimmed only while constructing the request body, so the form state and DOM retain surrounding whitespace after a failed response — locus: trim at POST boundary; input: padded optional note followed by failed submission.
+- [ ] (candidate) `showForm` toggle — closing and reopening during an in-flight request retains editable values while the original request still targets the earlier snapshot — locus: form state persists across generation invalidation; input: edit note, submit, toggle close, reopen, edit again.
+- [ ] (candidate) success transition — `setShowForm(false)` after a successful response leaves the existing `form` object populated until the submitted branch replaces the view — locus: state not reset in success path; input: successful request followed by a parent remount or transition that reuses the component state.
+
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — re-read the selected component and its complete scoped test matrix; no new hunt-ready input/mechanism/wrong-outcome chain survived cheap-disproof. Seeded five reachable follow-on `(candidate)` rows; 63 scoped `AuthCallbackAccessPanel` tests passed; no production code changed and no regression was added.
 
 - [ ] (candidate) `containsUnsupportedAccessRequestText` — the hidden `websiteUrl` value is intentionally excluded from the invisible-character guard, so a scripted field injection can send format characters to the honeypot branch — locus: guard’s six-field list omits `websiteUrl`; input: populated hidden website field containing `\u202e`.
