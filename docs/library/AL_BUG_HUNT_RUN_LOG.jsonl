@@ -8880,3 +8880,4 @@
 {"at":"2026-10-08T14:44:57.8516325Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-08T14:48:55.5995635Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
 {"at":"2026-10-08T14:52:49.6631827Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Worker/Program.cs"]}
+{"at":"2026-10-08T14:57:51.0335887Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}

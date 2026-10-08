@@ -810,6 +810,36 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("still navigates after 201 when the response body stream fails", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 201,
+        text: vi.fn().mockRejectedValue(new Error("response body stream failed")),
+      })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("still navigates after 201 when register response body is empty", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();

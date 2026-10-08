@@ -4820,11 +4820,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 47
-- **bugs-found:** 9
-- **consecutive-dry-hunts:** 9
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-06 — emoji UTM in first-touch cookie blocked signup via btoa throw
+- **hunts:** 48
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — response body stream failure reported committed signup as failed
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
@@ -4836,11 +4836,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `buildSignupRegisterPayload` — `organizationName`, `adminEmail`, and `adminDisplayName` are copied without trimming when the builder is called with resolver-bypassing values — locus: initial payload object around lines 43–48; input: values supplied by a non-UI caller or a form adapter that bypasses the zod resolver.
-- [ ] (candidate) `SignupForm` success handling — a successful registration with no `companySize` leaves an older `archlucid_signup_company_size` session value intact — locus: conditional session-storage write around lines 170–177; input: operator registers once with a company-size selection, then registers again after choosing “Prefer not to say” in the same browser session.
-- [ ] (candidate) `SignupForm` success handling — a second successful registration overwrites `archlucid_last_registration` without preserving the prior tenant context — locus: unconditional session-storage write around lines 178–188; input: an operator completes registration twice after a recoverable navigation/session transition.
-- [ ] (candidate) `SignupForm` `onSubmit` — a `Response` whose `text()` rejects after an otherwise successful HTTP status reaches the generic error toast and leaves the completed registration state ambiguous — locus: `await res.text()` before the status branch around lines 143–149; input: same-origin proxy response body stream failure after registration has committed.
-- [ ] (candidate) `SignupForm` `onSubmit` — the error fallback can expose raw HTML or infrastructure text from a non-OK proxy response in a toast — locus: `text || \`Request failed...\`` fallback around lines 157–164; input: reachable proxy/API 502 response with an HTML or diagnostic body and no string `detail`.
+- [x] (invalid) `buildSignupRegisterPayload` — required-field trimming is handled by the `zodResolver` before this submit-only builder; the direct bypass is covered as intentional pass-through by `passes padded required fields when the register payload builder is called directly`.
+- [x] (invalid) `SignupForm` success handling — `archlucid_signup_company_size` has no consumer in the application, so retaining an old optional value has no reachable user-visible effect.
+- [x] (valid-no-repro) `SignupForm` success handling — `archlucid_last_registration` intentionally stores the latest successful registration; preserving the prior tenant would contradict the session-scope reader's latest-registration contract.
+- [x] (proven) `SignupForm` `onSubmit` — a `Response` whose `text()` rejects after an otherwise successful HTTP status reached the generic error toast and left the completed registration state ambiguous — **hit 2026-10-08 thorough hunt:** body-read failure now falls through to status-based success handling; regression `still navigates after 201 when the response body stream fails`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — raw HTML or infrastructure text in a non-OK response is an explicit current error-display contract; regression `shows raw html error body when register response is not json`.
+
+2026-10-08 thorough hunt (hit): cheap-disproof closed four other `(candidate)` rows; proved a successful registration could be reported as failed when `Response.text()` rejected after a `201`; caught body-read failure and continued with status-based success handling; regression `still navigates after 201 when the response body stream fails`; 95 scoped SignupForm vitest tests passed and changed files linted cleanly.
 
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
