@@ -8831,3 +8831,4 @@
 {"at":"2026-10-08T06:27:06.6473898Z","zoneId":"worker-host","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T06:32:46.6662416Z","zoneId":"sql-run-repository","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T06:39:22.4427749Z","zoneId":"auth-return-path","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-08T06:45:18.2085907Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared"}

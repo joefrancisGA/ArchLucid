@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `cli-terraform-evidence` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
+
 2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; reaffirmed keyset probe/assembly clamping, offset probe/assembly clamping, GUID project matching, archived-run list filtering, and timestamp/RunId ordering; 172 focused Persistence tests passed and 1 SQL integration test skipped (`RunAnalyzers=false`).
@@ -9276,9 +9278,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
-**Hunts:** 36 · **Bugs found:** 2 · **Consecutive dry hunts:** 9
+**Hunts:** 37 · **Bugs found:** 2 · **Consecutive dry hunts:** 10
 
-2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves`; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves`, `Reference_doc_advanced_table_path_cells_use_backtick_wrappers`, `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`, and `DefaultApplyOrderRoots_composition_wave_annotations_are_separate_from_pilot_leaf_path_order`; 51 scoped deployment-evidence terraform + report tests passed; `assert_terraform_root_ordering_sync.py` OK.
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed explicit Terraform-root override precedence, pilot-root tail ordering, contiguous reference rows, single documentation-path citation, and wrapper-script delegation; 45 scoped `DeploymentEvidenceTerraformReferenceTests` passed and `assert_terraform_root_ordering_sync.py` returned `OK`.
+
+- [x] (valid-no-repro) `infra/apply-saas.ps1` — operator-supplied `$TerraformRoots` must bypass legacy and hosted wave branches — **cheap-disproof 2026-10-08 seed hunt #37:** explicit roots take the first branch and are not replaced by legacy/hosted arrays; focused apply-root parity tests pass.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — pilot profile line must remain last entry after orchestrator annotation — **cheap-disproof 2026-10-08 seed hunt #37:** canonical pilot metadata is the final root after the legacy orchestrator annotation; focused order tests pass.
+- [x] (valid-no-repro) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table row numbers must stay contiguous 1–16 when a row is inserted — **cheap-disproof 2026-10-08 seed hunt #37:** reference-table row validation rejects gaps or duplicates before leaf parity is accepted.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — Terraform section must cite `DocumentationRelativePath` exactly once — **cheap-disproof 2026-10-08 seed hunt #37:** report composition uses the canonical documentation path and focused report tests cover citation shape.
+- [x] (valid-no-repro) `scripts/ci/assert_terraform_root_ordering_sync.py` — landing-zone wrapper scripts must invoke `apply-saas.ps1` rather than duplicating leaf arrays — **cheap-disproof 2026-10-08 seed hunt #37:** ordering guard returned `OK` and wrapper delegation checks passed.
+
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — composition-wave metadata lines may be mistaken for executable Terraform leaves by a consumer that strips only the first annotation delimiter — locus: first three annotated roots ~13–16; input: parser that extracts root paths from em-dash text.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — orchestrator legacy-only annotation may be omitted by consumers that assume every root is a hosted-wave leaf — locus: orchestrator line ~30; input: hosted-wave parity parser consuming the full list.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — documentation link may be emitted before root numbering and become detached from the Terraform section heading — locus: compose header ordering; input: markdown consumer that anchors on the first documentation path.
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — pilot canonical-profile wording may drift from `DefaultApplyOrderRoots` final entry without changing leaf count — locus: pilot row documentation; input: wording-only reference-doc edit.
+- [ ] (candidate) `scripts/ci/assert_terraform_root_ordering_sync.py` — wrapper detection may miss a new landing-zone script that delegates through a relative path variant — locus: wrapper discovery and apply-saas invocation check; input: new `infra/landing-zone/*.ps1` wrapper.
 
 - [x] (valid-no-repro) `infra/apply-saas.ps1` — `-LegacyLeafRoots` selects `$multiRootSequence` not hosted flatten — **cheap-disproof 2026-10-08 seed hunt #36:** legacy vs hosted `$roots` branches are distinct; regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves` (parity `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`).
 - [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots` — consumption root precedes monitoring — **cheap-disproof 2026-10-08 seed hunt #36:** index guards; reaffirmed `DefaultApplyOrderRoots_lists_composition_waves_then_hosted_leaves` and `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`.
@@ -9328,9 +9342,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
