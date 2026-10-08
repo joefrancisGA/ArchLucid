@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset cache keys, offset vs unpaged take ceilings, architecture list NOLOCK posture, empty architecture prior-pointer guard, and InMemory offset tie-break; regressions `ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design`, `RunListRecentInScopeFirstPage_offset_limit_does_not_share_cache_key_with_unpaged_two_hundred_ceiling`, `ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads`, `InMemory_get_prior_committed_run_for_architecture_before_current_returns_null_for_empty_architecture_id`, and `InMemory_offset_list_pages_all_runs_when_created_utc_ties`; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `sql-run-repository` — cheap-disproof closed five open `(candidate)` rows on recent-in-scope list vs keyset take ceilings, cache key isolation, InMemory default take split, unpaged TOP vs keyset `@Fetch`, and governance `Open` literal shape; regressions `ForRecentInScope_and_keyset_page_use_different_take_ceilings_by_design`, `RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide`, `InMemory_list_recent_in_scope_defaults_to_two_hundred_while_keyset_defaults_to_run_pagination_take`, `Runs_list_recent_in_scope_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more`, and `Run_detail_and_list_governance_open_filters_both_target_open_alert_status`; seeded five follow-on `(candidate)` rows; 238 scoped zone tests passed (`RunAnalyzers=false`).
 
 2026-10-08 thorough hunt (hit): `ui-marketing-surfaces` — proved duplicate `pipelineTimeline` `eventId` values passed showcase fetch validation, risking collapsed React timeline rows; fixed with per-payload uniqueness in `hasUsableShowcasePipelineTimeline`; cheap-disproved `buildPricingSignupHref` dropping `utm_campaign` (`MARKETING_ATTRIBUTION_QUERY_KEYS` + `pricing-signup-href.test.ts`), Quick Scan capacity banner sticking after successful submit (`use-quick-scan-client.test.ts` recovery + submit clears `capacityMessage`), `/see-it` HTTP 304 empty body (`loadSeeItDemoPreview` returns snapshot file), and trust-center ZIP without API base (`TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF` uses `/api/proxy/...`); regression `treats API payloads with duplicate pipeline timeline eventId values as invalid`; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
@@ -6636,7 +6638,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: sql-run-repository
 
-**Hunts:** 62 · **Bugs found:** 27 · **Consecutive dry hunts:** 2
+**Hunts:** 63 · **Bugs found:** 27 · **Consecutive dry hunts:** 2
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope offset shapes; seeded five follow-on `(candidate)` rows; 241 scoped zone tests passed (`RunAnalyzers=false`).
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows on recent-in-scope list shapes; seeded five follow-on `(candidate)` rows; 238 scoped zone tests passed (`RunAnalyzers=false`).
 
@@ -6654,11 +6658,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock` vs `RunsListRecentInScopeKeysetNoLock` — unpaged `TOP (@Take)` without `@Fetch` — **cheap-disproof 2026-10-08 seed hunt #62:** `HasMore` is keyset-only; regression `Runs_list_recent_in_scope_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more`.
 - [x] (valid-no-repro) `RunListWarningFlagSql.LeftJoinAggregates` — governance open-alert literal shape vs detail EXISTS — **cheap-disproof 2026-10-08 seed hunt #62:** both filter `AlertRecords.Status` to Open on `NVARCHAR`; regression `Run_detail_and_list_governance_open_filters_both_target_open_alert_status`.
 
-- [ ] (candidate) `CachingRunRepository.ListRecentInScopeOffsetAsync` — first offset page cache uses `safeLimit` while unpaged recent list caches up to 200 — locus: `CachingRunRepository.Lists.cs`; input: dashboard toggles offset vs unpaged recent APIs within TTL; wrong outcome: stale first-page rows when limits differ.
-- [ ] (candidate) `RunListQueryParameters.ForRecentInScopeOffsetPage` — `Fetch` uses `ClampLimit(limit)+1` while `ForRecentInScope` clamps take to 200 — locus: `RunListQueryParameters.cs`; input: same numeric page size on offset vs unpaged recent paths; wrong outcome: mismatched row counts for equivalent UI page size.
-- [ ] (candidate) `SqlRunRepository.ListByArchitectureIdAsync` — inline `SELECT` omits `NOLOCK` while recent-in-scope lists use `HotPathRelationalQueryShapes` NOLOCK — locus: `SqlRunRepository.Architecture.cs`; input: architecture-attached picker under replica lag; wrong outcome: attached list appears fresher than dashboard recent list.
-- [ ] (candidate) `GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync` — returns null for `Guid.Empty` architecture id without validation error — locus: `SqlRunRepository.Query.CommittedRun.cs`; input: hook passes empty architecture id during migration; wrong outcome: silent null prior pointer vs explicit guard.
-- [ ] (candidate) `InMemoryRunRepository.ListRecentInScopeOffsetAsync` — offset paging without `RunId` tie-break when `CreatedUtc` ties — locus: `InMemoryRunRepository.List.cs`; input: concurrent inserts with identical timestamps; wrong outcome: offset pages skip or duplicate rows unlike SQL offset shape.
+- [x] (valid-no-repro) `CachingRunRepository.ListRecentInScopeOffsetAsync` — first offset page cache uses `safeLimit` while unpaged recent list caches up to 200 — **cheap-disproof 2026-10-08 seed hunt #63:** cache keys include clamped limit; regression `RunListRecentInScopeFirstPage_offset_limit_does_not_share_cache_key_with_unpaged_two_hundred_ceiling` and `ListRecentInScope_first_page_cache_isolated_per_list_shape`.
+- [x] (valid-no-repro) `RunListQueryParameters.ForRecentInScopeOffsetPage` — `Fetch` uses `ClampLimit(limit)+1` while `ForRecentInScope` clamps take to 200 — **cheap-disproof 2026-10-08 seed hunt #63:** intentional list-shape split; regression `ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design`.
+- [x] (valid-no-repro) `SqlRunRepository.ListByArchitectureIdAsync` — inline `SELECT` omits `NOLOCK` while recent-in-scope lists use NOLOCK shapes — **cheap-disproof 2026-10-08 seed hunt #63:** identity-attached reads favor correctness; regression `ListByArchitectureId_inline_select_omits_nolock_by_design_for_identity_attached_reads`.
+- [x] (valid-no-repro) `GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync` — returns null for `Guid.Empty` architecture id — **cheap-disproof 2026-10-08 seed hunt #63:** SQL and InMemory short-circuit empty architecture id by contract; regression `InMemory_get_prior_committed_run_for_architecture_before_current_returns_null_for_empty_architecture_id`.
+- [x] (invalid) `InMemoryRunRepository.ListRecentInScopeOffsetAsync` — offset paging without `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-10-08 seed hunt #63:** InMemory uses `ThenByDescending(r => r.RunId)`; regression `InMemory_offset_list_pages_all_runs_when_created_utc_ties`.
+
+- [ ] (candidate) `CachingRunRepository.ListByProjectAsync` — first-page cache uses `safeTake` up to 200 while keyset caches `RunPagination.ClampTake` — locus: `CachingRunRepository.Lists.cs`; input: operator toggles project unpaged vs keyset within TTL; wrong outcome: cross-shape stale rows when take differs.
+- [ ] (candidate) `RunListQueryParameters.ForProjectList` vs `ForRecentInScope` — zero take defaults to 20 on project lists but 200 on recent-in-scope unpaged — locus: `RunListQueryParameters.cs`; input: picker calls both APIs with `take=0`; wrong outcome: unequal default page sizes for equivalent "recent runs" UX.
+- [ ] (candidate) `SqlRunRepository.GetByIdIncludingArchivedAsync` — archived run visible to admin read while `ListRecentInScopeAsync` filters `ArchivedUtc IS NULL` — locus: `SqlRunRepository.Query.ById.cs` vs list shapes; input: support opens archived run then returns to dashboard list; wrong outcome: operator assumes run vanished from recent list incorrectly.
+- [ ] (candidate) `RunRepositoryCore.ValidateRunKeysetCursor` — accepts `cursorCreatedUtc` without `cursorRunId` when only run id is provided — locus: `RunRepositoryCore` keyset validation; input: malformed client cursor JSON; wrong outcome: SQL keyset seek scans from epoch.
+- [ ] (candidate) `InMemoryRunRepository.ListByProjectKeysetAsync` — continuation page retains stored warning flags without SQL aggregate hydration — locus: `InMemoryRunRepository.List.cs`; input: contract test comparing SQL list warnings to in-memory keyset page; wrong outcome: false-positive warning badges on continuation rows.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five seeded `(candidate)` rows (project list warning hydration, keyset HasMore clamps, replica list routing, keyset in-memory warnings, detail NOLOCK shape); seeded five follow-on `(candidate)` rows; 235 scoped zone tests passed, 1 SQL integration skipped (`RunAnalyzers=false`).
 
@@ -6729,7 +6739,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 62
+- **hunts:** 63
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-08

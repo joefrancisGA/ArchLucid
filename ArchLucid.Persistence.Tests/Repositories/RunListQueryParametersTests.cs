@@ -110,6 +110,15 @@ public sealed class RunListQueryParametersTests
             .Be(RunPagination.MaxTake + 1);
     }
 
+    [Fact]
+    public void ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), 0, 500), "Fetch")
+            .Should()
+            .Be(RunPagination.ClampLimit(500) + 1);
+    }
+
     [Theory]
     [InlineData(-10, 0)]
     [InlineData(0, 0)]

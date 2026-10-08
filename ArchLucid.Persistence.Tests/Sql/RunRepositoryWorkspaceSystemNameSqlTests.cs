@@ -2595,6 +2595,28 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public async Task InMemory_get_prior_committed_run_for_architecture_before_current_returns_null_for_empty_architecture_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+
+        Guid? prior = await runs.GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+            scope,
+            Guid.Empty,
+            Guid.NewGuid(),
+            TimeProvider.System.UtcNowDateTime(),
+            CancellationToken.None);
+
+        prior.Should().BeNull();
+    }
+
+    [Fact]
     public async Task InMemory_get_prior_committed_run_before_current_treats_empty_current_run_id_as_non_exclusion()
     {
         ScopeContext scope = new()

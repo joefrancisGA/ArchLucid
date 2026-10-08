@@ -150,6 +150,22 @@ public sealed class HotPathCacheKeysTests
     }
 
     [SkippableFact]
+    public void RunListRecentInScopeFirstPage_offset_limit_does_not_share_cache_key_with_unpaged_two_hundred_ceiling()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        string unpagedKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 200, 4);
+        string offsetKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 50, 4);
+
+        unpagedKey.Should().NotBe(offsetKey);
+    }
+
+    [SkippableFact]
     public void FindingsSnapshot_includes_scope_and_id()
     {
         ScopeContext scope = new()
