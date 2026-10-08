@@ -9,6 +9,9 @@ const BFF_SESSION_REFRESH_PATH = "/api/auth/bff-session/refresh";
 const BFF_SESSION_ACTIVITY_PATH = "/api/auth/bff-session/activity";
 const BFF_SESSION_RP_LOGOUT_URL_PATH = "/api/auth/bff-session/rp-logout-url";
 
+/** Parity with `session.ts` expiry skew when accepting BFF refresh hints. */
+const BFF_REFRESH_EXPIRY_SKEW_MS = 60_000;
+
 function resolveWorkingModeForBffSession(): boolean {
   if (typeof window === "undefined") {
     return true;
@@ -91,7 +94,7 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
       const body = (await response.json()) as { expires_at_ms?: number };
       const expiresAtMs = Number(body.expires_at_ms);
 
-      if (Number.isFinite(expiresAtMs) && expiresAtMs > 0) {
+      if (Number.isFinite(expiresAtMs) && expiresAtMs > Date.now() - BFF_REFRESH_EXPIRY_SKEW_MS) {
         return { ok: true, expiresAtMs };
       }
 

@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { clearBffSessionCookie, syncBffSessionCookieFromTokenResponse } from "@/lib/oidc/bff-session-sync";
+import {
+  clearBffSessionCookie,
+  refreshBffSessionCookie,
+  syncBffSessionCookieFromTokenResponse,
+} from "@/lib/oidc/bff-session-sync";
 
 describe("bff-session-sync (LK-05 P1)", () => {
   beforeEach(() => {
@@ -99,5 +103,41 @@ describe("bff-session-sync (LK-05 P1)", () => {
         }),
       }),
     );
+  });
+});
+
+describe("refreshBffSessionCookie (LK-06 P2)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects refresh responses whose expires_at_ms is far in the past", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: 1 }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("accepts refresh responses whose expires_at_ms is in the future", async () => {
+    const futureMs = Date.now() + 3_600_000;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: futureMs }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
   });
 });
