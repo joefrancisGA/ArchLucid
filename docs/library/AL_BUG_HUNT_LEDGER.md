@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `ui-auth-callback` — no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -6059,7 +6061,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 36 · **Bugs found:** 11 · **Consecutive dry hunts:** 8
+**Hunts:** 37 · **Bugs found:** 11 · **Consecutive dry hunts:** 9
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — upper access-token lifetime clamp may differ from the configured contract — locus: `Math.Clamp(..., 5, 24 * 60)` ~128; input: successful verify with `AccessTokenLifetimeMinutes` above 1440.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — cancellation from an aborted challenge request may not prevent a completed response or downstream audit — locus: request cancellation token is passed directly to `RequestCodeAsync`; input: disconnect while notifier/repository work is pending.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — cancellation from an aborted verify request may arrive after challenge completion — locus: request cancellation token is passed directly to `VerifyCodeAsync`; input: disconnect during challenge completion and identity lookup.
+- [ ] (candidate) `EmailOtpRequestFlow` reached through `RequestChallengeAsync` — invitation-token whitespace or surrounding text may be interpreted inconsistently between challenge creation and verify — locus: controller forwards `InvitationToken` without normalization; input: challenge and verify requests using the same padded invitation token.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a successful service result with whitespace `DisplayEmail` still satisfies the null-only token guard — locus: `result.DisplayEmail is null` check ~109; input: mocked or corrupted identity result with `DisplayEmail = "   "`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `VerifyAsync_returns_bad_request_when_challenge_id_is_empty`, `VerifyAsync_returns_not_found_when_otp_auth_is_disabled`, `RequestChallengeAsync_returns_bad_request_when_body_is_null`, and `RequestChallengeAsync_returns_not_found_when_otp_auth_is_disabled`; reaffirmed resend cooldown and expired-verify service paths; 44 scoped Application tests + 9 Api controller tests passed.
 
@@ -6097,9 +6107,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 8
+- **consecutive-dry-hunts:** 9
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
