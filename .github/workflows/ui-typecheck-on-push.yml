@@ -122,6 +122,7 @@ jobs:
           python3 scripts/ci/check_no_legacy_peer_deps.py
           python3 scripts/ci/assert_prompt_injection_guard.py
           python3 scripts/ci/check_demo_anonymous_read_plane_honesty.py
+          python3 scripts/ci/check_beta_readiness_unittest_discover.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -169,6 +170,7 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_warm_private_beta_live_api_paths.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_cancel_stale_pending_ci_runs.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_beta_readiness_unittest_discover.py"
 
   ui-typecheck:
     name: "Operator UI: typecheck (blocking)"
