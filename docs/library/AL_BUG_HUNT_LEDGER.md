@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `email-otp-auth` — no hunt-ready hypotheses were available after reading the selected controller and service paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — no hunt-ready hypotheses were available after reading the selected review-intake source files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -33400,7 +33402,15 @@ ABQ-09 churn hotspot.
 
 ## Zone: host-infra-evidence-composition
 
-**Hunts:** 37 · **Bugs found:** 6 · **Consecutive dry hunts:** 10
+**Hunts:** 38 · **Bugs found:** 6 · **Consecutive dry hunts:** 11
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `IAzureInventorySnapshotPostMaterializeCoordinator` — post-materialization consumers may observe a different order than the registration order assumed by the coordinator — locus: coordinator plus two `IAzureInventoryDiffConsumer` registrations; input: materialize a snapshot that triggers both audit-readiness and SecureNow consumers.
+- [ ] (candidate) `IAzureInventorySnapshotDeleteService` / `IAzureInventorySnapshotGraphResolver` — deleting a snapshot may leave graph resolution able to return stale evidence within the same request scope — locus: adjacent scoped delete/resolver registrations; input: delete an inventory snapshot, then resolve its graph before the scope ends.
+- [ ] (candidate) `TenantBrandingResolvedProfileCache` — singleton cache invalidation may evict or reuse a resolved profile across tenant scopes — locus: singleton cache and singleton invalidator registrations; input: resolve branding for tenant A, update tenant B, then resolve both profiles concurrently.
+- [ ] (candidate) `GraphvizFdpLayoutRenderer` — malformed or partial `GraphvizOptions` configuration may fail only when the scoped renderer is first resolved — locus: options binding and renderer registration; input: host configuration with an invalid executable path or empty layout command.
+- [ ] (candidate) `IAuditEvidenceSelectorRegistry` — a selector registered as scoped may retain per-request selection state when the registry is reused by a downstream service — locus: registry and selector registrations ~101–109; input: resolve the registry in two scopes while selecting different evidence categories.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed comparison, audit import, branded export, ask grounding, and drift registrations; 50 scoped `InfraEvidenceComposition` tests passed.
 
@@ -33462,9 +33472,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-05 — isolated diff-consumer failure still ran incremental SecureNow post-materialize
 - **related-pd-tb:** none
