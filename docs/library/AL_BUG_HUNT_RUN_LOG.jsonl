@@ -8925,3 +8925,4 @@
 {"at":"2026-10-08T22:39:10.8591023Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Services/ArchLucidSaml2ServiceExtensions.cs"]}
 {"at":"2026-10-08T22:59:19.7297622Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Auth/Services/RoleSyncService.cs"]}
 {"at":"2026-10-08T23:13:00.1640959Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Auth/Services/ArchLucidSaml2ServiceExtensions.cs"]}
+{"at":"2026-10-08T23:32:52.8217856Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/architecture/architecture-diagram-neighborhood-map.ts","archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx"]}

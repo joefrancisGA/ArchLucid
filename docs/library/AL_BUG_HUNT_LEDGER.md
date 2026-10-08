@@ -34387,12 +34387,14 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 9
-- **bugs-found:** 6
+- **hunts:** 10
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — subscription map labeled shared-services neighborhoods as resource groups
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-10-08 seed hunt (seed→hit): proved inventory subscription maps filed `shared-services` neighborhoods under Resource groups because every non-`vnet` kind was treated as a resource group; resource-group cells stay `shared`, `remainder`, and `other`, and shared services render in their own section; regression `keeps shared services out of the resource group section`; 6 focused neighborhood-map tests passed.
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
 - [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
@@ -34405,3 +34407,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
+
+### Hypotheses
+
+- [x] (proven) `groupDiagramNeighborhoodSections` / `DiagramNeighborhoodMapView` — inventory SVG metadata from `DiagramForestLayoutSvgRenderer` emits kind `shared-services` for the shared-services frame, but the subscription map treated every kind other than `vnet` as a resource group, so that tile rendered under Resource groups. Resource-group cells remain `shared`, `remainder`, and `other`. Regression `keeps shared services out of the resource group section`.
