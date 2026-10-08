@@ -29547,13 +29547,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 77
-- **bugs-found:** 41
+- **hunts:** 78
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — subscription resource and policy-definition listings accepted same-subscription cross-collection next links
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — Defender secure score listing followed same-subscription cross-collection next links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-08 seed hunt (hit): promoted Defender secure-score pagination; `ListSubscriptionDefenderSummariesAsync` validated only the subscription on `nextLink`, so a same-subscription cursor into `roleAssignments` was followed; fixed by also requiring `subscriptions/{id}/providers/Microsoft.Security/secureScores`; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`. Azure extractor tests passed 114/114.
 
 2026-10-05 thorough hunt (hit): cheap-disproved `GcpAssetInventoryCollector` page-token parent-scope drift — pagination is owned by `AssetServiceClient.SearchAllResourcesAsync` / GAX raw pages with no host-controlled `pageToken` continuation to re-validate. Proved `ListSubscriptionResourcesAsync` and `ListSubscriptionPolicyDefinitionDocumentsAsync` validated only subscription scope on `nextLink`, allowing same-subscription cross-collection cursors (e.g. `/resources` → `roleAssignments`, `policyDefinitions` → `policyAssignments`); fixed with `EnsureTargetsArmRelativeListingPath`; regressions `ListSubscriptionResourcesAsync_rejects_next_link_for_different_subscription_listing_path` and `ListSubscriptionPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection`. 109 Azure extractor tests and 52 AWS/GCP application tests passed (`TreatWarningsAsErrors=false`).
 
@@ -29576,6 +29578,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+
+- [x] (proven) `ListSubscriptionDefenderSummariesAsync` — a same-subscription ARM `nextLink` into `roleAssignments` passed subscription-only validation and was followed while reading Defender secure scores — **hit 2026-10-08 seed hunt:** required the secureScores listing path after the subscription check; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`.
+
+- [ ] (candidate) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — a same-subscription `@odata.nextLink` whose path is not `policyStates/latest/queryResults` is accepted by `EnsureTargetsSubscription`, then `value` rows from that page are appended. Input: Policy Insights query response whose next link is `https://management.azure.com/subscriptions/{id}/providers/Microsoft.Authorization/roleAssignments`.
+- [ ] (candidate) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — a same-subscription `properties.nextLink` whose path is not the Actual Cost query is accepted by `EnsureTargetsSubscription`, then that page is merged into the cost summary. Input: Cost Management response whose next link is `https://management.azure.com/subscriptions/{id}/providers/Microsoft.CostManagement/budgets`.
 
 - [x] (proven) `ListSubscriptionPolicyAssignmentDocumentsAsync` — a same-subscription ARM `nextLink` into `policyDefinitions` passed subscription-only validation and could be followed while reading policy-assignment documents — **hit 2026-10-04 seed hunt:** required the exact subscription policy-assignment listing path; regression `ListSubscriptionPolicyAssignmentDocumentsAsync_rejects_next_link_for_different_policy_collection`.
 
