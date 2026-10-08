@@ -4456,13 +4456,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: tenant-settings-sql
 
-**Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 12
+**Hunts:** 51 · **Bugs found:** 7 · **Consecutive dry hunts:** 12
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; 17 focused `SqlTenantSettingsRepository` tests passed; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected SQL and caching repositories; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 thorough hunt (dry): cheap-disproof closed the five caching/SQL candidates below; existing cache concurrency and failure-path regressions cover the read/write races and generation behavior, while duplicate rows are excluded by the composite primary key and concurrent `MERGE` behavior had no failing repro; 17 focused `SqlTenantSettingsRepository` tests passed.
+
+2026-10-08 seed hunt (seed-only): re-read the selected SQL and caching repositories and migration contract; no candidate met the hunt-ready bar because the remaining concerns require a production SQL collation or unbounded-input observation not demonstrated by these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
 
 - [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — the cache-miss check can race with `WriteInFlightKeys.TryAdd`, allowing a cold read to cache the pre-write value — locus: `ContainsKey` check ~29–31 followed by `GetOrCreateAsync`; input: read starts immediately before a concurrent upsert marks the slot in-flight.
 - [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — a read that bypasses the cache during a write can return an older value after the write has committed — locus: direct `_inner.TryGetAsync` branch ~31; input: read begins during upsert and completes after the upsert commits.
@@ -4528,7 +4530,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
@@ -4555,6 +4557,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2072 (seed-only): reseeded tenant-settings-sql; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `TenantSettingKeyNormalizer.Normalize` plus `SqlTenantSettingsRepository` — .NET invariant lower-casing may produce a cache key different from the SQL collation’s equality for a non-ASCII setting key, splitting cache entries for one database row — locus: normalization before `BuildCacheKey` and SQL `WHERE SettingKey = @SettingKey`; input: tenant settings caller supplies a Unicode key whose casing/equivalence differs between .NET and the tenant database collation.
+- [ ] (candidate) `SqlTenantSettingsRepository.UpsertCoreAsync` — setting keys longer than the migration’s `nvarchar(128)` column fail only at SQL execution because the repository validates non-blank keys but not storage length — locus: `Normalize` followed by `MERGE` around lines 80–99; input: a repository caller supplies a non-empty key longer than 128 characters.
+- [ ] (candidate) `CachingTenantSettingsRepository.TryGetAsync` — cache lookup can retain a negative result for the hot-path TTL when an external SQL writer changes the setting without using this decorator — locus: generation-stamped `GetOrCreateAsync` around lines 34–44; input: another application instance upserts the same tenant/key while this process has cached a miss.
 
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.TryGetAsync` — a normalized-key cache read can occur after a concurrent delete has marked the slot in-flight but before the write marker becomes visible, allowing a stale positive entry to be returned — **cheap-disproof 2026-10-08 thorough hunt #50:** `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed` and related write-in-flight regressions return the committed post-delete state.
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — a canceled inner upsert leaves the first generation bump in place even though the SQL write did not commit, causing avoidable cache misses and generation growth — **cheap-disproof 2026-10-08 thorough hunt #50:** canceled cold-load/upsert tests show the wrapper refreshes from the current generation and preserves the last committed value.
