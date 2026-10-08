@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `orchestrator-transient-retry` — no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
 2026-10-08 seed hunt (seed-only): `host-infra-evidence-composition` — no hunt-ready hypotheses were available after reading the selected composition module; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-08 seed hunt (seed-only): `alert-simulation` — no hunt-ready hypotheses were available after reading the selected controller and context-provider paths; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -5817,7 +5819,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: orchestrator-transient-retry
 
-**Hunts:** 59 · **Bugs found:** 9 · **Consecutive dry hunts:** 12
+**Hunts:** 60 · **Bugs found:** 9 · **Consecutive dry hunts:** 13
+
+2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `OrchestratorTransientDbRetry.TryGetParallelPersistInners` — a non-aggregate wrapper with sibling inner exception branches may inspect only the first nested aggregate and miss a permanent sibling in another branch — locus: linear `current.InnerException` walk ~95–104; input: wrapper containing two sibling exception chains, one transient aggregate and one permanent aggregate.
+- [ ] (candidate) `OrchestratorTransientDbRetry.IsParallelPersistAggregateInnerRetriable` — nested aggregate inspection can stop at the first non-empty nested aggregate and fail to classify sibling wrapper branches consistently — locus: recursive single-chain call ~73–79; input: a repository wrapper with multiple nested parallel-persist aggregates.
+- [ ] (candidate) `OrchestratorTransientDbRetry.ExecuteAsync` — static pipeline retries are not isolated by caller, so a shared pipeline diagnostic or callback state could leak between concurrent orchestration operations — locus: static `Pipeline` ~16; input: concurrent callers with different cancellation tokens and retry outcomes.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.RetryDelay` — delay arithmetic has no explicit guard that the returned delay remains within `RetryBudget` when callers pass a valid-but-unexpected attempt below `MaxAttempts` — locus: public linear delay method ~23–25; input: attempt 11 after reconciliation polling consumed most of the budget.
+- [ ] (candidate) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` — poll delay is independent of elapsed retry budget, so repeated polls can exceed the documented hard ceiling before `IsExhausted` is checked — locus: public poll delay method ~26–28; input: eight reconciliation polls interleaved with near-budget outer retries.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected retry-policy files; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -5909,9 +5919,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
 - **last-bug:** 2026-10-07 — empty nested aggregate shell blocked orchestrator retry on transient SQL
 - **related-pd-tb:** none
