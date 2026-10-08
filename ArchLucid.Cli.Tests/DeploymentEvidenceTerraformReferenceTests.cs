@@ -151,6 +151,21 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        string content = File.ReadAllText(Path.Combine(repoRoot, "infra", "apply-saas.ps1"));
+
+        content.Should().Contain("$legacyIsolationPath = $LegacyLeafRoots", "legacy path is explicit operator intent");
+        content.Should().MatchRegex(
+            @"elseif\s*\(\$legacyIsolationPath\)\s*\{[\s\S]*?\$multiRootSequence",
+            "legacy branch must apply the full multi-root sequence including orchestrator");
+        content.Should().MatchRegex(
+            @"elseif\s*\(\$hostedWavePath\)\s*\{[\s\S]*?\$hostedWaveLeaves",
+            "hosted -MultiRoot branch must omit orchestrator via wave flatten");
+    }
+
+    [Fact]
     public void ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator()
     {
         string repoRoot = RequireRepositoryRoot();
