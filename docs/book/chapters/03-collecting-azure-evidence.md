@@ -170,7 +170,7 @@ authorizationresources
     | project roleDefinitionGuid, roleName
     | distinct roleDefinitionGuid, roleName
 ) on roleDefinitionGuid
-| project principalId, principalType, roleName, scope, condition
+| project id, principalId, principalType, roleName, scope, condition
 ```
 
 Two details in that query deserve comment.
