@@ -8801,3 +8801,4 @@
 {"at":"2026-10-08T03:13:07.5732761Z","zoneId":"alert-simulation","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T03:21:30.8096456Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-08T03:28:42.6002454Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs"]}
+{"at":"2026-10-08T03:33:10.0201869Z","zoneId":"cli-draft-new","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
