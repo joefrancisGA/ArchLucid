@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 seed hunt (seed-only): `auth-return-path` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_word_joiner_in_path_segment`, `TryNormalize_rejects_when_query_decodes_to_backslashes_conservative_full_string_scan`, `TryNormalize_accepts_lone_percent_encoded_dot_segment_decodes_to_single_dot_segment`, `TryNormalize_accepts_right_to_left_override_in_query_without_path_portion_bidi_strip`, and `TryNormalize_rejects_deeply_nested_percent_chain_in_query_after_decode_cap`; 186 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
 2026-10-08 seed hunt (seed-only): `ui-review-intake-wizards` — cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped `reviews/new` vitest 141 passed with 71 pre-existing baseline failures.
 
 2026-10-08 seed hunt (seed-only): `ui-auth-proxy` — cheap-disproof closed five open `(candidate)` rows; regressions in `email-otp-post-auth.test.ts`, `post-auth-bootstrap-api.test.ts`, `proxy-fetch-registration-scope.test.ts`, and `proxy.test.ts`; scoped auth/proxy vitest 276 passed with 3 unrelated baseline seam failures.
@@ -6092,7 +6094,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: auth-return-path
 
-**Hunts:** 53 · **Bugs found:** 22 · **Consecutive dry hunts:** 6
+**Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
+
+2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `TryNormalize_decodes_percent_encoded_word_joiner_in_path_segment`, `TryNormalize_rejects_when_query_decodes_to_backslashes_conservative_full_string_scan`, `TryNormalize_accepts_lone_percent_encoded_dot_segment_decodes_to_single_dot_segment`, `TryNormalize_accepts_right_to_left_override_in_query_without_path_portion_bidi_strip`, and `TryNormalize_rejects_deeply_nested_percent_chain_in_query_after_decode_cap`; 186 scoped `AuthSignInReturnPathGuardTests` passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `TryNormalize` — percent-encoded WORD JOINER `%E2%81%A0` — **cheap-disproof 2026-10-08 seed hunt #54:** decodes like ZWSP to in-path format character; regression `TryNormalize_decodes_percent_encoded_word_joiner_in_path_segment`.
+- [x] (valid-no-repro) `ContainsResidualEncodedTraversal` — `%5C%5C` in query — **cheap-disproof 2026-10-08 seed hunt #54:** post-decode backslash conservative rejection; regression `TryNormalize_rejects_when_query_decodes_to_backslashes_conservative_full_string_scan`.
+- [x] (valid-no-repro) `ContainsPercentEncodedPathSeparator` — lone `%2e` segment — **cheap-disproof 2026-10-08 seed hunt #54:** decodes to single-dot segment (parity single-dot acceptance); regression `TryNormalize_accepts_lone_percent_encoded_dot_segment_decodes_to_single_dot_segment`.
+- [x] (valid-no-repro) `TryNormalize` — RTL OVERRIDE in query — **cheap-disproof 2026-10-08 seed hunt #54:** query bidi not path-portion `@` guard; display reordering out of scope; regression `TryNormalize_accepts_right_to_left_override_in_query_without_path_portion_bidi_strip`.
+- [x] (valid-no-repro) `MaxPercentDecodePasses` — nested `%25` in query — **cheap-disproof 2026-10-08 seed hunt #54:** trailing `%` after cap rejected by design; regression `TryNormalize_rejects_deeply_nested_percent_chain_in_query_after_decode_cap`.
+
+- [ ] (candidate) `TryNormalize` — percent-encoded LEFT-TO-RIGHT ISOLATE `%E2%81%A6` / POP `%E2%81%A9` in path segments may decode like accepted embedding marks — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%E2%81%A6/1`.
+- [ ] (candidate) `ContainsProtocolRelativeTraversal` — matrix parameter value `%3Bnext%3D%2F%2Fevil` may decode to semicolon segment with embedded `//` — locus: `TryNormalizeRelativePath` + matrix segments; input: `/reviews;next=%2F%2Fevil.example`.
+- [ ] (candidate) `TryNormalizeRelativePath` — horizontal tab U+0009 only in path segment (not `%09//`) may pass control scan while browsers normalize — locus: `ContainsControlCharacter`; input: `/reviews\tactive` (literal tab after slash).
+- [ ] (candidate) `ContainsPercentEncodedPathSeparator` — uppercase `%2F` only in query may decode to slash without residual `%2f` substring — locus: query decode vs residual scan; input: `/reviews?path=%2Fsegment`.
+- [ ] (candidate) `TryNormalize` — SOFT HYPHEN U+00AD inside path segments may survive homoglyph scans — locus: format vs control; input: `/reviews\u00AD/1` from hyphenation paste.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 181 scoped tests passed (`RunAnalyzers=false`).
 
@@ -6101,12 +6117,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — decoded normalized path vs raw `returnPath` query persistence — **cheap-disproof 2026-10-07 seed hunt #53:** guard returns decoded safe path for callers; regression `TryNormalize_returns_percent_decoded_path_for_callers_not_raw_query_encoding` (existing `TryNormalize_decodes_percent_encoded_slash_in_safe_paths`).
 - [x] (valid-no-repro) `ContainsControlCharacter` — `%1B` (ESC) in query after percent decode — **cheap-disproof 2026-10-07 seed hunt #53:** post-decode control rejection; regression `TryNormalize_rejects_percent_encoded_esc_control_in_query_after_decode`.
 - [x] (valid-no-repro) `TryNormalize` — bidi embedding marks U+202A/U+202C inside path segments — **cheap-disproof 2026-10-07 seed hunt #53:** not control/homoglyph; display reordering is out of scope for byte-stable guard; regression `TryNormalize_accepts_bidi_embedding_marks_inside_path_segment_without_open_redirect_shape`.
-
-- [ ] (candidate) `TryNormalize` — percent-encoded WORD JOINER `%E2%81%A0` in path segments decodes like ZWSP `%E2%80%8B` — locus: `TryNormalizeAfterPercentDecoding`; input: `/reviews%E2%81%A0/1` from Office paste.
-- [ ] (candidate) `ContainsResidualEncodedTraversal` — `%5C%5C` in query values decoding to backslashes may trip post-decode `decoded.Contains('\\')` even when path portion is safe — locus: residual loop ~116–122; input: `/reviews?file=%5C%5Cserver%5Cshare`.
-- [ ] (candidate) `TryNormalizeRelativePath` — lone percent-encoded dot segment `%2e` without adjacent `%2e` may pass first pass then fail residual `%2e` scan — locus: `ContainsPercentEncodedPathSeparator`; input: `/segment/%2e/name`.
-- [ ] (candidate) `TryNormalize` — RIGHT-TO-LEFT OVERRIDE U+202E percent-encoded in query (`%E2%80%AE`) may decode without control rejection while affecting display — locus: decode + no bidi strip; input: `/reviews?note=%E2%80%AE`.
-- [ ] (candidate) `MaxPercentDecodePasses` — deeply nested `%25` chains in benign query literals may exhaust eight passes yet leave `%` tail rejected by `ContainsTrailingPercentAfterDecodeCap` — locus: decode cap ~59–87; input: `/reviews?pct=%2525252525252525`.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions in `AuthSignInReturnPathGuardTests`; 176 scoped tests passed (`RunAnalyzers=false`).
 
