@@ -46,6 +46,19 @@ const EMPTY_FORM: FormState = {
   websiteUrl: "",
 };
 
+const unsupportedAccessRequestTextCharacters = /[\p{Cc}\p{Cf}]/u;
+
+function containsUnsupportedAccessRequestText(form: FormState): boolean {
+  return [
+    form.name,
+    form.workEmail,
+    form.company,
+    form.roleTitle,
+    form.cloudPlatformFocus,
+    form.note,
+  ].some((value) => unsupportedAccessRequestTextCharacters.test(value));
+}
+
 /** Private-beta access request experience for `/auth/callback` sign-in failures. */
 type SubmitControl = {
   generation: number;
@@ -77,6 +90,12 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+
+    if (containsUnsupportedAccessRequestText(form)) {
+      setErrorMessage(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+
+      return;
+    }
 
     if (submitControlRef.current.inFlight) {
       return;

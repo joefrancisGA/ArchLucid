@@ -1223,6 +1223,27 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not post access request when a required field contains control or bidi-format characters", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan\u0000Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect\u202e" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it("clears submitting state after duplicate response so the operator can retry", async () => {
     const fetchMock = vi.fn(async () => Response.json({ error: "duplicate_recent" }, { status: 409 }));
     vi.stubGlobal("fetch", fetchMock);

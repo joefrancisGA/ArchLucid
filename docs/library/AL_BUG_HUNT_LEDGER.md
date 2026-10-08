@@ -9947,11 +9947,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 30
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 8
+- **hunts:** 31
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — Honeypot websiteUrl survived form dismiss and could silent-success the next operator submit
+- **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -9989,6 +9989,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `submitting` — disables submit/cancel buttons but leaves required inputs editable during an in-flight POST — **cheap-disproof 2026-10-07 thorough hunt:** intentional; only action buttons set `disabled={submitting}`; regression `keeps required inputs editable while submit is in flight`.
 - [x] (valid-no-repro) Success view — replaces the failure panel and drops `technicalDetail` — **cheap-disproof 2026-10-07 thorough hunt:** success branch is request-sent confirmation only; regression `omits callback technical detail on the success view`.
 - [x] (valid-no-repro) `websiteUrl` honeypot — posts the raw hidden field value without client trim — **cheap-disproof 2026-10-07 thorough hunt:** server `trimOptional` classifies honeypot; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (proven) Access request text fields — control and bidi-format characters reached the POST body and produced a success state; **hit 2026-10-08 seed hunt:** shared `Cc`/`Cf` guard rejects unsafe text before POST; regression `does not post access request when a required field contains control or bidi-format characters`.
+
+2026-10-08 seed hunt (seed→hit): proved control and bidi-format characters in access-request text could be submitted and shown as successful; rejected the class before POST; 63 scoped `AuthCallbackAccessPanel` vitest tests passed and changed files linted cleanly.
 
 ---
 
