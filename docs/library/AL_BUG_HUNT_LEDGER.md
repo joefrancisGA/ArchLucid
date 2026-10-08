@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-08 thorough hunt (hit): `ui-oidc` — proved dual primary/Google PKCE could coexist at callback time so `consumePkceState` preferred primary on state collisions; fixed by clearing the other flow's PKCE only after successful discovery immediately before redirect; cheap-disproved `consumePostSignInReturnUrl` remove-before-validate (single-use defense in depth), refresh 503 UI surfacing, blank `id_token` sync (BFF trims), and sign-out operator-scope ordering (intentional sign-out); regressions `clears stale primary PKCE state when supplemental Google redirect succeeds` and `clears stale Google PKCE state when primary redirect succeeds`; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved primary `initiateOidcRedirect` discovery failure unconditionally cleared the shared post-sign-in return URL while supplemental Google PKCE remained pending; fixed by preserving return paths when `readPkceState("google")` is active unless primary stored a return URL this attempt; cheap-disproved RP logout 503 swallowing, DELETE CSRF parity, refresh tight-loop without backoff, and shared discovery rejection fan-out; regression `preserves post-sign-in return path when primary discovery fails but supplemental Google PKCE is pending`; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt (hit): `ui-oidc` — proved `refreshBffSessionCookie` accepted any finite positive `expires_at_ms`, writing epoch-era client expiry hints from malformed refresh JSON; fixed with skew-aware future validation; cheap-disproved RP logout URL ordering (hint captured before cookie delete), POST CSRF omission (same-origin guard on session POST), pulse activity CSRF bootstrap contract, and duplicate PKCE `state` collision (independent opaque states); regressions `rejects refresh responses whose expires_at_ms is far in the past` and `accepts refresh responses whose expires_at_ms is in the future`; seeded five follow-on `(candidate)` rows; 62 scoped oidc vitest tests passed.
@@ -17416,6 +17418,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-08 thorough hunt #29 (hit): proved stale cross-flow PKCE retention on successful redirect; cheap-disproved four other `(candidate)` rows from hunt #28; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
+
 2026-10-08 thorough hunt #28 (hit): proved primary discovery failure cleared supplemental return paths; cheap-disproved four other `(candidate)` rows from hunt #27; seeded five follow-on `(candidate)` rows; 63 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt #27 (hit): proved stale BFF refresh `expires_at_ms` acceptance; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 62 scoped oidc vitest tests passed.
@@ -17434,11 +17438,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 28
-- **bugs-found:** 30
+- **hunts:** 29
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — primary OIDC discovery cleared supplemental return URL
+- **last-bug:** 2026-10-08 — stale cross-flow PKCE on OIDC redirect
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17514,11 +17518,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ensureAccessTokenFresh` — malformed refresh JSON tight loop — **cheap-disproof 2026-10-08 thorough hunt #28:** transient refresh failure intentionally retains session for retry (`session-ensure-fresh.test.ts`); BFF route returns 503 not 200 with bad JSON in production.
 - [x] (invalid) `loadDiscoveryDocument` — shared rejected promise across tabs — **cheap-disproof 2026-10-08 thorough hunt #28:** failed promises are evicted before rethrow; concurrent callers observe the same transient failure, then the next call retries fresh.
 
-- [ ] (candidate) `initiateSupplementalOidcRedirect` — success path does not clear stale primary PKCE before storing Google state — locus: `initiate-redirect.ts` supplemental branch; input: abandoned primary PKCE plus fresh Google redirect; wrong outcome: `consumePkceState` matches wrong flow on callback.
-- [ ] (candidate) `consumePostSignInReturnUrl` — removes key before validating safe path — locus: `session.ts` `consumePostSignInReturnUrl`; input: sessionStorage tampered to unsafe path between store and callback; wrong outcome: return URL consumed without navigation.
-- [ ] (candidate) `refreshBffSessionCookie` — does not surface 503 `shouldClearSession` distinction to UI — locus: `bff-session-sync.ts` refresh status mapping; input: BFF refresh outage during presenter mode; wrong outcome: operator sees signed-in chrome with failing API calls.
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — omits `id_token` when blank string — locus: POST body `id_token: tokens.id_token ?? undefined`; input: IdP returns `id_token: ""`; wrong outcome: RP logout URL unavailable after sign-in despite valid token response.
-- [ ] (candidate) `signOutAndRedirectHome` — clears operator scope before RP logout redirect completes — locus: `session.ts` ordering with `clearOperatorScopeStorage`; input: slow IdP end_session redirect; wrong outcome: workspace continuity lost before federated logout finishes.
+- [x] (proven) `initiateSupplementalOidcRedirect` / `initiateOidcRedirect` — stale cross-flow PKCE at callback — **hit 2026-10-08 thorough hunt #29:** both flows could leave verifier/state pairs in `sessionStorage` so `consumePkceState` scans primary first; fixed by clearing the other flow's PKCE after successful discovery and before `location.assign`; regressions `clears stale primary PKCE state when supplemental Google redirect succeeds` and `clears stale Google PKCE state when primary redirect succeeds`.
+- [x] (valid-no-repro) `consumePostSignInReturnUrl` — removes key before validating safe path — **cheap-disproof 2026-10-08 thorough hunt #29:** single-use semantics intentionally drop tampered values via `isSafeReturnPath` after removal (`session.test.ts`).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — 503 vs auth failure not surfaced to UI — **cheap-disproof 2026-10-08 thorough hunt #29:** transient refresh failures retain session by design (`session-ensure-fresh.test.ts`).
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — blank `id_token` string — **cheap-disproof 2026-10-08 thorough hunt #29:** BFF `createBffSessionCookieValue` trims and omits empty `it` claims server-side.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — operator scope cleared before RP logout redirect — **cheap-disproof 2026-10-08 thorough hunt #29:** local sign-out is expected to clear operator scope; federated logout is best-effort afterward.
+
+- [ ] (candidate) `buildAuthorizeUrl` — omits `prompt=login` when switching flows mid-session — locus: `build-authorize-url.ts`; input: operator abandons primary IdP session and completes Google redirect; wrong outcome: silent SSO reattaches wrong work account without fresh auth.
+- [ ] (candidate) `CallbackClient` — does not clear opposite-flow PKCE when callback state is consumed — locus: `CallbackClient.tsx` after `consumePkceState`; input: successful Google callback leaves orphaned primary PKCE until next redirect; wrong outcome: stale primary state survives until next primary redirect success.
+- [ ] (candidate) `exchangeAuthorizationCode` — uses primary `getOidcClientId` for supplemental Google flow — locus: `CallbackClient.tsx` token exchange branch; input: Google callback with distinct client id env; wrong outcome: token exchange posts wrong client_id.
+- [ ] (candidate) `pulseBffSessionActivity` — ignores non-OK responses — locus: `bff-session-sync.ts` activity POST; input: BFF idle timeout during long PDF export; wrong outcome: client keepalive thinks activity slid while server already expired session.
+- [ ] (candidate) `readSignedInDisplayName` — returns JWT display name after `clearOidcSession` until storage flush — locus: `session.ts` hint readers vs `clearOidcSession`; input: synchronous sign-out then immediate render; wrong outcome: header still shows prior display name for one frame.
 
 ---
 

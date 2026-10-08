@@ -64,6 +64,7 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
     nonce,
   });
 
+  clearPkceState("google");
   window.location.assign(url);
 }
 
@@ -124,5 +125,6 @@ export async function initiateSupplementalOidcRedirect(
     nonce,
   });
 
+  clearPkceState("primary");
   window.location.assign(url);
 }

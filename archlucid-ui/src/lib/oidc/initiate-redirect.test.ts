@@ -40,6 +40,85 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_GOOGLE_NONCE_KEY)).toBe("google-nonce");
   });
 
+  it("clears stale primary PKCE state when supplemental Google redirect succeeds", async () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://accounts.google.com",
+        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        token_endpoint: "https://oauth2.googleapis.com/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://accounts.google.com/o/oauth2/v2/auth?state=google-state"),
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateSupplementalOidcRedirect("google");
+
+    expect(readPkceState("primary")).toBeNull();
+    expect(readPkceState("google")).toEqual({
+      state: "google-state",
+      codeVerifier: "google-verifier",
+      nonce: "google-state",
+    });
+    expect(assignMock).toHaveBeenCalled();
+  });
+
+  it("clears stale Google PKCE state when primary redirect succeeds", async () => {
+    storePkceState("google-state", "google-verifier", "google-nonce", "google");
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    vi.doMock("@/lib/oidc/config", () => ({
+      getOidcAuthority: () => "https://issuer.example",
+      getOidcClientId: () => "client-id",
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+      getOidcScopes: () => "openid",
+    }));
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "primary-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "primary-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument: vi.fn(async () => ({
+        issuer: "https://issuer.example",
+        authorization_endpoint: "https://issuer.example/authorize",
+        token_endpoint: "https://issuer.example/token",
+      })),
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl: vi.fn(() => "https://issuer.example/authorize?state=primary-state"),
+    }));
+
+    const { initiateOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateOidcRedirect();
+
+    expect(readPkceState("google")).toBeNull();
+    expect(readPkceState("primary")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-state",
+    });
+    expect(assignMock).toHaveBeenCalled();
+  });
+
   it("clears primary PKCE state when discovery fails before redirect", async () => {
     vi.doMock("@/lib/oidc/config", () => ({
       getOidcAuthority: () => "https://issuer.example",
