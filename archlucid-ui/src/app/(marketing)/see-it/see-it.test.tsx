@@ -249,6 +249,23 @@ describe("resolveSeeItMarketingRenderPlan", () => {
     expect(plan.payload).not.toBe(malformedPayload);
     expect(plan.payload.manifest.manifestId).toBeTruthy();
   });
+
+  it("falls back when live preview reports a negative finding count", () => {
+    const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    livePayload.runExplanation = {
+      ...livePayload.runExplanation!,
+      findingCount: -2,
+    };
+
+    const plan = resolveSeeItMarketingRenderPlan({
+      source: "live",
+      payload: livePayload,
+    });
+
+    expect(plan.source).toBe("snapshot");
+    expect(plan.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
 });
 
 describe("SeeItMarketingBody", () => {

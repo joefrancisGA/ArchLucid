@@ -339,4 +339,32 @@ describe("MarketingShowcasePage", () => {
 
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
+
+  it("treats API payloads with a negative finding count as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const negativeFindingCountPayload = {
+      ...payload,
+      runExplanation: {
+        ...payload.runExplanation!,
+        findingCount: -3,
+      },
+    };
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(negativeFindingCountPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
 });

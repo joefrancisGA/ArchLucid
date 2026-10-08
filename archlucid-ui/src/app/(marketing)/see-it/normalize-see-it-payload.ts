@@ -1,4 +1,5 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { hasUsableMarketingRunExplanationCounts } from "@/lib/marketing/demo-preview-run-explanation-counts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
@@ -28,15 +29,7 @@ function isUsableSeeItPayload(p: DemoCommitPagePreviewResponse): boolean {
   )
     return false;
 
-  const re = p.runExplanation;
-
-  if (re === null || re === undefined)
-    return false;
-
-  if (typeof re.findingCount !== "number" || !Number.isFinite(re.findingCount))
-    return false;
-
-  if (typeof re.complianceGapCount !== "number" || !Number.isFinite(re.complianceGapCount))
+  if (!hasUsableMarketingRunExplanationCounts(p.runExplanation))
     return false;
 
   if (!Array.isArray(p.artifacts) || p.artifacts.length === 0)

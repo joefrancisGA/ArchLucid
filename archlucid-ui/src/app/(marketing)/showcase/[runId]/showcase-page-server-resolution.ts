@@ -6,6 +6,7 @@ import {
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
+import { hasUsableMarketingRunExplanationCounts } from "@/lib/marketing/demo-preview-run-explanation-counts";
 import type { ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
 
 export const SHOWCASE_PAGE_REVALIDATE_SECONDS = 300;
@@ -66,21 +67,7 @@ export function resolveShowcaseApiBase(): string {
 }
 
 function hasUsableShowcaseRunExplanation(payload: DemoCommitPagePreviewResponse): boolean {
-  const runExplanation = payload.runExplanation;
-
-  if (runExplanation === null || runExplanation === undefined) {
-    return false;
-  }
-
-  if (typeof runExplanation.findingCount !== "number" || !Number.isFinite(runExplanation.findingCount)) {
-    return false;
-  }
-
-  if (typeof runExplanation.complianceGapCount !== "number" || !Number.isFinite(runExplanation.complianceGapCount)) {
-    return false;
-  }
-
-  return true;
+  return hasUsableMarketingRunExplanationCounts(payload.runExplanation);
 }
 
 export async function fetchShowcasePayload(
