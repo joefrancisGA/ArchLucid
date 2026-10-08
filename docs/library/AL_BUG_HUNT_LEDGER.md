@@ -5776,7 +5776,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: technology-ledger-merge
 
-**Hunts:** 60 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+**Hunts:** 61 · **Bugs found:** 21 · **Consecutive dry hunts:** 3
+
+2026-10-08 seed hunt (seed-only): re-read `TechnologyLedgerAgentProposalMergePolicy` and `TechnologyLedgerTopologyProposalMapper.CreateCandidate`; cheap-disproof closed the five open `(candidate)` rows below; no hunt-ready promotion. Seeded five follow-on `(candidate)` rows. 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed. Metadata `hunts` moved 58 → 61 so the scored counter includes narrative hunts #59 and #60 plus this run.
+
+- [ ] (candidate) `HasMatchingProposal` — identical `agentTopologyProposal` ref short-circuits before `TechnologyName`, so a topology reseed that keeps `ServiceId` and changes `ServiceName` does not replace the stored label — locus: evidence-ref match before name compare (`TechnologyLedgerAgentProposalMergePolicy.cs`); input: existing row `agentTopologyProposal:{proposalId}:{serviceId}` from `CreateCandidate`, second map same id with a new `ServiceName`.
+- [ ] (candidate) `Resolve` — returns the caller’s candidate instance, and `TechnologyLedgerColdStartChosenPromoter.Apply` then sets `Status` to `Chosen` on that instance before `AddAsync` — locus: `return candidate` when no chosen row exists; input: first `AgentProposed` compute candidate for a role in `TechnologyLedgerTopologyProposalSeeder`.
+- [ ] (candidate) `Resolve` — cold-start `AgentProposed` chosen is not authoritative, so a second region candidate whose normalized name matches but whose slug sub-key differs still inserts — locus: family gate fallthrough after `IsAuthoritativeChosenSource` fails; input: `AzureArmRegion` `East US` then `East  US` via `TechnologyLedgerTopologyProposalMapper.Slug`.
+- [ ] (candidate) `NormalizeTechnologyName` — `value.Trim()` throws when `TechnologyName` is null, aborting the seed — locus: `NormalizeTechnologyName`; input: in-memory row copied by `InMemoryTechnologyLedgerRepository` with a null `TechnologyName`, plus a mapper candidate.
+- [ ] (candidate) `EvidenceRefsMatch` — a topology ref and an `infrastructureDeclaration:` or `cloudInventoryPackage:` ref for the same display name are not equal, so both rows stay when neither is an authoritative chosen — locus: structured parse fails closed to whole-string equality; input: inventory `EvidenceRef` from `TechnologyLedgerCanonicalObjectMapper` and a topology candidate with the same `TechnologyName`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_keeps_distinct_topology_subkeys_when_proposal_id_contains_extra_colons`, `Resolve_skips_when_later_chosen_row_shares_topology_ref_before_first_chosen_gate`, `Resolve_keeps_candidate_when_subkey_has_leading_whitespace_in_topology_ref`, `Resolve_keeps_topology_candidate_when_locked_agent_chosen_has_whitespace_only_ref`, and `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_hyphen_vs_space`; 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5786,11 +5794,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `Resolve` — locked non-authoritative agent `Chosen` with whitespace-only ref — **cheap-disproof 2026-10-08 seed hunt #60:** `HasSubstantiveEvidenceRef` false allows grounded exploration; regression `Resolve_keeps_topology_candidate_when_locked_agent_chosen_has_whitespace_only_ref`.
 - [x] (valid-no-repro) `NormalizeTechnologyName` — hyphen vs ASCII space separators — **cheap-disproof 2026-10-08 seed hunt #60:** whitespace-only `Split`; regression `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_hyphen_vs_space`.
 
-- [ ] (candidate) `EvidenceRefsMatch` — proposal id segment trimmed but sub-key interior spaces preserved — locus: structured parse ~124–128; input: `agentTopologyProposal:p1:svc api` vs `agentTopologyProposal:p1:svc-api`.
-- [ ] (candidate) `HasMatchingProposal` — `TechnologyLedgerStatus.Chosen` first in list with null ref does not block ref dedupe from later assumed row — locus: loop order ~60–74; input: chosen-without-ref first, assumed second shares candidate topology ref.
-- [ ] (candidate) `Resolve` — `CloudProvider.None` candidate against concrete-family chosen with substantive ref and matching normalized name — locus: `SharesProviderFamilyGate` ~84–87; input: chosen Azure + inventory ref, candidate `CloudProvider.None` with same display name.
-- [ ] (candidate) `TechnologyNamesMatch` — empty string after `NormalizeTechnologyName` on both sides with dual substantive refs — locus: `NormalizeTechnologyName` ~106–113; input: whitespace-only labels with distinct topology refs.
-- [ ] (candidate) `ShouldTreatAsDuplicateByName` — substantive existing + whitespace-only candidate ref when technology names differ only by case — locus: ~97–98; input: `PostgreSQL` assumed substantive vs `postgresql` ungrounded candidate.
+- [x] (valid-no-repro) `EvidenceRefsMatch` — proposal id segment trimmed but sub-key interior spaces preserved — **cheap-disproof 2026-10-08 seed hunt:** outer trim only; interior sub-key spaces stay distinct from hyphenated sub-keys (`StableTopologyIdentitySubKey` is lossless); parity `Resolve_keeps_candidate_when_subkey_has_leading_whitespace_in_topology_ref` and `Resolve_keeps_distinct_technology_names_when_labels_differ_only_by_hyphen_vs_space`.
+- [x] (valid-no-repro) `HasMatchingProposal` — `TechnologyLedgerStatus.Chosen` first in list with null ref does not block ref dedupe from later assumed row — **cheap-disproof 2026-10-08 seed hunt:** the loop is status-agnostic and runs before the chosen gate; parity `Resolve_skips_when_assumed_row_shares_topology_ref_before_chosen_exploration_gate`.
+- [x] (valid-no-repro) `Resolve` — `CloudProvider.None` candidate against concrete-family chosen with substantive ref and matching normalized name — **cheap-disproof 2026-10-08 seed hunt:** `SharesProviderFamilyGate` treats either side `None` as same-family; regression `Resolve_skips_when_authoritative_chosen_shares_technology_name_with_cloud_neutral_candidate`.
+- [x] (valid-no-repro) `TechnologyNamesMatch` — empty string after `NormalizeTechnologyName` on both sides with dual substantive refs — **cheap-disproof 2026-10-08 seed hunt:** both-substantive name dedupe still requires `EvidenceRefsMatch`, so distinct refs are not name-duplicates; empty chosen labels do not block a different display name (`Resolve_inserts_candidate_when_chosen_technology_name_normalizes_to_empty`).
+- [x] (valid-no-repro) `ShouldTreatAsDuplicateByName` — substantive existing + whitespace-only candidate ref when technology names differ only by case — **cheap-disproof 2026-10-08 seed hunt:** `OrdinalIgnoreCase` name match plus ungrounded-candidate collapse; regressions `Resolve_treats_technology_name_case_insensitively` and `Resolve_skips_ungrounded_candidate_when_substantive_assumed_row_shares_technology_name`.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `Resolve_uses_first_chosen_only_when_later_chosen_would_block_same_name_candidate`, `Resolve_skips_when_cross_provider_assumed_row_shares_topology_evidence_ref`, `Resolve_keeps_dual_ungrounded_candidates_when_technology_names_differ_after_normalization`, and `Resolve_skips_when_topology_ref_prefix_differs_only_by_case`; reaffirmed `Resolve_keeps_agent_evidence_when_chosen_shares_name_but_lacks_grounding_ref`; 120 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`).
 
@@ -5871,7 +5879,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 58
+- **hunts:** 61
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-08
