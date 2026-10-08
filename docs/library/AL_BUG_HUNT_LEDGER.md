@@ -4820,7 +4820,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
@@ -4841,6 +4841,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` success handling — `archlucid_last_registration` intentionally stores the latest successful registration; preserving the prior tenant would contradict the session-scope reader's latest-registration contract.
 - [x] (proven) `SignupForm` `onSubmit` — a `Response` whose `text()` rejects after an otherwise successful HTTP status reached the generic error toast and left the completed registration state ambiguous — **hit 2026-10-08 thorough hunt:** body-read failure now falls through to status-based success handling; regression `still navigates after 201 when the response body stream fails`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — raw HTML or infrastructure text in a non-OK response is an explicit current error-display contract; regression `shows raw html error body when register response is not json`.
+
+- [ ] (candidate) `SignupForm` success session payload — a reachable `201` JSON object with a non-string `tenantId` is spread into `archlucid_last_registration`, then rejected by `registrationScopeHeaders` without an explicit signup error; locus: response JSON merge around lines 151–194; input: API/proxy success body with `tenantId: 123`.
+- [ ] (candidate) `SignupForm` success session payload — a reachable `201` JSON object with blank tenant/workspace/project IDs is persisted as if provisioning succeeded, leaving later scoped requests without usable registration headers; locus: response JSON merge around lines 151–194; input: API/proxy success body with whitespace-only provisioning IDs.
+- [ ] (candidate) `SignupForm` success response parsing — a reachable `201` JSON string is cast as `TenantProvisioningResult` and spread into the session payload as character-index properties; locus: `JSON.parse(text)` and session merge around lines 151–194; input: API/proxy success body of `"provisioned"`.
+- [ ] (candidate) `SignupForm` success response parsing — a reachable `201` JSON object containing `detail` but no provisioning result is treated as success and navigates to verification; locus: status-only success branch around lines 164–201; input: API/proxy body `{ "detail": "registration pending" }` with status `201`.
+- [ ] (candidate) `SignupForm` response parsing — a reachable `201` body with a valid JSON object but an unexpected `defaultWorkspaceId`/`defaultProjectId` type is persisted without validating the provisioning result shape; locus: `TenantProvisioningResult` cast before `archlucid_last_registration`; input: API/proxy success body with numeric workspace or project identifiers.
 
 2026-10-08 thorough hunt (hit): cheap-disproof closed four other `(candidate)` rows; proved a successful registration could be reported as failed when `Response.text()` rejected after a `201`; caught body-read failure and continued with status-based success handling; regression `still navigates after 201 when the response body stream fails`; 95 scoped SignupForm vitest tests passed and changed files linted cleanly.
 
