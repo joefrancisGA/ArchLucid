@@ -1485,6 +1485,74 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             .BeNull();
     }
 
+    [Fact]
+    public void Resolve_uses_first_chosen_only_when_later_chosen_would_block_same_name_candidate()
+    {
+        TechnologyLedgerEntry firstChosen = CreateChosen(CloudProvider.Azure);
+        firstChosen.TechnologyName = "Azure App Service";
+        firstChosen.EvidenceRef = null;
+
+        TechnologyLedgerEntry secondChosen = CreateChosen(CloudProvider.Azure);
+        secondChosen.TechnologyName = "Azure SQL";
+        secondChosen.EvidenceRef = "inventory:sql";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.TechnologyName = "Azure SQL";
+        candidate.EvidenceRef = "agentTopologyProposal:p2:db";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [firstChosen, secondChosen])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_cross_provider_assumed_row_shares_topology_evidence_ref()
+    {
+        TechnologyLedgerEntry awsAssumed = CreateCandidate(CloudProvider.Aws);
+        awsAssumed.EvidenceRef = "agentTopologyProposal:p1:shared-runtime";
+        awsAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:shared-runtime";
+        candidate.TechnologyName = "Azure Container Apps";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [awsAssumed])
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public void Resolve_keeps_dual_ungrounded_candidates_when_technology_names_differ_after_normalization()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = null;
+        existing.TechnologyName = "Azure  SQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = null;
+        candidate.TechnologyName = "Azure App Service";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeSameAs(candidate);
+    }
+
+    [Fact]
+    public void Resolve_skips_when_topology_ref_prefix_differs_only_by_case()
+    {
+        TechnologyLedgerEntry existing = CreateCandidate(CloudProvider.Azure);
+        existing.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existing.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Azure);
+        candidate.EvidenceRef = "AGENTTOPOLOGYPROPOSAL:p1:svc-api";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existing])
+            .Should()
+            .BeNull();
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
