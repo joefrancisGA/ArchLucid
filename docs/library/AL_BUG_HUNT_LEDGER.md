@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `IdentityPathAnalyzer` checked `hopCount >= MaxHopCount` before evaluating the dequeued node. DX-06 bounds the blast-radius walk to 8 hops, and the trust-boundary walk keeps a target on that eighth edge. A machine actor, Contributor role, and regulated key vault eight edges apart produced no path. The node at the cap is evaluated, then expansion stops. Regression `Analyze_includes_regulated_datastore_exactly_at_hop_cap` failed first with an empty path list. `Analyze_excludes_regulated_datastore_past_hop_cap` keeps the next edge out. 17 scoped identity path and blast-radius tests passed. [class:off-by-one]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DrRpoRequirementParser` treated a bare integer as minutes and skipped comparison words. Architecture request templates state `Restore RPO under 1 hour` and `Target RTO < 5 minutes, RPO < 30 seconds`. Draft intake copies a quality attribute such as `RPO 1 day` onto a requirement after `RequestQualityAttributeMaterializer` has already mapped a day to 24 hours, so the requirement path reported 1 minute. One objective grammar accepts upper-bound words and `<`, and converts seconds, hours, and days into minutes (a positive fraction of a minute rounds up). Regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours` failed first. 13 scoped DrRpo parser, quality-attribute, and finding-engine tests passed. [class:other]
 
 2026-10-09 seed hunt (seed-only): `cli-tenant-isolation` — reread live deny and run-list probes, offline replay verdicts, scope-header replacement, and the checked-in isolation manifests. No row was promoted. The 204-versus-verified-absent replay gap is the same fail-open manifest merge as the server-error trust gate. Five candidates name a locus and a reachable input.
@@ -16449,13 +16451,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 45
-- **bugs-found:** 36
+- **hunts:** 46
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — RPO day and under-hour phrases parsed as the wrong minute budget
+- **last-bug:** 2026-10-09 — identity blast-radius walk dropped the datastore on hop 8
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `IdentityPathAnalyzer` skipped the node at `MaxHopCount` before the regulated-datastore check, so an 8-hop Contributor path to a key vault emitted nothing; evaluate the cap node, then stop expansion; regressions `Analyze_includes_regulated_datastore_exactly_at_hop_cap` and `Analyze_excludes_regulated_datastore_past_hop_cap`; 17 scoped identity tests passed.
+
+- [x] (proven) `IdentityPathAnalyzer` hop cap — machine actor, Contributor role, regulated key vault eight edges away — **hit 2026-10-09 seed hunt:** `hopCount >= MaxHopCount` continued before the datastore check, so hop 8 was dropped while the trust-boundary walk keeps that edge; regressions `Analyze_includes_regulated_datastore_exactly_at_hop_cap` and `Analyze_excludes_regulated_datastore_past_hop_cap`. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): proved `DrRpoRequirementParser` skipped `under` and `<` bounds and counted `RPO 1 day` as 1 minute; shared duration grammar for seconds, minutes, hours, and days; regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours`; 13 scoped DrRpo tests passed.
 
