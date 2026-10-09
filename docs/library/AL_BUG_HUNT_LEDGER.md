@@ -26664,11 +26664,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 37
-- **bugs-found:** 27
+- **hunts:** 38
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — malformed aggregate explanation JSON threw during confidence parsing
+- **last-bug:** 2026-10-09 — negative string aggregate counts bypassed the nonnegative guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26739,9 +26739,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountFlattenedCitationEntry` — empty object citation tokens counted as present — **hit 2026-09-27 seed hunt:** any `JsonValueKind.Object` returned count 1 without reading `id`/`text`; fixed `CountCitationObject` for array entries and scalar `citations` object; regression `FromAggregateJson_treats_empty_object_citation_entries_as_zero_for_disposition`.
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — schema-defined numeric `confidence` accepted JSON booleans through the shared coercion reader, so `true` became confidence `1.0` instead of unknown; structured confidence now rejects boolean tokens while aggregate compatibility fields retain boolean coercion; regression `TryNormalizeStructuredJson_ignores_boolean_confidence`. [class:boolean-coercion]
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed persisted or LLM aggregate JSON threw `JsonException` instead of degrading to an absent confidence signal; the aggregate parser now returns `null` for malformed JSON; regression `FromAggregateJson_returns_null_for_malformed_json`.
+- [x] (proven) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — negative string-encoded decision, unresolved-issue, and compliance-gap counts passed the direct `int.TryParse` branch despite the nonnegative count contract; the shared reader now rejects negative parsed integers; regression `FromAggregateJson_ignores_negative_string_encoded_whole_number_counts`.
 
 2026-10-09 seed hunt (seed→hit): proved boolean structured confidence coercion could turn malformed LLM output into maximum confidence; rejected booleans on the structured confidence path while preserving aggregate compatibility coercion; 44 scoped RunExplanation tests passed.
 2026-10-09 seed hunt (seed→hit): proved malformed aggregate explanation JSON could abort confidence/export processing; `FromAggregateJson` now fails closed with `null`; 45 scoped RunExplanation tests passed.
+2026-10-09 seed hunt (seed→hit): proved negative string-encoded aggregate counts bypassed numeric validation; the shared whole-number reader now rejects negative strings; 46 scoped RunExplanation tests passed.
 - [x] (valid-no-repro) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — aggregate count strings such as `"1e20"` can pass finite/whole-number checks before an out-of-range cast — **cheap-disproof 2026-10-03 thorough hunt:** `TryParseWholeNumberString` bounds-checks finite values before casting; regression `FromAggregateJson_ignores_out_of_range_whole_number_counts_without_throwing`.
 - [x] (invalid) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — a citation object containing alternate fields such as `url` or `label` may count as zero — **cheap-disproof 2026-10-03 thorough hunt:** the scoped producer/schema files define citation objects through `id`/`text`; no reachable `url`/`label` citation contract exists.
 - [x] (invalid) `StructuredExplanationParser.TryReadObjectStringProperty` — structured reasoning/evidence objects using a producer-supported `content` field may be silently dropped — **cheap-disproof 2026-10-03 thorough hunt:** the structured LLM prompt schema emits string lists and the reachable object aliases are `id`/`text`; `content` has no producer citation.

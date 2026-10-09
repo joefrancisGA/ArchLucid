@@ -18,7 +18,8 @@ internal static partial class RunExplanationAggregateJsonReader
 
         string trimmed = raw.Trim();
 
-        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+        if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value)
+            && value >= 0)
             return true;
 
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
