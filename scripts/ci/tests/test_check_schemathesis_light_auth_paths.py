@@ -7,11 +7,10 @@ import sys
 import unittest
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci"))
 
 import check_schemathesis_light_auth_paths as sut
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCheckSchemathesisLightAuthPaths(unittest.TestCase):
