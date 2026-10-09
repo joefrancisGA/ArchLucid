@@ -2,6 +2,8 @@
 
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
+2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate was promoted after cheap-disproof. The exact queue suite ran 29 tests: 17 passed and 12 failed on the known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines. Rehomed the five existing candidate rows under the zone’s canonical hypothesis block so the picker can evaluate them.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread `GovernanceFindingsQueueClient.tsx` and its focused Vitest inventory; no fresh row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `api-key-auth` — reread the API-key handler, admin rotation service/controller, and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused API test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -32991,7 +32993,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 29
+- **hunts:** 30
 - **last-hunt:** 2026-09-30
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 8
@@ -34455,7 +34457,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -34465,15 +34467,13 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ABQ-09 churn hotspot.
 
-2026-10-09 seed hunt (seed-only): reread `GovernanceFindingsQueueClient.tsx` and its focused Vitest inventory; no fresh row met the full hunt-ready bar and no hypothesis was promoted. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
+### Hypotheses
 
 - [ ] (candidate) `GovernanceFindingsQueueClient` / `useOperatorScopeRecord` — the queue can enter React’s external-store update-depth failure when the persisted operator scope is absent and the snapshot provider returns a fresh object on each read — locus: client’s unconditional scope-record hook and assigned-to-me render path; input: an operator with no `localStorage` scope record loading the findings route.
 - [ ] (candidate) `GovernanceFindingsQueueClient` — assigned-to-me chrome resolves its workspace label through a separate storage read instead of the already-loaded `scopeRecord`, so an empty or changing operator scope can show a fallback workspace label rather than the active scope — locus: `resolveGovernanceAssignedToMeWorkspaceLabel()` call; input: assigned-to-me route after operator scope storage is cleared or updated.
 - [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — applying a saved view updates local filter state before navigation, so a failed or interrupted `router.replace` could leave the visible queue in saved-view state while the URL still represents the prior scope — locus: setter sequence before final saved-view href navigation; input: saved-view selection during a router transition failure.
 - [ ] (candidate) `GovernanceFindingsQueueClient.clearAllFilters` — the callback derives its destination from the render-time `searchParams` object while also changing several filter stores, so a rapid second clear or concurrent App Router update could rebuild from stale URL state — locus: `governanceFindingsClearAllFiltersHref(searchParams.toString(), navHref)`; input: double-clicked clear-all while URL scope parameters are changing.
 - [ ] (candidate) `GovernanceFindingsQueueClient` — the queue computes `architectureRunIdSet` from asynchronous architecture identity and draft-registry data, so a scope transition while that data is loading may temporarily combine the prior run set with the new `scopedArchitectureId` — locus: `useMemo` dependency boundary before queue synopsis filtering; input: switching between two architecture-scoped findings URLs during an in-flight identity request.
-
-### Hypotheses
 
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — workspace saved view load does not clear stale `runId` scope — **hit 2026-09-07 hunt #1188 (seed→hit):** loading a saved view with `scopedRunId: null` while the URL still had `?runId=` left review scope active because only the scoped-run branch called navigation; fixed with `governanceFindingsWorkspaceSavedViewHref` and a final `router.replace` when the saved view is workspace-wide; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
 - [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — run-scoped saved view load merged stale URL params instead of rebuilding from saved filters — **hit 2026-09-07 hunt #1279 (seed→hit):** run-scoped branch delegated to `onPickReviewForTriage`, which only set `runId` on the current query string so stale `filter` / `architectureId` survived after `setRegisterFilter`; fixed with `governanceFindingsRunScopedSavedViewHref`; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
