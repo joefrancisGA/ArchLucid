@@ -52,6 +52,7 @@ def _check_required_files(root: Path) -> list[str]:
         "scripts/ci/check_private_beta_surface_claim_drift.py",
         "scripts/ci/check_private_beta_access_coverage.py",
         "scripts/ci/check_private_beta_openapi_provisioning_routes.py",
+        "scripts/ci/check_private_beta_evidence_consistency.py",
     ) + REQUIRED_SPECS
 
     return [
@@ -140,6 +141,7 @@ def _check_operator_contracts(root: Path) -> list[str]:
         "check_private_beta_surface_claim_drift.py",
         "check_private_beta_access_coverage.py",
         "check_private_beta_openapi_provisioning_routes.py",
+        "check_private_beta_evidence_consistency.py",
         "Disable the tenant's users or SCIM access",
         "Set the tenant budget to zero or deny execution",
         "tombstone or hard-purge policy",
