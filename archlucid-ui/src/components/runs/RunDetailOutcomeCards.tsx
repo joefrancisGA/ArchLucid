@@ -248,7 +248,7 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Material finding</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">PHI minimization risk</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Material finding was not stored.</dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>

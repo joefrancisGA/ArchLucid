@@ -61,7 +61,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId)}` |");
+                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -77,7 +77,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId)}` |");
+                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -145,8 +145,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         return deltas.AgentOutputPilotStrictViolatesSponsorEvidence ? "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run." : "**No PilotStrict failures** recorded for attested traces on this run.";
     }
 
-    private static string FormatGuid(Guid? id)
+    private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
-        return id is null ? "(none)" : id.Value.ToString("D");
+        return id is null ? missingValue : id.Value.ToString("D");
     }
 }

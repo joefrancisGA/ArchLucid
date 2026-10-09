@@ -64,6 +64,18 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
 
                 string remoteName = ReadResourceName(peering.RemoteVirtualNetworkArmId);
 
+                if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState))
+                {
+                    string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
+
+                    if (!localDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
+                    {
+                        localDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
+                    }
+
+                    continue;
+                }
+
                 if (!armIdToDiagramNodeId.TryGetValue(
                         ArmResourceIdNormalizer.Normalize(peering.RemoteVirtualNetworkArmId),
                         out string? remoteDiagramNodeId))
@@ -71,32 +83,21 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
                     continue;
                 }
 
-                if (AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState))
+                string pairKey = BuildUndirectedPairKey(localDiagramNodeId, remoteDiagramNodeId);
+
+                if (!connectedPairs.Add(pairKey))
                 {
-                    string pairKey = BuildUndirectedPairKey(localDiagramNodeId, remoteDiagramNodeId);
-
-                    if (!connectedPairs.Add(pairKey))
-                    {
-                        continue;
-                    }
-
-                    RemoveInventoryPeeringEdges(ast, localDiagramNodeId, remoteDiagramNodeId);
-                    InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
-                        ast,
-                        localDiagramNodeId,
-                        remoteDiagramNodeId,
-                        InventoryDiagramRelationshipLabelTexts.Peered,
-                        GraphEdgeInferenceSources.InventoryVnetPeering,
-                        ProvenanceKind.ObservedFact.ToString());
                     continue;
                 }
 
-                string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatPeeringNotConnected(remoteName);
-
-                if (!localDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
-                {
-                    localDiagramNode.UnresolvedRelationshipDetails.Add(outlineSentence);
-                }
+                RemoveInventoryPeeringEdges(ast, localDiagramNodeId, remoteDiagramNodeId);
+                InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
+                    ast,
+                    localDiagramNodeId,
+                    remoteDiagramNodeId,
+                    InventoryDiagramRelationshipLabelTexts.Peered,
+                    GraphEdgeInferenceSources.InventoryVnetPeering,
+                    ProvenanceKind.ObservedFact.ToString());
             }
         }
     }
@@ -163,7 +164,7 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
 
         if (lastSlash < 0 || lastSlash >= armId.Length - 1)
         {
-            return "remote virtual network";
+            return "Remote network name was not stored.";
         }
 
         return armId[(lastSlash + 1)..];

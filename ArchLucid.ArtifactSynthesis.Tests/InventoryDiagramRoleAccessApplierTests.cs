@@ -85,6 +85,26 @@ public sealed class InventoryDiagramRoleAccessApplierTests
     }
 
     [Fact]
+    public void Apply_role_assignment_without_stored_role_name_uses_omission_copy()
+    {
+        DiagramAst ast = CreateAst();
+        GraphEdge edge = CreateRoleEdge(
+            "vm",
+            "subscription",
+            "/subscriptions/sub",
+            "Reader");
+        edge.Properties.Remove("roleName");
+
+        InventoryDiagramRoleAccessApplier.Apply(
+            ast,
+            new GraphSnapshot { Nodes = [CreateNode("vm", "vm")], Edges = [edge] },
+            new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm" });
+
+        ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
+            .Contain("Has Role name was not stored. on this subscription");
+    }
+
+    [Fact]
     public void Apply_without_role_edges_does_nothing()
     {
         DiagramAst ast = CreateAst();
