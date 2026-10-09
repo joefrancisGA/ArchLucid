@@ -652,6 +652,174 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetReviewsAwaitingAction_blocks_unsealed_source_run_when_latest_run_is_sealed()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid sourceRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid pendingReviewRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                sourceRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = sourceRunId },
+                    GoldenManifest = null,
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();
+        reviewsAwaiting
+            .Setup(service => service.ListAsync(Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new GovernanceReviewsAwaitingActionResponse
+                {
+                    Items =
+                    [
+                        new GovernanceReviewAwaitingActionItem
+                        {
+                            RunId = pendingReviewRunId,
+                            Name = "Weekly recurrence",
+                            SourceRunId = sourceRunId,
+                            NewFindingCount = 2,
+                        },
+                    ],
+                });
+
+        GovernanceStickinessController sut = BuildSut(
+            reviewsAwaiting: reviewsAwaiting,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.GetReviewsAwaitingAction(CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
+    public async Task GetReviewsAwaitingAction_returns_pending_review_when_source_run_is_empty()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid pendingReviewRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        GovernanceReviewsAwaitingActionResponse expected = new()
+        {
+            Items =
+            [
+                new GovernanceReviewAwaitingActionItem
+                {
+                    RunId = pendingReviewRunId,
+                    Name = "Weekly recurrence",
+                    SourceRunId = Guid.Empty,
+                    NewFindingCount = 0,
+                },
+            ],
+        };
+
+        Mock<IReviewsAwaitingActionQueryService> reviewsAwaiting = new();
+        reviewsAwaiting
+            .Setup(service => service.ListAsync(Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        GovernanceStickinessController sut = BuildSut(
+            reviewsAwaiting: reviewsAwaiting,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.GetReviewsAwaitingAction(CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(expected);
+    }
+
+    [Fact]
     public async Task GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag()
     {
         Guid tenantId = Scope.TenantId;

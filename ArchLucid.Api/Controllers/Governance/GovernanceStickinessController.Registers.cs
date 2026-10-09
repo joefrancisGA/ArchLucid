@@ -127,6 +127,15 @@ public sealed partial class GovernanceStickinessController
             GovernanceReviewsAwaitingActionResponse response =
                 await _facade.GetReviewsAwaitingActionAsync(cancellationToken);
 
+            // The item RunId is the ReadyForCommit review and has no golden manifest yet.
+            // SourceRunId is the committed recurrence baseline whose agent results were compared.
+            IActionResult? sourceRunGuard = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                response.Items.Select(static item => (Guid?)item.SourceRunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (sourceRunGuard is not null)
+                return sourceRunGuard;
+
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             string fingerprint =
                 $"reviews-awaiting|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
