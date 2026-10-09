@@ -217,10 +217,7 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-<<<<<<< HEAD
-=======
                 // Empty version (not ManifestMetadata's default "v1") so the composer emits omission copy without CS8625.
->>>>>>> origin/master
                 Metadata = new ManifestMetadata { ManifestVersion = string.Empty },
             },
         };
@@ -240,5 +237,6 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("Manifest version was not stored.");
         markdown.Should().Contain("Review ID was not stored.");
+        markdown.Should().Contain("- **Status:** Created");
     }
 }

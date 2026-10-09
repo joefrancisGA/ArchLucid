@@ -38,4 +38,11 @@ describe("resolveLiveE2eProxyRateLimitPerMinute", () => {
     expect(starter).toContain("resolveLiveE2eProxyRateLimitPerMinute");
     expect(starter).toContain("ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE");
   });
+
+  it("mock Playwright starter applies the same finite proxy burst cap", () => {
+    const starter = readFileSync(join(__dirname, "../start-e2e-with-mock.ts"), "utf8");
+
+    expect(starter).toContain("resolveLiveE2eProxyRateLimitPerMinute");
+    expect(starter).toContain("ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE");
+  });
 });
