@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail when non-retired hunt zones claim bugs-found > hunts."""
+"""Fail when non-retired hunt zones claim bugs-found > hunts beyond their historical baseline."""
 
 from __future__ import annotations
 
@@ -18,6 +18,16 @@ RETIRED_COUNTER_ALLOWLIST = frozenset(
         "api-governance-tenancy-controllers",
     }
 )
+
+# Open zones whose bugs-found already exceeded hunts when this lint shipped
+# (2026-09-06, commit 3732d05440). The values are bugs-found minus hunts at that commit.
+# Historical counts must not be rewritten, so these zones fail only if the excess grows.
+HISTORICAL_EXCESS_BASELINE: dict[str, int] = {
+    "tenant-erasure": 234,
+    "ui-marketing-surfaces": 8,
+    "ui-oidc": 5,
+    "artifact-synthesis": 5,
+}
 
 FIELD_HUNTS = re.compile(r"^\s*-\s+\*\*hunts:\*\*\s+(\d+)\s*$", re.MULTILINE)
 FIELD_BUGS = re.compile(r"^\s*-\s+\*\*bugs-found:\*\*\s+(\d+)\s*$", re.MULTILINE)
@@ -40,6 +50,19 @@ class ZoneCounters:
     @property
     def invariant_violating(self) -> bool:
         return self.hunts > 0 and self.bugs_found > self.hunts
+
+    @property
+    def excess(self) -> int:
+        return max(self.bugs_found - self.hunts, 0)
+
+    @property
+    def within_historical_baseline(self) -> bool:
+        baseline = HISTORICAL_EXCESS_BASELINE.get(self.zone_id)
+
+        if baseline is None:
+            return False
+
+        return self.excess <= baseline
 
 
 def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
@@ -89,9 +112,11 @@ def duplicate_counter_zone_ids(ledger_text: str) -> list[str]:
     return duplicates
 
 
-def lint_ledger(ledger_text: str) -> tuple[list[ZoneCounters], list[ZoneCounters]]:
+def lint_ledger(ledger_text: str) -> tuple[list[ZoneCounters], list[ZoneCounters], list[ZoneCounters]]:
+    """Split inflated zones into (violations, retired footnotes, open zones within historical baseline)."""
     violations: list[ZoneCounters] = []
     retired_violations: list[ZoneCounters] = []
+    baselined: list[ZoneCounters] = []
 
     for zone in parse_zone_counters(ledger_text):
         if not zone.invariant_violating:
@@ -99,13 +124,20 @@ def lint_ledger(ledger_text: str) -> tuple[list[ZoneCounters], list[ZoneCounters
 
         if zone.zone_id in RETIRED_COUNTER_ALLOWLIST:
             retired_violations.append(zone)
+        elif zone.within_historical_baseline:
+            baselined.append(zone)
         else:
             violations.append(zone)
 
-    return violations, retired_violations
+    return violations, retired_violations, baselined
 
 
-def print_report(zones: list[ZoneCounters], violations: list[ZoneCounters], retired: list[ZoneCounters]) -> None:
+def print_report(
+    zones: list[ZoneCounters],
+    violations: list[ZoneCounters],
+    retired: list[ZoneCounters],
+    baselined: list[ZoneCounters],
+) -> None:
     total_hunts = sum(zone.hunts for zone in zones)
     total_bugs = sum(zone.bugs_found for zone in zones)
     total_effective = sum(zone.effective_bugs for zone in zones)
@@ -121,6 +153,14 @@ def print_report(zones: list[ZoneCounters], violations: list[ZoneCounters], reti
         print("retired mega-zones (allowed historical inflation; do not rewrite bugs-found):")
         for zone in retired:
             print(f"  - {zone.zone_id}: hunts={zone.hunts} bugs-found={zone.bugs_found}")
+
+    if baselined:
+        print("open zones within historical excess baseline (do not rewrite bugs-found):")
+        for zone in baselined:
+            print(
+                f"  - {zone.zone_id}: hunts={zone.hunts} bugs-found={zone.bugs_found} "
+                f"excess={zone.excess} baseline={HISTORICAL_EXCESS_BASELINE[zone.zone_id]}"
+            )
 
     if violations:
         print("open zones with bugs-found > hunts:")
@@ -148,9 +188,9 @@ def main() -> int:
 
     ledger_text = args.ledger.read_text(encoding="utf-8")
     zones = parse_zone_counters(ledger_text)
-    violations, retired = lint_ledger(ledger_text)
+    violations, retired, baselined = lint_ledger(ledger_text)
     duplicates = duplicate_counter_zone_ids(ledger_text)
-    print_report(zones, violations, retired)
+    print_report(zones, violations, retired, baselined)
 
     if duplicates:
         print("zones with duplicate hunts or bugs-found fields:")
