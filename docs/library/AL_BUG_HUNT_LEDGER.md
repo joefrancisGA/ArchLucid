@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a trigger's pipeline under `pipelineReference.referenceName`. `AzureInventoryAdfTriggerSanitizer` read `pipelineReference` as text, so a schedule trigger persisted the JSON object as the pipeline name, and a tumbling-window trigger's object `pipeline` was dropped. Both shapes now keep the static `referenceName`. Regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`. 1471 scoped AzureExtractor tests passed (1444 Core + 27 Application).
+
 2026-10-09 seed hunt (seed→hit): `application-billing-logic` — Why ArchLucid prints the monthly spend band as low — high, but `TenantCostEstimateService` copied `Billing:UnitRates` low and high independently. A Standard pair of 500 and 100, and an Enterprise pair of 900 and 200, displayed the larger amount first. Both commercial bands now order the lower amount first. Free stays 0–0. Regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`. 30 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, and TenantCostEstimate tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-billing-logic` — `GET` LLM cost dashboard `days=7` rounded a $0.0004 UTC-month pressure to $0.0001 per day. Six of those days already exceeded the month, and the last day was clamped to zero, so the chart summed to $0.0006 while the tenant-wide row stayed $0.0004. The per-day share now steps down to the 4-decimal floor when the rounded share would overshoot, and the last day keeps the remainder. Regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`. 26 scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests passed.
@@ -23387,13 +23389,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 50
-- **bugs-found:** 32
+- **hunts:** 51
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — data flow linked service beside dataset was ignored
+- **last-bug:** 2026-10-09 — trigger pipelineReference stored the JSON object as the pipeline name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted ADF trigger `pipelineReference`. Schedule triggers stored the object JSON as the pipeline name, and tumbling-window triggers dropped the singular `pipeline` object. Both now keep `referenceName`. Regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`. 1471 scoped AzureExtractor tests passed (1444 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): promoted ARM data-flow source shape; `linkedService` sits beside `dataset` on `DataFlowSource` / `DataFlowSink`, and inline sinks omit `dataset`; extractor only opened `dataset.linkedService`, so static names never reached `ExecuteDataFlow`; regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`; scoped `AzureExtractor` tests passed 1468/1468 (1441 Core + 27 Application).
 
@@ -23437,6 +23441,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryAdfTriggerSanitizer.ExtractPipelineNames` — Data Factory `pipelineReference` was stored as raw JSON, and tumbling-window `pipeline` objects were dropped — **hit 2026-10-09 seed hunt:** schedule and tumbling-window triggers now keep `referenceName`; regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`.
 - [x] (proven) `AzureInventoryAdfPipelineFlowExtractor.WalkActivityArray` — Copy activities nested under ForEach, If Condition, and Switch were omitted from pipeline flows — **hit 2026-10-08 seed hunt:** top-level `properties.activities` never entered `typeProperties.activities`, `ifTrueActivities`, `ifFalseActivities`, `defaultActivities`, or Switch `cases[].activities`; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`.
 - [x] (proven) `AzureInventoryAdfDataflowExtractor.ExtractLinkedServiceNames` — ARM `linkedService` beside `dataset` was ignored, so mapping data flows produced empty source and sink lists — **hit 2026-10-09 seed hunt (seed→hit):** read the sibling reference, then a nested `dataset.linkedService`; regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`.
 

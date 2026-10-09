@@ -8964,3 +8964,4 @@
 {"at":"2026-10-09T07:13:26.3300843Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs","ArchLucid.Api/Auth/Services/LocalTrialJwtIssuer.cs","ArchLucid.Api/Controllers/Auth/PostAuthBootstrapController.Workspace.cs"]}
 {"at":"2026-10-09T07:23:56.2146224Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/TenantLlmCostReportingService.cs"]}
 {"at":"2026-10-09T07:34:38.5270653Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/TenantCostEstimateService.cs"]}
+{"at":"2026-10-09T07:43:07.4950212Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfTriggerSanitizer.cs"]}
