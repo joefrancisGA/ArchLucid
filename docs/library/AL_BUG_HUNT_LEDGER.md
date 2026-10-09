@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DanglingDeclarationReferenceAnalyzer` matched only the parent length of an ARM id (`/subscriptions/.../providers/{type}/{name}`). Inventory overlay nodes store the full id on `armResourceId` and label the node with the last segment (`ArchitectureInventoryObservedFactGraphBuilder`). A SQL database id `.../servers/sql-pay-prod/databases/payments` was reported as a dangling reference to the server. The matcher now keeps extra `/{type}/{name}` pairs. A database id that is not on the graph still flags. Regression `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` failed first with a truncated server token. 8 scoped dangling-reference tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DatastoreSkuReader` matched only camelCase keys such as `zoneRedundant` and `accountReplicationType`. The declaration parser stores azurerm attributes as `tf.zone_redundant` and `tf.account_replication_type`. `infra/modules/azure-sql-tenant-pool` sets `zone_redundant = false` on `azurerm_mssql_database`, and `infra/terraform-analysis-sandbox` sets `account_replication_type = "LRS"`. A zone-redundant requirement linked to that database emitted no SKU-tier finding. Property lookup now strips the `tf.` prefix and underscores before comparing. `zone_redundant = true` and ZRS stay quiet. Regression `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` failed first with an empty finding list. 10 scoped SKU-tier and reader tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DrReplicaPropertyHeuristic` treated any non-disabled value on a key containing `replica` as replica evidence. `account_replication_type` contains that substring, and the declaration parser stores `tf.account_replication_type`. `infra/terraform-logicapps` sets `account_replication_type = "ZRS"`. Only the exact token `lrs` was rejected, so zone-redundant storage satisfied an RPO requirement and the gap was skipped. `StorageRedundancySku` treats LRS and ZRS, including `Standard_` and `Premium_` prefixes, as single-region. GRS and GZRS still count. Regression `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` failed first with an empty finding list. 10 scoped DrRpo topology finding tests passed. [class:other]
@@ -16459,13 +16461,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 50
-- **bugs-found:** 41
+- **hunts:** 51
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Terraform zone_redundant=false missed the SKU tier check
+- **last-bug:** 2026-10-09 — Nested SQL database ARM id flagged as dangling
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved a nested SQL database ARM id on its own inventory node was flagged as a dangling server reference; the matcher keeps extra `/{type}/{name}` pairs; regressions `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` and `Analyze_still_flags_nested_sql_database_id_that_is_not_on_the_graph`; 8 scoped dangling-reference tests passed.
+
+- [x] (proven) `DanglingDeclarationReferenceAnalyzer` — `.../servers/sql-pay-prod/databases/payments` on `armResourceId` — **hit 2026-10-09 seed hunt:** the parent-length ARM match reported the database as a dangling server id; extra type/name pairs stay in the token; regressions `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` and `Analyze_still_flags_nested_sql_database_id_that_is_not_on_the_graph`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved `tf.zone_redundant` = `false` and `tf.account_replication_type` = `lrs` were invisible to the SKU reader; normalized Terraform keys before compare; regressions `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` and `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_account_replication_lrs`; 10 scoped SKU-tier and reader tests passed.
 

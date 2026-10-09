@@ -9009,3 +9009,4 @@
 {"at":"2026-10-09T16:39:25.6819010Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DeclarationMinimumTlsVersion.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-09T16:53:59.8992616Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/StorageRedundancySku.cs","ArchLucid.Decisioning/Analysis/DrReplicaPropertyHeuristic.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-09T17:04:26.1172301Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DatastoreSkuReader.cs"],"severity":"medium","defectClass":"other"}
+{"at":"2026-10-09T17:13:42.5020474Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DanglingDeclarationReferenceAnalyzer.cs"],"severity":"medium","defectClass":"other"}
