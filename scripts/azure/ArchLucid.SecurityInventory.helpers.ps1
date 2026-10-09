@@ -1451,6 +1451,139 @@ function Add-ArchLucidBastionSubnetPropertiesFromAssociations
     }
 }
 
+function Add-ArchLucidFirewallSubnetPropertiesFromFacts
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $Resources,
+
+        [object[]] $FirewallSubnetFacts = @(),
+
+        [object[]] $VirtualNetworkSubnetFacts = @()
+    )
+
+    [hashtable]$resourcesById = @{}
+
+    foreach ($resource in @($Resources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+        if (-not [string]::IsNullOrWhiteSpace($resourceId))
+        {
+            $resourcesById[$resourceId.ToLowerInvariant()] = $resource
+        }
+    }
+
+    $firewallFactsById = @{}
+    foreach ($fact in @($FirewallSubnetFacts))
+    {
+        if ($null -eq $fact) { continue }
+
+        [string]$resourceId = "$( $fact.resourceId )".Trim()
+        [string]$subnetId = "$( $fact.subnetId )".Trim()
+        if ([string]::IsNullOrWhiteSpace($resourceId) `
+            -or [string]::IsNullOrWhiteSpace($subnetId))
+        {
+            continue
+        }
+
+        $key = $resourceId.ToLowerInvariant()
+        if (-not $firewallFactsById.ContainsKey($key))
+        {
+            $firewallFactsById[$key] = [System.Collections.ArrayList]::new()
+        }
+
+        [void]$firewallFactsById[$key].Add($fact)
+    }
+
+    foreach ($key in @($firewallFactsById.Keys))
+    {
+        if (-not $resourcesById.ContainsKey($key)) { continue }
+
+        $resource = $resourcesById[$key]
+        if ($null -eq $resource.properties) { $resource.properties = @{} }
+
+        [int]$ipConfigurationIndex = 0
+        foreach ($fact in @($firewallFactsById[$key]))
+        {
+            [string]$subnetId = "$( $fact.subnetId )".Trim()
+            [string]$propertyName = "$( $fact.propertyName )".Trim()
+
+            if ($propertyName -eq 'managementIpConfiguration')
+            {
+                if (-not $resource.properties.ContainsKey('managementIpConfiguration.subnet.id'))
+                {
+                    $resource.properties['managementIpConfiguration.subnet.id'] = $subnetId
+                }
+                continue
+            }
+
+            if ($propertyName -ne 'ipConfiguration') { continue }
+
+            [string]$indexedPropertyName = "ipConfiguration.subnet.id[$ipConfigurationIndex]"
+            if (-not $resource.properties.ContainsKey($indexedPropertyName))
+            {
+                $resource.properties[$indexedPropertyName] = $subnetId
+            }
+
+            if ($ipConfigurationIndex -eq 0 `
+                -and -not $resource.properties.ContainsKey('ipConfiguration.subnet.id'))
+            {
+                $resource.properties['ipConfiguration.subnet.id'] = $subnetId
+            }
+
+            $ipConfigurationIndex++
+        }
+    }
+
+    foreach ($fact in @($VirtualNetworkSubnetFacts))
+    {
+        if ($null -eq $fact) { continue }
+
+        [string]$resourceId = "$( $fact.resourceId )".Trim()
+        if ([string]::IsNullOrWhiteSpace($resourceId) `
+            -or -not $resourcesById.ContainsKey($resourceId.ToLowerInvariant()))
+        {
+            continue
+        }
+
+        $resource = $resourcesById[$resourceId.ToLowerInvariant()]
+        if ($null -eq $resource.properties) { $resource.properties = @{} }
+        if ($resource.properties.ContainsKey('subnets') `
+            -and -not [string]::IsNullOrWhiteSpace("$( $resource.properties['subnets'] )"))
+        {
+            continue
+        }
+
+        $subnetRecords = [System.Collections.Generic.List[object]]::new()
+        foreach ($subnet in @($fact.subnets))
+        {
+            if ($null -eq $subnet) { continue }
+
+            [string]$subnetId = "$( $subnet.id )".Trim()
+            if ([string]::IsNullOrWhiteSpace($subnetId))
+            {
+                [string]$subnetName = "$( $subnet.name )".Trim()
+                if (-not [string]::IsNullOrWhiteSpace($subnetName))
+                {
+                    $subnetId = "$resourceId/subnets/$subnetName"
+                }
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace($subnetId))
+            {
+                $subnetRecords.Add([ordered]@{ id = $subnetId })
+            }
+        }
+
+        if ($subnetRecords.Count -gt 0)
+        {
+            $resource.properties['subnets'] = $subnetRecords | ConvertTo-Json -Depth 4 -Compress
+        }
+    }
+}
+
 function Resolve-ArchLucidAssociatedResourceFromIpConfiguration([string] $IpConfigurationId)
 {
     if ([string]::IsNullOrWhiteSpace($IpConfigurationId)) { return $null }

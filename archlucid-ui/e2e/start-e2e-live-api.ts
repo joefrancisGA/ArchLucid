@@ -8,6 +8,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 
+import { resolveLiveE2eProxyRateLimitPerMinute } from "./helpers/live-e2e-proxy-rate-limit";
 import { syncStandaloneRuntimeAssets } from "./helpers/sync-standalone-runtime-assets";
 
 const LIVE_API_BASE = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
@@ -26,6 +27,8 @@ async function main(): Promise<void> {
       ARCHLUCID_API_BASE_URL: LIVE_API_BASE,
       ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS:
         process.env.ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS ?? "true",
+      // Production Next enables the 120/min proxy limiter; serial CI smoke shares one IP.
+      ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE: resolveLiveE2eProxyRateLimitPerMinute(),
       NODE_ENV: "production",
       PORT: process.env.PORT ?? "3000",
       HOSTNAME: "0.0.0.0",

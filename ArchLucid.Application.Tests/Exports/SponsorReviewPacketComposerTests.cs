@@ -217,7 +217,7 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-                // ManifestVersion defaults to "v1"; empty is the typed stand-in for a missing stored value.
+                // Empty version (not ManifestMetadata's default "v1") so the composer emits omission copy without CS8625.
                 Metadata = new ManifestMetadata { ManifestVersion = string.Empty },
             },
         };

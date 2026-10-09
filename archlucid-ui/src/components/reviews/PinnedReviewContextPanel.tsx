@@ -21,6 +21,14 @@ export type PinnedReviewContextPanelProps = {
   readonly context: UsePinnedReviewContextResult;
 };
 
+export function formatPinnedReviewFindingsCount(findingsCount: number | null): string {
+  if (findingsCount === null) {
+    return "Findings count was not returned.";
+  }
+
+  return `${findingsCount} assessment finding${findingsCount === 1 ? "" : "s"}`;
+}
+
 function PinnedReviewFindingInspect({
   runId,
   findingId,
@@ -183,11 +191,7 @@ export function PinnedReviewContextPanel(props: PinnedReviewContextPanelProps): 
         ) : null}
 
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="pinned-review-findings-count">
-          <span className="font-medium text-al-text-primary">
-            {context.findingsCount ?? "—"}
-          </span>
-          {" "}
-          assessment finding{(context.findingsCount ?? 0) === 1 ? "" : "s"}
+          {formatPinnedReviewFindingsCount(context.findingsCount)}
         </p>
 
         {inspectFindingId !== null && pinRunId.length > 0 ? (

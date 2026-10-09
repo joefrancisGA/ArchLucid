@@ -98,4 +98,16 @@ describe("resolvePartialRunCommitBlockedReason (TB-937)", () => {
     expect(presentation?.summary).toBe("Critic out of date — re-run required.");
     expect(presentation?.technicalDetail).toContain("Critic (Stale)");
   });
+
+  it("uses omission copy for missing agent type and outcome", () => {
+    const presentation = resolvePartialRunCommitBlockPresentation({
+      legacyRunStatus: "ReadyForCommit",
+      findingCoverageAlreadyBlocking: false,
+      agentExecutionOutcomes: [{ agentType: null, outcome: null }],
+    });
+
+    expect(presentation?.technicalDetail).toBe(
+      "Agent type was not stored. (Agent outcome was not stored.)",
+    );
+  });
 });
