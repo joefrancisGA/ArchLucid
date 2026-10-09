@@ -17,9 +17,9 @@ public static partial class SponsorReviewPacketComposer
             return;
 
         ArchitectureRun? run = detail.Run;
-        string manifestVersion = manifest.Metadata?.ManifestVersion ?? "—";
-        string runId = run?.RunId ?? "—";
-        string statusLabel = run?.Status.ToString() ?? "—";
+        string manifestVersion = manifest.Metadata?.ManifestVersion ?? "Manifest version was not stored.";
+        string runId = run?.RunId ?? "Review ID was not stored.";
+        string statusLabel = run is null ? "Review status was not stored." : run.Status.ToString();
 
         sb.AppendLine("## Manifest summary");
         sb.AppendLine();

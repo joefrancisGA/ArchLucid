@@ -60,4 +60,17 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
         cover.Title.Should().Be("Harbor Advisory");
         cover.Subtitle.Should().Be("ARB — Core ledger");
     }
+
+    [Fact]
+    public void Resolve_uses_omission_copy_when_system_name_is_not_stored()
+    {
+        ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+            new ArchitectureReviewBoardExportDocumentModel { RunId = "run-1" },
+            whitelabel: null,
+            new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
+            activeTrialExportNotice: null);
+
+        cover.Subtitle.Should().Be("System name was not stored.");
+        cover.Subtitle.Should().NotContain("run-1");
+    }
 }

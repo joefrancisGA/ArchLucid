@@ -316,12 +316,14 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "core-vnet",
           resourceType: "Microsoft.Network/virtualNetworks",
           resourceGroup: "rg-network",
+          connectionState: "Connected",
         },
         {
           id: "n_dst",
           label: "app-storage",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-apps",
+          connectionState: "Connected",
         },
       ],
       edges: [
@@ -389,12 +391,14 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "alpha-node",
           resourceType: "Microsoft.Network/virtualNetworks",
           resourceGroup: "rg-a",
+          connectionState: "Connected",
         },
         {
           id: "n_b",
           label: "beta-node",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-b",
+          connectionState: "Connected",
         },
         {
           id: "n_c",
@@ -461,6 +465,7 @@ describe("InfraEvidenceDiagramOutline", () => {
         label: `node-${String(index).padStart(3, "0")}`,
         resourceType: "Microsoft.Storage/storageAccounts",
         resourceGroup: `rg-${index}`,
+        connectionState: "Connected" as const,
       })),
       edges: Array.from({ length: 201 }, (_, index) => ({
         from: "n_0",
@@ -849,6 +854,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(screen.queryByTestId("infra-diagrams-orphaned-nodes-list")).toBeNull();
     expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(screen.queryByTestId("infra-diagrams-unknown-nodes-list")).toBeNull();
+  });
+
+  it("keeps an omitted connection state out of connected and explains the omission", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n-missing-state",
+              label: "resource-without-state",
+              resourceType: "Microsoft.Storage/storageAccounts",
+              resourceGroup: "rg-a",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+      "No connection state detail was stored.",
+    );
   });
 
   it("renders ledger drops when mermaid outline includes them", () => {

@@ -84,9 +84,19 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
 
 function resolveAdrFindingProvenanceKind(
   finding: QuickDecisionFinding,
-): "Asserted" | "Inferred" | "Unknown" {
+): "Asserted" | "Inferred" | "Unknown" | null {
+  const storedTrustLabel = finding.trustLabel?.trim() ?? "";
+
+  if (storedTrustLabel.length === 0) {
+    return null;
+  }
+
+  if (storedTrustLabel.toLowerCase() === "unknown") {
+    return "Unknown";
+  }
+
   const trustLabel = deriveFindingTrustLabelName({
-    trustLabel: finding.trustLabel ?? null,
+    trustLabel: storedTrustLabel,
     policyRuleId: finding.policyRuleId ?? null,
     evidenceRefCount: finding.evidenceRefCount ?? 0,
   });
