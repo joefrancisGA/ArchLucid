@@ -33,6 +33,7 @@ public sealed class InfrastructureDiagramComparisonsController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Advisory diagram comparison persists deterministic correspondence rows per snapshot.")]

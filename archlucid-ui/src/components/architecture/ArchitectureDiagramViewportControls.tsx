@@ -50,10 +50,10 @@ export function ArchitectureDiagramViewportControls(
     <div
       className={cn(
         'flex flex-col gap-2',
-        // Overlay `right` must be against a non-scrolling frame. The mermaid
+        // Overlay inset is against the non-scrolling viewport frame. The mermaid
         // camera owns overflow:auto so a wide SVG cannot pin this cluster off-screen.
         isOverlay
-          ? 'pointer-events-none absolute right-2 top-2 z-10 max-w-[calc(100%-1rem)]'
+          ? 'pointer-events-none absolute inset-x-2 top-2 z-10'
           : 'mb-2',
       )}
       data-testid="architecture-diagram-viewport-controls"
@@ -63,7 +63,7 @@ export function ArchitectureDiagramViewportControls(
         className={cn(
           'flex flex-wrap items-center gap-2',
           isOverlay &&
-            'pointer-events-auto rounded-md border border-neutral-200 bg-white/95 p-1.5 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95',
+            'pointer-events-auto ml-auto max-w-full rounded-md border border-neutral-200 bg-white/95 p-1.5 shadow-sm backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95',
         )}
       >
         <Button

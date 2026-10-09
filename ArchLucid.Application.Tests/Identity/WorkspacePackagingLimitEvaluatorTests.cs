@@ -71,7 +71,7 @@ public sealed class WorkspacePackagingLimitEvaluatorTests
                     CommercialTier: CommercialPackagingTierLabels.Professional,
                     SeatsUsed: 2,
                     SeatsLimit: CommercialPackagingLimits.ProfessionalSeatsIncluded,
-                    WorkspacesUsed: 1,
+                    WorkspacesUsed: 0,
                     WorkspacesLimit: CommercialPackagingLimits.ProfessionalWorkspacesIncluded));
 
         WorkspacePackagingLimitEvaluator sut = new(usage.Object);

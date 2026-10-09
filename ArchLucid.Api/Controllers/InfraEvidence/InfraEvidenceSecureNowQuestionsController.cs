@@ -43,10 +43,11 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
         return Ok(questions.Select(MapQuestion).ToList());
     }
 
-[HttpPost("answer")]
-[ProducesResponseType(typeof(SecureNowQuestionDispositionResponse), StatusCodes.Status200OK)]
-[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-[MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("answer")]
+    [ProducesResponseType(typeof(SecureNowQuestionDispositionResponse), StatusCodes.Status200OK)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs answer via IAuditService.")]
     public async Task<IActionResult> Answer(
         Guid snapshotId,
         [FromBody] SecureNowQuestionDispositionWriteApiRequest? request,
@@ -68,6 +69,7 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
         return MutationResult(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("ignore")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs ignore via IAuditService.")]
@@ -92,6 +94,7 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
         return MutationResult(result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("reopen")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Audit: SecureNowQuestionDispositionService logs reopen via IAuditService.")]

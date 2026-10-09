@@ -17,6 +17,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunsController
 {
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("review/{runId}/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
