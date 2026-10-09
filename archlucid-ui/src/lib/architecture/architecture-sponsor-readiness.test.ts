@@ -161,4 +161,42 @@ describe("architecture-sponsor-preliminary-draft", () => {
     expect(watermark.preliminaryDraft).toBe(true);
     expect(watermark.notApproved).toBe(true);
   });
+
+  it("uses omission copy for missing sponsor draft fields and preserves stored values", () => {
+    const markdown = buildArchitectureSponsorShareMarkdown({
+      runId: "run-1",
+      architectureName: "Retail API platform",
+      architectureOverview: " ",
+      businessOutcome: "",
+      ownerLabel: null,
+      knownGaps: [],
+      confidentialityLabel: null,
+      generatedAtIso: "2026-07-11T12:00:00.000Z",
+      readinessStatus: "preliminary-only",
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(markdown).toContain("Confidentiality was not stored.");
+    expect(markdown).toContain("Architecture overview was not stored.");
+    expect(markdown).toContain("Business outcome was not stored.");
+    expect(markdown).toContain("Sponsor owner was not stored.");
+
+    const storedMarkdown = buildArchitectureSponsorShareMarkdown({
+      runId: "run-1",
+      architectureName: "Retail API platform",
+      architectureOverview: "Stored overview",
+      businessOutcome: "Stored outcome",
+      ownerLabel: "Stored owner",
+      knownGaps: [],
+      confidentialityLabel: "Stored confidentiality",
+      generatedAtIso: "2026-07-11T12:00:00.000Z",
+      readinessStatus: "ready",
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(storedMarkdown).toContain("Stored overview");
+    expect(storedMarkdown).toContain("Stored outcome");
+    expect(storedMarkdown).toContain("Stored owner");
+    expect(storedMarkdown).toContain("Stored confidentiality");
+  });
 });

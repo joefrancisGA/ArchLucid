@@ -49,6 +49,7 @@ describe("PilotValueReportFindingsSection", () => {
 
     expect(screen.getByText("Review id was not stored")).toBeInTheDocument();
     expect(screen.getByText("System name was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Created time was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Outcome was not stored")).toBeInTheDocument();
     expect(screen.getByText("Highest severity was not stored")).toBeInTheDocument();
     expect(screen.getByText("Open actions were not stored")).toBeInTheDocument();

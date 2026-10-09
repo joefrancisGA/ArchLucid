@@ -78,6 +78,40 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateDocxAsync_uses_omission_copy_for_missing_confidence()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Compliance,
+                        LeftConfidence = null,
+                        RightConfidence = 0,
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Left confidence was not stored.");
+        text.Should().Contain("Right Confidence: 0.00");
+        text.Should().NotContain("n/a");
+    }
+
+    [Fact]
     public async Task GenerateDocxAsync_includes_execution_traces()
     {
         DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());

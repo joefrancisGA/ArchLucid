@@ -22,11 +22,27 @@ type SponsorRoiExportRow = {
 
 type SponsorRoiExportPayload = {
   rows?: SponsorRoiExportRow[];
-  savingsPricingBasis?: string;
-  eaDiscountMultiplier?: number;
+  savingsPricingBasis?: string | null;
+  eaDiscountMultiplier?: number | null;
   savingsPricingBasisDescription?: string;
   costEvidenceFreshnessStatus?: string;
 };
+
+export function formatSponsorRoiCsvPreamble(json: SponsorRoiExportPayload): string {
+  const pricingBasis = json.savingsPricingBasis?.trim() || "Pricing basis was not stored.";
+  const eaMultiplierLabel =
+    json.eaDiscountMultiplier === null || json.eaDiscountMultiplier === undefined
+      ? "EA discount multiplier was not stored."
+      : `EA discount multiplier ${json.eaDiscountMultiplier}`;
+
+  return [
+    `# Savings pricing basis: ${pricingBasis} (${eaMultiplierLabel})`,
+    json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
+    json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 /** Downloads sponsor ROI findings CSV through the scoped proxy (browser only). */
 export async function downloadSponsorRoiCsvExport(): Promise<void> {
@@ -46,14 +62,7 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
   }
 
   const json = (await response.json()) as SponsorRoiExportPayload;
-  const eaMultiplier = json.eaDiscountMultiplier ?? 1;
-  const preamble = [
-    `# Savings pricing basis: ${json.savingsPricingBasis ?? "Retail"} (EA discount multiplier ${eaMultiplier})`,
-    json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
-    json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const preamble = formatSponsorRoiCsvPreamble(json);
   const header =
     "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
   const lines = (json.rows ?? []).map((row) =>

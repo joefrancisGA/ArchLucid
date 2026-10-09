@@ -90,6 +90,8 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.manifestDecisions[0]?.pipeline).toBe("Pipeline was not stored.");
     expect(model?.coordinatorDecisionNodes[0]?.topic).toBe("Decision topic was not stored.");
     expect(model?.coordinatorDecisionNodes[0]?.pipeline).toBe("Pipeline was not stored.");
+    expect(model?.coordinatorDecisionNodes[0]?.rationale).toBe("Decision rationale was not stored.");
     expect(model?.findingEngineFailures[0]?.exceptionType).toBe("Exception type was not stored.");
+    expect(model?.findingEngineFailures[0]?.errorMessage).toBe("Error message was not stored.");
   });
 });

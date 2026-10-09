@@ -26,6 +26,20 @@ import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
 import { SponsorReportNextReviewFooterClient } from "./SponsorReportNextReviewFooterClient";
 
+function formatCreatedReviewDate(iso: string | null): string {
+  if (iso === null || iso.trim().length === 0) {
+    return "Created time was not stored.";
+  }
+
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
 function formatReviewDate(iso: string | null): string {
   if (iso === null || iso.length === 0) {
     return "Not available";
@@ -189,7 +203,7 @@ export function PilotValueReportFindingsSection(props: Props) {
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.systemName?.trim() || "System name was not stored"}
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatReviewDate(row.createdUtc)}</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatCreatedReviewDate(row.createdUtc)}</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                   {formatReviewDate(row.committedUtc)}
                 </EnterpriseTableCell>

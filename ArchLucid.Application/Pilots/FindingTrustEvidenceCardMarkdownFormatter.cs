@@ -94,7 +94,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "**Incomplete**")} |");
+            $"| Sponsor-proof readiness | {FormatSponsorProofReadiness(proof.SponsorProofReadiness)} |");
 
         sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
         sb.AppendLine(
@@ -148,5 +148,17 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
         return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatSponsorProofReadiness(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Sponsor-proof readiness was not stored.";
+        }
+
+        return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
+            ? $"**{readiness}**"
+            : $"**Unrecognized** — persisted value `{value}` is not a known classification.";
     }
 }

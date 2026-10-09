@@ -149,7 +149,7 @@ export function buildMadrMarkdownFromRun(
               f.semanticSupportBand !== null
               && f.semanticSupportBand !== undefined
               && f.semanticSupportBand.trim().length > 0
-                ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion ?? "unknown"})`
+                ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion?.trim() || "Scorer version was not stored."})`
                 : "";
 
             return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;

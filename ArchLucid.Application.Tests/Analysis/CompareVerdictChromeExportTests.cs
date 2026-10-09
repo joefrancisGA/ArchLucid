@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 
@@ -79,5 +81,26 @@ public sealed class CompareVerdictChromeExportTests
         html.Should().Contain("<h2>Compare Verdict Chrome Delta</h2>");
         html.Should().Contain("Pre-commit gate outcome");
         html.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
+    }
+
+    [Fact]
+    public void Roi_headline_missing_labels_uses_omission_copy_across_export_lines()
+    {
+        CompareVerdictChromeDelta delta = SampleDelta();
+        delta.RoiHeadline!.BaselineSavingsLabel = null;
+        delta.RoiHeadline.TargetSavingsLabel = null;
+
+        StringBuilder markdownBuilder = new();
+        CompareVerdictChromeExportFormatter.AppendMarkdown(markdownBuilder, delta);
+        string markdown = markdownBuilder.ToString();
+        StringBuilder htmlBuilder = new();
+        CompareVerdictChromeExportFormatter.AppendHtml(htmlBuilder, delta);
+
+        markdown.Should().Contain("Baseline savings was not stored.");
+        markdown.Should().Contain("Updated savings was not stored.");
+        htmlBuilder.ToString().Should().Contain("Baseline savings was not stored.");
+        CompareVerdictChromeExportFormatter.BuildPlainTextLines(delta)
+            .Should()
+            .Contain(line => line.Contains("Baseline savings was not stored.", StringComparison.Ordinal));
     }
 }
