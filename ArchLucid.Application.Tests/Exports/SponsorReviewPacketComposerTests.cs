@@ -216,7 +216,7 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-                Metadata = null,
+                Metadata = new ManifestMetadata(),
             },
         };
 
