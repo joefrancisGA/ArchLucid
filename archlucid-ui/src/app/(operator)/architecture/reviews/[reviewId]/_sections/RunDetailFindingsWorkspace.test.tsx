@@ -25,7 +25,15 @@ vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", () => ({
 }));
 
 vi.mock("@/components/findings/RunDetailFindingsDenseTable", () => ({
-  RunDetailFindingsDenseTable: () => <div data-testid="run-detail-findings-dense-table-stub" />,
+  RunDetailFindingsDenseTable: (props: { readonly findings?: readonly { readonly findingId: string }[] }) => (
+    <ol data-testid="run-detail-findings-dense-table-stub">
+      {(props.findings ?? []).map((row) => (
+        <li key={row.findingId} data-testid={`findings-list-order-${row.findingId}`}>
+          {row.findingId}
+        </li>
+      ))}
+    </ol>
+  ),
 }));
 
 vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
@@ -256,6 +264,62 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toHaveTextContent(
       "did not run",
     );
+  });
+
+  it("reorders findings when a sort chip updates findingsSort without a popstate event", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+    vi.unstubAllGlobals();
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+    navigationMocks.searchParams = new URLSearchParams("reviewTab=findings");
+
+    const findings: QuickDecisionFinding[] = [
+      finding({
+        findingId: "density-first",
+        title: "Alpha",
+        classification: "DecisionGradeFinding",
+        insightDensityScore: 90,
+        severityValue: 0,
+        findingOrder: 0,
+      }),
+      finding({
+        findingId: "severity-first",
+        title: "Zulu",
+        classification: "DecisionGradeFinding",
+        insightDensityScore: 60,
+        severityValue: 3,
+        findingOrder: 1,
+      }),
+    ];
+
+    const { rerender } = render(
+      <RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />,
+    );
+
+    const listedOrder = (): string[] =>
+      screen.getAllByTestId(/^findings-list-order-/).map((node) => node.getAttribute("data-testid") ?? "");
+
+    expect(listedOrder()).toEqual([
+      "findings-list-order-density-first",
+      "findings-list-order-severity-first",
+    ]);
+    expect(screen.getByTestId("findings-sort-severity-desc")).toHaveAttribute(
+      "href",
+      expect.stringContaining("findingsSort=severity-desc"),
+    );
+
+    navigationMocks.searchParams = new URLSearchParams("reviewTab=findings&findingsSort=severity-desc");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&findingsSort=severity-desc",
+    );
+    rerender(<RunDetailFindingsWorkspace runId="run-1" findings={findings} packageCommitted={true} />);
+
+    expect(screen.getByTestId("findings-sort-severity-desc")).toHaveAttribute("aria-current", "page");
+    expect(listedOrder()).toEqual([
+      "findings-list-order-severity-first",
+      "findings-list-order-density-first",
+    ]);
   });
 
   it("switches the findings list to cards when Cards updates the address bar without a popstate event", () => {

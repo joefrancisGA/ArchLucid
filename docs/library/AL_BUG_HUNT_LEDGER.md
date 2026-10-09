@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Working mode sort chips are Next.js links that write `findingsSort` without `popstate`. `useRunDetailFindingsToolbarState` copied sort only from mount, `popstate`, and pathname, so the selected chip stayed on Trust then severity. The findings list also ignored that sort while architect chrome was on and kept density order. Sort now follows `useSearchParams`, and any non-default `findingsSort` reorders the list. Regression `reorders findings when a sort chip updates findingsSort without a popstate event`. 14 `RunDetailFindingsWorkspace` vitest tests passed, plus the toolbar path-change test and 5 last-visit tests.
+
 2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Working mode Room on a completed review with a manifest and no parent architecture id set the button to Room on and wrote `roomElicitation=1`, but the inline elicitation panel stayed unmounted. `useReviewDetailWorkspaceRoomElicitation` updates its own React state, then `commitHrefIfChanged` used `notify: false`, so `replaceState` did not emit `popstate`. `RunDetailPresenterElicitationBridge` reads `roomElicitation` only from the address bar on mount and from that event. The room write now notifies. Regression `shows the room panel when Room writes roomElicitation without a popstate event`. The new test and `ReviewRoomHeaderButton` passed. Six older bridge tests still fail because they mock `useSearchParams` without the address bar.
 
 2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Working mode Cards on the findings list wrote `findingsListView=cards` and pressed the Cards button, but `RunDetailFindingsWorkspace` kept the dense table. The toggle passed `null` into the list-view parser, so it never read the query, and `commitHrefIfChanged` used `notify: false`, so `replaceState` did not emit `popstate`. The workspace only applies that query from `popstate` and from a `runId` change. The toggle now reads `findingsListView` from the address bar and notifies, so the table and the button follow the click. Regression `switches the findings list to cards when Cards updates the address bar without a popstate event`. 13 `RunDetailFindingsWorkspace` vitest tests passed. Two sibling empty-state files still fail on a null `useSearchParams` and a missing in-progress empty test id.
@@ -33444,6 +33446,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-09 seed hunt (seed→hit): Sort chips wrote `findingsSort` without `popstate`, and Working mode kept density order, so Severity (high first) left the list and the selected chip unchanged. Sort now follows the search param, and a non-default sort reorders the list. Regression `reorders findings when a sort chip updates findingsSort without a popstate event`.
+
 2026-10-09 seed hunt (seed→hit): Room wrote `roomElicitation=1` and showed Room on, but the elicitation panel stayed down because the URL write did not emit `popstate`. The bridge only applies that query from the address bar on mount and from `popstate`. The room hook now notifies. Regression `shows the room panel when Room writes roomElicitation without a popstate event`.
 
 2026-10-09 seed hunt (seed→hit): Cards wrote `findingsListView` without `popstate`, and the toggle never read that query, so the findings workspace stayed on the dense table. The toggle now reads the address bar and notifies. Regression `switches the findings list to cards when Cards updates the address bar without a popstate event`; 13 findings-workspace vitest tests passed.
@@ -33481,11 +33485,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 37
-- **bugs-found:** 28
+- **hunts:** 38
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Room turned on without mounting the elicitation panel after roomElicitation=1 was written
+- **last-bug:** 2026-10-09 — Severity sort chip wrote findingsSort without changing the findings list or the selected chip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
@@ -33518,6 +33522,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
+- [x] (proven) `FindingsSortChips` / `useRunDetailFindingsToolbarState` / `RunDetailFindingsWorkspace` — sort chips wrote `findingsSort` through a Next.js link, and Working mode kept density order, so the list and the selected chip stayed on the previous sort — **hit 2026-10-09 seed hunt:** follow `findingsSort` from `useSearchParams`, and apply `sortFindingsForToolbar` when the sort is not the Working default. Regression `reorders findings when a sort chip updates findingsSort without a popstate event`.
 - [x] (proven) `useReviewDetailWorkspaceRoomElicitation` / `RunDetailPresenterElicitationBridge` — Room wrote `roomElicitation=1` with `notify: false` and updated only the button, so the bridge never received `popstate` and the inline panel stayed unmounted — **hit 2026-10-09 seed hunt:** `commitHrefIfChanged(..., { notify: true })`. Regression `shows the room panel when Room writes roomElicitation without a popstate event`.
 - [x] (proven) `RunDetailFindingsListViewToggle` / `RunDetailFindingsWorkspace` — Cards wrote `findingsListView=cards` with `notify: false`, and the toggle parsed `null` instead of the query, so the workspace kept the dense table while the button showed Cards — **hit 2026-10-09 seed hunt:** read `findingsListView` from the address bar and `commitHrefIfChanged(..., { notify: true })`. Regression `switches the findings list to cards when Cards updates the address bar without a popstate event`.
 - [x] (proven) `useReviewDetailWorkspacePresenter` / `useReviewDetailWorkspaceTabs` — Present and Exit wrote `presenter` with `replaceState` and `notify: false`, and Next.js soft navigation updated `useSearchParams` without `popstate`, so Working presenter mode stayed on the previous surface — **hit 2026-10-09 seed hunt:** notify on Present and Exit, and reconcile `presenterMode` from `useSearchParams`. Regressions `enters presenter mode when Present updates the address bar without a popstate event`, `leaves presenter mode when Exit presenter updates the address bar without a popstate event`, and `follows presenter query changes without a popstate event`.

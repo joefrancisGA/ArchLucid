@@ -7,6 +7,7 @@ const pathnameHarness = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => pathnameHarness.value,
+  useSearchParams: () => new URLSearchParams(window.location.search),
 }));
 
 import { useRunDetailFindingsToolbarState } from "@/components/findings/use-run-detail-findings-toolbar-state";

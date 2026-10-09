@@ -20,6 +20,7 @@ import {
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews/run-1",
+  useSearchParams: () => new URLSearchParams(window.location.search),
 }));
 
 function RestoreProbe(props: { readonly runId: string }) {

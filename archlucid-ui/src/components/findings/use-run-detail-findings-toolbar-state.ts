@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -27,7 +27,10 @@ import {
   reviewFindingsOwnerFilterHrefFromSearch,
   reviewFindingsToolbarClearDomainHrefFromSearch,
   reviewFindingsToolbarClearOwnerHrefFromSearch} from "@/lib/findings/review-findings-toolbar-field-filters-url";
-import { parseReviewFindingsToolbarSortFromSearch } from "@/lib/findings/review-findings-toolbar-sort-url";
+import {
+  parseReviewFindingsToolbarSortFromSearch,
+  REVIEW_FINDINGS_TOOLBAR_SORT_PARAM,
+} from "@/lib/findings/review-findings-toolbar-sort-url";
 import type { FindingGroundingFilter, FindingOriginFilter } from "@/lib/findings/finding-trust-triage";
 import type {
   RunDetailFindingsFilterKind,
@@ -85,6 +88,10 @@ export function useRunDetailFindingsToolbarState(options?: {
   readonly setGroundingFilter: (filter: FindingGroundingFilter) => void;
 } {
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const searchParamSort = parseReviewFindingsToolbarSortFromSearch(
+    searchParams?.get(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM),
+  );
   const initialFilter = options?.initialFilter ?? "all";
   const [filter, setFilterState] = useState<RunDetailFindingsFilterKind>(initialFilter);
   const setFilter = useCallback((next: RunDetailFindingsFilterKind): void => {
@@ -101,7 +108,7 @@ export function useRunDetailFindingsToolbarState(options?: {
   const [ownerFilter, setOwnerFilterState] = useState("");
   const [domainFilter, setDomainFilterState] = useState("");
   const [searchQuery, setSearchQueryState] = useState("");
-  const [sort, setSortState] = useState<RunDetailFindingsSortKind>("severity-desc");
+  const [sort, setSortState] = useState<RunDetailFindingsSortKind>(searchParamSort);
   const [originFilter, setOriginFilterState] = useState<FindingOriginFilter>("all");
   const [groundingFilter, setGroundingFilterState] = useState<FindingGroundingFilter>("all");
 
@@ -129,6 +136,11 @@ export function useRunDetailFindingsToolbarState(options?: {
       window.removeEventListener("popstate", syncFromCommittedUrl);
     };
   }, [pathname]);
+
+  useEffect(() => {
+    // Next.js client navigations update useSearchParams without a popstate event.
+    setSortState((current) => (current === searchParamSort ? current : searchParamSort));
+  }, [searchParamSort]);
 
   useEffect(() => {
     if (pathname.length === 0) {
