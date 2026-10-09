@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
+import { ReviewPresenterHeaderButton } from "@/components/reviews/ReviewPresenterHeaderButton";
 import { REVIEW_DETAIL_WORKSPACE_TABS_TEST_ID } from "@/components/reviews/ReviewWorkspaceTabStrip";
 import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
@@ -353,6 +354,56 @@ describe("ReviewDetailWorkspace", () => {
     expect(screen.getByTestId("presenter-verdict-strip")).toBeInTheDocument();
     expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
     expect(screen.queryByTestId("review-detail-workspace-tabs")).toBeNull();
+  });
+
+  it("enters presenter mode when Present updates the address bar without a popstate event", () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <>
+        <ReviewPresenterHeaderButton runId={RUN_ID} reviewCompleted manifestVersion="manifest-v1" />
+        <ReviewDetailWorkspace
+          runId={RUN_ID}
+          defensibilityStrip={<div data-testid="presenter-verdict-strip">Verdict</div>}
+          panels={workspacePanels}
+        />
+      </>,
+    );
+
+    expect(screen.queryByTestId("review-presenter-surface")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("review-presenter-enter"));
+
+    expect(screen.getByTestId("review-presenter-surface")).toBeInTheDocument();
+    expect(window.location.search).toContain("presenter=1");
+  });
+
+  it("leaves presenter mode when Exit presenter updates the address bar without a popstate event", () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+    searchParamsMock.value = new URLSearchParams("reviewTab=findings&presenter=1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&presenter=1",
+    );
+
+    render(
+      <ReviewDetailWorkspace
+        runId={RUN_ID}
+        defensibilityStrip={<div data-testid="presenter-verdict-strip">Verdict</div>}
+        panels={workspacePanels}
+      />,
+    );
+
+    expect(screen.getByTestId("review-presenter-surface")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("review-presenter-exit"));
+
+    expect(screen.queryByTestId("review-presenter-surface")).toBeNull();
+    expect(screen.getByTestId("review-detail-workspace")).toBeInTheDocument();
+    expect(window.location.search).not.toContain("presenter=1");
   });
 
   it("does not show Presenter control in Guided mode", () => {

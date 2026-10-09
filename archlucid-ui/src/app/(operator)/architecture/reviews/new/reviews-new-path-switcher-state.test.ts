@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildReviewsNewPathHref } from "./reviews-new-path-switcher-state";
+import {
+  buildReviewsNewPathHref,
+  resolveInitialReviewsNewActivePath,
+} from "./reviews-new-path-switcher-state";
 
 describe("buildReviewsNewPathHref (TB-1867)", () => {
   it("sets path while preserving unrelated query keys", () => {
@@ -13,6 +16,17 @@ describe("buildReviewsNewPathHref (TB-1867)", () => {
     expect(href).toBe("/architecture/reviews/new?intent=create-architecture&path=guided-intake");
   });
 
+  it("preserves orphan intakeStep when only path is rewritten until path switcher clears it", () => {
+    const href = buildReviewsNewPathHref(
+      "/architecture/reviews/new",
+      "detailed",
+      new URLSearchParams("path=quick-review&intakeStep=2"),
+    );
+
+    expect(href).toContain("path=detailed");
+    expect(href).toContain("intakeStep=2");
+  });
+
   it("rewrites path=detailed for the Templates and imports tab", () => {
     const href = buildReviewsNewPathHref(
       "/architecture/reviews/new",
@@ -21,5 +35,29 @@ describe("buildReviewsNewPathHref (TB-1867)", () => {
     );
 
     expect(href).toBe("/architecture/reviews/new?path=detailed");
+  });
+});
+
+describe("resolveInitialReviewsNewActivePath", () => {
+  it("defaults unrecognized path= values to quick-review when no baseline or preset flags apply", () => {
+    const path = resolveInitialReviewsNewActivePath({
+      pathQuery: "detailed-review",
+      baselineFirst: false,
+      presetGreenfield: false,
+      activeTour: false,
+    });
+
+    expect(path).toBe("quick-review");
+  });
+
+  it("opens detailed wizard for baseline=1 even when path= is unrecognized", () => {
+    const path = resolveInitialReviewsNewActivePath({
+      pathQuery: "detailed-review",
+      baselineFirst: true,
+      presetGreenfield: false,
+      activeTour: false,
+    });
+
+    expect(path).toBe("detailed");
   });
 });

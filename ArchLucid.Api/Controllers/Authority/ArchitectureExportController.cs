@@ -83,5 +83,9 @@ public sealed partial class ArchitectureExportController(
         {
             return MapArchitectureExportSealedManifestConflict(conflict);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 }

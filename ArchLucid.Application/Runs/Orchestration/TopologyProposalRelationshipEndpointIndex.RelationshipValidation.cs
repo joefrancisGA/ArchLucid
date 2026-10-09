@@ -70,7 +70,25 @@ public static partial class TopologyProposalRelationshipEndpointIndex
         if (terraformEndpointIdentity is not null && knownEndpointKeys.Contains(terraformEndpointIdentity))
             return true;
 
+        if (EndpointKeyIsKnownViaStrippedTerraformInstanceKey(trimmed, knownEndpointKeys))
+            return true;
+
         return TopologyProposalEndpointArmKeys.EndpointKeyIsKnownViaArmNormalization(trimmed, knownEndpointKeys);
+    }
+
+    private static bool EndpointKeyIsKnownViaStrippedTerraformInstanceKey(
+        string trimmed,
+        HashSet<string> knownEndpointKeys)
+    {
+        string? withoutInstanceKey = TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(trimmed);
+
+        if (withoutInstanceKey is null)
+            return false;
+
+        string? strippedIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(withoutInstanceKey);
+
+        return strippedIdentity is not null && knownEndpointKeys.Contains(strippedIdentity);
     }
 
     private static bool TryClaimEndpoint<T>(

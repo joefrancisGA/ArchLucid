@@ -81,6 +81,169 @@ public sealed class GovernanceMutationCorrectionServiceTests
     }
 
     [Fact]
+    public async Task RecordAsync_accepts_dashed_run_id_when_approval_stores_canonical_n()
+    {
+        Guid runGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string persistedRunId = runGuid.ToString("N");
+        string requestedRunId = runGuid.ToString("D");
+        const string approvalRequestId = "apr-correction-format";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync(approvalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = approvalRequestId,
+                RunId = persistedRunId,
+                Status = GovernanceApprovalStatus.Approved,
+            });
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            CreateScopedRunRepository(requestedRunId).Object,
+            auditService.Object);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = approvalRequestId,
+                RunId = requestedRunId,
+                Rationale = "Approved the wrong review package.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(approvalRequestId);
+        result.RunId.Should().Be(requestedRunId);
+    }
+
+    [Fact]
+    public async Task RecordAsync_accepts_dashed_run_id_when_promotion_stores_canonical_n()
+    {
+        Guid runGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string persistedRunId = runGuid.ToString("N");
+        string requestedRunId = runGuid.ToString("D");
+        const string promotionRecordId = "promo-correction-format";
+        InMemoryGovernancePromotionRecordRepository promotions = new();
+        await promotions.CreateAsync(new GovernancePromotionRecord
+        {
+            PromotionRecordId = promotionRecordId,
+            RunId = persistedRunId,
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+            PromotedBy = "operator-1",
+        });
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(requestedRunId).Object,
+            auditService.Object,
+            promotionRepository: promotions);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowPromote,
+                SubjectId = promotionRecordId,
+                RunId = requestedRunId,
+                Rationale = "Promoted the wrong manifest version.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(promotionRecordId);
+    }
+
+    [Fact]
+    public async Task RecordAsync_accepts_dashed_run_id_when_activation_stores_canonical_n()
+    {
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string persistedRunId = runGuid.ToString("N");
+        string requestedRunId = runGuid.ToString("D");
+        const string activationId = "act-correction-format";
+        InMemoryGovernanceEnvironmentActivationRepository activations = new();
+        await activations.CreateAsync(new GovernanceEnvironmentActivation
+        {
+            ActivationId = activationId,
+            RunId = persistedRunId,
+            ManifestVersion = "v1",
+            Environment = "prod",
+            IsActive = true,
+        });
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(requestedRunId).Object,
+            auditService.Object,
+            activationRepository: activations);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.WorkflowActivate,
+                SubjectId = activationId,
+                RunId = requestedRunId,
+                Rationale = "Activated the wrong environment baseline.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(activationId);
+    }
+
+    [Fact]
+    public async Task RecordAsync_accepts_dashed_run_id_when_finalize_subject_is_canonical_n()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string persistedRunId = runGuid.ToString("N");
+        string requestedRunId = runGuid.ToString("D");
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            new Mock<IGovernanceApprovalRequestRepository>().Object,
+            CreateScopedRunRepository(requestedRunId).Object,
+            auditService.Object);
+
+        GovernanceMutationCorrectionRecordedDto result = await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.ArchitectureReviewFinalize,
+                SubjectId = persistedRunId,
+                RunId = requestedRunId,
+                Rationale = "Finalized the wrong review package.",
+            },
+            Scope,
+            "operator-1",
+            CancellationToken.None);
+
+        result.SubjectId.Should().Be(persistedRunId);
+    }
+
+    [Fact]
     public async Task RecordAsync_requires_non_empty_rationale()
     {
         GovernanceMutationCorrectionService sut = CreateSut(
@@ -255,15 +418,17 @@ public sealed class GovernanceMutationCorrectionServiceTests
         IRunRepository runRepository,
         IAuditService auditService,
         IFindingReviewTrailRepository? findingReviewTrailRepository = null,
-        IFindingInspectReadRepository? findingInspectReadRepository = null)
+        IFindingInspectReadRepository? findingInspectReadRepository = null,
+        IGovernancePromotionRecordRepository? promotionRepository = null,
+        IGovernanceEnvironmentActivationRepository? activationRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(Scope);
 
         return new GovernanceMutationCorrectionService(
             approvalRepo,
-            new Mock<IGovernancePromotionRecordRepository>().Object,
-            new Mock<IGovernanceEnvironmentActivationRepository>().Object,
+            promotionRepository ?? new Mock<IGovernancePromotionRecordRepository>().Object,
+            activationRepository ?? new Mock<IGovernanceEnvironmentActivationRepository>().Object,
             findingReviewTrailRepository ?? new Mock<IFindingReviewTrailRepository>().Object,
             findingInspectReadRepository ?? new Mock<IFindingInspectReadRepository>().Object,
             scopeProvider.Object,

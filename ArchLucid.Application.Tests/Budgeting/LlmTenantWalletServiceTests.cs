@@ -909,6 +909,79 @@ public sealed class LlmTenantWalletServiceTests
         view.BalanceUsd.Should().Be(35m);
     }
 
+    [SkippableFact]
+    public async Task ReconcileOverageInternalAsync_keeps_minimum_cent_when_actual_usage_rounds_below_one_cent()
+    {
+        // Default pre-call reservation is 32768 prompt + 8192 completion (LlmMonthlyTenantDollarBudgetOptions).
+        // LlmCostEstimator prices that hold at Terra $2.50 / $15.00 per million. A 200+20 completion is still
+        // a positive estimate; markup that rounds it to $0.00 credits the entire hold back.
+        decimal authorizedUsd = (32_768m * 2.50m + 8_192m * 15.00m) / 1_000_000m;
+        decimal actualUsd = (200m * 2.50m + 20m * 15.00m) / 1_000_000m;
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            cancellationToken: CancellationToken.None);
+
+        LlmTenantWalletService service = CreateService(repository);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, authorizedUsd, CancellationToken.None);
+        authorized.Should().BeTrue();
+
+        await service.ReconcileOverageInternalAsync(tenantId, actualUsd, authorizedUsd, Guid.NewGuid(), CancellationToken.None);
+
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(49.99m);
+    }
+
+    [SkippableFact]
+    public async Task TryAuthorizeOverageSpendAsync_debits_minimum_cent_instead_of_enqueueing_refill_for_sub_cent_estimate()
+    {
+        // AssumedMaxPromptTokensPerRequest is validated down to 1. One Terra prompt token plus one completion
+        // token is $0.0000175. Markup rounds that to $0.00, TryConsumeAsync reports balance-after 0, and
+        // authorize enqueues a $50 auto-refill without debiting the wallet.
+        decimal estimatedUsd = (1m * 2.50m + 1m * 15.00m) / 1_000_000m;
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                AutoReplenishEnabled = true,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            cancellationToken: CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, estimatedUsd, CancellationToken.None);
+
+        authorized.Should().BeTrue();
+        LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
+        view.BalanceUsd.Should().Be(49.99m);
+        queue.Reader.TryRead(out _).Should().BeFalse();
+    }
+
     private static LlmTenantWalletService CreateService(
         ILlmTenantWalletRepository repository,
         IStripeWalletGateway stripeGateway,

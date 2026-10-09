@@ -256,24 +256,23 @@ public static class AgentProposalStructuralPostProcessor
         {
             bool sourceDeclared = declaredEndpointKeysBefore.Contains(relationship.SourceId);
             bool targetDeclared = declaredEndpointKeysBefore.Contains(relationship.TargetId);
-
-            if (!sourceDeclared || !targetDeclared)
-            {
-                retainedRelationships.Add(relationship);
-                continue;
-            }
-
             bool sourceRetained = declaredEndpointKeysAfter.Contains(relationship.SourceId);
             bool targetRetained = declaredEndpointKeysAfter.Contains(relationship.TargetId);
 
-            if (sourceRetained && targetRetained)
+            // An external id was never a proposal node. That must not keep an edge whose other
+            // end was a service or datastore that brief grounding just removed.
+            bool sourceRemoved = sourceDeclared && !sourceRetained;
+            bool targetRemoved = targetDeclared && !targetRetained;
+
+            if (sourceRemoved || targetRemoved)
             {
-                retainedRelationships.Add(relationship);
+                dropLog.Add(
+                    $"Dropped relationship '{relationship.SourceId}' -> '{relationship.TargetId}' for agent {agentType}: endpoint removed by brief grounding.");
+
                 continue;
             }
 
-            dropLog.Add(
-                $"Dropped relationship '{relationship.SourceId}' -> '{relationship.TargetId}' for agent {agentType}: endpoint removed by brief grounding.");
+            retainedRelationships.Add(relationship);
         }
 
         proposal.AddedRelationships = retainedRelationships;
@@ -345,12 +344,14 @@ public static class AgentProposalStructuralPostProcessor
 
         public static BriefGroundingRules FromRequest(ArchitectureRequest request)
         {
-            List<string> confirmedConstraints = request.Constraints
+            // JSON null is a real execute payload. The region enricher already accepts it.
+            // This grounding pass runs first and must not abort the batch on a missing list.
+            List<string> confirmedConstraints = (request.Constraints ?? [])
                 .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
                 .Select(static c => c.Trim())
                 .ToList();
 
-            List<string> confirmedCapabilities = request.RequiredCapabilities
+            List<string> confirmedCapabilities = (request.RequiredCapabilities ?? [])
                 .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
                 .Select(static c => c.Trim())
                 .ToList();

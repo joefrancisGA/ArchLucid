@@ -1431,7 +1431,7 @@ public static partial class GenericArchitectureAdvicePatterns
     private static partial Regex UnderSpecifiedFindingPattern();
 
     [GeneratedRegex(
-        @"\b(conflicts? with|contradicts?|violat(?:e[ds]?|ing) (?:the |a |an )?constraints?|(?:in )?violation of (?:the |a |an )?constraints?)\b",
+        @"\b(conflicts? with|contradicts?|contradicting (?:the |a |an )?constraints?|violat(?:e[ds]?|ing) (?:the |a |an )?constraints?|(?:in )?violation of (?:the |a |an )?constraints?|(?:in )?breach of (?:the |a |an )?constraints?|noncompliant with (?:the |a |an )?constraints?)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex ConflictFindingPattern();
 

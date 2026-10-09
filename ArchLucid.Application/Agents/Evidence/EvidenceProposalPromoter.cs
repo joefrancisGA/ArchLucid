@@ -46,7 +46,13 @@ public sealed class EvidenceProposalPromoter(
         if (!ProposedEvidencePayloadValidator.TryParseValid(proposal.ProposedEvidenceJson, out ProposedEvidencePayload payload))
             throw new InvalidOperationException("Proposed evidence JSON is invalid.");
 
+        CuratedEvidencePersistedFieldLimits.EnsureTitleFits(payload.Title);
+
         string catalogEntryId = BuildCatalogEntryId(payload.Type, payload.Title);
+
+        // The title column is NVARCHAR(512). The derived catalog id is NVARCHAR(128), so a title
+        // that fits Title can still truncate on insert.
+        CuratedEvidencePersistedFieldLimits.EnsureCatalogEntryIdFits(catalogEntryId);
 
         await EnsureCatalogEntryIdAvailableAsync(scope.TenantId, catalogEntryId, cancellationToken).ConfigureAwait(false);
 

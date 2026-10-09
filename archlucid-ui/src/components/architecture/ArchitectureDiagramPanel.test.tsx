@@ -305,4 +305,34 @@ Claims analyst -> Inferred billing adapter`}
       expect(onCountChange).toHaveBeenCalledWith(expect.any(Number));
     });
   });
+
+  it("moves provenance selection when the highlighted node changes after the diagram is ready", async () => {
+    // Findings dual-pane updates highlightedNodeId after generation. The panel must follow that prop.
+    const panelProps = {
+      runId: "run-highlight",
+      architectureName: "Claims platform",
+      sourceText: sufficientSource,
+      userAssertions: assertions,
+      canEdit: true,
+    };
+    const { rerender } = render(
+      <ArchitectureDiagramPanel {...panelProps} highlightedNodeId="system_claims_api" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-select-node-system_claims_api")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+
+    rerender(<ArchitectureDiagramPanel {...panelProps} highlightedNodeId="user_claims_analyst" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-select-node-user_claims_analyst")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+  });
 });

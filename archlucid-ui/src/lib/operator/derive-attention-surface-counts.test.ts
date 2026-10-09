@@ -74,4 +74,29 @@ describe("derive-attention-surface-counts (TB-2369)", () => {
     expect(counts["run-work-queue-in-progress"]).toBeUndefined();
     expect(counts["run-work-queue-needs-attention"]).toBe(0);
   });
+
+  it("omits surface keys when optional counts are NaN", () => {
+    const counts = deriveAttentionSurfaceCounts({
+      unfinishedWorkRailCount: Number.NaN,
+      assignedToMeFindingsCount: Number.NaN,
+      awaitingApprovalCount: Number.NaN,
+      alertsOpenCount: Number.NaN,
+    });
+
+    expect(counts).toEqual({});
+  });
+
+  it("clamps negative nav badge counts to zero", () => {
+    const counts = deriveAttentionSurfaceCounts({
+      unfinishedWorkRailCount: -2,
+      assignedToMeFindingsCount: -1,
+      awaitingApprovalCount: -5,
+      alertsOpenCount: -3,
+    });
+
+    expect(counts["unfinished-work-rail"]).toBe(0);
+    expect(counts["assigned-to-me-findings"]).toBe(0);
+    expect(counts["governance-awaiting-nav-badge"]).toBe(0);
+    expect(counts["alerts-nav"]).toBe(0);
+  });
 });

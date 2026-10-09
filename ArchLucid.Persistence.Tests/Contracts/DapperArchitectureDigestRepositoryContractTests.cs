@@ -19,7 +19,6 @@ public sealed class DapperArchitectureDigestRepositoryContractTests(SqlServerPer
 
     protected override IArchitectureDigestRepository CreateRepository()
     {
-        return new DapperArchitectureDigestRepository(
-            new SqlConnectionFactory(fixture.ConnectionString));
+        return new DapperArchitectureDigestRepository(new SqlConnectionFactory(fixture.ConnectionString));
     }
 }

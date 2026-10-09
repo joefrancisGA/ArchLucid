@@ -56,8 +56,9 @@ export function useReviewFindingsLastVisitRestore(options: UseReviewFindingsLast
       const windowSearch = windowSearchParams.toString();
       const nextHref = buildReviewFindingsLastVisitHref(pathname, windowSearch, lastVisit);
 
-      commitHrefIfChanged(nextHref);
+      // Mark restored before notifying so the popstate listener does not re-enter this restore.
       reviewFindingsLastVisitRestoredRunIds.add(runId);
+      commitHrefIfChanged(nextHref, { notify: true });
     };
 
     restoreFromLastVisitIfNeeded();

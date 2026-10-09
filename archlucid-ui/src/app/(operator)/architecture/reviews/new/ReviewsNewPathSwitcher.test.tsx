@@ -261,6 +261,29 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
   });
 
+  it("clears the legacy example alias when returning to quick-review", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake&example=healthcare-claims-intake"));
+    window.history.replaceState(
+      null,
+      "",
+      "/architecture/reviews/new?path=guided-intake&example=healthcare-claims-intake",
+    );
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    expect(window.location.search).toBe("?path=quick-review");
+  });
+
   it("clears stale detailed wizard query params when returning to quick-review", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("path=detailed&step=4&mode=full&pilot=0"));
 

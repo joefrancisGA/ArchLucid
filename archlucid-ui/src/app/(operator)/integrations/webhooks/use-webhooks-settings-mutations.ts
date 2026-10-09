@@ -117,8 +117,17 @@ export function useWebhooksSettingsMutations(
     (value: SetStateAction<AlertRoutingSubscriptionDisableTarget | null>) => {
       setPendingDisableState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+        const nextId = next?.routingSubscriptionId ?? null;
+        const currentId = current?.routingSubscriptionId ?? null;
+
+        // Refresh and scope reset pass null even when no dialog is open.
+        // Rewriting the URL then deletes a webhookDisableId deep link the list has not resolved.
+        if (nextId === currentId) {
+          return current;
+        }
+
         syncToggleConfirmToUrl({
-          disableId: next?.routingSubscriptionId ?? null,
+          disableId: nextId,
           enableId: null,
         });
 
@@ -132,9 +141,17 @@ export function useWebhooksSettingsMutations(
     (value: SetStateAction<WebhookEnableTarget | null>) => {
       setPendingEnableState((current) => {
         const next = typeof value === "function" ? value(current) : value;
+        const nextId = next?.routingSubscriptionId ?? null;
+        const currentId = current?.routingSubscriptionId ?? null;
+
+        // Same as disable: a null write with no open dialog must not drop webhookEnableId.
+        if (nextId === currentId) {
+          return current;
+        }
+
         syncToggleConfirmToUrl({
           disableId: null,
-          enableId: next?.routingSubscriptionId ?? null,
+          enableId: nextId,
         });
 
         return next;
@@ -163,7 +180,9 @@ export function useWebhooksSettingsMutations(
       return;
     }
 
-    if (options.loading) {
+    // A failed list leaves rows empty or stale and hasLoadedSuccessfully false.
+    // Treating that as "subscription missing" deletes webhookEnableId before refresh.
+    if (options.loading || !options.hasLoadedSuccessfully) {
       return;
     }
 
@@ -206,6 +225,7 @@ export function useWebhooksSettingsMutations(
       subscriptionName: subscription.name,
     });
   }, [
+    options.hasLoadedSuccessfully,
     options.loading,
     options.webhookRows,
     pendingDisable?.routingSubscriptionId,

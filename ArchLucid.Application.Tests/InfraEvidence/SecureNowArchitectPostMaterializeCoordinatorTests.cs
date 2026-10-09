@@ -305,6 +305,57 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     }
 
     [Fact]
+    public async Task OnSnapshotMaterializedAsync_when_subscription_id_missing_skips_diff_compute_and_runs_full_pipeline()
+    {
+        Mock<IAzureInventoryDiffService> diffService = new();
+        Mock<IPrivilegePathEngine> privilegePathEngine = new();
+        Mock<IIntendedReachabilityEngine> reachabilityEngine = new();
+        Mock<IToxicCombinationEngine> toxicEngine = new();
+        Mock<ICapabilityToFlowEngine> capabilityEngine = new();
+        Mock<ISharedControlBlastRadiusEngine> sharedEngine = new();
+        Mock<IFourRealityDriftEngine> driftEngine = new();
+        Mock<IPathRankingEngine> rankingEngine = new();
+        Mock<ICutPointAnalysisEngine> cutPointEngine = new();
+        Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        SetupSuccessfulEngine(privilegePathEngine);
+
+        AzureInventorySnapshotPostMaterializeCoordinator sut = new(
+            Mock.Of<IAzureInventorySnapshotRepository>(),
+            diffService.Object,
+            Options.Create(new SecureNowArchitectNeighborhoodOptions { FullRecompute = false }),
+            neighborhoodRunner.Object,
+            privilegePathEngine.Object,
+            reachabilityEngine.Object,
+            toxicEngine.Object,
+            capabilityEngine.Object,
+            sharedEngine.Object,
+            driftEngine.Object,
+            rankingEngine.Object,
+            cutPointEngine.Object,
+            Mock.Of<ISecurityEvidencePathRoutingSyncService>());
+
+        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, subscriptionId: null, CancellationToken.None);
+
+        diffService.Verify(
+            service => service.ComputeAndPersistDiffAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        privilegePathEngine.Verify(
+            engine => engine.RunAsync(
+                Scope,
+                SnapshotId,
+                SecureNowArchitectConstants.SystemActorId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<SecureNowArchitectEngineRunScope?>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task OnSnapshotMaterializedAsync_full_recompute_runs_all_engines()
     {
         Mock<IPrivilegePathEngine> privilegePathEngine = new();

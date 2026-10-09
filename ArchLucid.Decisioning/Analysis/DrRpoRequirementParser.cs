@@ -6,15 +6,13 @@ namespace ArchLucid.Decisioning.Analysis;
 /// <summary>Conservative lexical parse of requirement text for RPO/RTO minutes (DX-08).</summary>
 public static partial class DrRpoRequirementParser
 {
+    // Request templates use "RPO under 1 hour" and "RTO < 5 minutes, RPO < 30 seconds".
+    // Draft intake also copies a quality attribute such as "RPO 1 day" onto a requirement;
+    // that materializer already treats a day as 24 hours, so this grammar must agree.
     [GeneratedRegex(
-        @"\brpo\b\s*[:=\-]?\s*(?<value>\d+)\s*(?<unit>min(?:ute)?s?|m|h(?:our)?s?)?",
+        @"\b(?<kind>rpo|rto)\b\s*(?:<=|[:=]|[<≤]|-)?\s*(?:\b(?:under|within|below)\b|\bless\s+than\b|\bat\s+most\b|\bno\s+more\s+than\b)?\s*(?<value>\d+(?:\.\d+)?)\s*(?<unit>seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|h|m|d)?\b",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
-    private static partial Regex RpoMinutesRegex();
-
-    [GeneratedRegex(
-        @"\brto\b\s*[:=\-]?\s*(?<value>\d+)\s*(?<unit>min(?:ute)?s?|m|h(?:our)?s?)?",
-        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
-    private static partial Regex RtoMinutesRegex();
+    private static partial Regex ObjectiveRegex();
 
     [GeneratedRegex(
         @"\bpt(?<minutes>\d+)m\b",
@@ -76,12 +74,10 @@ public static partial class DrRpoRequirementParser
 
     private static int? TryParseRpoMinutes(string combined)
     {
-        Match match = RpoMinutesRegex().Match(combined);
+        int? parsed = TryParseKindMinutes(combined, "rpo");
 
-        if (match.Success)
-        {
-            return ParseDurationMinutes(match.Groups["value"].Value, match.Groups["unit"].Value);
-        }
+        if (parsed is not null)
+            return parsed;
 
         Match isoMatch = IsoDurationMinutesRegex().Match(combined);
 
@@ -94,31 +90,62 @@ public static partial class DrRpoRequirementParser
         return null;
     }
 
-    private static int? TryParseRtoMinutes(string combined)
-    {
-        Match match = RtoMinutesRegex().Match(combined);
+    private static int? TryParseRtoMinutes(string combined) =>
+        TryParseKindMinutes(combined, "rto");
 
-        if (!match.Success)
+    private static int? TryParseKindMinutes(string combined, string kind)
+    {
+        Match match = ObjectiveRegex().Match(combined);
+
+        while (match.Success)
         {
-            return null;
+            if (match.Groups["kind"].Value.Equals(kind, StringComparison.OrdinalIgnoreCase))
+            {
+                int? minutes = ParseDurationMinutes(match.Groups["value"].Value, match.Groups["unit"].Value);
+
+                if (minutes is not null)
+                    return minutes;
+            }
+
+            match = match.NextMatch();
         }
 
-        return ParseDurationMinutes(match.Groups["value"].Value, match.Groups["unit"].Value);
+        return null;
     }
 
     private static int? ParseDurationMinutes(string valueText, string unitText)
     {
-        if (!int.TryParse(valueText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
-        {
+        if (!decimal.TryParse(valueText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
             return null;
-        }
 
+        if (value < 0)
+            return null;
+
+        decimal minutes = ConvertToMinutes(value, unitText);
+
+        if (minutes > int.MaxValue)
+            return null;
+
+        if (minutes == 0)
+            return 0;
+
+        // Findings store whole minutes. A positive fraction (30 seconds) rounds up so the
+        // bound is not dropped to zero and is not reported as if the number were already minutes.
+        return (int)Math.Ceiling(minutes);
+    }
+
+    private static decimal ConvertToMinutes(decimal value, string unitText)
+    {
         string unit = unitText.ToLowerInvariant();
 
-        if (unit.StartsWith("h", StringComparison.Ordinal))
-        {
-            return value * 60;
-        }
+        if (unit.StartsWith('s'))
+            return value / 60m;
+
+        if (unit.StartsWith('h'))
+            return value * 60m;
+
+        if (unit.StartsWith('d'))
+            return value * 1440m;
 
         return value;
     }

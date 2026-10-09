@@ -139,7 +139,15 @@ export function SignupForm() {
         body: JSON.stringify(payload),
       });
 
-      const text = await res.text();
+      let text = "";
+
+      try {
+        text = await res.text();
+      } catch {
+        // Registration may commit before a response body stream fails; use the HTTP status
+        // rather than turning a successful registration into an ambiguous retry prompt.
+      }
+
       let body: TenantProvisioningResult | { detail?: string } | null = null;
 
       try {

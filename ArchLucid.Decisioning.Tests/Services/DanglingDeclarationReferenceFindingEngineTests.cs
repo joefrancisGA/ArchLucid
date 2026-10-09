@@ -179,6 +179,66 @@ public sealed class DanglingDeclarationReferenceFindingEngineTests
     }
 
     [Fact]
+    public void Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node()
+    {
+        const string databaseId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.Sql/servers/sql-pay-prod/databases/payments";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "db-payments",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "payments",
+                    SourceId = databaseId,
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["armResourceId"] = databaseId,
+                        ["azureResourceId"] = databaseId,
+                    },
+                },
+            ],
+        };
+
+        IReadOnlyList<DanglingDeclarationReference> references = DanglingDeclarationReferenceAnalyzer.Analyze(graph);
+
+        references.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Analyze_still_flags_nested_sql_database_id_that_is_not_on_the_graph()
+    {
+        const string databaseId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.Sql/servers/sql-pay-prod/databases/payments";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "func-checkout",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "checkout-func",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["databaseId"] = databaseId,
+                    },
+                },
+            ],
+        };
+
+        IReadOnlyList<DanglingDeclarationReference> references = DanglingDeclarationReferenceAnalyzer.Analyze(graph);
+
+        references.Should().ContainSingle(reference =>
+            reference.ReferenceKind == DanglingDeclarationReferenceKind.ArmId
+            && reference.ReferencedToken == databaseId);
+    }
+
+    [Fact]
     public void Analyze_emits_finding_for_dangling_arm_id()
     {
         GraphSnapshot graph = new()

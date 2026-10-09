@@ -57,6 +57,50 @@ public sealed class RequirementSkuTierFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false()
+    {
+        GraphSnapshot graph = BuildTerraformPropertyFixture("tf.zone_redundant", "false");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EngineType.Should().Be("requirement-sku-tier");
+        finding.Title.Should().Contain("zone-redundant");
+        finding.Title.Should().Contain("sql-pay-prod");
+
+        RequirementSkuTierFindingPayload payload =
+            finding.Payload.Should().BeOfType<RequirementSkuTierFindingPayload>().Subject;
+
+        payload.ObservedSku.Should().Be("zoneRedundant=false");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_account_replication_lrs()
+    {
+        GraphSnapshot graph = BuildTerraformPropertyFixture("tf.account_replication_type", "lrs");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_none_when_terraform_zone_redundant_true()
+    {
+        GraphSnapshot graph = BuildTerraformPropertyFixture("tf.zone_redundant", "true");
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_premium_zrs_sku()
     {
         GraphSnapshot graph = BuildFixture(sku: "Premium_ZRS", includeZoneRedundantText: true);
@@ -78,6 +122,15 @@ public sealed class RequirementSkuTierFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    private static GraphSnapshot BuildTerraformPropertyFixture(string propertyKey, string propertyValue)
+    {
+        GraphSnapshot graph = BuildFixture(sku: null, includeZoneRedundantText: true);
+        GraphNode sql = graph.Nodes.Single(node => node.NodeId == "sql-pay-prod");
+        sql.Properties[propertyKey] = propertyValue;
+
+        return graph;
     }
 
     private static GraphSnapshot BuildFixture(

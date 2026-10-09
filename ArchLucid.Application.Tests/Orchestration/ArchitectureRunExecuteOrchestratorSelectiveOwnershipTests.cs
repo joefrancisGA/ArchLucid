@@ -50,6 +50,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
         ownership
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Callback(() => operationOrder.Add("acquire"))
@@ -115,6 +116,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
         ownership
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Callback(() => header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed))
@@ -158,6 +160,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -206,6 +209,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
         ownership
             .Setup(s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -267,6 +271,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -322,6 +327,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<IAgentExecutor> executor = new();
@@ -359,6 +365,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -404,6 +411,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -446,6 +454,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -488,6 +497,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
@@ -543,6 +553,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         ArchitectureRunExecuteOrchestrator sut = CreateSut(
             runId,
@@ -590,6 +601,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         ArchitectureRunExecuteOrchestrator sut = CreateSut(
             runId,
@@ -637,6 +649,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -750,6 +763,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveOwnershipTests
 
         Mock<IRunExecuteOwnershipLeaseService> ownership = new();
         ownership.SetupGet(s => s.IsEnabled).Returns(true);
+        ownership.Setup(s => s.IsLocallyHoldingExecuteOwnership(runGuid)).Returns(true);
 
         Mock<IRunRepository> runRepo = new();
         runRepo

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -21,8 +22,12 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed partial class TenantBaselineController(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IActorContext actorContext) : ControllerBase
 {
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 

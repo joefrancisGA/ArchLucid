@@ -119,18 +119,30 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
                             finding,
                             out string category,
                             out string description,
-                            out string recommendation))
+                            out string recommendation,
+                            out List<string> refs))
                     {
                         PushUnsupported("finding:shape", unsupported);
 
                         continue;
                     }
 
-                    bool categoryOk = CategoryIsGrounded(category, fullBlob);
+                    if (refs.Count > 0 && !index.AllRefsResolve(refs))
+                    {
+                        PushUnsupported("finding:unresolved-ref", unsupported);
 
-                    bool textOk =
-                        MeetsOverlapThreshold(description, fullBlob, options)
-                        || MeetsOverlapThreshold(recommendation, fullBlob, options);
+                        continue;
+                    }
+
+                    bool categoryOk = CategoryIsGrounded(category, fullBlob);
+                    string citedBlob = index.ResolveRefsBlob(refs);
+                    string blobForOverlap = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
+
+                    bool textOk = refs.Count > 0
+                        ? MeetsCitationFidelity(description, citedBlob, fullBlob, options)
+                          || MeetsCitationFidelity(recommendation, citedBlob, fullBlob, options)
+                        : MeetsOverlapThreshold(description, blobForOverlap, options)
+                          || MeetsOverlapThreshold(recommendation, blobForOverlap, options);
 
                     if (categoryOk && textOk)
 

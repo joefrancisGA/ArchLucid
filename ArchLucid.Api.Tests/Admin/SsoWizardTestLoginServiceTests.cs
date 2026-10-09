@@ -46,6 +46,45 @@ public sealed class SsoWizardTestLoginServiceTests
         response.AccessToken.Should().NotBeNullOrWhiteSpace();
     }
 
+    [Fact]
+    public void Execute_returns_failure_when_custom_group_claim_regex_match_times_out()
+    {
+        // (a+)+$ backtracks on a long run of a's that does not match. The sandbox must not throw.
+        SsoWizardTestLoginService sut = new();
+        ScopeContext scope = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        };
+
+        IdentityProviderTestLoginResponse response = sut.Execute(
+            new IdentityProviderTestLoginRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    CustomGroupClaimRegex = "(a+)+$",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                },
+                SampleClaimValues = [new string('a', 28) + "!"]
+            },
+            scope);
+
+        response.Success.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("timed out");
+        response.AccessToken.Should().BeNull();
+    }
+
     [Theory]
     [InlineData("file:///etc/passwd")]
     [InlineData("javascript:alert('xss')")]

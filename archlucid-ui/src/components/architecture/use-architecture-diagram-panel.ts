@@ -200,6 +200,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     onDiagramNodesChange?.(nodes);
   }, [diagramModel, onDiagramNodesChange]);
 
+  // Findings dual-pane sets highlightedNodeId after the model is already loaded.
   useEffect(() => {
     if (highlightedNodeId === null || highlightedNodeId === undefined) {
       return;
@@ -222,7 +223,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
     selectedElementKindRef.current = "node";
     selectedElementIdRef.current = id;
     syncDiagramSelectionToUrl("node", id, editorOpenRef.current);
-  }, [diagramModel, syncDiagramSelectionToUrl]);
+  }, [diagramModel, highlightedNodeId, syncDiagramSelectionToUrl]);
 
   const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];

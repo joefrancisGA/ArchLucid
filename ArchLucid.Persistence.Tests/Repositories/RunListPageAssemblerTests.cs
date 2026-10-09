@@ -1,3 +1,4 @@
+using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 
@@ -53,6 +54,16 @@ public sealed class RunListPageAssemblerTests
         Action assemble = static () => RunListPageAssembler.FromProbedRows(null!, pageSize: 3);
 
         assemble.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void FromProbedRows_at_max_clamped_page_size_does_not_report_has_more_when_probe_row_is_absent()
+    {
+        int pageSize = RunPagination.MaxTake;
+        RunListPage page = RunListPageAssembler.FromProbedRows(Rows(pageSize), pageSize);
+
+        page.Items.Should().HaveCount(pageSize);
+        page.HasMore.Should().BeFalse();
     }
 
     private static List<RunRecord> Rows(int count) =>

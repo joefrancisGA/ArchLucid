@@ -101,6 +101,7 @@ public sealed class CorePilotTeamChecklistController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
         string actor = _actorContext.GetActorId();
 
         IReadOnlyList<CorePilotChecklistStepRow> existingRows = await _repository
@@ -129,6 +130,7 @@ public sealed class CorePilotTeamChecklistController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.CorePilotTeamChecklistUpdated,
+                ExplicitActor = true,
                 ActorUserId = actor,
                 ActorUserName = User.Identity?.Name ?? actor,
                 TenantId = scope.TenantId,

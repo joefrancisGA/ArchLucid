@@ -41,6 +41,7 @@ public sealed class HostCoreNoOpAndOptionsCoverageTestsBatch
             .BeEmpty();
         (await sut.GetByIdAsync(tenantId, Guid.NewGuid(), CancellationToken.None)).Should().BeNull();
         (await sut.GetByExternalIdAsync(tenantId, "ext", CancellationToken.None)).Should().BeNull();
+        (await sut.GetByUserNameAsync(tenantId, "user", CancellationToken.None)).Should().BeNull();
         (await sut.ListGroupKeysForUserAsync(tenantId, Guid.NewGuid(), CancellationToken.None)).Should().BeEmpty();
     }
 

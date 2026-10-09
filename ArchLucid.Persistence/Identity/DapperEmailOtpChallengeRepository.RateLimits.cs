@@ -73,20 +73,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
         DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
-        const string batchSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.EmailOtpChallenges
-                                WHERE NormalizedEmail = @NormalizedEmail
-                                  AND CreatedUtc >= @SinceUtc;
-
-                                SELECT COUNT(1)
-                                FROM dbo.EmailOtpChallenges
-                                WHERE ClientIpHash = @ClientIpHash
-                                  AND CreatedUtc >= @SinceUtc
-                                  AND CompletedUtc IS NULL
-                                  AND ExpiresUtc > @NowUtc
-                                  AND @ClientIpHash IS NOT NULL;
-                                """;
+        const string batchSql = EmailOtpHourlyRequestRateLimitSql.Batch;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -114,23 +101,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
         DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
-        const string sql = """
-                           SELECT COUNT(1)
-                           FROM dbo.EmailOtpChallenges c
-                           WHERE c.NormalizedEmail = @NormalizedEmail
-                             AND c.CreatedUtc >= @SinceUtc
-                             AND c.FailedAttemptCount > 0
-                             AND c.CompletedUtc IS NULL
-                             AND c.ExpiresUtc > @NowUtc
-                             AND (
-                                 c.InvalidatedUtc IS NULL
-                                 OR NOT EXISTS (
-                                     SELECT 1
-                                     FROM dbo.EmailOtpChallenges active
-                                     WHERE active.NormalizedEmail = @NormalizedEmail
-                                       AND active.CompletedUtc IS NULL
-                                       AND active.InvalidatedUtc IS NULL));
-                           """;
+        const string sql = EmailOtpFailedVerificationRateLimitSql.Command;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

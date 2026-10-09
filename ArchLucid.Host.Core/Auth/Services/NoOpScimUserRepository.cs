@@ -56,6 +56,19 @@ public sealed class NoOpScimUserRepository : IScimUserRepository
     }
 
     /// <inheritdoc />
+    public Task<ScimUserRecord?> GetByUserNameAsync(
+        Guid tenantId,
+        string userName,
+        CancellationToken cancellationToken)
+    {
+        _ = tenantId;
+        _ = userName;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<ScimUserRecord?>(null);
+    }
+
+    /// <inheritdoc />
     public Task<ScimUserRecord> InsertAsync(
         Guid tenantId,
         string externalId,

@@ -226,6 +226,80 @@ public sealed class TenantLlmCostReportingServiceTests
         row.ProjectName.Should().Be("Tenant-wide (estimated)");
     }
 
+    [SkippableFact]
+    public async Task BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(scope);
+
+        InMemoryLlmTenantBudgetRepository budgetRepository = new();
+        LlmTenantBudgetStateReadModel monthState = await budgetRepository.GetOrCreateAsync(
+            tenantId,
+            LlmBudgetPeriod.Monthly,
+            "2026-08",
+            CancellationToken.None);
+        const decimal monthPressure = 0.0004m;
+        await budgetRepository.SettleAsync(
+            new LlmTenantBudgetSettleRequest
+            {
+                TenantId = tenantId,
+                Period = LlmBudgetPeriod.Monthly,
+                PeriodKey = "2026-08",
+                ActualUsd = monthPressure,
+                ReleaseReservedUsd = 0m,
+                WarnAtUsd = 999_999m,
+                ExpectedRowVersion = monthState.RowVersion,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.ListWorkspacesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new TenantWorkspaceListItem
+                {
+                    WorkspaceId = workspaceId,
+                    TenantId = tenantId,
+                    Name = "Platform Workspace",
+                    DefaultProjectId = projectId,
+                },
+            ]);
+
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> budgetOptions = new();
+        budgetOptions.Setup(monitor => monitor.CurrentValue).Returns(new LlmMonthlyTenantDollarBudgetOptions());
+
+        Mock<ITenantLlmCostTopRunRanker> topRuns = new();
+        topRuns
+            .Setup(ranker => ranker.RankAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<LlmCostTopRunRowResponse>());
+
+        TenantLlmCostReportingService sut = new(
+            new FixedUtcTimeProvider(new DateTime(2026, 8, 23, 12, 0, 0, DateTimeKind.Utc)),
+            scopeProvider.Object,
+            budgetRepository,
+            tenants.Object,
+            budgetOptions.Object,
+            topRuns.Object);
+
+        LlmCostReportingDashboardResponse result = await sut.BuildDashboardAsync(days: 7);
+
+        result.Daily.Should().HaveCount(7);
+        result.Daily.Should().OnlyContain(bucket => bucket.EstimatedCostUsd >= 0m);
+        result.Daily.Sum(bucket => bucket.EstimatedCostUsd).Should().Be(monthPressure);
+        result.ByWorkspaceProject.Should().ContainSingle().Which.EstimatedCostUsd.Should().Be(monthPressure);
+    }
+
     private sealed class FixedUtcTimeProvider(DateTime utcNow) : TimeProvider
     {
         public override DateTimeOffset GetUtcNow() => new(utcNow, TimeSpan.Zero);

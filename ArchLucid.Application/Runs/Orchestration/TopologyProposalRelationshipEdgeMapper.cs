@@ -163,10 +163,39 @@ public static class TopologyProposalRelationshipEdgeMapper
             return true;
         }
 
+        if (TryResolveStrippedTerraformInstanceKey(trimmedCandidate, endpointKeyToNodeId, out nodeId!))
+            return true;
+
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
             && endpointKeyToNodeId.TryGetValue(
                 GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId(trimmedCandidate),
                 out nodeId!))
+        {
+            return true;
+        }
+
+        nodeId = string.Empty;
+        return false;
+    }
+
+    private static bool TryResolveStrippedTerraformInstanceKey(
+        string trimmedCandidate,
+        Dictionary<string, string> endpointKeyToNodeId,
+        out string nodeId)
+    {
+        string? withoutInstanceKey = TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(trimmedCandidate);
+
+        if (withoutInstanceKey is null)
+        {
+            nodeId = string.Empty;
+            return false;
+        }
+
+        string? strippedIdentity =
+            TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(withoutInstanceKey);
+
+        if (strippedIdentity is not null
+            && endpointKeyToNodeId.TryGetValue(strippedIdentity, out nodeId!))
         {
             return true;
         }

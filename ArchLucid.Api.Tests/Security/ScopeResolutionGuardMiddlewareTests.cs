@@ -216,6 +216,71 @@ public sealed class ScopeResolutionGuardMiddlewareTests
         nextCalled.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("/health//live")]
+    [InlineData("/health/./live")]
+    [InlineData("//health//ready")]
+    public async Task InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments(string path)
+    {
+        DefaultHttpContext context = CreateContext(path);
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_empty_segment_on_authorized_health_path()
+    {
+        DefaultHttpContext context = CreateContext("/health//detailed");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_does_not_skip_dot_segment_health_impostor()
+    {
+        DefaultHttpContext context = CreateContext("/health/./livefoo");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
     [Fact]
     public async Task InvokeAsync_staging_host_skips_health_paths()
     {

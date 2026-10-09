@@ -29,7 +29,8 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        Guid? authVersion = null)
+        Guid? authVersion = null,
+        int? accessTokenLifetimeMinutes = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
@@ -43,7 +44,16 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         SigningCredentials creds = new(_signingKey.Value, SecurityAlgorithms.RsaSha256);
 
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
-        DateTimeOffset expires = now.AddMinutes(Math.Clamp(local.AccessTokenLifetimeMinutes, 5, 24 * 60));
+        // Email OTP and post-auth bootstrap advertise Auth:EmailOtp:AccessTokenLifetimeMinutes.
+        // Trial password sign-in omits the argument and keeps Auth:Trial:LocalIdentity.
+        int configuredMinutes = local.AccessTokenLifetimeMinutes;
+
+        if (accessTokenLifetimeMinutes is int requestedMinutes)
+        {
+            configuredMinutes = requestedMinutes;
+        }
+
+        DateTimeOffset expires = now.AddMinutes(Math.Clamp(configuredMinutes, 5, 24 * 60));
 
         // Align with JwtLocalSigningIntegrationTestTokens (ArchLucid.Api.Tests): start validity well in the past so
         // GitHub-hosted runners / TestServer VMs with multi-minute UTC skew cannot reject the token at JwtBearer

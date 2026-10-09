@@ -7,6 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   defaultReviewFindingsListView,
   parseReviewFindingsListViewFromSearch,
+  REVIEW_FINDINGS_LIST_VIEW_PARAM,
   reviewFindingsListViewHrefFromSearch,
   type ReviewFindingsListViewKind,
 } from "@/lib/findings/review-findings-list-view";
@@ -17,14 +18,21 @@ export type RunDetailFindingsListViewToggleProps = {
   readonly workingMode: boolean;
 };
 
+function readListViewFromWindow(workingMode: boolean): ReviewFindingsListViewKind {
+  if (typeof window === "undefined") {
+    return defaultReviewFindingsListView(workingMode);
+  }
+
+  const raw = new URLSearchParams(window.location.search).get(REVIEW_FINDINGS_LIST_VIEW_PARAM);
+
+  return parseReviewFindingsListViewFromSearch(raw) ?? defaultReviewFindingsListView(workingMode);
+}
+
 export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListViewToggleProps): ReactElement {
   const pathname = usePathname() ?? "";
-  const readActiveView = (): ReviewFindingsListViewKind => {
-    const fromUrl = parseReviewFindingsListViewFromSearch(null);
-
-    return fromUrl ?? defaultReviewFindingsListView(props.workingMode);
-  };
-  const [activeView, setActiveViewState] = useState<ReviewFindingsListViewKind>(() => readActiveView());
+  const [activeView, setActiveViewState] = useState<ReviewFindingsListViewKind>(() =>
+    readListViewFromWindow(props.workingMode),
+  );
   const activeViewRef = useRef(activeView);
   activeViewRef.current = activeView;
 
@@ -36,9 +44,10 @@ export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListView
 
       activeViewRef.current = next;
       setActiveViewState(next);
+      // replaceState does not emit popstate. The findings list reads this query from that event.
       commitHrefIfChanged(
         reviewFindingsListViewHrefFromSearch(readWindowLocationSearch(), next, pathname),
-        { notify: false },
+        { notify: true },
       );
     },
     [pathname],
@@ -46,7 +55,7 @@ export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListView
 
   useEffect(() => {
     const syncViewFromUrl = (): void => {
-      const next = readActiveView();
+      const next = readListViewFromWindow(props.workingMode);
 
       if (activeViewRef.current === next) {
         return;

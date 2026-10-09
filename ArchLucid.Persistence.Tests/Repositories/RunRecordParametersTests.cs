@@ -134,6 +134,25 @@ public sealed class RunRecordParametersTests
         Read<DateTime>(parameters, "OccurredUtc").Should().Be(occurredUtc);
     }
 
+    [Fact]
+    public void ForOperatorGovernanceDisposition_passes_occurred_utc_kind_through_unchanged()
+    {
+        DateTime unspecified = new(2026, 8, 11, 12, 0, 0, DateTimeKind.Unspecified);
+
+        DateTime bound = Read<DateTime>(
+            RunRecordParameters.ForOperatorGovernanceDisposition(
+                Scope(),
+                RunId,
+                "Approved",
+                null,
+                "user-1",
+                unspecified),
+            "OccurredUtc");
+
+        bound.Should().Be(unspecified);
+        bound.Kind.Should().Be(DateTimeKind.Unspecified);
+    }
+
     /// <summary>Operator rationale is buyer-visible prose, so it is stored exactly as typed.</summary>
     [Fact]
     public void ForOperatorGovernanceDisposition_stores_the_rationale_verbatim() =>

@@ -78,10 +78,16 @@ public sealed partial class TenantWorkspacesController
         if (outcome == ArchitectureProjectSoftDeleteResult.AlreadyDeleted)
             return NoContent();
 
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ArchitectureProjectSoftDeleted,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
@@ -173,10 +179,16 @@ public sealed partial class TenantWorkspacesController
                 ProblemTypes.Conflict);
         }
 
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ArchitectureProjectRestored,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,

@@ -1,6 +1,7 @@
 import type { TenantIdentityProviderConfigurationRecord } from "@/lib/admin-identity-provider-api";
 import type { IdentityProviderActivateBody } from "@/lib/admin-identity-provider-api";
 import { IDENTITY_PROVIDERS_SAML_ISSUER_VALIDATION_REQUIRED, IDENTITY_PROVIDERS_SAML_MAPPING_VALIDATION_REQUIRED } from "@/lib/identity-providers-settings-copy";
+import { parsePersistedClaimMappingJson } from "@/lib/persisted-claim-mapping-json";
 import { TENANT_IDENTITY_PROTOCOL } from "@/lib/tenant-identity-protocol";
 
 const ARCHLUCID_ROLES = ["Admin", "Operator", "Reader", "Auditor"] as const;
@@ -17,12 +18,6 @@ export type SamlSpConfigurationFormValues = {
   roleClaimName: string;
   mappings: SamlSpClaimMappingRow[];
   customGroupClaimRegex: string;
-};
-
-type ClaimMappingJsonDocument = {
-  roleClaimName?: string;
-  mappings?: { idpValue?: string; archLucidRole?: string }[];
-  customGroupClaimRegex?: string | null;
 };
 
 let nextSamlMappingRowId = 0;
@@ -72,15 +67,7 @@ export function hydrateSamlSpConfigurationFormValues(
     return defaults;
   }
 
-  let parsedMapping: ClaimMappingJsonDocument | null = null;
-
-  if (typeof record.claimMappingJson === "string" && record.claimMappingJson.trim().length > 0) {
-    try {
-      parsedMapping = JSON.parse(record.claimMappingJson) as ClaimMappingJsonDocument;
-    } catch {
-      parsedMapping = null;
-    }
-  }
+  const parsedMapping = parsePersistedClaimMappingJson(record.claimMappingJson);
 
   const savedMappings = (parsedMapping?.mappings ?? [])
     .map((entry) => {

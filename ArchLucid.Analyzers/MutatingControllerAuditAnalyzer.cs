@@ -14,6 +14,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     internal const string HttpPutAttributeShortName = "HttpPutAttribute";
     internal const string HttpDeleteAttributeShortName = "HttpDeleteAttribute";
     internal const string HttpPatchAttributeShortName = "HttpPatchAttribute";
+    internal const string HttpMethodAttributeShortName = "HttpMethodAttribute";
 
     private static readonly SymbolDisplayFormat AllowlistFqTypeFormat =
         new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
@@ -428,11 +429,65 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             {
                 if (TrackedVerbAttribute(attributeWalkerNameScoped.Name))
                     return true;
+
+                if (string.Equals(attributeWalkerNameScoped.Name, HttpMethodAttributeShortName, StringComparison.Ordinal) &&
+                    HttpMethodAttributeDeclaresMutatingVerb(attributeDataScoped))
+                {
+                    return true;
+                }
             }
         }
 
         return false;
     }
+
+    private static bool HttpMethodAttributeDeclaresMutatingVerb(AttributeData attributeDataScoped)
+    {
+        foreach (TypedConstant constructorArgument in attributeDataScoped.ConstructorArguments)
+        {
+            if (TypedConstantContainsMutatingHttpMethod(constructorArgument))
+                return true;
+        }
+
+        foreach (KeyValuePair<string, TypedConstant> namedArgument in attributeDataScoped.NamedArguments)
+        {
+            if (!string.Equals(namedArgument.Key, "Method", StringComparison.Ordinal) &&
+                !string.Equals(namedArgument.Key, "Methods", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (TypedConstantContainsMutatingHttpMethod(namedArgument.Value))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TypedConstantContainsMutatingHttpMethod(TypedConstant typedConstant)
+    {
+        if (typedConstant.Kind == TypedConstantKind.Array)
+        {
+            foreach (TypedConstant element in typedConstant.Values)
+            {
+                if (element.Value is string method && IsMutatingHttpMethodName(method))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (typedConstant.Value is string singleMethod && IsMutatingHttpMethodName(singleMethod))
+            return true;
+
+        return false;
+    }
+
+    private static bool IsMutatingHttpMethodName(string method) =>
+        method.Equals("POST", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("PUT", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("DELETE", StringComparison.OrdinalIgnoreCase) ||
+        method.Equals("PATCH", StringComparison.OrdinalIgnoreCase);
 
     internal static bool MutatingAuditExcludeApplies(
         INamedTypeSymbol? exclusionAttributeSymbolScoped,

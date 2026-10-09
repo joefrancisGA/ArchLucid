@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const unsupportedSignupTextCharacters = /[\p{Cc}\p{Cf}]/u;
+
+function containsUnsupportedSignupTextCharacters(value: string): boolean {
+  return unsupportedSignupTextCharacters.test(value);
+}
+
 export const companySizeOptions = [
   "1-10",
   "11-50",
@@ -30,11 +36,20 @@ export const signupFormSchema = z
     adminDisplayName: z
       .string()
       .trim()
+      // Reject invisible control and bidi-format characters before they enter tenant metadata.
+      .refine(
+        (value) => !containsUnsupportedSignupTextCharacters(value),
+        "Full name contains unsupported characters.",
+      )
       .min(1, "Full name is required.")
       .max(200, "Full name must be at most 200 characters."),
     organizationName: z
       .string()
       .trim()
+      .refine(
+        (value) => !containsUnsupportedSignupTextCharacters(value),
+        "Organization name contains unsupported characters.",
+      )
       .min(1, "Organization name is required.")
       .max(200, "Organization name must be at most 200 characters."),
     companySize: z.enum(companySizeOptions).optional(),
@@ -76,6 +91,12 @@ export const signupFormSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Please specify your industry when you select “Other.”",
+          path: ["industryVerticalOther"],
+        });
+      } else if (containsUnsupportedSignupTextCharacters(other)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Industry specification contains unsupported characters.",
           path: ["industryVerticalOther"],
         });
       } else if (other.length > 200) {
@@ -139,6 +160,10 @@ function readinessMessageForArchitectureTeamSize(message: string | undefined): s
 }
 
 function readinessMessageForIndustryVerticalOther(message: string | undefined): string {
+  if (message === "Industry specification contains unsupported characters.") {
+    return "Remove unsupported characters from your industry specification to continue.";
+  }
+
   if (message === "At most 200 characters.") {
     return "Enter an industry specification of at most 200 characters to continue.";
   }

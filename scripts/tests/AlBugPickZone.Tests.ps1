@@ -1440,4 +1440,198 @@ Describe 'al-bug-pick-zone.ps1' {
         $result.eligibleCount | Should -Be 2
         $result.seedOnlySaturated | Should -Be $true
     }
+
+    It 'keeps hunting when every open zone is hit-rate cooled' {
+        $content = @"
+# fixture
+
+## Zone: zone-hot-a
+
+- **id:** zone-hot-a
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/HotA.cs
+- **test-filter:** FullyQualifiedName~HotA
+- **hunts:** 20
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Still open on A
+
+## Zone: zone-hot-b
+
+- **id:** zone-hot-b
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/HotB.cs
+- **test-filter:** FullyQualifiedName~HotB
+- **hunts:** 8
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Still open on B
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'all-cooled.jsonl'
+        $lines = @()
+
+        foreach ($zoneId in @('zone-hot-a', 'zone-hot-b')) {
+            for ($i = 0; $i -lt 5; $i++) {
+                $lines += (@{ at = "2026-08-19T1$i`:00:00Z"; zoneId = $zoneId; outcome = 'hit' } | ConvertTo-Json -Compress)
+            }
+        }
+
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-19T18:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-hot-a'
+        $result.exhaustedAll | Should -BeFalse
+        $result.eligibleCount | Should -Be 2
+        $result.cooldownFallback | Should -BeTrue
+        ($result.why -join ' ') | Should -Match 'cooldown fallback'
+    }
+
+    It 'does not hit-rate cool a zone whose hypothesis list is empty' {
+        $content = @"
+# fixture
+
+## Zone: zone-empty
+
+- **id:** zone-empty
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Empty.cs
+- **test-filter:** FullyQualifiedName~Empty
+- **hunts:** 5
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) already fixed
+
+## Zone: zone-fresh
+
+- **id:** zone-fresh
+- **status:** unseeded
+- **impact:** medium
+- **paths:** ArchLucid.Application/Fresh.cs
+- **test-filter:** FullyQualifiedName~Fresh
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) Lens
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'empty-list.jsonl'
+        $lines = @()
+
+        for ($i = 0; $i -lt 5; $i++) {
+            $lines += (@{ at = "2026-08-19T1$i`:00:00Z"; zoneId = 'zone-empty'; outcome = 'hit' } | ConvertTo-Json -Compress)
+        }
+
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $result = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc '2026-08-19T18:00:00Z'
+
+        $result.zoneId | Should -Be 'zone-empty'
+        $result.cooledByHitRate | Should -BeTrue
+        $result.cooldownFallback | Should -BeFalse
+        ($result.why -join ' ') | Should -Match 'hit-rate cooldown waived'
+    }
+
+    It 'does not cool a file zone because a parent directory was recorded as a hit path' {
+        $content = @"
+# fixture
+
+## Zone: zone-file
+
+- **id:** zone-file
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Governance/FindingDispositionService.cs
+- **test-filter:** FullyQualifiedName~FindingDisposition
+- **hunts:** 4
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] File hypothesis
+
+## Zone: zone-other
+
+- **id:** zone-other
+- **status:** unseeded
+- **impact:** medium
+- **paths:** ArchLucid.Application/Other.cs
+- **test-filter:** FullyQualifiedName~Other
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (candidate) Lens
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        [string]$runLog = Join-Path $TestDrive 'directory-hit.jsonl'
+        $now = '2026-08-19T18:00:00Z'
+        $lines = @()
+
+        for ($i = 0; $i -lt 3; $i++) {
+            $lines += (@{
+                at = "2026-08-19T1$i`:00:00Z"
+                zoneId = 'zone-file'
+                outcome = 'hit'
+                paths = @('ArchLucid.Application/Governance/')
+            } | ConvertTo-Json -Compress)
+        }
+
+        Set-Content -LiteralPath $runLog -Value $lines -Encoding UTF8
+
+        $hinted = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now -Hint 'zone-file'
+
+        @($hinted.escalatedFiles).Count | Should -Be 0
+
+        $file = 'ArchLucid.Application/Governance/FindingDispositionService.cs'
+        $fileLines = @()
+
+        for ($i = 0; $i -lt 3; $i++) {
+            $fileLines += (@{
+                at = "2026-08-19T1$i`:00:00Z"
+                zoneId = 'zone-file'
+                outcome = 'hit'
+                paths = @($file)
+            } | ConvertTo-Json -Compress)
+        }
+
+        Set-Content -LiteralPath $runLog -Value $fileLines -Encoding UTF8
+
+        $cooled = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now -Hint 'zone-file'
+        $rotated = Invoke-Picker -LedgerPath $ledger -RunLogPath $runLog -AtUtc $now
+
+        @($cooled.escalatedFiles) | Should -Contain $file
+        $rotated.zoneId | Should -Be 'zone-other'
+    }
 }

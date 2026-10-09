@@ -9,20 +9,29 @@ public static class ConfluencePublishingSpaceKeyResolver
         ArgumentNullException.ThrowIfNull(options);
 
         if (options.ProjectSpaceKeys is not { Count: > 0 })
-            return options.SpaceKey.Trim();
+            return TrimBound(options.SpaceKey);
 
-        foreach (KeyValuePair<string, string> pair in options.ProjectSpaceKeys)
-        {
-            string keyText = pair.Key.Trim();
-            string value = pair.Value.Trim();
+        string? mappedSpaceKey = options.ProjectSpaceKeys
+            .Select(pair => (Key: TrimBound(pair.Key), Value: TrimBound(pair.Value)))
+            .Where(pair => pair.Value.Length > 0 && Guid.TryParse(pair.Key, out Guid mapped) && mapped == projectId)
+            .Select(pair => pair.Value)
+            .FirstOrDefault();
 
-            if (string.IsNullOrEmpty(keyText) || value.Length is 0)
-                continue;
+        if (!string.IsNullOrEmpty(mappedSpaceKey))
+            return mappedSpaceKey;
 
-            if (Guid.TryParse(keyText, out Guid mapped) && mapped == projectId)
-                return value;
-        }
+        return TrimBound(options.SpaceKey);
+    }
 
-        return options.SpaceKey.Trim();
+    /// <summary>
+    /// Configuration binding keeps JSON null strings as null. Trimming those values
+    /// throws while Confluence publish resolves a space key.
+    /// </summary>
+    private static string TrimBound(string? value)
+    {
+        if (value is null)
+            return string.Empty;
+
+        return value.Trim();
     }
 }

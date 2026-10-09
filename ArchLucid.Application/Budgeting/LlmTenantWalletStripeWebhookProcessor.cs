@@ -34,9 +34,13 @@ public sealed class LlmTenantWalletStripeWebhookProcessor(ILlmTenantWalletServic
 
             decimal amountUsd = decimal.Round(amountCents / 100m, 2, MidpointRounding.AwayFromZero);
 
-            await _walletService
+            bool applied = await _walletService
                 .ApplyWebhookPaymentIntentSucceededAsync(tenantId, paymentIntentId, amountUsd, correlationId, cancellationToken)
                 .ConfigureAwait(false);
+
+            if (amountCents > 0 && !applied)
+                throw new InvalidOperationException(
+                    $"Stripe wallet webhook credit was not applied for payment intent '{paymentIntentId}'.");
 
             return;
         }

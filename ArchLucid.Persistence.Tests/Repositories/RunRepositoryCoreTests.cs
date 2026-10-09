@@ -24,6 +24,14 @@ public sealed class RunRepositoryCoreTests
     }
 
     [Fact]
+    public void ValidateRunKeysetCursor_rejects_run_id_without_created_utc()
+    {
+        Action act = () => RunRepositoryCore.ValidateRunKeysetCursor(null, Guid.NewGuid());
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void ClampPurgeBatchSize_clamps_to_maximum()
     {
         RunRepositoryCore.ClampPurgeBatchSize(50_000).Should().Be(RunRepositoryCore.MaxPurgeBatchSize);

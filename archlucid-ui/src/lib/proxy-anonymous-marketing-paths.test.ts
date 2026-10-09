@@ -21,6 +21,17 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isAnonymousMarketingProxyPath("v1/auth/routing/evaluate")).toBe(false);
   });
 
+  it("does not treat signed-in sign-in-methods routes as pre-auth anonymous paths", () => {
+    expect(isPublicAnonymousProxyPath("v1/auth/sign-in-methods")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/sign-in-methods/email-otp/challenge")).toBe(false);
+  });
+
+  it("does not treat trial/local auth routes as pre-auth anonymous paths", () => {
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/register")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/token")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/auth/trial/local/verify-email")).toBe(false);
+  });
+
   it("includes anonymous health probes and post-registration trial-status", () => {
     expect(isPublicAnonymousProxyPath("health/ready")).toBe(true);
     expect(isPublicAnonymousProxyPath("health/live")).toBe(true);
@@ -33,6 +44,7 @@ describe("isPublicAnonymousProxyPath", () => {
     expect(isPublicAnonymousProxyPath("v1/diagnostics/core-pilot-rail-step")).toBe(true);
     expect(isPublicAnonymousProxyPath("v1/diagnostics/first-tenant-funnel")).toBe(true);
     expect(isPublicAnonymousProxyPath("v1/diagnostics/client-error")).toBe(false);
+    expect(isPublicAnonymousProxyPath("v1/diagnostics/trial-upgrade-nudge/shown")).toBe(false);
     expect(isAnonymousMarketingProxyPath("v1/diagnostics/first-tenant-funnel")).toBe(false);
   });
 });

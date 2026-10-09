@@ -15,16 +15,17 @@ export function useReviewDetailWorkspacePresenter(): UseReviewDetailWorkspacePre
   const pathname = usePathname() ?? "/architecture/reviews";
 
   const exitPresenter = useCallback(() => {
+    // replaceState does not emit popstate. The workspace reads presenter mode from that event.
     commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), false, pathname),
-      { notify: false },
+      { notify: true },
     );
   }, [pathname]);
 
   const enterPresenter = useCallback(() => {
     commitHrefIfChanged(
       reviewPresenterModeHrefFromSearch(window.location.search.slice(1), true, pathname),
-      { notify: false },
+      { notify: true },
     );
   }, [pathname]);
 

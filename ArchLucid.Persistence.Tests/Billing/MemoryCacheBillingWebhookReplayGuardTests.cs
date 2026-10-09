@@ -4,6 +4,7 @@ using ArchLucid.Persistence.Billing;
 using FluentAssertions;
 
 using Microsoft.Extensions.Caching.Memory;
+using Moq;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
@@ -141,6 +142,49 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task HasSeenAsync_treats_internal_whitespace_in_event_id_as_distinct_event()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        await sut.RememberAsync("stripe", "evt_internal", CancellationToken.None);
+
+        bool internalSpaceSeen = await sut.HasSeenAsync("stripe", "evt internal", CancellationToken.None);
+
+        internalSpaceSeen.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TryRegisterEventAsync_blocks_duplicate_while_claimed_key_retained_after_cache_compact()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 1 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool firstClaim = await sut.TryRegisterEventAsync("stripe", "evt_evict", CancellationToken.None);
+        firstClaim.Should().BeTrue();
+
+        cache.Compact(1.0);
+
+        bool duplicateClaim = await sut.TryRegisterEventAsync("stripe", "evt_evict", CancellationToken.None);
+
+        duplicateClaim.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RememberAsync_after_TryRegisterEventAsync_keeps_HasSeen_true()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool registered = await sut.TryRegisterEventAsync("stripe", "evt_remember_after_claim", CancellationToken.None);
+        await sut.RememberAsync("stripe", "evt_remember_after_claim", CancellationToken.None);
+        bool seen = await sut.HasSeenAsync("stripe", "evt_remember_after_claim", CancellationToken.None);
+
+        registered.Should().BeTrue();
+        seen.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task HasSeenAsync_returns_true_after_TryRegisterEventAsync()
     {
         MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
@@ -151,5 +195,52 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
 
         registered.Should().BeTrue();
         seen.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Retention_window_is_twenty_four_hours()
+    {
+        MemoryCacheBillingWebhookReplayGuard.Retention.Should().Be(TimeSpan.FromHours(24));
+    }
+
+    [Fact]
+    public async Task RememberAsync_then_TryRegisterEventAsync_returns_false_for_same_event()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        await sut.RememberAsync("stripe", "evt_remember_claim", CancellationToken.None);
+        bool secondClaim = await sut.TryRegisterEventAsync("stripe", "evt_remember_claim", CancellationToken.None);
+        bool seen = await sut.HasSeenAsync("stripe", "evt_remember_claim", CancellationToken.None);
+
+        secondClaim.Should().BeFalse();
+        seen.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HasSeenAsync_throws_when_event_id_is_whitespace_only()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        Func<Task> act = () => sut.HasSeenAsync("stripe", "   ", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task RememberAsync_cache_failure_does_not_leave_event_claimed()
+    {
+        Mock<IMemoryCache> cache = new();
+        cache
+            .Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Throws<InvalidOperationException>();
+
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache.Object, TimeProvider.System);
+
+        Func<Task> act = () => sut.RememberAsync("stripe", "evt_cache_failure", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await sut.HasSeenAsync("stripe", "evt_cache_failure", CancellationToken.None)).Should().BeFalse();
     }
 }

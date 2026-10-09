@@ -248,6 +248,56 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
             "Prioritize security-first over cost-first.");
     }
 
+    [Fact]
+    public void BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        SpecialistReviewFinding reliabilityFinding = CreateFailFinding(
+            "rel",
+            QualityDimension.Reliability,
+            "Stated recovery objective may not be achievable");
+
+        IReadOnlyList<ArchitectureRecommendation> securityCost = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Operations excellence"]);
+
+        TradeOffObject securityCostTradeOff = securityCost
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Should()
+            .ContainSingle()
+            .Subject;
+        securityCostTradeOff.RecommendedResolution.Should().Be(
+            "Balance Security and Cost with explicit human approval.");
+        securityCostTradeOff.ResolutionRationale.Should().Be(
+            "No declared priority selected Security or Cost, so the competing findings stay balanced.");
+
+        IReadOnlyList<ArchitectureRecommendation> reliabilityCost = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            []);
+
+        TradeOffObject reliabilityCostTradeOff = reliabilityCost
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString())
+            .TradeOffs
+            .Should()
+            .ContainSingle()
+            .Subject;
+        reliabilityCostTradeOff.RecommendedResolution.Should().Be(
+            "Balance Reliability and Cost with explicit human approval.");
+        reliabilityCostTradeOff.ResolutionRationale.Should().Be(
+            "No declared priority selected Reliability or Cost, so the competing findings stay balanced.");
+    }
+
     private static SpecialistReviewFinding CreateFailFinding(
         string findingId,
         QualityDimension dimension,

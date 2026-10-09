@@ -53,6 +53,70 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(onOpenNeighborhood).toHaveBeenCalledWith("vnet:app");
   });
 
+  it("keeps shared services out of the resource group section", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [
+            {
+              id: "vnet:app",
+              kind: "vnet",
+              title: "app-vnet",
+              resourceCount: 2,
+              memberIds: ["vm-a"],
+              frameIds: ["vnet-app"],
+              types: [],
+            },
+            {
+              id: "remainder:rg-app",
+              kind: "remainder",
+              title: "rg-app",
+              resourceCount: 3,
+              memberIds: ["app"],
+              frameIds: ["rg-app"],
+              types: [],
+            },
+            {
+              id: "other-resource-groups",
+              kind: "other",
+              title: "Other resource groups",
+              resourceCount: 8,
+              memberIds: ["other-resource-groups-rollup"],
+              frameIds: ["rg-other"],
+              types: [],
+            },
+            {
+              id: "shared-services",
+              kind: "shared-services",
+              title: "Shared services",
+              resourceCount: 1,
+              memberIds: ["vault"],
+              frameIds: ["shared-services"],
+              types: [{ name: "key vaults", count: 1 }],
+            },
+          ],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    const resourceGroups = screen.getByTestId("architecture-diagram-resource-groups");
+    expect(resourceGroups).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-remainder:rg-app"),
+    );
+    expect(resourceGroups).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-other-resource-groups"),
+    );
+    expect(resourceGroups).not.toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-shared-services"),
+    );
+    expect(screen.getByRole("heading", { name: "Shared services" })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-shared-services")).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-shared-services"),
+    );
+  });
+
   it("summarizes links after the twelfth row", () => {
     const links = Array.from({ length: 13 }, (_, index) => ({
       from: "vnet:app",

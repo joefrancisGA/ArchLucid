@@ -37,11 +37,25 @@ public sealed partial class PolicyPackHttpFacade
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
-        PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
-            policyPackId,
-            request.Version.Trim(),
-            request.ContentJson,
-            ct).ConfigureAwait(false);
+        PolicyPackVersion? version;
+
+        try
+        {
+            version = await _workflow.TryPublishVersionAsync(
+                policyPackId,
+                request.Version.Trim(),
+                request.ContentJson,
+                ct).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+            when (ex.Message.Contains("Platform-default", StringComparison.OrdinalIgnoreCase))
+        {
+            return new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                Message = ex.Message,
+            };
+        }
 
         if (version is null)
         {
@@ -166,8 +180,6 @@ public sealed partial class PolicyPackHttpFacade
             return PolicyPackHttpResult<bool>.ScopeNotFound();
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
-
-        bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
 
         PolicyPackSetAssignmentEnabledOutcome outcome =
             await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);

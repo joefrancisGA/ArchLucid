@@ -95,7 +95,7 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
 
     private static string SanitizePromptIdentifier(string? value)
     {
-        string escaped = CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(value);
+        string escaped = AzureResourceTagPromptSanitizer.EscapeCustomerMarkersAfterControlStrip(value);
 
         return AzureResourceTagPromptSanitizer.SanitizeScalar(escaped);
     }

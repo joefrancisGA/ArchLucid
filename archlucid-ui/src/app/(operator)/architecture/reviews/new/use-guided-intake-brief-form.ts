@@ -134,11 +134,18 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
       return;
     }
 
+    // Example request templates own the brief, matching quick start when both links are present.
+    if (exampleTemplate !== null) {
+      starterTemplatePrefillApplied.current = true;
+
+      return;
+    }
+
     starterTemplatePrefillApplied.current = true;
     setFreeTextIntent(starterTemplate.values.description ?? "");
     setBusinessOutcome(`A review-ready architecture package for ${starterTemplate.label}.`);
     setSystemName(starterTemplate.values.systemName ?? "");
-  }, [starterTemplate]);
+  }, [exampleTemplate, starterTemplate]);
 
   const intentTrimmedLength = freeTextIntent.trim().length;
   const intentMeetsMinimum = intentTrimmedLength >= MIN_INTENT_CHARS;

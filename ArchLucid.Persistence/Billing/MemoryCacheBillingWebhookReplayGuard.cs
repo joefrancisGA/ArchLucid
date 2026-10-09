@@ -43,7 +43,17 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
 
         string cacheKey = BuildCacheKey(providerName, eventId);
         _claimedKeys.TryAdd(cacheKey, 0);
-        _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
+
+        try
+        {
+            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
+        }
+        catch
+        {
+            _claimedKeys.TryRemove(cacheKey, out _);
+
+            throw;
+        }
 
         return Task.CompletedTask;
     }

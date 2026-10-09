@@ -188,6 +188,12 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     {
         string summary = JsonSerializer.Serialize(graph, JsonOptions);
 
+        // The outbox may index the same run again after artifacts or findings change.
+        // Hash the graph bytes so an unchanged graph still skips, and a changed graph reindexes.
+        string contentHash = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes($"{runId:N}|provenance|{summary}")));
+
         return
         [
             new RetrievalDocument
@@ -202,7 +208,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 SourceId = runId.ToString(),
                 Title = $"Provenance for Run {runId}",
                 Content = summary,
-                ContentHash = runId.ToString("N"),
+                ContentHash = contentHash,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 DecisionId = null,
                 FindingId = null

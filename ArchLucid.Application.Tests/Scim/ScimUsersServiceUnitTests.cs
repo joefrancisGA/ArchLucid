@@ -85,6 +85,50 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task CreateAsync_duplicate_user_name_throws_conflict()
+    {
+        // RFC 7643 requires userName to be unique. A second live user with a different externalId
+        // and only a case change still collides for Entra "userName eq" matching.
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM UserName Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        using JsonDocument first = JsonDocument.Parse(
+            """
+            {
+              "userName": "alice@example.com",
+              "externalId": "ext-1",
+              "active": true
+            }
+            """);
+
+        await sut.CreateAsync(tenantId, first.RootElement, CancellationToken.None);
+
+        using JsonDocument second = JsonDocument.Parse(
+            """
+            {
+              "userName": "ALICE@example.com",
+              "externalId": "ext-2",
+              "active": true
+            }
+            """);
+
+        Func<Task> act = () => sut.CreateAsync(tenantId, second.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+    }
+
+    [Fact]
     public async Task ReplaceAsync_duplicate_external_id_throws_conflict()
     {
         Guid tenantId = Guid.NewGuid();
@@ -543,6 +587,44 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_filter_gives_and_precedence_over_or()
+    {
+        // RFC 7644 §3.4.2.2: not binds tighter than and, and and binds tighter than or.
+        // Left-associative and/or drops the active user on the left of or when the right clause requires active eq false.
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-keep",
+            "keep-inactive@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-drop",
+            "drop-active@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        string filter = """userName eq "keep-inactive@example.com" or userName eq "drop-active@example.com" and active eq "false" """;
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, filter, 1, 100, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().ContainSingle(u => u.UserName == "keep-inactive@example.com");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_active_numeric_zero_deactivates_user()
     {
         Guid tenantId = Guid.NewGuid();
@@ -815,6 +897,48 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_replace_userName_to_another_users_name_throws_conflict()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        ScimUserRecord second = await users.InsertAsync(
+            tenantId,
+            "ext-2",
+            "bob@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "userName", "value": "Alice@example.com" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, second.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+        (await users.GetByIdAsync(tenantId, second.Id, CancellationToken.None))!.UserName.Should().Be("bob@example.com");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_externalId_whitespace_only_throws()
     {
         Guid tenantId = Guid.NewGuid();
@@ -875,6 +999,72 @@ public sealed class ScimUsersServiceUnitTests
         await sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
 
         (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.DisplayName.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task PatchAsync_remove_userName_rejects_required_attribute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "remove", "path": "userName" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserResourceParseException ex = (await act.Should().ThrowAsync<ScimUserResourceParseException>()).Which;
+        ex.ScimType.Should().Be("mutability");
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.UserName.Should().Be("alice@example.com");
+    }
+
+    [Fact]
+    public async Task PatchAsync_remove_externalId_rejects_required_attribute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "remove", "path": "externalId" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserResourceParseException ex = (await act.Should().ThrowAsync<ScimUserResourceParseException>()).Which;
+        ex.ScimType.Should().Be("mutability");
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.ExternalId.Should().Be("ext-1");
     }
 
     [Fact]
