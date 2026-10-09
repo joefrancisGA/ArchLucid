@@ -11,6 +11,14 @@ namespace ArchLucid.Core.Tests.Explanation;
 public sealed class RunExplanationConfidenceCalloutBuilderTests
 {
     [Fact]
+    public void FromAggregateJson_returns_null_for_malformed_json()
+    {
+        RunExplanationConfidenceCalloutBuilder.FromAggregateJson("{\"citations\":")
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_numeric_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

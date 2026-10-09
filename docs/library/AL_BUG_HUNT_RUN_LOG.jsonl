@@ -9018,3 +9018,4 @@
 {"at":"2026-10-09T18:45:42.3657878Z","zoneId":"artifact-synthesis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-09T18:52:53.1021109Z","zoneId":"ui-architecture-diagram","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-09T18:59:11.8803108Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"boolean-coercion"}
+{"at":"2026-10-09T19:05:30.4117520Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium"}

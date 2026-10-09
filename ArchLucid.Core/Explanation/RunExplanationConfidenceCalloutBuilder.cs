@@ -24,18 +24,25 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (string.IsNullOrWhiteSpace(aggregateJson))
             return null;
 
-        using JsonDocument doc = JsonDocument.Parse(aggregateJson);
-        JsonElement root = doc.RootElement;
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(aggregateJson);
+            JsonElement root = doc.RootElement;
 
-        if (root.ValueKind != JsonValueKind.Object)
+            if (root.ValueKind != JsonValueKind.Object)
+                return null;
+
+            _ = RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(root);
+            _ = RunExplanationRiskCalloutBuilder.TryParseRiskPosture(root);
+            _ = RunExplanationCostCalloutBuilder.TryParseDecisionCount(root);
+            _ = RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(root);
+
+            return ParseConfidenceSignals(root);
+        }
+        catch (JsonException)
+        {
             return null;
-
-        _ = RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(root);
-        _ = RunExplanationRiskCalloutBuilder.TryParseRiskPosture(root);
-        _ = RunExplanationCostCalloutBuilder.TryParseDecisionCount(root);
-        _ = RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(root);
-
-        return ParseConfidenceSignals(root);
+        }
     }
 
     public static string ResolveDisposition(RunExplanationConfidenceSignals? signals)
