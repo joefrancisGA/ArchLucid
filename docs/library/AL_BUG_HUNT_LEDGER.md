@@ -14,6 +14,8 @@
 
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — repeated the selected orchestration review and focused topology test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — repeated the selected orchestration review and focused topology test inventory once more; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `api-key-auth` — re-read the authentication handler, admin rotation service, controller, and focused tests; existing coverage accounts for disabled-auth fail-closed behavior, development bypass gating, key rotation, expiry boundaries, duplicate headers, Unicode normalization, scope claims, and explicit audit actors. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — repeated the selected merge gate, graph merge, endpoint index/validation, edge mapper, Terraform source-id heuristics, consensus merger, and focused test review; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -1627,6 +1629,8 @@
 ## Zone: topology-proposal-merge
 
 **Hunts:** 1610 · **Bugs found:** 978
+
+2026-10-09 seed hunt (seed-only): repeated the selected topology merge orchestration review and focused test inventory once more; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): repeated the selected topology merge orchestration review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
