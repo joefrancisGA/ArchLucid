@@ -149,6 +149,36 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture()
+    {
+        // azurerm and ARM emit minimumTlsVersion TLS1_2 (infra/terraform-storage).
+        // The declaration parser lowercases that to tls1_2.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.min_tls_version"] = "tls1_2",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("artifacts", properties);
+
+        signals.Should().NotContain(signal => signal.Theme == "encryption");
+    }
+
+    [Fact]
+    public void Classify_still_flags_azure_tls1_0_as_weak_sql_posture()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["minimumTlsVersion"] = "TLS1_0",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql-pay", properties);
+
+        signals.Should().Contain(signal => signal.Theme == "encryption");
+    }
+
+    [Fact]
     public void Classify_still_flags_microsoft_sql_with_public_network_as_weak_sql_posture()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

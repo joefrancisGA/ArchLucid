@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier.IsWeakSqlPosture` treated every minimum TLS value other than the literals `1.2` and `1.3` as weak. azurerm and ARM emit `TLS1_2` (`infra/terraform-storage`), and the declaration parser lowercases that to `tls1_2`, so a compliant storage account was titled as a SQL server with weak TLS. `DeclarationMinimumTlsVersion` accepts `TLS1_2`, `TLS1_3`, `1.2`, and `1.3`. `TLS1_0` still flags. Regression `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` failed first with an encryption signal. 14 scoped baseline classifier tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier` only treated public network access as enabled for the token `enabled` on `tf.public_network_access`. azurerm and `infra/terraform-storage` set `public_network_access_enabled = true`, and the declaration parser stores `tf.public_network_access_enabled` = `true`, so the baseline emitted no data-protection signal. The resolver now reads that key, and `DeclarationSecurityEnabledToken` accepts both `enabled` and `true` for the baseline and topology-drift checks. `false` stays quiet. Regression `Classify_flags_terraform_public_network_access_enabled_true` failed first with an empty signal list. 20 scoped baseline and topology-security tests passed, and 9 key-resolver tests passed. [class:boolean-coercion]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `IdentityPathAnalyzer` checked `hopCount >= MaxHopCount` before evaluating the dequeued node. DX-06 bounds the blast-radius walk to 8 hops, and the trust-boundary walk keeps a target on that eighth edge. A machine actor, Contributor role, and regulated key vault eight edges apart produced no path. The node at the cap is evaluated, then expansion stops. Regression `Analyze_includes_regulated_datastore_exactly_at_hop_cap` failed first with an empty path list. `Analyze_excludes_regulated_datastore_past_hop_cap` keeps the next edge out. 17 scoped identity path and blast-radius tests passed. [class:off-by-one]
@@ -16453,13 +16455,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 47
-- **bugs-found:** 38
+- **hunts:** 48
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — terraform public_network_access_enabled true was not a public-network signal
+- **last-bug:** 2026-10-09 — Azure TLS1_2 was flagged as weak SQL TLS
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `IsWeakSqlPosture` flagged parser-lowercased `tls1_2` as weak TLS; shared Azure TLS token reader; regressions `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` and `Classify_still_flags_azure_tls1_0_as_weak_sql_posture`; 14 scoped baseline classifier tests passed.
+
+- [x] (proven) `DeclarationSecurityBaselineClassifier.IsWeakSqlPosture` — `min_tls_version = "TLS1_2"` — **hit 2026-10-09 seed hunt:** only the literals `1.2` and `1.3` were acceptable, so Azure `TLS1_2` emitted a weak-TLS encryption finding; regressions `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` and `Classify_still_flags_azure_tls1_0_as_weak_sql_posture`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved `DeclarationSecurityBaselineClassifier` ignored `tf.public_network_access_enabled` = `true`; resolver alias plus shared enabled/true token; regressions `Classify_flags_terraform_public_network_access_enabled_true` and `Classify_does_not_flag_terraform_public_network_access_enabled_false`; 20 scoped baseline tests and 9 key-resolver tests passed.
 
