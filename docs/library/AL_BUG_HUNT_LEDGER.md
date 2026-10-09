@@ -5299,7 +5299,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 266
+- **hunts:** 489
 - **bugs-found:** 489
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
@@ -15273,7 +15273,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 24
+- **hunts:** 26
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -25867,7 +25867,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 36
+- **hunts:** 44
 - **last-hunt:** 2026-10-06
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
@@ -28963,7 +28963,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 21
+- **hunts:** 25
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
@@ -29064,7 +29064,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-30
