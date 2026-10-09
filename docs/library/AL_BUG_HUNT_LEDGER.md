@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `api-key-auth` — `POST /v1/admin/settings/api-keys/rotate` and `POST /v1/admin/apikeys/{keyId}/rotate` set the audit actor to the API key principal name, but `AuditService` replaces `ActorUserId` with `NameIdentifier` unless `ExplicitActor` is set. API key principals have a name and no name identifier, so both rotation audits persisted `unknown`. Both routes now mark the actor explicit. Regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` failed first with `unknown`. 71 scoped API-key unit tests passed. Two endpoint tests still fail because this VM has no SQL Server.
+
 2026-10-09 seed hunt (seed→hit): `api-governance-stickiness` — `GET /v1/governance/decisions-needed-summary` sealed only the latest committed run, then counted stale and unowned risks from the same risk-register page `GET /v1/governance/risk-register` already refuses when a row run has no golden manifest. The summary now loads that 100-row page and seals each row run before the totals are returned. Regression `GetDecisionsNeededSummary_blocks_older_unsealed_register_row_when_latest_run_is_sealed` failed first with HTTP 200, then 211 API picker-scoped tests and 69 application stickiness and digest-composer tests passed.
 
 2026-10-09 thorough hunt (hit): `api-governance-stickiness` — `GET /v1/governance/reviews-awaiting-action` sealed only the latest committed run, then returned a recurrence item whose `SourceRunId` had no golden manifest. That source run is the baseline the finding delta is computed from. The pending review's own `RunId` stays unsealed because it is ReadyForCommit. Non-empty source runs now use the same row guard as register responses. Regression `GetReviewsAwaitingAction_blocks_unsealed_source_run_when_latest_run_is_sealed` failed first with HTTP 200, then 210 API and 66 application picker-scoped tests passed. Metadata-only disposition reads were cheap-disproved: the inspect SQL still joins `dbo.Runs` and returns `r.RunId`, so an empty run id is not a live row.
@@ -11469,13 +11471,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 73
-- **bugs-found:** 20
+- **hunts:** 74
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — embedded tab in configured API key material broke authentication
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — API key rotation audits stored the actor as unknown
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): API key rotation wrote the principal name into the audit event, then `AuditService` replaced `ActorUserId` with `unknown` because the principal has no `NameIdentifier`. Both rotate routes now set `ExplicitActor`.
 
 2026-10-04 seed hunt (hit): reseeded api-key-auth; proved embedded no-break space (U+00A0) in configured key material still showed configured while authentication rejected the visible key; extended `ApiKeyMaterialNormalizer` to strip non-ASCII `SpaceSeparator` characters; regressions `When_admin_key_config_has_embedded_no_break_space_still_authenticates`, `Normalize_strips_embedded_no_break_space_from_key_material`, `GetSnapshot_treats_no_break_space_only_admin_slot_as_unconfigured`; 63 scoped handler/service unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
@@ -11526,6 +11530,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 
 2026-09-12 seed hunt #1964 (seed-only): reseeded api-key-auth; no new hunt-ready rows.

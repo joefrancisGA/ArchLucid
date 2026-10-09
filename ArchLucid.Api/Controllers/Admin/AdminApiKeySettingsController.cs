@@ -57,25 +57,13 @@ public sealed class AdminApiKeySettingsController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "admin";
-
-        await _auditService.LogAsync(
-            new AuditEvent
+        await LogRotationAuditAsync(
+            AuditEventTypes.AdminApiKeyRotationMaterialIssued,
+            new
             {
-                EventType = AuditEventTypes.AdminApiKeyRotationMaterialIssued,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        slot = response.Slot,
-                        deploymentAction = response.DeploymentAction,
-                        configPath = response.ConfigPath
-                    })
+                slot = response.Slot,
+                deploymentAction = response.DeploymentAction,
+                configPath = response.ConfigPath
             },
             cancellationToken).ConfigureAwait(false);
 
@@ -100,29 +88,38 @@ public sealed class AdminApiKeySettingsController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
+        await LogRotationAuditAsync(
+            AuditEventTypes.ApiKeyRotated,
+            new
+            {
+                keyId = keyId,
+                slot = response.Slot,
+                deploymentAction = response.DeploymentAction,
+                configPath = response.ConfigPath
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    private async Task LogRotationAuditAsync(string eventType, object data, CancellationToken cancellationToken)
+    {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actor = User.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.ApiKeyRotated,
+                EventType = eventType,
+                // API key principals carry a name and no NameIdentifier. AuditService would store ActorUserId as "unknown".
+                ExplicitActor = true,
                 ActorUserId = actor,
                 ActorUserName = actor,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        keyId = keyId,
-                        slot = response.Slot,
-                        deploymentAction = response.DeploymentAction,
-                        configPath = response.ConfigPath
-                    })
+                DataJson = JsonSerializer.Serialize(data)
             },
             cancellationToken).ConfigureAwait(false);
-
-        return Ok(response);
     }
 }
