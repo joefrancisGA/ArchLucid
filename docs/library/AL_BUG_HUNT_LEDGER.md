@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/evidence/proposals/{resultId}/promote` built `CatalogEntryId` as `{type}-{slug}` from the full title. Migration 182 stores that id in NVARCHAR(128) and the title in NVARCHAR(512). A 122-character policy title fits the title column and produces a 129-character id, so SQL insert truncated. Promote now rejects that id, and a title longer than 512, before insert. Regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column` failed first with no exception. 4 promoter tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness` returned the catalog row when `ApprovedTaskTypes` was empty. `PUT` on that catalog allows an empty list, and the import UI treats HTTP 200 as a completed import, so no evaluation was stored. Import now fails before any upsert when no approved task type remains after trim. Regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence` failed first with no exception. 3 catalog evaluation tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record` and faithfulness import rebuild the catalog row in `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` without tokenizer settings or USD rates. Catalog upsert writes every column, so a recorded evaluation reset `CharsPerToken` to 4 and cleared `InputUsdPerMillionTokens`, `OutputUsdPerMillionTokens`, and `ReasoningUsdPerMillionTokens`. `AgentModelCatalogRow.WithEvaluations` now copies every persisted column and replaces only the evaluation list. Regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates` failed first with chars per token 4. 2 catalog evaluation tests passed.
@@ -32006,13 +32008,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 36
-- **bugs-found:** 34
+- **hunts:** 37
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — faithfulness import succeeded when the alias had no approved task types
+- **last-bug:** 2026-10-09 — promote sent a catalog entry id longer than NVARCHAR(128)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoting a curated evidence proposal built `CatalogEntryId` from the full title. A title that fits NVARCHAR(512) can still exceed the NVARCHAR(128) id column. Promote now rejects that id, and an over-long title, before insert. Regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column` failed first with no exception.
+
+- [x] (proven) `EvidenceProposalPromoter.PromoteAsync` — `BuildCatalogEntryId` kept the full title slug, so a 122-character policy title produced a 129-character id for `dbo.TenantCuratedEvidenceEntries.CatalogEntryId` NVARCHAR(128) — **hit 2026-10-09 seed hunt:** `CuratedEvidencePersistedFieldLimits` before insert; regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column`. [class:fail-open-validation]
 
 2026-10-09 seed hunt (seed→hit): faithfulness harness import returned the existing catalog row when `ApprovedTaskTypes` was empty, so the operator saw a successful import with no evaluation stored. Import now rejects that row before upsert. Regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence` failed first with no exception.
 
