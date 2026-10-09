@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `api-policy-packs` — re-read all nine selected policy-pack controller files and the focused test inventory; no fresh reachable mechanism-backed candidate met the hunt-ready bar and no hypothesis was promoted. Seeded five `(candidate)` rows for unexpected catalog outcomes, null-success payloads, mutation conflict symmetry, route-id validation parity, and bulk normalization contracts. The focused controller test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — re-read all seven selected topology orchestration files and the focused test inventory; no candidate met the full hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows covering ARM endpoint normalization, indexed Terraform addresses, alias collisions, topology extension gating, and consensus instance handling. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — re-read the selected merge gate, graph merge, endpoint index/validation, edge mapper, Terraform source-id heuristics, consensus merger, and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar. No hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -31957,10 +31959,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-07 — platform-default pack republish surfaced HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -31980,6 +31982,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-02 seed hunt (hit): proved cross-scope output caching on effective policy-pack reads; 1 focused regression test passed after removing the shared anonymous cache policy. The full controller filter had 55 passing and 17 unrelated baseline failures from null test scopes.
 
 ### Hypotheses
+
+- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — a reachable facade outcome outside the explicitly mapped cross-tenant, validation, and not-found cases could fall through to HTTP 200 with a null or incomplete catalog detail — locus: terminal outcome handling after `MapScopeOrNull` (`PolicyPacksController.Catalog.Mutate.cs`); input: an OpenAPI catalog promotion request whose facade returns a mutation conflict outcome.
+- [ ] (candidate) `PolicyPacksController.DemoteCatalogEntry` — a reachable facade conflict outcome could fall through to HTTP 204, making a failed catalog mutation appear successful — locus: terminal outcome handling after `MapScopeOrNull` (`PolicyPacksController.Catalog.Mutate.cs`); input: an authenticated admin demote request for a catalog entry that becomes unavailable or locked during mutation.
+- [ ] (candidate) `PolicyPacksController.Create` — a success-shaped facade result with no `PolicyPack` value could be serialized as HTTP 200 instead of failing closed — locus: `return Ok(result.Value!)` after scope mapping (`PolicyPacksController.Crud.cs`); input: a valid create body reaching a facade implementation that returns `Success` with a null value.
+- [ ] (candidate) `PolicyPacksController.GetCatalogEntry` — a zero route id may reach the facade if route constraints are bypassed by direct controller invocation, unlike other catalog mutation/read paths that explicitly validate ids — locus: `BadRequestWhenRouteIdEmpty` guard (`PolicyPacksController.Catalog.Read.Hub.cs`); input: an OpenAPI `/catalog/00000000-0000-0000-0000-000000000000` request.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — validating the original list count before blank removal may reject a request with 50 nonblank ids plus blank slots even though the effective evaluation set is within the intended cap — locus: `runIds.Count > 50` before normalization (`PolicyPacksController.Simulate.cs`); input: an OpenAPI bulk request containing 49 valid run ids and two blank slots.
 
 - [x] (valid-no-repro) `PolicyPacksController.Validate` — returns `Ok(result.Value!)` without a `ValidationFailed` branch if `ValidateContentAsync` ever regresses to emit that outcome for reachable bodies; **cheap-disproof 2026-10-09:** `PolicyPackValidateContentHttpMapper.Validate` and `PolicyPackHttpFacade.ValidateContentAsync` share the same object/deserialization gates, so reachable bodies are rejected before the facade-only outcome.
 - [x] (invalid) `PolicyPackHttpFacade.PublishVersionAsync` / `PolicyPacksController.Publish` — other publish validation failures from management still collapse to `null` version → HTTP 404 instead of HTTP 400 when content/semver rules fail inside `IPolicyPackManagementService`; **cheap-disproof 2026-10-09:** the selected controller validator owns semver validation and the management stage exposes no content/semver validation outcome; only the existing platform-default exception is mapped.
