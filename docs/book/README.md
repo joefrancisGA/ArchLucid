@@ -53,8 +53,8 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | first draft (~7,000) | 9,000 |
 | 5 | [Network reachability](chapters/05-network-reachability.md) | stub | 7,000 |
 | 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | stub | 6,000 |
-| 7 | [Where LLMs help](chapters/07-where-llms-help.md) | stub | 8,000 |
-| 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | stub | 7,000 |
+| 7 | [Where LLMs help](chapters/07-where-llms-help.md) | first draft (~5,600) | 8,000 |
+| 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | first draft (~6,700) | 7,000 |
 | 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | stub | 6,000 |
 | 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | stub | 6,000 |
 | 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | stub | 6,000 |
