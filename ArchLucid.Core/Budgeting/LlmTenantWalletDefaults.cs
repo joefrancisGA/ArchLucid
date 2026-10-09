@@ -33,6 +33,7 @@ public static class LlmTenantWalletDefaults
 
         // A positive estimate that rounds to $0.00 becomes a zero debit. Authorize then reports
         // balance-after 0 and enqueues auto-refill, and settlement credits the whole pre-call hold back.
+
         if (markedUsd == 0m)
             return MinimumBillableOverageUsd;
 
