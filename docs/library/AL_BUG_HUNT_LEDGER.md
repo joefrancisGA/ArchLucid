@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — re-read the selected merge gate, graph merge, endpoint index/validation, edge mapper, Terraform source-id heuristics, consensus merger, and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar. No hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `email-otp-auth` — re-read `EmailOtpAuthController` and `EmailOtpAuthService` with the focused test inventory; existing guards cover disabled auth, malformed requests, scope fallback, token lifetime clamping, invitation normalization, cancellation cleanup, and result-to-JWT mapping. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `architecture-recommendation` — re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the focused Alternatives/ProposedChange test inventory; existing coverage accounts for actionable-finding gating, evidence-first output, alternative distinctness, trade-off attachment, priority negation, and rationale wording. No fresh reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -1627,6 +1629,8 @@
 2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
 
 ## Zone: topology-proposal-merge
+
+2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 **Hunts:** 1610 · **Bugs found:** 978
 
