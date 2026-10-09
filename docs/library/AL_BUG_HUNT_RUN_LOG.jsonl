@@ -9078,3 +9078,4 @@
 {"at":"2026-10-09T23:42:38.0290626Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx"]}
 {"at":"2026-10-09T23:48:13.0447720Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-09T23:51:14.4676409Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at":"2026-10-09T23:56:40.9108362Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
