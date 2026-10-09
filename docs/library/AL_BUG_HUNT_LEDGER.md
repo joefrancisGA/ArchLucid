@@ -33691,13 +33691,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-07
 - **last-bug:** 2026-10-07 — source `FileName` path separator split review cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed-only): re-read the closed-loop orchestrator, cache, and manifest hashing paths; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `ReviewResultCache.CreateCoalescedCacheHitResult` — cache-hit isolation mutates the supplied cached result before the caller clones it, so a shared in-flight result may observe follower-specific flags — locus: `ClosedLoopArchitectureReasoningOrchestrator.Cache.cs` ~176–185; input: concurrent cache followers receiving the same coalesced result.
+- [ ] (candidate) `ReviewResultCache.TryGet` — repeated reads of an expired pinned entry refresh its TTL indefinitely while the key remains pinned, allowing a hot stale result to outlive the intended four-hour cache lifetime — locus: `ReviewResultCache.cs` ~50–67; input: repeated reads of a pinned expired entry.
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — when tombstone capacity is saturated entirely by pinned runs, a newly invalidated run may be removed without a deferred tombstone — locus: `ReviewResultCache.cs` ~153–165; input: more than 64 pinned run ids invalidated before their pin scopes release.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate source texts with equal sort keys remain input-order-sensitive, splitting cache keys for semantically equivalent attachment sets — locus: `ReviewCacheManifestBuilder.cs` ~101–115; input: duplicate same-name/content-type sources supplied in reverse order.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashPriorities` — declared priority ordering may remain significant after normalization, splitting cache keys when equivalent priorities arrive in a different order — locus: `ReviewCacheManifestBuilder.cs` ~135–143; input: identical priority set supplied in two permutations.
 
 ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
 
