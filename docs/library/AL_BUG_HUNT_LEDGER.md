@@ -33938,7 +33938,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 53 · **Bugs found:** 26 · **Consecutive dry hunts:** 0
+**Hunts:** 54 · **Bugs found:** 26 · **Consecutive dry hunts:** 0
+
+2026-10-09 seed hunt (seed-only): no newly promoted hunt-ready hypothesis survived the source read and cheap-disproof pass; seeded five reachable follow-on `(candidate)` rows covering stale asynchronous inventory detection, draft-status hydration rejection, evidence extraction fallback, post-create acknowledgement failure, and deferred guided-intake upload failure; no production code changed and no regression was added.
 
 2026-10-09 thorough hunt (hit): `useGuidedIntakeDraftCreate` started create-architecture initialization without a rejection handler. A reachable initialization failure left the form uninitialized and produced an unhandled rejection. Initialization failures now use the shared draft-create error resolver and set `submitError`; regression `reports create-architecture initialization failure instead of leaving an unhandled rejection`; 2 focused draft-create tests passed, and the related route scope reported 22 passed with 12 pre-existing path-switcher baseline failures.
 
@@ -33985,6 +33987,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — switching from guided to full wizard may leave `intakeStep` in the URL until the switcher clears guided params — locus: `ReviewsNewPathSwitcher.tsx` + `reviews-new-path-switcher-state.ts`; input: `path=detailed` while `intakeStep=1` still present until switcher runs.
 - [ ] (candidate) `useNewRunWizardLlmBudgetGate` — blocks submit on full wizard track step while quick mode bypasses the same gate — locus: `use-new-run-wizard-llm-budget-gate.ts` vs quick client wiring; input: quick spawn with exhausted monthly budget still allows rule simulation CTA.
 - [ ] (candidate) `useGuidedIntakeBriefForm` / `mergeScopeIntoBrief` — scope bullets merged into admission text may double-append on second admission attempt — locus: `use-guided-intake-brief-form.ts`; input: operator re-opens scope gate after failed admit and retries `runAdmission`.
+- [ ] (candidate) `useNewRunWizardPendingEvidence.handlePendingEvidenceFileChange` — an earlier asynchronous ZIP platform detection can apply its result after the operator replaces the selected inventory file — locus: `use-new-run-wizard-pending-evidence.ts` ~44–72; input: select a tier-1 Azure ZIP, then select a non-inventory document before the first ZIP inspection resolves.
+- [ ] (candidate) `useGuidedIntakeDraftCreate` — the draft-status hydration effect reads a draft without a rejection handler — locus: `use-guided-intake-draft-create.ts` ~193–202; input: restored or newly assigned `draftId` with `draftStatus === null` followed by a rejected `getDraftRequest`.
+- [ ] (candidate) `useFirstPilotIntakeSubmit.tryBuildIntakeContextDocuments` — evidence document extraction failures are converted to an empty document list and the run is still created — locus: `use-first-pilot-intake-submit.ts` ~32–40 and submit body construction; input: a reachable unreadable or unsupported architecture document selected in quick start.
+- [ ] (candidate) `useFirstPilotIntakeSubmit` — failure persisting coverage acknowledgement occurs after the review is created but leaves the created run undiscoverable by the submit flow — locus: `use-first-pilot-intake-submit.ts` ~126–140; input: successful `createArchitectureRun` followed by a rejected `persistSessionRunCoverageAcknowledgement`.
+- [ ] (candidate) `useGuidedIntakeDraftSubmit` — deferred document upload failure is reduced to a warning after the session is cleared and navigation begins — locus: `use-guided-intake-draft-submit.ts` ~52–100; input: admitted guided intake with pending evidence and a rejected post-submit document upload.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped reviews/new vitest 141 passed with 71 pre-existing baseline failures.
 
