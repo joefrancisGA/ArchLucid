@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — `GET /v1/admin/config-summary?includeEffectiveValues=true` truncates non-sensitive catalog values at 256 UTF-16 code units. A supplementary character on that boundary, such as a long `ArchLucid:FallbackLlm:Endpoints` scalar, left a lone high surrogate in `EffectiveValue`. The cut now steps back one unit when it would split a pair, and a pair that ends on the boundary stays. Regression `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair` failed first because the truncated prefix was not well-formed Unicode. 865 `ConfigurationEffectiveValueResolver` tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding enumerated `ArchitectureRequest.Constraints` and `RequiredCapabilities` directly. An execute payload with those lists JSON-null throws from LINQ before any rule runs. `AgentProposalStructuralPostProcessorEnricher` is registered ahead of `AgentResultRegionMismatchEnricher`, which already accepts a null constraint list, so the composite enricher aborted the batch. Missing lists are now treated as empty. Regression `EnrichAsync_keeps_proposal_when_brief_lists_are_null` failed first with `ArgumentNullException`. 10 grounding tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/evidence/proposals/{resultId}/promote` built `CatalogEntryId` as `{type}-{slug}` from the full title. Migration 182 stores that id in NVARCHAR(128) and the title in NVARCHAR(512). A 122-character policy title fits the title column and produces a 129-character id, so SQL insert truncated. Promote now rejects that id, and a title longer than 512, before insert. Regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column` failed first with no exception. 4 promoter tests passed.
@@ -23821,13 +23823,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 42
-- **bugs-found:** 25
+- **hunts:** 43
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — credential connection pairs with space before `=` leaked in config summary
+- **last-bug:** 2026-10-09 — config summary truncation split a surrogate pair
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `ConfigurationEffectiveValueResolver.Resolve` cut non-sensitive catalog values on a UTF-16 code unit, so a supplementary character straddling the 256-unit limit left a lone surrogate in the admin config summary; the cut now backs up one unit when the last included unit is a high surrogate; regressions `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair` and `Resolve_keeps_surrogate_pair_that_ends_on_the_truncation_boundary`; 865 resolver tests passed.
+
+- [x] (proven) `ConfigurationEffectiveValueResolver.Resolve` — truncation at 256 UTF-16 code units split a supplementary character on `ArchLucid:FallbackLlm:Endpoints` and other non-sensitive catalog scalars returned by `GET /v1/admin/config-summary` — **hit 2026-10-09 seed hunt (seed→hit):** back up one unit when the cut lands on a high surrogate; regression above. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): proved `ConfigurationSensitiveConfigValueScanner` left ADO.NET and Azure storage pairs visible when a credential key had whitespace before `=` (`Password =`, `Pwd =`, `ClientSecret =`, `AccountKey =`) on non-sensitive effective values; pair matching now allows that whitespace and still ignores longer identifiers such as `Passwordless`; regressions `Resolve_redacts_connection_string_when_credential_key_has_space_before_equals` and `Resolve_preserves_non_credential_values_that_contain_equals`; 1074 scoped Configuration tests passed.
 

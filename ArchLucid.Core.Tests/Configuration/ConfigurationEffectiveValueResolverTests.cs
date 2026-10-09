@@ -89,6 +89,76 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair()
+    {
+        // Catalog path returned by GET /v1/admin/config-summary?includeEffectiveValues=true.
+        // 255 BMP units plus a supplementary character put the 256-unit cut on the high surrogate.
+        string supplementary = "\U0001F4A1";
+        string configured = new string('x', 255) + supplementary + "-tail";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:FallbackLlm:Endpoints"] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:FallbackLlm:Endpoints",
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        value.Should().Be(new string('x', 255) + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Resolve_keeps_surrogate_pair_that_ends_on_the_truncation_boundary()
+    {
+        string supplementary = "\U0001F4A1";
+        string configured = new string('x', 254) + supplementary + "-tail";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:FallbackLlm:Endpoints"] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "ArchLucid:FallbackLlm:Endpoints",
+            isSet: true);
+
+        value.Should().Be(new string('x', 254) + supplementary + "…");
+        TruncatedPrefixIsWellFormed(value!).Should().BeTrue();
+    }
+
+    private static bool TruncatedPrefixIsWellFormed(string value)
+    {
+        for (int index = 0; index < value.Length; index++)
+        {
+
+            if (!char.IsSurrogate(value[index]))
+                continue;
+
+            if (char.IsHighSurrogate(value[index])
+                && index + 1 < value.Length
+                && char.IsLowSurrogate(value[index + 1]))
+            {
+                index++;
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    [Fact]
     public void Resolve_redacts_private_key_config_paths()
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
