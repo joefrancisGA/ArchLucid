@@ -149,6 +149,53 @@ public sealed class DrRpoTopologyFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica()
+    {
+        GraphSnapshot graph = BuildInventoryCategoryFixture(
+            label: "orders-catalog",
+            sourceId: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.DocumentDB/databaseAccounts/orders-catalog",
+            category: GraphTopologyCategories.Data);
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("orders-catalog");
+        finding.Title.Should().Contain("RPO 60 min");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_inventory_postgres_server_has_data_category_and_no_replica()
+    {
+        GraphSnapshot graph = BuildInventoryCategoryFixture(
+            label: "app-db",
+            sourceId: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.DBforPostgreSQL/flexibleServers/app-db",
+            category: GraphTopologyCategories.Data);
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_none_when_inventory_data_factory_shares_the_data_diagram_category()
+    {
+        GraphSnapshot graph = BuildInventoryCategoryFixture(
+            label: "etl",
+            sourceId: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.DataFactory/factories/etl",
+            category: GraphTopologyCategories.Data);
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RequestQualityAttributeMaterializer_output_drives_dr_rpo_topology_engine()
     {
         Guid snapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -341,6 +388,39 @@ public sealed class DrRpoTopologyFindingEngineTests
                     Weight = 1.0,
                 },
             ],
+        };
+    }
+
+    private static GraphSnapshot BuildInventoryCategoryFixture(string label, string sourceId, string category)
+    {
+        GraphNode qualityAttribute = new()
+        {
+            NodeId = "qa-availability-1",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Label = "Availability quality attribute",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["theme"] = "availability",
+                ["rpoHours"] = "1",
+            },
+        };
+
+        GraphNode datastore = new()
+        {
+            NodeId = "inventory-store",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = label,
+            Category = category,
+            SourceId = sourceId,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["armResourceId"] = sourceId,
+            },
+        };
+
+        return new GraphSnapshot
+        {
+            Nodes = [qualityAttribute, datastore],
         };
     }
 }

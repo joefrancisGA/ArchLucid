@@ -65,13 +65,38 @@ internal static class TopologyDatastoreLabelHeuristic
 
     private static bool HasDatastoreCategory(GraphNode node)
     {
+        // Inventory writes GraphNode.Category from the ARM type. Data Factory and Synapse
+        // share the data diagram category but are pipelines, not replica targets.
+        if (IsDataIntegrationArmResource(node))
+        {
+            return false;
+        }
+
+        if (IsDataOrStorageCategory(node.Category))
+        {
+            return true;
+        }
+
         if (!TryGetProperty(node.Properties, "category", out string? category))
         {
             return false;
         }
 
+        return IsDataOrStorageCategory(category);
+    }
+
+    private static bool IsDataOrStorageCategory(string? category)
+    {
         return string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
             || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDataIntegrationArmResource(GraphNode node)
+    {
+        string sourceId = node.SourceId ?? string.Empty;
+
+        return sourceId.Contains("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase)
+            || sourceId.Contains("Microsoft.Synapse/", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string BuildCombinedLabel(GraphNode node)

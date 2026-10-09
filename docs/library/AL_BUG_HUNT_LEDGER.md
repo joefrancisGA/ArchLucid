@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` treated only a `category` property as a datastore category. `ArchitectureInventoryObservedFactGraphBuilder` sets `GraphNode.Category` from `AzureInventoryTopologyCategory`, which maps `Microsoft.DocumentDB/databaseAccounts` and `Microsoft.DBforPostgreSQL` to data. An account named `orders-catalog` with that ARM id and no replica properties was skipped by the RPO check. The heuristic now reads `GraphNode.Category`. Data Factory and Synapse stay off the replica check because they share the data diagram category. Regression `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` failed first with an empty finding list. 23 scoped DrRpo and datastore-heuristic tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DanglingDeclarationReferenceAnalyzer` matched only the parent length of an ARM id (`/subscriptions/.../providers/{type}/{name}`). Inventory overlay nodes store the full id on `armResourceId` and label the node with the last segment (`ArchitectureInventoryObservedFactGraphBuilder`). A SQL database id `.../servers/sql-pay-prod/databases/payments` was reported as a dangling reference to the server. The matcher now keeps extra `/{type}/{name}` pairs. A database id that is not on the graph still flags. Regression `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` failed first with a truncated server token. 8 scoped dangling-reference tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DatastoreSkuReader` matched only camelCase keys such as `zoneRedundant` and `accountReplicationType`. The declaration parser stores azurerm attributes as `tf.zone_redundant` and `tf.account_replication_type`. `infra/modules/azure-sql-tenant-pool` sets `zone_redundant = false` on `azurerm_mssql_database`, and `infra/terraform-analysis-sandbox` sets `account_replication_type = "LRS"`. A zone-redundant requirement linked to that database emitted no SKU-tier finding. Property lookup now strips the `tf.` prefix and underscores before comparing. `zone_redundant = true` and ZRS stay quiet. Regression `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` failed first with an empty finding list. 10 scoped SKU-tier and reader tests passed. [class:other]
@@ -16461,13 +16463,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 51
-- **bugs-found:** 42
+- **hunts:** 52
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Nested SQL database ARM id flagged as dangling
+- **last-bug:** 2026-10-09 — Inventory data category skipped Cosmos and PostgreSQL RPO checks
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved inventory `GraphNode.Category` = data was ignored for Cosmos and PostgreSQL, so an RPO quality attribute emitted no gap; the heuristic reads that field and still excludes Data Factory and Synapse; regressions `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` and `AnalyzeAsync_emits_none_when_inventory_data_factory_shares_the_data_diagram_category`; 23 scoped DrRpo and datastore-heuristic tests passed.
+
+- [x] (proven) `TopologyDatastoreLabelHeuristic` — inventory Cosmos account `orders-catalog` with `Category` data and a `Microsoft.DocumentDB` source id — **hit 2026-10-09 seed hunt:** only the `category` property counted, so the RPO walk skipped the account; `GraphNode.Category` is now accepted and Data Factory / Synapse stay excluded; regressions `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` and `AnalyzeAsync_emits_finding_when_inventory_postgres_server_has_data_category_and_no_replica`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved a nested SQL database ARM id on its own inventory node was flagged as a dangling server reference; the matcher keeps extra `/{type}/{name}` pairs; regressions `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` and `Analyze_still_flags_nested_sql_database_id_that_is_not_on_the_graph`; 8 scoped dangling-reference tests passed.
 
