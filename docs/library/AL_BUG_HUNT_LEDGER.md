@@ -166,6 +166,8 @@
 
 2026-10-09 thorough hunt (hit): `core-tenancy-commercial` — hourly OTP email rate-limit SQL counted every challenge created in the window, including completed and expired rows, while the client-IP statement and the in-memory store ignored them. The batch email count now requires `CompletedUtc IS NULL` and `ExpiresUtc > @NowUtc`. Regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
 
+2026-10-09 thorough hunt (dry): `core-tenancy-commercial` — cheap-disproved the five remaining candidates: plan-id negation two tokens before `enterprise` lacks a partner plan-id citation; numeric Marketplace `planId` coercion is already covered by whole-number JSON/string tests and returns an opaque token without tier semantics; sales-led Standard tenants intentionally infer Team from usage when no billing row exists; duplicate IdP mappings already report the first-wins runtime contract; and IDN domain normalization is constrained to ASCII DNS labels by the validation regex. The scoped `CommercialTenant` test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`; no failing repro or code change.
+
 2026-10-09 thorough hunt (hit): `agent-runtime-safety` — client-supplied `RequestId` escaped TB-949 markers before control characters were stripped, so a JSON control byte inside `CUSTOMER_CONTENT_END` was deleted afterward and closed the architecture quarantine early. Marker escape now follows control-character removal for prompt identifiers and run-header fields. Regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
 
 2026-10-09 thorough hunt (dry): `agent-runtime-safety` — cheap-disproved cancellation-before-scan because `AzureContentSafetyGuard` calls `ThrowIfCancellationRequested`; SDK cancellation warning because `OperationCanceledException` is excluded from SDK-failure handling; Unicode-separator header identifiers because the sanitizer strips `\u2028` and `\u2029`; duplicate tag keys because case-insensitive last-writer behavior is documented and intentional; and framing-instruction placement because trusted framing remains outside customer markers while truncation preserves section bounds. The scoped test command was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`; no failing repro or code change.
@@ -24473,9 +24475,9 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
