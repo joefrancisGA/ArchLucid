@@ -65,7 +65,8 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeObjectCreation(c, registry),
-            SyntaxKind.ObjectCreationExpression);
+            SyntaxKind.ObjectCreationExpression,
+            SyntaxKind.ImplicitObjectCreationExpression);
 
         context.RegisterSyntaxNodeAction(
             c => AnalyzeTypeDeclaration(c, context.Compilation),
@@ -135,7 +136,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeObjectCreation(SyntaxNodeAnalysisContext context, TenantScopedTableRegistry registry)
     {
-        if (context.Node is not ObjectCreationExpressionSyntax objectCreation)
+        // Target-typed `CommandDefinition command = new(sql)` is an implicit object creation.
+        // Explicit `new CommandDefinition(...)` and `new(...)` share BaseObjectCreationExpressionSyntax.
+        if (context.Node is not BaseObjectCreationExpressionSyntax objectCreation)
             return;
 
         ITypeSymbol? type = context.SemanticModel.GetTypeInfo(objectCreation).Type;
@@ -154,7 +157,7 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
     }
 
-    private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(ObjectCreationExpressionSyntax objectCreation)
+    private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(BaseObjectCreationExpressionSyntax objectCreation)
     {
         if (objectCreation.ArgumentList is null)
             return null;

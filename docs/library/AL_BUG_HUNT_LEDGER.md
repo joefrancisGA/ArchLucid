@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `tenant-scoped-analyzer` — Persistence repositories build Dapper commands with target-typed `CommandDefinition command = new(sql)`. `TenantScopedQueryScopeBindingAnalyzer` only registered explicit `new CommandDefinition(...)`, so an unscoped `dbo.Runs` string passed to `new(sql)` produced no ARCH006 diagnostic. Implicit object creation now uses the same command-text argument read. Regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`. The new test failed first with zero diagnostics, then 26 scoped analyzer tests passed, and `ArchLucid.Persistence` built with 0 warnings.
+
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Application Gateway ARM pools attach NICs through `backendIPConfigurations`, while `ResolveApplicationGatewayBackends` returned early unless `backendAddresses` was present and only read that list. A NIC-only pool produced no backend target. The resolver now keeps address targets and also resolves pool ip configurations to the NIC. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
 
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Standard load balancer pools store members on `loadBalancerBackendAddresses[].properties.networkInterfaceIPConfiguration`, while `AzureInventoryLoadBalancerBackendTrafficResolver` only walked `backendIPConfigurations`. An IP-based pool with a NIC configuration produced no backend, so the inventory graph missed that NIC and its rule port. Both pool member lists now resolve the ip configuration parent. Regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`. 1473 scoped AzureExtractor tests passed (1446 Core + 27 Application).
@@ -7212,13 +7214,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 33
-- **bugs-found:** 20
+- **hunts:** 34
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — compound += SQL assignments bypassed ARCH006 folding
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — target-typed CommandDefinition creation bypassed ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted target-typed `CommandDefinition` creation. Explicit `new CommandDefinition(...)` already reported unscoped SQL, but `CommandDefinition command = new(sql)` is an implicit object creation and produced no diagnostic. Regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`. 26 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
 
 2026-10-03 seed hunt (seed-only): re-read `TenantScopedQueryScopeBindingAnalyzer` and focused tests; no failing repro was attempted for candidate-only rows; seeded record-declaration exemption handling as a fresh analyzer-shape candidate; 19 scoped analyzer tests passed.
 
@@ -7247,6 +7251,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeObjectCreation` — only `SyntaxKind.ObjectCreationExpression` was registered, so target-typed `CommandDefinition command = new(sql)` bypassed ARCH006 — **hit 2026-10-09 seed hunt (seed→hit):** also analyze `ImplicitObjectCreationExpression` and read its command argument the same way as `new CommandDefinition(...)`; regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`.
 
 2026-10-02 seed hunt (seed-only): re-read the analyzer and focused tests; identified the production `QueryUnbufferedAsync` call as an uncovered Dapper method shape, but its current `AuditEvents` SQL is tenant/workspace/project scoped; 19 focused analyzer tests passed and no candidate was promoted.
 
