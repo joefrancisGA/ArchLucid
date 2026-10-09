@@ -17,6 +17,16 @@ const releaseGateTag = "@release-gate";
 const snapshotId = "22222222-2222-2222-2222-222222222222";
 const minNodeHeightPx = MERMAID_MIN_LEGIBLE_LABEL_FONT_PX * 1.6;
 
+async function commitZoomPercent(
+  page: import("@playwright/test").Page,
+  percent: number,
+): Promise<void> {
+  const zoomInput = page.getByTestId("architecture-diagram-zoom-input");
+  await zoomInput.fill(String(percent));
+  await zoomInput.press("Enter");
+  await expect(zoomInput).toHaveValue(String(percent));
+}
+
 async function mockDiagramRoutes(
   page: import("@playwright/test").Page,
   renderResponse: ReturnType<typeof elevenVnetPeerGridRenderResponse>,
@@ -162,7 +172,14 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
               && node.x + node.w <= svgRect.x + svgRect.width
               && node.y + node.h <= svgRect.y + svgRect.height,
           ),
-        edgePathCount: svg.querySelectorAll("g.edgePaths path").length,
+        // Mermaid layout-only `~~~` spacers still emit `g.edgePaths path` with stroke-width 0.
+        edgePathCount: [...svg.querySelectorAll("g.edgePaths path")].filter((path) => {
+          const style = window.getComputedStyle(path);
+          const strokeWidth = Number.parseFloat(style.strokeWidth || "0");
+          const opacity = Number.parseFloat(style.strokeOpacity || style.opacity || "1");
+
+          return style.display !== "none" && style.visibility !== "hidden" && strokeWidth > 0 && opacity > 0;
+        }).length,
         outlineEdgeRows:
           document.querySelector('[data-testid="infra-diagrams-outline-edges-panel"] tbody')?.querySelectorAll("tr")
             .length ?? 0,
@@ -248,6 +265,7 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
 
     await page.waitForSelector('[data-testid="architecture-diagram-svg-host"] svg', { timeout: 120_000 });
     await page.waitForTimeout(1500);
+    await commitZoomPercent(page, 100);
 
     const metrics = await page.evaluate((minHeight) => {
       const viewport = document.querySelector('[data-testid="architecture-diagram-viewport"]');

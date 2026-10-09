@@ -43,9 +43,17 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
                 "Startup",
                 "Modules",
                 "RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance.cs"));
+        string reviewExports = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Host.Composition",
+                "Startup",
+                "Modules",
+                "RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance.ReviewExports.cs"));
+        string registrarSurface = registrar + Environment.NewLine + reviewExports;
 
-        registrar.Should().NotContain("EvidencePackagePinResolver");
-        registrar.Should().Contain("RunEvidencePackagePinService");
+        registrarSurface.Should().NotContain("EvidencePackagePinResolver");
+        registrarSurface.Should().Contain("RunEvidencePackagePinService");
     }
 
     [Fact]
