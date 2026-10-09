@@ -10710,13 +10710,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 43
-- **bugs-found:** 27
+- **hunts:** 44
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — GET configuration returned non-canonical issuer for legacy rows
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — OIDC discovery fetched document jwks_uri values outside HTTP(S) validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `IdentityProviderDiscoveryService.DiscoverOidcAsync`, reached from `IdentityProviderConfigurationController.DiscoverAsync`, fetched an OpenID document `jwks_uri` after only `Uri.TryCreate` absolute, so `file://`, `javascript:`, userinfo, and fragment JWKS URLs were requested while metadata URL and issuer already use `IdentityProviderUriValidator`; fetch now requires that validator; regression `DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation`; 11 discovery tests and 60 activation/controller tests passed.
+
+- [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — document `jwks_uri` with a non-HTTP(S) scheme, userinfo, or fragment was fetched — **hit 2026-10-09 seed hunt (seed→hit):** `TryCreateAbsoluteHttpOrHttps` before `FetchJwksThumbprintsAsync`; regression above.
 
 2026-10-06 seed hunt (seed→hit): proved `IdentityProviderConfigurationController.GetConfigurationAsync` returned repository `IssuerUri` verbatim while discover, test-login, and activate canonicalize HTTP(S) issuers, so wizard reload after a legacy `:443` row disagreed with sandbox and activation; `WithCanonicalConfigurationIssuer` on successful reads; regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`; cheap-disproof closed activate audit metadata presence gap (audit logs activation summary fields; full row remains on GET configuration); seeded malformed legacy issuer passthrough on GET; 60 scoped activation/controller tests passed.
 
@@ -10830,6 +10834,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — document `jwks_uri` with a non-HTTP(S) scheme, userinfo, or fragment was fetched — **hit 2026-10-09 seed hunt (seed→hit):** `TryCreateAbsoluteHttpOrHttps` before `FetchJwksThumbprintsAsync`; regression `DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation`.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — claim mapping with zero explicit `Mappings` and no `CustomGroupClaimRegex` persists while sandbox test-login cannot resolve roles — **cheap-disproof 2026-09-27 seed hunt:** `IdentityClaimRoleMappingValidator.Evaluate` warn-only by design; operators use test-login before commit; not a `ToDocument`/substantive-guard defect
 - [x] (invalid) Activation writes IdP settings onto a tenant the admin does not own — `ActivateAsync` uses `scope.TenantId` from `ScopeContextProvider`; no tenant override in request body
 - [x] (invalid) Disable still leaves the previous client secret usable — no deactivate/disable endpoint; wizard only exposes `activate` which sets `IsActive = true`

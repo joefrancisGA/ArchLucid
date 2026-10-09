@@ -168,6 +168,52 @@ public sealed class IdentityProviderDiscoveryServiceTests
         response.DiagnosticSummary.Should().Contain("HTTP(S)");
     }
 
+    [Theory]
+    [InlineData("file:///etc/passwd")]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("https://user:pass@idp.example/jwks")]
+    [InlineData("https://idp.example/jwks#keys")]
+    public async Task DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation(string jwksUri)
+    {
+        // The admin metadata URL is already HTTP(S). The document can still name a jwks_uri the
+        // server must not follow: another scheme, embedded credentials, or a fragment.
+        string discoveryJson =
+            $$"""
+            {
+              "issuer": "https://idp.example/",
+              "jwks_uri": "{{jwksUri}}"
+            }
+            """;
+
+        List<string> requested = [];
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            requested.Add(request.RequestUri!.AbsoluteUri);
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.IssuerUri.Should().Be("https://idp.example/");
+        response.SigningCertificateThumbprints.Should().BeEmpty();
+        requested.Should().ContainSingle();
+        requested[0].Should().EndWith("/.well-known/openid-configuration");
+    }
+
     [Fact]
     public async Task DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing()
     {

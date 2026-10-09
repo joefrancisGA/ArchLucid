@@ -76,8 +76,10 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
             string? jwksUri = ReadString(root, "jwks_uri");
             List<string> thumbprints = [];
 
+            // jwks_uri comes from the remote document, not the admin metadata URL. Follow only
+            // absolute HTTP(S) URIs with a host and no userinfo or fragment — the same bar as issuer.
             if (!string.IsNullOrWhiteSpace(jwksUri)
-                && Uri.TryCreate(jwksUri, UriKind.Absolute, out Uri? jwksUriParsed))
+                && IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(jwksUri, out Uri jwksUriParsed))
             {
                 thumbprints = await FetchJwksThumbprintsAsync(jwksUriParsed, cancellationToken).ConfigureAwait(false);
             }
