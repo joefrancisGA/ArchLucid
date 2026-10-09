@@ -350,7 +350,7 @@ jobs:
           E2E_INFRA_DB_MAX_ATTEMPTS: "25"
           E2E_INFRA_BASE_DELAY_MS: "1000"
           E2E_INFRA_PROBE_ATTEMPTS: "45"
-        run:
+        run: |
           npx playwright install --with-deps chromium
           npx playwright test
 
