@@ -16205,13 +16205,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — board-pack digest week extended outside the requested period
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed-only): re-read `BuyerProofPackBuilder`, `BoardPackPdfBuilder`, `BuyerProofPackCommitGuard`, `BoardPackSealedExportReceiptGuard`, and `PilotProofPackageCompletenessMapper`; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 - [x] (proven) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — ISO week around a short `POST /v1/pilots/board-pack.pdf` period started before the window or ended after it, so the sponsor digest counted runs outside the pack while the value report stayed on the requested bounds — **hit 2026-10-09 seed hunt:** clamp the digest interval to the resolved window; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; 28 scoped BuyerProofPack/BoardPack tests passed.
 
@@ -16255,6 +16257,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 2026-09-12 seed hunt #1892 (seed-only): reseeded application-pilots; scoped tests passed; no hunt-ready defect proven this pass.
+
+- [ ] (candidate) `PilotProofPackageCompletenessMapper.Build` — `FindingsBySeverityPresent` is always true even when the delta severity buckets are unresolved — locus: `PilotProofPackageCompletenessMapper.cs` ~48–58; input: committed pilot whose findings-by-severity query returns an unresolved/default delta.
+- [ ] (candidate) `PilotProofPackageCompletenessMapper.Build` — `LlmCallCount` is emitted without requiring `LlmCallCountResolved`, so a default zero can look like an observed count — locus: `PilotProofPackageCompletenessMapper.cs` ~58–66; input: committed pilot with unavailable LLM usage telemetry.
+- [ ] (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — a successful deltas JSON validation can be followed by a later artifact builder failure after expensive report work, without a partial-result classification — locus: `BuyerProofPackBuilder.cs` ~148–177; input: committed run with report/PDF dependency failure during sponsor-pack generation.
+- [ ] (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — configured `OperatorBaseUrl` is trimmed but not trailing-slash normalized, so digest links can contain a double slash when tenant email settings include a slash — locus: `BoardPackPdfBuilder.cs` ~55–63; input: board-pack request with `EmailNotificationOptions.OperatorBaseUrl = "https://operator.example/"`.
+- [ ] (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — a string boolean such as `" true "` is rejected while equivalent API serializer output may preserve padded operator/configuration text — locus: `BuyerProofPackCommitGuard.cs` ~80–115; input: deltas JSON produced from a compatibility serializer that emits padded boolean strings.
 
 
 - [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
