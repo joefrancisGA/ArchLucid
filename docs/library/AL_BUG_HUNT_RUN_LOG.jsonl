@@ -9033,3 +9033,4 @@
 {"at":"2026-10-09T20:27:18.1766192Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
 {"at":"2026-10-09T20:34:47.3400547Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-09T20:38:19.5615865Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-10-09T20:42:28.0569034Z","zoneId":"storage-vs-data-category","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs;ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs"]}
