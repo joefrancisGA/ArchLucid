@@ -24,6 +24,14 @@ type PendingEvidenceOptions = {
   readonly onInventoryFileSelected: (platform: CloudInventoryPlatform) => void;
 };
 
+function resolvePendingEvidenceUploadExceptionMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return "Evidence upload failed.";
+}
+
 /**
  * Evidence chosen before the review exists, and its upload once a run id is available.
  *
@@ -96,53 +104,64 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       setEvidenceUploadError(null);
       setEvidenceUploadProgressPercent(null);
 
-      if (hasInventory && inventoryFile !== null && inventoryPlatform !== null) {
-        const inventoryResult = await uploadWizardPendingInventoryEvidence(
-          runIdValue,
-          inventoryPlatform,
-          inventoryFile,
-          {
-            onUploadProgress: (percent) => {
-              setEvidenceUploadProgressPercent(percent);
+      try {
+        if (hasInventory && inventoryFile !== null && inventoryPlatform !== null) {
+          const inventoryResult = await uploadWizardPendingInventoryEvidence(
+            runIdValue,
+            inventoryPlatform,
+            inventoryFile,
+            {
+              onUploadProgress: (percent) => {
+                setEvidenceUploadProgressPercent(percent);
+              },
             },
-          },
-        );
+          );
 
-        if (!inventoryResult.ok) {
-          setEvidenceUploadState("failed");
-          setEvidenceUploadProgressPercent(null);
-          setEvidenceUploadError({
-            message: inventoryResult.message,
-            problem: inventoryResult.problem,
-            correlationId: inventoryResult.correlationId,
-          });
+          if (!inventoryResult.ok) {
+            setEvidenceUploadState("failed");
+            setEvidenceUploadProgressPercent(null);
+            setEvidenceUploadError({
+              message: inventoryResult.message,
+              problem: inventoryResult.problem,
+              correlationId: inventoryResult.correlationId,
+            });
 
-          return;
+            return;
+          }
+
+          setPendingEvidenceFile(null);
+          setPendingInventoryPlatform(null);
         }
 
-        setPendingEvidenceFile(null);
-        setPendingInventoryPlatform(null);
-      }
+        if (documentFiles.length > 0) {
+          const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
 
-      if (documentFiles.length > 0) {
-        const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
+          if (!documentResult.ok) {
+            setEvidenceUploadState("failed");
+            setEvidenceUploadProgressPercent(null);
+            setEvidenceUploadError({
+              message: documentResult.message,
+              problem: documentResult.problem,
+              correlationId: documentResult.correlationId,
+            });
 
-        if (!documentResult.ok) {
-          setEvidenceUploadState("failed");
-          setEvidenceUploadError({
-            message: documentResult.message,
-            problem: documentResult.problem,
-            correlationId: documentResult.correlationId,
-          });
+            return;
+          }
 
-          return;
+          setPendingDocumentFiles([]);
         }
 
-        setPendingDocumentFiles([]);
+        setEvidenceUploadState("success");
+        setEvidenceUploadProgressPercent(null);
+      } catch (error: unknown) {
+        setEvidenceUploadState("failed");
+        setEvidenceUploadProgressPercent(null);
+        setEvidenceUploadError({
+          message: resolvePendingEvidenceUploadExceptionMessage(error),
+          problem: null,
+          correlationId: null,
+        });
       }
-
-      setEvidenceUploadState("success");
-      setEvidenceUploadProgressPercent(null);
     },
     [pendingDocumentFiles, pendingEvidenceFile, pendingInventoryPlatform],
   );
