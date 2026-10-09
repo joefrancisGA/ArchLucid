@@ -52,6 +52,18 @@ public static class BoardPackQuarterWindow
         DateTime weekStartUtc =
             DateTime.SpecifyKind(ISOWeek.ToDateTime(isoYear, isoWeek, DayOfWeek.Monday), DateTimeKind.Utc);
         DateTime weekEndUtc = weekStartUtc.AddDays(7);
+        DateTime windowStartUtc = DateTime.SpecifyKind(quarterStartUtc.UtcDateTime, DateTimeKind.Utc);
+        DateTime windowEndUtc = DateTime.SpecifyKind(quarterEndUtc.UtcDateTime, DateTimeKind.Utc);
+
+        // POST /v1/pilots/board-pack.pdf accepts a shorter period than a calendar quarter.
+        // The ISO week around the midpoint can start before that period or end after it,
+        // and ExecDigestComposer then counts runs outside the pack window.
+
+        if (weekStartUtc < windowStartUtc)
+            weekStartUtc = windowStartUtc;
+
+        if (weekEndUtc > windowEndUtc)
+            weekEndUtc = windowEndUtc;
 
         return (weekStartUtc, weekEndUtc);
     }

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-pilots` — `BoardPackQuarterWindow.DigestWeekInsideQuarter` took the ISO week around the midpoint of `POST /v1/pilots/board-pack.pdf` period bounds. A shorter override such as 2026-03-25 through 2026-04-01 started the digest on 2026-03-23, and 2026-03-23 through 2026-03-27 ended it on 2026-03-30. `ExecDigestComposer` then counted runs outside the pack window while the value report used the requested bounds. The digest interval is now clamped to that window. Regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; 28 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-09 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware` collapsed only a leading `//` before public health checks, so `/health//live`, `/health/./live`, and `//health//ready` still missed `IsPublicHealthProbePath` and returned TB-304 on staging-like hosts. The skip check now drops empty and `.` segments. Parent `..` segments stay, and `Request.Path` is not rewritten. `/health//detailed` and `/health/./livefoo` still require trusted scope. Regression `InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments`; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
 
 2026-10-09 seed hunt (seed→hit): `retrieval` — `BuildForProvenance` set `ContentHash` to the run id, so a later index of the same run skipped even when the provenance graph changed. The retrieval outbox rebuilds that graph from the current findings, artifacts, and authority trace on every drain. The hash now covers the serialized graph, matching decision and finding documents. An unchanged graph still skips. Regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`; 355 scoped retrieval/indexing tests passed.
@@ -15968,13 +15970,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 40
-- **bugs-found:** 28
+- **hunts:** 41
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — buyer proof pack-manifest and DemoDataWarning omitted sample-run caution
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — board-pack digest week extended outside the requested period
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `BoardPackQuarterWindow.DigestWeekInsideQuarter` — ISO week around a short `POST /v1/pilots/board-pack.pdf` period started before the window or ended after it, so the sponsor digest counted runs outside the pack while the value report stayed on the requested bounds — **hit 2026-10-09 seed hunt:** clamp the digest interval to the resolved window; regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; 28 scoped BuyerProofPack/BoardPack tests passed.
+
+2026-10-09 seed hunt (seed→hit): promoted board-pack digest week outside the requested period; proved and fixed; 28 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted `isSampleRun` honesty gap — `BuyerProofPackBuilder` wrote `isSampleRun` into `pilot-run-deltas.json` from `GetRunSummaryAsync` but `limitations-and-next-actions.md` only honored `isDemoTenant` for the demo/sample banner; wire `deltasResponse.IsSampleRun` into `BuyerProofPackLimitationsMarkdown.Build`; regression `BuyerProofPackLimitationsMarkdown_Build_when_sample_run_only_includes_demo_data_warning_banner`; cheap-disproved unsafe ZIP filename, partial board-pack quarter override, and non-GUID receipt-skip candidates; 25 scoped BuyerProofPack/BoardPack tests plus 3 limitations markdown tests passed.
 
