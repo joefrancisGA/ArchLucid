@@ -9020,3 +9020,4 @@
 {"at":"2026-10-09T18:59:11.8803108Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"boolean-coercion"}
 {"at":"2026-10-09T19:05:30.4117520Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium"}
 {"at":"2026-10-09T19:10:15.0397603Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium"}
+{"at":"2026-10-09T19:14:31.4521149Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared"}
