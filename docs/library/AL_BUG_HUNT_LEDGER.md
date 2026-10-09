@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — re-read `TopologyProposalRelationshipEdgeMapper` and `TopologyProposalRelationshipEndpointIndex` with the focused edge-mapper/graph-merge test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five reachable `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — re-read all seven selected topology orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the hunt-ready bar and no hypothesis was promoted. Revalidated the five existing mechanism-backed `(candidate)` rows for duplicate result identity, endpoint formatting, self-loop relationships, empty manifest identities, and graph-change detection. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `topology-proposal-merge` — re-read all seven selected topology orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the hunt-ready bar and no hypothesis was promoted. Seeded five additional `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -4702,6 +4704,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-09 seed hunt (seed-only): re-read the selected edge mapper, endpoint index, and focused tests; no row was promoted because the focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — ARM resource-id aliases derived from `TryReadTopologyResourceId(node)` may not cover a graph node whose ARM id is present only in a different topology-resource property shape, so an ARM relationship endpoint can be dropped despite the node being inventoried — locus: ARM resolution-alias construction; input: ARM inventory node with a populated but non-canonical resource-id property.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — ARM normalization is attempted after Terraform and synthetic lookups, so a case-insensitive collision between an ARM-looking endpoint alias and an earlier non-ARM key could resolve to the first alias rather than the normalized ARM node — locus: ordered endpoint-key dictionary lookup; input: ARM endpoint plus a declared alias sharing its normalized key.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — graph-node resolution keys and declared `endpointAliases` use first-wins `TryAdd`, so two inventoried nodes or aliases that normalize to the same ARM/Terraform endpoint can retain a stale node id and produce an edge to the wrong resource — locus: collision precedence in the resolution dictionary; input: duplicate source-id aliases across distinct topology nodes.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — stripping a trailing Terraform instance key falls back to the unindexed base identity, which may collapse a relationship for an unindexed instance onto a different inventoried resource sharing the same root address — locus: instance-key fallback after exact lookup; input: one relationship endpoint with an instance key and multiple graph nodes sharing its root Terraform address.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — Terraform leaf aliases are added from `node.SourceId`, while ARM aliases are added from the extracted topology resource id, so a node carrying different ARM and Terraform identifiers may resolve one endpoint form but fail the other when the declaration and relationship use mixed source-id models — locus: dual-source-id alias population; input: ARM inventory node linked to a Terraform declaration with distinct resource addresses.
+
 2026-10-09 seed hunt (seed→hit): proved Terraform count and for_each instance keys blocked resource-address relationship resolution; 988 scoped edge-mapper and graph-merge tests passed.
 
 2026-10-06 seed hunt (seed→hit): promoted missing leading-slash ARM endpoint candidate; proved dual-model consensus disagreed when one relationship omitted the leading `/` on `subscriptions/...` paths; extended `LooksLikeArmResourceId` and `NormalizeArmResourceId` to accept and canonicalize subscription-relative ARM ids; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash`; 1000 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
@@ -4766,7 +4776,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
