@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `email-otp-auth` — re-read `EmailOtpAuthController` and `EmailOtpAuthService` with the focused test inventory; existing guards cover disabled auth, malformed requests, scope fallback, token lifetime clamping, invitation normalization, cancellation cleanup, and result-to-JWT mapping. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — `assessArchitectureDiagramReadiness` added the architecture name as an extra node even when that label was already the only system. `mergeUserAssertions` inserts the name into systems, and `buildArchitectureDiagramModel` skips a duplicate label, so a one-node diagram passed `MIN_ACTIVE_NODES` (2) and generated. The name now counts only when it adds a node. Regression `stays insufficient when the architecture name repeats the only system` failed first with `sufficient === true`. 11 generate, readiness, and model tests passed. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — decisions-needed digest and summary counted every NeedsEvidence or Deferred review event in the 30-day window. `ListSinceUtcAsync` returns the whole window newest-first, and a later remediation is a new row, so a closed finding stayed in "awaiting evidence" and "deferred due". Counts and markdown now keep the latest disposition per finding through `CrossReviewLatestDispositionMap`. A still-open deferred finding stays. Regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` (total was 3) and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition` (awaiting evidence was 1). 14 digest, calculator, and disposition-map tests passed. [class:state-machine-gap]
@@ -6571,7 +6573,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 44 · **Bugs found:** 14 · **Consecutive dry hunts:** 0
+**Hunts:** 50 · **Bugs found:** 14 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6586,6 +6588,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-08 thorough hunt (hit): proved that notifier cancellation after challenge persistence left the active challenge eligible for resend-cooldown suppression even though no code was delivered; cleanup now runs with `CancellationToken.None` on notifier failure and regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence` passed; the cleanup-storage-failure, whitespace display-email, inconsistent delivery metadata, and mutable-options-provider candidates were classified as `(valid-no-repro)`, `(invalid)`, `(invalid)`, and `(valid-no-repro)`.
 
 2026-10-08 seed hunt (seed-only): re-read the selected controller and service paths; no candidate met the hunt-ready bar without relying on an injected service result or behavior outside these files; seeded three reachable follow-on `(candidate)` rows and added no regression.
+
+2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
@@ -6637,7 +6641,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
