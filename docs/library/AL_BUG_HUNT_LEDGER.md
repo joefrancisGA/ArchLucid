@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Standard load balancer pools store members on `loadBalancerBackendAddresses[].properties.networkInterfaceIPConfiguration`, while `AzureInventoryLoadBalancerBackendTrafficResolver` only walked `backendIPConfigurations`. An IP-based pool with a NIC configuration produced no backend, so the inventory graph missed that NIC and its rule port. Both pool member lists now resolve the ip configuration parent. Regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`. 1473 scoped AzureExtractor tests passed (1446 Core + 27 Application).
+
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a managed integration runtime subnet at `computeProperties.vNetProperties.subnetId`. `AzureInventoryAdfIntegrationRuntimeSanitizer` only opened `typeProperties.vnetProperties`, so the row's subnet stayed empty and the integration-runtime edge mapper never added the subnet `ConnectsTo` relationship. The sanitizer now reads the compute-property subnet and still accepts a subnet object already on `typeProperties`. Regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`. 1472 scoped AzureExtractor tests passed (1445 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a trigger's pipeline under `pipelineReference.referenceName`. `AzureInventoryAdfTriggerSanitizer` read `pipelineReference` as text, so a schedule trigger persisted the JSON object as the pipeline name, and a tumbling-window trigger's object `pipeline` was dropped. Both shapes now keep the static `referenceName`. Regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`. 1471 scoped AzureExtractor tests passed (1444 Core + 27 Application).
@@ -23391,13 +23393,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 52
-- **bugs-found:** 34
+- **hunts:** 53
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — managed integration runtime subnet under computeProperties was dropped
+- **last-bug:** 2026-10-09 — IP-based load balancer backends were omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted Standard load balancer `loadBalancerBackendAddresses`. NIC ip configurations on that list produced no backend target. The resolver now reads them alongside `backendIPConfigurations`. Regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`. 1473 scoped AzureExtractor tests passed (1446 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): promoted managed IR subnet nesting. `computeProperties.vNetProperties.subnetId` stayed null, so the subnet `ConnectsTo` edge was never written. The sanitizer now reads that path. Regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`. 1472 scoped AzureExtractor tests passed (1445 Core + 27 Application).
 
@@ -23445,6 +23449,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends` — Standard load balancer `loadBalancerBackendAddresses` NIC configurations were ignored — **hit 2026-10-09 seed hunt:** resolve `networkInterfaceIPConfiguration` the same way as `backendIPConfigurations`; regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`.
 - [x] (proven) `AzureInventoryAdfIntegrationRuntimeSanitizer.TrySanitizeFromArmResource` — managed IR `computeProperties.vNetProperties.subnetId` was ignored, so the subnet relationship was never mapped — **hit 2026-10-09 seed hunt:** read the compute-property subnet and keep a flattened `typeProperties` subnet; regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`.
 - [x] (proven) `AzureInventoryAdfTriggerSanitizer.ExtractPipelineNames` — Data Factory `pipelineReference` was stored as raw JSON, and tumbling-window `pipeline` objects were dropped — **hit 2026-10-09 seed hunt:** schedule and tumbling-window triggers now keep `referenceName`; regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`.
 - [x] (proven) `AzureInventoryAdfPipelineFlowExtractor.WalkActivityArray` — Copy activities nested under ForEach, If Condition, and Switch were omitted from pipeline flows — **hit 2026-10-08 seed hunt:** top-level `properties.activities` never entered `typeProperties.activities`, `ifTrueActivities`, `ifFalseActivities`, `defaultActivities`, or Switch `cases[].activities`; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`.

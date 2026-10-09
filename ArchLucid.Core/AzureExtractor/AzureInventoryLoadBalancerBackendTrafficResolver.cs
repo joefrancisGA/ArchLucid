@@ -43,38 +43,13 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                 }
 
                 if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object
-                    || !properties.TryGetProperty("backendIPConfigurations", out JsonElement configurations)
-                    || configurations.ValueKind is not JsonValueKind.Array)
+                    || properties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
                 }
 
-                foreach (JsonElement configuration in configurations.EnumerateArray())
-                {
-                    if (!configuration.TryGetProperty("id", out JsonElement idElement)
-                        || idElement.ValueKind is not JsonValueKind.String)
-                    {
-                        continue;
-                    }
-
-                    string? ipConfigurationId = idElement.GetString();
-
-                    if (string.IsNullOrWhiteSpace(ipConfigurationId))
-                    {
-                        continue;
-                    }
-
-                    string? backendArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(
-                        ipConfigurationId);
-
-                    if (string.IsNullOrWhiteSpace(backendArmId))
-                    {
-                        continue;
-                    }
-
-                    targets.Add(new BackendTarget(ArmResourceIdNormalizer.Normalize(backendArmId), rulePort));
-                }
+                AddIpConfigurationTargets(targets, properties, "backendIPConfigurations", rulePort, nestedAddress: false);
+                AddIpConfigurationTargets(targets, properties, "loadBalancerBackendAddresses", rulePort, nestedAddress: true);
             }
         }
         catch (JsonException)
@@ -186,6 +161,74 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         return portByPoolId;
+    }
+
+    /// <summary>
+    /// NIC pools list ip configuration ids directly. Standard IP-based pools nest the same id under
+    /// <c>loadBalancerBackendAddresses[].properties.networkInterfaceIPConfiguration</c>.
+    /// </summary>
+    private static void AddIpConfigurationTargets(
+        List<BackendTarget> targets,
+        JsonElement poolProperties,
+        string collectionName,
+        int? rulePort,
+        bool nestedAddress)
+    {
+        if (!poolProperties.TryGetProperty(collectionName, out JsonElement configurations)
+            || configurations.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (JsonElement configuration in configurations.EnumerateArray())
+        {
+            string? ipConfigurationId = nestedAddress
+                ? TryReadNestedNetworkInterfaceIpConfigurationId(configuration)
+                : TryReadDirectId(configuration);
+
+            if (string.IsNullOrWhiteSpace(ipConfigurationId))
+            {
+                continue;
+            }
+
+            string? backendArmId = AzureInventoryPublicIpConfigurationParentResolver.TryResolveParentArmId(
+                ipConfigurationId);
+
+            if (string.IsNullOrWhiteSpace(backendArmId))
+            {
+                continue;
+            }
+
+            targets.Add(new BackendTarget(ArmResourceIdNormalizer.Normalize(backendArmId), rulePort));
+        }
+    }
+
+    private static string? TryReadDirectId(JsonElement configuration)
+    {
+        if (!configuration.TryGetProperty("id", out JsonElement idElement)
+            || idElement.ValueKind is not JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return idElement.GetString();
+    }
+
+    private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
+    {
+        if (!address.TryGetProperty("properties", out JsonElement properties)
+            || properties.ValueKind is not JsonValueKind.Object
+            || !properties.TryGetProperty("networkInterfaceIPConfiguration", out JsonElement reference))
+        {
+            return null;
+        }
+
+        if (reference.ValueKind is JsonValueKind.String)
+        {
+            return reference.GetString();
+        }
+
+        return TryReadDirectId(reference);
     }
 
     private static string? TryReadPoolId(JsonElement pool)
