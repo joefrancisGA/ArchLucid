@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Application Gateway ARM pools attach NICs through `backendIPConfigurations`, while `ResolveApplicationGatewayBackends` returned early unless `backendAddresses` was present and only read that list. A NIC-only pool produced no backend target. The resolver now keeps address targets and also resolves pool ip configurations to the NIC. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
+
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Standard load balancer pools store members on `loadBalancerBackendAddresses[].properties.networkInterfaceIPConfiguration`, while `AzureInventoryLoadBalancerBackendTrafficResolver` only walked `backendIPConfigurations`. An IP-based pool with a NIC configuration produced no backend, so the inventory graph missed that NIC and its rule port. Both pool member lists now resolve the ip configuration parent. Regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`. 1473 scoped AzureExtractor tests passed (1446 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a managed integration runtime subnet at `computeProperties.vNetProperties.subnetId`. `AzureInventoryAdfIntegrationRuntimeSanitizer` only opened `typeProperties.vnetProperties`, so the row's subnet stayed empty and the integration-runtime edge mapper never added the subnet `ConnectsTo` relationship. The sanitizer now reads the compute-property subnet and still accepts a subnet object already on `typeProperties`. Regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`. 1472 scoped AzureExtractor tests passed (1445 Core + 27 Application).
@@ -23393,13 +23395,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 53
-- **bugs-found:** 35
+- **hunts:** 54
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — IP-based load balancer backends were omitted
+- **last-bug:** 2026-10-09 — application gateway NIC backends were omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted Application Gateway `backendIPConfigurations`. A NIC-only pool produced no backend target because the resolver required `backendAddresses`. Ip configurations now resolve to the NIC, and address targets stay. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
 
 2026-10-09 seed hunt (seed→hit): promoted Standard load balancer `loadBalancerBackendAddresses`. NIC ip configurations on that list produced no backend target. The resolver now reads them alongside `backendIPConfigurations`. Regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`. 1473 scoped AzureExtractor tests passed (1446 Core + 27 Application).
 
@@ -23449,6 +23453,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends` — Application Gateway `backendIPConfigurations` were ignored when `backendAddresses` was absent — **hit 2026-10-09 seed hunt:** resolve pool ip configurations to the NIC and keep address targets; regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`.
 - [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends` — Standard load balancer `loadBalancerBackendAddresses` NIC configurations were ignored — **hit 2026-10-09 seed hunt:** resolve `networkInterfaceIPConfiguration` the same way as `backendIPConfigurations`; regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`.
 - [x] (proven) `AzureInventoryAdfIntegrationRuntimeSanitizer.TrySanitizeFromArmResource` — managed IR `computeProperties.vNetProperties.subnetId` was ignored, so the subnet relationship was never mapped — **hit 2026-10-09 seed hunt:** read the compute-property subnet and keep a flattened `typeProperties` subnet; regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`.
 - [x] (proven) `AzureInventoryAdfTriggerSanitizer.ExtractPipelineNames` — Data Factory `pipelineReference` was stored as raw JSON, and tumbling-window `pipeline` objects were dropped — **hit 2026-10-09 seed hunt:** schedule and tumbling-window triggers now keep `referenceName`; regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`.

@@ -84,24 +84,29 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
             foreach (JsonElement pool in document.RootElement.EnumerateArray())
             {
                 if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object
-                    || !properties.TryGetProperty("backendAddresses", out JsonElement addresses)
-                    || addresses.ValueKind is not JsonValueKind.Array)
+                    || properties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
                 }
 
-                foreach (JsonElement address in addresses.EnumerateArray())
+                if (properties.TryGetProperty("backendAddresses", out JsonElement addresses)
+                    && addresses.ValueKind is JsonValueKind.Array)
                 {
-                    string? backendArmId = TryReadApplicationGatewayBackendArmId(address);
-
-                    if (string.IsNullOrWhiteSpace(backendArmId))
+                    foreach (JsonElement address in addresses.EnumerateArray())
                     {
-                        continue;
-                    }
+                        string? backendArmId = TryReadApplicationGatewayBackendArmId(address);
 
-                    targets.Add(new BackendTarget(ArmResourceIdNormalizer.Normalize(backendArmId), null));
+                        if (string.IsNullOrWhiteSpace(backendArmId))
+                        {
+                            continue;
+                        }
+
+                        targets.Add(new BackendTarget(ArmResourceIdNormalizer.Normalize(backendArmId), null));
+                    }
                 }
+
+                // NIC members sit on backendIPConfigurations. backendAddresses is the IP or FQDN list.
+                AddIpConfigurationTargets(targets, properties, "backendIPConfigurations", rulePort: null, nestedAddress: false);
             }
         }
         catch (JsonException)

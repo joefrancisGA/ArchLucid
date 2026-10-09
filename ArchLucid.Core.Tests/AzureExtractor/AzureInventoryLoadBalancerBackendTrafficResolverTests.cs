@@ -69,4 +69,39 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
         target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
         target.RulePort.Should().Be(443);
     }
+
+    [Fact]
+    public void ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool()
+    {
+        // Application Gateway ARM pools attach NICs through backendIPConfigurations.
+        // backendAddresses carries IP or FQDN members and is a different list.
+        GraphNode applicationGateway = new()
+        {
+            NodeId = "agw1",
+            NodeType = "resource",
+            Label = "agw1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "properties": {
+                          "backendIPConfigurations": [
+                            { "id": "{{NicIpConfigurationId}}" }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends(applicationGateway);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().BeNull();
+    }
 }

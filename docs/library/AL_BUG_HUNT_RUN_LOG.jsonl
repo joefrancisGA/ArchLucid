@@ -8967,3 +8967,4 @@
 {"at":"2026-10-09T07:43:07.4950212Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfTriggerSanitizer.cs"]}
 {"at":"2026-10-09T07:48:58.6779480Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfIntegrationRuntimeSanitizer.cs"]}
 {"at":"2026-10-09T07:55:44.0717504Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
+{"at":"2026-10-09T08:01:06.5538433Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
