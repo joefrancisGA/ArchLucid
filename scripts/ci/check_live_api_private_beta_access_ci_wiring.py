@@ -41,6 +41,7 @@ _DISPATCH_FULL_CI_SCRIPT = "scripts/ci/dispatch_full_ci_matrix.sh"
 _LOADER_SMOKE_REL = "archlucid-ui/e2e/live-api-private-beta-access.loader-smoke.test.ts"
 _PRIVATE_BETA_HELPER_REL = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
 _LIVE_E2E_STARTER_REL = "archlucid-ui/e2e/start-e2e-live-api.ts"
+_LIVE_E2E_MOCK_STARTER_REL = "archlucid-ui/e2e/start-e2e-with-mock.ts"
 _LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL = "archlucid-ui/e2e/helpers/live-e2e-proxy-rate-limit.ts"
 _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
@@ -450,6 +451,25 @@ def _require_live_e2e_proxy_rate_limit_wiring(errors: list[str]) -> None:
         errors.append(
             f"{_LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL}: must not disable the UI proxy limiter; "
             "keep a finite burst cap",
+        )
+
+    mock_starter_path = repo_root() / _LIVE_E2E_MOCK_STARTER_REL
+
+    if not mock_starter_path.is_file():
+        errors.append(f"missing {_LIVE_E2E_MOCK_STARTER_REL}")
+        return
+
+    mock_starter_text = mock_starter_path.read_text(encoding="utf-8", errors="replace")
+
+    if "resolveLiveE2eProxyRateLimitPerMinute" not in mock_starter_text:
+        errors.append(
+            f"{_LIVE_E2E_MOCK_STARTER_REL}: must apply resolveLiveE2eProxyRateLimitPerMinute "
+            "so mock Playwright Next does not 429 /api/proxy at 120 req/min/IP",
+        )
+
+    if "ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE" not in mock_starter_text:
+        errors.append(
+            f"{_LIVE_E2E_MOCK_STARTER_REL}: must set ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE on the Next child",
         )
 
 

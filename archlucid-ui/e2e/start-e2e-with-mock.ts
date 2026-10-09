@@ -9,6 +9,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 
+import { resolveLiveE2eProxyRateLimitPerMinute } from "./helpers/live-e2e-proxy-rate-limit";
 import { syncStandaloneRuntimeAssets } from "./helpers/sync-standalone-runtime-assets";
 import { startMockArchlucidApiServer } from "./mock-archlucid-api-server";
 
@@ -50,6 +51,8 @@ async function main(): Promise<void> {
       ARCHLUCID_API_BASE_URL: MOCK_BASE,
       /** RSC `/showcase` uses SSR fetch; force static curated demo rather than unresolved marketing upstream. */
       SHOWCASE_STATIC_ONLY: "1",
+      // Production Next enables the 120/min proxy limiter; mock Playwright shares one loopback IP.
+      ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE: resolveLiveE2eProxyRateLimitPerMinute(),
       NODE_ENV: "production",
       PORT: process.env.PORT ?? "3000",
       // Bind all interfaces so Playwright can reach 127.0.0.1:3000 (do not inherit shell HOSTNAME).
