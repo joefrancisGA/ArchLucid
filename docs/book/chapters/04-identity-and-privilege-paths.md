@@ -806,7 +806,7 @@ resourcecontainers
 | project id, name, type, parentId
 ```
 
-Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. Add each resource id from the storage and compute files as a child of its `parentScope`, so inheritance reaches the resource and not only the resource group.
+Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. Add each compute resource id as a child of its `parentScope`. For each storage account, construct its parent scope as `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}`, then add its resource id as a child of that scope so inheritance reaches the resource and not only the resource group.
 
 **Step 1 — Derive privilege edges.** Write a loader that reads those files and emits `Edge` records (section 4.5). Call `expand_group_assignments` and `derive_capability_edges`. Do not pass `hasRoleAt` or `contains` to `find_paths`. `find_paths` ignores those two kinds; a loader that emits only them will find no paths, which is the correct failure if derivation never ran.
 
