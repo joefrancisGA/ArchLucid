@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `architecture-recommendation` — trade-off rationale always said declared priorities resolved the competing pair, including when the list was empty or named neither dimension. `ClosedLoopReasoningResult.Recommendations` returns that text. Security/Cost with an unrelated priority and Reliability/Cost with an empty list now say no declared priority selected either dimension. A priority that names a side keeps the previous rationale. Regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`; 55 Alternatives, ProposedChange, and TradeOffBuilder tests passed.
+
 2026-10-09 seed hunt (seed→hit): `api-governance-tenancy-controllers` — legal-hold set and erasure approve passed `ClaimTypes.NameIdentifier` as the platform-audit actor id. `AppendPlatformAuditAsync` writes that value onto `PlatformAuditEvent.ActorUserId` with no later enrichment, so the stable `jwt:{tid}:{oid}` key from `IActorContext.GetActorId()` was dropped while the display name stayed on `ActorUserName`. Both routes now use the actor-context id. Regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; 16 legal-hold controller tests passed, and the scoped Governance/Tenancy filter reported 140 passed (15 SQL integration unavailable on this VM).
 
 2026-10-09 seed hunt (seed→hit): `archlucid-core` — Event Grid destination extraction read `resourceId` and webhook URLs on the destination object, but API `2022-06-15` list items nest those fields under `destination.properties`. Storage-queue and webhook subscriptions therefore stored no destination. The extractor now reads the nested properties bag and still accepts a flattened destination. Regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7407/7407.
@@ -8971,9 +8973,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-09 seed hunt (seed→hit): promoted trade-off `ResolutionRationale` when no declared priority selects either competing dimension; regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`.
+
 2026-10-04 seed hunt #44 (seed→hit): promoted declared-priority negation gap for `avoid cost` workbook phrasing; proved `Pilot scope should avoid cost increases in phase one` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `avoid cost` as negation; extended `IsNegatedDimensionMention` with `avoid(s|ed|ing)? {dimension}` and `omit(s|ted|ting)? {dimension}` rejection phrases; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_avoid_cost`; exact Alternatives/ProposedChange filter passed 45/45.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — `avoid {dimension}` / `omit {dimension}` phrases not negated — **hit 2026-10-04 seed hunt #44:** `avoid cost` falsely preferred Cost-first resolution; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_avoid_cost`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildResolutionRationale` — rationale claimed declared priorities resolved a pair when none selected either dimension — **hit 2026-10-09 seed hunt:** empty priorities and unrelated priorities (`Operations excellence`) keep the balance resolution and say neither dimension was selected; regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`; reachable on `ClosedLoopReasoningResult.Recommendations`.
 
 2026-10-04 seed hunt #43 (seed→hit): promoted declared-priority negation gap for `except cost` workbook phrasing; proved `Pilot scope except cost from the first release` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `except cost` as negation; extended `IsNegatedDimensionMention` with `except {dimension}`; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_except_cost`; exact Alternatives/ProposedChange filter passed 44/44.
 
@@ -9082,13 +9087,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 44
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 21
+- **hunts:** 45
+- **last-hunt:** 2026-10-09
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — `avoid cost` priorities falsely preferred Cost in trade-offs
+- **last-bug:** 2026-10-09 — trade-off rationale claimed priorities resolved a pair none of them selected
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the selected recommendation engine and its alternatives/proposed-change assembly; no new reachable mechanism-backed candidate emerged; 40 focused tests passed.
 

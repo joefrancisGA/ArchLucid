@@ -85,12 +85,15 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             ?? throw new InvalidOperationException(
                 $"No recommendation exists for trade-off dimensions {firstDimension} and {secondDimension}.");
 
+        bool prefersFirst = PriorityListPrefersDimension(declaredPriorities, firstDimension);
+        bool prefersSecond = PriorityListPrefersDimension(declaredPriorities, secondDimension);
         string preferredResolution = BuildPreferredResolution(
-            declaredPriorities,
-            firstDimension,
-            secondDimension,
+            prefersFirst,
+            prefersSecond,
             firstPositionLabel,
-            secondPositionLabel);
+            secondPositionLabel,
+            firstDimension,
+            secondDimension);
 
         target.TradeOffs.Add(new TradeOffObject
         {
@@ -100,27 +103,32 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             CostOrRisk = costOrRisk,
             CompetingPositions = [firstPositionLabel, secondPositionLabel],
             RecommendedResolution = preferredResolution,
-            ResolutionRationale =
-                $"Declared priorities were used to resolve competing {firstDimension} and {secondDimension} findings.",
+            ResolutionRationale = BuildResolutionRationale(
+                prefersFirst,
+                prefersSecond,
+                firstDimension,
+                secondDimension),
             RequiresHumanApproval = true,
         });
     }
 
-    private static string BuildPreferredResolution(
+    private static bool PriorityListPrefersDimension(
         IReadOnlyList<string> declaredPriorities,
-        QualityDimension firstDimension,
-        QualityDimension secondDimension,
-        string firstPositionLabel,
-        string secondPositionLabel)
+        QualityDimension dimension)
     {
-        string firstToken = firstDimension.ToString();
-        string secondToken = secondDimension.ToString();
+        string dimensionToken = dimension.ToString();
 
-        bool prefersFirst = declaredPriorities.Any(
-            priority => DeclaredPriorityPrefersDimension(priority, firstToken));
-        bool prefersSecond = declaredPriorities.Any(
-            priority => DeclaredPriorityPrefersDimension(priority, secondToken));
+        return declaredPriorities.Any(priority => DeclaredPriorityPrefersDimension(priority, dimensionToken));
+    }
 
+    private static string BuildPreferredResolution(
+        bool prefersFirst,
+        bool prefersSecond,
+        string firstPositionLabel,
+        string secondPositionLabel,
+        QualityDimension firstDimension,
+        QualityDimension secondDimension)
+    {
         if (prefersFirst && !prefersSecond)
         {
             return $"Prioritize {firstPositionLabel.ToLowerInvariant()} over {secondPositionLabel.ToLowerInvariant()}.";
@@ -132,6 +140,21 @@ internal static class ArchitectureRecommendationTradeOffBuilder
         }
 
         return $"Balance {firstDimension} and {secondDimension} with explicit human approval.";
+    }
+
+    // Closed-loop runs return this text on the recommendation. An unrelated priority did not select the pair.
+    private static string BuildResolutionRationale(
+        bool prefersFirst,
+        bool prefersSecond,
+        QualityDimension firstDimension,
+        QualityDimension secondDimension)
+    {
+        if (prefersFirst || prefersSecond)
+        {
+            return $"Declared priorities were used to resolve competing {firstDimension} and {secondDimension} findings.";
+        }
+
+        return $"No declared priority selected {firstDimension} or {secondDimension}, so the competing findings stay balanced.";
     }
 
     private static bool DeclaredPriorityPrefersDimension(string priority, string dimensionToken)

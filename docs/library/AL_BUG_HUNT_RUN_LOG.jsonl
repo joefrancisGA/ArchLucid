@@ -8941,3 +8941,4 @@
 {"at":"2026-10-09T02:43:21.3094723Z","zoneId":"persistence-identity","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Identity/EmailOtpFailedVerificationRateLimitSql.cs","ArchLucid.Persistence/Identity/DapperEmailOtpChallengeRepository.RateLimits.cs"]}
 {"at":"2026-10-09T02:52:10.0127296Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryEventGridDestinationExtractor.cs"]}
 {"at":"2026-10-09T03:21:55.8499321Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantErasureLegalHoldController.cs"]}
+{"at":"2026-10-09T03:37:21.9067070Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
