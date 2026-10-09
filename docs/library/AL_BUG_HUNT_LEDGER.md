@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a managed integration runtime subnet at `computeProperties.vNetProperties.subnetId`. `AzureInventoryAdfIntegrationRuntimeSanitizer` only opened `typeProperties.vnetProperties`, so the row's subnet stayed empty and the integration-runtime edge mapper never added the subnet `ConnectsTo` relationship. The sanitizer now reads the compute-property subnet and still accepts a subnet object already on `typeProperties`. Regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`. 1472 scoped AzureExtractor tests passed (1445 Core + 27 Application).
+
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Data Factory list API `2018-06-01` stores a trigger's pipeline under `pipelineReference.referenceName`. `AzureInventoryAdfTriggerSanitizer` read `pipelineReference` as text, so a schedule trigger persisted the JSON object as the pipeline name, and a tumbling-window trigger's object `pipeline` was dropped. Both shapes now keep the static `referenceName`. Regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`. 1471 scoped AzureExtractor tests passed (1444 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): `application-billing-logic` — Why ArchLucid prints the monthly spend band as low — high, but `TenantCostEstimateService` copied `Billing:UnitRates` low and high independently. A Standard pair of 500 and 100, and an Enterprise pair of 900 and 200, displayed the larger amount first. Both commercial bands now order the lower amount first. Free stays 0–0. Regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`. 30 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, and TenantCostEstimate tests passed.
@@ -23389,13 +23391,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 51
-- **bugs-found:** 33
+- **hunts:** 52
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — trigger pipelineReference stored the JSON object as the pipeline name
+- **last-bug:** 2026-10-09 — managed integration runtime subnet under computeProperties was dropped
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted managed IR subnet nesting. `computeProperties.vNetProperties.subnetId` stayed null, so the subnet `ConnectsTo` edge was never written. The sanitizer now reads that path. Regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`. 1472 scoped AzureExtractor tests passed (1445 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): promoted ADF trigger `pipelineReference`. Schedule triggers stored the object JSON as the pipeline name, and tumbling-window triggers dropped the singular `pipeline` object. Both now keep `referenceName`. Regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`. 1471 scoped AzureExtractor tests passed (1444 Core + 27 Application).
 
@@ -23441,6 +23445,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryAdfIntegrationRuntimeSanitizer.TrySanitizeFromArmResource` — managed IR `computeProperties.vNetProperties.subnetId` was ignored, so the subnet relationship was never mapped — **hit 2026-10-09 seed hunt:** read the compute-property subnet and keep a flattened `typeProperties` subnet; regression `TrySanitizeFromArmResource_reads_subnet_id_from_compute_vnet_properties`.
 - [x] (proven) `AzureInventoryAdfTriggerSanitizer.ExtractPipelineNames` — Data Factory `pipelineReference` was stored as raw JSON, and tumbling-window `pipeline` objects were dropped — **hit 2026-10-09 seed hunt:** schedule and tumbling-window triggers now keep `referenceName`; regression `TrySanitizeFromArmResource_reads_pipeline_reference_name_from_schedule_and_tumbling_window`.
 - [x] (proven) `AzureInventoryAdfPipelineFlowExtractor.WalkActivityArray` — Copy activities nested under ForEach, If Condition, and Switch were omitted from pipeline flows — **hit 2026-10-08 seed hunt:** top-level `properties.activities` never entered `typeProperties.activities`, `ifTrueActivities`, `ifFalseActivities`, `defaultActivities`, or Switch `cases[].activities`; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`.
 - [x] (proven) `AzureInventoryAdfDataflowExtractor.ExtractLinkedServiceNames` — ARM `linkedService` beside `dataset` was ignored, so mapping data flows produced empty source and sink lists — **hit 2026-10-09 seed hunt (seed→hit):** read the sibling reference, then a nested `dataset.linkedService`; regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`.

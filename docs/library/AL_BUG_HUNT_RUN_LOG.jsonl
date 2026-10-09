@@ -8965,3 +8965,4 @@
 {"at":"2026-10-09T07:23:56.2146224Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/TenantLlmCostReportingService.cs"]}
 {"at":"2026-10-09T07:34:38.5270653Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/TenantCostEstimateService.cs"]}
 {"at":"2026-10-09T07:43:07.4950212Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfTriggerSanitizer.cs"]}
+{"at":"2026-10-09T07:48:58.6779480Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryAdfIntegrationRuntimeSanitizer.cs"]}

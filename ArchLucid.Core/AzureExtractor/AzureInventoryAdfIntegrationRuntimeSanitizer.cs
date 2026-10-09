@@ -48,12 +48,7 @@ public static class AzureInventoryAdfIntegrationRuntimeSanitizer
             && typePropertiesElement.ValueKind is JsonValueKind.Object)
         {
             state = AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "state");
-
-            if (typePropertiesElement.TryGetProperty("vnetProperties", out JsonElement vnetPropertiesElement)
-                && vnetPropertiesElement.ValueKind is JsonValueKind.Object)
-            {
-                subnetId = AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(vnetPropertiesElement, "subnetId");
-            }
+            subnetId = TryReadManagedSubnetId(typePropertiesElement);
         }
 
         row = new AzureInventoryAdfIntegrationRuntimeRow
@@ -68,6 +63,63 @@ public static class AzureInventoryAdfIntegrationRuntimeSanitizer
         };
 
         return true;
+    }
+
+    /// <summary>
+    /// Data Factory 2018-06-01 puts a managed runtime subnet on
+    /// <c>computeProperties.vNetProperties.subnetId</c>. A subnet object directly on
+    /// <c>typeProperties</c> is the same field when a payload is already flattened.
+    /// </summary>
+    private static string? TryReadManagedSubnetId(JsonElement typePropertiesElement)
+    {
+        if (TryGetObjectProperty(typePropertiesElement, "computeProperties", out JsonElement computeProperties))
+        {
+            string? nested = TryReadSubnetId(computeProperties);
+
+            if (!string.IsNullOrWhiteSpace(nested))
+            {
+                return nested;
+            }
+        }
+
+        return TryReadSubnetId(typePropertiesElement);
+    }
+
+    private static string? TryReadSubnetId(JsonElement parent)
+    {
+        if (!TryGetObjectProperty(parent, "vNetProperties", out JsonElement vnetProperties))
+        {
+            return null;
+        }
+
+        return AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(vnetProperties, "subnetId");
+    }
+
+    private static bool TryGetObjectProperty(JsonElement parent, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in parent.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (property.Value.ValueKind is not JsonValueKind.Object)
+            {
+                value = default;
+
+                return false;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
