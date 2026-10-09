@@ -208,6 +208,8 @@ public sealed class SponsorReviewPacketComposerTests
     {
         ArchitectureRunDetail detail = new()
         {
+            // NRT forbids null on ArchitectureRun; the composer still emits omission copy when the run is missing.
+            Run = null!,
             Manifest = new GoldenManifest
             {
                 RunId = "manifest-1",
@@ -216,7 +218,8 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-                Metadata = new ManifestMetadata(),
+                // NRT forbids null on [Required] Metadata; the composer uses Metadata? for omission copy.
+                Metadata = null!,
             },
         };
 

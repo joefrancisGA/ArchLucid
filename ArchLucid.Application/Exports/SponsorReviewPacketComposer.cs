@@ -51,7 +51,9 @@ public static partial class SponsorReviewPacketComposer
             SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);
 
         AppendTopDecisionsSection(sb, topDecisions);
-        AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
+
+        if (detail.Run is not null)
+            AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
         FindingArchitectRestatementExportComposer.AppendMarkdownSection(sb, architectRestatements ?? []);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
