@@ -53,6 +53,57 @@ public sealed class DrRpoTopologyFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs()
+    {
+        GraphSnapshot graph = BuildStorageReplicationFixture("zrs");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EngineType.Should().Be("dr-rpo-topology");
+        finding.Title.Should().Contain("st-logic");
+        finding.Title.Should().Contain("RPO 15 min");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_standard_zrs()
+    {
+        GraphSnapshot graph = BuildStorageReplicationFixture("standard_zrs");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_none_when_storage_replication_is_grs()
+    {
+        GraphSnapshot graph = BuildStorageReplicationFixture("grs");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_none_when_storage_replication_is_gzrs()
+    {
+        GraphSnapshot graph = BuildStorageReplicationFixture("gzrs");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_failover_group_present()
     {
         GraphSnapshot graph = BuildFixture(includeFailoverGroup: true, includeRpoText: true);
@@ -244,6 +295,49 @@ public sealed class DrRpoTopologyFindingEngineTests
                     FromNodeId = service.NodeId,
                     ToNodeId = sql.NodeId,
                     EdgeType = GraphEdgeTypes.DependsOn,
+                    Weight = 1.0,
+                },
+            ],
+        };
+    }
+
+    private static GraphSnapshot BuildStorageReplicationFixture(string replicationType)
+    {
+        GraphNode requirement = new()
+        {
+            NodeId = "req-dr-1",
+            NodeType = GraphNodeTypes.Requirement,
+            Label = "Payment DR",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["text"] = "Payment SQL must meet RPO 15 min.",
+            },
+        };
+
+        GraphNode storage = new()
+        {
+            NodeId = "st-logic",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "st-logic",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["category"] = GraphTopologyCategories.Data,
+                ["terraformType"] = "azurerm_storage_account",
+                // Parser form of account_replication_type from infra/terraform-logicapps.
+                ["tf.account_replication_type"] = replicationType,
+            },
+        };
+
+        return new GraphSnapshot
+        {
+            Nodes = [requirement, storage],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = requirement.NodeId,
+                    ToNodeId = storage.NodeId,
+                    EdgeType = GraphEdgeTypes.RelatesTo,
                     Weight = 1.0,
                 },
             ],

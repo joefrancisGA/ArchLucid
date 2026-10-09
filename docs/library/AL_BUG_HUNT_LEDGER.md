@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DrReplicaPropertyHeuristic` treated any non-disabled value on a key containing `replica` as replica evidence. `account_replication_type` contains that substring, and the declaration parser stores `tf.account_replication_type`. `infra/terraform-logicapps` sets `account_replication_type = "ZRS"`. Only the exact token `lrs` was rejected, so zone-redundant storage satisfied an RPO requirement and the gap was skipped. `StorageRedundancySku` treats LRS and ZRS, including `Standard_` and `Premium_` prefixes, as single-region. GRS and GZRS still count. Regression `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` failed first with an empty finding list. 10 scoped DrRpo topology finding tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier.IsWeakSqlPosture` treated every minimum TLS value other than the literals `1.2` and `1.3` as weak. azurerm and ARM emit `TLS1_2` (`infra/terraform-storage`), and the declaration parser lowercases that to `tls1_2`, so a compliant storage account was titled as a SQL server with weak TLS. `DeclarationMinimumTlsVersion` accepts `TLS1_2`, `TLS1_3`, `1.2`, and `1.3`. `TLS1_0` still flags. Regression `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` failed first with an encryption signal. 14 scoped baseline classifier tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier` only treated public network access as enabled for the token `enabled` on `tf.public_network_access`. azurerm and `infra/terraform-storage` set `public_network_access_enabled = true`, and the declaration parser stores `tf.public_network_access_enabled` = `true`, so the baseline emitted no data-protection signal. The resolver now reads that key, and `DeclarationSecurityEnabledToken` accepts both `enabled` and `true` for the baseline and topology-drift checks. `false` stays quiet. Regression `Classify_flags_terraform_public_network_access_enabled_true` failed first with an empty signal list. 20 scoped baseline and topology-security tests passed, and 9 key-resolver tests passed. [class:boolean-coercion]
@@ -16455,13 +16457,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 48
-- **bugs-found:** 39
+- **hunts:** 49
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Azure TLS1_2 was flagged as weak SQL TLS
+- **last-bug:** 2026-10-09 — ZRS storage counted as RPO replica evidence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `tf.account_replication_type` = `zrs` satisfied an RPO replica check; single-region storage SKUs are not replica evidence; regressions `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` and `AnalyzeAsync_emits_none_when_storage_replication_is_gzrs`; 10 scoped DrRpo topology finding tests passed.
+
+- [x] (proven) `DrReplicaPropertyHeuristic` — `account_replication_type = "ZRS"` — **hit 2026-10-09 seed hunt:** the parser key contains `replica`, and only exact `lrs` was rejected, so zone-redundant storage skipped the RPO gap; `StorageRedundancySku` treats LRS and ZRS including `Standard_` and `Premium_` prefixes as single-region; regressions `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` and `AnalyzeAsync_emits_none_when_storage_replication_is_gzrs`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved `IsWeakSqlPosture` flagged parser-lowercased `tls1_2` as weak TLS; shared Azure TLS token reader; regressions `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` and `Classify_still_flags_azure_tls1_0_as_weak_sql_posture`; 14 scoped baseline classifier tests passed.
 
