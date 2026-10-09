@@ -2,6 +2,8 @@
 
 2026-10-09 seed hunt (seed-only): `email-otp-auth` — re-read `EmailOtpAuthController` and `EmailOtpAuthService` with the focused test inventory; existing guards cover disabled auth, malformed requests, scope fallback, token lifetime clamping, invitation normalization, cancellation cleanup, and result-to-JWT mapping. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+2026-10-09 seed hunt (seed-only): `architecture-recommendation` — re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the focused Alternatives/ProposedChange test inventory; existing coverage accounts for actionable-finding gating, evidence-first output, alternative distinctness, trade-off attachment, priority negation, and rationale wording. No fresh reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — `assessArchitectureDiagramReadiness` added the architecture name as an extra node even when that label was already the only system. `mergeUserAssertions` inserts the name into systems, and `buildArchitectureDiagramModel` skips a duplicate label, so a one-node diagram passed `MIN_ACTIVE_NODES` (2) and generated. The name now counts only when it adds a node. Regression `stays insufficient when the architecture name repeats the only system` failed first with `sufficient === true`. 11 generate, readiness, and model tests passed. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — decisions-needed digest and summary counted every NeedsEvidence or Deferred review event in the 30-day window. `ListSinceUtcAsync` returns the whole window newest-first, and a later remediation is a new row, so a closed finding stayed in "awaiting evidence" and "deferred due". Counts and markdown now keep the latest disposition per finding through `CrossReviewLatestDispositionMap`. A still-open deferred finding stays. Regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` (total was 3) and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition` (awaiting evidence was 1). 14 digest, calculator, and disposition-map tests passed. [class:state-machine-gap]
@@ -9292,7 +9294,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 46
+- **hunts:** 47
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
@@ -9301,6 +9303,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed-only): re-read the selected recommendation engine/trade-off builder and focused Alternatives/ProposedChange coverage; no new reachable mechanism-backed candidate emerged after the prior exhaustion pass. No hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
+2026-10-09 seed hunt (seed-only): repeated the selected recommendation engine/trade-off builder review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-03 seed hunt (seed-only): re-read the selected recommendation engine and its alternatives/proposed-change assembly; no new reachable mechanism-backed candidate emerged; 40 focused tests passed.
 
