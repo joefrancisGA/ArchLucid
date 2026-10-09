@@ -125,7 +125,12 @@ describe("useGuidedIntakeDraftCreate", () => {
     const { result } = renderHook(() =>
       useGuidedIntakeDraftCreate({
         core,
-        form: {} as never,
+        form: {
+          setFreeTextIntent: vi.fn(),
+          setBusinessOutcome: vi.fn(),
+          setSystemName: vi.fn(),
+          setActorSet: vi.fn(),
+        } as never,
         isCreateArchitectureFlow: false,
         navigate: vi.fn(),
         priorRunId: null,
@@ -136,6 +141,57 @@ describe("useGuidedIntakeDraftCreate", () => {
 
     await act(async () => {
       await result.current.hydrateClarificationsFromDraft("draft-1");
+    });
+
+    expect(setSubmitError).toHaveBeenCalledWith(failure);
+  });
+
+  it("reports branch clarification refresh failure instead of rejecting branch selection", async () => {
+    const failure = new Error("branch clarifications unavailable");
+    getDraftQuestions.mockRejectedValueOnce(failure);
+    const setSubmitError = vi.fn();
+    const core = {
+      setDraftId: vi.fn(),
+      setDraftStatus: vi.fn(),
+      setParentDraftId: vi.fn(),
+      setParentSpawnedRunId: vi.fn(),
+      setAnswers: vi.fn(),
+      setSavedLocallyQuestionKeys: vi.fn(),
+      setAdmittedRequiredMustQuestionKeys: vi.fn(),
+      setSubmitError,
+    } as never;
+    const { result } = renderHook(() =>
+      useGuidedIntakeDraftCreate({
+        core,
+        form: {
+          setFreeTextIntent: vi.fn(),
+          setBusinessOutcome: vi.fn(),
+          setSystemName: vi.fn(),
+          setActorSet: vi.fn(),
+        } as never,
+        isCreateArchitectureFlow: false,
+        navigate: vi.fn(),
+        priorRunId: null,
+        setStep: vi.fn(),
+        sourceArchitectureId: "",
+      }),
+    );
+
+    await act(async () => {
+      await result.current.applyBranchDraft({
+        parentDraftId: "parent-draft",
+        parentSpawnedRunId: null,
+        branch: {
+          draftId: "branch-draft",
+          status: "Draft",
+          document: {
+            freeTextIntent: "Review the branch.",
+            businessOutcome: "Reduce operational risk.",
+            systemName: "Branch architecture",
+            actorSet: { actors: [] },
+          },
+        },
+      } as never);
     });
 
     expect(setSubmitError).toHaveBeenCalledWith(failure);

@@ -243,7 +243,12 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setAnswers({});
       core.setSavedLocallyQuestionKeys(new Set());
       applyAdmittedRequiredMustQuestionKeysFromDocument(branch.document);
-      await refreshQuestions(branch.draftId);
+
+      try {
+        await refreshQuestions(branch.draftId);
+      } catch (error) {
+        core.setSubmitError(resolveDraftLoadError(error));
+      }
     },
     [applyAdmittedRequiredMustQuestionKeysFromDocument, core, refreshQuestions, setActorSet, setBusinessOutcome, setFreeTextIntent, setSystemName],
   );
