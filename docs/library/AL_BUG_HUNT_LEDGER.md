@@ -29621,8 +29621,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 43
-- **last-hunt:** 2026-10-08
+- **hunts:** 44
+- **last-hunt:** 2026-10-09
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-08 — Graphviz cluster IDs collided after sanitization
@@ -29630,6 +29630,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **code-changed-since:** yes
 
 ### Hypotheses
+
+- [ ] (candidate) `BrandedDiagramExportContainer.TryExtractInnerPng` — a branded payload with a valid magic/version header and a hostile 32-bit PNG length can overflow `offset + pngLength`, causing an exception instead of returning `null`; the public branded-export reader accepts arbitrary `ReadOnlySpan<byte>` payloads, but a caller-controlled production import path still needs confirmation.
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` provenance appendix — a committed manifest with control characters in `RuleSetId` or `RuleSetVersion` may reach OpenXML table text without the same artifact-text sanitization applied to other manifest fields; the values originate from persisted manifest metadata, but a concrete production manifest path and wrong rendered outcome need confirmation.
+
+2026-10-09 seed hunt (seed-only): re-read artifact synthesis and DOCX/export paths after recent diagram and missing-value changes; no candidate met the full hunt-ready reachability and wrong-outcome bar. Added two mechanism-backed candidates for the branded payload length parser and provenance appendix sanitization. The scoped filter reported 693 passed, 17 pre-existing Mermaid inventory expectation failures, and 2 skipped Terraform tests.
 
 - [x] (invalid) `DiagramAstGraphvizDotEmitter.AppendNodeStatement` / `MermaidIdSanitizer.Sanitize` — two reachable `DiagramNode.NodeId` values that sanitize to the same identifier could be emitted as one Graphviz node, hiding a card — **cheap-disproof 2026-10-08 thorough hunt:** non-simple IDs use a SHA-256-derived identifier and simple IDs collide only when the original IDs are identical; no distinct reachable collision was found.
 - [x] (proven) `DiagramAstGraphvizDotEmitter.EmitSubgraphTree` / `GraphvizIdEscaper.SanitizeClusterId` — distinct reachable subgraph IDs such as punctuation variants sanitized to the same `cluster_*` identifier, causing Graphviz cluster merging — **hit 2026-10-08 thorough hunt:** allocate unique cluster IDs across all emitted resource, VNet, subnet, and diagram subgraph clusters; regression `Emit_assigns_distinct_cluster_ids_when_subgraph_ids_sanitize_to_the_same_value`.
