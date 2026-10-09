@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — reread the selected mapper/index implementation and focused tests; existing coverage establishes endpoint-type mappings, alias trimming, ARM case normalization, and non-topology filtering, but no fresh mechanism-backed row met the hunt-ready bar. Seeded five bounded `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — repeated the selected edge-mapper/endpoint-index review after the prior seed; no fresh mechanism-backed row met the hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — re-read `TopologyProposalRelationshipEdgeMapper` and `TopologyProposalRelationshipEndpointIndex` with the focused edge-mapper/graph-merge test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five reachable `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -4722,6 +4724,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-09 seed hunt (seed-only): repeated the selected edge mapper, endpoint index, and focused test review; no new row was promoted. The scoped test command was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — a relationship whose source and target resolve to the same topology node is emitted as a self-loop because no semantic self-edge guard exists after endpoint resolution — locus: edge construction after both `TryResolveNodeId` calls; input: ARM or Terraform inventory relationship emitted from a resource to itself.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddResolutionAlias` — a whitespace-only `GraphNode.NodeId` is ignored only as a key check, while a non-empty label can still map to that blank node id and produce an unusable resolved edge — locus: label-to-node alias registration; input: topology graph node deserialized with a blank node id and a populated ARM/Terraform label.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — endpoint aliases are merged only after topology nodes, so a declared alias for a label cannot replace a stale node-id mapping when the alias intentionally points at a renamed ARM/Terraform resource — locus: first-wins `TryAdd` ordering; input: rename alias dictionary produced by manifest reconciliation for an inventoried resource.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` — endpoint validation and resolution may diverge when a node has an ARM id in `Properties["resourceId"]` but a Terraform `SourceId`, because each path registers a different source identity before the relationship reaches the mapper — locus: known-key versus resolution-key population; input: mixed ARM inventory/Terraform overlay node.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — a newly deserialized `RelationshipType` enum value falls through the two-value mapper and is committed as `ConnectsTo` instead of being rejected or represented distinctly — locus: `MapRelationshipType` default branch; input: agent proposal JSON produced by a newer contract version.
+
 2026-10-09 seed hunt (seed→hit): proved Terraform count and for_each instance keys blocked resource-address relationship resolution; 988 scoped edge-mapper and graph-merge tests passed.
 
 2026-10-06 seed hunt (seed→hit): promoted missing leading-slash ARM endpoint candidate; proved dual-model consensus disagreed when one relationship omitted the leading `/` on `subscriptions/...` paths; extended `LooksLikeArmResourceId` and `NormalizeArmResourceId` to accept and canonicalize subscription-relative ARM ids; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash`; 1000 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
@@ -4786,7 +4794,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
