@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record` and faithfulness import rebuild the catalog row in `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` without tokenizer settings or USD rates. Catalog upsert writes every column, so a recorded evaluation reset `CharsPerToken` to 4 and cleared `InputUsdPerMillionTokens`, `OutputUsdPerMillionTokens`, and `ReasoningUsdPerMillionTokens`. `AgentModelCatalogRow.WithEvaluations` now copies every persisted column and replaces only the evaluation list. Regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates` failed first with chars per token 4. 2 catalog evaluation tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding dropped a service such as `public-http-gateway` but kept a relationship from that service to an id that was never a proposal node, such as `partner-system`. The prune treated any undeclared endpoint as a reason to keep the edge. An edge is now dropped when either declared endpoint was removed. Regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding` failed first with the relationship still present. 9 grounding tests passed.
 
 2026-10-09 seed hunt (seed→hit): `host-composition` — a failed API usage flush put dequeued events back through `ApiRequestUsageEventBuffer.Enqueue`. That method returns immediately when `Metering:Enabled` is false, so a batch already accepted while metering was on disappeared after a store error if metering was then disabled. `Requeue` writes the event back without that gate. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first with an empty buffer. 2 flush tests and 3 buffer tests passed.
@@ -32002,13 +32004,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 34
-- **bugs-found:** 32
+- **hunts:** 35
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — brief grounding kept an edge after one endpoint was removed
+- **last-bug:** 2026-10-09 — evaluation recording cleared catalog tokenizer settings and USD rates
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): recording a catalog evaluation rebuilt the row without tokenizer settings or USD rates, and the catalog upsert cleared those columns. `WithEvaluations` copies every persisted column. Regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates` failed first with chars per token 4.
+
+- [x] (proven) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — the rebuilt catalog row omitted tokenizer settings and USD rates, so `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record` and faithfulness import cleared them on upsert — **hit 2026-10-09 seed hunt:** `AgentModelCatalogRow.WithEvaluations` copies every persisted column; regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates`. [class:state-machine-gap]
 
 2026-10-09 seed hunt (seed→hit): brief grounding kept a relationship when only one endpoint had been a proposal node and that node was removed. The edge is now dropped. Regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding` failed first.
 
