@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — `AgentConfidenceCalibrator.BuildIsotonicKnots` replaced a decreasing calibration block with its maximum. Samples at raw confidence 0.2/0.5/0.8 with semantic scores 0.9/0.4/0.85 all became 0.9, so `CalibrateAsync` stored that high score once twenty historical samples exist. Adjacent violators are now pooled by sample weight. The same inputs become 0.65, 0.65, and 0.85. Regression `BuildIsotonicKnots_pools_adjacent_violators_instead_of_lifting_them_to_the_block_max`; 103 scoped Application.Tests.Agents tests passed.
+
 2026-10-09 seed hunt (seed→hit): `context-ingestion` — `DotenvInfrastructureDeclarationParser` kept a trailing `#` comment on `format=dotenv` values, so `Initial Catalog=archlucid # primary` stored the catalog as `archlucid # primary`, and a quoted value followed by the same comment kept the closing quote in the catalog. Comments now end at an unquoted `#` preceded by whitespace. A `#` inside a URL fragment stays. Regression `Dotenv_inline_comment_does_not_attach_to_sql_catalog`; 812 scoped ContextIngestion/Canonicalization tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-analysis` — `DocxArchitectureAnalysisExportService` rendered manifest counts and then stopped, so a parent manifest version and governance controls, compliance tags, and policy constraints that the markdown export already printed never appeared in the DOCX body. Those fields are now written when the manifest carries them. Regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -31827,13 +31829,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 32
-- **bugs-found:** 30
+- **hunts:** 33
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — structural grounding drop log lost on post-execute enricher re-entry
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — isotonic calibration lifted violating bins to the block maximum
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — a later bin with a lower semantic score was replaced by the maximum of the violating block, so calibrated confidence reported the earlier high score — **hit 2026-10-09 seed hunt:** pool adjacent violators by sample weight; regression `BuildIsotonicKnots_pools_adjacent_violators_instead_of_lifting_them_to_the_block_max`; 103 scoped Application.Tests.Agents tests passed.
+
+2026-10-09 seed hunt (seed→hit): promoted isotonic block-max candidate; proved and fixed; 103 scoped Application.Tests.Agents tests passed.
+
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `TopologyProposalConsensusMerger.Merge` threw when `primary.Warnings` was null (reachable from `TopologyProposalDualModelConsensusEnricher` after JSON `"warnings": null`); fixed by null-coalescing when copying warnings; regression `Merge_when_primary_warnings_is_null_does_not_throw`; 91 scoped Application.Tests.Agents tests passed.
 2026-09-26 seed hunt (seed→hit): reseeded application-agents; proved `FindingIacStubGenerator` enrichment upsert dropped `ProposedEvidenceJson` (`[JsonIgnore]` envelope column) via clone/serialize and full enrichment merge replace; fixed clone carry-forward, enrichment JSON envelope fields, and `AgentResultEnrichmentMerger` base-column preservation; regressions `GenerateAndPersistStubsForRunAsync_preserves_proposed_evidence_json_in_enriched_json` and `AgentResultEnrichmentMerger_preserves_proposed_evidence_json_from_base_when_enriched_overlay_omits_it`; 88 scoped Application.Tests.Agents tests passed.
 2026-09-26 thorough hunt (hit): proved `TopologyProposalConsensusMerger` kept relationships whose endpoints were dropped by service intersection (dual-model consensus runs after structural post-process); fixed by pruning relationships to intersected endpoint keys; regression `Merge_prunes_relationships_when_intersected_services_no_longer_declares_both_endpoints`; proved `FindingIacStubGenerator` generated stubs for prose-only findings re-hydrated in `Findings` on enrichment read; fixed with `AgentArchitectureFindingEmissionGate.HasTypedEmission`; regression `GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs`; 87 scoped Application.Tests.Agents tests passed.

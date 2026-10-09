@@ -112,9 +112,7 @@ public sealed class AgentConfidenceCalibrator(
             bins.Add(new CalibrationBin(sample.RawConfidence, sample.SemanticScore));
         }
 
-        List<double> pooledScores = bins.Select(b => b.MeanSemantic).ToList();
-
-        EnforceMonotonicNonDecreasing(pooledScores);
+        List<double> pooledScores = PoolAdjacentViolators(bins);
 
         List<CalibrationKnot> knots = [];
 
@@ -124,27 +122,72 @@ public sealed class AgentConfidenceCalibrator(
         return knots;
     }
 
-    private static void EnforceMonotonicNonDecreasing(List<double> values)
+    /// <summary>
+    ///     Pool-adjacent-violators: when a later bin's mean is below the previous block, merge by
+    ///     sample weight. Replacing the block with its maximum would report that high score for
+    ///     every later raw confidence in the violation.
+    /// </summary>
+    private static List<double> PoolAdjacentViolators(List<CalibrationBin> bins)
     {
-        int index = 0;
+        List<PavBlock> blocks = [];
 
-        while (index < values.Count)
+        foreach (CalibrationBin bin in bins)
         {
-            int blockStart = index;
-            double blockMax = values[index];
-            index++;
+            blocks.Add(new PavBlock(bin.SampleCount, bin.SemanticSum, binCount: 1));
 
-            while (index < values.Count && values[index] + 1e-12 < blockMax)
+            while (blocks.Count >= 2)
             {
-                blockMax = Math.Max(blockMax, values[index]);
-                index++;
+                PavBlock right = blocks[^1];
+                PavBlock left = blocks[^2];
+
+                if (right.Mean + 1e-12 >= left.Mean)
+                    break;
+
+                blocks.RemoveAt(blocks.Count - 1);
+                blocks.RemoveAt(blocks.Count - 1);
+                blocks.Add(left.Merge(right));
             }
-
-            double replacement = blockMax;
-
-            for (int j = blockStart; j < index; j++)
-                values[j] = replacement;
         }
+
+        List<double> pooledScores = [];
+
+        foreach (PavBlock block in blocks)
+        {
+            for (int offset = 0; offset < block.BinCount; offset++)
+                pooledScores.Add(block.Mean);
+        }
+
+        return pooledScores;
+    }
+
+    private sealed class PavBlock
+    {
+        public PavBlock(int sampleCount, double semanticSum, int binCount)
+        {
+            SampleCount = sampleCount;
+            SemanticSum = semanticSum;
+            BinCount = binCount;
+        }
+
+        public int SampleCount
+        {
+            get;
+        }
+
+        public double SemanticSum
+        {
+            get;
+        }
+
+        public int BinCount
+        {
+            get;
+        }
+
+        public double Mean => SampleCount == 0 ? 0.0 : SemanticSum / SampleCount;
+
+        public PavBlock Merge(PavBlock other) =>
+            new(SampleCount + other.SampleCount, SemanticSum + other.SemanticSum, BinCount + other.BinCount);
     }
 
     private sealed class CalibrationBin
@@ -164,7 +207,9 @@ public sealed class AgentConfidenceCalibrator(
 
         public void Add(double semanticScore) => _semantics.Add(semanticScore);
 
-        public double MeanSemantic => _semantics.Average();
+        public int SampleCount => _semantics.Count;
+
+        public double SemanticSum => _semantics.Sum();
     }
 
     internal sealed record CalibrationKnot(double RawConfidence, double CalibratedScore);
