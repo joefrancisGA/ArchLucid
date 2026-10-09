@@ -45,6 +45,13 @@ type Options = {
   readonly core: GuidedIntakeDraftCoreState;
 };
 
+function resolveDraftCreateError(error: unknown): unknown {
+  const failure = toApiLoadFailure(error);
+  const blocked = architectureDraftCreateMutationBlockedReason(failure);
+
+  return blocked !== null ? new Error(blocked) : error;
+}
+
 export function useGuidedIntakeDraftCreate(options: Options) {
   const { core, form, isCreateArchitectureFlow, navigate, priorRunId, setStep, sourceArchitectureId } = options;
   const { isWorkingMode } = useWorkspaceMode();
@@ -80,29 +87,33 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
     creationInitStartedRef.current = true;
 
-    void initializeArchitectureCreation().then(async (result) => {
-      if (result.draftId !== null) {
-        core.setDraftId(result.draftId);
-        core.setDraftStatus(result.draft?.status ?? null);
-        await patchDraftRequest(result.draftId, {
-          workflowIntent: CREATE_ARCHITECTURE_INTENT,
-          expectedUpdatedUtc:
-            result.draft?.updatedUtc?.trim()
-            || (await getDraftRequest(result.draftId)).updatedUtc,
-        });
-      }
+    void initializeArchitectureCreation()
+      .then(async (result) => {
+        if (result.draftId !== null) {
+          core.setDraftId(result.draftId);
+          core.setDraftStatus(result.draft?.status ?? null);
+          await patchDraftRequest(result.draftId, {
+            workflowIntent: CREATE_ARCHITECTURE_INTENT,
+            expectedUpdatedUtc:
+              result.draft?.updatedUtc?.trim()
+              || (await getDraftRequest(result.draftId)).updatedUtc,
+          });
+        }
 
-      const formState = applyArchitectureCreationDraftToFormState(result.draft);
-      setFreeTextIntent(formState.freeTextIntent);
-      setBusinessOutcome(formState.businessOutcome);
-      setSystemName(formState.systemName);
-      core.setStructuredBrief(formState.structuredBrief);
-      core.setAllQuestions([...result.questionSelection.allQuestions]);
-      core.setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
-      core.setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
-      applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft?.document);
-      core.setClarificationSelectionHydrated(true);
-    });
+        const formState = applyArchitectureCreationDraftToFormState(result.draft);
+        setFreeTextIntent(formState.freeTextIntent);
+        setBusinessOutcome(formState.businessOutcome);
+        setSystemName(formState.systemName);
+        core.setStructuredBrief(formState.structuredBrief);
+        core.setAllQuestions([...result.questionSelection.allQuestions]);
+        core.setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
+        core.setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
+        applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft?.document);
+        core.setClarificationSelectionHydrated(true);
+      })
+      .catch((error: unknown) => {
+        core.setSubmitError(resolveDraftCreateError(error));
+      });
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,
     core,
@@ -269,9 +280,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
       core.setClarificationSelectionHydrated(true);
       setStep(1);
     } catch (error) {
-      const failure = toApiLoadFailure(error);
-      const blocked = architectureDraftCreateMutationBlockedReason(failure);
-      core.setSubmitError(blocked !== null ? new Error(blocked) : error);
+      core.setSubmitError(resolveDraftCreateError(error));
     } finally {
       core.setBusy(false);
     }

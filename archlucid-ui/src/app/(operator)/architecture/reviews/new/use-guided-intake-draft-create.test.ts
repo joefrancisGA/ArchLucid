@@ -1,8 +1,9 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const { getDraftRequest } = vi.hoisted(() => ({
+const { getDraftRequest, initializeArchitectureCreation } = vi.hoisted(() => ({
   getDraftRequest: vi.fn(),
+  initializeArchitectureCreation: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -24,7 +25,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 vi.mock("@/lib/architecture/architecture-creation-init", () => ({
   architectureCreationDefaultActorSet: vi.fn(),
   applyArchitectureCreationDraftToFormState: vi.fn(),
-  initializeArchitectureCreation: vi.fn(),
+  initializeArchitectureCreation,
 }));
 
 vi.mock("@/lib/architecture/architecture-draft-structured-brief", () => ({
@@ -79,6 +80,28 @@ describe("useGuidedIntakeDraftCreate", () => {
         priorRunId: null,
         setStep: vi.fn(),
         sourceArchitectureId: "architecture-123",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setSubmitError).toHaveBeenCalledWith(failure);
+    });
+  });
+
+  it("reports create-architecture initialization failure instead of leaving an unhandled rejection", async () => {
+    const failure = new Error("create architecture unavailable");
+    initializeArchitectureCreation.mockRejectedValueOnce(failure);
+    const setSubmitError = vi.fn();
+
+    renderHook(() =>
+      useGuidedIntakeDraftCreate({
+        core: { setSubmitError } as never,
+        form: {} as never,
+        isCreateArchitectureFlow: true,
+        navigate: vi.fn(),
+        priorRunId: null,
+        setStep: vi.fn(),
+        sourceArchitectureId: "",
       }),
     );
 
