@@ -207,6 +207,19 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
         if (!hasAnyDeclaredPublicMethods)
         {
+            // An abstract controller with no members of its own still inherits actions. The empty-type
+            // diagnostic is for controllers that do not already expose an authorized inherited action.
+            if (symbol.IsAbstract &&
+                InheritedPublicApiActionsAreAllAuthorized(
+                    symbol,
+                    controllerBase,
+                    authorizeAttribute,
+                    allowAnonymousAttribute,
+                    nonActionAttribute))
+            {
+                return;
+            }
+
             Location? typeLocation = symbol.Locations.FirstOrDefault();
 
             if (typeLocation is null)
@@ -227,6 +240,88 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(
                 Al0001Descriptor.Create(typeLocation, symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
         }
+    }
+
+    private static bool InheritedPublicApiActionsAreAllAuthorized(
+        INamedTypeSymbol symbol,
+        INamedTypeSymbol controllerBase,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute,
+        INamedTypeSymbol? nonActionAttribute)
+    {
+        bool foundInheritedApiAction = false;
+
+        for (INamedTypeSymbol? baseType = symbol.BaseType;
+             baseType is not null && !SymbolIsControllerBase(baseType, controllerBase);
+             baseType = baseType.BaseType)
+        {
+            foreach (IMethodSymbol inheritedMethod in baseType.GetMembers().OfType<IMethodSymbol>())
+            {
+                if (!IsDeclaredPublicApiAction(inheritedMethod, nonActionAttribute))
+                {
+                    continue;
+                }
+
+                foundInheritedApiAction = true;
+
+                if (!ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return foundInheritedApiAction;
+    }
+
+    private static bool IsDeclaredPublicApiAction(IMethodSymbol method, INamedTypeSymbol? nonActionAttribute)
+    {
+        if (method.IsStatic)
+        {
+            return false;
+        }
+
+        if (method.MethodKind != MethodKind.Ordinary)
+        {
+            return false;
+        }
+
+        if (method.AssociatedSymbol is not null)
+        {
+            return false;
+        }
+
+        if (method.DeclaredAccessibility != Accessibility.Public)
+        {
+            return false;
+        }
+
+        if (nonActionAttribute is not null &&
+            (SymbolHasAttribute(method, nonActionAttribute) ||
+             MethodInheritsAttributeFromOverriddenChain(method, nonActionAttribute)))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool ActionHasAuthorization(
+        IMethodSymbol method,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        if (MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(method, authorizeAttribute, allowAnonymousAttribute))
+        {
+            return true;
+        }
+
+        return MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(method, authorizeAttribute, allowAnonymousAttribute);
     }
 
     private static bool InheritsFromControllerBase(INamedTypeSymbol type, INamedTypeSymbol controllerBase)

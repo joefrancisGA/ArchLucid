@@ -14604,13 +14604,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 29
-- **bugs-found:** 27
+- **hunts:** 30
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — AL0001 silent on standalone abstract controllers after abstract skip
+- **last-hunt:** 2026-10-08
+- **last-bug:** 2026-10-08 — AL0001 on an abstract controller that only inherits an AllowAnonymous action
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-10-08 thorough hunt (hit): proved an abstract controller with no declared members reported type-level AL0001 even when its inherited action was `[AllowAnonymous]`, because the empty-type fallback never inspected inherited actions on abstract types; skip that fallback when every inherited public API action is authorized; regression `Does_not_report_abstract_controller_when_only_inherited_action_is_allow_anonymous`. Cheap-disproof closed the five open candidates. 88 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
 
@@ -14706,11 +14707,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RequireAuthorizationAnalyzer` — foreign-namespace `ControllerBase` name collision — **cheap-disproof 2026-10-07 thorough hunt #28:** `SymbolIsControllerBase` matches namespace display string; regression `Does_not_treat_unrelated_ControllerBase_type_in_another_namespace_as_mvc_controller_base`.
 - [x] (invalid) `MutatingControllerAuditAnalyzer` — `nameof(LogAsync)` suppresses AL0003 — **cheap-disproof 2026-10-07 thorough hunt #28:** only invocations count; regression `AL0003_reports_when_HttpPost_action_only_uses_nameof_LogAsync`.
 
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — abstract base plus concrete derived may emit both type-level and inherited method AL0001 for the same gap — locus: abstract type-level fallback plus inherited scan (`RequireAuthorizationAnalyzer.cs`); input: unauthorized GET on abstract base with derived `[NonAction]` helper only; wrong outcome: duplicate noise (type + inherited method).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `local static` iterator invoked from mutating action may be missed — locus: `SemanticBodiesInvokeAuditLogAsync` syntax-tree scope (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` calling static local that awaits `LogAsync`; wrong outcome: false-positive AL0003 when audit is factored into local function.
-- [ ] (candidate) `TenantIdentityBoundaryAnalyzer` — `using alias = BannedType` inside method body — locus: `AnalyzeIdentifierName` (`TenantIdentityBoundaryAnalyzer.cs`); input: block-scoped `using Principal = ClaimsPrincipal` then local variable; wrong outcome: ARCH001 silent compared to file-scoped alias.
-- [ ] (candidate) `RequireAuthorizationAnalyzer` — type-level AL0001 on abstract controller may fire even when every declared action is `[AllowAnonymous]` but `foundPublicApiAction` flipped true — locus: end-of-analysis fallback (`RequireAuthorizationAnalyzer.cs`); input: abstract controller with only `[AllowAnonymous]` actions; wrong outcome: false-positive type diagnostic (regression guard).
-- [ ] (candidate) `MutatingControllerAuditAnalyzer` — primary-constructor mutating action with audit in field initializer — locus: `SemanticBodiesInvokeAuditLogAsync` method-body anchor (`MutatingControllerAuditAnalyzer.cs`); input: `[HttpPost]` on primary ctor controller where `LogAsync` only runs in field/property initializer; wrong outcome: false-positive AL0003.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — abstract base plus concrete derived both emit AL0001 — **cheap-disproof 2026-10-08 thorough hunt:** `Reports_inherited_unauthorized_action_when_derived_declares_only_public_NonAction_helper` already requires the type-level diagnostic on the abstract declaration and the inherited-method diagnostic on the derived controller. Those are different symbols.
+- [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` inside a static local iterator — **cheap-disproof 2026-10-08 thorough hunt:** the action body walk includes the local function; regression `AL0003_is_absent_when_LogAsync_is_in_static_local_iterator`.
+- [x] (invalid) `TenantIdentityBoundaryAnalyzer` — method-body `using` alias — **cheap-disproof 2026-10-08 thorough hunt:** `using Principal = ClaimsPrincipal` inside a method is not an alias directive (`CS1001`); file-scoped aliases already resolve through `IAliasSymbol.Target`.
+- [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — abstract controller whose declared actions are all `[AllowAnonymous]` — **cheap-disproof 2026-10-08 thorough hunt:** `AllowAnonymous` returns before `hasUnauthorizedDeclaredApiActions`; `Does_not_report_derived_controller_when_only_inherited_action_is_allow_anonymous` covers that abstract base with no type diagnostic.
+- [x] (invalid) `MutatingControllerAuditAnalyzer` — primary-constructor field initializer `LogAsync` — **cheap-disproof 2026-10-08 thorough hunt:** audit detection is the action body, so a constructor field initializer still leaves AL0003; regression `AL0003_reports_when_LogAsync_runs_only_in_primary_constructor_field_initializer`.
+- [x] (proven) `RequireAuthorizationAnalyzer` — empty abstract controller reported AL0001 when its only inherited action was `[AllowAnonymous]` — **hit 2026-10-08 thorough hunt:** the no-member fallback ran before inherited actions were considered on abstract types; skip it when every inherited public API action is authorized; regression `Does_not_report_abstract_controller_when_only_inherited_action_is_allow_anonymous`.
 
 ---
 
