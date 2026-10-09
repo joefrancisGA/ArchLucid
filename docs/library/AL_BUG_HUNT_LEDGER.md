@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding enumerated `ArchitectureRequest.Constraints` and `RequiredCapabilities` directly. An execute payload with those lists JSON-null throws from LINQ before any rule runs. `AgentProposalStructuralPostProcessorEnricher` is registered ahead of `AgentResultRegionMismatchEnricher`, which already accepts a null constraint list, so the composite enricher aborted the batch. Missing lists are now treated as empty. Regression `EnrichAsync_keeps_proposal_when_brief_lists_are_null` failed first with `ArgumentNullException`. 10 grounding tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/evidence/proposals/{resultId}/promote` built `CatalogEntryId` as `{type}-{slug}` from the full title. Migration 182 stores that id in NVARCHAR(128) and the title in NVARCHAR(512). A 122-character policy title fits the title column and produces a 129-character id, so SQL insert truncated. Promote now rejects that id, and a title longer than 512, before insert. Regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column` failed first with no exception. 4 promoter tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness` returned the catalog row when `ApprovedTaskTypes` was empty. `PUT` on that catalog allows an empty list, and the import UI treats HTTP 200 as a completed import, so no evaluation was stored. Import now fails before any upsert when no approved task type remains after trim. Regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence` failed first with no exception. 3 catalog evaluation tests passed.
@@ -32008,13 +32010,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 37
-- **bugs-found:** 35
+- **hunts:** 38
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — promote sent a catalog entry id longer than NVARCHAR(128)
+- **last-bug:** 2026-10-09 — null brief lists aborted structural grounding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): brief grounding threw when `Constraints` or `RequiredCapabilities` was null. That enricher runs before the region enricher, which already accepts a null constraint list, so the batch aborted. Missing lists are now empty. Regression `EnrichAsync_keeps_proposal_when_brief_lists_are_null` failed first with `ArgumentNullException`.
+
+- [x] (proven) `AgentProposalStructuralPostProcessor.BriefGroundingRules.FromRequest` — JSON-null `Constraints` or `RequiredCapabilities` threw from LINQ `Where` inside `AgentProposalStructuralPostProcessorEnricher`, which is registered ahead of the region enricher that already accepts a null constraint list — **hit 2026-10-09 seed hunt:** treat a missing list as empty; regression `EnrichAsync_keeps_proposal_when_brief_lists_are_null`. [class:null-deref]
 
 2026-10-09 seed hunt (seed→hit): promoting a curated evidence proposal built `CatalogEntryId` from the full title. A title that fits NVARCHAR(512) can still exceed the NVARCHAR(128) id column. Promote now rejects that id, and an over-long title, before insert. Regression `PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column` failed first with no exception.
 

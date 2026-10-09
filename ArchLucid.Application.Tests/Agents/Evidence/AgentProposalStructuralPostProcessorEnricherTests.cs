@@ -157,4 +157,46 @@ public sealed class AgentProposalStructuralPostProcessorEnricherTests
             line.Contains("public-http-gateway", StringComparison.Ordinal)
             && line.Contains("partner-system", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public async Task EnrichAsync_keeps_proposal_when_brief_lists_are_null()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "Brief lists omitted",
+            SystemName = "null-brief",
+            Constraints = null!,
+            RequiredCapabilities = null!,
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = "run-1",
+            RequestId = "req-1",
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "secure-api",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentProposalStructuralPostProcessorEnricher enricher = new();
+
+        await enricher.EnrichAsync("run-1", request, evidence, [result]);
+
+        result.ProposedChanges!.AddedServices.Should().ContainSingle()
+            .Which.ServiceName.Should().Be("secure-api");
+    }
 }

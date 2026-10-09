@@ -344,12 +344,14 @@ public static class AgentProposalStructuralPostProcessor
 
         public static BriefGroundingRules FromRequest(ArchitectureRequest request)
         {
-            List<string> confirmedConstraints = request.Constraints
+            // JSON null is a real execute payload. The region enricher already accepts it.
+            // This grounding pass runs first and must not abort the batch on a missing list.
+            List<string> confirmedConstraints = (request.Constraints ?? [])
                 .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
                 .Select(static c => c.Trim())
                 .ToList();
 
-            List<string> confirmedCapabilities = request.RequiredCapabilities
+            List<string> confirmedCapabilities = (request.RequiredCapabilities ?? [])
                 .Where(ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry)
                 .Select(static c => c.Trim())
                 .ToList();
