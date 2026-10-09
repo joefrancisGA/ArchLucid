@@ -878,6 +878,72 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task PatchAsync_remove_userName_rejects_required_attribute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "remove", "path": "userName" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserResourceParseException ex = (await act.Should().ThrowAsync<ScimUserResourceParseException>()).Which;
+        ex.ScimType.Should().Be("mutability");
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.UserName.Should().Be("alice@example.com");
+    }
+
+    [Fact]
+    public async Task PatchAsync_remove_externalId_rejects_required_attribute()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        ScimUserRecord created = await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            "Alice Example",
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "remove", "path": "externalId" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, created.Id, patch.RootElement, CancellationToken.None);
+
+        ScimUserResourceParseException ex = (await act.Should().ThrowAsync<ScimUserResourceParseException>()).Which;
+        ex.ScimType.Should().Be("mutability");
+        (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.ExternalId.Should().Be("ext-1");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_displayName_whitespace_only_clears_display_name()
     {
         Guid tenantId = Guid.NewGuid();

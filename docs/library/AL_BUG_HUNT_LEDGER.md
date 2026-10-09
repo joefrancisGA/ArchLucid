@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `scim-users` — `PATCH /scim/v2/Users/{id}` `remove` on `userName` or `externalId` deleted the flat-map key, then `ReadPatchRequiredString` restored the stored value, so the call succeeded and the required attribute stayed. Those removes now return `mutability` and leave the row unchanged. Optional `displayName` remove still clears. Regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`. 30 scoped `ScimUsers` unit tests passed.
+
 2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Working mode sort chips are Next.js links that write `findingsSort` without `popstate`. `useRunDetailFindingsToolbarState` copied sort only from mount, `popstate`, and pathname, so the selected chip stayed on Trust then severity. The findings list also ignored that sort while architect chrome was on and kept density order. Sort now follows `useSearchParams`, and any non-default `findingsSort` reorders the list. Regression `reorders findings when a sort chip updates findingsSort without a popstate event`. 14 `RunDetailFindingsWorkspace` vitest tests passed, plus the toolbar path-change test and 5 last-visit tests.
 
 2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Working mode Room on a completed review with a manifest and no parent architecture id set the button to Room on and wrote `roomElicitation=1`, but the inline elicitation panel stayed unmounted. `useReviewDetailWorkspaceRoomElicitation` updates its own React state, then `commitHrefIfChanged` used `notify: false`, so `replaceState` did not emit `popstate`. `RunDetailPresenterElicitationBridge` reads `roomElicitation` only from the address bar on mount and from that event. The room write now notifies. Regression `shows the room panel when Room writes roomElicitation without a popstate event`. The new test and `ReviewRoomHeaderButton` passed. Six older bridge tests still fail because they mock `useSearchParams` without the address bar.
@@ -10687,13 +10689,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 27
-- **bugs-found:** 18
+- **hunts:** 28
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — PATCH `remove` on `displayName` did not clear stored display name
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — PATCH remove on userName or externalId kept the stored value
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): PATCH `remove` on `userName` or `externalId` dropped the key and `ReadPatchRequiredString` put the stored value back, so the required attribute survived. Removes of those attributes now return `mutability`. Regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`; 30 scoped ScimUsers unit tests passed.
 
 2026-09-12 seed hunt #2087 (seed-only): reseeded scim-users; 13 scoped tests passed; no new hunt-ready rows
 
@@ -10731,12 +10735,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScimUserResourceParser.ReadOptionalString` — PUT `displayName` with outer whitespace persists untrimmed strings unlike PATCH trim/clear semantics — **cheap-disproof 2026-10-06 seed hunt:** optional PUT `displayName` preserves source whitespace by design; regression `ScimUserResourceParser_preserves_outer_whitespace_on_optional_displayName`
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
 
-- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` may still repopulate from flat-map fallback (required-string paths).
+- [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` repopulated the stored value from the required-string fallback — **hit 2026-10-09 seed hunt:** `RejectRemovedRequiredAttribute` returns `mutability`; regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
 - [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
 - [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
 
 ### Hypotheses
 
+- [x] (proven) `ScimUserService.PatchAsync` / `ScimUsersController.PatchAsync` — PATCH `remove` on `userName` or `externalId` deleted the flat-map key and `ReadPatchRequiredString` restored the stored value — **hit 2026-10-09 seed hunt:** required-attribute remove returns `mutability` and does not persist. Regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
 - [x] (invalid) PATCH/DELETE affects a user in another tenant when externalId collides — repository and service scope by `tenantId` + user `id`; externalId collisions are per-tenant only
 - [x] (invalid) Filter query returns users outside the provisioning tenant — `ListAsync` always passes `scope.TenantId` to repository; SQL and in-memory repos filter `TenantId`
 - [x] (invalid) Create succeeds without mapping the user into the caller's tenant — `CreateAsync` inserts with controller-provided `scope.TenantId`
