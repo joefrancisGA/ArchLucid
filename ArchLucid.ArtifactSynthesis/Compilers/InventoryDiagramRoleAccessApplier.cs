@@ -143,7 +143,7 @@ internal static class InventoryDiagramRoleAccessApplier
             }
         }
 
-        return "role";
+        return "Role name was not stored.";
     }
 
     private static string? ReadProperty(GraphEdge edge, string propertyName)

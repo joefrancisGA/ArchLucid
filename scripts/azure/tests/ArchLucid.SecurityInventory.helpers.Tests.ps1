@@ -163,6 +163,55 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $emptyPublicIp.properties['ipConfiguration.id'] | Should -Not -Be $parentNicId
     }
 
+    It 'stamps a firewall own subnet and the parent virtual network subnet list' {
+        $firewallId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw01'
+        $vnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1'
+        $firewallSubnetId = "$vnetId/subnets/AzureFirewallSubnet"
+        $routedSubnetId = "$vnetId/subnets/app"
+        $resources = @(
+            [ordered]@{
+                resourceType = 'Microsoft.Network/azureFirewalls'
+                resourceId = $firewallId
+                properties = @{}
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.Network/virtualNetworks'
+                resourceId = $vnetId
+                properties = @{}
+            }
+        )
+
+        Add-ArchLucidFirewallSubnetPropertiesFromFacts `
+            -Resources $resources `
+            -FirewallSubnetFacts @(
+                [ordered]@{
+                    resourceId = $firewallId
+                    subnetId = $firewallSubnetId
+                    propertyName = 'ipConfiguration'
+                },
+                [ordered]@{
+                    resourceId = $firewallId
+                    subnetId = $routedSubnetId
+                    propertyName = 'routeTable'
+                }
+            ) `
+            -VirtualNetworkSubnetFacts @(
+                [ordered]@{
+                    resourceId = $vnetId
+                    subnets = @(
+                        [ordered]@{ id = $firewallSubnetId }
+                        [ordered]@{ id = $routedSubnetId }
+                    )
+                }
+            )
+
+        $resources[0].properties['ipConfiguration.subnet.id'] | Should -Be $firewallSubnetId
+        $resources[0].properties['ipConfiguration.subnet.id[0]'] | Should -Be $firewallSubnetId
+        $resources[0].properties.Keys | Should -Not -Contain 'ipConfiguration.subnet.id[1]'
+        $resources[1].properties['subnets'] | Should -Match $firewallSubnetId
+        $resources[0].properties | ConvertTo-Json | Should -Not -Match 'privateIPAddress'
+    }
+
     It 'skips public IP network associations when ipConfiguration.id is absent' {
         $inventory = @(
             [ordered]@{

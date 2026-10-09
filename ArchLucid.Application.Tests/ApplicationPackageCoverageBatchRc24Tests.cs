@@ -58,8 +58,14 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
         string text = body.InnerText;
         text.Should().Contain("Document Control");
         text.Should().Contain("run-rc24");
+        text.Should().Contain("Completed time was not stored.");
         text.Should().Contain("Table of Contents");
         text.Should().Contain("1. Sponsor report");
+
+        report.Run.CompletedUtc = new DateTime(2026, 5, 1, 12, 30, 0, DateTimeKind.Utc);
+        Body completedBody = new();
+        ConsultingDocxSupplementalSections.AddDocumentControl(completedBody, report);
+        completedBody.InnerText.Should().Contain("2026-05-01T12:30:00.0000000Z");
     }
 
     [Fact]
