@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery always returned the four default claim names and ignored `claims_supported`. The SSO wizard datalist is that list, so an IdP that advertised `department` never offered it. Discovery now appends substantive `claims_supported` names that are not already present, capped at 32. Regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` failed first because `department` was missing. 79 discovery, activation, and controller tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — sandbox `POST /v1/admin/identity/test-login` runs `CustomGroupClaimRegex` with a two-second match budget. A pattern such as `(a+)+$` against a sample value that forces backtracking threw `RegexMatchTimeoutException` out of `SsoWizardTestLoginService`, so the wizard saw an HTTP 500 instead of a failed test login. The timeout is now a `Success=false` diagnostic. Regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out` failed first with that exception. 75 test-login, activation, and controller tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `IdentityProviderActivationService` stored `ClaimMappingJson` with PascalCase names (`RoleClaimName`, `Mappings`, `IdpValue`, `ArchLucidRole`). The SSO wizard and SAML settings form parse that string as camelCase, so a saved department mapping reloaded as the default `groups` form. Activation now writes camelCase, matching diagnostics `JsonSerializerDefaults.Web`. The wizard and SAML form also read older PascalCase rows. Regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` failed first with a missing `roleClaimName` key. 62 activation and controller tests passed, and 12 claim-mapping hydrate tests passed.
@@ -10829,13 +10831,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 49
-- **bugs-found:** 33
+- **hunts:** 50
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — sandbox test login threw when a custom group regex match timed out
+- **last-bug:** 2026-10-09 — OIDC discovery omitted claims_supported from the wizard claim list
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): `claims_supported` was ignored, so the wizard datalist never included advertised claim names such as `department`. Those names are now appended to the defaults. Regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` failed first.
 
 2026-10-09 seed hunt (seed→hit): `CustomGroupClaimRegex` match timeouts escaped `SsoWizardTestLoginService` as `RegexMatchTimeoutException`. Test login now returns a failed diagnostic. Regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out` failed first.
 
@@ -10963,6 +10967,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — `claims_supported` was omitted from `AvailableClaimNames` — **hit 2026-10-09 seed hunt (seed→hit):** append substantive advertised names; regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` (failed first: missing `department`).
 - [x] (proven) `SsoWizardTestLoginService.Execute` — `CustomGroupClaimRegex` match timeout threw `RegexMatchTimeoutException` — **hit 2026-10-09 seed hunt (seed→hit):** return a failed test-login diagnostic; regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out`.
 - [x] (proven) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` used PascalCase names the SSO wizard does not read — **hit 2026-10-09 seed hunt (seed→hit):** serialize with `JsonSerializerDefaults.Web`; regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` (failed first: missing `roleClaimName`).
 - [x] (proven) `IdentityProviderDiscoveryService.TryExtractJwksThumbprint` — JWKS `x5t` was returned as base64url and shown as the signing-certificate thumbprint — **hit 2026-10-09 seed hunt (seed→hit):** decode RFC 7517 `x5t` to hex SHA-1; regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` (failed first as `T9G2VBPHI8ARCO42T6DDLPVCJL4`).

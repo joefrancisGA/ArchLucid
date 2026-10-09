@@ -19,6 +19,9 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         "memberOf"
     ];
 
+    // The wizard renders every name. Cap the union so a hostile metadata document cannot inflate the response.
+    private const int MaxOidcAvailableClaimNames = 32;
+
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -93,7 +96,7 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
                 IssuerUri = issuer,
                 JwksUri = jwksUri,
                 SigningCertificateThumbprints = thumbprints,
-                AvailableClaimNames = DefaultOidcClaimNames,
+                AvailableClaimNames = ReadOidcAvailableClaimNames(root),
                 DiscoverySucceeded = issuerUsable,
                 DiagnosticSummary = issuerUsable
                     ? "OpenID configuration fetched successfully."
@@ -291,6 +294,39 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
             throw new InvalidOperationException("Could not build OpenID discovery URL.");
 
         return built;
+    }
+
+    private static IReadOnlyList<string> ReadOidcAvailableClaimNames(JsonElement root)
+    {
+        List<string> names = [.. DefaultOidcClaimNames];
+
+        if (!root.TryGetProperty("claims_supported", out JsonElement claims)
+            || claims.ValueKind != JsonValueKind.Array)
+        {
+            return names;
+        }
+
+        foreach (JsonElement claim in claims.EnumerateArray())
+        {
+
+            if (names.Count >= MaxOidcAvailableClaimNames)
+                break;
+
+            if (claim.ValueKind != JsonValueKind.String)
+                continue;
+
+            string trimmed = claim.GetString()?.Trim() ?? string.Empty;
+
+            if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmed))
+                continue;
+
+            if (names.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+                continue;
+
+            names.Add(trimmed);
+        }
+
+        return names;
     }
 
     private static string? ReadString(JsonElement root, string name)

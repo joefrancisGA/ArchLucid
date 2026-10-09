@@ -45,6 +45,43 @@ public sealed class IdentityProviderDiscoveryServiceTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names()
+    {
+        // The wizard datalist is availableClaimNames. OpenID discovery advertises those names in claims_supported.
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/",
+              "claims_supported": ["department", "Groups", "  ", "department"]
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.AvailableClaimNames.Take(4).Should().Equal(
+            "groups",
+            "roles",
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+            "memberOf");
+        response.AvailableClaimNames.Should().ContainSingle(name => name == "department");
+        response.AvailableClaimNames.Should().ContainSingle(name => name.Equals("groups", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task DiscoverAsync_saml_invisible_only_entity_id_marks_discovery_failed()
     {
         const string metadataXml = """
