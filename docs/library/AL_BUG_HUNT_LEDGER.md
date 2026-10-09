@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `llm-wallet` — `WalletController` kept `AdminAuthority` on the class and added `ReadAuthority` on `GetAsync`. ASP.NET combines every `Authorize` attribute on the endpoint, so a Reader, Operator, Architect, or Sponsor JWT still failed `TenantAdminOnly` and `GET /v1/billing/wallet` returned 403. Billing & plans is a ReadAuthority nav item (TB-625). The class policy is now `AuthenticatedUserOnly`, GET stays `ReadAuthority`, and PUT carries `AdminAuthority`. Regression `GetAsync_returns_wallet_for_reader_role` failed first with 403. `PutAsync_returns_403_for_reader_role` keeps mutation on admin. 3 `WalletControllerTests` passed. [class:authz-scope]
+
 2026-10-09 seed hunt (seed→hit): `llm-wallet` — `ApplyOverageMarkup` rounded a positive estimate to $0.00 when `estimatedUsd * 1.4` was below half a cent. `LlmCostEstimator` prices Terra at $2.50 / $15.00 per million tokens, so a 200-prompt + 20-completion call is $0.0008. `LlmMonthlyTenantDollarBudgetTracker` authorizes the default 32768 / 8192 reservation, then `ReconcileOverageInternalAsync` settles that actual against the hold. Markup of $0.00 credited the whole hold back, so the completion was free. The same zero debit made `TryConsumeAsync` return balance-after 0, and a 1-token authorize (the validated floor of `AssumedMaxPromptTokensPerRequest`) enqueued a $50 auto-refill without changing the $50 balance. Positive estimates that round to zero now bill `MinimumBillableOverageUsd` ($0.01), matching `DECIMAL(10,2)`. Regressions `ApplyOverageMarkup_bills_one_cent_when_positive_estimate_rounds_to_zero`, `ReconcileOverageInternalAsync_keeps_minimum_cent_when_actual_usage_rounds_below_one_cent`, and `TryAuthorizeOverageSpendAsync_debits_minimum_cent_instead_of_enqueueing_refill_for_sub_cent_estimate` failed first with balance $50.00. 26 `LlmTenantWalletServiceTests` and 3 `LlmTenantWalletDefaultsTests` passed. [class:other]
 
 2026-10-09 seed hunt (seed-only): `core-configuration-summary` — reread configuration binding, summary redaction, endpoint normalization, Quick Scan limit merge, and quality-gate floors. No row met the hunt-ready bar without repeating a saturated class or a credential-key synonym. Five candidates name a locus and a reachable input.
@@ -8307,11 +8309,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 33
-- **bugs-found:** 18
+- **hunts:** 34
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — sub-cent overage markup billed $0.00 and released the pre-call hold
+- **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8353,6 +8355,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` / `LlmTenantWalletWebhookStage.ApplyWebhookPaymentIntentSucceededAsync` — webhook payment-intent credits incremented `AutoRefillsThisUtcMonthCount` and blocked `TryAutoRefillAsync` under a tight monthly cap — **hit 2026-10-06 seed hunt:** `CanAutoRefill` multiplies count by `RefillIncrementUsd`, so a $5 webhook top-up consumed a full $50 cap slot; webhook credits pass `incrementMonthlyAutoRefillCount: false`; regression `TryAutoRefillAsync_succeeds_after_small_webhook_topup_without_counting_toward_monthly_cap`
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — webhook payment-intent credits skipped `LastRefillUtc` when monthly auto-refill counter was not incremented — **hit 2026-10-06 seed hunt:** billing GET exposed a stale null last-refill after Stripe top-up; stamp `LastRefillUtc` on every positive refill credit; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`
 - [x] (proven) `LlmTenantWalletDefaults.ApplyOverageMarkup` — a positive Terra estimate that rounds to $0.00 debited nothing — **hit 2026-10-09 seed hunt:** 200 prompt + 20 completion tokens at $2.50/$15.00 per million is $0.0008; settlement credited the entire default pre-call hold back, and a 1+1 token authorize reported balance-after 0 and enqueued auto-refill. Positive estimates that round to zero now bill $0.01. Regressions `ApplyOverageMarkup_bills_one_cent_when_positive_estimate_rounds_to_zero`, `ReconcileOverageInternalAsync_keeps_minimum_cent_when_actual_usage_rounds_below_one_cent`, and `TryAuthorizeOverageSpendAsync_debits_minimum_cent_instead_of_enqueueing_refill_for_sub_cent_estimate`. [class:other]
+- [x] (proven) `WalletController.GetAsync` — class `AdminAuthority` stacked with action `ReadAuthority`, so a Reader JWT received 403 on `GET /v1/billing/wallet` — **hit 2026-10-09 seed hunt:** Billing & plans is ReadAuthority (TB-625); class policy is now `AuthenticatedUserOnly` and PUT carries `AdminAuthority`. Regressions `GetAsync_returns_wallet_for_reader_role` and `PutAsync_returns_403_for_reader_role`. [class:authz-scope]
+
+2026-10-09 seed hunt (seed→hit): proved wallet GET still required admin because Authorize attributes stack; 3 wallet controller tests passed.
 
 2026-10-09 seed hunt (seed→hit): proved sub-cent overage markup billed $0.00 and released the pre-call hold; 26 scoped wallet tests passed.
 
