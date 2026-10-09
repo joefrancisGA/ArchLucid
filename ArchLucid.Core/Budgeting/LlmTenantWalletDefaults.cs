@@ -16,11 +16,26 @@ public static class LlmTenantWalletDefaults
     /// </summary>
     public const decimal OverageDebitMarkupMultiplier = 1.4m;
 
+    /// <summary>
+    ///     Smallest debit <c>dbo.LlmTenantWalletState.BalanceUsd</c> (<c>DECIMAL(10,2)</c>) can record.
+    /// </summary>
+    public const decimal MinimumBillableOverageUsd = 0.01m;
+
     public static decimal ApplyOverageMarkup(decimal estimatedUsd)
     {
         if (estimatedUsd <= 0m)
             return 0m;
 
-        return decimal.Round(estimatedUsd * OverageDebitMarkupMultiplier, 2, MidpointRounding.AwayFromZero);
+        decimal markedUsd = decimal.Round(
+            estimatedUsd * OverageDebitMarkupMultiplier,
+            2,
+            MidpointRounding.AwayFromZero);
+
+        // A positive estimate that rounds to $0.00 becomes a zero debit. Authorize then reports
+        // balance-after 0 and enqueues auto-refill, and settlement credits the whole pre-call hold back.
+        if (markedUsd == 0m)
+            return MinimumBillableOverageUsd;
+
+        return markedUsd;
     }
 }
