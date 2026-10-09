@@ -22,6 +22,8 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
     // The wizard renders every name. Cap the union so a hostile metadata document cannot inflate the response.
     private const int MaxOidcAvailableClaimNames = 32;
 
+    private const string OidcWellKnownSuffix = "/.well-known/openid-configuration";
+
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -77,18 +79,19 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
             string? issuer = ReadString(root, "issuer");
             string? jwksUri = ReadString(root, "jwks_uri");
+            bool issuerIsHttp = !string.IsNullOrWhiteSpace(issuer)
+                && IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuer, out _);
+            bool issuerMatchesMetadata = issuerIsHttp
+                && IssuerMatchesMetadataUrl(metadataUri, issuer ?? string.Empty);
             List<string> thumbprints = [];
 
-            // jwks_uri comes from the remote document, not the admin metadata URL. Follow only
-            // absolute HTTP(S) URIs with a host and no userinfo or fragment — the same bar as issuer.
-            if (!string.IsNullOrWhiteSpace(jwksUri)
+            // A substituted issuer must not trigger a second fetch of that document's jwks_uri.
+            if (issuerMatchesMetadata
+                && !string.IsNullOrWhiteSpace(jwksUri)
                 && IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(jwksUri, out Uri jwksUriParsed))
             {
                 thumbprints = await FetchJwksThumbprintsAsync(jwksUriParsed, cancellationToken).ConfigureAwait(false);
             }
-
-            bool issuerUsable = !string.IsNullOrWhiteSpace(issuer)
-                && IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(issuer, out _);
 
             return new IdentityProviderDiscoverResponse
             {
@@ -97,12 +100,8 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
                 JwksUri = jwksUri,
                 SigningCertificateThumbprints = thumbprints,
                 AvailableClaimNames = ReadOidcAvailableClaimNames(root),
-                DiscoverySucceeded = issuerUsable,
-                DiagnosticSummary = issuerUsable
-                    ? "OpenID configuration fetched successfully."
-                    : string.IsNullOrWhiteSpace(issuer)
-                        ? "OpenID configuration fetched but issuer was missing."
-                        : "OpenID configuration fetched but issuer was missing or not a valid HTTP(S) URL."
+                DiscoverySucceeded = issuerMatchesMetadata,
+                DiagnosticSummary = DescribeOidcIssuerOutcome(issuer, issuerIsHttp, issuerMatchesMetadata)
             };
         }
         catch (OperationCanceledException)
@@ -280,11 +279,10 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
     private static Uri BuildOidcDiscoveryUri(Uri metadataUri)
     {
-        const string wellKnownSuffix = "/.well-known/openid-configuration";
         string path = metadataUri.AbsolutePath.TrimEnd('/');
 
-        if (!path.EndsWith(wellKnownSuffix, StringComparison.OrdinalIgnoreCase))
-            path = $"{path}{wellKnownSuffix}";
+        if (!path.EndsWith(OidcWellKnownSuffix, StringComparison.OrdinalIgnoreCase))
+            path = $"{path}{OidcWellKnownSuffix}";
 
         // AbsoluteUri places the query after the path. Appending the well-known segment
         // there puts it inside the query (tenant=acme/.well-known/...).
@@ -294,6 +292,65 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
             throw new InvalidOperationException("Could not build OpenID discovery URL.");
 
         return built;
+    }
+
+    private static bool IssuerMatchesMetadataUrl(Uri metadataUri, string issuer)
+    {
+        if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(issuer, out string canonicalIssuer))
+            return false;
+
+        if (!TryBuildExpectedIssuerUrl(metadataUri, out string expectedIssuer))
+            return false;
+
+        return string.Equals(
+            NormalizeIssuerForComparison(canonicalIssuer),
+            NormalizeIssuerForComparison(expectedIssuer),
+            StringComparison.Ordinal);
+    }
+
+    private static bool TryBuildExpectedIssuerUrl(Uri metadataUri, out string expectedIssuer)
+    {
+        expectedIssuer = string.Empty;
+        Uri discoveryUri = BuildOidcDiscoveryUri(metadataUri);
+        string path = discoveryUri.AbsolutePath;
+
+        if (path.EndsWith(OidcWellKnownSuffix, StringComparison.OrdinalIgnoreCase))
+            path = path[..^OidcWellKnownSuffix.Length];
+
+        if (path.Length == 0)
+            path = "/";
+
+        // The tenant query routes the fetch. It is not part of the issuer identifier.
+        string raw = $"{discoveryUri.GetLeftPart(UriPartial.Authority)}{path}";
+
+        return IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(raw, out expectedIssuer);
+    }
+
+    private static string NormalizeIssuerForComparison(string canonicalUri)
+    {
+        Uri parsed = new(canonicalUri);
+        string path = parsed.AbsolutePath.TrimEnd('/');
+
+        if (path.Length == 0)
+            path = "/";
+
+        string port = parsed.IsDefaultPort ? string.Empty : $":{parsed.Port}";
+
+        return $"{parsed.Scheme}://{parsed.IdnHost}{port}{path}{parsed.Query}";
+    }
+
+    private static string DescribeOidcIssuerOutcome(string? issuer, bool issuerIsHttp, bool issuerMatchesMetadata)
+    {
+        if (issuerMatchesMetadata)
+            return "OpenID configuration fetched successfully.";
+
+        if (string.IsNullOrWhiteSpace(issuer))
+            return "OpenID configuration fetched but issuer was missing.";
+
+        if (!issuerIsHttp)
+            return "OpenID configuration fetched but issuer was missing or not a valid HTTP(S) URL.";
+
+        return "OpenID configuration issuer does not match the metadata URL.";
     }
 
     private static IReadOnlyList<string> ReadOidcAvailableClaimNames(JsonElement root)

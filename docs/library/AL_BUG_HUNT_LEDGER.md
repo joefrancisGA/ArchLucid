@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery treated any HTTP(S) `issuer` as success. The SSO wizard copies that value into activate, so a document fetched from `https://idp.example/realms/acme` whose issuer was `https://evil.example/realms/acme` was saved as the tenant issuer. Discovery now requires the issuer to be that metadata URL, ignoring a trailing slash and the tenant query used to route the fetch. A mismatched document does not follow `jwks_uri`. Regression `DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url` failed first with `DiscoverySucceeded` true. 21 discovery tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — SAML discovery read `entityID` only from the document element. A one-IdP metadata file whose root is `EntitiesDescriptor` failed as missing `entityID` even though the nested `EntityDescriptor` carried `https://idp.example/saml`. Discovery now uses that single nested entity, and a file with more than one `EntityDescriptor` still fails so the wizard does not pick an arbitrary IdP. Regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` failed first with `DiscoverySucceeded` false. 19 discovery tests and 4 metadata parser tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — sandbox role mapping applied `CustomGroupClaimRegex` only when the pattern had a capturing group. A pattern such as `^Admin$|^Reader$` matched the sample values and then mapped nothing, so test login reported no ArchLucid roles. The full match is now used when the first capture is not an allowed role. Regression `ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group` failed first with an empty role list. 63 role-mapping, test-login, and activation tests passed.
@@ -10835,13 +10837,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 52
-- **bugs-found:** 36
+- **hunts:** 53
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — SAML EntitiesDescriptor wrapper hid the nested entityID
+- **last-bug:** 2026-10-09 — OIDC discovery accepted an issuer that was not the metadata URL
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): OIDC discovery marked success for any HTTP(S) issuer. The wizard copies that issuer into activate, so a substituted document issuer was persisted. The issuer must now match the metadata URL. Regression `DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url` failed first.
 
 2026-10-09 seed hunt (seed→hit): SAML discovery read `entityID` only from the document element, so a one-IdP `EntitiesDescriptor` file failed as missing an issuer. The single nested `EntityDescriptor` is now the issuer source. A file with more than one entity still fails. Regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` failed first.
 
@@ -10975,6 +10979,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — any HTTP(S) document `issuer` was success, and the wizard persists that value — **hit 2026-10-09 seed hunt (seed→hit):** require the issuer to match the metadata URL; regression `DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url` (failed first: `DiscoverySucceeded` true).
 - [x] (proven) `SamlMetadataDiscoveryParser.Parse` — `entityID` was read only from the document element, so a one-IdP `EntitiesDescriptor` file failed discovery — **hit 2026-10-09 seed hunt (seed→hit):** use the single nested `EntityDescriptor`; regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` (failed first: `DiscoverySucceeded` false).
 - [x] (proven) `IdentityClaimRoleMappingResolver.ResolveRoles` — a custom group regex with no capture group matched an allowed role and mapped nothing — **hit 2026-10-09 seed hunt (seed→hit):** use the full match when the first capture is not an allowed role; regression `ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group` (failed first: empty role list).
 - [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — `claims_supported` was omitted from `AvailableClaimNames` — **hit 2026-10-09 seed hunt (seed→hit):** append substantive advertised names; regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` (failed first: missing `department`).

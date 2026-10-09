@@ -321,22 +321,26 @@ public sealed class IdentityProviderDiscoveryServiceTests
     [Theory]
     [InlineData(
         "https://idp.example/oidc?tenant=acme",
-        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme")]
+        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme",
+        "https://idp.example/oidc")]
     [InlineData(
         "https://idp.example/oidc/?tenant=acme",
-        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme")]
+        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme",
+        "https://idp.example/oidc")]
     [InlineData(
         "https://idp.example/.well-known/openid-configuration?tenant=acme",
-        "https://idp.example/.well-known/openid-configuration?tenant=acme")]
+        "https://idp.example/.well-known/openid-configuration?tenant=acme",
+        "https://idp.example/")]
     public async Task DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path(
         string metadataUrl,
-        string expectedRequest)
+        string expectedRequest,
+        string issuer)
     {
         // Tenant routers put the tenant in the query. The well-known segment belongs on the path.
-        const string discoveryJson =
-            """
+        string discoveryJson =
+            $$"""
             {
-              "issuer": "https://idp.example/oidc"
+              "issuer": "{{issuer}}"
             }
             """;
 
@@ -365,6 +369,66 @@ public sealed class IdentityProviderDiscoveryServiceTests
         requested.Should().ContainSingle();
         requested[0].Should().Be(expectedRequest);
         response.DiscoverySucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url()
+    {
+        // The wizard copies issuerUri into activate. OpenID discovery requires that value to be
+        // the metadata URL the operator asked us to fetch, not a different issuer in the document.
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://evil.example/realms/acme"
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/realms/acme"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("does not match");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_oidc_accepts_issuer_when_only_the_trailing_slash_differs()
+    {
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/realms/acme"
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/realms/acme/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.IssuerUri.Should().Be("https://idp.example/realms/acme");
     }
 
     [Fact]
