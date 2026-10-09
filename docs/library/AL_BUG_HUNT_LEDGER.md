@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — `AzureInventoryAdfDataflowExtractor` read `dataset.linkedService` only, so ARM mapping data flows that place `linkedService` beside `dataset` (and inline sinks that omit `dataset`) produced empty source and sink lists and `ExecuteDataFlow` emitted no flows. The extractor now reads the sibling reference and still accepts a nested one. Regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`; scoped `AzureExtractor` tests passed 1468/1468 (1441 Core + 27 Application).
+
 2026-10-09 seed hunt (seed→hit): `api-tenancy-workspaces` — tenancy controllers stored `IActorContext.GetActorId()` on audit events but left `ExplicitActor` false, so `AuditService` replaced that id with `ClaimTypes.NameIdentifier` before append. Baseline, cost settings, homepage, sponsor digest, exec digest, and pilot-checklist audits now set `ExplicitActor`. Regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
 
 2026-10-09 thorough hunt (hit): `core-tenancy-commercial` — hourly OTP email rate-limit SQL counted every challenge created in the window, including completed and expired rows, while the client-IP statement and the in-memory store ignored them. The batch email count now requires `CompletedUtc IS NULL` and `ExpiresUtc > @NowUtc`. Regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
@@ -23270,13 +23272,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 49
-- **bugs-found:** 31
+- **hunts:** 50
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — ADF Copy inside ForEach, If Condition, and Switch omitted from pipeline flows
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — data flow linked service beside dataset was ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted ARM data-flow source shape; `linkedService` sits beside `dataset` on `DataFlowSource` / `DataFlowSink`, and inline sinks omit `dataset`; extractor only opened `dataset.linkedService`, so static names never reached `ExecuteDataFlow`; regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`; scoped `AzureExtractor` tests passed 1468/1468 (1441 Core + 27 Application).
 
 2026-10-08 seed hunt (hit): promoted nested control-flow dataset candidate; `AzureInventoryAdfPipelineFlowExtractor` read only `properties.activities`, so a Copy stored in ForEach `typeProperties.activities`, If Condition `ifTrueActivities` / `ifFalseActivities`, or Switch `cases[].activities` / `defaultActivities` produced no flow rows on reachable ADF ARM pipelines; fixed by walking those nested activity arrays with a depth cap; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`; scoped `AzureExtractor` tests passed 1466/1466 (1439 Core + 27 Application).
 
@@ -23319,6 +23323,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `AzureInventoryAdfPipelineFlowExtractor.WalkActivityArray` — Copy activities nested under ForEach, If Condition, and Switch were omitted from pipeline flows — **hit 2026-10-08 seed hunt:** top-level `properties.activities` never entered `typeProperties.activities`, `ifTrueActivities`, `ifFalseActivities`, `defaultActivities`, or Switch `cases[].activities`; regression `ExtractFlows_reads_copy_nested_in_foreach_and_if_condition`.
+- [x] (proven) `AzureInventoryAdfDataflowExtractor.ExtractLinkedServiceNames` — ARM `linkedService` beside `dataset` was ignored, so mapping data flows produced empty source and sink lists — **hit 2026-10-09 seed hunt (seed→hit):** read the sibling reference, then a nested `dataset.linkedService`; regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`.
 
 - [x] (valid-no-repro) `AzureInventoryMessagingAssociationExtractor.IsEnabled` — string `"true"` for `captureDescription.enabled` does not enable capture while absent `enabled` defaults to on — **cheap-disproof 2026-10-04 thorough hunt:** Event Hub ARM capture metadata uses boolean `enabled`; string tokens are not a reachable collector contract; regression `TryExtractEventHub_ignores_capture_when_enabled_is_string_true`.
 - [x] (valid-no-repro) `AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar` / `AzureInventoryAdfLinkedServiceTargetExtractor.TryExtractTargetResourceId` — JSON object `serviceEndpoint` values are ignored and leave blob linked services `TargetUnresolved` — **cheap-disproof 2026-10-04 thorough hunt:** `HostedAzureInventoryAdfLinkedServiceCollector` feeds raw ADF ARM `typeProperties` scalars only; object ARM-reference blobs are not on this path; regression `TrySanitizeFromArmResource_marks_blob_linked_service_unresolved_when_service_endpoint_is_json_object`.

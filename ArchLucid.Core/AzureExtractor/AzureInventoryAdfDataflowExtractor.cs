@@ -75,15 +75,14 @@ public static class AzureInventoryAdfDataflowExtractor
                 continue;
             }
 
-            if (!item.TryGetProperty("dataset", out JsonElement datasetElement)
-                || datasetElement.ValueKind is not JsonValueKind.Object
-                || !datasetElement.TryGetProperty("linkedService", out JsonElement linkedServiceElement)
-                || linkedServiceElement.ValueKind is not JsonValueKind.Object)
-            {
-                continue;
-            }
+            // ARM DataFlowSource puts linkedService beside dataset. Inline sinks omit dataset.
+            // Some payloads still nest the reference under dataset.linkedService.
+            string? referenceName = TryReadLinkedServiceReferenceName(item);
 
-            string? referenceName = TryReadString(linkedServiceElement, "referenceName");
+            if (referenceName is null)
+            {
+                referenceName = TryReadNestedDatasetLinkedServiceName(item);
+            }
 
             if (AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(referenceName))
             {
@@ -92,6 +91,28 @@ public static class AzureInventoryAdfDataflowExtractor
         }
 
         return linkedServiceNames.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static string? TryReadNestedDatasetLinkedServiceName(JsonElement item)
+    {
+        if (!item.TryGetProperty("dataset", out JsonElement datasetElement)
+            || datasetElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return TryReadLinkedServiceReferenceName(datasetElement);
+    }
+
+    private static string? TryReadLinkedServiceReferenceName(JsonElement parent)
+    {
+        if (!parent.TryGetProperty("linkedService", out JsonElement linkedServiceElement)
+            || linkedServiceElement.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return TryReadString(linkedServiceElement, "referenceName");
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
