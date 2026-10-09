@@ -258,6 +258,29 @@ describe("RunDetailFindingsWorkspace", () => {
     );
   });
 
+  it("switches the findings list to cards when Cards updates the address bar without a popstate event", () => {
+    architectWorkspaceChromeMocks.enabled = true;
+    vi.unstubAllGlobals();
+    window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=findings");
+
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={[finding({ findingId: "f-1", severityValue: 1, findingOrder: 0 })]}
+        packageCommitted={true}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-findings-dense-table-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-list-view-table")).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByTestId("run-detail-findings-list-view-cards"));
+
+    expect(screen.getByTestId("run-detail-findings-list-view-cards")).toHaveAttribute("aria-pressed", "true");
+    expect(window.location.search).toContain("findingsListView=cards");
+    expect(screen.queryByTestId("run-detail-findings-dense-table-stub")).not.toBeInTheDocument();
+  });
+
   it("resets classification band when runId changes without a band query param", () => {
     architectWorkspaceChromeMocks.enabled = true;
     vi.stubGlobal("history", { replaceState: vi.fn() });
