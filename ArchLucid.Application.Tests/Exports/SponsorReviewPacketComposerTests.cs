@@ -208,6 +208,7 @@ public sealed class SponsorReviewPacketComposerTests
     {
         ArchitectureRunDetail detail = new()
         {
+            Run = new ArchitectureRun { RunId = string.Empty },
             Manifest = new GoldenManifest
             {
                 RunId = "manifest-1",
@@ -216,7 +217,8 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-                Metadata = null,
+                // ManifestVersion defaults to "v1"; empty is the typed stand-in for a missing stored value.
+                Metadata = new ManifestMetadata { ManifestVersion = string.Empty },
             },
         };
 
@@ -235,6 +237,6 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("Manifest version was not stored.");
         markdown.Should().Contain("Review ID was not stored.");
-        markdown.Should().Contain("Review status was not stored.");
+        markdown.Should().Contain("- **Status:** Created");
     }
 }
