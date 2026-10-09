@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — SAML discovery listed every signing `KeyDescriptor` under the entity as an IdP signing thumbprint. A current certificate on `SPSSODescriptor` and an expired certificate on `IDPSSODescriptor` were shown beside the current IdP certificate. The host binder only trusts `IDPSSODescriptor` signing certificates that pass `IsValidLocalTime`. Discovery now uses that same set. Regression `Parse_signing_thumbprints_are_current_idp_certificates_only` failed first with two extra thumbprints. 5 metadata parser tests and 22 discovery tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery listed every JWKS `x5t` under signing certificate thumbprints. A key with `use` `enc`, and a key whose `key_ops` were only `encrypt` and `wrapKey`, were shown next to the signing key. The SSO wizard labels that list "Signing certificate thumbprints." Encryption keys are now skipped. Keys with no `use` or `key_ops` still count, matching SAML metadata that omits `use`. Regression `DiscoverAsync_oidc_omits_jwks_encryption_keys_from_signing_thumbprints` failed first with the encryption thumbprint included. 22 discovery tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery treated any HTTP(S) `issuer` as success. The SSO wizard copies that value into activate, so a document fetched from `https://idp.example/realms/acme` whose issuer was `https://evil.example/realms/acme` was saved as the tenant issuer. Discovery now requires the issuer to be that metadata URL, ignoring a trailing slash and the tenant query used to route the fetch. A mismatched document does not follow `jwks_uri`. Regression `DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url` failed first with `DiscoverySucceeded` true. 21 discovery tests passed.
@@ -10839,13 +10841,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 54
-- **bugs-found:** 38
+- **hunts:** 55
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — JWKS encryption keys were shown as signing certificate thumbprints
+- **last-bug:** 2026-10-09 — SAML discovery showed SP and expired certificates as IdP signing thumbprints
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): SAML discovery treated `SPSSODescriptor` and expired `IDPSSODescriptor` certificates as IdP signing thumbprints. Only current IdP signing certificates remain. Regression `Parse_signing_thumbprints_are_current_idp_certificates_only` failed first.
 
 2026-10-09 seed hunt (seed→hit): JWKS `use` `enc` and encrypt-only `key_ops` were included in signing certificate thumbprints. Those keys are now skipped. Regression `DiscoverAsync_oidc_omits_jwks_encryption_keys_from_signing_thumbprints` failed first.
 
@@ -10983,6 +10987,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `SamlMetadataDiscoveryParser.ExtractSigningCertificateThumbprints` — SP-role and expired certificates were returned as IdP signing thumbprints — **hit 2026-10-09 seed hunt (seed→hit):** keep current `IDPSSODescriptor` signing certificates; regression `Parse_signing_thumbprints_are_current_idp_certificates_only` (failed first: two extra thumbprints).
 - [x] (proven) `IdentityProviderDiscoveryService.FetchJwksThumbprintsAsync` — JWKS encryption keys were returned as signing certificate thumbprints — **hit 2026-10-09 seed hunt (seed→hit):** skip `use` `enc` and `key_ops` that are not `sign` or `verify`; regression `DiscoverAsync_oidc_omits_jwks_encryption_keys_from_signing_thumbprints` (failed first: encryption thumbprint included).
 - [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — any HTTP(S) document `issuer` was success, and the wizard persists that value — **hit 2026-10-09 seed hunt (seed→hit):** require the issuer to match the metadata URL; regression `DiscoverAsync_oidc_rejects_issuer_that_does_not_match_the_metadata_url` (failed first: `DiscoverySucceeded` true).
 - [x] (proven) `SamlMetadataDiscoveryParser.Parse` — `entityID` was read only from the document element, so a one-IdP `EntitiesDescriptor` file failed discovery — **hit 2026-10-09 seed hunt (seed→hit):** use the single nested `EntityDescriptor`; regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` (failed first: `DiscoverySucceeded` false).

@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+
 using ArchLucid.Core.Auth.Saml;
 
 using FluentAssertions;
@@ -88,5 +91,50 @@ public sealed class SamlMetadataDiscoveryParserTests
         Action act = () => SamlMetadataDiscoveryParser.Parse(xml);
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*more than one EntityDescriptor*");
+    }
+
+    [Fact]
+    public void Parse_signing_thumbprints_are_current_idp_certificates_only()
+    {
+        // The wizard labels these thumbprints as the IdP signing certificates. The host binder
+        // only trusts IDPSSODescriptor signing certs that are valid now.
+        using X509Certificate2 spSigning = CreateCertificate(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
+        using X509Certificate2 expiredIdp = CreateCertificate(DateTimeOffset.UtcNow.AddYears(-2), DateTimeOffset.UtcNow.AddDays(-1));
+        using X509Certificate2 currentIdp = CreateCertificate(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
+        string xml = $"""
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                              entityID="https://idp.example/metadata">
+              <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(spSigning.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </SPSSODescriptor>
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(expiredIdp.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(currentIdp.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </IDPSSODescriptor>
+            </EntityDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml);
+
+        result.SigningCertificateThumbprints.Should().Equal(currentIdp.Thumbprint);
+    }
+
+    private static X509Certificate2 CreateCertificate(DateTimeOffset notBefore, DateTimeOffset notAfter)
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest certificateRequest = new(
+            "CN=idp.example",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+
+        return certificateRequest.CreateSelfSigned(notBefore, notAfter);
     }
 }
