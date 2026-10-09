@@ -52,8 +52,8 @@ function formatIncompleteAssessmentCoverageSummary(
 
   const technicalDetail = incomplete
     .map((row) => {
-      const agent = (row.agentType ?? "agent").trim() || "agent";
-      const outcome = (row.outcome ?? "Missing").trim() || "Missing";
+      const agent = (row.agentType ?? "").trim() || "Agent type was not stored.";
+      const outcome = (row.outcome ?? "").trim() || "Agent outcome was not stored.";
 
       return `${agent} (${outcome})`;
     })
@@ -115,7 +115,7 @@ export function resolvePartialRunCommitBlockPresentation(args: {
   const incomplete = outcomes.filter((row) => {
     const outcome = (row.outcome ?? "").trim();
 
-    return outcome.length > 0 && outcome !== "Succeeded";
+    return outcome.length === 0 || outcome !== "Succeeded";
   });
 
   if (incomplete.length === 0) {

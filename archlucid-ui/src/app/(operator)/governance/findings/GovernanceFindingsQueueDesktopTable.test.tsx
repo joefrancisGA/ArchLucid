@@ -107,6 +107,17 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(renderedRows).toHaveLength(rows.length + 1);
   });
 
+  it("explains confidence is not used on decision rows", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), recordKind: "decision" }]}
+        buyerPolishedShell={true}
+      />,
+    );
+
+    expect(screen.getByText("Not used on decision rows")).toBeInTheDocument();
+  });
+
   it("keeps remaining resource groups expanded when disclosure URL references a filtered-out group", () => {
     const staleGroupKey = `resource:${resourceGroupA}`;
     searchQuery = `${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=${encodeURIComponent(staleGroupKey)}`;

@@ -13,13 +13,13 @@ function titleFor(map: DiagramNeighborhoodMap, id: string): string {
   return map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title ?? id;
 }
 
-function renderTypeChip(type: { readonly name: string; readonly count: number }): React.JSX.Element {
+function renderTypeChip(type: { readonly name: string; readonly count: number | null }): React.JSX.Element {
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {`${type.name} ${type.count}`}
+      {type.count == null ? `${type.name} count was not stored` : `${type.name} ${type.count}`}
     </span>
   );
 }
@@ -46,7 +46,11 @@ function renderTile(
       <span className="w-full break-words text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
         {neighborhood.title}
       </span>
-      <span className="text-[12px] text-[#64748b]">{`${neighborhood.resourceCount} resources`}</span>
+      <span className="text-[12px] text-[#64748b]">
+        {neighborhood.resourceCount == null
+          ? "Resource count was not stored"
+          : `${neighborhood.resourceCount} resources`}
+      </span>
       <span className="flex flex-wrap gap-1">
         {neighborhood.types.slice(0, 4).map(renderTypeChip)}
       </span>
@@ -64,6 +68,9 @@ export function DiagramNeighborhoodMapView(
 
   return (
     <section aria-label={ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL} className="space-y-4 p-1">
+      <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
+        These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.
+      </p>
       {virtualNetworks.length > 0 ? (
         <section aria-labelledby="architecture-diagram-virtual-networks-heading" data-testid="architecture-diagram-virtual-networks">
           <h2 id="architecture-diagram-virtual-networks-heading" className="mb-2 text-[13px] font-semibold text-slate-700 dark:text-slate-200">

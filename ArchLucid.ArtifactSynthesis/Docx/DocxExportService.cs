@@ -293,7 +293,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddHeading(body, "Recommended Improvements");
         if (improvementPlan.Recommendations.Count == 0)
 
-            WordDocumentBuilder.AddBodyText(body, "No significant improvements were identified.");
+            WordDocumentBuilder.AddBodyText(body, "No recommended improvements were recorded.");
 
         else
 

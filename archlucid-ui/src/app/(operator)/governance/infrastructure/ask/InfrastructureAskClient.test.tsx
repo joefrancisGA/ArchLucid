@@ -129,6 +129,24 @@ describe("InfrastructureAskClient", () => {
     );
   });
 
+  it("explains citations without resolvable pages and missing labels", async () => {
+    vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "Answer",
+      insufficientEvidence: false,
+      citations: [{ kind: "Unknown", id: "unknown-1", label: null }],
+      simulatorLabel: null,
+    });
+
+    render(<InfrastructureAskClient />);
+    fireEvent.change(screen.getByTestId("infra-ask-question"), { target: { value: "Question" } });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    const citation = await screen.findByTestId("infra-ask-citation-Unknown-unknown-1");
+    expect(citation).toHaveTextContent("This citation has no page to open.");
+    expect(citation).toHaveTextContent("Citation label was not stored.");
+  });
+
   it("passes diffId to Ask API and links ChangeId citations with diff scope", async () => {
     vi.mocked(submitInfraEvidenceAsk).mockResolvedValueOnce({
       topicKind: "InventoryChange",

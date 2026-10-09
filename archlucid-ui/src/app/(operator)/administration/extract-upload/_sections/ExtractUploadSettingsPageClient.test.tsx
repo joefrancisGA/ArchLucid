@@ -163,7 +163,10 @@ describe("ExtractUploadSettingsPageClient", () => {
       );
     });
 
-    expect(screen.getByTestId("extract-upload-header-extractor-version")).toHaveTextContent("Extractor script: v2.4.1");
+    const extractorVersion = screen.getByTestId("extract-upload-header-extractor-version");
+
+    expect(extractorVersion).toHaveTextContent("Extractor script: v2.4.1");
+    expect(extractorVersion.querySelector("strong")).toHaveTextContent("Extractor script:");
   });
 
   it("renders advanced inventory command on a light code surface for readable contrast", () => {

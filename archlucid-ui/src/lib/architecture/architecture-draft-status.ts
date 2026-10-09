@@ -41,7 +41,7 @@ export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerS
 };
 
 /** Customer-facing placeholder when an architecture draft has no system name. */
-export const UNTITLED_ARCHITECTURE_LABEL = "Untitled architecture" as const;
+export const UNTITLED_ARCHITECTURE_LABEL = "System name was not stored" as const;
 
 /**
  * Prior untitled labels still present in local registries — sanitized on read.

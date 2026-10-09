@@ -3,10 +3,14 @@
  * API may emit `Committed` for a finalized record; UI elsewhere maps that to "Finalized".
  */
 export function governanceGateLabelFromManifestStatus(status: string | undefined | null): string {
-  const t = (status ?? "").trim();
+  if (status === null || status === undefined) {
+    return "Manifest status was not stored.";
+  }
+
+  const t = status.trim();
 
   if (t.length === 0) {
-    return "Not configured";
+    return "Status not recognized";
   }
 
   if (/^committed$/i.test(t) || /^finalized$/i.test(t) || /^approved$/i.test(t)) {

@@ -29,6 +29,12 @@ type RunDetailAuthorityChainSectionProps = {
   readonly manifestId: string | null | undefined;
 };
 
+export function resolveFinalizedReviewRecordLabel(manifestId: string | null | undefined): string {
+  return (manifestId ?? "").trim().length > 0
+    ? "Finalized review record"
+    : "Finalized review record was not stored.";
+}
+
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
@@ -119,15 +125,17 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
               <GlossaryTooltip termKey="golden_manifest">{manifestLabel}</GlossaryTooltip>
             </p>
             <div className="mt-2 min-w-0">
-              {manifestId ? (
+              {manifestIdTrimmed.length > 0 ? (
                 <Link
                   className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
-                  href={signedRecordDetailPath(manifestId)}
+                  href={signedRecordDetailPath(manifestIdTrimmed)}
                 >
-                  Finalized review record
+                  {resolveFinalizedReviewRecordLabel(manifestIdTrimmed)}
                 </Link>
               ) : (
-                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>—</span>
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                  {resolveFinalizedReviewRecordLabel(manifestId)}
+                </span>
               )}
             </div>
           </div>

@@ -22,7 +22,7 @@ function truncatePlain(text: string, maxChars: number): string {
 
 function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string {
   if (manifestStatusLabel === null || manifestStatusLabel.trim().length === 0) {
-    return "proposed";
+    return "ADR status was not stored.";
   }
 
   const lower = manifestStatusLabel.trim().toLowerCase();
@@ -70,7 +70,7 @@ export function buildMadrMarkdownFromRun(
   input: AdrGeneratorRunInput,
   options?: BuildMadrMarkdownFromRunOptions,
 ): string {
-  const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : `Architecture review ${input.runId}`;
+  const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : "Review title was not stored.";
   const status = adrStatusFromManifestLabel(input.manifestStatusLabel);
   const dateLine = isoDateOnly(input.createdUtc);
   const exp = input.explanation;
@@ -144,7 +144,7 @@ export function buildMadrMarkdownFromRun(
             const trustLine = formatFindingTrustExportLine(f);
             const trustBullet =
               trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
-            const provenanceKind = f.provenanceKind ?? "Unknown";
+            const provenanceKind = f.provenanceKind ?? "Provenance kind was not stored.";
             const semanticSupportBullet =
               f.semanticSupportBand !== null
               && f.semanticSupportBand !== undefined
@@ -166,7 +166,7 @@ export function buildMadrMarkdownFromRun(
           "| --- | --- |",
           ...input.findings.map(
             (finding) =>
-              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Unknown"} |`,
+              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
           ),
           "",
         ].join("\n");

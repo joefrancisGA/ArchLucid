@@ -66,7 +66,7 @@ export function deriveHighestFindingSeverityLabel(
   const total = counts.critical + counts.high + counts.medium + counts.low;
 
   if (total === 0) {
-    return fallback;
+    return findings.length > 0 ? "Severity was not stored" : fallback;
   }
 
   if (counts.critical > 0) {

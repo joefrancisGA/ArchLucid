@@ -70,6 +70,19 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
                     if (AzureInventoryAdfDataflowExtractor.TryExtractFromArmResource(
                             factoryResourceId,
                             dataflowResource,
+                            datasets
+                                .Where(dataset => dataset.CollectionStatus.Equals(
+                                    AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                                    StringComparison.OrdinalIgnoreCase))
+                                .Where(dataset => dataset.FactoryResourceId.Equals(
+                                    factoryResourceId,
+                                    StringComparison.OrdinalIgnoreCase))
+                                .Where(dataset => !string.IsNullOrWhiteSpace(dataset.DatasetName)
+                                    && !string.IsNullOrWhiteSpace(dataset.LinkedServiceName))
+                                .ToDictionary(
+                                    dataset => dataset.DatasetName,
+                                    dataset => dataset.LinkedServiceName,
+                                    StringComparer.OrdinalIgnoreCase),
                             out AzureInventoryAdfDataflowRow? dataflowRow)
                         && dataflowRow is not null)
                     {

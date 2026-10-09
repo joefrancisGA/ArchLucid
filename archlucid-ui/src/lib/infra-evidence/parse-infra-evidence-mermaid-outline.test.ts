@@ -46,7 +46,9 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
 
     expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "vnet1")).toBe("vnet-eastus");
-    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe("No stored link");
+    expect(resolveInfraEvidenceOutlineNodeLabel(outline.nodes, "missing")).toBe(
+      "Endpoint was not in this diagram outline",
+    );
   });
 
   it("prefers metadata seed ids over mermaid node hashes", () => {

@@ -82,6 +82,10 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
 }
 
 function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
+  if (node.connectionState === undefined) {
+    return "No connection state detail was stored.";
+  }
+
   const details = node.unresolvedRelationshipDetails ?? [];
 
   if (details.length > 0) {
@@ -94,7 +98,11 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   if (questionableReason.length > 0) {
     return questionableAction.length > 0
       ? `${questionableReason} Recommended action: ${questionableAction}`
-      : questionableReason;
+      : `${questionableReason} Recommended action was not stored.`;
+  }
+
+  if (questionableAction.length > 0) {
+    return `${questionableAction} Question reason was not stored.`;
   }
 
   const separatorIndex = node.label.indexOf(" · ");
@@ -199,6 +207,7 @@ function downloadDiagramOutlineJson(
 ): void {
   const payload = {
     exportKind: `ArchLucid.InfraEvidenceDiagram.${kind}.v1`,
+    note: "These rows are the diagram outline. Edges may be observed, declared, probable, or inferred. A property that is absent was not stored.",
     [kind]: rows,
   };
 
@@ -466,14 +475,16 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       stateByNodeId.set(node.id, node.connectionState);
     }
 
-    for (const node of allConnectedNodes) {
+    for (const node of allUnconnectedNodes) {
       if (stateByNodeId.get(node.id) == null) {
-        stateByNodeId.set(node.id, "Connected");
+        stateByNodeId.set(node.id, "Unknown");
       }
     }
 
-    for (const node of allUnconnectedNodes) {
-      if (stateByNodeId.get(node.id) == null) {
+    for (const node of allConnectedNodes) {
+      if (node.connectionState === null) {
+        stateByNodeId.set(node.id, "Unknown");
+      } else if (node.connectionState === undefined) {
         stateByNodeId.set(node.id, "Unknown");
       }
     }
@@ -560,7 +571,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       <div className="flex flex-col gap-4 p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Download the structured evidence behind this diagram.
+            Download the nodes and edges for this diagram. The file includes observed, declared, probable, and inferred rows. An absent property was not stored.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button

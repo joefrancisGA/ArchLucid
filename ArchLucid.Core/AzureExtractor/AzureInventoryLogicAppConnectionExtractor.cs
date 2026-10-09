@@ -7,6 +7,31 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryLogicAppConnectionExtractor
 {
+    private static readonly string[] AllowedActionResourceProviders =
+    [
+        "microsoft.datafactory/factories",
+        "microsoft.synapse/workspaces",
+        "microsoft.storage/storageaccounts",
+        "microsoft.web/sites",
+        "microsoft.servicebus/namespaces",
+        "microsoft.eventhub/namespaces",
+        "microsoft.sql/servers",
+        "microsoft.documentdb/databaseaccounts",
+    ];
+
+    private static readonly string[] SensitivePropertyFragments =
+    [
+        "password",
+        "secret",
+        "connectionstring",
+        "securedata",
+        "accesskey",
+        "accountkey",
+        "token",
+        "sas",
+        "authentication",
+    ];
+
     public static IReadOnlyList<AzureInventoryLogicAppConnectionRow> ExtractFromWorkflow(
         string workflowResourceId,
         string workflowName,
@@ -66,6 +91,25 @@ public static class AzureInventoryLogicAppConnectionExtractor
                     CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
                 });
             }
+        }
+
+        HashSet<string> connectionResourceIds = rows
+            .Select(row => row.ConnectionResourceId)
+            .Where(connectionResourceId => !string.IsNullOrWhiteSpace(connectionResourceId))
+            .Select(connectionResourceId => connectionResourceId!.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (propertiesElement.TryGetProperty("definition", out JsonElement definitionElement)
+            && definitionElement.ValueKind is JsonValueKind.Object
+            && definitionElement.TryGetProperty("actions", out JsonElement actionsElement)
+            && actionsElement.ValueKind is JsonValueKind.Object)
+        {
+            ExtractActionConnections(
+                workflowResourceId.Trim(),
+                workflowName.Trim(),
+                actionsElement,
+                connectionResourceIds,
+                rows);
         }
 
         return rows;
@@ -183,5 +227,148 @@ public static class AzureInventoryLogicAppConnectionExtractor
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+    }
+
+    private static void ExtractActionConnections(
+        string workflowResourceId,
+        string workflowName,
+        JsonElement actionsElement,
+        HashSet<string> connectionResourceIds,
+        List<AzureInventoryLogicAppConnectionRow> rows)
+    {
+        foreach (JsonProperty actionProperty in actionsElement.EnumerateObject())
+        {
+            if (actionProperty.Value.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            ExtractActionConnectionValues(
+                workflowResourceId,
+                workflowName,
+                actionProperty.Name,
+                actionProperty.Value,
+                connectionResourceIds,
+                rows);
+        }
+    }
+
+    private static void ExtractActionConnectionValues(
+        string workflowResourceId,
+        string workflowName,
+        string actionName,
+        JsonElement actionElement,
+        HashSet<string> connectionResourceIds,
+        List<AzureInventoryLogicAppConnectionRow> rows)
+    {
+        foreach (JsonProperty property in actionElement.EnumerateObject())
+        {
+            if (IsSensitiveProperty(property.Name))
+            {
+                continue;
+            }
+
+            if (property.Name.Equals("actions", StringComparison.OrdinalIgnoreCase)
+                && property.Value.ValueKind is JsonValueKind.Object)
+            {
+                ExtractActionConnections(
+                    workflowResourceId,
+                    workflowName,
+                    property.Value,
+                    connectionResourceIds,
+                    rows);
+
+                continue;
+            }
+
+            if (property.Value.ValueKind is JsonValueKind.String)
+            {
+                string? resourceId = TryReadAllowedResourceId(property.Value.GetString(), workflowResourceId);
+
+                if (!string.IsNullOrWhiteSpace(resourceId)
+                    && connectionResourceIds.Add(resourceId))
+                {
+                    rows.Add(new AzureInventoryLogicAppConnectionRow
+                    {
+                        WorkflowResourceId = workflowResourceId,
+                        WorkflowName = workflowName,
+                        ConnectionName = actionName,
+                        ConnectionResourceId = resourceId,
+                        CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                    });
+                }
+
+                continue;
+            }
+
+            if (property.Value.ValueKind is JsonValueKind.Object)
+            {
+                ExtractActionConnectionValues(
+                    workflowResourceId,
+                    workflowName,
+                    actionName,
+                    property.Value,
+                    connectionResourceIds,
+                    rows);
+            }
+            else if (property.Value.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement item in property.Value.EnumerateArray())
+                {
+                    if (item.ValueKind is JsonValueKind.Object)
+                    {
+                        ExtractActionConnectionValues(
+                            workflowResourceId,
+                            workflowName,
+                            actionName,
+                            item,
+                            connectionResourceIds,
+                            rows);
+                    }
+                }
+            }
+        }
+    }
+
+    private static bool IsSensitiveProperty(string propertyName)
+    {
+        string normalizedName = propertyName.Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .ToLowerInvariant();
+
+        return SensitivePropertyFragments.Any(normalizedName.Contains);
+    }
+
+    private static string? TryReadAllowedResourceId(string? value, string workflowResourceId)
+    {
+        if (string.IsNullOrWhiteSpace(value)
+            || value.Contains('@', StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        string candidate = value.Trim();
+        if (!candidate.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || candidate.Equals(workflowResourceId, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string[] segments = candidate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        int providerIndex = Array.FindIndex(
+            segments,
+            segment => segment.Equals("providers", StringComparison.OrdinalIgnoreCase));
+
+        if (providerIndex < 0 || providerIndex + 2 >= segments.Length)
+        {
+            return null;
+        }
+
+        string providerAndType =
+            $"{segments[providerIndex + 1]}/{segments[providerIndex + 2]}".ToLowerInvariant();
+
+        return AllowedActionResourceProviders.Contains(providerAndType, StringComparer.OrdinalIgnoreCase)
+            ? candidate
+            : null;
     }
 }

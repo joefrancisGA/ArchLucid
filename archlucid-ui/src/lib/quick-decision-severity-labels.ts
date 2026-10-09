@@ -31,8 +31,9 @@ export function severityBadgeLabel(severityValue: number | null | undefined): st
     case 1:
       return "Medium";
     case 0:
-    default:
       return "Info";
+    default:
+      return "Severity unknown";
   }
 }
 
@@ -121,14 +122,14 @@ export function normalizeFindingHumanReviewStatus(value: unknown): number | null
 }
 
 /**
- * Maps the raw `FindingHumanReviewStatus` enum (0=NotRequired, 1=Pending, 2=Approved, 3=Rejected, 4=Overridden)
- * to a display label + status-tag kind. `NotRequired` and unrecognized values return `null` so the default
- * (most common) case renders no badge instead of a noisy "Not required" tag on every finding.
+ * Maps the raw `FindingHumanReviewStatus` enum to a display label + status-tag kind.
  */
 export function humanReviewStatusDisplay(
   value: number | null | undefined,
-): FindingHumanReviewStatusDisplay | null {
+): FindingHumanReviewStatusDisplay {
   switch (value) {
+    case 0:
+      return { label: "No human review required", statusKind: "neutral" };
     case 1:
       return { label: "Pending review", statusKind: "needs-attention" };
     case 2:
@@ -137,8 +138,11 @@ export function humanReviewStatusDisplay(
       return { label: "Rejected", statusKind: "blocked" };
     case 4:
       return { label: "Overridden", statusKind: "in-progress" };
+    case null:
+    case undefined:
+      return { label: "Human review status was not stored", statusKind: "neutral" };
     default:
-      return null;
+      return { label: "Human review status unknown", statusKind: "neutral" };
   }
 }
 
@@ -150,11 +154,7 @@ function normalizedSeverity(severityValue: number): number | null {
   const n = Math.trunc(severityValue);
 
   if (n < 0) {
-    return 0;
-  }
-
-  if (n > 3) {
-    return 3;
+    return n;
   }
 
   return n;

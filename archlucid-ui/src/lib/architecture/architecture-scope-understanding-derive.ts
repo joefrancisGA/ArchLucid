@@ -172,7 +172,7 @@ export function deriveScopeUnderstandingBullets(
       bullets,
       "fallback",
       "fallback",
-      "ArchLucid will infer scope from the brief and evidence you provide in this intake.",
+      "Scope was not stored on this draft.",
     );
   }
 

@@ -112,7 +112,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell, severityMeaning)}</EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.recordKind === "decision" ? (
-              <span className="text-al-text-secondary">—</span>
+              <span className="text-al-text-secondary">Not used on decision rows</span>
             ) : row.traceConfidenceLevel === "High" ||
               row.traceConfidenceLevel === "Medium" ||
               row.traceConfidenceLevel === "Low" ? (

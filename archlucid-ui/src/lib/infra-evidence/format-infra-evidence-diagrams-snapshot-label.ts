@@ -11,7 +11,7 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   const captured =
     snapshot.capturedUtc != null && snapshot.capturedUtc.trim().length > 0
       ? formatInstantInPreferredTimeZoneMilitary(snapshot.capturedUtc, ianaTimeZoneId)
-      : "unknown capture time";
+      : "Captured time was not stored";
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
   const parts: string[] = [];
 

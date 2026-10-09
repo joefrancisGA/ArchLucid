@@ -908,7 +908,12 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                             Open cited inventory evidence
                           </Link>
                         ) : (
-                          <span>{citation.label ?? `${citation.kind}: ${citation.id}`}</span>
+                          <span>
+                            {citation.label == null || citation.label.trim().length === 0
+                              ? "Citation label was not stored."
+                              : citation.label.trim()}
+                            {" This citation has no page to open."}
+                          </span>
                         )}
                       </li>
                     );

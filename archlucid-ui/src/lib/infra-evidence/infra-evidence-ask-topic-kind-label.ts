@@ -13,7 +13,7 @@ export function formatInfraEvidenceAskTopicKindLabel(topicKind: string): string 
   const trimmed = topicKind.trim();
 
   if (trimmed.length === 0) {
-    return "Answer";
+    return "Topic was not stored";
   }
 
   const mapped = INFRA_EVIDENCE_ASK_TOPIC_KIND_LABELS[trimmed];

@@ -28,5 +28,6 @@ The default is **10 output** suggestions and **10 usability** suggestions. A req
 |-------|-------|--------|
 | 1 — Suggest | `grok-4.7-high` | 10 output items and 10 usability items on the first-review path |
 | 2 — Implement | `gpt-5.6-luna-medium` | Those items, with focused tests |
+| 3 — Pull request | Parent | One pull request against `master` for the files Luna changed |
 
-Both slugs need an allowlist `ok` or `yes` in the current conversation before either subagent starts. The parent does not write the suggestions or the code. The command does not commit.
+Both slugs need an allowlist `ok` or `yes` in the current conversation before either subagent starts. The parent does not write the suggestions or the code. Luna does not commit. After implementation, the parent opens the pull request. `--suggest-only` does not.

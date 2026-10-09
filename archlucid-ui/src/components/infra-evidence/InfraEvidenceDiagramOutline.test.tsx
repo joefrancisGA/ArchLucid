@@ -17,12 +17,14 @@ const outline: InfraEvidenceMermaidOutline = {
       label: "core-vnet",
       resourceType: "Microsoft.Network/virtualNetworks",
       resourceGroup: "rg-network",
+      connectionState: "Connected",
     },
     {
       id: "n_dst",
       label: "app-storage",
       resourceType: "Microsoft.Storage/storageAccounts",
       resourceGroup: "rg-apps",
+      connectionState: "Connected",
     },
   ],
   edges: [
@@ -135,7 +137,21 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(nodesTable).queryByText("Microsoft.Network/virtualNetworks")).toBeNull();
     expect(within(nodesTable).getByText("rg-network")).toBeTruthy();
     expect(within(edgesTable).getByText("core-vnet")).toBeTruthy();
-    expect(within(edgesTable).getByText("n_missing")).toBeTruthy();
+    expect(within(edgesTable).getByText("Endpoint was not in this diagram outline")).toBeTruthy();
+  });
+
+  it("does not infer Connected when a connected node has no stored state", () => {
+    const stateMissingOutline: InfraEvidenceMermaidOutline = {
+      ...outline,
+      nodes: outline.nodes.map((node) => ({ ...node, connectionState: null })),
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={stateMissingOutline} defaultNodesOpen={true} />);
+
+    expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+      "No connection state detail was stored.",
+    );
   });
 
   it("separates edge sources and lists probable edges before observed edges", () => {
@@ -143,6 +159,16 @@ describe("InfraEvidenceDiagramOutline", () => {
       ...outline,
       edges: [
         ...outline.edges,
+        {
+          from: "n_src",
+          to: "n_dst",
+          label: "connects",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: null,
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
         {
           from: "n_dst",
           to: "n_src",
@@ -255,7 +281,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable).getByText("peering")).toBeTruthy();
+    expect(within(edgesTable).getByText("Not recorded")).toBeTruthy();
     expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 
@@ -290,12 +316,14 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "core-vnet",
           resourceType: "Microsoft.Network/virtualNetworks",
           resourceGroup: "rg-network",
+          connectionState: "Connected",
         },
         {
           id: "n_dst",
           label: "app-storage",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-apps",
+          connectionState: "Connected",
         },
       ],
       edges: [
@@ -363,12 +391,14 @@ describe("InfraEvidenceDiagramOutline", () => {
           label: "alpha-node",
           resourceType: "Microsoft.Network/virtualNetworks",
           resourceGroup: "rg-a",
+          connectionState: "Connected",
         },
         {
           id: "n_b",
           label: "beta-node",
           resourceType: "Microsoft.Storage/storageAccounts",
           resourceGroup: "rg-b",
+          connectionState: "Connected",
         },
         {
           id: "n_c",
@@ -435,6 +465,7 @@ describe("InfraEvidenceDiagramOutline", () => {
         label: `node-${String(index).padStart(3, "0")}`,
         resourceType: "Microsoft.Storage/storageAccounts",
         resourceGroup: `rg-${index}`,
+        connectionState: "Connected" as const,
       })),
       edges: Array.from({ length: 201 }, (_, index) => ({
         from: "n_0",
@@ -534,7 +565,9 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
 
     fireEvent.click(screen.getByTestId("infra-diagrams-declared-edge-n_src-n_dst"));
-    expect(screen.getByTestId("infra-evidence-declared-connection-panel")).toBeInTheDocument();
+    const declaredPanel = screen.getByTestId("infra-evidence-declared-connection-panel");
+    expect(declaredPanel).toBeInTheDocument();
+    expect(within(declaredPanel).queryByText("Approver was not included on the loaded connection")).not.toBeInTheDocument();
 
     rerender(<InfraEvidenceDiagramOutline outline={outline} defaultEdgesOpen={true} />);
 
@@ -552,7 +585,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(downloadSpy).toHaveBeenNthCalledWith(
       1,
       expect.stringMatching(/^infra-diagram-nodes-.*\.json$/u),
-      expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.nodes.v1"'),
+      expect.stringContaining('"note": "These rows are the diagram outline. Edges may be observed, declared, probable, or inferred. A property that is absent was not stored."'),
       "application/json;charset=utf-8",
     );
     expect(downloadSpy).toHaveBeenNthCalledWith(
@@ -561,6 +594,9 @@ describe("InfraEvidenceDiagramOutline", () => {
       expect.stringContaining('"exportKind": "ArchLucid.InfraEvidenceDiagram.edges.v1"'),
       "application/json;charset=utf-8",
     );
+    expect(screen.getByText(
+      "Download the nodes and edges for this diagram. The file includes observed, declared, probable, and inferred rows. An absent property was not stored.",
+    )).toBeInTheDocument();
 
     downloadSpy.mockRestore();
   });
@@ -818,6 +854,30 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(screen.queryByTestId("infra-diagrams-orphaned-nodes-list")).toBeNull();
     expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(screen.queryByTestId("infra-diagrams-unknown-nodes-list")).toBeNull();
+  });
+
+  it("keeps an omitted connection state out of connected and explains the omission", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n-missing-state",
+              label: "resource-without-state",
+              resourceType: "Microsoft.Storage/storageAccounts",
+              resourceGroup: "rg-a",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+      "No connection state detail was stored.",
+    );
   });
 
   it("renders ledger drops when mermaid outline includes them", () => {

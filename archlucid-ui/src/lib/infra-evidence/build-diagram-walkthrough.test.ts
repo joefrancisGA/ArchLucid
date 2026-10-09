@@ -39,6 +39,21 @@ describe("buildDiagramWalkthrough", () => {
 
     expect(summary).toContain("2 connected components");
   });
+
+  it("splits relationship counts by evidence source", () => {
+    const summary = buildDiagramWalkthrough({
+      nodes: [],
+      edges: [
+        { from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null },
+        { from: "b", to: "c", label: null, source: "declared", declaredConnectionId: null },
+        { from: "c", to: "d", label: null, source: "inferred", declaredConnectionId: null },
+      ],
+    });
+
+    expect(summary).toContain("1 observed, 1 declared, 1 inferred");
+    expect(summary).toContain("Relationships that are not observed are not inventory links.");
+    expect(summary).not.toContain("visible relationships");
+  });
 });
 
 describe("buildDiagramNodeExplain", () => {

@@ -55,9 +55,11 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
                 ? "ArchLucid Architecture Review (DEMO)"
                 : "ArchLucid Architecture Review";
 
-            subtitle = string.IsNullOrWhiteSpace(model.SystemName) ? model.RunId.Trim() : model.SystemName.Trim();
+            subtitle = string.IsNullOrWhiteSpace(model.SystemName)
+                ? "System name was not stored."
+                : model.SystemName.Trim();
 
-            if (model.IsDemoTenant)
+            if (model.IsDemoTenant && !string.IsNullOrWhiteSpace(model.SystemName))
                 subtitle += " (DEMO)";
         }
 

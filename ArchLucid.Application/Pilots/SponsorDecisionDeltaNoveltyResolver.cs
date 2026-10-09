@@ -69,7 +69,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
         {
             ArchitectureFinding finding = findings[index];
             string severity = finding.Severity.ToString();
-            string category = string.IsNullOrWhiteSpace(finding.Category) ? "General" : finding.Category.Trim();
+            string category = string.IsNullOrWhiteSpace(finding.Category) ? "Category was not stored." : finding.Category.Trim();
             string message = Truncate(finding.Message, 180);
 
             sb.Append(CultureInfo.InvariantCulture, $"{index + 1}. **{severity}** ({category}) — {message}");

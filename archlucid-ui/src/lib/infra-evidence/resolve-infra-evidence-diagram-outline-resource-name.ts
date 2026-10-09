@@ -7,7 +7,7 @@ export function resolveInfraEvidenceDiagramOutlineResourceName(
   const label = node.label.split(" · ", 1)[0]?.trim() ?? "";
 
   if (label.length === 0) {
-    return node.id;
+    return "Node name was not stored";
   }
 
   // Mermaid labels sometimes already include a trailing "(type)" suffix. Strip it

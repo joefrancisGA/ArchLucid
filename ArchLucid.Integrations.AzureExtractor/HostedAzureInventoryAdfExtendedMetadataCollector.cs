@@ -71,6 +71,26 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                     }
                 }
 
+                IReadOnlyList<JsonElement> datasetResources = await armReadClient
+                    .ListFactoryDatasetsAsync(accessToken, factoryResourceId, cancellationToken)
+                    .ConfigureAwait(false);
+                Dictionary<string, string> datasetLinkedServiceNames = [];
+
+                foreach (JsonElement datasetResource in datasetResources)
+                {
+                    if (AzureInventoryAdfDatasetSanitizer.TrySanitizeFromArmResource(
+                            factoryResourceId,
+                            datasetResource,
+                            out AzureInventoryAdfDatasetRow? datasetRow)
+                        && datasetRow is not null
+                        && datasetRow.CollectionStatus.Equals(
+                            AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        datasetLinkedServiceNames[datasetRow.DatasetName] = datasetRow.LinkedServiceName;
+                    }
+                }
+
                 IReadOnlyList<JsonElement> dataflowResources = await armReadClient
                     .ListFactoryDataflowsAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
@@ -80,6 +100,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                     if (AzureInventoryAdfDataflowExtractor.TryExtractFromArmResource(
                             factoryResourceId,
                             dataflowResource,
+                            datasetLinkedServiceNames,
                             out AzureInventoryAdfDataflowRow? dataflowRow)
                         && dataflowRow is not null)
                     {
