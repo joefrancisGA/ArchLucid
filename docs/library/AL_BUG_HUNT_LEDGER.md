@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `POST /v1/admin/identity/activate` stored `UpdatedByActorId` as `jwt:{tid}:{oid}` from `HttpActorContext`, then copied that id onto the audit event. `AuditService` replaced `ActorUserId` with `NameIdentifier` because `ExplicitActor` was unset. An Entra token whose `oid` is also `NameIdentifier` persisted `obj-guid` while the configuration row kept `jwt:tenant-guid:obj-guid`. Activation now marks the actor explicit. Regression `ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs` failed first with `obj-guid`. 61 activation and controller tests passed. A non-canonicalizable stored issuer on GET stays verbatim so the operator can edit it; activate still rejects that URL.
+
 2026-10-09 seed hunt (seed→hit): `api-key-auth` — `POST /v1/admin/settings/api-keys/rotate` and `POST /v1/admin/apikeys/{keyId}/rotate` set the audit actor to the API key principal name, but `AuditService` replaces `ActorUserId` with `NameIdentifier` unless `ExplicitActor` is set. API key principals have a name and no name identifier, so both rotation audits persisted `unknown`. Both routes now mark the actor explicit. Regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` failed first with `unknown`. 71 scoped API-key unit tests passed. Two endpoint tests still fail because this VM has no SQL Server.
 
 2026-10-09 seed hunt (seed→hit): `api-governance-stickiness` — `GET /v1/governance/decisions-needed-summary` sealed only the latest committed run, then counted stale and unowned risks from the same risk-register page `GET /v1/governance/risk-register` already refuses when a row run has no golden manifest. The summary now loads that 100-row page and seals each row run before the totals are returned. Regression `GetDecisionsNeededSummary_blocks_older_unsealed_register_row_when_latest_run_is_sealed` failed first with HTTP 200, then 211 API picker-scoped tests and 69 application stickiness and digest-composer tests passed.
@@ -10819,13 +10821,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 44
-- **bugs-found:** 28
+- **hunts:** 45
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — OIDC discovery fetched document jwks_uri values outside HTTP(S) validation
+- **last-bug:** 2026-10-09 — SSO activation audit stored NameIdentifier instead of the jwt actor id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): activation persisted `jwt:{tid}:{oid}` and the audit event was then rewritten to `NameIdentifier`. `ExplicitActor` keeps the configuration-row actor id. GET still returns a stored issuer that cannot be canonicalized so the operator can correct it.
 
 2026-10-09 seed hunt (seed→hit): proved `IdentityProviderDiscoveryService.DiscoverOidcAsync`, reached from `IdentityProviderConfigurationController.DiscoverAsync`, fetched an OpenID document `jwks_uri` after only `Uri.TryCreate` absolute, so `file://`, `javascript:`, userinfo, and fragment JWKS URLs were requested while metadata URL and issuer already use `IdentityProviderUriValidator`; fetch now requires that validator; regression `DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation`; 11 discovery tests and 60 activation/controller tests passed.
 
@@ -10836,7 +10840,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IdentityProviderConfigurationController.GetConfigurationAsync` — stored issuer with redundant default port returned verbatim — **hit 2026-10-06 seed hunt (seed→hit):** `WithCanonicalConfigurationIssuer`; regression above.
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits SAML metadata configured flag — **cheap-disproof 2026-10-06 seed hunt:** intentional audit summary; operators use GET configuration or DB row for full SAML fields.
 
-- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — when stored `IssuerUri` is not canonicalizable (legacy bad URL), read path returns it verbatim with no validation envelope, so the wizard may loop on activate 400 until the operator edits the issuer manually.
+- [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — when stored `IssuerUri` is not canonicalizable (legacy bad URL), read path returns it verbatim — **cheap-disproof 2026-10-09 seed hunt:** `WithCanonicalConfigurationIssuer` returns the stored row when HTTP(S) canonicalization fails so the operator can see and replace it; activate still rejects that URL.
 
 2026-10-06 seed hunt (seed→hit): promoted and proved `IdentityProviderConfigurationController.TestLogin` returned sandbox success for invalid `Protocol` values (`oauth`, whitespace) while `IdentityProviderActivationService` rejects them on activate; shared `IdentityProviderProtocolParser` validates and normalizes protocol on test-login (and activation); regressions `TestLogin_rejects_invalid_protocol` and `TestLogin_passes_normalized_protocol_token_to_sandbox_service`; seeded GET configuration issuer canonicalization on read and activate audit metadata presence follow-ups; 59 scoped activation/controller tests passed.
 
@@ -10943,6 +10947,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `ActorUserId` was set to the persisted `jwt:{tid}:{oid}` actor id, then `AuditService` replaced it with `NameIdentifier` — **hit 2026-10-09 seed hunt (seed→hit):** `ExplicitActor` on the activation audit; regression `ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs` (failed first as `obj-guid`).
 - [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — document `jwks_uri` with a non-HTTP(S) scheme, userinfo, or fragment was fetched — **hit 2026-10-09 seed hunt (seed→hit):** `TryCreateAbsoluteHttpOrHttps` before `FetchJwksThumbprintsAsync`; regression `DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation`.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ActivateAsync` — claim mapping with zero explicit `Mappings` and no `CustomGroupClaimRegex` persists while sandbox test-login cannot resolve roles — **cheap-disproof 2026-09-27 seed hunt:** `IdentityClaimRoleMappingValidator.Evaluate` warn-only by design; operators use test-login before commit; not a `ToDocument`/substantive-guard defect
 - [x] (invalid) Activation writes IdP settings onto a tenant the admin does not own — `ActivateAsync` uses `scope.TenantId` from `ScopeContextProvider`; no tenant override in request body

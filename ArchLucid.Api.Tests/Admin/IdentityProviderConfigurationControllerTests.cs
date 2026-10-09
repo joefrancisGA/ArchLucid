@@ -1,3 +1,5 @@
+using System.Data;
+using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Admin;
@@ -7,6 +9,8 @@ using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Identity;
 
 using FluentAssertions;
@@ -164,6 +168,80 @@ public sealed class IdentityProviderConfigurationControllerTests
         loaded.Should().NotBeNull();
         loaded!.UpdatedByActorId.Should().Be("admin@test");
         captured.ActorUserId.Should().Be(loaded.UpdatedByActorId);
+    }
+
+    [Fact]
+    public async Task ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService activation = new(repository);
+
+        AuditEvent? captured = null;
+        Mock<IAuditRepository> auditRepository = new();
+        auditRepository
+            .Setup(repo => repo.AppendAsync(
+                It.IsAny<AuditEvent>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .Callback<AuditEvent, CancellationToken, IDbConnection?, IDbTransaction?>((auditEvent, _, _, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("tid", "tenant-guid"),
+                        new Claim("oid", "obj-guid"),
+                        new Claim(ClaimTypes.NameIdentifier, "obj-guid"),
+                        new Claim(ClaimTypes.Name, "Admin User"),
+                    ],
+                    authenticationType: "Bearer")),
+        };
+
+        Mock<IHttpContextAccessor> httpAccessor = new();
+        httpAccessor.Setup(accessor => accessor.HttpContext).Returns(httpContext);
+
+        IdentityProviderConfigurationController controller = new(
+            Mock.Of<IIdentityProviderDiscoveryService>(),
+            new SsoWizardTestLoginService(),
+            activation,
+            repository,
+            scopeProvider.Object,
+            new HttpActorContext(httpAccessor.Object),
+            new AuditService(auditRepository.Object, httpAccessor.Object, scopeProvider.Object))
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext },
+        };
+
+        await controller.ActivateAsync(
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping(),
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.UpdatedByActorId.Should().Be("jwt:tenant-guid:obj-guid");
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be(loaded.UpdatedByActorId);
     }
 
     [Fact]
