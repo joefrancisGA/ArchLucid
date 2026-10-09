@@ -120,6 +120,7 @@ public static class TopologyExpectedCategoryResolver
         bool mentionsDatastore = ContainsAnyKeyword(
             tokens,
             "sql",
+            "nosql",
             "database",
             "datastore",
             "cosmos",
@@ -138,13 +139,72 @@ public static class TopologyExpectedCategoryResolver
     {
         foreach (string token in tokens)
         {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                continue;
+            }
+
             foreach (string keyword in keywords)
             {
-                if (token.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                if (TokenContainsKeyword(token, keyword))
+                {
                     return true;
+                }
             }
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     Matches a scope keyword without treating it as a raw substring.
+    ///     Short cues such as spa, rest, api, and sql are whole delimiter tokens only, so
+    ///     workspace does not imply a static site and restore does not imply a REST API.
+    ///     A keyword of five letters or more may prefix a longer product token
+    ///     (postgres in postgresql, network in networking).
+    /// </summary>
+    private static bool TokenContainsKeyword(string token, string keyword)
+    {
+        string normalizedToken = token.ToLowerInvariant();
+        string normalizedKeyword = keyword.ToLowerInvariant();
+
+        if (normalizedKeyword.Contains(' ', StringComparison.Ordinal))
+        {
+            return DecisioningTextTokenMatcher.ContainsPattern(normalizedToken, normalizedKeyword);
+        }
+
+        string[] parts = normalizedToken.Split(
+            ['/', '.', '_', ':', ' ', '-'],
+            StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string part in parts)
+        {
+            if (part.Equals(normalizedKeyword, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (IsLongerProductToken(part, normalizedKeyword))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsLongerProductToken(string part, string keyword)
+    {
+        if (keyword.Length < 5 || part.Length <= keyword.Length)
+        {
+            return false;
+        }
+
+        if (!part.StartsWith(keyword, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return char.IsLetter(part[keyword.Length]);
     }
 }

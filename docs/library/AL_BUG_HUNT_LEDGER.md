@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyExpectedCategoryResolver` treated scope keywords as raw substrings, so a required capability `log analytics workspace` matched `spa` and dropped the Storage pillar, and `point-in-time restore` matched `rest` and dropped the Data pillar. Those capabilities are copied from the architecture request onto the context snapshot. Short keywords are now whole delimiter tokens, and keywords of five letters or more may still prefix a longer product token (`postgresql`, `networking`). `nosql` stays an explicit datastore cue. Regressions `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`; focused resolver tests passed 8/8, and the picker scope passed 1280 with 14 unrelated baseline failures.
+
 2026-10-09 seed hunt (seed→hit): `ui-claim-discipline-policy` — buyer-polished residual help TOC appended `#help-topic-catchall-claim-discipline-heading` and then called `resolveGuideHeadingsForStrip("help-topic-catchall", …)`, but that slug was absent from the omit set, so the filter kept the row. The header claim is a paragraph with no matching id and the bottom strip is sources-only, leaving desktop and mobile TOC links with no target. `help-topic-catchall` is now omitted. Regression `drops the residual help catchall claim heading when the header owns the band`; the buyer-polished catchall view no longer renders those links. 29 scoped claim-discipline and catchall tests passed.
 
 2026-10-09 seed hunt (seed→hit): `architecture-recommendation` — trade-off rationale always said declared priorities resolved the competing pair, including when the list was empty or named neither dimension. `ClosedLoopReasoningResult.Recommendations` returns that text. Security/Cost with an unrelated priority and Reliability/Cost with an empty list now say no declared priority selected either dimension. A priority that names a side keeps the previous rationale. Regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`; 55 Alternatives, ProposedChange, and TradeOffBuilder tests passed.
@@ -16222,13 +16224,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 43
-- **bugs-found:** 34
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-03
-- **last-bug:** 2026-10-03 — unmanaged identity capability triggered managed identity control
+- **hunts:** 44
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — workspace capability matched spa and dropped storage expectation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `TopologyExpectedCategoryResolver.ContainsAnyKeyword` still used raw substrings, so reachable request capabilities `log analytics workspace` and `point-in-time restore` dropped Storage and Data from expected topology categories; short keywords are whole delimiter tokens and longer product tokens may still use a five-letter prefix; regression `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`; focused resolver tests passed 8/8 and the picker scope passed 1280 with 14 unrelated baseline failures.
+
+- [x] (proven) `TopologyExpectedCategoryResolver` substring scope keywords — `log analytics workspace` and `point-in-time restore` capabilities — **hit 2026-10-09 seed hunt:** `spa` matched inside `workspace` and `rest` matched inside `restore`, so expected Storage and Data pillars were removed; fixed with delimiter-token matching plus a five-letter product-token prefix; regressions `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`.
 
 2026-10-03 seed hunt (seed-only): re-read decisioning token heuristics and promoted the hyphenated `key-vault` negation candidate; the focused repro passed because `ContainsPattern` delegates hyphenated tokens to `ContainsStandaloneToken`, whose compound-boundary and `non-` checks already reject `non-key-vault-*`. No new defect was proven; the focused heuristic suite passed 10/10.
 
