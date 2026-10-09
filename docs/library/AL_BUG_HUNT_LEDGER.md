@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DatastoreSkuReader` matched only camelCase keys such as `zoneRedundant` and `accountReplicationType`. The declaration parser stores azurerm attributes as `tf.zone_redundant` and `tf.account_replication_type`. `infra/modules/azure-sql-tenant-pool` sets `zone_redundant = false` on `azurerm_mssql_database`, and `infra/terraform-analysis-sandbox` sets `account_replication_type = "LRS"`. A zone-redundant requirement linked to that database emitted no SKU-tier finding. Property lookup now strips the `tf.` prefix and underscores before comparing. `zone_redundant = true` and ZRS stay quiet. Regression `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` failed first with an empty finding list. 10 scoped SKU-tier and reader tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DrReplicaPropertyHeuristic` treated any non-disabled value on a key containing `replica` as replica evidence. `account_replication_type` contains that substring, and the declaration parser stores `tf.account_replication_type`. `infra/terraform-logicapps` sets `account_replication_type = "ZRS"`. Only the exact token `lrs` was rejected, so zone-redundant storage satisfied an RPO requirement and the gap was skipped. `StorageRedundancySku` treats LRS and ZRS, including `Standard_` and `Premium_` prefixes, as single-region. GRS and GZRS still count. Regression `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` failed first with an empty finding list. 10 scoped DrRpo topology finding tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier.IsWeakSqlPosture` treated every minimum TLS value other than the literals `1.2` and `1.3` as weak. azurerm and ARM emit `TLS1_2` (`infra/terraform-storage`), and the declaration parser lowercases that to `tls1_2`, so a compliant storage account was titled as a SQL server with weak TLS. `DeclarationMinimumTlsVersion` accepts `TLS1_2`, `TLS1_3`, `1.2`, and `1.3`. `TLS1_0` still flags. Regression `Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture` failed first with an encryption signal. 14 scoped baseline classifier tests passed. [class:other]
@@ -16457,13 +16459,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 49
-- **bugs-found:** 40
+- **hunts:** 50
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — ZRS storage counted as RPO replica evidence
+- **last-bug:** 2026-10-09 — Terraform zone_redundant=false missed the SKU tier check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `tf.zone_redundant` = `false` and `tf.account_replication_type` = `lrs` were invisible to the SKU reader; normalized Terraform keys before compare; regressions `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` and `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_account_replication_lrs`; 10 scoped SKU-tier and reader tests passed.
+
+- [x] (proven) `DatastoreSkuReader` — `zone_redundant = false` and `account_replication_type = "LRS"` — **hit 2026-10-09 seed hunt:** parser keys `tf.zone_redundant` and `tf.account_replication_type` did not match camelCase logical names, so a zone-redundant requirement emitted no finding; lookup strips `tf.` and underscores; regressions `AnalyzeAsync_emits_finding_when_zone_requirement_and_terraform_zone_redundant_false` and `AnalyzeAsync_emits_none_when_terraform_zone_redundant_true`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved `tf.account_replication_type` = `zrs` satisfied an RPO replica check; single-region storage SKUs are not replica evidence; regressions `AnalyzeAsync_emits_finding_when_rpo_declared_and_storage_replication_is_zrs` and `AnalyzeAsync_emits_none_when_storage_replication_is_gzrs`; 10 scoped DrRpo topology finding tests passed.
 

@@ -162,20 +162,44 @@ public static class DatastoreSkuReader
         string key,
         out string value)
     {
+        string wanted = NormalizePropertyKey(key);
+
         foreach (KeyValuePair<string, string> entry in properties)
         {
-            if (string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase)
-                && !string.IsNullOrWhiteSpace(entry.Value))
+            if (!string.Equals(NormalizePropertyKey(entry.Key), wanted, StringComparison.Ordinal))
             {
-                value = entry.Value.Trim();
-
-                return true;
+                continue;
             }
+
+            if (string.IsNullOrWhiteSpace(entry.Value))
+            {
+                continue;
+            }
+
+            value = entry.Value.Trim();
+
+            return true;
         }
 
         value = string.Empty;
 
         return false;
+    }
+
+    /// <summary>
+    ///     The declaration parser stores Terraform attributes as <c>tf.zone_redundant</c>.
+    ///     Logical names in this reader are camelCase, such as <c>zoneRedundant</c>.
+    /// </summary>
+    private static string NormalizePropertyKey(string key)
+    {
+        string trimmed = key.Trim();
+
+        if (trimmed.StartsWith("tf.", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[3..];
+        }
+
+        return trimmed.Replace("_", string.Empty, StringComparison.Ordinal).ToLowerInvariant();
     }
 
     private static bool TryGetBooleanProperty(
