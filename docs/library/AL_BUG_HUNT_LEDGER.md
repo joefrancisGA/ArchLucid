@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — `assessArchitectureDiagramReadiness` added the architecture name as an extra node even when that label was already the only system. `mergeUserAssertions` inserts the name into systems, and `buildArchitectureDiagramModel` skips a duplicate label, so a one-node diagram passed `MIN_ACTIVE_NODES` (2) and generated. The name now counts only when it adds a node. Regression `stays insufficient when the architecture name repeats the only system` failed first with `sufficient === true`. 11 generate, readiness, and model tests passed. [class:off-by-one]
+
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — decisions-needed digest and summary counted every NeedsEvidence or Deferred review event in the 30-day window. `ListSinceUtcAsync` returns the whole window newest-first, and a later remediation is a new row, so a closed finding stayed in "awaiting evidence" and "deferred due". Counts and markdown now keep the latest disposition per finding through `CrossReviewLatestDispositionMap`. A still-open deferred finding stays. Regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` (total was 3) and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition` (awaiting evidence was 1). 14 digest, calculator, and disposition-map tests passed. [class:state-machine-gap]
 
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — `PolicyPackWorkspaceSelectionService.ListAsync` kept the first assignment per pack. `ListByScopeAsync` returns rows newest-first, so a newer tenant assignment hid an older project assignment for the same pack. Effective governance ranks project above tenant (`EffectiveGovernanceResolver.GetPrecedenceRank`). The selection list now uses that rank, then `AssignedUtc`, then assignment id. Regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment` failed first with the tenant assignment id. 6 workspace-selection tests passed. [class:other]
@@ -34855,13 +34857,17 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 11
-- **bugs-found:** 8
+- **hunts:** 12
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — later findings highlight left the first diagram node selected
+- **last-bug:** 2026-10-09 — architecture name was counted twice when it repeated the only system
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved readiness counted the architecture name as a second node when that label was already the only system, so a one-node diagram was generated; the name now counts only when it adds a node; regression `stays insufficient when the architecture name repeats the only system`; 11 generate, readiness, and model tests passed.
+
+- [x] (proven) `assessArchitectureDiagramReadiness` — architecture name that repeats the only system was counted as a second node, so `MIN_ACTIVE_NODES` passed and `generateArchitectureDiagram` built a one-node model — **hit 2026-10-09 seed hunt:** shared `architectureNameAddsDiagramNode` with `buildArchitectureDiagramModel`. Regression `stays insufficient when the architecture name repeats the only system`. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `ArchitectureDiagramPanel` passes `highlightedNodeId` from the findings dual-pane into `useArchitectureDiagramPanel`. That effect selected a node only when `diagramModel` changed, so a highlight that arrived after the diagram was ready left the first node pressed. The effect now lists `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`; 13 `ArchitectureDiagramPanel` vitest tests passed.
 

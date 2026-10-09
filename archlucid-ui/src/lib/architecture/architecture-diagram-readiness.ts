@@ -1,4 +1,5 @@
 import { ARCHITECTURE_DIAGRAM_MISSING_CATEGORY_LABELS } from "@/lib/architecture/architecture-diagram-copy";
+import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import type { ArchitectureStructuredParseResult, ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 import type {
   ArchitectureDiagramMissingCategory,
@@ -27,11 +28,12 @@ export function assessArchitectureDiagramReadiness(
   const systems = sectionEntities(byKey.get("systems-and-services"));
   const users = sectionEntities(byKey.get("users-and-stakeholders"));
   const external = sectionEntities(byKey.get("external-integrations"));
-  const hasNamedSystem = architectureName.trim().length > 0 && architectureName.trim().toLowerCase() !== "untitled architecture";
-  const activeNodeCount = systems.length + users.length + external.length + (hasNamedSystem ? 1 : 0);
+  const existingLabels = [...systems, ...users, ...external].map((entity) => entity.label);
+  const nameAddsNode = architectureNameAddsDiagramNode(architectureName, existingLabels);
+  const activeNodeCount = systems.length + users.length + external.length + (nameAddsNode ? 1 : 0);
   const missingCategories: ArchitectureDiagramMissingCategory[] = [];
 
-  if (systems.length === 0 && !hasNamedSystem) {
+  if (systems.length === 0 && !nameAddsNode) {
     missingCategories.push("major-components");
   }
 
@@ -55,7 +57,7 @@ export function assessArchitectureDiagramReadiness(
     missingCategories.push("trust-boundaries");
   }
 
-  const hasMajorComponent = systems.length > 0 || hasNamedSystem;
+  const hasMajorComponent = systems.length > 0 || nameAddsNode;
   const sufficient = activeNodeCount >= MIN_ACTIVE_NODES && hasMajorComponent;
 
   return {

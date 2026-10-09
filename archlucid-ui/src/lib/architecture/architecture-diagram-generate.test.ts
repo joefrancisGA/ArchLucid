@@ -32,6 +32,21 @@ Store associate -> Retail API`;
     expect(result.textAlternative).toContain("Store associate");
   });
 
+  it("stays insufficient when the architecture name repeats the only system", () => {
+    const result = generateArchitectureDiagram(
+      "## Systems and services\n- Retail API",
+      "Retail API",
+      {
+        ...assertions,
+        peopleAndSystems: [],
+      },
+    );
+
+    expect(result.readiness.sufficient).toBe(false);
+    expect(result.readiness.activeNodeCount).toBe(1);
+    expect(result.model).toBeNull();
+  });
+
   it("returns insufficient state without fabricating components", () => {
     const result = generateArchitectureDiagram("Short brief only.", "Untitled architecture", {
       ...assertions,
