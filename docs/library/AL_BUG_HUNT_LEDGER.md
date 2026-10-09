@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread `GovernanceFindingsQueueClient.tsx` and its focused Vitest inventory; no fresh row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `api-key-auth` — reread the API-key handler, admin rotation service/controller, and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused API test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -4654,6 +4656,12 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `GovernanceFindingsQueueClient` / `useOperatorScopeRecord` — the queue can enter React’s external-store update-depth failure when the persisted operator scope is absent and the snapshot provider returns a fresh object on each read — locus: client’s unconditional scope-record hook and assigned-to-me render path; input: an operator with no `localStorage` scope record loading the findings route.
+- [ ] (candidate) `GovernanceFindingsQueueClient` — assigned-to-me chrome resolves its workspace label through a separate storage read instead of the already-loaded `scopeRecord`, so an empty or changing operator scope can show a fallback workspace label rather than the active scope — locus: `resolveGovernanceAssignedToMeWorkspaceLabel()` call; input: assigned-to-me route after operator scope storage is cleared or updated.
+- [ ] (candidate) `GovernanceFindingsQueueClient` — the queue computes `architectureRunIdSet` from asynchronous architecture identity and draft-registry data, so a scope transition while that data is loading may temporarily combine the prior run set with the new `scopedArchitectureId` — locus: `useMemo` dependency boundary before queue synopsis filtering; input: switching between two architecture-scoped findings URLs during an in-flight identity request.
+- [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — applying a saved view updates local filter state before navigation, so a failed or interrupted `router.replace` could leave the visible queue in saved-view state while the URL still represents the prior scope — locus: setter sequence before final saved-view href navigation; input: saved-view selection during a router transition failure.
+- [ ] (candidate) `GovernanceFindingsQueueClient.clearAllFilters` — the callback derives its destination from the render-time `searchParams` object while also changing several filter stores, so a rapid second clear or concurrent App Router update could rebuild from stale URL state — locus: `governanceFindingsClearAllFiltersHref(searchParams.toString(), navHref)`; input: double-clicked clear-all while URL scope parameters are changing.
 
 - [x] (proven) `TopologyProposalConsensusMerger.RelationshipKey` — equivalent model relationships with surrounding whitespace in endpoint IDs failed consensus intersection; trimmed both endpoint IDs before key construction; regression `Merge_intersects_relationships_when_models_pad_endpoint_ids_differently`.
 
@@ -33470,7 +33478,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
