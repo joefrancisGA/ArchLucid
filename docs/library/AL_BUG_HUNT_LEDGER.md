@@ -32614,13 +32614,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — retrieval/cosmos skip paths logged before mark-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed-only): re-read `RecoverableOutboxProcessorBase`, `RecoverableOutboxFailureHandler`, retry/option normalization, post-commit projection, retrieval indexing, and export-push processors; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — cancellation during bounded parallel processing can leave already-dequeued sibling entries leased without an explicit cancellation reconciliation — locus: `RecoverableOutboxProcessorBase.cs` ~55–76; input: cancel a batch after one parallel entry completes and another is still leased.
+- [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — cancellation after failure persistence but during the dead-letter/retry hook can obscure the persisted terminal state from the processor caller — locus: `RecoverableOutboxFailureHandler.cs` ~34–78; input: cancellation races a hook after `RecordBackoffAfterProcessingFailureAsync` succeeds.
+- [ ] (candidate) `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` — a caller-supplied `maxBatch` of zero can normalize `MaxConcurrentBatchEntries` to zero despite the minimum-concurrency contract — locus: `OutboxProcessorOptionsVerifier.cs` ~17–27; input: processor options normalization invoked with `maxBatch = 0`.
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` — a missing manifest is marked processed as a benign skip even when the run detail was transiently unavailable — locus: `PostCommitProjectionOutboxProcessor.cs` ~145–178; input: outbox processing races manifest publication or a temporary query failure.
+- [ ] (candidate) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` — only `InvalidOperationException` from blob push is converted directly to dead-letter, leaving other non-retryable destination failures on the generic retry path — locus: `RunExportBlobPushOutboxProcessor.cs` ~255–289; input: destination client rejects a malformed request with another exception type.
 
 2026-10-06 seed hunt (seed→hit): promoted retrieval/cosmos skip-as-processed observability ordering after post-commit/export parity fixes; proved `LogWarning` before `MarkProcessedAsync` let failing log sinks schedule backoff on orphan skip rows; post-mark best-effort observability via `CompleteProcessedEntryAsync`; regressions on retrieval incomplete-detail skip and Cosmos missing SQL graph skip; 36 Host.Composition + 21 Host.Core coordination/outbox tests passed.
 
