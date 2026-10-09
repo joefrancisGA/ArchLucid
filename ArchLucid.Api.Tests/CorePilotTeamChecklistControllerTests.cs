@@ -394,6 +394,8 @@ public sealed class CorePilotTeamChecklistControllerTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.CorePilotTeamChecklistUpdated
+                    && e.ExplicitActor
+                    && e.ActorUserId == "op-1"
                     && e.TenantId == Scope.TenantId
                     && e.DataJson.Contains("\"stepIndex\":2", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"isCompleted\":false", StringComparison.Ordinal)),

@@ -127,6 +127,7 @@ public sealed class TenantCostSettingsController(
 
         decimal eaDiscountMultiplier = ResolveEaDiscountMultiplier(body, existing);
 
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
         string actorUserId = _actorContext.GetActorId();
         string actorUserName = User?.Identity?.Name ?? actorUserId;
         DateTimeOffset updatedUtc = TimeProvider.System.GetUtcNow();
@@ -154,6 +155,7 @@ public sealed class TenantCostSettingsController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantCostSettingsUpdated,
+                ExplicitActor = true,
                 ActorUserId = actorUserId,
                 ActorUserName = actorUserName,
                 TenantId = scope.TenantId,

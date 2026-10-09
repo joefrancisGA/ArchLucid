@@ -89,6 +89,7 @@ public sealed partial class TenantBaselineController
             return Ok(ProjectBaselineResponse(existing));
 
         // Identity.Name is the sign-in display name. Audit correlation uses the stable actor id.
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
         string actorUserId = _actorContext.GetActorId();
         string actorUserName = User.Identity?.Name ?? actorUserId;
 
@@ -135,6 +136,7 @@ public sealed partial class TenantBaselineController
                     EventType = firstManualCapture
                         ? AuditEventTypes.TrialBaselineManualPrepCaptured
                         : AuditEventTypes.TrialBaselineManualPrepUpdated,
+                    ExplicitActor = true,
                     ActorUserId = actorUserId,
                     ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
@@ -176,6 +178,7 @@ public sealed partial class TenantBaselineController
                     EventType = firstReviewCycleCapture
                         ? AuditEventTypes.TrialBaselineReviewCycleCaptured
                         : AuditEventTypes.TrialBaselineReviewCycleUpdated,
+                    ExplicitActor = true,
                     ActorUserId = actorUserId,
                     ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
@@ -217,6 +220,7 @@ public sealed partial class TenantBaselineController
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TrialBaselineReviewCycleUpdated,
+                    ExplicitActor = true,
                     ActorUserId = actorUserId,
                     ActorUserName = actorUserName,
                     TenantId = scope.TenantId,

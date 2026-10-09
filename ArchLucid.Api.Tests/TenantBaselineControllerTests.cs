@@ -1,3 +1,6 @@
+using System.Data;
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Common;
@@ -5,6 +8,7 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
 
@@ -701,9 +705,86 @@ public sealed class TenantBaselineControllerTests
             CancellationToken.None);
 
         captured.Should().NotBeNull();
-        captured!.ActorUserId.Should().Be("actor-id@test");
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be("actor-id@test");
         captured.ActorUserName.Should().Be("Display Name");
         captured.EventType.Should().Be(AuditEventTypes.TrialBaselineManualPrepCaptured);
+    }
+
+    [Fact]
+    public async Task PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs()
+    {
+        TenantRecord tenant = new()
+        {
+            Id = Scope.TenantId,
+            Name = "Contoso",
+            Slug = "contoso",
+            Tier = TenantTier.Standard,
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant);
+        tenants
+            .Setup(r => r.UpdateBaselineAsync(
+                Scope.TenantId,
+                6m,
+                4,
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:tenant-guid:obj-guid");
+
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim(ClaimTypes.NameIdentifier, "name-id-claim"),
+                        new Claim(ClaimTypes.Name, "Display Name"),
+                    ],
+                    "test")),
+        };
+
+        AuditEvent? persisted = null;
+        Mock<IAuditRepository> auditRepository = new();
+        auditRepository
+            .Setup(r => r.AppendAsync(
+                It.IsAny<AuditEvent>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .Callback<AuditEvent, CancellationToken, IDbConnection?, IDbTransaction?>((auditEvent, _, _, _) => persisted = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        Mock<IHttpContextAccessor> httpContextAccessor = new();
+        httpContextAccessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        AuditService auditService = new(auditRepository.Object, httpContextAccessor.Object, scopeProvider.Object);
+        TenantBaselineController controller = CreateController(
+            tenants.Object,
+            scopeProvider.Object,
+            auditService,
+            actorContext.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+        await controller.PutAsync(
+            new TenantBaselinePutRequest
+            {
+                ManualPrepHoursPerReview = 6m,
+                PeoplePerReview = 4,
+            },
+            CancellationToken.None);
+
+        persisted.Should().NotBeNull();
+        persisted!.ActorUserId.Should().Be("jwt:tenant-guid:obj-guid");
+        persisted.ActorUserName.Should().Be("Display Name");
     }
 
     private static TenantBaselineController CreateController(

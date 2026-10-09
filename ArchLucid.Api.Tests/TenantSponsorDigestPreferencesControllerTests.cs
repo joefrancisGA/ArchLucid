@@ -863,7 +863,8 @@ public sealed class TenantSponsorDigestPreferencesControllerTests
         await controller.PostSponsorDigestPreferences(body, CancellationToken.None);
 
         captured.Should().NotBeNull();
-        captured!.ActorUserId.Should().Be("actor-id@test");
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be("actor-id@test");
         captured.ActorUserName.Should().Be("  Display Name  ");
     }
 

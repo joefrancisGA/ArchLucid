@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `api-tenancy-workspaces` — tenancy controllers stored `IActorContext.GetActorId()` on audit events but left `ExplicitActor` false, so `AuditService` replaced that id with `ClaimTypes.NameIdentifier` before append. Baseline, cost settings, homepage, sponsor digest, exec digest, and pilot-checklist audits now set `ExplicitActor`. Regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
+
 2026-10-09 thorough hunt (hit): `core-tenancy-commercial` — hourly OTP email rate-limit SQL counted every challenge created in the window, including completed and expired rows, while the client-IP statement and the in-memory store ignored them. The batch email count now requires `CompletedUtc IS NULL` and `ExpiresUtc > @NowUtc`. Regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
 
 2026-10-09 thorough hunt (hit): `agent-runtime-safety` — client-supplied `RequestId` escaped TB-949 markers before control characters were stripped, so a JSON control byte inside `CUSTOMER_CONTENT_END` was deleted afterward and closed the architecture quarantine early. Marker escape now follows control-character removal for prompt identifiers and run-header fields. Regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
@@ -31638,13 +31640,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 29
-- **bugs-found:** 9
+- **hunts:** 30
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — recycle-bin null soft-deleted list coalesce
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — tenancy audits dropped stable actor id when NameIdentifier differed
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted sibling audit-actor parity with `TenantWorkspacesController`; baseline, cost, homepage, digest, and checklist events set `ActorUserId` from `IActorContext` but omitted `ExplicitActor`, so persisted rows kept `ClaimTypes.NameIdentifier`; regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
@@ -31737,6 +31741,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — `RetentionDays` options hot-reload vs purge worker — **cheap-disproof 2026-10-07 thorough hunt:** list and worker both use `ArchitectureProjectRetentionSchedule.ClampRetentionDays`; mid-session config drift is expected not wrong HTTP.
 - [x] (valid-no-repro) `TenantWorkspacesController.DeleteProjectAsync` — stale `ListActiveByTenantAsync` before pin guard — **cheap-disproof 2026-10-07 thorough hunt:** concurrency race without controller-level transaction; not a reachable single-request wrong outcome in these files.
 - [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — `ListSoftDeletedByTenantAsync` null reference before `deleted.Where` — **hit 2026-10-07 thorough hunt:** null-coalesce parity with `RestoreProjectAsync`; regression `ListRecycleBinAsync_returns_ok_with_empty_deleted_projects_when_soft_deleted_list_is_null`.
+
+- [x] (proven) `TenantBaselineController.PutAsync` and sibling tenancy audits — `ActorUserId` from `IActorContext.GetActorId()` was replaced by `ClaimTypes.NameIdentifier` because `ExplicitActor` was false — **hit 2026-10-09 seed hunt (seed→hit):** set `ExplicitActor` on baseline, cost settings, homepage, sponsor digest, exec digest, and pilot-checklist events; regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`.
 
 ---
 ## Zone: application-agents

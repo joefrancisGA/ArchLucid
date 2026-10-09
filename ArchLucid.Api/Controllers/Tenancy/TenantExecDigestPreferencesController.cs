@@ -181,6 +181,7 @@ public sealed class TenantExecDigestPreferencesController(
 
         if (!isIdenticalRetry)
         {
+            // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
             string actorUserId = _actorContext.GetActorId();
             string actorUserName = User?.Identity?.Name ?? actorUserId;
 
@@ -188,6 +189,7 @@ public sealed class TenantExecDigestPreferencesController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ExecDigestPreferencesUpdated,
+                ExplicitActor = true,
                 ActorUserId = actorUserId,
                 ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
