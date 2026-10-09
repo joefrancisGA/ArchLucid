@@ -72,12 +72,15 @@ describe("RunDetailOutcomeCards", () => {
         artifactCount={2}
         unresolvedIssueCountDisplay={0}
         governanceGateLabel="No approval decision recorded"
+        aggregateRiskPosture="Approved with monitoring"
       />,
     );
 
     expect(screen.getByText("Package state")).toBeInTheDocument();
     expect(screen.queryByText("Review outcome")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Package state: finalized")).toBeInTheDocument();
+    expect(screen.getByText("Material finding was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("PHI minimization risk")).not.toBeInTheDocument();
   });
 
   it("renders pre-finalize disposition as unboxed helper text", () => {

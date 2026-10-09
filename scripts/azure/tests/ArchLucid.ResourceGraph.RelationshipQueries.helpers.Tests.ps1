@@ -36,6 +36,16 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
             Should -Match "virtualNetworkSubnetId = properties.virtualNetworkSubnetId"
     }
 
+    It 'declares the subnet fact parameters on the Resource Graph entry function only' {
+        $resourceGraphParameters = (Get-Command Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph).Parameters
+        $nicParameters = (Get-Command Add-ArchLucidArgNetworkAssociationRowsFromNicRecord).Parameters
+
+        $resourceGraphParameters.Keys | Should -Contain 'FirewallSubnetFacts'
+        $resourceGraphParameters.Keys | Should -Contain 'VirtualNetworkSubnetFacts'
+        $nicParameters.Keys | Should -Not -Contain 'FirewallSubnetFacts'
+        $nicParameters.Keys | Should -Not -Contain 'VirtualNetworkSubnetFacts'
+    }
+
     It 'emits bastionToSubnet from a Bastion ARG ipConfiguration' {
         $rows = [System.Collections.ArrayList]::new()
         $seen = @{}
@@ -64,6 +74,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $rows = [System.Collections.ArrayList]::new()
         $seen = @{}
         $facts = [System.Collections.ArrayList]::new()
+        $firewallSubnetFacts = [System.Collections.ArrayList]::new()
         $firewallId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw01'
         $subnetId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/AzureFirewallSubnet'
 
@@ -81,12 +92,17 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
   }
 ]
 "@ `
-            -FirewallPrivateIpFacts $facts
+            -FirewallPrivateIpFacts $facts `
+            -FirewallSubnetFacts $firewallSubnetFacts
 
         @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' }).Count | Should -Be 1
         @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' })[0].fromResourceId | Should -Be $firewallId
         @($rows | Where-Object { $_.associationType -eq 'firewallToSubnet' })[0].toResourceId | Should -Be $subnetId
         $facts.Count | Should -Be 1
+        $firewallSubnetFacts.Count | Should -Be 1
+        $firewallSubnetFacts[0].resourceId | Should -Be $firewallId
+        $firewallSubnetFacts[0].subnetId | Should -Be $subnetId
+        $firewallSubnetFacts[0].propertyName | Should -Be 'ipConfiguration'
         $rows[0].PSObject.Properties.Name | Should -Not -Contain 'privateIPAddress'
     }
 

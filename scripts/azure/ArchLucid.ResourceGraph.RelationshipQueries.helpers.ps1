@@ -277,8 +277,13 @@ function Add-ArchLucidArgNetworkAssociationRowsFromFirewallRecord
         [hashtable] $Seen,
         [string] $FirewallResourceId,
         [object] $IpConfigurationsJson,
-        [System.Collections.IList] $FirewallPrivateIpFacts
+        [object] $ManagementIpConfiguration = $null,
+        [System.Collections.IList] $FirewallPrivateIpFacts = $null,
+        [System.Collections.IList] $FirewallSubnetFacts = $null
     )
+
+    if ($null -eq $FirewallPrivateIpFacts) { $FirewallPrivateIpFacts = [System.Collections.ArrayList]::new() }
+    if ($null -eq $FirewallSubnetFacts) { $FirewallSubnetFacts = [System.Collections.ArrayList]::new() }
 
     foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray $IpConfigurationsJson))
     {
@@ -295,6 +300,12 @@ function Add-ArchLucidArgNetworkAssociationRowsFromFirewallRecord
                 -FromResourceId $FirewallResourceId `
                 -ToResourceId $subnetId `
                 -AssociationType 'firewallToSubnet'
+
+            [void]$FirewallSubnetFacts.Add([ordered]@{
+                resourceId = $FirewallResourceId
+                subnetId = $subnetId
+                propertyName = 'ipConfiguration'
+            })
         }
 
         if (-not [string]::IsNullOrWhiteSpace($privateIpAddress))
@@ -304,6 +315,19 @@ function Add-ArchLucidArgNetworkAssociationRowsFromFirewallRecord
                     privateIPAddress = $privateIpAddress
                 })
         }
+    }
+
+    [object]$managementProperties = Get-ArchLucidArgNestedProperty $ManagementIpConfiguration 'properties'
+    [object]$managementSubnetRef = Get-ArchLucidArgNestedProperty $managementProperties 'subnet'
+    [string]$managementSubnetId = "$(Get-ArchLucidArgNestedProperty $managementSubnetRef 'id')".Trim()
+
+    if (-not [string]::IsNullOrWhiteSpace($managementSubnetId))
+    {
+        [void]$FirewallSubnetFacts.Add([ordered]@{
+            resourceId = $FirewallResourceId
+            subnetId = $managementSubnetId
+            propertyName = 'managementIpConfiguration'
+        })
     }
 }
 
@@ -414,8 +438,16 @@ function Add-ArchLucidArgNetworkAssociationRowsFromVNetRecord
         [hashtable] $Seen,
         [string] $VNetResourceId,
         [object] $SubnetsJson,
-        [object] $PeeringsJson
+        [object] $PeeringsJson,
+        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null
     )
+
+    if ($null -eq $VirtualNetworkSubnetFacts) { $VirtualNetworkSubnetFacts = [System.Collections.ArrayList]::new() }
+
+    [void]$VirtualNetworkSubnetFacts.Add([ordered]@{
+        resourceId = $VNetResourceId
+        subnets = $SubnetsJson
+    })
 
     foreach ($subnet in @(ConvertFrom-ArchLucidArgJsonArray $SubnetsJson))
     {
@@ -578,7 +610,7 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
         }
         [pscustomobject]@{
             Kind = 'azureFirewall'
-            Query = "Resources | where type =~ 'microsoft.network/azurefirewalls' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations"
+            Query = "Resources | where type =~ 'microsoft.network/azurefirewalls' $rgFilter | project id, type, ipConfigurations = properties.ipConfigurations, managementIpConfiguration = properties.managementIpConfiguration"
         }
         [pscustomobject]@{
             Kind = 'routeTable'
@@ -649,7 +681,11 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 
         [string] $ResourceGroupScope = "",
 
-        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null,
+
+        [System.Collections.IList] $FirewallSubnetFacts = $null,
+
+        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null
     )
 
     if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
@@ -662,6 +698,8 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
     [System.Collections.ArrayList]$rows = [System.Collections.ArrayList]::new()
     [System.Collections.ArrayList]$firewallPrivateIpFacts = [System.Collections.ArrayList]::new()
     [System.Collections.ArrayList]$routeTableFacts = [System.Collections.ArrayList]::new()
+    if ($null -eq $FirewallSubnetFacts) { $FirewallSubnetFacts = [System.Collections.ArrayList]::new() }
+    if ($null -eq $VirtualNetworkSubnetFacts) { $VirtualNetworkSubnetFacts = [System.Collections.ArrayList]::new() }
     [hashtable]$seen = @{}
 
     foreach ($spec in @(Get-ArchLucidArgNetworkAssociationQuerySpecs -ResourceGroupScope $ResourceGroupScope))
@@ -734,7 +772,9 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -FirewallResourceId $resourceId `
                             -IpConfigurationsJson $Row.ipConfigurations `
-                            -FirewallPrivateIpFacts $firewallPrivateIpFacts
+                            -ManagementIpConfiguration $Row.managementIpConfiguration `
+                            -FirewallPrivateIpFacts $firewallPrivateIpFacts `
+                            -FirewallSubnetFacts $FirewallSubnetFacts
                     }
                     'routeTable' {
                         Add-ArchLucidArgNetworkAssociationRowsFromRouteTableRecord `
@@ -764,7 +804,8 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -Seen $seen `
                             -VNetResourceId $resourceId `
                             -SubnetsJson $Row.subnets `
-                            -PeeringsJson $Row.peerings
+                            -PeeringsJson $Row.peerings `
+                            -VirtualNetworkSubnetFacts $VirtualNetworkSubnetFacts
                     }
                     'privateEndpoint' {
                         Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord `

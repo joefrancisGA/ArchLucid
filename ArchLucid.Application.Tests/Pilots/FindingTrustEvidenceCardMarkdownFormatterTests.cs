@@ -36,7 +36,12 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
             TopFindingId = "f-1",
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain =
-                new FindingEvidenceChainResponse { ManifestVersion = "v3", FindingsSnapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), },
+                new FindingEvidenceChainResponse
+                {
+                    ManifestVersion = "v3",
+                    FindingsSnapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    GoldenManifestId = null,
+                },
             AgentOutputPilotStrictSignalsResolved = true,
             AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
@@ -53,6 +58,9 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("`f-1`");
         md.Should().Contain("`Error`");
         md.Should().Contain("v3");
+        md.Should().Contain("Findings snapshot id");
+        md.Should().Contain("Golden manifest id was not stored.");
+        md.Should().Contain("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         md.Should().Contain("**Not** a legal attestation");
         md.Should().Contain("No PilotStrict failures");
         md.Should().Contain("Sponsor-proof readiness");
