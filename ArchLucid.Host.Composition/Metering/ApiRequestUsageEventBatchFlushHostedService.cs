@@ -136,7 +136,7 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
     {
         foreach (UsageEvent usageEvent in batch)
         {
-            _buffer.Enqueue(usageEvent);
+            _buffer.Requeue(usageEvent);
         }
     }
 

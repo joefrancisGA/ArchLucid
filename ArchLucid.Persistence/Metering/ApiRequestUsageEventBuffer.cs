@@ -34,4 +34,20 @@ public sealed class ApiRequestUsageEventBuffer(IOptionsMonitor<MeteringOptions> 
 
         _channel.Writer.TryWrite(usageEvent);
     }
+
+    /// <summary>
+    ///     Puts a dequeued event back after persist fails. New middleware writes still honor
+    ///     <see cref="MeteringOptions.Enabled" />; a reload that disables metering must not drop a batch
+    ///     that was already accepted.
+    /// </summary>
+    public void Requeue(UsageEvent usageEvent)
+    {
+        ArgumentNullException.ThrowIfNull(usageEvent);
+
+        if (!_channel.Writer.TryWrite(usageEvent))
+        {
+            throw new InvalidOperationException(
+                "API usage event buffer is closed; the dequeued event cannot be retried.");
+        }
+    }
 }

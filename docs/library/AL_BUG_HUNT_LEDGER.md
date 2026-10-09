@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `host-composition` — a failed API usage flush put dequeued events back through `ApiRequestUsageEventBuffer.Enqueue`. That method returns immediately when `Metering:Enabled` is false, so a batch already accepted while metering was on disappeared after a store error if metering was then disabled. `Requeue` writes the event back without that gate. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first with an empty buffer. 2 flush tests and 3 buffer tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — activation stored an issuer URI, Key Vault secret name, or actor id longer than the columns in `dbo.TenantIdentityProviderConfigurations`. Migration 183 defines `IssuerUri` as NVARCHAR(2048) and `KeyVaultSecretName` and `UpdatedByActorId` as NVARCHAR(256). A longer value reached SQL MERGE and failed on truncation, so the wizard saw HTTP 500 instead of the validation 400 the activate action already maps from `ArgumentException`. Those three fields are now rejected before upsert. Regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column` failed first with no exception. 51 activation tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — discovery accepted a document whose final host differed from the metadata URL. An OpenID document fetched from `evil.example` still succeeded when its `issuer` echoed `https://idp.example/realms/acme`, and SAML metadata fetched from `evil.example` succeeded with that file's `entityID`. The wizard copies those values into activate. A response whose recorded host is not the requested host is now rejected. Regression `DiscoverAsync_oidc_rejects_document_fetched_from_a_different_host` failed first with `DiscoverySucceeded` true. 25 discovery tests passed.
@@ -29631,13 +29633,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 56
-- **bugs-found:** 35
+- **hunts:** 57
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — API usage flush dropped dequeued events when batch persist failed
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — failed usage flush dropped events after metering was disabled
 - **code-changed-since:** yes
 - **related-pd-tb:** none
+
+2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
 
 2026-10-08 seed hunt (hit): API request usage flush dequeued events before persist and discarded the batch when `RecordBatchAsync` threw, so a transient usage-store failure undercounted metering. Failed batches return to `ApiRequestUsageEventBuffer` for the next interval. Regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.
 
@@ -29715,6 +29719,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.ReturnBatchToBuffer` — a failed persist called `ApiRequestUsageEventBuffer.Enqueue`, which no-ops when `MeteringOptions.Enabled` is false, so events already dequeued while metering was on were dropped after a disable or options reload. `Requeue` writes them back. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled`. [class:state-machine-gap]
 - [x] (proven) `ApiRequestUsageEventBatchFlushHostedService.FlushPendingAsync` — API request metering dequeued `UsageEvent` rows from `ApiRequestUsageEventBuffer` and then swallowed a failed `IUsageMeteringService.RecordBatchAsync`, so a transient store error dropped the batch. Failed batches are returned to the buffer and the flush stops so the next interval can retry. Regression `StopAsync_keeps_dequeued_usage_events_when_batch_persist_fails`.
 - [x] (proven) `DraftIntakeCompositionRegistrar` registers `ArchitectureWorkLeaseService` without `IArchitectureShareAccessService` — **hit 2026-09-11 seed hunt #1712:** work-lease service depends on share-access evaluation but composition only registered it in `ApiWebLayerServiceCollectionExtensions`, so `ValidateOnBuild` failed for Worker/Combined and standalone composition tests; fixed by registering `ArchitectureShareAccessService` in draft-intake composition; regressions `DraftIntakeCompositionRegistrar_registers_architecture_share_access_for_work_lease_service` and `StorageProviderDiGraphValidationTests`
 - [x] (proven) `SqlDtfOrchestrationInfrastructureRegistrar` registers Durable Task worker on Api role — **hit 2026-09-11 seed hunt #1711:** `Register` wired `AddDurableTaskWorker` + client for every SQL host role, so split Api+Worker deployments with `OrchestratorBackend=DurableTask` started competing worker infrastructure on Api replicas; fixed by registering client in storage bootstrap and gating worker registration to Worker+Combined in authority capability; regressions `AddArchLucidApplicationServices_Api_role_with_DurableTask_backend_registers_client_not_worker` and `AddArchLucidApplicationServices_Worker_role_with_DurableTask_backend_registers_client_and_worker`
