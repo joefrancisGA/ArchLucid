@@ -70,4 +70,31 @@ describe("useGuidedIntakePriorRunPrefill", () => {
     expect(setScopeBullets).not.toHaveBeenCalled();
     expect(setScopeGateOpen).not.toHaveBeenCalled();
   });
+
+  it("handles a rejected prior-package load", () => {
+    const catchHandler = vi.fn();
+    tryLoadPriorPackageGuidedIntakePrefill.mockReturnValueOnce({
+      then: vi.fn(() => ({ catch: catchHandler })),
+    });
+
+    renderHook(() =>
+      useGuidedIntakePriorRunPrefill({
+        priorRunId: "run-1",
+        freeTextIntent: "",
+        businessOutcome: "",
+        systemName: "",
+        actorSet: { actors: [] },
+        scopeBullets: [],
+        setFreeTextIntent: vi.fn(),
+        setBusinessOutcome: vi.fn(),
+        setSystemName: vi.fn(),
+        setActorSet: vi.fn(),
+        setScopeBullets: vi.fn(),
+        setScopeGateOpen: vi.fn(),
+        setPriorAttachedFileNames: vi.fn(),
+      }),
+    );
+
+    expect(catchHandler).toHaveBeenCalledOnce();
+  });
 });

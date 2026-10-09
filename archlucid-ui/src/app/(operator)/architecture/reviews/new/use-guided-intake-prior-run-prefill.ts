@@ -120,6 +120,8 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
 
       appliedRef.current = true;
       applyPriorPackagePrefill(targetRef.current, prefill);
+    }).catch(() => {
+      // A failed optional rerun prefill must not become an unhandled rejection or block manual intake.
     });
 
     return () => {
