@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-billing-logic` — `GET` LLM cost dashboard `days=7` rounded a $0.0004 UTC-month pressure to $0.0001 per day. Six of those days already exceeded the month, and the last day was clamped to zero, so the chart summed to $0.0006 while the tenant-wide row stayed $0.0004. The per-day share now steps down to the 4-decimal floor when the rounded share would overshoot, and the last day keeps the remainder. Regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`. 26 scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests passed.
+
 2026-10-09 thorough hunt (hit): `email-otp-auth` — `POST /v1/auth/email-otp/verify` set `ExpiresInSeconds` from `Auth:EmailOtp:AccessTokenLifetimeMinutes` (clamped to 24 hours) but `LocalTrialJwtIssuer` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. With email OTP configured at 2000 minutes and the trial TTL at 60, the response said 86400 seconds and the JWT expired in 3600. Verify and post-auth bootstrap now pass the clamped email-OTP lifetime into the issuer. Trial password sign-in still uses the local-identity TTL when the argument is omitted. Padded invitation tokens were cheap-disproved: `EmailOtpInvitationTokenHasher.Hash` trims before SHA-256. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
 2026-10-09 seed hunt (seed→hit): `ui-webhooks-settings` — opening `/integrations/webhooks?webhookEnableId=` while `listAlertRoutingSubscriptions` failed made the confirm effect treat the empty inventory as a missing subscription and `router.replace` dropped the id. Manual refresh then wrote null pending state and deleted the same param before the retry could resolve it. The effect now waits until a load succeeds, and a null confirmation write that does not change the open id leaves the query in place. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
@@ -15933,13 +15935,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 20
-- **bugs-found:** 12
+- **hunts:** 21
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — unpriced top-run tie-break ignored reasoning tokens
+- **last-bug:** 2026-10-09 — daily LLM cost buckets summed above the month pressure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted daily-bucket rounding. A $0.0004 month over 7 days rounded to $0.0001 per day, the last day clamped to zero, and the chart summed to $0.0006. The share now floors to 4 decimals when rounding would overshoot. Regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`. 26 scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests passed.
 
 2026-10-09 seed hunt (seed→hit): promoted reasoning-token ranking after the inclusion fix; unpriced runs share zero USD, and the tie-break omitted `ReasoningTokens`, so dashboard `take` kept a smaller prompt run; regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`; 30 scoped billing tests passed.
 
@@ -15947,6 +15951,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` — 4-decimal daily shares overshot a small UTC-month pressure and the clamped last day made the chart sum higher than the tenant-wide row — **hit 2026-10-09 seed hunt:** $0.0004 over 7 days displayed $0.0006; per-day share floors when rounding would exceed the month; regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`.
 - [x] (invalid) Marketplace mutation handler applies a subscription change to the wrong tenant — `MarketplaceChange*WebhookMutationHandler` receives resolved `tenantId` from persistence; no alternate tenant lookup in Application layer.
 - [x] (invalid) Checkout session is created without binding the caller tenant id — checkout session creation lives in `ArchLucid.Api/Controllers/Billing/` and `Persistence/Billing`, not `ArchLucid.Application/Billing/`.
 - [x] (invalid) Idempotent replay of a billing event double-applies seat or credit changes — replay guard and `TryInsertWebhookEventAsync` are in `AzureMarketplaceBillingProvider` (Persistence), not Application mutation handlers.
