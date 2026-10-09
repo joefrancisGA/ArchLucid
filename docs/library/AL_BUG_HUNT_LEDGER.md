@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-billing-logic` — `TenantLlmCostTopRunRanker` included reasoning-only traces but ranked unpriced runs by prompt plus completion tokens only, so a one-token prompt run outranked a reasoning-only run and could take the last dashboard slot. The tie-break now counts reasoning tokens. Regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`; 30 scoped Marketplace, checkout, cost-reporting, and top-run tests passed.
+
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — `AzureInventoryAdfDataflowExtractor` read `dataset.linkedService` only, so ARM mapping data flows that place `linkedService` beside `dataset` (and inline sinks that omit `dataset`) produced empty source and sink lists and `ExecuteDataFlow` emitted no flows. The extractor now reads the sibling reference and still accepts a nested one. Regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`; scoped `AzureExtractor` tests passed 1468/1468 (1441 Core + 27 Application).
 
 2026-10-09 seed hunt (seed→hit): `api-tenancy-workspaces` — tenancy controllers stored `IActorContext.GetActorId()` on audit events but left `ExplicitActor` false, so `AuditService` replaced that id with `ClaimTypes.NameIdentifier` before append. Baseline, cost settings, homepage, sponsor digest, exec digest, and pilot-checklist audits now set `ExplicitActor`. Regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
@@ -15853,13 +15855,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 19
-- **bugs-found:** 11
+- **hunts:** 20
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — checkout TargetTier rejected case-variant labels
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — unpriced top-run tie-break ignored reasoning tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted reasoning-token ranking after the inclusion fix; unpriced runs share zero USD, and the tie-break omitted `ReasoningTokens`, so dashboard `take` kept a smaller prompt run; regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`; 30 scoped billing tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace/BillingCheckout/TenantLlmCostReporting tests; no new reachable candidate emerged; 17 scoped tests passed.
 
@@ -15887,6 +15891,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantLlmCostTopRunRanker.TryBuildRow` ignores `ReasoningTokens` when deciding whether a run has measurable usage, omitting reasoning-only runs when the provider rate is unavailable — **hit 2026-10-03:** the zero-usage predicate now includes reasoning tokens (`TenantLlmCostTopRunRankerTests.RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`).
 - [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 - [x] (proven) `BillingCheckoutFacade.TryParseCheckoutTier` — checkout `TargetTier` values differing only by case (for example `team`) were treated as unknown and returned `RequestBodyRequired` even though the API documents canonical tier names; **hit 2026-10-04:** ordinal case-insensitive tier parsing; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`.
+- [x] (proven) `TenantLlmCostTopRunRanker.RankAsync` — unpriced reasoning-only runs lost the cost tie-break to smaller prompt runs because the sort ignored `ReasoningTokens` — **hit 2026-10-09 seed hunt (seed→hit):** tie-break counts prompt, completion, and reasoning tokens; regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
