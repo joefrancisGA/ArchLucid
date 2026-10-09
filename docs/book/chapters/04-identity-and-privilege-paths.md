@@ -61,7 +61,7 @@ Contributor at a subscription is Contributor on every resource group and resourc
 
 ### Rule 2: Groups expand transitively
 
-An assignment to a group applies to every member, including members of nested groups. Chapter 3 collected transitive membership for exactly this reason. Effective access for a user is the union of their direct assignments and those of every group they're in, at any depth.
+An assignment to a group applies to every member, including members of nested groups. Collect transitive membership for exactly this reason: Chapter 3 explains why direct members are not enough, and this chapter's lab writes the file. Effective access for a user is the union of their direct assignments and those of every group they're in, at any depth.
 
 ### Rule 3: Roles are sets of actions, in two planes
 
@@ -193,7 +193,7 @@ A service principal holding one of these is a privileged identity, even if it ha
 
 ## 4.5 Building the identity graph
 
-With the hop types defined, you can build a graph from a Chapter 3 snapshot.
+With the hop types defined, you can build a graph from a Chapter 3 snapshot plus the files this chapter's lab adds: application owners, directory role assignments, transitive memberships, role definition actions, deny assignments, scope parents, and compute identity attachments. The Chapter 3 lab does not write those files.
 
 ### Nodes
 
@@ -218,19 +218,29 @@ Every edge has a **type**, the **evidence** behind it, and its **evidence catego
 | `appFor` | Application → Service principal | Observed fact (via `appId`) |
 | `canSignInAs` | Entry point → Application | Deterministic inference (assumes the external system allows the token) |
 | `ownerOf` / `canAddCredential` | Principal → Application | Observed fact / derived fact |
-| `hasRoleAt` | Principal → Scope (with role) | Observed fact |
-| `contains` | Scope → Scope or Resource | Observed fact |
+| `hasRoleAt` | Principal → Scope (with role) | Observed fact; derivation input, not a search hop |
+| `contains` | Scope → Scope or Resource | Observed fact; derivation input, not a search hop |
 | `canActivate` | Principal → Scope (eligible role) | Observed fact, with conditions |
 | `canControlCode` | Principal → Compute resource | Derived fact (from effective actions) |
 | `runsAs` | Compute resource → Managed identity | Observed fact |
 | `grants` | Principal → Capability | Derived fact or deterministic inference |
 | `canAssignRoles` | Principal → Scope | Derived fact |
 
-### Search
+### From assignments to edges
 
-Once the graph exists, path discovery is a graph search from entry points to target capabilities. Breadth-first search is enough to start, and it finds the shortest paths first, which are usually the most important.
+Search must not walk raw role assignments or scope containment. `hasRoleAt` records that a principal was assigned a role at a scope. `contains` records that a scope is inside another scope. Neither one says what the role allows. Chaining them to `runsAs` or `grants` makes every assignment at that scope, including Reader, look able to deploy code or read data.
 
-Here is a minimal sketch in Python using only the standard library:
+Derive `canControlCode` and `grants` first, using the five rules in section 4.2:
+
+- inherit the assignment down the scope tree,
+- copy group assignments onto transitive members,
+- evaluate the role definition's Actions, NotActions, DataActions, and NotDataActions,
+- subtract deny assignments,
+- skip assignments whose condition is non-empty until that condition has been checked against the snapshot.
+
+Only the resulting privilege edges go into search. A Reader assignment produces neither `canControlCode` nor a list-keys `grants` edge, so it cannot reach the targets. Contributor can, because its Actions are `*` and its NotActions do not remove `Microsoft.Web/sites/write` or `Microsoft.Storage/storageAccounts/listKeys/action`.
+
+The sketch below uses only the Python standard library. It is the loader's derivation, not a second authorization system inside the search.
 
 ```python
 from collections import deque
@@ -246,16 +256,317 @@ class Edge:
     detail: str     # citation: snapshot file and row, or rule name
 
 
+# Kinds find_paths may walk. hasRoleAt and contains are deliberately absent.
+PRIVILEGE_KINDS = frozenset({
+    "memberOf",
+    "appFor",
+    "canSignInAs",
+    "ownerOf",
+    "canAddCredential",
+    "canActivate",
+    "canControlCode",
+    "runsAs",
+    "grants",
+    "canAssignRoles",
+})
+
+# Observed structure. Kept for citation and as derivation input. Not a capability.
+STRUCTURAL_KINDS = frozenset({"hasRoleAt", "contains"})
+
+# Representative actions for the payments lab. A wildcard such as
+# Microsoft.Web/sites/* covers the first; Reader's */read covers neither.
+CODE_CONTROL_ACTION = "Microsoft.Web/sites/write"
+LIST_KEYS_ACTION = "Microsoft.Storage/storageAccounts/listKeys/action"
+BLOB_READ_ACTION = "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+
+
+def pattern_covers(patterns: list[str], action: str) -> bool:
+    """Return whether any Azure RBAC wildcard pattern covers action.
+
+    '*' matches any text, including the provider prefix. '*/read' therefore
+    matches a read action and does not match listKeys/action.
+    """
+    action_folded = action.lower()
+
+    for pattern in patterns:
+        pattern_folded = pattern.lower()
+        pieces = pattern_folded.split("*")
+
+        if len(pieces) == 1:
+            if pattern_folded == action_folded:
+                return True
+
+            continue
+
+        if not action_folded.startswith(pieces[0]):
+            continue
+
+        cursor = len(pieces[0])
+        matched = True
+
+        for piece in pieces[1:-1]:
+            found = action_folded.find(piece, cursor)
+
+            if found < 0:
+                matched = False
+                break
+
+            cursor = found + len(piece)
+
+        if not matched:
+            continue
+
+        tail = pieces[-1]
+
+        if tail == "" or (action_folded.endswith(tail) and cursor <= len(action_folded) - len(tail)):
+            return True
+
+    return False
+
+
+def action_permitted(permissions: list[dict], action: str, plane: str) -> bool:
+    """True when one permission block grants action on that plane and does not remove it.
+
+    A role unions its permission blocks. NotActions apply only inside the block that lists them.
+    plane is 'control' or 'data'.
+    """
+    grant_key = "actions" if plane == "control" else "data_actions"
+    deny_key = "not_actions" if plane == "control" else "not_data_actions"
+
+    for block in permissions:
+        granted = pattern_covers(block.get(grant_key, []), action)
+        removed = pattern_covers(block.get(deny_key, []), action)
+
+        if granted and not removed:
+            return True
+
+    return False
+
+
+def scope_key(scope: str) -> str:
+    """Fold a scope id. Azure resource ids are case-insensitive."""
+    return scope.lower()
+
+
+def descendants_of(children_of: dict[str, list[str]], scope: str) -> list[str]:
+    """Return child scopes, including nested ones. The start scope is not included."""
+    ordered: list[str] = []
+    pending: list[str] = list(children_of.get(scope, []))
+
+    while pending:
+        child = pending.pop()
+
+        if child in ordered:
+            continue
+
+        ordered.append(child)
+        pending.extend(children_of.get(child, []))
+
+    return ordered
+
+
+def expand_group_assignments(
+    assignments: list[dict],
+    members_of: dict[str, list[str]],
+) -> list[dict]:
+    """Copy each group assignment onto transitive members.
+
+    members_of must already be transitive. Direct members hide nested groups.
+    """
+    expanded: list[dict] = list(assignments)
+
+    for assignment in assignments:
+        group_id = assignment["principal"]
+
+        for member in members_of.get(group_id, []):
+            copied = dict(assignment)
+            copied["principal"] = member
+            copied["citation"] = f"{assignment['citation']}; memberOf {group_id}"
+            expanded.append(copied)
+
+    return expanded
+
+
+def _granting_citation(blocks: list[tuple[list[dict], str]], action: str, plane: str) -> str | None:
+    for permissions, citation in blocks:
+        if action_permitted(permissions, action, plane):
+            return citation
+
+    return None
+
+
+def _folded_children(children_of: dict[str, list[str]]) -> dict[str, list[str]]:
+    folded: dict[str, list[str]] = {}
+
+    for parent, children in children_of.items():
+        bucket = folded.setdefault(scope_key(parent), [])
+
+        for child in children:
+            child_key = scope_key(child)
+
+            if child_key not in bucket:
+                bucket.append(child_key)
+
+    return folded
+
+
+def _deny_hits(
+    denies: list[dict],
+    children_of: dict[str, list[str]],
+    principal: str,
+    scope: str,
+    action: str,
+    plane: str,
+) -> bool:
+    principal_key = principal.lower()
+
+    for deny in denies:
+        principals = deny.get("principals") or []
+        principal_keys = {item.lower() for item in principals}
+
+        if principal_key not in principal_keys and "*" not in principals:
+            continue
+
+        deny_scope = scope_key(deny["scope"])
+        deny_scopes = [deny_scope]
+
+        if deny.get("apply_to_children", True):
+            deny_scopes.extend(descendants_of(children_of, deny_scope))
+
+        if scope not in deny_scopes:
+            continue
+
+        if action_permitted(deny["permissions"], action, plane):
+            return True
+
+    return False
+
+
+def derive_capability_edges(
+    assignments: list[dict],
+    role_definitions: dict[str, dict],
+    children_of: dict[str, list[str]],
+    denies: list[dict],
+    resources: list[dict],
+) -> list[Edge]:
+    """Emit canControlCode and grants from effective actions.
+
+    assignments: principal, role_name, scope, condition, citation.
+    role_definitions[role_name]['permissions']: actions, not_actions, data_actions, not_data_actions.
+    children_of: parent scope id to child scope ids, including resource ids.
+    denies: principals ('*' means all), scope, apply_to_children, permissions, in the same shape as a role.
+    resources: id, scope, type ('compute' or 'storage'), and for storage a shared_key of
+    'enabled', 'not set', or 'disabled', plus capability (the grants target).
+
+    A non-empty condition is not evaluated here. Emitting an edge for it would invent a path.
+    """
+    grants_at: dict[tuple[str, str], list[tuple[list[dict], str]]] = {}
+    children_of = _folded_children(children_of)
+
+    for assignment in assignments:
+        condition = (assignment.get("condition") or "").strip()
+
+        if condition:
+            continue
+
+        role = role_definitions.get(assignment["role_name"])
+
+        if role is None:
+            continue
+
+        assignment_scope = scope_key(assignment["scope"])
+        scopes = [assignment_scope, *descendants_of(children_of, assignment_scope)]
+
+        for scope in scopes:
+            key = (assignment["principal"], scope)
+            grants_at.setdefault(key, []).append((role["permissions"], assignment["citation"]))
+
+    pending: dict[tuple[str, str, str], str] = {}
+
+    def remember(source: str, target: str, kind: str, detail: str) -> None:
+        pending.setdefault((source, target, kind), detail)
+
+    for resource in resources:
+        scope = scope_key(resource["scope"])
+
+        for (principal, granted_scope), blocks in grants_at.items():
+            if granted_scope != scope:
+                continue
+
+            if resource["type"] == "compute":
+                citation = _granting_citation(blocks, CODE_CONTROL_ACTION, "control")
+                denied = _deny_hits(denies, children_of, principal, scope, CODE_CONTROL_ACTION, "control")
+
+                if citation and not denied:
+                    remember(
+                        principal,
+                        resource["id"],
+                        "canControlCode",
+                        f"{citation}; {CODE_CONTROL_ACTION}",
+                    )
+
+            if resource["type"] != "storage":
+                continue
+
+            hit_notes: list[str] = []
+            hit_citation: str | None = None
+            shared_key = resource.get("shared_key")
+
+            if shared_key in ("enabled", "not set", "not set (platform default)"):
+                keys_citation = _granting_citation(blocks, LIST_KEYS_ACTION, "control")
+                keys_denied = _deny_hits(denies, children_of, principal, scope, LIST_KEYS_ACTION, "control")
+
+                if keys_citation and not keys_denied:
+                    qualifier = (
+                        "platform default assumed enabled"
+                        if shared_key in ("not set", "not set (platform default)")
+                        else "enabled"
+                    )
+                    hit_notes.append(f"{LIST_KEYS_ACTION} ({qualifier})")
+                    hit_citation = keys_citation
+
+            blob_citation = _granting_citation(blocks, BLOB_READ_ACTION, "data")
+            blob_denied = _deny_hits(denies, children_of, principal, scope, BLOB_READ_ACTION, "data")
+
+            if blob_citation and not blob_denied:
+                hit_notes.append(BLOB_READ_ACTION)
+
+                if hit_citation is None:
+                    hit_citation = blob_citation
+
+            if hit_notes and hit_citation is not None:
+                remember(
+                    principal,
+                    resource["capability"],
+                    "grants",
+                    f"{hit_citation}; {'; '.join(hit_notes)}",
+                )
+
+    return [
+        Edge(source=source, target=target, kind=kind, evidence="derived", detail=detail)
+        for (source, target, kind), detail in pending.items()
+    ]
+
+
 def find_paths(
     edges: list[Edge],
     entry: str,
     target: str,
     max_hops: int = 8,
 ) -> list[list[Edge]]:
-    """Return every simple path from entry to target, shortest first."""
+    """Return every simple privilege path from entry to target, shortest first.
+
+    Structural edges are ignored. Walking them would treat role containment as a capability.
+    """
     outgoing: dict[str, list[Edge]] = {}
 
     for edge in edges:
+        if edge.kind in STRUCTURAL_KINDS:
+            continue
+
+        if edge.kind not in PRIVILEGE_KINDS:
+            raise ValueError(f"unknown edge kind: {edge.kind}")
+
         outgoing.setdefault(edge.source, []).append(edge)
 
     paths: list[list[Edge]] = []
@@ -281,41 +592,40 @@ def find_paths(
     return paths
 ```
 
-This is deliberately naive. Real estates need pruning: cap path length, collapse equivalent routes, and precompute "who has Owner-equivalent access at each scope" rather than expanding every role assignment. Specialized graph databases and libraries help at scale. But this version is enough to find the payments paths in the lab tenant, and it's short enough to read and trust.
+Search itself stays a breadth-first walk, which finds shortest paths first. It is naive about scale: real estates still need a hop cap, collapsed Owner-equivalent sets, and a scope-ancestor map computed once rather than walked per assignment. It is not naive about meaning. A path exists only where a privilege edge exists, and those edges exist only where the role's actions survive inheritance, denies, and conditions.
 
-Note that every edge carries its evidence and a citation. When the search returns a path, you already have Chapter 2's hop table: each step, its category, and where it came from.
+Every edge still carries its evidence category and a citation. A returned path is already Chapter 2's hop table.
 
 ### The payments graph
 
-Here's the identity graph around `payments-deploy` after the opening story's discovery:
+Here's the identity graph around `payments-deploy` after the opening story's discovery. The arrows are privilege edges. Scope containment and the raw role assignments are not drawn; they were consumed when the `canControlCode` and `grants` edges were derived.
 
 ```text
 [Entry] workflow on production environment ──canSignInAs──┐
                                                           │
-user: dev-lead ──────────ownerOf / canAddCredential────────┤
+user: dev-lead ──────────────canAddCredential─────────────┤
                                                           ▼
-role: Cloud Application Administrator ──canAddCredential──▶ app: payments-deploy
-   ▲                                                      │ appFor
-   │ hasRole (directory)                                  ▼
-user: helpdesk-07                              sp: payments-deploy
-                                                          │ hasRoleAt: Contributor
-                                                          ▼
-                                              scope: rg-payments-prod
-                                     contains │                      │ contains
-                                              ▼                      ▼
-                                   storage: custdata       func: pay-reconcile
-                                 grants (listKeys,                   │ runsAs
-                                  shared key enabled)                ▼
-                                              │              mi: mi-pay-reconcile
-                                              ▼                      │ hasRoleAt: Storage Blob Data Reader
-                              [Target] read customer data            ▼
-                                                           storage: custarchive
-                                                                     │ grants
-                                                                     ▼
-                                                   [Target] read archived customer data
+user: helpdesk-07 ───────────canAddCredential──────────▶ app: payments-deploy
+ (Cloud Application Administrator, tenant scope)       │ appFor
+                                                        ▼
+                                             sp: payments-deploy
+                      canControlCode │                           │ grants
+                      (Contributor    │                           │ (Contributor includes
+                       includes        │                           │  listKeys; shared key
+                       sites/write)    │                           │  enabled on custdata)
+                                       ▼                           ▼
+                            func: pay-reconcile       [Target] read customer data
+                                       │ runsAs
+                                       ▼
+                            mi: mi-pay-reconcile
+                                       │ grants
+                                       │ (Storage Blob Data Reader
+                                       │  includes blob read)
+                                       ▼
+                       [Target] read archived customer data
 ```
 
-Three entry points reach `payments-deploy`: the GitHub workflow, the app owner, and the help-desk user's directory role. From it, two routes lead to two customer data stores. That's six paths. Fixing the GitHub entry point narrowed one arrow at the top. Every other route stayed.
+Three entry points reach `payments-deploy`: the GitHub workflow, the app owner, and the help-desk user. The help-desk edge is `canAddCredential` because that user holds Cloud Application Administrator. Holding some other directory role would not draw it. From the deployment identity, two derived routes lead to two customer data stores. That's six paths. A Reader assignment on `rg-payments-prod` would add no route. Fixing the GitHub entry point narrowed one arrow at the top. Every other route stayed.
 
 ---
 
@@ -356,7 +666,7 @@ They connect through a few specific bridges, and your graph needs each one:
 - **Group management:** directory roles or group owners that can change membership of a group used in Azure role assignments can add themselves to it. Watch especially for groups that aren't role-assignable, which don't get the extra protections role-assignable groups have.
 - **User management:** roles that can reset passwords or authentication methods for other users can take over those users, and everything they hold.
 
-The last two bridges mean the graph needs edges like "can modify membership of" and "can reset credentials of". Those come from directory role assignments and group ownership, which Chapter 3 collected from Microsoft Graph.
+The last two bridges mean the graph needs edges like "can modify membership of" and "can reset credentials of". Those come from directory role assignments and group ownership. Chapter 3's collector is allowed to read them (`RoleManagement.Read.Directory`, `GroupMember.Read.All`). The queries that write the files are in this chapter's lab.
 
 ---
 
@@ -392,32 +702,135 @@ So: **never let a model decide what a role permits.** Look it up in the role def
 
 ## 4.10 Lab: the identity graph for the payments estate
 
-This lab builds the identity graph from the snapshot you collected in Chapter 3's lab and finds every path from three entry points to two customer data targets.
+This lab builds the identity graph for the payments estate and finds every path from three entry points to two customer data targets.
 
-**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`. Re-run your Chapter 3 collector so the snapshot includes app owners, directory role assignments, and managed identity attachments.
+**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`. Start from the Chapter 3 snapshot (`storage-accounts.json`, `role-assignments.json`, `subscriptions.json`, `federated-credentials.json`, service principals). That snapshot does not include application owners, directory role assignments, transitive memberships, role definition actions, deny assignments, or compute identity attachments. Re-running the Chapter 3 collector leaves Steps 1–3 without those files. Collect them in Step 0, into the same snapshot directory, and re-hash `manifest.json`.
 
-**Step 1 — Build edges.** Write a loader that reads the snapshot files and emits `Edge` records (section 4.5) for:
+Confirm `role-assignments.json` still has the `condition` column from section 3.3. Role names alone are not enough to derive edges.
 
-1. transitive group memberships (`memberOf`),
-2. federated credentials (`canSignInAs`) from an entry-point node named after the subject,
-3. app owners (`canAddCredential`),
-4. directory role holders with credential management (`canAddCredential` to every application),
-5. `appFor` links joined through `appId`,
-6. role assignments (`hasRoleAt`) and scope containment (`contains`),
-7. managed identity attachments (`runsAs`),
-8. control-to-data conversions from section 4.6 (`grants`), checking each condition against the snapshot.
+**Step 0 — Collect the missing inputs.** Reuse `Invoke-ArgQuery`, `Connect-MgGraph -Identity`, `$snapshotDir`, and the `$applications` list from the Chapter 3 lab. The same Graph application permissions are enough: `Application.Read.All` covers owners, `GroupMember.Read.All` covers transitive membership, and `RoleManagement.Read.Directory` covers directory roles.
 
-Every edge must cite the snapshot file and the row it came from.
+```powershell
+$owners = foreach ($app in $applications) {
+    Get-MgApplicationOwner -ApplicationId $app.Id -All |
+        ForEach-Object {
+            [pscustomobject]@{
+                appObjectId = $app.Id
+                appId       = $app.AppId
+                ownerId     = $_.Id
+            }
+        }
+}
 
-**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one as a hop table with evidence categories.
+$roleDefinitions = Get-MgRoleManagementDirectoryRoleDefinition -All
+$directoryRoles = Get-MgRoleManagementDirectoryRoleAssignment -All |
+    ForEach-Object {
+        $definitionId = $_.RoleDefinitionId
+        [pscustomobject]@{
+            principalId      = $_.PrincipalId
+            roleDefinitionId = $definitionId
+            directoryScopeId = $_.DirectoryScopeId
+            roleName         = ($roleDefinitions | Where-Object Id -eq $definitionId).DisplayName
+        }
+    }
 
-**Step 3 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. If you find fewer, find out which edge your loader missed. The most common culprits are the `appId` join and transitive membership.
+$roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw | ConvertFrom-Json
+$assignedGroupIds = $roleAssignments |
+    Where-Object { $_.principalType -eq 'Group' } |
+    Select-Object -ExpandProperty principalId -Unique
 
-**Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab, re-collect, and search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
+$memberships = foreach ($groupId in $assignedGroupIds) {
+    # transitiveMembers includes nested groups; direct members would hide them.
+    Get-MgGroupTransitiveMember -GroupId $groupId -All |
+        ForEach-Object {
+            [pscustomobject]@{
+                groupId  = $groupId
+                memberId = $_.Id
+            }
+        }
+}
+```
+
+Write those three results to `application-owners.json`, `directory-role-assignments.json`, and `transitive-memberships.json`.
+
+Then collect the Azure rows the derivation reads. `identity.userAssignedIdentities` is a map from identity resource id to `{clientId, principalId}`. Keep the map. The principal id is what joins to `role-assignments.json`.
+
+```kusto
+authorizationresources
+| where type =~ 'microsoft.authorization/roledefinitions'
+| mv-expand permission = properties.permissions
+| project
+    id,
+    roleName = tostring(properties.roleName),
+    actions = permission.actions,
+    notActions = permission.notActions,
+    dataActions = permission.dataActions,
+    notDataActions = permission.notDataActions
+```
+
+```kusto
+authorizationresources
+| where type =~ 'microsoft.authorization/denyassignments'
+| mv-expand permission = properties.permissions
+| project
+    id,
+    scope = tostring(properties.scope),
+    doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
+    principals = properties.principals,
+    actions = permission.actions,
+    notActions = permission.notActions,
+    dataActions = permission.dataActions,
+    notDataActions = permission.notDataActions
+```
+
+```kusto
+resources
+| where isnotempty(identity)
+| project
+    id,
+    name,
+    type,
+    kind,
+    parentScope = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup),
+    identityType = tostring(identity.type),
+    systemAssignedPrincipalId = tostring(identity.principalId),
+    userAssignedIdentities = identity.userAssignedIdentities
+```
+
+```kusto
+resourcecontainers
+| extend parentId = case(
+    type =~ 'microsoft.resources/subscriptions/resourcegroups', strcat('/subscriptions/', subscriptionId),
+    type =~ 'microsoft.management/managementgroups', tostring(properties.details.parent.id),
+    '')
+| project id, name, type, parentId
+```
+
+Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. Add each compute resource id as a child of its `parentScope`. For each storage account, construct its parent scope as `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}`, then add its resource id as a child of that scope so inheritance reaches the resource and not only the resource group.
+
+**Step 1 — Derive privilege edges.** Write a loader that reads those files and emits `Edge` records (section 4.5). Call `expand_group_assignments` and `derive_capability_edges`. Do not pass `hasRoleAt` or `contains` to `find_paths`. `find_paths` ignores those two kinds; a loader that emits only them will find no paths, which is the correct failure if derivation never ran.
+
+1. `memberOf` from `transitive-memberships.json`.
+2. `canSignInAs` from federated credentials, from an entry-point node named after the subject.
+3. `canAddCredential` from `application-owners.json` (owner to application).
+4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, Global Administrator, or Privileged Role Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
+5. `appFor` links joined through `appId`.
+6. `runsAs` from `compute-identities.json` (observed): the compute resource to each attached managed identity's principal id.
+7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, denies, and conditions. For the Function App the code-control action is `Microsoft.Web/sites/write`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
+
+Every edge cites the snapshot file and row. Derived edges also cite the action and the rule.
+
+**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one as a hop table with evidence categories. A path that contains `hasRoleAt` or `contains` is a bug in the loader, not a finding.
+
+**Step 3 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. Then add a Reader assignment on `rg-payments-prod` for a fourth user and search again. That user must have no path to either target. If they do, the loader is still treating role containment as a capability.
+
+If you find fewer than six paths, the usual misses are the `appId` join, transitive membership, a directory role that was not turned into `canAddCredential`, or a managed identity attachment that never became `runsAs`.
+
+**Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab. Re-run the Chapter 3 collector and Step 0, then search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
 
 **Step 5 — Find a better fix.** Look at the graph and answer: which single change removes the most paths? Candidates include removing the developer's app ownership, removing the directory role, narrowing `payments-deploy` from Contributor, and disabling shared key access. Write down your answer. Chapter 9 returns to this question formally as cut-point analysis.
 
-**What you should see.** The original fix narrows only the two paths that start from the GitHub workflow. Narrowing `payments-deploy`'s role closes all six at once, because the deployment identity is where the paths converge. That convergence is the lesson of this chapter: protect the identities that many paths pass through, not just the doors in front of them.
+**What you should see.** With the Step 0 files loaded and capability edges derived, the original fix narrows only the two paths that start from the GitHub workflow. It does not touch the four paths through the app owner and the help-desk user. Narrowing `payments-deploy`'s role closes all six at once, because the deployment identity is where the paths converge, and because Contributor's actions are what produced `canControlCode` and the list-keys `grants` edge. That convergence is the lesson of this chapter: protect the identities that many paths pass through, not just the doors in front of them. A search over the Chapter 3 files alone, or over raw `hasRoleAt` and `contains`, is not this result.
 
 ---
 
@@ -453,6 +866,8 @@ Every edge must cite the snapshot file and the row it came from.
 - Verify: credential-management scope of Application Administrator and Cloud Application Administrator; Global Administrator elevation to root User Access Administrator; Graph application permissions that allow self-escalation (current names).
 - Verify: GitHub OIDC subject formats and customization; fork pull request token behavior; Entra flexible federated identity credential support and syntax.
 - Verify each control-to-data conversion in section 4.6, especially Key Vault access-policy modification, VM password reset, and database Entra administrator change.
-- Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps.
+- Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps. The lab uses `Microsoft.Web/sites/write` as the representative Function App action; confirm whether publish uses that action, `Microsoft.Web/sites/publish/action`, or both.
+- Verify Step 0 cmdlets and payload shapes: `Get-MgApplicationOwner`, `Get-MgRoleManagementDirectoryRoleAssignment`, `Get-MgRoleManagementDirectoryRoleDefinition`, `Get-MgGroupTransitiveMember`; directory role template ids; `identity.userAssignedIdentities` principalId; deny assignment `principals` and `doNotApplyToChildScopes`; management group `properties.details.parent.id`.
+- Built-in directory role template ids used as a sanity check on `directory-role-assignments.json` (verify before publication): Cloud Application Administrator `158c047a-c907-4556-b7ef-446551a6b5f7`, Application Administrator `9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3`, Privileged Role Administrator `e8611ab8-c189-46e8-94e1-60213ab1f814`, Global Administrator `62e90394-69f5-4237-9190-012177145e10`.
 - Consider a figure for section 4.5's payments graph instead of ASCII.
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.
