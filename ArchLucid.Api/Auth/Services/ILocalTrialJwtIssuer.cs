@@ -9,5 +9,6 @@ public interface ILocalTrialJwtIssuer
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        Guid? authVersion = null);
+        Guid? authVersion = null,
+        int? accessTokenLifetimeMinutes = null);
 }

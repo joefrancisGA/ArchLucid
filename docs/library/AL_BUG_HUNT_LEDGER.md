@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 thorough hunt (hit): `email-otp-auth` — `POST /v1/auth/email-otp/verify` set `ExpiresInSeconds` from `Auth:EmailOtp:AccessTokenLifetimeMinutes` (clamped to 24 hours) but `LocalTrialJwtIssuer` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. With email OTP configured at 2000 minutes and the trial TTL at 60, the response said 86400 seconds and the JWT expired in 3600. Verify and post-auth bootstrap now pass the clamped email-OTP lifetime into the issuer. Trial password sign-in still uses the local-identity TTL when the argument is omitted. Padded invitation tokens were cheap-disproved: `EmailOtpInvitationTokenHasher.Hash` trims before SHA-256. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
+
 2026-10-09 seed hunt (seed→hit): `ui-webhooks-settings` — opening `/integrations/webhooks?webhookEnableId=` while `listAlertRoutingSubscriptions` failed made the confirm effect treat the empty inventory as a missing subscription and `router.replace` dropped the id. Manual refresh then wrote null pending state and deleted the same param before the retry could resolve it. The effect now waits until a load succeeds, and a null confirmation write that does not change the open id leaves the query in place. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — findings dual-pane updates `highlightedNodeId` after the diagram model is loaded, but `useArchitectureDiagramPanel` only applied that highlight when `diagramModel` changed. A later highlight left the first provenance node pressed. The effect now depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`. 13 `ArchitectureDiagramPanel` vitest tests passed.
@@ -6429,7 +6431,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
-**Hunts:** 43 · **Bugs found:** 13 · **Consecutive dry hunts:** 0
+**Hunts:** 44 · **Bugs found:** 14 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6495,13 +6497,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 43
-- **bugs-found:** 13
+- **hunts:** 44
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — notifier cancellation left an undelivered OTP challenge active
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — email OTP verify advertised a longer lifetime than the issued JWT
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+
+2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
 2026-09-13 seed hunt #2272 (seed-only): reseeded email-otp-auth with `-Hint email otp`; no new hunt-ready rows.
 
@@ -6528,9 +6532,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — invitation routing may be lost when an invitation-link token arrives with surrounding whitespace because the controller forwards the token unchanged to the service — locus: `InvitationToken` mapping ~60–66; input: OpenAPI challenge request with a padded invitation token.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a padded invitation token may cause a valid challenge verification to omit invitation acceptance context because the controller forwards it unchanged — locus: `InvitationToken` mapping ~101–106; input: OpenAPI verify request with the invitation token copied with surrounding whitespace.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — the response lifetime clamp may disagree with the JWT lifetime when `AccessTokenLifetimeMinutes` exceeds 1440 because the controller clamps only `ExpiresInSeconds` while the issuer receives no lifetime argument — locus: lifetime calculation and `IssueAccessToken` call ~130–143; input: deployed `Auth:EmailOtp:AccessTokenLifetimeMinutes` configuration above 1440.
+- [x] (proven) `EmailOtpAuthController.VerifyAsync` — response lifetime and JWT `exp` disagreed when `Auth:EmailOtp:AccessTokenLifetimeMinutes` differed from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes` — **hit 2026-10-09 thorough hunt:** 2000-minute email OTP config with a 60-minute trial TTL returned 86400 seconds and a JWT that expired in 3600; issuer now takes the clamped caller lifetime; regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — padded invitation token — **cheap-disproof 2026-10-09:** `EmailOtpInvitationTokenHasher.Hash` trims before SHA-256, and whitespace-only tokens return before hashing in `ResolveInvitationIdAsync`.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — padded invitation token — **cheap-disproof 2026-10-09:** `TryAcceptInvitationAsync` uses the same trim-before-hash helper, so a copied token with surrounding whitespace still matches the stored hash.
 
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ExecuteAsync` — an email notifier failure followed by challenge cleanup failure can leave a usable active challenge despite returning no challenge id — **cheap-disproof 2026-10-08 thorough hunt #42:** the repository failure is an infrastructure outage outside the normal notifier input path; cleanup remains best effort and the flow preserves the original notifier failure rather than returning a successful challenge result.
 - [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — notifier cancellation after challenge persistence can leave the active challenge available for a code the requester never received — **hit 2026-10-08 thorough hunt #42:** notifier exceptions previously escaped before active-challenge cleanup, so resend cooldown suppressed a retry; cleanup now uses `CancellationToken.None`; regression `RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence`.

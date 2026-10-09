@@ -1,3 +1,7 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Auth;
 using ArchLucid.Api.Models.Auth;
@@ -58,9 +62,10 @@ public sealed class EmailOtpAuthControllerVerifyTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<Guid?>()))
-            .Callback<Guid, string, string, Guid, Guid, Guid, Guid?>(
-                (_, _, _, tenantId, workspaceId, projectId, _) =>
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>()))
+            .Callback<Guid, string, string, Guid, Guid, Guid, Guid?, int?>(
+                (_, _, _, tenantId, workspaceId, projectId, _, _) =>
                 {
                     capturedTenantId = tenantId;
                     capturedWorkspaceId = workspaceId;
@@ -142,7 +147,8 @@ public sealed class EmailOtpAuthControllerVerifyTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<Guid?>()),
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>()),
             Times.Never);
     }
 
@@ -271,5 +277,90 @@ public sealed class EmailOtpAuthControllerVerifyTests
                 It.Is<AuditEvent>(evt => evt.EventType == AuditEventTypes.EmailOtpCodeRequested),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs()
+    {
+        Guid userId = Guid.NewGuid();
+        string privatePemPath = Path.Combine(Path.GetTempPath(), $"archlucid-email-otp-lifetime-{Guid.NewGuid():N}.pem");
+
+        using (RSA rsa = RSA.Create(2048))
+        {
+            File.WriteAllText(privatePemPath, rsa.ExportPkcs8PrivateKeyPem(), Encoding.UTF8);
+        }
+
+        try
+        {
+            // Auth:EmailOtp and Auth:Trial:LocalIdentity are independent keys. 2000 is above the 24-hour cap.
+            const int configuredEmailOtpMinutes = 2000;
+            const int trialLocalIdentityMinutes = 60;
+            int expectedLifetimeSeconds = 24 * 60 * 60;
+
+            Mock<IEmailOtpAuthService> emailOtpAuth = new();
+            emailOtpAuth
+                .Setup(service => service.VerifyCodeAsync(It.IsAny<Application.Identity.EmailOtpVerifyRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new EmailOtpVerifyResult
+                    {
+                        Succeeded = true,
+                        PlatformUserId = userId,
+                        DisplayEmail = "otp-user@example.com",
+                        Role = "Reader",
+                        NextStep = EmailOtpAuthNextStep.Complete,
+                        TenantId = Guid.NewGuid(),
+                        WorkspaceId = Guid.NewGuid()
+                    });
+
+            LocalTrialJwtIssuer issuer = new(
+                Options.Create(
+                    new TrialAuthOptions
+                    {
+                        LocalIdentity = new TrialLocalIdentityOptions
+                        {
+                            JwtIssuer = "https://issuer.test",
+                            JwtAudience = "api://test",
+                            JwtPrivateKeyPemPath = privatePemPath,
+                            AccessTokenLifetimeMinutes = trialLocalIdentityMinutes
+                        }
+                    }));
+
+            EmailOtpAuthController controller = new(
+                Options.Create(new EmailOtpAuthOptions
+                {
+                    Enabled = true,
+                    AccessTokenLifetimeMinutes = configuredEmailOtpMinutes
+                }),
+                emailOtpAuth.Object,
+                issuer)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+            IActionResult actionResult = await controller.VerifyAsync(
+                new ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest
+                {
+                    ChallengeId = Guid.NewGuid(),
+                    Code = "123456"
+                },
+                CancellationToken.None);
+
+            OkObjectResult ok = actionResult.Should().BeOfType<OkObjectResult>().Subject;
+            EmailOtpVerifyResponse response = ok.Value.Should().BeOfType<EmailOtpVerifyResponse>().Subject;
+            response.ExpiresInSeconds.Should().Be(expectedLifetimeSeconds);
+
+            JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(response.AccessToken);
+            long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+            long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            remainingSeconds.Should().BeCloseTo(expectedLifetimeSeconds, 30);
+        }
+        finally
+        {
+            if (File.Exists(privatePemPath))
+            {
+                File.Delete(privatePemPath);
+            }
+        }
     }
 }

@@ -128,7 +128,8 @@ public sealed class EmailOtpAuthController(
             workspaceId = defaultWorkspaceId;
         }
 
-        int lifetimeSeconds = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60) * 60;
+        int lifetimeMinutes = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60);
+        int lifetimeSeconds = lifetimeMinutes * 60;
 
         string jwt = _jwtIssuer.IssueAccessToken(
             result.PlatformUserId.Value,
@@ -137,7 +138,8 @@ public sealed class EmailOtpAuthController(
             tenantId,
             workspaceId,
             projectId,
-            result.AuthVersion);
+            result.AuthVersion,
+            lifetimeMinutes);
 
         return Ok(
             new EmailOtpVerifyResponse

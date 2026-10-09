@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -37,6 +38,25 @@ public sealed class LocalTrialJwtIssuerTests : IDisposable
 
         token.Should().NotBeNullOrWhiteSpace();
         token.Split('.').Should().HaveCount(3);
+    }
+
+    [Fact]
+    public void IssueAccessToken_uses_local_identity_lifetime_when_caller_omits_minutes()
+    {
+        LocalTrialJwtIssuer issuer = CreateIssuer();
+        string token = issuer.IssueAccessToken(
+            Guid.NewGuid(),
+            "user@example.test",
+            "Operator",
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        long expUnix = long.Parse(jwt.Claims.Single(claim => claim.Type == "exp").Value, System.Globalization.CultureInfo.InvariantCulture);
+        long remainingSeconds = expUnix - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        remainingSeconds.Should().BeCloseTo(30 * 60, 30);
     }
 
     [SkippableFact]
