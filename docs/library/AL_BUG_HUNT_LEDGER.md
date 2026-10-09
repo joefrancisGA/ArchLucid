@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — findings dual-pane updates `highlightedNodeId` after the diagram model is loaded, but `useArchitectureDiagramPanel` only applied that highlight when `diagramModel` changed. A later highlight left the first provenance node pressed. The effect now depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`. 13 `ArchitectureDiagramPanel` vitest tests passed.
+
 2026-10-09 seed hunt (seed→hit): `scim-users` — `POST /scim/v2/Users` and `PATCH` accepted a second live user when `userName` matched an existing user with a different `externalId`, including a case-only change (`ALICE@example.com` vs `alice@example.com`). Entra matches on `userName eq`, and RFC 7643 requires `userName` to be unique. Create, replace, patch, and directory reactivation now return `uniqueness` when another live user already has that name. Directory-removed rows do not block reuse. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`. 33 scoped `ScimUsers` unit tests passed.
 
 2026-10-09 seed hunt (seed→hit): `scim-users` — `GET /scim/v2/Users?filter=` parsed `and` and `or` at the same precedence, so `userName eq "keep" or userName eq "drop" and active eq "false"` became `(keep or drop) and inactive` and omitted the active user who matches only the left comparison. RFC 7644 §3.4.2.2 requires `not` over `and` over `or`. `ScimFilterParser` now parses in that order, which also accepts `not (...) and ...` instead of rejecting the trailing `and`. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`. 55 scoped `ScimUsers` and `ScimFilterParser` tests passed.
@@ -34550,13 +34552,16 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 10
-- **bugs-found:** 7
+- **hunts:** 11
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — subscription map labeled shared-services neighborhoods as resource groups
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — later findings highlight left the first diagram node selected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): `ArchitectureDiagramPanel` passes `highlightedNodeId` from the findings dual-pane into `useArchitectureDiagramPanel`. That effect selected a node only when `diagramModel` changed, so a highlight that arrived after the diagram was ready left the first node pressed. The effect now lists `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`; 13 `ArchitectureDiagramPanel` vitest tests passed.
+
 2026-10-08 seed hunt (seed→hit): proved inventory subscription maps filed `shared-services` neighborhoods under Resource groups because every non-`vnet` kind was treated as a resource group; resource-group cells stay `shared`, `remainder`, and `other`, and shared services render in their own section; regression `keeps shared services out of the resource group section`; 6 focused neighborhood-map tests passed.
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
 - [x] (proven) `parseFlowEndpoints` / `addFlowEdges` in `architecture-diagram-model.ts` — generated-content data-flow narrative `Payment API -> Queue -> Worker` emitted only the first edge and treated later endpoints as label text; now materializes every consecutive resolved endpoint pair; regression `creates each leg of a chained data-flow narrative`.
@@ -34573,4 +34578,5 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
+- [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.
 - [x] (proven) `groupDiagramNeighborhoodSections` / `DiagramNeighborhoodMapView` — inventory SVG metadata from `DiagramForestLayoutSvgRenderer` emits kind `shared-services` for the shared-services frame, but the subscription map treated every kind other than `vnet` as a resource group, so that tile rendered under Resource groups. Resource-group cells remain `shared`, `remainder`, and `other`. Regression `keeps shared services out of the resource group section`.
