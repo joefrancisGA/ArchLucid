@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — `Auth:Trial:Modes` binding keeps a JSON null array element as a null string. `TrialAuthModeConstants.HasMode` called `Trim` on that slot, so JWT bearer setup and trial local-identity checks threw `NullReferenceException` before they could see a later `LocalIdentity` entry. Null slots are now skipped. Regression `HasMode_ignores_null_slots_from_configuration_binding` failed first with `NullReferenceException`. 1 `TrialAuthModeConstants` test passed.
+
 2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — `GET /v1/admin/config-summary?includeEffectiveValues=true` truncates non-sensitive catalog values at 256 UTF-16 code units. A supplementary character on that boundary, such as a long `ArchLucid:FallbackLlm:Endpoints` scalar, left a lone high surrogate in `EffectiveValue`. The cut now steps back one unit when it would split a pair, and a pair that ends on the boundary stays. Regression `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair` failed first because the truncated prefix was not well-formed Unicode. 865 `ConfigurationEffectiveValueResolver` tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding enumerated `ArchitectureRequest.Constraints` and `RequiredCapabilities` directly. An execute payload with those lists JSON-null throws from LINQ before any rule runs. `AgentProposalStructuralPostProcessorEnricher` is registered ahead of `AgentResultRegionMismatchEnricher`, which already accepts a null constraint list, so the composite enricher aborted the batch. Missing lists are now treated as empty. Regression `EnrichAsync_keeps_proposal_when_brief_lists_are_null` failed first with `ArgumentNullException`. 10 grounding tests passed.
@@ -23823,13 +23825,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 43
-- **bugs-found:** 26
+- **hunts:** 44
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — config summary truncation split a surrogate pair
+- **last-bug:** 2026-10-09 — trial auth mode null slot threw in HasMode
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `TrialAuthModeConstants.HasMode` threw when configuration binding left a null `Auth:Trial:Modes` element, so JWT bearer setup could not read a later `LocalIdentity` mode; null slots are skipped; regression `HasMode_ignores_null_slots_from_configuration_binding`; 1 mode test passed.
+
+- [x] (proven) `TrialAuthModeConstants.HasMode` — a null `Auth:Trial:Modes` slot from configuration binding threw before a later mode token was read — **hit 2026-10-09 seed hunt (seed→hit):** skip null elements; regression above. [class:null-deref]
 
 2026-10-09 seed hunt (seed→hit): proved `ConfigurationEffectiveValueResolver.Resolve` cut non-sensitive catalog values on a UTF-16 code unit, so a supplementary character straddling the 256-unit limit left a lone surrogate in the admin config summary; the cut now backs up one unit when the last included unit is a high surrogate; regressions `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair` and `Resolve_keeps_surrogate_pair_that_ends_on_the_truncation_boundary`; 865 resolver tests passed.
 
@@ -23903,6 +23909,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `TrialAuthModeConstants.HasMode` — null `Auth:Trial:Modes` elements from configuration binding threw `NullReferenceException` and hid a later `LocalIdentity` token — **hit 2026-10-09 seed hunt (seed→hit):** skip null slots; regression `HasMode_ignores_null_slots_from_configuration_binding`. [class:null-deref]
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — credential connection pairs with whitespace before `=` stayed visible on non-sensitive paths — **hit 2026-10-09 seed hunt (seed→hit):** pair-boundary match allows whitespace before `=`; regression `Resolve_redacts_connection_string_when_credential_key_has_space_before_equals`.
 - [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)
 - [x] (invalid) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — **disproved 2026-09-07 (#1201):** `ConfigurationSensitiveConfigPathMatcher` treats embedded `Token` in `ReplacementToken` as non-sensitive; catalog default `[REDACTED]` is the configured value, not summary redaction; regression `Resolve_preserves_llm_prompt_redaction_replacement_token`
