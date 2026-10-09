@@ -73,20 +73,7 @@ public sealed partial class DapperEmailOtpChallengeRepository
         DateTimeOffset nowUtc,
         CancellationToken cancellationToken)
     {
-        const string batchSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.EmailOtpChallenges
-                                WHERE NormalizedEmail = @NormalizedEmail
-                                  AND CreatedUtc >= @SinceUtc;
-
-                                SELECT COUNT(1)
-                                FROM dbo.EmailOtpChallenges
-                                WHERE ClientIpHash = @ClientIpHash
-                                  AND CreatedUtc >= @SinceUtc
-                                  AND CompletedUtc IS NULL
-                                  AND ExpiresUtc > @NowUtc
-                                  AND @ClientIpHash IS NOT NULL;
-                                """;
+        const string batchSql = EmailOtpHourlyRequestRateLimitSql.Batch;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

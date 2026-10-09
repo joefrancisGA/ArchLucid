@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 thorough hunt (hit): `core-tenancy-commercial` — hourly OTP email rate-limit SQL counted every challenge created in the window, including completed and expired rows, while the client-IP statement and the in-memory store ignored them. The batch email count now requires `CompletedUtc IS NULL` and `ExpiresUtc > @NowUtc`. Regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
+
 2026-10-09 thorough hunt (hit): `agent-runtime-safety` — client-supplied `RequestId` escaped TB-949 markers before control characters were stripped, so a JSON control byte inside `CUSTOMER_CONTENT_END` was deleted afterward and closed the architecture quarantine early. Marker escape now follows control-character removal for prompt identifiers and run-header fields. Regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
 
 2026-10-08 seed hunt (seed→hit): `ui-review-detail-workspace` — last-visit restore wrote the findings filter into the address bar with `commitHrefIfChanged` and did not notify listeners, so `useRunDetailFindingsToolbarState` stayed on `all` after a bare findings URL restored `findingsFilter=high`. Mark the run restored before `replaceState` and dispatch `popstate`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed.
@@ -24052,6 +24054,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-tenancy-commercial
 
+2026-10-09 thorough hunt (hit): hourly OTP email batch SQL counted completed and expired challenges; client-IP SQL and in-memory counts already ignored them; regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
+
 - **id:** core-tenancy-commercial
 - **split-from:** archlucid-core
 - **status:** open
@@ -24059,11 +24063,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 30
-- **bugs-found:** 10
+- **hunts:** 31
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — stripped/missing/denied marketplace enterprise negation gaps
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-09-12 seed hunt #2168 (seed-only): reseeded core-tenancy-commercial with `-Hint billing-webhooks`; no new hunt-ready rows.
@@ -24080,6 +24084,8 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-09-12 thorough hunt #2088 (seed-only): reseeded core-tenancy-commercial; 6 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `DapperEmailOtpChallengeRepository.CountRecentRequestsForRateLimitAsync` — batch email count included completed and expired OTP challenges while the client-IP count and in-memory `CountsTowardRequestRateLimit` ignored them — **hit 2026-10-09 thorough hunt:** production hourly email rate limit stayed tripped after a code expired or was used; email statement now matches the unused-unexpired predicate; regression `Batch_email_count_ignores_completed_and_expired_challenges`.
 
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — leading `enterprise-non-*` plan id false-positive Enterprise tier — **hit 2026-09-07 (#1169):** #880 guarded `non` only as previous token (`contoso-non-enterprise-*`); `enterprise-non-standard` still matched standalone leading `enterprise`; fixed by skipping enterprise when next delimiter token is `non` (`TierStorageCodeFromPlanId_does_not_false_positive_on_enterprise_non_prefix_plan`)
 - [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — canceled subscription rows still label from purchased caps only — **disproved 2026-09-07 (#1204):** intentional since #523 (`ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active`); canceled rows retain purchased caps for tier disambiguation instead of usage inference that previously under-labeled Professional tenants
