@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `arm-terraform-source-ids` — `TryParseLeafResourceAddress` kept the trailing Terraform instance key. Terraform show JSON appends `[index]` for count and `[key]` for for_each (`TerraformShowJsonInfrastructureDeclarationParser`), so a graph `SourceId` of `module.wrapper.azurerm_app_service.main[0]` indexed only `azurerm_app_service.main[0]`. A relationship that cites the resource address `azurerm_app_service.main` did not resolve, and the inverse (indexed relationship, unindexed graph address) missed as well. The indexed leaf stays the exact key so `main[0]` and `main[1]` remain distinct. The resource address before the key is also indexed, and lookup falls back to that span. Regressions `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index`, `MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key`, and `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried` — the first two failed with an empty edge list. 988 scoped edge-mapper and graph-merge tests passed. [class:off-by-one]
+
 2026-10-09 seed hunt (seed→hit): `core-costing` — `ManifestInfrastructureCostNodes.FromGoldenTopology` filtered null services with `OfType<ManifestService>()` and enumerated datastores directly. `JsonSerializerDefaults.Web` keeps a null array element, and `CostSummaryArtifactGenerator` passes `manifest.Topology.Datastores` into that method, so a null datastore threw on `DatastoreName` and dropped the sibling rows. Extractor `resources.json` is the same JSON array shape. `FromExtractorInventory` and `FromCloudInventoryLines` touched `line.ResourceType` with no null filter, so a null Azure or AWS inventory element threw the same way. Datastores now use `OfType<ManifestDatastore>()`, and both inventory loops share `PresentInventoryLines`. Terraform rows stay unfiltered because `TerraformInfrastructureCostResourceRow` is a struct. Regressions `FromGoldenTopology_skips_null_datastore_element_from_json`, `FromExtractorInventory_skips_null_resource_element_from_json`, and `FromAwsExtractorInventory_skips_null_resource_element_from_json` failed first with `NullReferenceException`. 11 scoped costing tests passed. [class:null-deref]
 
 2026-10-09 seed hunt (seed-only): `llm-wallet` — reread wallet GET/PUT authorization, overage settlement, SQL and in-memory settings updates, and Stripe option binding. No new row was shipped. The unreleased overage hold is a state-machine-gap sibling of the missing compensating transition already fixed on refill enqueue, and the in-memory first-PUT mismatch would be another `other` hit. JSON `{"Stripe":null}` leaves `BillingOptions.Stripe` non-null, so wallet GET does not throw on the publishable key. Three candidates name a locus and a reachable input.
@@ -4599,6 +4601,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - **id:** arm-terraform-source-ids
 
+2026-10-09 seed hunt (seed→hit): proved Terraform count and for_each instance keys blocked resource-address relationship resolution; 988 scoped edge-mapper and graph-merge tests passed.
+
 2026-10-06 seed hunt (seed→hit): promoted missing leading-slash ARM endpoint candidate; proved dual-model consensus disagreed when one relationship omitted the leading `/` on `subscriptions/...` paths; extended `LooksLikeArmResourceId` and `NormalizeArmResourceId` to accept and canonicalize subscription-relative ARM ids; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash`; 1000 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): promoted trailing-slash ARM `RelationshipKey` candidate; proved dual-model consensus disagreed when one relationship endpoint ended with `/` and the other did not; extended `NormalizeArmResourceId` to trim trailing slashes after duplicate-slash collapse; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation`; 999 scoped edge-mapper/graph-merge/consensus tests passed (`RunAnalyzers=false`).
@@ -4661,11 +4665,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 85
-- **bugs-found:** 70
+- **hunts:** 86
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — ARM resource-id missing leading slash broke topology consensus intersection
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — Terraform instance key blocked resource-address relationship resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4694,6 +4698,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress` — the leaf span kept a trailing count or for_each instance key, so `azurerm_app_service.main` did not resolve a graph `SourceId` of `module.wrapper.azurerm_app_service.main[0]` — **hit 2026-10-09 seed hunt:** Terraform show JSON appends `[index]` and `[key]`; index the resource address before the key and fall back to it on lookup, while indexed leaves stay distinct. Regressions `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index`, `MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key`, and `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`. [class:off-by-one]
 - [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper â€” retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches
 - [x] Terraform SourceId claimed in merge but missing from alias resolution â€” fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
