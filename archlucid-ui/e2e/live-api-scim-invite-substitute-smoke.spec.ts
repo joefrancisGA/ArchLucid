@@ -5,7 +5,11 @@
 import { expect, test } from "@playwright/test";
 
 import { clickControlThatOpensDialog } from "./helpers/dismiss-blocking-modal-overlays";
-import { primePrivateBetaBrowserPage, requireLivePrivateBetaJwtEnv } from "./helpers/live-private-beta-access";
+import {
+  createScimAdminToken,
+  primePrivateBetaBrowserPage,
+  requireLivePrivateBetaJwtEnv,
+} from "./helpers/live-private-beta-access";
 import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { waitAndDismissFirstSessionPurposeChooser } from "./helpers/live-seat-scope-assertions";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
@@ -17,6 +21,25 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
 
   test.beforeAll(async ({ request }) => {
     await requireLiveScimAdminPreflight(request);
+  });
+
+  test("unauthenticated SCIM provisioning request is rejected", async ({ request }) => {
+    const response = await request.get(`${liveApiBase}/scim/v2/Users`);
+
+    expect([401, 403]).toContain(response.status());
+  });
+
+  test("SCIM bearer cannot select a different tenant with x-tenant-id", async ({ request }) => {
+    const { plaintextToken } = await createScimAdminToken(request);
+    const response = await request.get(`${liveApiBase}/scim/v2/Users`, {
+      headers: {
+        Authorization: `Bearer ${plaintextToken}`,
+        "x-tenant-id": "99999999-9999-9999-9999-999999999999",
+        Accept: "application/scim+json",
+      },
+    });
+
+    expect(response.status()).toBe(403);
   });
 
   test("SCIM provisioning page loads vocabulary rail linking to Identity providers", async ({ page }) => {

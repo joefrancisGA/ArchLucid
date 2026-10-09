@@ -309,6 +309,10 @@ The CI lane also checks the final landing/showcase route inventory with
 required-check contract with a live ruleset using
 `report_private_beta_ruleset_drift.py`.
 
+The access-path inventory is guarded by
+`check_private_beta_access_coverage.py`; provisioning contract drift is guarded
+by `check_private_beta_openapi_provisioning_routes.py`.
+
 This kit makes Cursor-owned work repeatable. It does not close Gate 1,
 G-REAL-06, G-REAL-07, M-07, M-09, G-REAL-09, or G-REAL-08 without the required
 human execution.

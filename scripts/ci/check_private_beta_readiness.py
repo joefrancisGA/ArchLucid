@@ -50,6 +50,8 @@ def _check_required_files(root: Path) -> list[str]:
         "scripts/ci/report_private_beta_ruleset_drift.py",
         "scripts/ci/build_private_beta_evidence_records.py",
         "scripts/ci/check_private_beta_surface_claim_drift.py",
+        "scripts/ci/check_private_beta_access_coverage.py",
+        "scripts/ci/check_private_beta_openapi_provisioning_routes.py",
     ) + REQUIRED_SPECS
 
     return [
@@ -80,6 +82,12 @@ def _check_workflow(root: Path) -> list[str]:
 
     if "report_private_beta_ruleset_drift.py" not in content:
         issues.append("private-beta workflow must include ruleset drift diagnostics wiring")
+
+    if "check_private_beta_access_coverage.py" not in content:
+        issues.append("private-beta workflow must include access coverage inventory wiring")
+
+    if "check_private_beta_openapi_provisioning_routes.py" not in content:
+        issues.append("private-beta workflow must include provisioning OpenAPI route wiring")
 
     return issues
 
@@ -130,6 +138,8 @@ def _check_operator_contracts(root: Path) -> list[str]:
         "report_private_beta_funnel.py",
         "build_private_beta_evidence_records.py",
         "check_private_beta_surface_claim_drift.py",
+        "check_private_beta_access_coverage.py",
+        "check_private_beta_openapi_provisioning_routes.py",
         "Disable the tenant's users or SCIM access",
         "Set the tenant budget to zero or deny execution",
         "tombstone or hard-purge policy",

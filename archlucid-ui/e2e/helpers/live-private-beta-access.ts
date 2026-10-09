@@ -710,6 +710,26 @@ export async function assertJwtScopeBindingRejectsForgedTenantHeader(
       `TB-925 scope binding: expected GET /v1/admin/users/invitations with forged x-tenant-id → 403, got ${invitationsRes.status()}: ${body.slice(0, 400)}`,
     );
   }
+
+  const inviteRes = await request.post(`${liveApiBase}/v1/admin/users/invite`, {
+    headers: {
+      ...liveJsonHeaders(),
+      "x-tenant-id": LIVE_E2E_FORGED_TENANT_ID,
+    },
+    data: {
+      email: `forged-tenant-${Date.now()}@example.com`,
+      appRole: "Reader",
+      message: "TB-925 forged tenant invite probe",
+    },
+  });
+
+  if (inviteRes.status() !== 403) {
+    const body = await inviteRes.text();
+
+    throw new Error(
+      `TB-925 scope binding: expected POST /v1/admin/users/invite with forged x-tenant-id → 403, got ${inviteRes.status()}: ${body.slice(0, 400)}`,
+    );
+  }
 }
 
 export type LiveScimAdminToken = {
