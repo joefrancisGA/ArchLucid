@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `security-analyzers` — `RequireAuthorizationAnalyzer` accepted interface `[Authorize]` on declared actions, but the concrete inherited-action scan checked only direct attributes and the override chain. An empty derived controller therefore reported AL0001 for a base action whose `[Authorize]` lived on the implemented interface. Inherited actions now use `ActionHasAuthorization`. Regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-09 seed hunt (seed→hit): `application-billing-logic` — `TenantLlmCostTopRunRanker` included reasoning-only traces but ranked unpriced runs by prompt plus completion tokens only, so a one-token prompt run outranked a reasoning-only run and could take the last dashboard slot. The tie-break now counts reasoning tokens. Regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`; 30 scoped Marketplace, checkout, cost-reporting, and top-run tests passed.
 
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — `AzureInventoryAdfDataflowExtractor` read `dataset.linkedService` only, so ARM mapping data flows that place `linkedService` beside `dataset` (and inline sinks that omit `dataset`) produced empty source and sink lists and `ExecuteDataFlow` emitted no flows. The extractor now reads the sibling reference and still accepts a nested one. Regression `TryExtractFromArmResource_reads_linked_service_beside_dataset`; scoped `AzureExtractor` tests passed 1468/1468 (1441 Core + 27 Application).
@@ -14619,13 +14621,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 30
-- **bugs-found:** 28
+- **hunts:** 31
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — AL0001 on an abstract controller that only inherits an AllowAnonymous action
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — AL0001 on a derived controller whose inherited action is authorized on an interface
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+2026-10-09 seed hunt (seed→hit): concrete inherited-action scan ignored interface `[Authorize]`/`[AllowAnonymous]` that declared actions and the abstract empty-type helper already accepted; empty derived controllers reported AL0001 for a base action authorized on its implemented interface; inherited actions now use `ActionHasAuthorization`; regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
+
 2026-10-08 thorough hunt (hit): proved an abstract controller with no declared members reported type-level AL0001 even when its inherited action was `[AllowAnonymous]`, because the empty-type fallback never inspected inherited actions on abstract types; skip that fallback when every inherited public API action is authorized; regression `Does_not_report_abstract_controller_when_only_inherited_action_is_allow_anonymous`. Cheap-disproof closed the five open candidates. 88 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-09-13 seed hunt #2275 (seed-only): reseeded security-analyzers with `-Hint security analyzers`; no new hunt-ready rows.
@@ -14728,6 +14732,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer` — abstract controller whose declared actions are all `[AllowAnonymous]` — **cheap-disproof 2026-10-08 thorough hunt:** `AllowAnonymous` returns before `hasUnauthorizedDeclaredApiActions`; `Does_not_report_derived_controller_when_only_inherited_action_is_allow_anonymous` covers that abstract base with no type diagnostic.
 - [x] (invalid) `MutatingControllerAuditAnalyzer` — primary-constructor field initializer `LogAsync` — **cheap-disproof 2026-10-08 thorough hunt:** audit detection is the action body, so a constructor field initializer still leaves AL0003; regression `AL0003_reports_when_LogAsync_runs_only_in_primary_constructor_field_initializer`.
 - [x] (proven) `RequireAuthorizationAnalyzer` — empty abstract controller reported AL0001 when its only inherited action was `[AllowAnonymous]` — **hit 2026-10-08 thorough hunt:** the no-member fallback ran before inherited actions were considered on abstract types; skip it when every inherited public API action is authorized; regression `Does_not_report_abstract_controller_when_only_inherited_action_is_allow_anonymous`.
+- [x] (proven) `RequireAuthorizationAnalyzer.AnalyzeNamedType` — concrete inherited-action scan ignored interface `[Authorize]` — **hit 2026-10-09 seed hunt:** declared actions and the abstract empty-type helper already called `ActionHasAuthorization`, but the concrete derived loop checked only direct attributes and the override chain, so an empty derived controller reported AL0001 for a base action authorized on its implemented interface; inherited actions now use the same check; regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`.
 
 ---
 

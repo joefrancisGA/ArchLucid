@@ -174,11 +174,8 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
 
                     foundPublicApiAction = true;
 
-                    if (SymbolHasAuthorizeOrAllowAnonymous(inheritedMethod, authorizeAttribute, allowAnonymousAttribute) ||
-                        MethodInheritsAuthorizeOrAllowAnonymousFromOverriddenChain(
-                            inheritedMethod,
-                            authorizeAttribute,
-                            allowAnonymousAttribute))
+                    // Declared actions already accept interface [Authorize]. Inherited actions must use the same check.
+                    if (ActionHasAuthorization(inheritedMethod, authorizeAttribute, allowAnonymousAttribute))
                     {
                         continue;
                     }

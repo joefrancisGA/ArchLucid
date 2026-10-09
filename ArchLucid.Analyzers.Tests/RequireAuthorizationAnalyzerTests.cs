@@ -518,6 +518,43 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedApi
+    {
+        [Authorize]
+        IActionResult Get();
+    }
+
+    public abstract class SharedController : ControllerBase, IAuthorizedApi
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+
+    public sealed class DerivedController : SharedController
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
     public async Task Does_not_report_when_implemented_interface_has_Authorize()
     {
         const string testCode = AspNetCoreStubs +
