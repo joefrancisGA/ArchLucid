@@ -23,16 +23,32 @@ public static class TopologyProposalRelationshipEdgeMapper
         if (relationships.Count == 0)
             return [];
 
-        Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(topologyNodes, endpointAliases);
+        HashSet<string> unindexedTerraformEndpointIdentities = [];
+        HashSet<string> indexedTerraformEndpointIdentities = [];
+        Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(
+            topologyNodes,
+            endpointAliases,
+            unindexedTerraformEndpointIdentities,
+            indexedTerraformEndpointIdentities);
 
         List<GraphEdge> edges = [];
 
         foreach (ManifestRelationship relationship in relationships)
         {
-            if (!TryResolveNodeId(relationship.SourceId, endpointKeyToNodeId, out string? fromNodeId))
+            if (!TryResolveNodeId(
+                    relationship.SourceId,
+                    endpointKeyToNodeId,
+                    unindexedTerraformEndpointIdentities,
+                    indexedTerraformEndpointIdentities,
+                    out string? fromNodeId))
                 continue;
 
-            if (!TryResolveNodeId(relationship.TargetId, endpointKeyToNodeId, out string? toNodeId))
+            if (!TryResolveNodeId(
+                    relationship.TargetId,
+                    endpointKeyToNodeId,
+                    unindexedTerraformEndpointIdentities,
+                    indexedTerraformEndpointIdentities,
+                    out string? toNodeId))
                 continue;
 
             string edgeType = MapRelationshipType(relationship.RelationshipType);
@@ -53,7 +69,9 @@ public static class TopologyProposalRelationshipEdgeMapper
 
     private static Dictionary<string, string> BuildEndpointResolutionIndex(
         IReadOnlyList<GraphNode> topologyNodes,
-        IReadOnlyDictionary<string, string>? endpointAliases)
+        IReadOnlyDictionary<string, string>? endpointAliases,
+        HashSet<string> unindexedTerraformEndpointIdentities,
+        HashSet<string> indexedTerraformEndpointIdentities)
     {
         Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
 
@@ -63,6 +81,20 @@ public static class TopologyProposalRelationshipEdgeMapper
                 continue;
 
             TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys(endpointKeyToNodeId, node);
+
+            string? terraformEndpointIdentity =
+                TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(node.SourceId);
+
+            if (terraformEndpointIdentity is null)
+                continue;
+
+            string? withoutInstanceKey =
+                TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(terraformEndpointIdentity);
+
+            if (withoutInstanceKey is null)
+                unindexedTerraformEndpointIdentities.Add(terraformEndpointIdentity);
+            else
+                indexedTerraformEndpointIdentities.Add(withoutInstanceKey);
         }
 
         foreach (GraphNode node in topologyNodes)
@@ -101,7 +133,12 @@ public static class TopologyProposalRelationshipEdgeMapper
             string trimmedKey = alias.Key.Trim();
             string resolvedNodeId = NormalizeAliasTargetNodeId(alias.Value);
 
-            if (TryResolveNodeId(resolvedNodeId, endpointKeyToNodeId, out string canonicalNodeId))
+            if (TryResolveNodeId(
+                    resolvedNodeId,
+                    endpointKeyToNodeId,
+                    unindexedTerraformEndpointIdentities,
+                    indexedTerraformEndpointIdentities,
+                    out string canonicalNodeId))
                 resolvedNodeId = canonicalNodeId;
 
             endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
@@ -132,6 +169,8 @@ public static class TopologyProposalRelationshipEdgeMapper
     private static bool TryResolveNodeId(
         string candidate,
         Dictionary<string, string> endpointKeyToNodeId,
+        HashSet<string> unindexedTerraformEndpointIdentities,
+        HashSet<string> indexedTerraformEndpointIdentities,
         out string nodeId)
     {
         if (string.IsNullOrWhiteSpace(candidate))
@@ -163,7 +202,12 @@ public static class TopologyProposalRelationshipEdgeMapper
             return true;
         }
 
-        if (TryResolveStrippedTerraformInstanceKey(trimmedCandidate, endpointKeyToNodeId, out nodeId!))
+        if (TryResolveStrippedTerraformInstanceKey(
+                trimmedCandidate,
+                endpointKeyToNodeId,
+                unindexedTerraformEndpointIdentities,
+                indexedTerraformEndpointIdentities,
+                out nodeId!))
             return true;
 
         if (GraphAzureInventoryReconciliationAnalyzer.LooksLikeArmResourceId(trimmedCandidate)
@@ -181,6 +225,8 @@ public static class TopologyProposalRelationshipEdgeMapper
     private static bool TryResolveStrippedTerraformInstanceKey(
         string trimmedCandidate,
         Dictionary<string, string> endpointKeyToNodeId,
+        HashSet<string> unindexedTerraformEndpointIdentities,
+        HashSet<string> indexedTerraformEndpointIdentities,
         out string nodeId)
     {
         string? withoutInstanceKey = TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(trimmedCandidate);
@@ -195,6 +241,8 @@ public static class TopologyProposalRelationshipEdgeMapper
             TopologyProposalTerraformSourceIdHeuristics.TryNormalizeTerraformEndpointIdentity(withoutInstanceKey);
 
         if (strippedIdentity is not null
+            && unindexedTerraformEndpointIdentities.Contains(strippedIdentity)
+            && !indexedTerraformEndpointIdentities.Contains(strippedIdentity)
             && endpointKeyToNodeId.TryGetValue(strippedIdentity, out nodeId!))
         {
             return true;

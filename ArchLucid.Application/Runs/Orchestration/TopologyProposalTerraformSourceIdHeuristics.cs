@@ -179,20 +179,5 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             return;
 
         TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(aliasToNodeId, leafAddress, nodeId);
-        AddInstanceStrippedResourceAddressAlias(aliasToNodeId, leafAddress, nodeId);
-    }
-
-    private static void AddInstanceStrippedResourceAddressAlias(
-        Dictionary<string, string> aliasToNodeId,
-        string leafAddress,
-        string nodeId)
-    {
-        string? resourceAddress = TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(leafAddress);
-
-        if (resourceAddress is null)
-            return;
-
-        // TryAdd keeps main[0] and main[1] distinct. The unindexed resource address maps to the first instance.
-        TopologyProposalRelationshipEndpointIndex.AddResolutionAlias(aliasToNodeId, resourceAddress, nodeId);
     }
 }

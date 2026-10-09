@@ -13,6 +13,74 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 public sealed class TopologyProposalRelationshipEdgeMapperTests
 {
     [Fact]
+    public void MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "resource-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main[0]",
+                SourceId = "azurerm_resource_group.main[0]",
+                Category = GraphTopologyCategories.Compute
+            },
+            new()
+            {
+                NodeId = "resource-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main[1]",
+                SourceId = "azurerm_resource_group.main[1]",
+                Category = GraphTopologyCategories.Compute
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_resource_group.main[99]",
+                    TargetId = "azurerm_resource_group.main[0]",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_indexed_reference_to_only_unindexed_terraform_aggregate()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "resource",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main",
+                SourceId = "azurerm_resource_group.main",
+                Category = GraphTopologyCategories.Compute
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_resource_group.main[99]",
+                    TargetId = "azurerm_resource_group.main",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(edge =>
+            edge.FromNodeId == "resource" &&
+            edge.ToNodeId == "resource");
+    }
+
+    [Fact]
     public void MapRelationships_MapsCallsToConnectsToEdge()
     {
         List<GraphNode> nodes =
