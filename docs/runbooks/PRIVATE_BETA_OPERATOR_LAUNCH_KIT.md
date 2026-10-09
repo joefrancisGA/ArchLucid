@@ -162,6 +162,15 @@ python3 scripts/ci/report_private_beta_funnel.py \
   --markdown-out artifacts/private-beta/funnel.md
 ```
 
+Before attaching beta evidence to an RC bundle, validate that requested run IDs
+are complete and all attached evidence belongs to one commit:
+
+```bash
+python3 scripts/ci/check_private_beta_evidence_consistency.py \
+  --json artifacts/private-beta/evidence-records.json \
+  --expected-commit-sha "<rc-head-sha>"
+```
+
 ### Canned replies
 
 **Invite expired:** “Your invitation has expired. We will reissue it after
