@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — configuration binding of JSON null overwrites `TrialLifecycleEmailRoutingOptions.Owner` (default `Hosted`) and `ConfluencePublishingOptions.SpaceKey` / `ProjectSpaceKeys` values. `IsLogicAppOwned` called `Owner.Trim()`, so `TrialScheduledLifecycleEmailScanner` threw `NullReferenceException` and never ran the hosted scan. `ConfluencePublishingSpaceKeyResolver.Resolve` called `Trim` on the space key and on dictionary values, so publish threw before it could report a missing space key or use the default. `IsLogicAppOwned` now uses `IsLogicAppOwnerMode`, and the resolver treats a null bound string as empty. Regressions `IsLogicAppOwned_false_when_configuration_binds_owner_null`, `Resolve_uses_default_space_key_when_configuration_binds_a_null_project_space_value`, and `Resolve_returns_empty_when_configuration_binds_space_key_null` failed first with `NullReferenceException`. 13 routing and space-key tests passed.
+
 2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — `Auth:Trial:Modes` binding keeps a JSON null array element as a null string. `TrialAuthModeConstants.HasMode` called `Trim` on that slot, so JWT bearer setup and trial local-identity checks threw `NullReferenceException` before they could see a later `LocalIdentity` entry. Null slots are now skipped. Regression `HasMode_ignores_null_slots_from_configuration_binding` failed first with `NullReferenceException`. 1 `TrialAuthModeConstants` test passed.
 
 2026-10-09 seed hunt (seed→hit): `core-configuration-summary` — `GET /v1/admin/config-summary?includeEffectiveValues=true` truncates non-sensitive catalog values at 256 UTF-16 code units. A supplementary character on that boundary, such as a long `ArchLucid:FallbackLlm:Endpoints` scalar, left a lone high surrogate in `EffectiveValue`. The cut now steps back one unit when it would split a pair, and a pair that ends on the boundary stays. Regression `Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair` failed first because the truncated prefix was not well-formed Unicode. 865 `ConfigurationEffectiveValueResolver` tests passed.
@@ -23825,13 +23827,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 44
-- **bugs-found:** 27
+- **hunts:** 45
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — trial auth mode null slot threw in HasMode
+- **last-bug:** 2026-10-09 — null Owner and SpaceKey threw on Trim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved configuration binding of JSON null overwrote `Owner` and Confluence space keys, then `Trim` threw in `IsLogicAppOwned` and `ConfluencePublishingSpaceKeyResolver.Resolve`; owner mode now reuses `IsLogicAppOwnerMode`, and a null bound space key is empty; regressions `IsLogicAppOwned_false_when_configuration_binds_owner_null`, `Resolve_uses_default_space_key_when_configuration_binds_a_null_project_space_value`, and `Resolve_returns_empty_when_configuration_binds_space_key_null`; 13 routing and space-key tests passed.
+
+- [x] (proven) `TrialLifecycleEmailRoutingOptions.IsLogicAppOwned` and `ConfluencePublishingSpaceKeyResolver.Resolve` — JSON null overwrote `Owner`, `SpaceKey`, and a project space value, then `Trim` threw — **hit 2026-10-09 seed hunt (seed→hit):** reuse the null-safe owner parser and treat a null bound space key as empty; regressions above. [class:null-deref]
 
 2026-10-09 seed hunt (seed→hit): proved `TrialAuthModeConstants.HasMode` threw when configuration binding left a null `Auth:Trial:Modes` element, so JWT bearer setup could not read a later `LocalIdentity` mode; null slots are skipped; regression `HasMode_ignores_null_slots_from_configuration_binding`; 1 mode test passed.
 
@@ -23909,6 +23915,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `TrialLifecycleEmailRoutingOptions.IsLogicAppOwned` and `ConfluencePublishingSpaceKeyResolver.Resolve` — JSON null overwrote `ArchLucid:Notifications:TrialLifecycle:Owner`, `Integrations:ConfluencePublishing:SpaceKey`, and a `ProjectSpaceKeys` value, then `Trim` threw in the lifecycle scanner and Confluence publish — **hit 2026-10-09 seed hunt (seed→hit):** reuse `IsLogicAppOwnerMode` and treat a null bound space key as empty; regressions `IsLogicAppOwned_false_when_configuration_binds_owner_null`, `Resolve_uses_default_space_key_when_configuration_binds_a_null_project_space_value`, and `Resolve_returns_empty_when_configuration_binds_space_key_null`. [class:null-deref]
 - [x] (proven) `TrialAuthModeConstants.HasMode` — null `Auth:Trial:Modes` elements from configuration binding threw `NullReferenceException` and hid a later `LocalIdentity` token — **hit 2026-10-09 seed hunt (seed→hit):** skip null slots; regression `HasMode_ignores_null_slots_from_configuration_binding`. [class:null-deref]
 - [x] (proven) `ConfigurationSensitiveConfigValueScanner` — credential connection pairs with whitespace before `=` stayed visible on non-sensitive paths — **hit 2026-10-09 seed hunt (seed→hit):** pair-boundary match allows whitespace before `=`; regression `Resolve_redacts_connection_string_when_credential_key_has_space_before_equals`.
 - [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)

@@ -2,6 +2,8 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Core.Tests.Configuration;
 
 [Trait("Suite", "Core")]
@@ -49,6 +51,24 @@ public sealed class TrialLifecycleEmailRoutingOptionsTests
     {
         TrialLifecycleEmailRoutingOptions options = new() { Owner = "   " };
 
+        options.IsLogicAppOwned().Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLogicAppOwned_false_when_configuration_binds_owner_null()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    // JSON `"Owner": null` binds over the Hosted initializer.
+                    [$"{TrialLifecycleEmailRoutingOptions.OwnerConfigurationKey}"] = null,
+                })
+            .Build();
+        TrialLifecycleEmailRoutingOptions options = new();
+        configuration.GetSection(TrialLifecycleEmailRoutingOptions.SectionName).Bind(options);
+
+        options.Owner.Should().BeNull();
         options.IsLogicAppOwned().Should().BeFalse();
     }
 }
