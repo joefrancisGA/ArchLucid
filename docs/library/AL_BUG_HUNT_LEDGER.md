@@ -33938,7 +33938,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 49 · **Bugs found:** 22 · **Consecutive dry hunts:** 1
+**Hunts:** 52 · **Bugs found:** 25 · **Consecutive dry hunts:** 0
+
+2026-10-09 seed hunt (seed→hit): `useGuidedIntakeDraftCreate` loaded a source architecture through an unhandled `getDraftRequest(...).then(...)` chain. A reachable source-architecture deeplink whose request failed left the guided intake without submit-error state and produced an unhandled rejection. Source-load failures now map through the existing draft GET blocked-reason helper and set `submitError`; regression `reports a source-architecture load failure instead of leaving an unhandled rejection`; the focused repro passed and the related route scope reported 21 passed with 12 pre-existing path-switcher baseline failures.
 
 2026-10-09 seed hunt (seed→hit): proved `useGuidedIntakeBriefForm` applied a `preset=starter-*` brief after the example-template effect, so `?template=` plus a starter preset left the starter system name and brief; quick start already lets the example template override the preset; starter prefill now skips when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`; 7 brief-form tests passed.
 
@@ -34022,11 +34024,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 51
-- **bugs-found:** 24
+- **hunts:** 52
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — starter preset overwrote an example-template brief on guided intake
+- **last-bug:** 2026-10-09 — source architecture load failure became an unhandled rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34052,6 +34054,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 ### Hypotheses
 
 - [x] (proven) `useGuidedIntakeBriefForm` — starter `preset=` overwrote `template=` / `example=` brief fields — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`.
+- [x] (proven) `useGuidedIntakeDraftCreate` — source-architecture `getDraftRequest` rejection escaped the effect, leaving the wizard without an error state and producing an unhandled rejection — **hit 2026-10-09 seed hunt:** map source-load failures through `architectureDraftBlockedReason` and set `submitError`; regression `reports a source-architecture load failure instead of leaving an unhandled rejection`.
+- [ ] (candidate) `useGuidedIntakeDraftCreate` — `initializeArchitectureCreation().then(...)` has no rejection handler, so a reachable create-architecture initialization failure may leave the form uninitialized without a submit error — locus: create-architecture initialization effect; input: create-architecture route when the initialization request rejects.
 - [x] (proven) `useNewRunWizardQueryPrefill` — **hit 2026-10-08 thorough hunt:** policy-pack `setValue("policyReferences")` ran before an accelerator/preset `reset`, so the reset erased the explicit policy deeplink; reapplied the policy pack after both reset paths; regression `retains policy-pack prefill when an accelerator reset runs on the same mount`.
 - [x] (invalid) `useFirstPilotIntakeWizard` — **cheap-disproof 2026-10-08 thorough hunt:** scope bullets and L0 answers are only reachable after the operator has entered the title/brief content that `hasSaveableContent` requires, so the proposed content-only session cannot occur.
 - [x] (valid-no-repro) `useFirstPilotIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** scope restoration reads the committed browser search through `readWindowLocationSearch`, and the focused session/URL tests found no concurrent-update loss.

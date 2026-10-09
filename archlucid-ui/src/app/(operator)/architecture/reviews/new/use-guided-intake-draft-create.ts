@@ -16,7 +16,10 @@ import {
   initializeArchitectureCreation,
 } from "@/lib/architecture/architecture-creation-init";
 import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
-import { architectureDraftCreateMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import {
+  architectureDraftBlockedReason,
+  architectureDraftCreateMutationBlockedReason,
+} from "@/lib/architecture/architecture-draft-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
@@ -116,46 +119,52 @@ export function useGuidedIntakeDraftCreate(options: Options) {
 
     sourceArchitectureLoadedRef.current = true;
 
-    void getDraftRequest(sourceArchitectureId).then(async (draft) => {
-      core.setDraftId(draft.draftId);
-      core.setDraftStatus(draft.status);
-      core.setLinkedSpawnedRunId(architectureDraftSpawnedRunId(draft));
-      applyAdmittedRequiredMustQuestionKeysFromDocument(draft.document);
-      const formState = applyArchitectureCreationDraftToFormState(draft);
-      setFreeTextIntent(formState.freeTextIntent);
-      setBusinessOutcome(formState.businessOutcome);
-      setSystemName(formState.systemName);
-      core.setStructuredBrief(formState.structuredBrief);
-      setActorSet(
-        draft.document.actorSet.actors.length > 0
-          ? draft.document.actorSet
-          : architectureCreationDefaultActorSet(),
-      );
-
-      const spawnedRunId = architectureDraftSpawnedRunId(draft);
-
-      if (isGuidedIntakeAccessBlocked(draft.status)) {
-        core.setSourceArchitectureAccessBlocked(true);
-        navigate(
-          resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId, {
-            workingMode: isWorkingMode,
-          }),
+    void getDraftRequest(sourceArchitectureId)
+      .then(async (draft) => {
+        core.setDraftId(draft.draftId);
+        core.setDraftStatus(draft.status);
+        core.setLinkedSpawnedRunId(architectureDraftSpawnedRunId(draft));
+        applyAdmittedRequiredMustQuestionKeysFromDocument(draft.document);
+        const formState = applyArchitectureCreationDraftToFormState(draft);
+        setFreeTextIntent(formState.freeTextIntent);
+        setBusinessOutcome(formState.businessOutcome);
+        setSystemName(formState.systemName);
+        core.setStructuredBrief(formState.structuredBrief);
+        setActorSet(
+          draft.document.actorSet.actors.length > 0
+            ? draft.document.actorSet
+            : architectureCreationDefaultActorSet(),
         );
 
-        return;
-      }
+        const spawnedRunId = architectureDraftSpawnedRunId(draft);
 
-      if (draft.status === "Admitted") {
-        const questions = await getDraftQuestions(draft.draftId);
-        core.setAllQuestions(questions.selection.allQuestions);
-        core.setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
-        core.setPendingQuestions(questions.selection.pendingMustQuestions);
-        core.setClarificationSelectionHydrated(true);
-        setStep(questions.selection.pendingMustQuestions.length === 0 ? 2 : 1);
+        if (isGuidedIntakeAccessBlocked(draft.status)) {
+          core.setSourceArchitectureAccessBlocked(true);
+          navigate(
+            resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId, {
+              workingMode: isWorkingMode,
+            }),
+          );
 
-        return;
-      }
-    });
+          return;
+        }
+
+        if (draft.status === "Admitted") {
+          const questions = await getDraftQuestions(draft.draftId);
+          core.setAllQuestions(questions.selection.allQuestions);
+          core.setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
+          core.setPendingQuestions(questions.selection.pendingMustQuestions);
+          core.setClarificationSelectionHydrated(true);
+          setStep(questions.selection.pendingMustQuestions.length === 0 ? 2 : 1);
+
+          return;
+        }
+      })
+      .catch((error: unknown) => {
+        const failure = toApiLoadFailure(error);
+        const blocked = architectureDraftBlockedReason(failure);
+        core.setSubmitError(blocked !== null ? new Error(blocked) : error);
+      });
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,
     core,
