@@ -34455,15 +34455,17 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 27
+- **hunts:** 29
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-04 — resource-group disclosure survived group-by off and architecture scope change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
+
+2026-10-09 seed hunt (seed-only): reread `GovernanceFindingsQueueClient.tsx` and its focused Vitest inventory; no fresh row met the full hunt-ready bar and no hypothesis was promoted. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 - [ ] (candidate) `GovernanceFindingsQueueClient` / `useOperatorScopeRecord` — the queue can enter React’s external-store update-depth failure when the persisted operator scope is absent and the snapshot provider returns a fresh object on each read — locus: client’s unconditional scope-record hook and assigned-to-me render path; input: an operator with no `localStorage` scope record loading the findings route.
 - [ ] (candidate) `GovernanceFindingsQueueClient` — assigned-to-me chrome resolves its workspace label through a separate storage read instead of the already-loaded `scopeRecord`, so an empty or changing operator scope can show a fallback workspace label rather than the active scope — locus: `resolveGovernanceAssignedToMeWorkspaceLabel()` call; input: assigned-to-me route after operator scope storage is cleared or updated.
