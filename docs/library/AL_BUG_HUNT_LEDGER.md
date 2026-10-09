@@ -33938,7 +33938,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 54 · **Bugs found:** 26 · **Consecutive dry hunts:** 0
+**Hunts:** 54 · **Bugs found:** 27 · **Consecutive dry hunts:** 0
+
+2026-10-09 seed hunt (seed→hit): `useGuidedIntakePriorRunPrefill` applied delayed prior-package scope bullets unconditionally, so an operator edit made while the rerun request was in flight was overwritten and the scope gate was reopened from stale data. Prefill now applies scope bullets only when the current scope is still empty; regression `does not overwrite scope edits made while prior-package loading is in flight`; 1 focused regression and 4 related guided-intake tests passed. The route scope retained 71 pre-existing baseline failures.
 
 2026-10-09 seed hunt (seed-only): no newly promoted hunt-ready hypothesis survived the source read and cheap-disproof pass; seeded five reachable follow-on `(candidate)` rows covering stale asynchronous inventory detection, draft-status hydration rejection, evidence extraction fallback, post-create acknowledgement failure, and deferred guided-intake upload failure; no production code changed and no regression was added.
 
@@ -33949,6 +33951,7 @@ ABQ-09 churn hotspot; review detail route tree.
 2026-10-09 seed hunt (seed→hit): proved `useGuidedIntakeBriefForm` applied a `preset=starter-*` brief after the example-template effect, so `?template=` plus a starter preset left the starter system name and brief; quick start already lets the example template override the preset; starter prefill now skips when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`; 7 brief-form tests passed.
 
 - [x] (proven) `useGuidedIntakeBriefForm` — starter preset overwrote the example-template brief on the same mount — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when `exampleTemplate` is set; regression above.
+- [x] (proven) `useGuidedIntakePriorRunPrefill` — delayed prior-package loading overwrote scope bullets edited while the request was in flight — **hit 2026-10-09 seed hunt (seed→hit):** apply prior scope only when the current scope is empty; regression `does not overwrite scope edits made while prior-package loading is in flight`.
 
 2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
 
@@ -33992,6 +33995,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `useFirstPilotIntakeSubmit.tryBuildIntakeContextDocuments` — evidence document extraction failures are converted to an empty document list and the run is still created — locus: `use-first-pilot-intake-submit.ts` ~32–40 and submit body construction; input: a reachable unreadable or unsupported architecture document selected in quick start.
 - [ ] (candidate) `useFirstPilotIntakeSubmit` — failure persisting coverage acknowledgement occurs after the review is created but leaves the created run undiscoverable by the submit flow — locus: `use-first-pilot-intake-submit.ts` ~126–140; input: successful `createArchitectureRun` followed by a rejected `persistSessionRunCoverageAcknowledgement`.
 - [ ] (candidate) `useGuidedIntakeDraftSubmit` — deferred document upload failure is reduced to a warning after the session is cleared and navigation begins — locus: `use-guided-intake-draft-submit.ts` ~52–100; input: admitted guided intake with pending evidence and a rejected post-submit document upload.
+- [ ] (candidate) `useGuidedIntakePriorRunPrefill` — a rejected prior-package load has no rejection handler and can produce an unhandled promise while the optional rerun prefill silently fails — locus: `use-guided-intake-prior-run-prefill.ts` ~108–122; input: reachable `rerun=` guided-intake deep link whose prior-package request rejects.
+- [ ] (candidate) `NewRunWizardTemplateRestore` — a stale browser snapshot restores a step index without clamping it to the current wizard definition — locus: `NewRunWizardTemplateRestore.ts` ~43–52; input: saved full-wizard session from an older step sequence restored after the current wizard has fewer steps.
+- [ ] (candidate) `ReviewsNewPathSwitcher` — `suppressAcceleratorStartIntent` remains true after a Quick Start click and can hide a later accelerator deeplink in the same mount — locus: `ReviewsNewPathSwitcher.tsx` ~82–93 and `selectPath`; input: select Quick Start, then navigate to a URL with a valid `accelerator=` query without remounting.
+- [ ] (candidate) `useNewRunWizardMode` — removing a URL `mode=` after a same-mounted client navigation leaves the one-shot mode choice latched and prevents the committed-manifest probe from re-evaluating — locus: `use-new-run-wizard-mode.ts` ~54–150; input: navigate from `mode=full` to a URL without `mode` before the first-run probe resolves.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped reviews/new vitest 141 passed with 71 pre-existing baseline failures.
 
@@ -34033,11 +34040,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 53
-- **bugs-found:** 26
+- **hunts:** 54
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — create-architecture initialization failure became an unhandled rejection
+- **last-bug:** 2026-10-09 — delayed prior-package scope prefill overwrote operator edits
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
