@@ -9040,3 +9040,4 @@
 {"at":"2026-10-09T21:01:52.0966647Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/"]}
 {"at":"2026-10-09T21:08:09.4137814Z","zoneId":"agent-runtime-safety","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/;ArchLucid.AgentRuntime/PromptInjection/"]}
 {"at":"2026-10-09T21:12:10.5949248Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/;ArchLucid.Core/Billing/;ArchLucid.Core/Budgeting/"]}
+{"at":"2026-10-09T21:15:37.0993833Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs;ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}

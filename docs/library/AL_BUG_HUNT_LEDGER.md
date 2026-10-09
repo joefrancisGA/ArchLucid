@@ -108,6 +108,7 @@
 
 2026-10-09 thorough hunt (hit): `email-otp-auth` — `POST /v1/auth/email-otp/verify` set `ExpiresInSeconds` from `Auth:EmailOtp:AccessTokenLifetimeMinutes` (clamped to 24 hours) but `LocalTrialJwtIssuer` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. With email OTP configured at 2000 minutes and the trial TTL at 60, the response said 86400 seconds and the JWT expired in 3600. Verify and post-auth bootstrap now pass the clamped email-OTP lifetime into the issuer. Trial password sign-in still uses the local-identity TTL when the argument is omitted. Padded invitation tokens were cheap-disproved: `EmailOtpInvitationTokenHasher.Hash` trims before SHA-256. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
+2026-10-09 seed hunt (seed-only): re-read `EmailOtpAuthController` and `EmailOtpAuthService` with their delegated request/verify flows and focused tests; existing guards cover disabled auth, malformed requests, scope fallback, token lifetime clamping, invitation normalization, cancellation cleanup, and result-to-JWT mapping. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The scoped email-OTP test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 2026-10-09 seed hunt (seed→hit): `ui-webhooks-settings` — opening `/integrations/webhooks?webhookEnableId=` while `listAlertRoutingSubscriptions` failed made the confirm effect treat the empty inventory as a missing subscription and `router.replace` dropped the id. Manual refresh then wrote null pending state and deleted the same param before the retry could resolve it. The effect now waits until a load succeeds, and a null confirmation write that does not change the open id leaves the query in place. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — findings dual-pane updates `highlightedNodeId` after the diagram model is loaded, but `useArchitectureDiagramPanel` only applied that highlight when `diagramModel` changed. A later highlight left the first provenance node pressed. The effect now depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`. 13 `ArchitectureDiagramPanel` vitest tests passed.
@@ -6626,7 +6627,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
