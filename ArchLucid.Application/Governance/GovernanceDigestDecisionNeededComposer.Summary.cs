@@ -2,8 +2,6 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
-
 namespace ArchLucid.Application.Governance;
 
 public sealed partial class GovernanceDigestDecisionNeededComposer
@@ -55,13 +53,9 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
         int unownedHighCount = register.Entries
             .Count(static e => string.IsNullOrWhiteSpace(e.OwnerUserId) && IsHighSeverity(e.Severity));
 
-        int needsEvidenceCount = recent
-            .Where(e => e.Disposition == Disposition.NeedsEvidence)
-            .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
-            .Count();
+        int needsEvidenceCount = GovernanceDigestOpenDispositionSelector.SelectNeedsEvidence(recent).Count;
 
-        int deferredDueCount = recent
-            .Count(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now);
+        int deferredDueCount = GovernanceDigestOpenDispositionSelector.SelectDeferredDue(recent, now).Count;
 
         int waiversExpiringCount = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaivers,

@@ -75,6 +75,31 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
     }
 
     [Fact]
+    public void ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events()
+    {
+        DateTimeOffset earlier = Now.AddDays(-2);
+        DateTimeOffset later = Now.AddDays(-1);
+        ArchitectureRiskRegisterResponse register = new();
+        IReadOnlyList<FindingReviewEventRecord> recent =
+        [
+            TrailEvent("f-evidence", Disposition.Remediated, later),
+            TrailEvent("f-deferred", Disposition.Remediated, later),
+            TrailEvent("f-evidence", Disposition.NeedsEvidence, earlier),
+            TrailEvent("f-deferred", Disposition.Deferred, earlier, Now.AddHours(-1)),
+            TrailEvent("f-still-deferred", Disposition.Deferred, later, Now.AddHours(-1)),
+        ];
+
+        int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+            pendingApprovals: 0,
+            register,
+            recent,
+            activeWaivers: [],
+            Now);
+
+        total.Should().Be(1);
+    }
+
+    [Fact]
     public void ComputeTotalDecisionItems_adds_pending_approvals_separately()
     {
         int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
@@ -87,7 +112,11 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
         total.Should().Be(2);
     }
 
-    private static FindingReviewEventRecord TrailEvent(string findingId, Disposition disposition) =>
+    private static FindingReviewEventRecord TrailEvent(
+        string findingId,
+        Disposition disposition,
+        DateTimeOffset? occurredAtUtc = null,
+        DateTimeOffset? revisitDueUtc = null) =>
         new()
         {
             EventId = Guid.NewGuid(),
@@ -98,6 +127,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
             ReviewerUserId = "reviewer",
             Action = FindingReviewAction.RecordDisposition,
             Disposition = disposition,
-            OccurredAtUtc = Now,
+            OccurredAtUtc = occurredAtUtc ?? Now,
+            RevisitDueUtc = revisitDueUtc,
         };
 }

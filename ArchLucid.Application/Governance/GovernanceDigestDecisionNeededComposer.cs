@@ -120,10 +120,8 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
                 decisionNeeded.AppendLine($"- **{entry.Title}** — assign owner — [{entry.FindingId}]({entry.EvidenceHref})");
         }
 
-        List<FindingReviewEventRecord> needsEvidence = recent
-            .Where(e => e.Disposition == Disposition.NeedsEvidence)
-            .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
-            .Select(static g => g.OrderByDescending(static e => e.OccurredAtUtc).First())
+        List<FindingReviewEventRecord> needsEvidence = GovernanceDigestOpenDispositionSelector
+            .SelectNeedsEvidence(recent)
             .Take(10)
             .ToList();
 
@@ -139,8 +137,8 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
 
         AppendWaiverExpirySections(decisionNeeded, activeWaivers, now, ref hasDecisionContent);
 
-        List<FindingReviewEventRecord> deferredDue = recent
-            .Where(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now)
+        List<FindingReviewEventRecord> deferredDue = GovernanceDigestOpenDispositionSelector
+            .SelectDeferredDue(recent, now)
             .Take(10)
             .ToList();
 

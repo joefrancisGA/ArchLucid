@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-governance-policy` — decisions-needed digest and summary counted every NeedsEvidence or Deferred review event in the 30-day window. `ListSinceUtcAsync` returns the whole window newest-first, and a later remediation is a new row, so a closed finding stayed in "awaiting evidence" and "deferred due". Counts and markdown now keep the latest disposition per finding through `CrossReviewLatestDispositionMap`. A still-open deferred finding stays. Regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` (total was 3) and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition` (awaiting evidence was 1). 14 digest, calculator, and disposition-map tests passed. [class:state-machine-gap]
+
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — `PolicyPackWorkspaceSelectionService.ListAsync` kept the first assignment per pack. `ListByScopeAsync` returns rows newest-first, so a newer tenant assignment hid an older project assignment for the same pack. Effective governance ranks project above tenant (`EffectiveGovernanceResolver.GetPrecedenceRank`). The selection list now uses that rank, then `AssignedUtc`, then assignment id. Regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment` failed first with the tenant assignment id. 6 workspace-selection tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` matched the keyword `cosmos` only as a whole delimiter token and ignored `terraformType`. The simple terraform parser names `azurerm_cosmosdb_account` `polyglot` and stores the provider type on `terraformType` (`infra/terraform-cosmos/main.tf`). That account with an RPO quality attribute and no replica properties was skipped. Keywords of five letters or more now prefix a longer product token (`cosmosdb`, `postgresql`), and declaration type fields are part of the evidence text. Cosmos role assignments stay off the replica check. Regression `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` failed first with an empty finding list. 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed. [class:other]
@@ -32283,13 +32285,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 39
-- **bugs-found:** 32
+- **hunts:** 40
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — workspace selection kept a newer tenant assignment over the project assignment
+- **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved the decisions-needed digest counted earlier NeedsEvidence and Deferred events after a later remediation; latest disposition per finding now drives the summary, the total, and the markdown; regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition`; 14 digest, calculator, and disposition-map tests passed.
+
+- [x] (proven) `GovernanceDigestDecisionNeededComposer` / `GovernanceDecisionsNeededSummaryCalculator` — a later remediation left the earlier NeedsEvidence or due Deferred row in the 30-day decisions-needed summary and markdown — **hit 2026-10-09 seed hunt:** `ListSinceUtcAsync` keeps every event; counts now use `CrossReviewLatestDispositionMap.SelectLatestEvents`; regressions `ComputeTotalDecisionItems_ignores_superseded_evidence_and_deferred_events` and `BuildSummaryAsync_ignores_review_events_superseded_by_a_later_disposition`. [class:state-machine-gap]
 
 2026-10-09 seed hunt (seed→hit): proved workspace pack selection kept the newest assignment, so a newer tenant row hid the project assignment that effective governance would apply; selection now uses `GetPrecedenceRank`, then `AssignedUtc`, then assignment id; regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment`; 6 workspace-selection tests passed.
 
