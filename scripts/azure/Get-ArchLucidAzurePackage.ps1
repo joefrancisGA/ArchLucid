@@ -698,6 +698,8 @@ try
         }
 
         [System.Collections.ArrayList]$publicIpIpConfigurationFacts = [System.Collections.ArrayList]::new()
+        [System.Collections.ArrayList]$firewallSubnetFacts = [System.Collections.ArrayList]::new()
+        [System.Collections.ArrayList]$virtualNetworkSubnetFacts = [System.Collections.ArrayList]::new()
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
@@ -706,7 +708,9 @@ try
                 [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                     -SubscriptionId $subId `
                     -ResourceGroupScope $ResourceGroupScope `
-                    -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
+                    -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
+                    -FirewallSubnetFacts $firewallSubnetFacts `
+                    -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
 
                 foreach ($argRow in @($argRows))
                 {
@@ -719,7 +723,9 @@ try
             [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                 -SubscriptionId $SubscriptionId `
                 -ResourceGroupScope $ResourceGroupScope `
-                -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
+                -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
+                -FirewallSubnetFacts $firewallSubnetFacts `
+                -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
 
             foreach ($argRow in @($argRows))
             {
@@ -803,6 +809,10 @@ try
         Add-ArchLucidBastionSubnetPropertiesFromAssociations `
             -Resources @($resources) `
             -NetworkAssociations @($networkAssociationRows)
+        Add-ArchLucidFirewallSubnetPropertiesFromFacts `
+            -Resources @($resources) `
+            -FirewallSubnetFacts @($firewallSubnetFacts) `
+            -VirtualNetworkSubnetFacts @($virtualNetworkSubnetFacts)
         Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts `
             -Resources @($resources) `
             -PublicIpIpConfigurationFacts @($publicIpIpConfigurationFacts)
