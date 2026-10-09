@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `archlucid-core` — Event Grid destination extraction read `resourceId` and webhook URLs on the destination object, but API `2022-06-15` list items nest those fields under `destination.properties`. Storage-queue and webhook subscriptions therefore stored no destination. The extractor now reads the nested properties bag and still accepts a flattened destination. Regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7407/7407.
+
 2026-10-09 seed hunt (seed→hit): `persistence-identity` — hourly OTP verification SQL treated any non-completed, non-invalidated challenge as an active replacement, including rows past `ExpiresUtc`. A lockout on a later code was dropped from the hourly failure count while an expired unused challenge remained, which identity-link inserts can leave behind. The active-replacement probe now requires `ExpiresUtc > @NowUtc`, matching the in-memory store. Regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
 2026-10-09 seed hunt (seed→hit): `agent-runtime-evaluation` — finding faithfulness ignored `evidenceRefs` and the `message` field the topology, critic, and compliance prompts emit. An unresolved finding citation still counted as supported when `description` overlapped the package, and a prompt-shaped `message` with a resolved ref counted as ungrounded. Findings now use the same evidence-ref rules as claims and the same message aliases as `ArchitectureFinding`. Regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
@@ -18507,13 +18509,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 470
-- **last-hunt:** 2026-10-08
-- **bugs-found:** 3510
+- **hunts:** 471
+- **last-hunt:** 2026-10-09
+- **bugs-found:** 3511
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-08 — Site Recovery target region kept the initial fabric location
+- **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): Event Grid `2022-06-15` destinations nest `resourceId` and webhook URLs under `destination.properties`; the extractor now reads that bag and still accepts a flattened destination; regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7407/7407.
 
 2026-10-06 seed hunt (seed→hit): promoted and proved `GraphSnapshotKnowledgeModelMerger` left model-graph edge endpoints unpadded while context edges were canonicalized; fixed by canonicalizing model and context edges through the same lookup; regression `Merge_canonicalizes_model_edge_endpoints_when_node_ids_are_trimmed`; scoped `FullyQualifiedName~ArchLucid.Core` passed 7250/7250; KnowledgeGraph merger suite 7/7.
 
@@ -18542,6 +18546,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `AzureInventoryRecoveryServicesProtectedItemSanitizer.TryReadRecoveryTargetRegion` — Site Recovery list items (`HostedAzureInventoryRecoveryServicesCollector` → replication protected items) published the current failover region on `providerSpecificDetails.recoveryFabricLocation` while the sanitizer stored `initialRecoveryFabricLocation`, so reprotected VMs kept the original region on `recoveryServices.targetRegion` — **hit 2026-10-08 seed hunt:** prefer the current fabric location and fall back to the initial location; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`.
+- [x] (proven) `AzureInventoryEventGridDestinationExtractor.Extract` — Event Grid list items nest destination fields under `properties` — **hit 2026-10-09 seed hunt:** `HostedAzureInventoryEventGridSubscriptionCollector` uses API `2022-06-15`, whose `destination.properties` holds `resourceId` and `endpointUrl`; the extractor read only the destination object, so storage-queue and webhook subscriptions stored no destination; read the nested bag and keep the flattened fallback; regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`.
 
 - [x] (proven) `GraphSnapshotKnowledgeModelMerger.NormalizeNodeId` — null `GraphNode.NodeId` or null `GraphEdge.FromNodeId`/`ToNodeId` on in-memory graph rows caused `NullReferenceException` during κ→Γ merge (`KnowledgeModelGraphReprojector` / `KnowledgeModelAwareGraphSnapshotResolver` paths) — **hit 2026-10-07 seed hunt:** coalesce null ids before trim (parity with `GraphNodeJsonConverter` / `GraphEdgeJsonConverter` empty-string defaults); regressions `Merge_treats_null_model_node_id_as_empty_when_deduplicating_nodes` and `Merge_treats_null_edge_endpoint_ids_as_empty_when_canonicalizing_model_edges`.
 

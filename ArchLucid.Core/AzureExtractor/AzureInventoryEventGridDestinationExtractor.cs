@@ -22,9 +22,14 @@ public static class AzureInventoryEventGridDestinationExtractor
 
         string destinationKind = TryReadString(destinationElement, "endpointType") ?? string.Empty;
 
+        // Event Grid 2022-06-15 list items nest endpointUrl and resourceId under destination.properties.
+        JsonElement destinationProperties = TryReadDestinationProperties(destinationElement);
+
         if (destinationKind.Equals("WebHook", StringComparison.OrdinalIgnoreCase))
         {
-            string? endpointUrl = TryReadString(destinationElement, "endpointUrl")
+            string? endpointUrl = TryReadString(destinationProperties, "endpointUrl")
+                                  ?? TryReadString(destinationProperties, "endpointBaseUrl")
+                                  ?? TryReadString(destinationElement, "endpointUrl")
                                   ?? TryReadString(destinationElement, "endpointBaseUrl");
             string? host = AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(endpointUrl);
 
@@ -36,7 +41,8 @@ public static class AzureInventoryEventGridDestinationExtractor
             return (destinationKind, null, host, null);
         }
 
-        string? resourceId = TryReadString(destinationElement, "resourceId");
+        string? resourceId = TryReadString(destinationProperties, "resourceId")
+                             ?? TryReadString(destinationElement, "resourceId");
 
         if (!string.IsNullOrWhiteSpace(resourceId))
         {
@@ -44,6 +50,17 @@ public static class AzureInventoryEventGridDestinationExtractor
         }
 
         return (destinationKind, null, null, null);
+    }
+
+    private static JsonElement TryReadDestinationProperties(JsonElement destinationElement)
+    {
+        if (destinationElement.TryGetProperty("properties", out JsonElement nestedProperties)
+            && nestedProperties.ValueKind is JsonValueKind.Object)
+        {
+            return nestedProperties;
+        }
+
+        return destinationElement;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
