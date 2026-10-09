@@ -40,6 +40,8 @@ _RETRIGGER_SCRIPT = "scripts/ci/retrigger_private_beta_access_on_push.sh"
 _DISPATCH_FULL_CI_SCRIPT = "scripts/ci/dispatch_full_ci_matrix.sh"
 _LOADER_SMOKE_REL = "archlucid-ui/e2e/live-api-private-beta-access.loader-smoke.test.ts"
 _PRIVATE_BETA_HELPER_REL = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
+_LIVE_E2E_STARTER_REL = "archlucid-ui/e2e/start-e2e-live-api.ts"
+_LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL = "archlucid-ui/e2e/helpers/live-e2e-proxy-rate-limit.ts"
 _SANDBOX_MOCKS_REL = "archlucid-ui/src/lib/sandbox-api-mocks.ts"
 _SANDBOX_JSON_IMPORT_ATTR = 'with { type: "json" }'
 _FETCH_AUTH_ME_WITH_BEARER = "fetchAuthMeWithBearer"
@@ -402,6 +404,54 @@ def _require_tb927_invitee_role_wiring(spec_text: str, helper_text: str, errors:
             "/api/auth/bff-session so the browser sends Origin",
         )
 
+    if "result.status === 429" not in helper_text:
+        errors.append(
+            f"{_PRIVATE_BETA_HELPER_REL}: fetchAuthMeViaProxy must retry HTTP 429 on "
+            "/api/proxy/api/auth/me (production Next enables the 120/min UI proxy cap)",
+        )
+
+
+def _require_live_e2e_proxy_rate_limit_wiring(errors: list[str]) -> None:
+    starter_path = repo_root() / _LIVE_E2E_STARTER_REL
+    helper_path = repo_root() / _LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL
+
+    if not starter_path.is_file():
+        errors.append(f"missing {_LIVE_E2E_STARTER_REL}")
+        return
+
+    if not helper_path.is_file():
+        errors.append(
+            f"missing {_LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL} "
+            "(live Playwright must set a finite UI proxy burst cap, not disable the limiter)",
+        )
+        return
+
+    starter_text = starter_path.read_text(encoding="utf-8", errors="replace")
+    helper_text = helper_path.read_text(encoding="utf-8", errors="replace")
+
+    if "resolveLiveE2eProxyRateLimitPerMinute" not in starter_text:
+        errors.append(
+            f"{_LIVE_E2E_STARTER_REL}: must apply resolveLiveE2eProxyRateLimitPerMinute "
+            "so NODE_ENV=production Next does not 429 /api/proxy at 120 req/min/IP",
+        )
+
+    if "ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE" not in starter_text:
+        errors.append(
+            f"{_LIVE_E2E_STARTER_REL}: must set ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE on the Next child",
+        )
+
+    if "LIVE_E2E_PROXY_RATE_LIMIT_PER_MINUTE_DEFAULT" not in helper_text:
+        errors.append(
+            f"{_LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL}: must export "
+            "LIVE_E2E_PROXY_RATE_LIMIT_PER_MINUTE_DEFAULT",
+        )
+
+    if "ARCHLUCID_PROXY_RATE_LIMIT_DISABLED" in helper_text:
+        errors.append(
+            f"{_LIVE_E2E_PROXY_RATE_LIMIT_HELPER_REL}: must not disable the UI proxy limiter; "
+            "keep a finite burst cap",
+        )
+
 
 def _require_invite_flow_jwt_priming_wiring(invite_flow_text: str, errors: list[str]) -> None:
     if "primePrivateBetaBrowserSessionIfJwtMode" not in invite_flow_text:
@@ -621,6 +671,7 @@ def main(argv: list[str] | None = None) -> int:
 
     _require_wait_for_api_ready_http_000_fail_fast(errors)
     _require_sandbox_mock_json_import_attribute(errors)
+    _require_live_e2e_proxy_rate_limit_wiring(errors)
     _require_smoke_branch_wiring(root, errors)
 
     if errors:
