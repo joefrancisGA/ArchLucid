@@ -246,6 +246,12 @@ class Edge:
     detail: str     # citation: snapshot file and row, or rule name
 
 
+# Evidence-only edges are kept as citations for derived edges but never walked.
+# Holding a role at a scope that contains a resource proves nothing by itself:
+# Reader on a resource group can't deploy code or list keys.
+EVIDENCE_ONLY_KINDS = {"hasRoleAt", "contains", "ownerOf", "canActivate"}
+
+
 def find_paths(
     edges: list[Edge],
     entry: str,
@@ -256,7 +262,8 @@ def find_paths(
     outgoing: dict[str, list[Edge]] = {}
 
     for edge in edges:
-        outgoing.setdefault(edge.source, []).append(edge)
+        if edge.kind not in EVIDENCE_ONLY_KINDS:
+            outgoing.setdefault(edge.source, []).append(edge)
 
     paths: list[list[Edge]] = []
     queue: deque[tuple[str, list[Edge]]] = deque([(entry, [])])
@@ -282,6 +289,8 @@ def find_paths(
 ```
 
 This is deliberately naive. Real estates need pruning: cap path length, collapse equivalent routes, and precompute "who has Owner-equivalent access at each scope" rather than expanding every role assignment. Specialized graph databases and libraries help at scale. But this version is enough to find the payments paths in the lab tenant, and it's short enough to read and trust.
+
+The search walks only edges that mean "can". A role assignment and the scopes beneath it are evidence for a capability, not the capability itself. The loader evaluates the role's effective actions against each resource under the scope and emits a `canControlCode` or `grants` edge only when the actions actually allow it. Those derived edges cite the `hasRoleAt` and `contains` evidence they came from. Skip that step and every role assignment, even Reader, looks like a path to the data.
 
 Note that every edge carries its evidence and a citation. When the search returns a path, you already have Chapter 2's hop table: each step, its category, and where it came from.
 
@@ -314,6 +323,8 @@ user: helpdesk-07                              sp: payments-deploy
                                                                      ▼
                                                    [Target] read archived customer data
 ```
+
+The diagram draws role assignments, scope containment and the directory role as separate hops so you can read them. In the searchable graph, the loader collapses each of those chains into a derived edge (lab Step 2): `payments-deploy` gets `canControlCode` on `pay-reconcile` and `grants` on reading `custdata`, `mi-pay-reconcile` gets `grants` on reading `custarchive`, and `helpdesk-07` gets `canAddCredential` on the app.
 
 Three entry points reach `payments-deploy`: the GitHub workflow, the app owner, and the help-desk user's directory role. From it, two routes lead to two customer data stores. That's six paths. Fixing the GitHub entry point narrowed one arrow at the top. Every other route stayed.
 
@@ -356,7 +367,7 @@ They connect through a few specific bridges, and your graph needs each one:
 - **Group management:** directory roles or group owners that can change membership of a group used in Azure role assignments can add themselves to it. Watch especially for groups that aren't role-assignable, which don't get the extra protections role-assignable groups have.
 - **User management:** roles that can reset passwords or authentication methods for other users can take over those users, and everything they hold.
 
-The last two bridges mean the graph needs edges like "can modify membership of" and "can reset credentials of". Those come from directory role assignments and group ownership, which Chapter 3 collected from Microsoft Graph.
+The last two bridges mean the graph needs edges like "can modify membership of" and "can reset credentials of". Those come from directory role assignments and group ownership in Microsoft Graph. Chapter 3's permission set already covers them, and this chapter's lab adds them to the collector.
 
 ---
 
@@ -384,7 +395,7 @@ That's genuinely useful, and Chapter 7 shows how to keep it grounded.
 
 **Reasoning about roles fails.** Ask a model "can Contributor read blob data?" and you'll often get a confident answer that's either too simple ("no") or wrong in the details. Ask it what a custom role named `Payments Operator` can do, and it will guess from the name. Models don't know your custom roles, and their knowledge of built-in roles is frozen at their training date, while role definitions change.
 
-So: **never let a model decide what a role permits.** Look it up in the role definitions you collected (Chapter 3), compute effective actions deterministically, and give the model the result to explain.
+So: **never let a model decide what a role permits.** Look it up in the role definitions you collected (this chapter's lab), compute effective actions deterministically, and give the model the result to explain.
 
 **Graph search fails.** Ask a model to "find all the ways to reach `custdata`" from a large dump of role assignments and memberships, and it will find some, miss others, and occasionally invent an edge, such as a membership that doesn't exist or a role at the wrong scope. Graph search is exactly the exhaustive, repeatable work that deterministic code does well and models don't.
 
@@ -394,28 +405,110 @@ So: **never let a model decide what a role permits.** Look it up in the role def
 
 This lab builds the identity graph from the snapshot you collected in Chapter 3's lab and finds every path from three entry points to two customer data targets.
 
-**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`. Re-run your Chapter 3 collector so the snapshot includes app owners, directory role assignments, and managed identity attachments.
+**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`.
 
-**Step 1 — Build edges.** Write a loader that reads the snapshot files and emits `Edge` records (section 4.5) for:
+**Step 1 — Extend the collector.** Chapter 3's collector gathered storage accounts, role assignments, subscriptions, federated credentials and service principals. Identity paths need five more inputs: role definitions, managed identity attachments, app owners, directory role assignments, and transitive members of the groups that hold roles. Chapter 3's Reader assignment and Graph permissions already cover all five. Add these lines to the collector, reusing its `Invoke-ArgQuery` function and `$snapshotDir`:
+
+```powershell
+Invoke-ArgQuery -Name 'role-definitions' -Query @'
+authorizationresources
+| where type =~ 'microsoft.authorization/roledefinitions'
+| project id, roleName = tostring(properties.roleName), permissions = properties.permissions
+'@
+
+Invoke-ArgQuery -Name 'identity-attachments' -Query @'
+resources
+| where isnotnull(identity)
+| project id, type, resourceGroup, subscriptionId,
+    identityType = tostring(identity.type),
+    systemPrincipalId = tostring(identity.principalId),
+    userAssigned = identity.userAssignedIdentities
+'@
+
+function Save-Snapshot {
+    param([string] $Name, [object[]] $Rows)
+
+    ConvertTo-Json -InputObject $Rows -Depth 10 | Set-Content (Join-Path $snapshotDir "$Name.json")
+}
+
+$apps = Get-MgApplication -All -Property 'id,appId,displayName'
+
+# Owners are a per-application call. Large tenants should batch these requests.
+$appOwners = foreach ($app in $apps) {
+    foreach ($owner in Get-MgApplicationOwner -ApplicationId $app.Id -All) {
+        [pscustomobject]@{ appObjectId = $app.Id; appId = $app.AppId; ownerId = $owner.Id }
+    }
+}
+Save-Snapshot 'app-owners' $appOwners
+
+Save-Snapshot 'directory-role-definitions' (Get-MgRoleManagementDirectoryRoleDefinition -All |
+    Select-Object Id, DisplayName)
+Save-Snapshot 'directory-role-assignments' (Get-MgRoleManagementDirectoryRoleAssignment -All |
+    Select-Object PrincipalId, RoleDefinitionId, DirectoryScopeId)
+
+# Expand only groups that actually hold an Azure role, not every group in the tenant.
+$roleGroups = (Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw | ConvertFrom-Json) |
+    Where-Object principalType -eq 'Group' |
+    Select-Object -ExpandProperty principalId -Unique
+
+$groupMembers = foreach ($groupId in $roleGroups) {
+    foreach ($member in Get-MgGroupTransitiveMember -GroupId $groupId -All) {
+        [pscustomobject]@{ groupId = $groupId; memberId = $member.Id }
+    }
+}
+Save-Snapshot 'group-transitive-members' $groupMembers
+```
+
+Wrap the Graph calls in `try`/`catch` the same way `Invoke-ArgQuery` does, so a throttled or forbidden call becomes a gap rather than an empty file. Then rewrite the manifest (Chapter 3, Step 4) so the new files are hashed.
+
+**Step 2 — Build edges.** Write a loader that reads the snapshot files and emits `Edge` records (section 4.5). Some edges come straight from a row:
 
 1. transitive group memberships (`memberOf`),
 2. federated credentials (`canSignInAs`) from an entry-point node named after the subject,
-3. app owners (`canAddCredential`),
-4. directory role holders with credential management (`canAddCredential` to every application),
+3. app owners (`ownerOf` as evidence, plus `canAddCredential`),
+4. holders of directory roles that manage application credentials (`canAddCredential` to every application in the role's directory scope),
 5. `appFor` links joined through `appId`,
-6. role assignments (`hasRoleAt`) and scope containment (`contains`),
-7. managed identity attachments (`runsAs`),
-8. control-to-data conversions from section 4.6 (`grants`), checking each condition against the snapshot.
+6. role assignments (`hasRoleAt`) and scope containment (`contains`), as evidence only,
+7. managed identity attachments (`runsAs`).
 
-Every edge must cite the snapshot file and the row it came from.
+The rest are derived. For every role assignment, find the role definition (join on `roleName`; custom role names are unique within a tenant), then evaluate it against each resource under the assignment's scope:
 
-**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one as a hop table with evidence categories.
+```python
+from fnmatch import fnmatchcase
 
-**Step 3 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. If you find fewer, find out which edge your loader missed. The most common culprits are the `appId` join and transitive membership.
 
-**Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab, re-collect, and search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
+def matches(patterns: list[str], action: str) -> bool:
+    # Azure action strings are case-insensitive, and "*" may span "/" segments.
+    return any(fnmatchcase(action.lower(), pattern.lower()) for pattern in patterns)
 
-**Step 5 — Find a better fix.** Look at the graph and answer: which single change removes the most paths? Candidates include removing the developer's app ownership, removing the directory role, narrowing `payments-deploy` from Contributor, and disabling shared key access. Write down your answer. Chapter 9 returns to this question formally as cut-point analysis.
+
+def role_permits(role: dict, action: str, data_plane: bool = False) -> bool:
+    """True if any permission block allows the action without excluding it."""
+    allow_key, exclude_key = ("dataActions", "notDataActions") if data_plane else ("actions", "notActions")
+
+    return any(
+        matches(block.get(allow_key) or [], action) and not matches(block.get(exclude_key) or [], action)
+        for block in role["permissions"]
+    )
+```
+
+Emit a derived edge only when the role permits the specific action that matters:
+
+- `grants` read on a storage account's data when the role permits `Microsoft.Storage/storageAccounts/listKeys/action` and the account allows shared key access, or permits the data action `Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read`.
+- `canControlCode` on a Function App or web app when the role permits the write actions your lab's deployment-actions table lists for that resource type, starting with `Microsoft.Web/sites/write`.
+- Any other control-to-data conversion from section 4.6, checking its condition against the snapshot.
+
+Each derived edge cites the `hasRoleAt` row, the `contains` chain and the role definition it came from. With Contributor on `rg-payments-prod`, `payments-deploy` gets both derived edges. With Reader at the same scope, it gets neither, because `*/read` matches neither the list-keys action nor the write actions.
+
+Two cases need care. If a role assignment has a `condition`, label the derived edge as a deterministic inference and copy the condition into its detail; don't silently treat it as unconditional. If you haven't collected deny assignments at a scope, record that as a gap on every derived edge under it, because a deny assignment there would remove the capability.
+
+**Step 3 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one as a hop table with evidence categories.
+
+**Step 4 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. If you find fewer, find out which edge your loader missed. The most common culprits are the `appId` join, transitive membership, and a role definition that didn't join. If you find more, check whether a `grants` or `canControlCode` edge came from a role that doesn't actually permit the action.
+
+**Step 5 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab, re-collect, and search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
+
+**Step 6 — Find a better fix.** Look at the graph and answer: which single change removes the most paths? Candidates include removing the developer's app ownership, removing the directory role, narrowing `payments-deploy` from Contributor, and disabling shared key access. Write down your answer. Chapter 9 returns to this question formally as cut-point analysis.
 
 **What you should see.** The original fix narrows only the two paths that start from the GitHub workflow. Narrowing `payments-deploy`'s role closes all six at once, because the deployment identity is where the paths converge. That convergence is the lesson of this chapter: protect the identities that many paths pass through, not just the doors in front of them.
 
@@ -454,5 +547,7 @@ Every edge must cite the snapshot file and the row it came from.
 - Verify: GitHub OIDC subject formats and customization; fork pull request token behavior; Entra flexible federated identity credential support and syntax.
 - Verify each control-to-data conversion in section 4.6, especially Key Vault access-policy modification, VM password reset, and database Entra administrator change.
 - Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps.
+- Verify lab Step 1: `authorizationresources` includes role definitions with `properties.permissions`; `resources.identity.userAssignedIdentities` carries `principalId`; cmdlet names and property casing for `Get-MgApplicationOwner`, `Get-MgRoleManagementDirectoryRoleAssignment`, `Get-MgRoleManagementDirectoryRoleDefinition`, `Get-MgGroupTransitiveMember`; Graph permissions in section 3.2 suffice for all of them.
+- Verify lab Step 2: the minimal action set that allows code deployment to Functions and App Service (`Microsoft.Web/sites/write`, publishing credentials, `config/write`); custom role name uniqueness within a tenant; how deny assignments are collected (ARG vs `Get-AzDenyAssignment`).
 - Consider a figure for section 4.5's payments graph instead of ASCII.
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.
