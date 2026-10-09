@@ -714,7 +714,7 @@ export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION_LAB
   "Provenance limitation:" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION_BODY =
-  "build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
+  "Build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION =
   `${GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION_LABEL} ${GOVERNANCE_INFRASTRUCTURE_TERRAFORM_BUILD_PROVENANCE_LIMITATION_BODY}` as const;

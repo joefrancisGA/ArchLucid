@@ -107,7 +107,7 @@ export const AUDIT_EVIDENCE_LOOKUP_KEYBOARD_AFFORDANCE =
 export const AUDIT_EVIDENCE_LOOKUP_OPEN_LINEAGE_SHORTCUT = "Ctrl+Enter" as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_BUILD_PROVENANCE_LIMITATION =
-  "Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
+  "Provenance limitation: Build identity is unavailable in this environment, so screenshots and support bundles cannot be tied to a deployed UI commit from this page alone." as const;
 
 export const AUDIT_EVIDENCE_LOOKUP_RECENT_LINEAGE_TITLE = "Continue last viewed lineage" as const;
 
