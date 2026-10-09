@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-analysis` — `DocxArchitectureAnalysisExportService` rendered manifest counts and then stopped, so a parent manifest version and governance controls, compliance tags, and policy constraints that the markdown export already printed never appeared in the DOCX body. Those fields are now written when the manifest carries them. Regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-pilots` — `BoardPackQuarterWindow.DigestWeekInsideQuarter` took the ISO week around the midpoint of `POST /v1/pilots/board-pack.pdf` period bounds. A shorter override such as 2026-03-25 through 2026-04-01 started the digest on 2026-03-23, and 2026-03-23 through 2026-03-27 ended it on 2026-03-30. `ExecDigestComposer` then counted runs outside the pack window while the value report used the requested bounds. The digest interval is now clamped to that window. Regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; 28 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-09 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware` collapsed only a leading `//` before public health checks, so `/health//live`, `/health/./live`, and `//health//ready` still missed `IsPublicHealthProbePath` and returned TB-304 on staging-like hosts. The skip check now drops empty and `.` segments. Parent `..` segments stay, and `Request.Path` is not rewritten. `/health//detailed` and `/health/./livefoo` still require trusted scope. Regression `InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments`; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
@@ -15757,13 +15759,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 39
-- **bugs-found:** 37
+- **hunts:** 40
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — DOCX architecture-analysis export omitted evidence assumptions, policies, catalog, and patterns
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — DOCX architecture-analysis export omitted parent manifest version and governance
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
+
+- [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — parent manifest version and governance controls, tags, and policy constraints were omitted from DOCX output even though the markdown export rendered them — **hit 2026-10-09 seed hunt:** render the parent version and a Governance section when those lists are populated; regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+2026-10-09 seed hunt (seed→hit): proved DOCX architecture-analysis exports dropped parent manifest version and governance; added those fields. 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded application-analysis; proved `AgentResultDeltaMateriality.HasMaterialChanges` ignored `LeftExists`/`RightExists` flips without list/confidence deltas, so `ReplayComparisonInterpretationDiffSlice` synergy notes claimed "Neither agent outputs nor manifest changed materially" when an agent type appeared on only one run; fixed presence check in shared materiality helper; regression `BuildAsync_when_agent_presence_differs_without_list_deltas_adds_material_agent_interpretation_note`; 19 picker-filter tests + 10 `EndToEndReplayComparisonServiceRunDiffTests` passed.
 

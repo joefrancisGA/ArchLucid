@@ -105,6 +105,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph($"System Name: {report.Manifest.SystemName}");
             builder.AddParagraph($"Run ID: {report.Manifest.RunId}");
             builder.AddParagraph($"Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
+
+            if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
+                builder.AddParagraph($"Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
+
             builder.AddParagraph($"Service Count: {report.Manifest.Services.Count}");
             builder.AddParagraph($"Datastore Count: {report.Manifest.Datastores.Count}");
             builder.AddParagraph($"Relationship Count: {report.Manifest.Relationships.Count}");
@@ -138,6 +142,21 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     builder.AddBullet($"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                 }
 
+                builder.AddSpacer();
+            }
+
+            ManifestGovernance governance = report.Manifest.Governance;
+
+            if (governance.RequiredControls.Count > 0
+                || governance.ComplianceTags.Count > 0
+                || governance.PolicyConstraints.Count > 0)
+            {
+                builder.AddHeading("Governance", 3);
+                builder.AddBullet($"Required Controls: {string.Join(", ", governance.RequiredControls)}");
+                builder.AddBullet($"Compliance Tags: {string.Join(", ", governance.ComplianceTags)}");
+                builder.AddBullet($"Policy Constraints: {string.Join(", ", governance.PolicyConstraints)}");
+                builder.AddBullet($"Risk Classification: {governance.RiskClassification}");
+                builder.AddBullet($"Cost Classification: {governance.CostClassification}");
                 builder.AddSpacer();
             }
         }

@@ -8947,3 +8947,4 @@
 {"at":"2026-10-09T04:05:48.3941899Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/Indexing/RetrievalDocumentBuilder.cs"]}
 {"at":"2026-10-09T04:20:12.5397888Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs"]}
 {"at":"2026-10-09T04:28:30.7661897Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/BoardPackQuarterWindow.cs"]}
+{"at":"2026-10-09T04:34:03.9557123Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/DocxArchitectureAnalysisExportService.cs"]}
