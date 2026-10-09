@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `persistence-identity` — hourly OTP verification SQL treated any non-completed, non-invalidated challenge as an active replacement, including rows past `ExpiresUtc`. A lockout on a later code was dropped from the hourly failure count while an expired unused challenge remained, which identity-link inserts can leave behind. The active-replacement probe now requires `ExpiresUtc > @NowUtc`, matching the in-memory store. Regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
+
 2026-10-09 seed hunt (seed→hit): `agent-runtime-evaluation` — finding faithfulness ignored `evidenceRefs` and the `message` field the topology, critic, and compliance prompts emit. An unresolved finding citation still counted as supported when `description` overlapped the package, and a prompt-shaped `message` with a resolved ref counted as ungrounded. Findings now use the same evidence-ref rules as claims and the same message aliases as `ArchitectureFinding`. Regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
 
 2026-10-09 seed hunt (seed→hit): `security-analyzers` — `RequireAuthorizationAnalyzer` accepted interface `[Authorize]` on declared actions, but the concrete inherited-action scan checked only direct attributes and the override chain. An empty derived controller therefore reported AL0001 for a base action whose `[Authorize]` lived on the implemented interface. Inherited actions now use `ActionHasAuthorization`. Regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -18144,13 +18146,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 926
-- **bugs-found:** 23
+- **hunts:** 927
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — expired unused email OTP challenges still counted toward hourly send rate limits
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — expired unused OTP challenge hid a later verification lockout from the hourly count
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): hourly verification SQL treated expired unused challenges as active replacements, so a later lockout was omitted from the hourly failure count; the active probe now requires `ExpiresUtc > @NowUtc`; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`; 28 scoped AuthenticationIdentity, IdentityRepository, and EmailOtp tests passed (`RunAnalyzers=false`, 2 SQL integration skipped).
 
 2026-10-05 seed hunt (seed→hit): promoted completed-challenge hourly request-cap candidate; proved `CountRecentRequestsForRateLimitAsync` still counted successfully verified OTP rows, so `MaxCodeRequestsPerEmailPerHour = 1` blocked a second sign-in in the same hour; fixed by excluding `CompletedUtc` challenges from request-rate predicates/SQL; regressions `CountRecentRequestsByEmail_ignores_completed_challenges` and `RequestCodeAsync_allows_new_code_after_successful_verification_when_hourly_cap_is_one`.
 
@@ -18229,6 +18233,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetLatestRequestUtcByEmailAsync` — expired but still-active challenges still enforced resend cooldown after code lifetime elapsed — **hit 2026-10-05 seed hunt:** filter `ExpiresUtc > nowUtc`; pass `now` from `EmailOtpRequestFlow`; regressions `GetLatestRequestUtc_ignores_expired_active_challenges` and `RequestCodeAsync_allows_resend_after_challenge_expires_even_within_resend_cooldown`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesRecentRequestByEmail` / `CountRecentRequestsForRateLimitAsync` — expired unused challenges still counted toward `AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync` after code lifetime elapsed (blocking resend when `MaxCodeRequestsPerEmailPerHour` exhausted even though cooldown had cleared) — **hit 2026-10-05 seed hunt:** count rows only when `CompletedUtc` is set or `ExpiresUtc > nowUtc`; pass `now` from rate-limit helper; regressions `CountRecentRequests_ignores_expired_unused_challenges` and `RequestCodeAsync_allows_new_code_after_challenge_expires_when_hourly_cap_is_one`.
 - [x] (proven) `EmailOtpChallengeRepositoryCore.MatchesFailedVerificationByEmail` / `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — expired challenges with `FailedAttemptCount > 0` still counted toward `AuthRateLimitHelper.IsEmailOtpVerificationRateLimitedAsync` after `ExpiresUtc` passed — **hit 2026-10-05 seed hunt (seed→hit):** require `ExpiresUtc > nowUtc` in SQL and shared predicate; pass `now` from rate-limit helper; regression `CountRecentFailedVerifications_ignores_expired_challenges`.
+- [x] (proven) `DapperEmailOtpChallengeRepository.CountRecentFailedVerificationsByEmailAsync` — expired unused challenge counted as an active replacement — **hit 2026-10-09 seed hunt:** the `NOT EXISTS` probe omitted `ExpiresUtc > @NowUtc`, so a later lockout was dropped from the hourly verification count while an expired sign-in row remained (identity-link `InsertAsync` does not invalidate it); aligned with the in-memory active check; regressions `Active_replacement_probe_ignores_expired_unused_challenges` and `CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired`.
 
 2026-09-11 thorough hunt #1685 (hit): proved in-memory recovery-grant duplicate Id overwrite; cheap-disproved application-layer domain re-propose candidate; 3 recovery-grant repository unit tests passed.
 
