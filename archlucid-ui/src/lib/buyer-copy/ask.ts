@@ -34,7 +34,7 @@ export const BUYER_ASK_REVIEW_ANCHORS_LINE =
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE = BUYER_ASK_REVIEW_ANCHORS_LINE;
 
 export const BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD =
-  "The answer below is scoped to this review's indexed evidence.";
+  "Answer lead was not stored.";
 
 export const BUYER_ASK_INPUT_PLACEHOLDER =
   "Ask about risks, findings, evidence, mitigations, sponsor report, or approval blockers…";

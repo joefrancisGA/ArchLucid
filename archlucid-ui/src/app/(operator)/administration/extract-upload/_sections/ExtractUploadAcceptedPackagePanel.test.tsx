@@ -44,6 +44,27 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     );
   });
 
+  it("labels missing actor and resource count without changing stored zero", () => {
+    const { rerender } = render(
+      <ExtractUploadAcceptedPackagePanel
+        record={{ ...sampleRecord, actorLabel: "", resourceCount: null }}
+      />,
+    );
+
+    expect(screen.getByTestId("extract-upload-accepted-actor")).toHaveTextContent("Actor was not stored");
+    expect(screen.getByTestId("extract-upload-accepted-resource-count")).toHaveTextContent(
+      "Resource count was not stored",
+    );
+
+    rerender(
+      <ExtractUploadAcceptedPackagePanel
+        record={{ ...sampleRecord, actorLabel: "", resourceCount: 0 }}
+      />,
+    );
+
+    expect(screen.getByTestId("extract-upload-accepted-resource-count")).toHaveTextContent("0");
+  });
+
   it("uses SecureNow follow-up destinations instead of architecture review links", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} productLineId="security" />);
 

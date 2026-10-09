@@ -69,9 +69,14 @@ describe("architecture diagram element provenance", () => {
     const inferredNode = model.nodes[0]!;
 
     expect(resolveNodeProvenanceClass(inferredNode, null)).toBe("inferred");
-    expect(buildArchitectureDiagramNodeProvenanceDetail({ runId: "run-1", node: inferredNode, diagramVersionSource: null }).provenanceClass).toBe(
-      "inferred",
-    );
+    const detail = buildArchitectureDiagramNodeProvenanceDetail({
+      runId: "run-1",
+      node: inferredNode,
+      diagramVersionSource: null,
+    });
+
+    expect(detail.provenanceClass).toBe("inferred");
+    expect(detail.sourceHref).toBeNull();
   });
 
   it("maps asserted nodes and edges to evidence-backed", () => {
@@ -80,6 +85,13 @@ describe("architecture diagram element provenance", () => {
 
     expect(resolveNodeProvenanceClass(assertedNode, null)).toBe("evidence-backed");
     expect(resolveEdgeProvenanceClass(assertedEdge, null)).toBe("evidence-backed");
+    expect(
+      buildArchitectureDiagramNodeProvenanceDetail({
+        runId: "run-1",
+        node: assertedNode,
+        diagramVersionSource: null,
+      }).sourceHref,
+    ).toBe("/architecture/reviews/run-1?reviewTab=evidence");
   });
 
   it("maps user-edit diagram version source to user-drawn provenance", () => {

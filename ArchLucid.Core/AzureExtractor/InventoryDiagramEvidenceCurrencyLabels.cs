@@ -24,11 +24,11 @@ public static class InventoryDiagramEvidenceCurrencyLabels
         return $"{currencyLabel} · {trimmedLabel}";
     }
 
-    public static InventoryDiagramEvidenceCurrency ResolveFromSourceEvidenceReference(string? sourceEvidenceReference)
+    public static InventoryDiagramEvidenceCurrency? ResolveFromSourceEvidenceReference(string? sourceEvidenceReference)
     {
         if (string.IsNullOrWhiteSpace(sourceEvidenceReference))
         {
-            return InventoryDiagramEvidenceCurrency.Current;
+            return null;
         }
 
         if (sourceEvidenceReference.Contains("iac", StringComparison.OrdinalIgnoreCase)

@@ -471,7 +471,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return $"{addressPrefix} → {nextHopType}";
     }
 
-    private static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
+    internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
         AzureInventoryNsgSecurityRule? firstRule = rules.FirstOrDefault();
 
@@ -480,12 +480,20 @@ internal static class InventoryDiagramNodeRelationshipApplier
             return "NSG attached";
         }
 
-        string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol) ? "*" : firstRule.Protocol.Trim();
+        string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
+            ? "Protocol was not stored"
+            : firstRule.Protocol.Trim();
         string port = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
-            ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange) ? "*" : firstRule.SourcePortRange.Trim()
+            ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
+                ? "Port range was not stored"
+                : firstRule.SourcePortRange.Trim()
             : firstRule.DestinationPortRange.Trim();
-        string direction = string.IsNullOrWhiteSpace(firstRule.Direction) ? "Any" : firstRule.Direction.Trim();
-        string access = string.IsNullOrWhiteSpace(firstRule.Access) ? "Allow" : firstRule.Access.Trim();
+        string direction = string.IsNullOrWhiteSpace(firstRule.Direction)
+            ? "Direction was not stored"
+            : firstRule.Direction.Trim();
+        string access = string.IsNullOrWhiteSpace(firstRule.Access)
+            ? "Access was not stored"
+            : firstRule.Access.Trim();
 
         return $"NSG {protocol} {port} {direction} {access}";
     }

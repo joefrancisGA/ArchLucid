@@ -124,7 +124,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
               {Math.trunc(finding.insightDensityScore)}
             </span>
           ) : (
-            "—"
+            "Density was not stored"
           )}
         </EnterpriseTableCell>
       ) : null}

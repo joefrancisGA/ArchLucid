@@ -49,10 +49,14 @@ internal static class AzureInventorySnapshotParentAttachmentGraphHydrator
                 continue;
             }
 
-            InventoryDiagramEvidenceCurrency evidenceCurrency =
+            InventoryDiagramEvidenceCurrency? evidenceCurrency =
                 InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(resource.SourceEvidenceReference);
-            node.Properties[InventoryDiagramParentAttachmentPropertyKeys.EvidenceCurrency] =
-                evidenceCurrency.ToString();
+
+            if (evidenceCurrency.HasValue)
+            {
+                node.Properties[InventoryDiagramParentAttachmentPropertyKeys.EvidenceCurrency] =
+                    evidenceCurrency.Value.ToString();
+            }
 
             if (!propertiesByRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
             {

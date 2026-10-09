@@ -94,11 +94,11 @@ function buildEvidenceSourceHref(runId: string, provenanceClass: ArchitectureDia
     return null;
   }
 
-  if (provenanceClass === "inferred") {
-    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=findings`;
+  if (provenanceClass === "evidence-backed") {
+    return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=evidence`;
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmedRunId)}?reviewTab=evidence`;
+  return null;
 }
 
 export function buildArchitectureDiagramNodeProvenanceDetail(input: {

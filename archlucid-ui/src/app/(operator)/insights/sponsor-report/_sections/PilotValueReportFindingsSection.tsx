@@ -183,15 +183,19 @@ export function PilotValueReportFindingsSection(props: Props) {
           <EnterpriseTableBody>
             {timelineRows.map((row) => (
               <EnterpriseTableRow key={row.runId}>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.body)}>{row.systemName || row.runId}</EnterpriseTableCell>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || " — "}</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.body)}>
+                  {row.runId.trim().length > 0 ? row.runId : "Review id was not stored"}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
+                  {row.systemName?.trim() || "System name was not stored"}
+                </EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatReviewDate(row.createdUtc)}</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                   {formatReviewDate(row.committedUtc)}
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
-                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Not available</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Outcome was not stored</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Highest severity was not stored</EnterpriseTableCell>
+                <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>Open actions were not stored</EnterpriseTableCell>
                 <EnterpriseTableCell className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>
                   <Link href={`/architecture/reviews/${encodeURIComponent(row.runId)}`} className={OPERATOR_LINK.inline}>
                     Open review

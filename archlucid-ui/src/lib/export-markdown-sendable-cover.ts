@@ -83,14 +83,19 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   lines.push("## Sendable export cover");
   lines.push("");
 
-  if (runId.length > 0) {
-    lines.push(`- **Review id:** \`${runId}\``);
-  }
-
-  if (summary !== null) {
-    lines.push(`- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`);
-    lines.push(`- **Review record status:** ${summary.status}`);
-  }
+  lines.push(
+    runId.length > 0 ? `- **Review id:** \`${runId}\`` : "- **Review id:** Review id was not stored",
+  );
+  lines.push(
+    summary !== null
+      ? `- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`
+      : "- **Policy pack:** Policy pack was not stored",
+  );
+  lines.push(
+    summary !== null
+      ? `- **Review record status:** ${summary.status}`
+      : "- **Review record status:** Review record status was not stored",
+  );
 
   if (feasibilityVerdict !== null) {
     lines.push(`- **Gate outcome:** ${feasibilityVerdictKindLabel(feasibilityVerdict.kind)}`);
@@ -100,11 +105,15 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
     if (gateSummary !== null && gateSummary !== undefined && gateSummary.length > 0) {
       lines.push(`- **Gate summary:** ${gateSummary}`);
     }
+  } else {
+    lines.push("- **Gate outcome:** Gate outcome was not stored");
   }
 
-  if (executionModeLabel !== null && executionModeLabel.length > 0) {
-    lines.push(`- **Execution mode:** ${executionModeLabel}`);
-  }
+  lines.push(
+    executionModeLabel !== null && executionModeLabel.length > 0
+      ? `- **Execution mode:** ${executionModeLabel}`
+      : "- **Execution mode:** Execution mode was not stored",
+  );
 
   lines.push(`- **Policy influence:** ${POLICY_PACK_INFLUENCE_HONESTY_LINE}`);
 

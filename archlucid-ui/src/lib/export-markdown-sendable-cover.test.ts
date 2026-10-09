@@ -9,6 +9,16 @@ import {
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 
 describe("formatSendableExportCoverMarkdown", () => {
+  it("labels absent cover fields explicitly", () => {
+    const markdown = formatSendableExportCoverMarkdown({});
+
+    expect(markdown).toContain("Review id was not stored");
+    expect(markdown).toContain("Policy pack was not stored");
+    expect(markdown).toContain("Review record status was not stored");
+    expect(markdown).toContain("Gate outcome was not stored");
+    expect(markdown).toContain("Execution mode was not stored");
+  });
+
   it("includes WK-21 policy influence on every sendable cover", () => {
     const markdown = formatSendableExportCoverMarkdown({ runId: "run-1" });
 

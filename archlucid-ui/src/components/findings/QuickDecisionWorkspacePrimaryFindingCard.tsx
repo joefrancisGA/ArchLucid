@@ -174,7 +174,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200"
             data-testid={`finding-owner-${finding.findingId}`}
           >
-            {owner.length > 0 ? owner : "No remediation owner assigned"}
+            {owner.length > 0 ? owner : "Remediation owner was not stored"}
           </dd>
         </div>
         <div>
@@ -202,7 +202,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             </span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
-            {evidenceRefCount} reference{evidenceRefCount === 1 ? "" : "s"}
+            {evidenceRefCount === null
+              ? "Evidence reference count was not stored"
+              : `${evidenceRefCount} reference${evidenceRefCount === 1 ? "" : "s"}`}
           </dd>
         </div>
         <div>
@@ -213,7 +215,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             </span>
           </dt>
           <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
-            {reviewStatus?.label ?? "Not recorded"}
+            {reviewStatus?.label ?? "Decision state was not stored"}
           </dd>
         </div>
       </dl>

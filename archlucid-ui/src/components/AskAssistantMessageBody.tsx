@@ -20,6 +20,9 @@ export type AskAssistantGroundingLink = {
   readonly href: string;
 };
 
+const ASK_ANSWER_NOT_STORED = "Answer was not stored";
+const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
+
 const UUID_RE =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 
@@ -202,8 +205,7 @@ export function AskAssistantMessageBody(props: {
     }
 
     if (executiveLead === null || executiveLead.length === 0) {
-      executiveLead =
-        "The sections below summarize risk framing, cited evidence, mitigation commitments, and validation checks for this review.";
+      executiveLead = ASK_ANSWER_LEAD_NOT_STORED;
     }
 
     const bodyClass = (cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body));
@@ -218,7 +220,9 @@ export function AskAssistantMessageBody(props: {
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
-              {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : " — "}
+              {section.body.length > 0
+                ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
+                : ASK_ANSWER_NOT_STORED}
             </div>
           </section>
         ))}
@@ -244,7 +248,7 @@ export function AskAssistantMessageBody(props: {
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
-                : " — "}
+                : ASK_ANSWER_NOT_STORED}
             </div>
           </section>
         ))}
@@ -258,18 +262,23 @@ export function AskAssistantMessageBody(props: {
     const split = splitBuyerAskSponsorLead(trimmed);
     const executiveLead =
       split.sentence.length > 0 ? split.sentence : BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD;
-    const bodyText = split.rest.trim().length > 0 ? split.rest.trim() : split.sentence.length > 0 ? "" : trimmed;
+    const bodyText =
+      split.rest.trim().length > 0
+        ? split.rest.trim()
+        : split.sentence.length > 0
+          ? ""
+          : trimmed.length > 0
+            ? trimmed
+            : ASK_ANSWER_NOT_STORED;
 
     return (
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks)}
         </p>
-        {bodyText.length > 0 ? (
-          <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-            {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks)}
-          </p>
-        ) : null}
+        <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks)}
+        </p>
         {footer}
       </div>
     );
@@ -279,7 +288,7 @@ export function AskAssistantMessageBody(props: {
     <div className="space-y-0">
       {buyerAnswerLeadPlain}
       <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-        {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
+        {renderTextWithUuidReviewLinks(content.trim().length > 0 ? content : ASK_ANSWER_NOT_STORED, buyerPolishedLinks)}
       </p>
       {footer}
     </div>
