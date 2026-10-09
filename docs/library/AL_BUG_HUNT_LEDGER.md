@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding dropped a service such as `public-http-gateway` but kept a relationship from that service to an id that was never a proposal node, such as `partner-system`. The prune treated any undeclared endpoint as a reason to keep the edge. An edge is now dropped when either declared endpoint was removed. Regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding` failed first with the relationship still present. 9 grounding tests passed.
+
 2026-10-09 seed hunt (seed→hit): `host-composition` — a failed API usage flush put dequeued events back through `ApiRequestUsageEventBuffer.Enqueue`. That method returns immediately when `Metering:Enabled` is false, so a batch already accepted while metering was on disappeared after a store error if metering was then disabled. `Requeue` writes the event back without that gate. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first with an empty buffer. 2 flush tests and 3 buffer tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — activation stored an issuer URI, Key Vault secret name, or actor id longer than the columns in `dbo.TenantIdentityProviderConfigurations`. Migration 183 defines `IssuerUri` as NVARCHAR(2048) and `KeyVaultSecretName` and `UpdatedByActorId` as NVARCHAR(256). A longer value reached SQL MERGE and failed on truncation, so the wizard saw HTTP 500 instead of the validation 400 the activate action already maps from `ArgumentException`. Those three fields are now rejected before upsert. Regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column` failed first with no exception. 51 activation tests passed.
@@ -32000,13 +32002,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 33
-- **bugs-found:** 31
+- **hunts:** 34
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — isotonic calibration lifted violating bins to the block maximum
+- **last-bug:** 2026-10-09 — brief grounding kept an edge after one endpoint was removed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): brief grounding kept a relationship when only one endpoint had been a proposal node and that node was removed. The edge is now dropped. Regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding` failed first.
+
+- [x] (proven) `AgentProposalStructuralPostProcessor.PruneRelationshipsAfterGroundingDrops` — a relationship whose source or target was removed by brief grounding was kept when the other id was never a proposal node — **hit 2026-10-09 seed hunt:** drop the edge when either declared endpoint is gone; regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding`. [class:state-machine-gap]
 
 - [x] (proven) `AgentConfidenceCalibrator.BuildIsotonicKnots` — a later bin with a lower semantic score was replaced by the maximum of the violating block, so calibrated confidence reported the earlier high score — **hit 2026-10-09 seed hunt:** pool adjacent violators by sample weight; regression `BuildIsotonicKnots_pools_adjacent_violators_instead_of_lifting_them_to_the_block_max`; 103 scoped Application.Tests.Agents tests passed.
 
