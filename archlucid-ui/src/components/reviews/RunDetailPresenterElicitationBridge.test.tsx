@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UseReviewPresenterElicitationResult } from "@/hooks/use-review-presenter-elicitation";
 
@@ -52,6 +52,7 @@ vi.mock("@/hooks/use-review-workbench-shortcuts", () => ({
 }));
 
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
+import { ReviewRoomHeaderButton } from "@/components/reviews/ReviewRoomHeaderButton";
 
 const RUN_ID = "run-a";
 
@@ -88,6 +89,11 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       transparencyTrail: null,
       lastRecordedEntry: null,
     };
+  });
+
+  afterEach(() => {
+    // The bridge reads presenter and room flags from the address bar. Clear them so a later case is not stuck on the previous write.
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
   });
 
   it("shows confirm, reject, and ask-another actions in Working presenter mode", () => {
@@ -229,6 +235,30 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
       { scroll: false },
     );
     expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
+  });
+
+  it("shows the room panel when Room writes roomElicitation without a popstate event", () => {
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
+
+    render(
+      <>
+        <ReviewRoomHeaderButton runId={RUN_ID} reviewCompleted manifestVersion="manifest-v1" />
+        <RunDetailPresenterElicitationBridge
+          runId={RUN_ID}
+          architectureRequestId="draft-1"
+          panels={panels}
+        />
+      </>,
+    );
+
+    expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("review-room-enter"));
+
+    expect(screen.getByTestId("review-room-enter")).toHaveTextContent("Room on");
+    expect(window.location.search).toContain("roomElicitation=1");
+    expect(screen.getByTestId("review-room-elicitation-panel")).toBeInTheDocument();
   });
 
   it("does not show elicitation chrome when neither presenter nor room flag is set", () => {
