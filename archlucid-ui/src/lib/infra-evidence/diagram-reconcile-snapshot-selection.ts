@@ -25,7 +25,7 @@ export function resolveDiagramReconcileSnapshotSelectionSummary(input: {
   const nowMs = input.nowMs ?? Date.now();
   const capturedUtc = selected.capturedUtc ?? "";
   const hasCaptureTime = capturedUtc.trim().length > 0;
-  const ageLabel = hasCaptureTime ? formatRelativeTime(capturedUtc, nowMs) : "Captured time was not stored";
+  const ageLabel = hasCaptureTime ? formatRelativeTime(capturedUtc, nowMs) : "Age unavailable";
   const latestSnapshotId = input.snapshots[0]?.snapshotId ?? "";
   const selectionMarker = !hasCaptureTime
     ? null

@@ -144,7 +144,7 @@ export function buildMadrMarkdownFromRun(
             const trustLine = formatFindingTrustExportLine(f);
             const trustBullet =
               trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
-            const provenanceKind = f.provenanceKind ?? "Unknown";
+            const provenanceKind = f.provenanceKind ?? "Provenance kind was not stored.";
             const semanticSupportBullet =
               f.semanticSupportBand !== null
               && f.semanticSupportBand !== undefined
@@ -166,7 +166,7 @@ export function buildMadrMarkdownFromRun(
           "| --- | --- |",
           ...input.findings.map(
             (finding) =>
-              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Unknown"} |`,
+              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
           ),
           "",
         ].join("\n");

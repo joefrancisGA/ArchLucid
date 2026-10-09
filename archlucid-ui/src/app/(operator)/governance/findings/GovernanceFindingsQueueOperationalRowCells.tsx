@@ -27,6 +27,7 @@ import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPo
 import { POLICY_PACK_INFLUENCE_HONESTY_LINE } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { ItsmLinkedTicketStatusChip } from "@/components/findings/ItsmLinkedTicketStatusChip";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
+import { resolveGovernanceQueueDueDate } from "@/lib/governance/governance-queue-due-date";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
   governanceFindingInspectHref,
@@ -68,32 +69,20 @@ function formatRiskRegisterUtcLabel(
   });
 }
 
-function resolveGovernanceQueueDueUtc(row: GovernanceFindingQueueRow): string | null {
-  const raw = row.revisitDueUtc?.trim() ?? row.waiverExpiresAtUtc?.trim() ?? "";
-
-  if (raw.length === 0) {
-    return null;
-  }
-
-  const parsed = Date.parse(raw);
-
-  if (Number.isNaN(parsed)) {
-    return null;
-  }
-
-  return new Date(parsed).toISOString();
-}
-
 export function GovernanceFindingsQueueDueCell(props: { readonly row: GovernanceFindingQueueRow }): ReactElement {
-  const dueUtc = resolveGovernanceQueueDueUtc(props.row);
+  const dueDate = resolveGovernanceQueueDueDate(props.row);
 
-  if (dueUtc === null) {
+  if (dueDate.kind === "missing") {
     return <span className="text-al-text-secondary">Due date was not stored</span>;
   }
 
+  if (dueDate.kind === "invalid") {
+    return <span className="text-al-text-secondary">Date not readable</span>;
+  }
+
   return (
-    <time dateTime={dueUtc} className="text-al-text-primary">
-      {formatRiskRegisterUtcLabel(dueUtc, "Due date was not stored")}
+    <time dateTime={dueDate.utc} className="text-al-text-primary">
+      {formatRiskRegisterUtcLabel(dueDate.utc, "Due date was not stored")}
     </time>
   );
 }

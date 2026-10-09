@@ -40,7 +40,8 @@ describe("diagram-reconcile-snapshot-selection", () => {
       urlSnapshotId: "",
     });
 
-    expect(summary?.ageLabel).toBe("Captured time was not stored");
+    expect(summary?.capturedLabel).toBe("Captured time was not stored");
+    expect(summary?.ageLabel).toBe("Age unavailable");
     expect(summary?.selectionMarker).toBeNull();
   });
 });

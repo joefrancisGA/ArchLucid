@@ -99,7 +99,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportDecisionRow row in rows)
         {
-            string title = string.IsNullOrWhiteSpace(row.Title) ? "(Untitled decision)" : row.Title.Trim();
+            string title = string.IsNullOrWhiteSpace(row.Title) ? "Decision title was not stored." : row.Title.Trim();
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, title, "BodyText");
 
             if (!string.IsNullOrWhiteSpace(row.Detail))
@@ -130,7 +130,9 @@ public sealed partial class ArchitectureReviewDocxBuilder
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
             string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
-            string summaryText = string.IsNullOrWhiteSpace(risk.Summary) ? "(No summary)" : risk.Summary.Trim();
+            string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
+                ? "Risk summary was not stored."
+                : risk.Summary.Trim();
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{severity}: {summaryText}",
                 "BodyText");
@@ -157,9 +159,12 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
-            string pack =
-                string.IsNullOrWhiteSpace(row.PolicyPackNameOrId) ? "(Policy pack)" : row.PolicyPackNameOrId.Trim();
-            string outcome = string.IsNullOrWhiteSpace(row.Outcome) ? "Outcome n/a" : row.Outcome.Trim();
+            string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
+                ? "Policy pack was not stored."
+                : row.PolicyPackNameOrId.Trim();
+            string outcome = string.IsNullOrWhiteSpace(row.Outcome)
+                ? "Policy outcome was not stored."
+                : row.Outcome.Trim();
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
                 $"{pack} — {outcome}",

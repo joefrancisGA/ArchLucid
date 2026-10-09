@@ -120,10 +120,10 @@ export function resolveRunDecisionExplainabilityFromDetail(
           const record = row as Record<string, unknown>;
 
           return {
-            pipeline: readString(record.pipeline) ?? "authority",
+            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
             decisionId: readString(record.decisionId) ?? "unknown",
             category: readString(record.category) ?? "Category not returned",
-            title: readString(record.title) ?? "Untitled decision",
+            title: readString(record.title) ?? "Decision title was not stored.",
             selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
             rationale: readString(record.rationale) ?? "",
             confidence: readFiniteNumber(record.confidence),
@@ -150,9 +150,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
           }
 
           return {
-            pipeline: readString(record.pipeline) ?? "coordinator_v2",
+            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
             decisionId: readString(record.decisionId) ?? "unknown",
-            topic: readString(record.topic) ?? "Decision",
+            topic: readString(record.topic) ?? "Decision topic was not stored.",
             selectedOptionId: readString(record.selectedOptionId),
             rationale: readString(record.rationale) ?? "",
             confidence,
@@ -181,7 +181,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
           return {
             engineType,
             category,
-            exceptionType: readString(record.exceptionType) ?? "Unknown",
+            exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
             errorMessage: readString(record.errorMessage) ?? "",
             durationMs: readFiniteNumber(record.durationMs),
             occurredUtc: readString(record.occurredUtc),

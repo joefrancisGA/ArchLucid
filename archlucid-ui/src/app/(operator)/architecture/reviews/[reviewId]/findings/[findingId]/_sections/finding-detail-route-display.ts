@@ -201,7 +201,7 @@ export function fallbackImpactedScope(payload: FindingInspectPayload | null, fin
     return "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff";
   }
 
-  return "Architecture boundary and approval criteria for this finding";
+  return "Impacted area was not stored.";
 }
 
 export function fallbackStatus(payload: FindingInspectPayload | null, findingId: string): string {
