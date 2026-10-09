@@ -8997,9 +8997,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 14
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — scheme-only operator base produced malformed weekly run-detail hrefs
 - **related-pd-tb:** none
@@ -16413,6 +16413,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): findings ignored `evidenceRefs` and prompt `message` text; unresolved finding citations counted as supported and prompt-shaped messages counted as ungrounded; findings now share claim evidence-ref rules and architecture-finding message aliases; regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
+
+2026-10-09 seed hunt (seed-only): re-read the evaluation quality gate, harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
+- [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding can throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — locus: `AgentOutputEvaluationHarness.cs` ~79–83; input: serialized `AgentResult` containing a null finding element.
+- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a JSON-null finding can throw during category coverage evaluation after deserialization — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~239–260; input: reference trace with a null finding element and a required category.
+- [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null evidence-reference items is counted toward the PilotStrict minimum without validating each reference — locus: `AgentOutputTraceCitationGate.cs` ~31–42; input: parsed result with `evidenceRefs: [null]`.
+- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range is silently clamped to 0 or 1 rather than treated as malformed judge output — locus: `AgentOutputFaithfulnessEvaluator.cs` ~174–191; input: completion response with `faithfulnessScore: 2.0` or `-1.0`.
 
 ### Hypotheses
 
