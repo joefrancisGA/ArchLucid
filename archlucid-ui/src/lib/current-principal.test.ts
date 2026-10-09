@@ -180,6 +180,7 @@ describe("loadCurrentPrincipal", () => {
 
   afterEach(() => {
     invalidateCurrentPrincipalCache();
+    vi.useRealTimers();
   });
 
   it("coalesces parallel callers into one network fetch", async () => {
@@ -253,5 +254,59 @@ describe("loadCurrentPrincipal", () => {
     await loadCurrentPrincipal({ bypassCache: true });
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries /me after 429 Retry-After then returns the auth-me principal", async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response('{"title":"Too many requests","detail":"Too many requests. Try again in 1 second(s)."}', {
+          status: 429,
+          headers: { "Retry-After": "1", "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(authMeBody), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const principalPromise = loadCurrentPrincipal();
+    await vi.advanceTimersByTimeAsync(2_000);
+    const principal = await principalPromise;
+
+    expect(principal.provenance).toBe("auth-me");
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.ExecuteAuthority);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+  });
+
+  it("returns me-http after /me 429 retries are exhausted", async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi.fn(async () =>
+      new Response('{"title":"Too many requests"}', {
+        status: 429,
+        headers: { "Retry-After": "1", "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const principalPromise = loadCurrentPrincipal();
+    await vi.advanceTimersByTimeAsync(5_000);
+    const principal = await principalPromise;
+
+    expect(principal.provenance).toBe("synthetic");
+    expect(principal.syntheticReason).toBe("me-http");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+
+    vi.useRealTimers();
   });
 });

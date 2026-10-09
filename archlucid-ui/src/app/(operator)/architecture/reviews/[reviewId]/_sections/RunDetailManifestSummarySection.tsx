@@ -116,7 +116,7 @@ export function RunDetailManifestSummarySection(
             </dd>
             <dt className={definitionLabelClass}>Seal scope</dt>
             <dd className={cn("m-0", definitionValueClass)}>
-              The seal describes this finalized review package; it does not seal later workspace decisions.
+              The seal describes this finalized architecture package; it does not seal later workspace decisions.
             </dd>
             <dt className={definitionLabelClass}>{evaluationStandardsLabel}</dt>
             <dd className={cn("m-0", definitionValueClass)}>

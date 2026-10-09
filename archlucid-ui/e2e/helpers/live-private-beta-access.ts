@@ -288,14 +288,23 @@ export function resolveScopeFromAuthMe(
   };
 }
 
-function parseAuthMe429RetryMs(detailText: string): number {
+/** Bounded wait after a UI-proxy 429 on `/api/proxy/api/auth/me` (body copy includes Retry-After seconds). */
+export const AUTH_ME_PROXY_429_MAX_ATTEMPTS = 3;
+
+export function parseAuthMe429RetryMs(detailText: string): number {
   const match = /Try again in (\d+) second/i.exec(detailText);
 
   if (match === null) {
     return 15_000;
   }
 
-  return Math.min((Number(match[1]) + 1) * 1000, 60_000);
+  const seconds = Number(match[1]);
+
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return 15_000;
+  }
+
+  return Math.min((seconds + 1) * 1000, 60_000);
 }
 
 export function parseInvitationRetryAfterMs(retryAfter: string | undefined): number {
@@ -340,22 +349,28 @@ export async function fetchAuthMeViaProxy(
     await writeJwtBrowserSession(page, trimmedToken);
   }
 
-  const result = await page.evaluate(async () => {
-    const res = await fetch("/api/proxy/api/auth/me", {
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    const text = await res.text();
+  let lastStatus = 0;
+  let lastText = "";
 
-    return { status: res.status, text };
-  });
+  for (let attempt = 1; attempt <= AUTH_ME_PROXY_429_MAX_ATTEMPTS; attempt += 1) {
+    const result = await probeAuthMeViaProxy(page);
+    lastStatus = result.status;
+    lastText = result.text;
 
-  if (result.status < 200 || result.status >= 300) {
-    throw new Error(`GET /api/proxy/api/auth/me failed ${result.status}: ${result.text.slice(0, 400)}`);
+    if (result.ok) {
+      return JSON.parse(result.text) as LiveAuthMeProxyBody;
+    }
+
+    if (result.status === 429 && attempt < AUTH_ME_PROXY_429_MAX_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, parseAuthMe429RetryMs(result.text)));
+
+      continue;
+    }
+
+    break;
   }
 
-  return JSON.parse(result.text) as LiveAuthMeProxyBody;
+  throw new Error(`GET /api/proxy/api/auth/me failed ${lastStatus}: ${lastText.slice(0, 400)}`);
 }
 
 /** Direct API `GET /api/auth/me` — validates JWT role claims without the UI BFF proxy (TB-927). */

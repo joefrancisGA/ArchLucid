@@ -54,10 +54,14 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                 continue;
             }
 
-            InventoryDiagramEvidenceCurrency evidenceCurrency =
+            InventoryDiagramEvidenceCurrency? evidenceCurrency =
                 InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(resource.SourceEvidenceReference);
-            node.Properties[InventoryDiagramNodeRelationshipPropertyKeys.EvidenceCurrency] =
-                evidenceCurrency.ToString();
+
+            if (evidenceCurrency.HasValue)
+            {
+                node.Properties[InventoryDiagramNodeRelationshipPropertyKeys.EvidenceCurrency] =
+                    evidenceCurrency.Value.ToString();
+            }
 
             Dictionary<string, string> propertyDictionary = properties
                 .Where(property => !property.IsRedacted && !string.IsNullOrWhiteSpace(property.PropertyValue))

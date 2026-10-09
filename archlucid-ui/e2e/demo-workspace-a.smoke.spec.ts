@@ -61,7 +61,11 @@ test.describe(
     await expect(
       page.getByTestId("run-detail-package-spine-export-co-location").getByTestId("run-scoped-audit-export-button"),
     ).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("run-scoped-audit-export-dual-channel-honesty")).toBeVisible({
+    await expect(
+      page
+        .getByTestId("run-detail-package-spine-export-co-location")
+        .getByTestId("run-scoped-audit-export-dual-channel-honesty"),
+    ).toBeVisible({
       timeout: 60_000,
     });
 

@@ -170,7 +170,13 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
-      setTurns((current) => [...current, { question: trimmed, answer: response.answer }]);
+      setTurns((current) => [
+        ...current,
+        {
+          question: trimmed,
+          answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored",
+        },
+      ]);
       setQuestion("");
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);

@@ -12,6 +12,41 @@ import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 describe("adr-from-run", () => {
+  it("uses omission copy for missing review title and manifest status", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "run-missing-metadata",
+      projectId: "project-1",
+      reviewTitle: "   ",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    });
+
+    expect(md).toContain("# ADR: Review title was not stored.");
+    expect(md).not.toContain("Architecture review run-missing-metadata");
+    expect(md).toContain("ADR status was not stored.");
+  });
+
+  it("preserves stored proposed status labels", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "run-proposed",
+      projectId: "project-1",
+      reviewTitle: "Stored title",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: "proposed",
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    });
+
+    expect(md).toContain("# ADR: Stored title");
+    expect(md).toContain("\nproposed\n");
+  });
+
   it("buildMadrMarkdownFromRun includes MADR-style sections and run metadata", () => {
     const input: AdrGeneratorRunInput = {
       runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",

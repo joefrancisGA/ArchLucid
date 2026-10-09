@@ -61,7 +61,7 @@ describe("buildQuickDecisionFindingEvidenceLinks", () => {
   it("has no evidence targets when the finding cites nothing and no graph node maps to it", () => {
     const links = buildQuickDecisionFindingEvidenceLinks("run-42", finding({ evidenceRefCount: null }));
 
-    expect(links.evidenceRefCount).toBe(0);
+    expect(links.evidenceRefCount).toBeNull();
     expect(links.manifestHref).toBeNull();
     expect(links.graphHref).toBeNull();
     expect(links.viewEvidenceHref).toBeNull();

@@ -21,6 +21,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunsController
 {
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("request")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]

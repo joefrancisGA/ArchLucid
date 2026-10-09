@@ -130,6 +130,10 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
                 Open source evidence
               </Link>
             </p>
+          ) : detail.provenanceClass === "inferred" ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Source evidence link was not stored
+            </p>
           ) : null}
         </div>
       ) : (

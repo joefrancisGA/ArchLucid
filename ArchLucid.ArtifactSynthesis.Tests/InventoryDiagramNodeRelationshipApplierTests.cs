@@ -31,6 +31,23 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
+    public void BuildNsgAttachmentLabel_uses_explicit_missing_rule_field_labels()
+    {
+        string label = InventoryDiagramNodeRelationshipApplier.BuildNsgAttachmentLabel(
+            [
+                new AzureInventoryNsgSecurityRule(),
+            ]);
+
+        label.Should().NotContain("Allow");
+        label.Should().NotContain("Any");
+        label.Should().NotContain("*");
+        label.Should().Contain("Protocol was not stored");
+        label.Should().Contain("Port range was not stored");
+        label.Should().Contain("Direction was not stored");
+        label.Should().Contain("Access was not stored");
+    }
+
+    [Fact]
     public void Compile_resolved_network_connection_emits_one_edge_and_no_connection_node()
     {
         GraphSnapshot graph = BuildNetworkConnectionGraph(includeBothEndpoints: true);

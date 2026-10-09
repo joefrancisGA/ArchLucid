@@ -10,6 +10,79 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 [Trait("Suite", "Core")]
 public sealed class InventoryDiagramIndirectRelationshipResolverTests
 {
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ResolveRelationshipLabel_uses_explicit_missing_label_for_blank_edge_fields(string? blankValue)
+    {
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-missing-label",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            Label = blankValue ?? string.Empty,
+            EdgeType = blankValue ?? string.Empty,
+            InferenceSource = blankValue ?? string.Empty,
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] = "Observed",
+            },
+        };
+
+        IReadOnlyList<InventoryDiagramIndirectRelationshipResolvedEdge> resolved =
+            InventoryDiagramIndirectRelationshipResolver.Resolve(
+                new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode { NodeId = "from", Label = "from" },
+                        new GraphNode { NodeId = "to", Label = "to" },
+                    ],
+                    Edges = [edge],
+                },
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["from"] = "from",
+                    ["to"] = "to",
+                },
+                new HashSet<string>(["from", "to"], StringComparer.Ordinal));
+
+        resolved.Should().ContainSingle().Which.RelationshipLabel.Should().Be("Relationship was not stored");
+    }
+
+    [Fact]
+    public void Resolve_private_endpoint_target_uses_explicit_missing_resource_name()
+    {
+        GraphEdge edge = new()
+        {
+            EdgeId = "edge-private-endpoint",
+            FromNodeId = "from",
+            ToNodeId = "to",
+            InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.PrivateEndpoint,
+        };
+
+        IReadOnlyList<InventoryDiagramIndirectRelationshipResolvedEdge> resolved =
+            InventoryDiagramIndirectRelationshipResolver.Resolve(
+                new GraphSnapshot
+                {
+                    Nodes =
+                    [
+                        new GraphNode { NodeId = "from", Label = "from" },
+                        new GraphNode { NodeId = "to", Label = string.Empty },
+                    ],
+                    Edges = [edge],
+                },
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["from"] = "from",
+                    ["to"] = "to",
+                },
+                new HashSet<string>(["from", "to"], StringComparer.Ordinal));
+
+        resolved.Should().ContainSingle().Which.RelationshipLabel
+            .Should().Be("private endpoint → Resource name was not stored");
+    }
     [Fact]
     public void IsCitedEdge_returns_false_for_resource_group_collocation()
     {

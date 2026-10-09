@@ -39,10 +39,11 @@ function buildMermaidBody(edgeLine: (from: string, to: string) => string): strin
  */
 export function elevenVnetOwnerForestLayoutSvg(): string {
   const nodeHeight = 36;
-  const nodeWidth = 400;
-  const nodeGapY = 20;
-  const componentGapX = 48;
-  const componentGapY = 40;
+  // 1180-class camera (~1166px) plus 32px camera padding. IDH-02 owner export is 1128×208.
+  const nodeWidth = 340;
+  const nodeGapY = 16;
+  const componentGapX = 32;
+  const componentGapY = 32;
   const padding = 16;
   const components: Array<Array<string>> = [
     [VNET_LABELS[0], VNET_LABELS[6], VNET_LABELS[4]],
@@ -57,7 +58,10 @@ export function elevenVnetOwnerForestLayoutSvg(): string {
     nodeHeight * 3 + nodeGapY * 2,
     nodeHeight * 2 + nodeGapY,
   ];
-  const lines: string[] = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1328 312">'];
+  const viewWidth = padding * 2 + columnWidths.reduce((sum, width) => sum + width, 0) + componentGapX * (columns - 1);
+  const viewHeight =
+    padding * 2 + rowHeights.reduce((sum, height) => sum + height, 0) + componentGapY * (rowHeights.length - 1);
+  const lines: string[] = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewWidth} ${viewHeight}">`];
 
   for (let componentIndex = 0; componentIndex < components.length; componentIndex += 1) {
     const row = Math.floor(componentIndex / columns);

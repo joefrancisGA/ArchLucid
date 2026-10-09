@@ -73,7 +73,13 @@ describe("RunDetailFindingsDenseTableRow", () => {
         <tbody>
           <RunDetailFindingsDenseTableRow
             runId="run-1"
-            finding={sampleFinding({ confidenceLevel: null, humanReviewStatus: null, evidenceRefCount: null })}
+            finding={{
+              ...sampleFinding(),
+              confidenceLevel: null,
+              humanReviewStatus: null,
+              evidenceRefCount: null,
+              insightDensityScore: null,
+            }}
             showDensityScore
           />
         </tbody>
@@ -83,5 +89,6 @@ describe("RunDetailFindingsDenseTableRow", () => {
     expect(screen.getByText("Confidence was not stored")).toBeInTheDocument();
     expect(screen.getByText("Human review status was not stored")).toBeInTheDocument();
     expect(screen.getByText("Evidence link was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Density was not stored")).toBeInTheDocument();
   });
 });

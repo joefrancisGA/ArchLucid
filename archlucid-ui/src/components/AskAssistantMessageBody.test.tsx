@@ -76,6 +76,24 @@ describe("AskAssistantMessageBody", () => {
     expect(evidenceLink).toHaveAttribute("href", "/architecture/reviews/22222222-2222-4222-8222-222222222222");
   });
 
+  it("labels missing structured sections and buyer lead explicitly", () => {
+    render(
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content={"Risk:\n\n\nEvidence:\n\nStored evidence."}
+      />,
+    );
+
+    expect(screen.getByText("Answer lead was not stored.")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Risk" })).toHaveTextContent("Answer was not stored");
+  });
+
+  it("labels an empty answer body explicitly", () => {
+    render(<AskAssistantMessageBody content="" />);
+
+    expect(screen.getByText("Answer was not stored")).toBeInTheDocument();
+  });
+
   it("surfaces an sponsor lead for unstructured buyer-polished plain text", () => {
     const { container } = render(
       <AskAssistantMessageBody

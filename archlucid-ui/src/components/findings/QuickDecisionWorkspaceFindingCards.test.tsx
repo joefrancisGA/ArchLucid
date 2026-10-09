@@ -126,4 +126,38 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
 
     expect(screen.getByTestId("finding-classification-chip-finding-1")).toHaveTextContent("Checklist-demoted");
   });
+
+  it("labels missing finding metadata while preserving a stored zero evidence count", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, evidenceRefCount: null, humanReviewStatus: null, assignedToUserId: null }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Evidence reference count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Remediation owner was not stored")).toBeInTheDocument();
+    expect(screen.getByText("Decision state was not stored")).toBeInTheDocument();
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, evidenceRefCount: 0 }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getAllByText("0 references").length).toBeGreaterThan(0);
+  });
 });
