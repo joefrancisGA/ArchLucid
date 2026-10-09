@@ -114,6 +114,8 @@
 
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; all reachable branches remain covered or previously classified, and no fresh mechanism-backed candidate was found. No hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory once more; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and all focused test-name coverage; no new reachable mechanism-backed candidate emerged after the prior two seed passes. No hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 2026-10-09 seed hunt (seed→hit): `ui-webhooks-settings` — opening `/integrations/webhooks?webhookEnableId=` while `listAlertRoutingSubscriptions` failed made the confirm effect treat the empty inventory as a missing subscription and `router.replace` dropped the id. Manual refresh then wrote null pending state and deleted the same param before the retry could resolve it. The effect now waits until a load succeeds, and a null confirmation write that does not change the open id leaves the query in place. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
@@ -6635,7 +6637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
