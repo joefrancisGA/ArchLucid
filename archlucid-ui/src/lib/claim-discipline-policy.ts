@@ -119,6 +119,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "help-sponsor-report",
   "help-system-health",
   "help-teams-integration",
+  "help-topic-catchall",
   "help-webhooks-integration",
   "help-workspace-settings",
   "identity-providers-diagnostics-settings",

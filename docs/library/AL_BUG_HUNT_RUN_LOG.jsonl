@@ -8942,3 +8942,4 @@
 {"at":"2026-10-09T02:52:10.0127296Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryEventGridDestinationExtractor.cs"]}
 {"at":"2026-10-09T03:21:55.8499321Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Tenancy/TenantErasureLegalHoldController.cs"]}
 {"at":"2026-10-09T03:37:21.9067070Z","zoneId":"architecture-recommendation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
+{"at":"2026-10-09T03:44:01.1330763Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}

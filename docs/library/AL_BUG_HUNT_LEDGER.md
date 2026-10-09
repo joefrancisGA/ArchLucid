@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-claim-discipline-policy` — buyer-polished residual help TOC appended `#help-topic-catchall-claim-discipline-heading` and then called `resolveGuideHeadingsForStrip("help-topic-catchall", …)`, but that slug was absent from the omit set, so the filter kept the row. The header claim is a paragraph with no matching id and the bottom strip is sources-only, leaving desktop and mobile TOC links with no target. `help-topic-catchall` is now omitted. Regression `drops the residual help catchall claim heading when the header owns the band`; the buyer-polished catchall view no longer renders those links. 29 scoped claim-discipline and catchall tests passed.
+
 2026-10-09 seed hunt (seed→hit): `architecture-recommendation` — trade-off rationale always said declared priorities resolved the competing pair, including when the list was empty or named neither dimension. `ClosedLoopReasoningResult.Recommendations` returns that text. Security/Cost with an unrelated priority and Reliability/Cost with an empty list now say no declared priority selected either dimension. A priority that names a side keeps the previous rationale. Regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`; 55 Alternatives, ProposedChange, and TradeOffBuilder tests passed.
 
 2026-10-09 seed hunt (seed→hit): `api-governance-tenancy-controllers` — legal-hold set and erasure approve passed `ClaimTypes.NameIdentifier` as the platform-audit actor id. `AppendPlatformAuditAsync` writes that value onto `PlatformAuditEvent.ActorUserId` with no later enrichment, so the stable `jwt:{tid}:{oid}` key from `IActorContext.GetActorId()` was dropped while the display name stayed on `ActorUserName`. Both routes now use the actor-context id. Regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; 16 legal-hold controller tests passed, and the scoped Governance/Tenancy filter reported 140 passed (15 SQL integration unavailable on this VM).
@@ -34255,13 +34257,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 33
-- **bugs-found:** 17
+- **hunts:** 34
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — policy-packs-help legacy orientation slug skipped omit alias
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — residual help catchall TOC kept a claim heading with no anchor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted `help-topic-catchall` omit gap; `HelpTopicMarkdownView` buyer residual chrome calls `resolveGuideHeadingsForStrip("help-topic-catchall", …)` while the header claim is an unanchored paragraph and `HelpTopicCatchallSourcesOrientationStrip` is sources-only; regression `drops the residual help catchall claim heading when the header owns the band`.
 
 2026-10-06 thorough hunt (hit): promoted `policy-packs-help` legacy orientation slug gap; `PolicyPacksHelpEvidenceOrientationStrip` still passed `policy-packs-help` while omit set keys `help-policy-packs`, so `resolveClaimDisciplineForStrip` would surface a bottom claim if the legacy strip remounts beside `HelpPolicyPacksClaimOrientationStrip`; aliased `policy-packs-help` → `help-policy-packs`; cheap-disproved four sibling candidates (data-handling specialty host, intentional marketing `privacy`, governance drift intentional non-omit, workspace-health/operational-errors sources-only strips with header claim fold); 27 scoped `claim-discipline-policy` tests passed.
 
@@ -34353,6 +34357,7 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace or trailing-slash strip slugs — **cheap-disproof 2026-10-05 thorough hunt:** strip slugs are static registry literals at component callsites, not URL-derived strings
 
 - [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` / `PolicyPacksHelpEvidenceOrientationStrip` — legacy slug `policy-packs-help` was not aliased to canonical `help-policy-packs`, so `resolveClaimDisciplineForStrip` would leave the registry orientation claim visible if remounted beside the hosted guide header claim strip — **hit 2026-10-06 thorough hunt:** alias `policy-packs-help` → `help-policy-packs`; regression `omits policy-packs-help legacy orientation slug via alias to help-policy-packs` in `claim-discipline-policy.test.ts`.
+- [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `HelpTopicMarkdownView` — buyer residual `/help/[...topic]` TOC kept `#help-topic-catchall-claim-discipline-heading` because `resolveGuideHeadingsForStrip("help-topic-catchall", …)` did not omit that slug, while the header claim paragraph has no matching id — **hit 2026-10-09 seed hunt:** omit `help-topic-catchall`; regression `drops the residual help catchall claim heading when the header owns the band` and the buyer-polished catchall view.
 - [x] (invalid) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `DataHandlingTenantIsolationHelpEvidenceOrientationStrip` — **cheap-disproof 2026-10-06 thorough hunt:** `/help/data-handling` routes to `HelpDataHandlingTenantIsolationGuideView` (not generic `HelpTopicMarkdownView`); operator shell renders `HelpDataHandlingTenantIsolationClaimDiscipline` once; orientation strip with slug `help-data-handling` mounts only on buyer-polished shell (`HelpTopicDataHandlingTenantIsolation.test.tsx` asserts no duplicate orientation on operator).
 - [x] (invalid) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `PrivacyEvidenceOrientationStrip` — **invalid 2026-10-06 thorough hunt:** marketing `/privacy` intentionally renders a legal-notice claim band; omit catalog targets operator/help surfaces that fold claim into headers, not evaluation marketing footers (owner route-traffic note: sources-only `see-it` sibling).
 - [x] (invalid) `resolveGuideHeadingsForStrip` / `help-governance-infrastructure-drift` — **invalid 2026-10-06 thorough hunt:** slug is intentionally absent from omit set so in-page claim + filtered TOC stay aligned; `HelpTopicGovernanceInfrastructureDrift.test.tsx` documents the branch when omit is false — not a present wrong outcome.

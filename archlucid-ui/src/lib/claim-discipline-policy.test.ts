@@ -273,4 +273,22 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("policy-packs-help")).toBe(true);
     expect(resolveClaimDisciplineForStrip("policy-packs-help", "Not a diligence package.")).toBeUndefined();
   });
+
+  it("drops the residual help catchall claim heading when the header owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("help-topic-catchall")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-topic-catchall",
+        [
+          { id: "overview", title: "Overview" },
+          { id: "help-topic-catchall-claim-discipline-heading", title: "What this guide does not cover" },
+          { id: "where-to-go-next", title: "Where to go next" },
+        ],
+        "help-topic-catchall-claim-discipline-heading",
+      ),
+    ).toEqual([
+      { id: "overview", title: "Overview" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ]);
+  });
 });
