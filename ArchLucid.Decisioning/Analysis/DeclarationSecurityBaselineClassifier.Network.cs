@@ -11,7 +11,7 @@ public static partial class DeclarationSecurityBaselineClassifier
                 DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
                 out _,
                 out string? publicNetworkAccess)
-            && IsEnabledToken(publicNetworkAccess))
+            && DeclarationSecurityEnabledToken.IsPublicNetworkEnabled(publicNetworkAccess))
             return true;
 
         if (DeclarationSecurityPropertyKeyResolver.TryGet(

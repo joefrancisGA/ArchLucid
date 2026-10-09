@@ -76,6 +76,36 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_terraform_public_network_access_enabled_true()
+    {
+        // azurerm and infra/terraform-storage use public_network_access_enabled = true.
+        // The declaration parser stores that scalar as tf.public_network_access_enabled = "true".
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "true",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
+    public void Classify_does_not_flag_terraform_public_network_access_enabled_false()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "false",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql", properties);
+
+        signals.Should().NotContain(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
     public void Classify_flags_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

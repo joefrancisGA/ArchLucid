@@ -29,7 +29,7 @@ public static partial class DeclarationSecurityBaselineClassifier
                 DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
                 out _,
                 out string? sqlPublicAccess)
-            && IsEnabledToken(sqlPublicAccess))
+            && DeclarationSecurityEnabledToken.IsPublicNetworkEnabled(sqlPublicAccess))
         {
             if (TryGetProperty(properties, "terraformType", out string? terraformType)
                 && IsSqlResourceType(terraformType!))

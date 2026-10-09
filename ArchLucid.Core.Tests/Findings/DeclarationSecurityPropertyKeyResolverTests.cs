@@ -27,6 +27,25 @@ public sealed class DeclarationSecurityPropertyKeyResolverTests
     }
 
     [Fact]
+    public void TryGet_resolves_tf_public_network_access_enabled()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "true",
+        };
+
+        bool found = DeclarationSecurityPropertyKeyResolver.TryGet(
+            properties,
+            DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            out string? canonicalKey,
+            out string? value);
+
+        found.Should().BeTrue();
+        canonicalKey.Should().Be("tf.public_network_access_enabled");
+        value.Should().Be("true");
+    }
+
+    [Fact]
     public void TryGet_resolves_compacted_tf_publicnetworkaccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

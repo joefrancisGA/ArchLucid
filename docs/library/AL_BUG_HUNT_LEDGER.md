@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DeclarationSecurityBaselineClassifier` only treated public network access as enabled for the token `enabled` on `tf.public_network_access`. azurerm and `infra/terraform-storage` set `public_network_access_enabled = true`, and the declaration parser stores `tf.public_network_access_enabled` = `true`, so the baseline emitted no data-protection signal. The resolver now reads that key, and `DeclarationSecurityEnabledToken` accepts both `enabled` and `true` for the baseline and topology-drift checks. `false` stays quiet. Regression `Classify_flags_terraform_public_network_access_enabled_true` failed first with an empty signal list. 20 scoped baseline and topology-security tests passed, and 9 key-resolver tests passed. [class:boolean-coercion]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `IdentityPathAnalyzer` checked `hopCount >= MaxHopCount` before evaluating the dequeued node. DX-06 bounds the blast-radius walk to 8 hops, and the trust-boundary walk keeps a target on that eighth edge. A machine actor, Contributor role, and regulated key vault eight edges apart produced no path. The node at the cap is evaluated, then expansion stops. Regression `Analyze_includes_regulated_datastore_exactly_at_hop_cap` failed first with an empty path list. `Analyze_excludes_regulated_datastore_past_hop_cap` keeps the next edge out. 17 scoped identity path and blast-radius tests passed. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DrRpoRequirementParser` treated a bare integer as minutes and skipped comparison words. Architecture request templates state `Restore RPO under 1 hour` and `Target RTO < 5 minutes, RPO < 30 seconds`. Draft intake copies a quality attribute such as `RPO 1 day` onto a requirement after `RequestQualityAttributeMaterializer` has already mapped a day to 24 hours, so the requirement path reported 1 minute. One objective grammar accepts upper-bound words and `<`, and converts seconds, hours, and days into minutes (a positive fraction of a minute rounds up). Regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours` failed first. 13 scoped DrRpo parser, quality-attribute, and finding-engine tests passed. [class:other]
@@ -16451,13 +16453,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 46
-- **bugs-found:** 37
+- **hunts:** 47
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — identity blast-radius walk dropped the datastore on hop 8
+- **last-bug:** 2026-10-09 — terraform public_network_access_enabled true was not a public-network signal
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `DeclarationSecurityBaselineClassifier` ignored `tf.public_network_access_enabled` = `true`; resolver alias plus shared enabled/true token; regressions `Classify_flags_terraform_public_network_access_enabled_true` and `Classify_does_not_flag_terraform_public_network_access_enabled_false`; 20 scoped baseline tests and 9 key-resolver tests passed.
+
+- [x] (proven) `DeclarationSecurityBaselineClassifier` / `DeclarationSecurityPropertyKeyResolver` — `public_network_access_enabled = true` — **hit 2026-10-09 seed hunt:** parser key `tf.public_network_access_enabled` and value `true` were invisible to the enabled-only token; regressions `Classify_flags_terraform_public_network_access_enabled_true` and `Classify_does_not_flag_terraform_public_network_access_enabled_false`. [class:boolean-coercion]
 
 2026-10-09 seed hunt (seed→hit): proved `IdentityPathAnalyzer` skipped the node at `MaxHopCount` before the regulated-datastore check, so an 8-hop Contributor path to a key vault emitted nothing; evaluate the cap node, then stop expansion; regressions `Analyze_includes_regulated_datastore_exactly_at_hop_cap` and `Analyze_excludes_regulated_datastore_past_hop_cap`; 17 scoped identity tests passed.
 
