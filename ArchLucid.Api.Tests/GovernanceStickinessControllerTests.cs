@@ -820,6 +820,102 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionsNeededSummary_blocks_older_unsealed_register_row_when_latest_run_is_sealed()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid olderRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                olderRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = olderRunId },
+                    GoldenManifest = null,
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(service => service.GetRegisterAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRiskRegisterResponse
+                {
+                    Entries =
+                    [
+                        new ArchitectureRiskRegisterEntry
+                        {
+                            FindingId = "finding-older",
+                            RunId = olderRunId,
+                            Title = "Older unsealed finding",
+                            Severity = "Critical",
+                        },
+                    ],
+                });
+
+        GovernanceStickinessController sut = BuildSut(
+            riskRegister: riskRegister,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.GetDecisionsNeededSummary(
+            projectId: null,
+            cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag()
     {
         Guid tenantId = Scope.TenantId;

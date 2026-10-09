@@ -2,6 +2,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -185,6 +186,20 @@ public sealed partial class GovernanceStickinessController
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             GovernanceDecisionsNeededSummaryResponse response =
                 await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
+
+            // Summary stale and unowned counts are this register page. Seal those runs before the totals are returned.
+            ArchitectureRiskRegisterResponse register = await _facade.GetRiskRegisterAsync(
+                projectId,
+                GovernanceDigestDecisionNeededComposer.DecisionsNeededRiskRegisterPageSize,
+                assignedToMe: false,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                register.Entries.Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
 
             string fingerprint =
                 $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";

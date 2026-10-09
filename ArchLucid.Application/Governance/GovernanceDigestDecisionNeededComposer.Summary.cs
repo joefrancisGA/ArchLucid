@@ -26,7 +26,13 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                DecisionsNeededRiskRegisterPageSize,
+                options: null,
+                cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
