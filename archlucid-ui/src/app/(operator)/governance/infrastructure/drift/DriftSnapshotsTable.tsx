@@ -47,7 +47,7 @@ export type DriftSnapshotsTableProps = {
 function formatSubscriptionCell(snapshot: InfraEvidenceSnapshotSummary): string {
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
 
-  return subscription ?? "—";
+  return subscription ?? "Subscription name was not stored";
 }
 
 export function DriftSnapshotsTable(props: DriftSnapshotsTableProps): React.JSX.Element {

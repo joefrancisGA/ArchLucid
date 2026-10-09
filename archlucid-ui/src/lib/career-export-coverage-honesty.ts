@@ -202,6 +202,8 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
 
   const freshnessMarkdown = formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
     input.architectureInventorySnapshotCapturedUtc,
+    new Date(),
+    input.architectureInventoryBound === true,
   ).trim();
 
   if (freshnessMarkdown.length > 0) {

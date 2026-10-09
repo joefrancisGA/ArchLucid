@@ -13,6 +13,8 @@ export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_PREFIX = "Bound snapshot
 
 export const ARCHITECTURE_INVENTORY_SNAPSHOT_STALE_LINE_SUFFIX =
   "— may not reflect current estate." as const;
+export const ARCHITECTURE_INVENTORY_SNAPSHOT_CAPTURE_TIME_MISSING_LINE =
+  "Captured time was not stored" as const;
 
 export function isArchitectureInventorySnapshotStale(
   capturedUtc: string | Date | null | undefined,
@@ -65,7 +67,12 @@ export function formatArchitectureInventorySnapshotStaleLineIfStale(
 export function formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
   capturedUtc: string | Date | null | undefined,
   nowUtc: Date = new Date(),
+  isBound: boolean = false,
 ): string {
+  if (isBound && (capturedUtc == null || (typeof capturedUtc === "string" && capturedUtc.trim().length === 0))) {
+    return `## ${ARCHITECTURE_INVENTORY_SNAPSHOT_FRESHNESS_CAREER_EXPORT_HEADING}\n\n${ARCHITECTURE_INVENTORY_SNAPSHOT_CAPTURE_TIME_MISSING_LINE}\n`;
+  }
+
   if (capturedUtc == null) {
     return "";
   }

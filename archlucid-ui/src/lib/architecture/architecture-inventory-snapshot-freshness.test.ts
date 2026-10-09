@@ -52,4 +52,14 @@ describe("architecture-inventory-snapshot-freshness (AS-052)", () => {
       ),
     ).toBeNull();
   });
+
+  it("states missing capture time for a bound export", () => {
+    expect(
+      formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown(
+        "",
+        now,
+        true,
+      ),
+    ).toContain("Captured time was not stored");
+  });
 });

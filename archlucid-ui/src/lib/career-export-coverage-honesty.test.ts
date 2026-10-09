@@ -134,6 +134,22 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(markdown).toContain("Bound snapshot captured 2026-07-18");
   });
 
+  it("includes missing capture time for a bound inventory export", () => {
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      architectureInventoryBound: true,
+      architectureInventorySnapshotCapturedUtc: "",
+    });
+
+    expect(markdown).toContain("## Inventory freshness");
+    expect(markdown).toContain("Captured time was not stored");
+  });
+
   it("formats shared markdown with measurement floor and classification bands", () => {
     const markdown = formatCareerExportHonestyMarkdown({
       runId: "run-1",
