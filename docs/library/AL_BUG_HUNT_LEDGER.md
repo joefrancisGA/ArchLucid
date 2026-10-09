@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `tenant-scoped-analyzer` — `TenantScopedSqlExpressionResolver` folded parameterless methods and property initializers, but a nested `string GetRunsSql() => "SELECT … dbo.Runs …"` is a local function, and `static string Sql => "SELECT …"` stores the text on the expression body. Both queries passed to Dapper with no ARCH006 diagnostic. Local functions now use the same single-return fold as methods, and expression-bodied properties fold with initializers. Regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`. Both tests failed first with zero diagnostics, then 28 scoped analyzer tests passed, and `ArchLucid.Persistence` built with 0 warnings.
+
 2026-10-09 seed hunt (seed→hit): `tenant-scoped-analyzer` — Persistence repositories build Dapper commands with target-typed `CommandDefinition command = new(sql)`. `TenantScopedQueryScopeBindingAnalyzer` only registered explicit `new CommandDefinition(...)`, so an unscoped `dbo.Runs` string passed to `new(sql)` produced no ARCH006 diagnostic. Implicit object creation now uses the same command-text argument read. Regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`. The new test failed first with zero diagnostics, then 26 scoped analyzer tests passed, and `ArchLucid.Persistence` built with 0 warnings.
 
 2026-10-09 seed hunt (seed→hit): `core-azure-extractor` — Application Gateway ARM pools attach NICs through `backendIPConfigurations`, while `ResolveApplicationGatewayBackends` returned early unless `backendAddresses` was present and only read that list. A NIC-only pool produced no backend target. The resolver now keeps address targets and also resolves pool ip configurations to the NIC. Regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`. 1474 scoped AzureExtractor tests passed (1447 Core + 27 Application), and 5 load-balancer diagram applier tests passed.
@@ -7214,13 +7216,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 34
-- **bugs-found:** 21
+- **hunts:** 35
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — target-typed CommandDefinition creation bypassed ARCH006
+- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted nested local functions and expression-bodied properties. A private method `GetRunsSql()` was already folded, but the same arrow body nested inside `Load` was not, and `static string Sql => "SELECT … dbo.Runs …"` was ignored because only property initializers were read. Regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`. 28 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
 
 2026-10-09 seed hunt (seed→hit): promoted target-typed `CommandDefinition` creation. Explicit `new CommandDefinition(...)` already reported unscoped SQL, but `CommandDefinition command = new(sql)` is an implicit object creation and produced no diagnostic. Regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`. 26 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed, and the Persistence build stayed clean.
 
@@ -7251,6 +7255,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-01 seed hunt (seed-only): inspected `RunsListClient.tsx` for URL filter synchronization, inspector/card activation, filtering, sorting, and pagination boundaries; the exact `RunsListClient` filter passed 42 tests and no new reachable mechanism-backed candidate was found or promoted.
 
 ### Hypotheses
+
+- [x] (proven) `TenantScopedSqlExpressionResolver` — nested local functions and expression-bodied properties bypassed ARCH006 static folding — **hit 2026-10-09 seed hunt (seed→hit):** fold `LocalFunctionStatementSyntax` the same way as parameterless methods, and read `PropertyDeclarationSyntax.ExpressionBody` as well as the initializer; regressions `ARCH006_reports_unscoped_sql_for_nested_local_function` and `ARCH006_reports_unscoped_sql_for_expression_bodied_property`.
 
 - [x] (proven) `TenantScopedQueryScopeBindingAnalyzer.AnalyzeObjectCreation` — only `SyntaxKind.ObjectCreationExpression` was registered, so target-typed `CommandDefinition command = new(sql)` bypassed ARCH006 — **hit 2026-10-09 seed hunt (seed→hit):** also analyze `ImplicitObjectCreationExpression` and read its command argument the same way as `new CommandDefinition(...)`; regression `ARCH006_reports_unscoped_sql_for_target_typed_command_definition`.
 

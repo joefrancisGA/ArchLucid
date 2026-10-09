@@ -370,10 +370,25 @@ internal static class TenantScopedSqlExpressionResolver
 
         if (symbol is IPropertySymbol &&
             syntax is PropertyDeclarationSyntax propertyDeclaration &&
-            propertyDeclaration.Initializer?.Value is ExpressionSyntax propertyInitializer)
+            TryGetPropertySqlExpression(propertyDeclaration) is ExpressionSyntax propertySql)
         {
-            return ResolveCore(propertyInitializer, modelForSyntax, visitingInterpolatedHole: false);
+            return ResolveCore(propertySql, modelForSyntax, visitingInterpolatedHole: false);
         }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Expression-bodied properties such as <c>static string Sql =&gt; "SELECT ..."</c> store the text on
+    /// <see cref="PropertyDeclarationSyntax.ExpressionBody"/>, not on <see cref="PropertyDeclarationSyntax.Initializer"/>.
+    /// </summary>
+    private static ExpressionSyntax? TryGetPropertySqlExpression(PropertyDeclarationSyntax propertyDeclaration)
+    {
+        if (propertyDeclaration.Initializer?.Value is ExpressionSyntax initializer)
+            return initializer;
+
+        if (propertyDeclaration.ExpressionBody?.Expression is ExpressionSyntax expressionBody)
+            return expressionBody;
 
         return null;
     }
@@ -669,20 +684,7 @@ internal static class TenantScopedSqlExpressionResolver
             return false;
 
         SyntaxNode syntax = syntaxReference.GetSyntax();
-
-        if (syntax is not MethodDeclarationSyntax methodDeclaration)
-            return false;
-
-        ExpressionSyntax? returnExpression = methodDeclaration.ExpressionBody?.Expression;
-
-        if (returnExpression is null && methodDeclaration.Body is BlockSyntax block)
-        {
-            ReturnStatementSyntax? returnStatement = block.Statements
-                .OfType<ReturnStatementSyntax>()
-                .SingleOrDefault();
-
-            returnExpression = returnStatement?.Expression;
-        }
+        ExpressionSyntax? returnExpression = TryGetSingleReturnExpression(syntax);
 
         if (returnExpression is null)
             return false;
@@ -691,6 +693,38 @@ internal static class TenantScopedSqlExpressionResolver
         result = ResolveCore(returnExpression, modelForSyntax, visitingInterpolatedHole: false);
 
         return result.IsStaticallyResolved || result.BranchSqlTexts.Count > 0 || result.HasScopeHelperInvocation;
+    }
+
+    /// <summary>
+    /// A nested <c>string Sql() =&gt; "..."</c> is a <see cref="LocalFunctionStatementSyntax"/>, not a method declaration.
+    /// Both shapes contribute one return expression when the body has a single return.
+    /// </summary>
+    private static ExpressionSyntax? TryGetSingleReturnExpression(SyntaxNode syntax)
+    {
+        if (syntax is MethodDeclarationSyntax methodDeclaration)
+            return TryGetSingleReturnExpression(methodDeclaration.ExpressionBody, methodDeclaration.Body);
+
+        if (syntax is LocalFunctionStatementSyntax localFunction)
+            return TryGetSingleReturnExpression(localFunction.ExpressionBody, localFunction.Body);
+
+        return null;
+    }
+
+    private static ExpressionSyntax? TryGetSingleReturnExpression(
+        ArrowExpressionClauseSyntax? expressionBody,
+        BlockSyntax? body)
+    {
+        if (expressionBody?.Expression is ExpressionSyntax expression)
+            return expression;
+
+        if (body is null)
+            return null;
+
+        ReturnStatementSyntax? returnStatement = body.Statements
+            .OfType<ReturnStatementSyntax>()
+            .SingleOrDefault();
+
+        return returnStatement?.Expression;
     }
 
     private static bool TryResolveStringFormatInvocation(

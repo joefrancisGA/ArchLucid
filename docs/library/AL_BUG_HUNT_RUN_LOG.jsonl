@@ -8969,3 +8969,4 @@
 {"at":"2026-10-09T07:55:44.0717504Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
 {"at":"2026-10-09T08:01:06.5538433Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
 {"at":"2026-10-09T08:20:25.5445770Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs"]}
+{"at":"2026-10-09T08:28:42.1503887Z","zoneId":"tenant-scoped-analyzer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs","ArchLucid.Analyzers/TenantScopedSqlExpressionResolver.cs"]}
