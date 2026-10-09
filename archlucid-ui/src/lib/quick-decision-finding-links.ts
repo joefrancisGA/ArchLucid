@@ -41,7 +41,7 @@ export function quickDecisionWorkItemSeverityLabel(severityValue: number | null)
 
 /** Evidence navigation targets derived for a single finding row (no API calls). */
 export type QuickDecisionFindingEvidenceLinks = {
-  readonly evidenceRefCount: number;
+  readonly evidenceRefCount: number | null;
   readonly manifestHref: string | null;
   readonly graphHref: string | null;
   /** Preferred single chip target: manifest section first, then graph evidence trail. */
@@ -52,12 +52,12 @@ export function buildQuickDecisionFindingEvidenceLinks(
   runId: string,
   finding: QuickDecisionFinding,
 ): QuickDecisionFindingEvidenceLinks {
-  const evidenceRefCount = finding.evidenceRefCount ?? 0;
+  const evidenceRefCount = finding.evidenceRefCount ?? null;
   const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, finding.findingId);
   const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
   const manifestHref = manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
   const graphHref =
-    evidenceRefCount > 0 || graphFocusId !== null
+    (evidenceRefCount !== null && evidenceRefCount > 0) || graphFocusId !== null
       ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
       : null;
   const viewEvidenceHref =

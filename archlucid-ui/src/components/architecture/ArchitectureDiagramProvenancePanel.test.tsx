@@ -67,6 +67,7 @@ describe("ArchitectureDiagramProvenancePanel", () => {
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-queue"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Inferred");
-    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
+    expect(screen.getByText("Source evidence link was not stored")).toBeInTheDocument();
   });
 });

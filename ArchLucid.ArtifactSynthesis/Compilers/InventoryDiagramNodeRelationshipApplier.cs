@@ -471,7 +471,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return $"{addressPrefix} → {nextHopType}";
     }
 
-    private static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
+    internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
         AzureInventoryNsgSecurityRule? firstRule = rules.FirstOrDefault();
 
@@ -485,7 +485,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
             : firstRule.Protocol.Trim();
         string port = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
             ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
-                ? "Port was not stored"
+                ? "Port range was not stored"
                 : firstRule.SourcePortRange.Trim()
             : firstRule.DestinationPortRange.Trim();
         string direction = string.IsNullOrWhiteSpace(firstRule.Direction)

@@ -32,7 +32,7 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
                 StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
 
-        Dictionary<string, InventoryDiagramEvidenceCurrency> evidenceCurrencyByArmId = snapshot.Resources
+        Dictionary<string, InventoryDiagramEvidenceCurrency?> evidenceCurrencyByArmId = snapshot.Resources
             .Where(resource => !string.IsNullOrWhiteSpace(resource.AzureResourceId))
             .GroupBy(
                 resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
@@ -57,10 +57,14 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
                 continue;
             }
 
-            InventoryDiagramEvidenceCurrency evidenceCurrency =
+            InventoryDiagramEvidenceCurrency? evidenceCurrency =
                 InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(resource.SourceEvidenceReference);
-            node.Properties[InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =
-                evidenceCurrency.ToString();
+
+            if (evidenceCurrency.HasValue)
+            {
+                node.Properties[InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =
+                    evidenceCurrency.Value.ToString();
+            }
         }
 
         Dictionary<string, GraphNode> nodesById = nodes
@@ -103,9 +107,10 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
                 && evidenceCurrency == InventoryDiagramEvidenceCurrency.Current
                 && evidenceCurrencyByArmId.TryGetValue(
                     fromArmId,
-                    out InventoryDiagramEvidenceCurrency configuredCurrency))
+                    out InventoryDiagramEvidenceCurrency? configuredCurrency)
+                && configuredCurrency.HasValue)
             {
-                evidenceCurrency = configuredCurrency;
+                evidenceCurrency = configuredCurrency.Value;
             }
 
             edge.Properties[InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =

@@ -120,7 +120,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 Actor
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-actor">
-                {record.actorLabel.length > 0 ? record.actorLabel : "Unknown"}
+                {record.actorLabel.trim().length > 0 ? record.actorLabel : "Actor was not stored"}
               </dd>
             </div>
             <div>
@@ -128,7 +128,7 @@ export function ExtractUploadAcceptedPackagePanel(
                 Resources
               </dt>
               <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-resource-count">
-                {record.resourceCount === null ? "—" : record.resourceCount}
+                {record.resourceCount === null ? "Resource count was not stored" : record.resourceCount}
               </dd>
             </div>
           </dl>

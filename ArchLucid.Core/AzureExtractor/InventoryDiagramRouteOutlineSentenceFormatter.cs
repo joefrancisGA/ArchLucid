@@ -8,7 +8,7 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
         ArgumentNullException.ThrowIfNull(route);
 
         string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix)
-            ? "*"
+            ? "Address prefix was not stored"
             : route.AddressPrefix.Trim();
         string nextHopType = route.NextHopType?.Trim() ?? string.Empty;
 
@@ -19,7 +19,9 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
         if (nextHopType.Equals("None", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Traffic to {addressPrefix} is dropped";
+            return string.IsNullOrWhiteSpace(route.AddressPrefix)
+                ? "Address prefix was not stored"
+                : $"Traffic to {addressPrefix} is dropped";
         }
 
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))

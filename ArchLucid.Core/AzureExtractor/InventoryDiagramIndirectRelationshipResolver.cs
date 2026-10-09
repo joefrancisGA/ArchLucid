@@ -273,7 +273,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
         {
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
-                toNode?.Label ?? "target");
+                toNode?.Label ?? string.Empty);
             return $"private endpoint → {targetName}";
         }
 
@@ -284,7 +284,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
         {
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
-                toNode?.Label ?? "target");
+                toNode?.Label ?? string.Empty);
             return $"observed call → {targetName}";
         }
 
@@ -295,7 +295,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
         {
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
-                toNode?.Label ?? "target");
+                toNode?.Label ?? string.Empty);
             return $"mount → {targetName}";
         }
 
@@ -309,7 +309,8 @@ public static class InventoryDiagramIndirectRelationshipResolver
             return edge.EdgeType.Trim();
         }
 
-        return edge.InferenceSource?.Trim() ?? "connected";
+        string inferenceSource = edge.InferenceSource?.Trim() ?? string.Empty;
+        return inferenceSource.Length > 0 ? inferenceSource : "Relationship was not stored";
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(
@@ -427,14 +428,18 @@ public static class InventoryDiagramIndirectRelationshipResolver
     {
         if (string.IsNullOrWhiteSpace(armResourceId))
         {
-            return fallbackLabel;
+            return string.IsNullOrWhiteSpace(fallbackLabel)
+                ? "Resource name was not stored"
+                : fallbackLabel;
         }
 
         int lastSlash = armResourceId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
         {
-            return fallbackLabel;
+            return string.IsNullOrWhiteSpace(fallbackLabel)
+                ? "Resource name was not stored"
+                : fallbackLabel;
         }
 
         return armResourceId[(lastSlash + 1)..];

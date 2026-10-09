@@ -65,7 +65,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
         resolveOperatorPrincipalOwnerLabel({
           name: currentPrincipal.name,
           meClaims: currentPrincipal.meClaims,
-        }) ?? "Unknown";
+        }) ?? "";
       const record: ExtractUploadAcceptedPackageRecord = {
         packageId,
         acceptedAtUtc: new Date().toISOString(),
