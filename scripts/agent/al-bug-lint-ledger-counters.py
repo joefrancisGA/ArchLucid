@@ -141,7 +141,7 @@ def print_report(
     total_hunts = sum(zone.hunts for zone in zones)
     total_bugs = sum(zone.bugs_found for zone in zones)
     total_effective = sum(zone.effective_bugs for zone in zones)
-    violating_open = len(violations)
+    violating_open = len(violations) + len(baselined)
 
     print(
         f"zones={len(zones)} hunts={total_hunts} bugs-found={total_bugs} "
