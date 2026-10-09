@@ -153,6 +153,8 @@
 
 2026-10-09 seed hunt (seed→hit): `ui-claim-discipline-policy` — buyer-polished residual help TOC appended `#help-topic-catchall-claim-discipline-heading` and then called `resolveGuideHeadingsForStrip("help-topic-catchall", …)`, but that slug was absent from the omit set, so the filter kept the row. The header claim is a paragraph with no matching id and the bottom strip is sources-only, leaving desktop and mobile TOC links with no target. `help-topic-catchall` is now omitted. Regression `drops the residual help catchall claim heading when the header owns the band`; the buyer-polished catchall view no longer renders those links. 29 scoped claim-discipline and catchall tests passed.
 
+2026-10-09 seed hunt (seed-only): re-read `claim-discipline-policy.ts`, its slug alias map, and all focused policy tests; no new reachable mechanism-backed candidate emerged after the prior exhaustion pass. No hypothesis was promoted. The focused policy suite passed 28 tests.
+
 2026-10-09 seed hunt (seed→hit): `architecture-recommendation` — trade-off rationale always said declared priorities resolved the competing pair, including when the list was empty or named neither dimension. `ClosedLoopReasoningResult.Recommendations` returns that text. Security/Cost with an unrelated priority and Reliability/Cost with an empty list now say no declared priority selected either dimension. A priority that names a side keeps the previous rationale. Regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`; 55 Alternatives, ProposedChange, and TradeOffBuilder tests passed.
 
 2026-10-09 seed hunt (seed→hit): `api-governance-tenancy-controllers` — legal-hold set and erasure approve passed `ClaimTypes.NameIdentifier` as the platform-audit actor id. `AppendPlatformAuditAsync` writes that value onto `PlatformAuditEvent.ActorUserId` with no later enrichment, so the stable `jwt:{tid}:{oid}` key from `IActorContext.GetActorId()` was dropped while the display name stayed on `ActorUserName`. Both routes now use the actor-context id. Regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; 16 legal-hold controller tests passed, and the scoped Governance/Tenancy filter reported 140 passed (15 SQL integration unavailable on this VM).
@@ -34779,7 +34781,7 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09

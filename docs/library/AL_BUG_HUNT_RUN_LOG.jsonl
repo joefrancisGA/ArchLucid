@@ -9044,3 +9044,4 @@
 {"at":"2026-10-09T21:17:49.1346314Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs;ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-10-09T21:20:30.4998075Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs;ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-10-09T21:23:02.8226757Z","zoneId":"email-otp-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs;ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
+{"at":"2026-10-09T21:26:32.9495917Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
