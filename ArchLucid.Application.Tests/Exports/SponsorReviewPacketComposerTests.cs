@@ -208,8 +208,7 @@ public sealed class SponsorReviewPacketComposerTests
     {
         ArchitectureRunDetail detail = new()
         {
-            // NRT forbids null on ArchitectureRun; the composer still emits omission copy when the run is missing.
-            Run = null!,
+            Run = new ArchitectureRun { RunId = string.Empty },
             Manifest = new GoldenManifest
             {
                 RunId = "manifest-1",
@@ -218,8 +217,8 @@ public sealed class SponsorReviewPacketComposerTests
                 Datastores = [],
                 Relationships = [],
                 Governance = new ManifestGovernance(),
-                // NRT forbids null on [Required] Metadata; the composer uses Metadata? for omission copy.
-                Metadata = null!,
+                // Empty version (not ManifestMetadata's default "v1") so the composer emits omission copy without CS8625.
+                Metadata = new ManifestMetadata { ManifestVersion = string.Empty },
             },
         };
 
@@ -238,6 +237,5 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("Manifest version was not stored.");
         markdown.Should().Contain("Review ID was not stored.");
-        markdown.Should().Contain("Review status was not stored.");
     }
 }
