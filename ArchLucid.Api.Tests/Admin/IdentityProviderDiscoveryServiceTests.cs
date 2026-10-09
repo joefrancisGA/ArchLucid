@@ -563,6 +563,80 @@ public sealed class IdentityProviderDiscoveryServiceTests
         response.DiagnosticSummary.Should().Contain("SAML metadata XML is required");
     }
 
+    [Fact]
+    public async Task DiscoverAsync_oidc_omits_jwks_encryption_keys_from_signing_thumbprints()
+    {
+        // The wizard shows these values as signing certificate thumbprints. SAML discovery already
+        // skips KeyDescriptor use="encryption". JWKS use=enc and encrypt-only key_ops are the same class.
+        using X509Certificate2 signingCertificate = CreateSelfSignedCertificate();
+        using X509Certificate2 encryptionCertificate = CreateSelfSignedCertificate();
+        string signingX5t = ToBase64UrlSha1Thumbprint(signingCertificate);
+        string encryptionX5t = ToBase64UrlSha1Thumbprint(encryptionCertificate);
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/",
+              "jwks_uri": "https://idp.example/jwks"
+            }
+            """;
+        string jwksJson =
+            $$"""
+            {
+              "keys": [
+                { "kty": "RSA", "use": "enc", "x5t": "{{encryptionX5t}}" },
+                { "kty": "RSA", "key_ops": ["encrypt", "wrapKey"], "x5t": "{{encryptionX5t}}" },
+                { "kty": "RSA", "use": "sig", "x5t": "{{signingX5t}}" }
+              ]
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            string body = request.RequestUri!.AbsolutePath.EndsWith("/jwks", StringComparison.Ordinal)
+                ? jwksJson
+                : discoveryJson;
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.SigningCertificateThumbprints.Should().Equal(signingCertificate.Thumbprint);
+    }
+
+    private static X509Certificate2 CreateSelfSignedCertificate()
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest certificateRequest = new(
+            "CN=idp.example",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+
+        return certificateRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(30));
+    }
+
+    private static string ToBase64UrlSha1Thumbprint(X509Certificate2 certificate)
+    {
+        byte[] sha1 = SHA1.HashData(certificate.RawData);
+
+        return Convert.ToBase64String(sha1).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+    }
+
     private sealed class TimeoutSimulatingHandler : HttpMessageHandler
     {
         protected override async Task<HttpResponseMessage> SendAsync(

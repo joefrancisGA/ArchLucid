@@ -200,6 +200,9 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
         foreach (JsonElement key in keys.EnumerateArray())
         {
+            if (!IsJwksSigningKey(key))
+                continue;
+
             string? thumbprint = TryExtractJwksThumbprint(key);
 
             if (!string.IsNullOrWhiteSpace(thumbprint)
@@ -208,6 +211,43 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         }
 
         return thumbprints;
+    }
+
+    private static bool IsJwksSigningKey(JsonElement key)
+    {
+        // RFC 7517 use=enc is an encryption key. The wizard labels the thumbprint as a signing certificate.
+        if (key.TryGetProperty("use", out JsonElement useElement)
+            && useElement.ValueKind == JsonValueKind.String)
+        {
+            string use = useElement.GetString()?.Trim() ?? string.Empty;
+
+            if (use.Equals("enc", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (use.Length > 0 && !use.Equals("sig", StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        if (!key.TryGetProperty("key_ops", out JsonElement keyOps)
+            || keyOps.ValueKind != JsonValueKind.Array
+            || keyOps.GetArrayLength() == 0)
+        {
+            return true;
+        }
+
+        foreach (JsonElement op in keyOps.EnumerateArray())
+        {
+            if (op.ValueKind != JsonValueKind.String)
+                continue;
+
+            string value = op.GetString()?.Trim() ?? string.Empty;
+
+            if (value.Equals("sign", StringComparison.OrdinalIgnoreCase)
+                || value.Equals("verify", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
     private static string? TryExtractJwksThumbprint(JsonElement key)
