@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 thorough hunt (hit): `agent-runtime-safety` — client-supplied `RequestId` escaped TB-949 markers before control characters were stripped, so a JSON control byte inside `CUSTOMER_CONTENT_END` was deleted afterward and closed the architecture quarantine early. Marker escape now follows control-character removal for prompt identifiers and run-header fields. Regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
+
 2026-10-08 seed hunt (seed→hit): `ui-review-detail-workspace` — last-visit restore wrote the findings filter into the address bar with `commitHrefIfChanged` and did not notify listeners, so `useRunDetailFindingsToolbarState` stayed on `all` after a bare findings URL restored `findingsFilter=high`. Mark the run restored before `replaceState` and dispatch `popstate`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed.
 
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (same-ref reseed does not update labels; cold-start mutates the instance about to be inserted; double-space region slugs stay distinct refs; null `TechnologyName` has no writer; inventory vs topology same display name is intentional); seeded five follow-on `(candidate)` rows; 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`); no production code changed.
@@ -14723,6 +14725,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-09 thorough hunt (hit): prompt identifiers escaped TB-949 markers before control-character removal, so a client-supplied `RequestId` containing a deleted control inside `CUSTOMER_CONTENT_END` closed the architecture quarantine early; escape now follows the strip for identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
+
 2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` honored cooperative cancellation before misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
 
 2026-10-06 thorough hunt (hit): cancel-contract parity on disabled and circuit-breaking guards; closed truncation/streaming/note-type candidates; 605 scoped agent-runtime-safety tests passed.
@@ -15597,11 +15601,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 59
-- **last-hunt:** 2026-10-06
-- **bugs-found:** 22
+- **hunts:** 60
+- **last-hunt:** 2026-10-09
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-06 — unconfigured content safety guard surfaced config error instead of cooperative cancellation
+- **last-bug:** 2026-10-09 — request id control character reassembled customer-content end marker
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15622,6 +15626,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `AgentEvidenceUntrustedInputSanitizer.SanitizePromptIdentifier` — client-supplied `RequestId` with a deleted control character inside `CUSTOMER_CONTENT_END` (`\u0001`, `\u007F`, `\u0085`) reassembled the delimiter after marker escape and closed the architecture quarantine before `Evidence Package` — **hit 2026-10-09 thorough hunt:** `EscapeEmbeddedMarkers` ran before `StripControlChars`; `EscapeCustomerMarkersAfterControlStrip` strips first, then escapes, for prompt identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`.
 
 - [x] (proven) `AzureContentSafetyGuard.AnalyzeAsync` — whitespace-only input returns allowed without checking `CancellationToken` — **hit 2026-10-06 seed hunt:** `string.IsNullOrWhiteSpace` short-circuit ran before cooperative cancel; host shutdown could complete a no-op allow while callers expected `OperationCanceledException`; regressions `CheckInputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled` and `CheckOutputAsync_when_token_cancelled_and_text_is_whitespace_throws_operation_canceled`.
 

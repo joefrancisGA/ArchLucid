@@ -60,6 +60,18 @@ public static class AzureResourceTagPromptSanitizer
         return EscapeEmbeddedUntrustedTags(StripControlChars(value));
     }
 
+    /// <summary>
+    ///     Removes deleted control characters, then neutralizes TB-949 markers.
+    ///     Marker escape has to follow that removal: a control character inside a marker is not a match, and
+    ///     deleting it later reassembles a contiguous delimiter.
+    /// </summary>
+    public static string EscapeCustomerMarkersAfterControlStrip(string? value)
+    {
+        string stripped = SanitizePersistedCustomerProse(value);
+
+        return CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(stripped);
+    }
+
     private static string WrapUntrusted(string value)
     {
         return UntrustedOpen + EscapeEmbeddedUntrustedTags(value) + UntrustedClose;
