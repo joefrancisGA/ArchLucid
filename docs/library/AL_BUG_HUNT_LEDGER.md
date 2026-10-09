@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery returned JWKS `x5t` as the raw base64url string. The SSO wizard shows that value as a signing-certificate thumbprint, while SAML discovery shows the hex SHA-1 thumbprint. A key whose `x5t` was the base64url SHA-1 of the certificate was displayed as `T9G2VBPHI8ARCO42T6DDLPVCJL4` instead of `B7D8365413C78BC02B0A8E364FA75D94FBC2265E`. `x5t` is now decoded to hex, and a value that is not a 20-byte SHA-1 falls through to `x5c`. Regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` failed first with the base64url string. 77 discovery, activation, and controller tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `POST /v1/admin/identity/discover` accepts an OIDC metadata URL with a query, then `BuildOidcDiscoveryUri` appended `/.well-known/openid-configuration` to `AbsoluteUri`. A tenant-router URL `https://idp.example/oidc?tenant=acme` was fetched as `https://idp.example/oidc?tenant=acme/.well-known/openid-configuration`, and a URL that already was the well-known document plus a query was appended a second time. The well-known segment is now inserted on the path and the query is kept. Regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` failed first on those request URLs. 75 discovery, activation, and controller tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `POST /v1/admin/identity/activate` stored `UpdatedByActorId` as `jwt:{tid}:{oid}` from `HttpActorContext`, then copied that id onto the audit event. `AuditService` replaced `ActorUserId` with `NameIdentifier` because `ExplicitActor` was unset. An Entra token whose `oid` is also `NameIdentifier` persisted `obj-guid` while the configuration row kept `jwt:tenant-guid:obj-guid`. Activation now marks the actor explicit. Regression `ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs` failed first with `obj-guid`. 61 activation and controller tests passed. A non-canonicalizable stored issuer on GET stays verbatim so the operator can edit it; activate still rejects that URL.
@@ -10823,13 +10825,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 46
-- **bugs-found:** 30
+- **hunts:** 47
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — OIDC discovery appended the well-known path after a metadata query
+- **last-bug:** 2026-10-09 — OIDC discovery showed JWKS x5t as base64url instead of a hex thumbprint
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): JWKS `x5t` was returned as base64url and shown as the signing thumbprint. It is now the hex SHA-1 form SAML discovery already uses. A non-SHA-1 `x5t` falls through to `x5c`. Regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` failed first.
 
 2026-10-09 seed hunt (seed→hit): `BuildOidcDiscoveryUri` appended `/.well-known/openid-configuration` to `AbsoluteUri`, so a metadata query swallowed the path and an already-well-known URL with a query was appended twice. The segment is now added to the path and the query is preserved. Regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` failed first.
 
@@ -10951,6 +10955,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderDiscoveryService.TryExtractJwksThumbprint` — JWKS `x5t` was returned as base64url and shown as the signing-certificate thumbprint — **hit 2026-10-09 seed hunt (seed→hit):** decode RFC 7517 `x5t` to hex SHA-1; regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` (failed first as `T9G2VBPHI8ARCO42T6DDLPVCJL4`).
 - [x] (proven) `IdentityProviderDiscoveryService.BuildOidcDiscoveryUri` — OIDC metadata URL query swallowed `/.well-known/openid-configuration`, and a well-known URL that already had a query was appended again — **hit 2026-10-09 seed hunt (seed→hit):** insert the segment on the path and keep `Query`; regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` (failed first as `?tenant=acme/.well-known/openid-configuration`).
 - [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `ActorUserId` was set to the persisted `jwt:{tid}:{oid}` actor id, then `AuditService` replaced it with `NameIdentifier` — **hit 2026-10-09 seed hunt (seed→hit):** `ExplicitActor` on the activation audit; regression `ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs` (failed first as `obj-guid`).
 - [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — document `jwks_uri` with a non-HTTP(S) scheme, userinfo, or fragment was fetched — **hit 2026-10-09 seed hunt (seed→hit):** `TryCreateAbsoluteHttpOrHttps` before `FetchJwksThumbprintsAsync`; regression `DiscoverAsync_oidc_does_not_fetch_jwks_uri_outside_http_validation`.

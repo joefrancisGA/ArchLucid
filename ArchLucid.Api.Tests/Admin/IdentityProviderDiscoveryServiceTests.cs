@@ -1,4 +1,6 @@
 using System.Net;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 using ArchLucid.Api.Controllers.Admin;
@@ -261,6 +263,116 @@ public sealed class IdentityProviderDiscoveryServiceTests
         requested.Should().ContainSingle();
         requested[0].Should().Be(expectedRequest);
         response.DiscoverySucceeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint()
+    {
+        // RFC 7517 x5t is base64url SHA-1. The wizard shows the same hex thumbprint as SAML discovery.
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest certificateRequest = new(
+            "CN=idp.example",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using X509Certificate2 certificate = certificateRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(30));
+
+        byte[] sha1 = SHA1.HashData(certificate.RawData);
+        string x5t = Convert.ToBase64String(sha1).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        string discoveryJson =
+            $$"""
+            {
+              "issuer": "https://idp.example/",
+              "jwks_uri": "https://idp.example/jwks"
+            }
+            """;
+        string jwksJson =
+            $$"""
+            {
+              "keys": [ { "kty": "RSA", "x5t": "{{x5t}}" } ]
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            string body = request.RequestUri!.AbsolutePath.EndsWith("/jwks", StringComparison.Ordinal)
+                ? jwksJson
+                : discoveryJson;
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.SigningCertificateThumbprints.Should().Equal(certificate.Thumbprint);
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_oidc_uses_x5c_thumbprint_when_x5t_is_not_sha1()
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest certificateRequest = new(
+            "CN=idp.example",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+        using X509Certificate2 certificate = certificateRequest.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(30));
+
+        string certBase64 = Convert.ToBase64String(certificate.RawData);
+        string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/",
+              "jwks_uri": "https://idp.example/jwks"
+            }
+            """;
+        string jwksJson =
+            $$"""
+            {
+              "keys": [ { "kty": "RSA", "x5t": "%%%", "x5c": ["{{certBase64}}"] } ]
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            string body = request.RequestUri!.AbsolutePath.EndsWith("/jwks", StringComparison.Ordinal)
+                ? jwksJson
+                : discoveryJson;
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.SigningCertificateThumbprints.Should().Equal(certificate.Thumbprint);
     }
 
     [Fact]

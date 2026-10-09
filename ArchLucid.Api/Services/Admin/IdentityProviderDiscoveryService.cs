@@ -210,13 +210,9 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
     private static string? TryExtractJwksThumbprint(JsonElement key)
     {
-        if (key.TryGetProperty("x5t", out JsonElement x5t))
-        {
-            string? value = x5t.GetString();
-
-            if (!string.IsNullOrWhiteSpace(value))
-                return value.Trim();
-        }
+        // RFC 7517 x5t is base64url SHA-1. The wizard compares it to the hex thumbprint SAML discovery already shows.
+        if (TryReadX5tHexThumbprint(key, out string? x5tHex))
+            return x5tHex;
 
         if (!key.TryGetProperty("x5c", out JsonElement x5c)
             || x5c.ValueKind != JsonValueKind.Array
@@ -242,6 +238,40 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         catch (CryptographicException)
         {
             return null;
+        }
+    }
+
+    private static bool TryReadX5tHexThumbprint(JsonElement key, out string? hexThumbprint)
+    {
+        hexThumbprint = null;
+
+        if (!key.TryGetProperty("x5t", out JsonElement x5t) || x5t.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? value = x5t.GetString();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        string padded = value.Trim().Replace('-', '+').Replace('_', '/');
+        int remainder = padded.Length % 4;
+
+        if (remainder != 0)
+            padded = padded.PadRight(padded.Length + (4 - remainder), '=');
+
+        try
+        {
+            byte[] hash = Convert.FromBase64String(padded);
+
+            if (hash.Length != 20)
+                return false;
+
+            hexThumbprint = Convert.ToHexString(hash);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
         }
     }
 
