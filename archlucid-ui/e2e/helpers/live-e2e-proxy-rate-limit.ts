@@ -5,8 +5,15 @@
  */
 export const LIVE_E2E_PROXY_RATE_LIMIT_PER_MINUTE_DEFAULT = "2000";
 
+/** Narrow env slice so Vitest fixtures are not forced to stub `NODE_ENV`. */
+export type LiveE2eProxyRateLimitEnv = {
+  readonly ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE?: string;
+};
+
 export function resolveLiveE2eProxyRateLimitPerMinute(
-  env: NodeJS.ProcessEnv = process.env,
+  env: LiveE2eProxyRateLimitEnv = {
+    ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE: process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE,
+  },
 ): string {
   const raw = env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE?.trim();
 
