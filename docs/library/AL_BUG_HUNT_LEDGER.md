@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — SAML discovery read `entityID` only from the document element. A one-IdP metadata file whose root is `EntitiesDescriptor` failed as missing `entityID` even though the nested `EntityDescriptor` carried `https://idp.example/saml`. Discovery now uses that single nested entity, and a file with more than one `EntityDescriptor` still fails so the wizard does not pick an arbitrary IdP. Regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` failed first with `DiscoverySucceeded` false. 19 discovery tests and 4 metadata parser tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — sandbox role mapping applied `CustomGroupClaimRegex` only when the pattern had a capturing group. A pattern such as `^Admin$|^Reader$` matched the sample values and then mapped nothing, so test login reported no ArchLucid roles. The full match is now used when the first capture is not an allowed role. Regression `ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group` failed first with an empty role list. 63 role-mapping, test-login, and activation tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery always returned the four default claim names and ignored `claims_supported`. The SSO wizard datalist is that list, so an IdP that advertised `department` never offered it. Discovery now appends substantive `claims_supported` names that are not already present, capped at 32. Regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` failed first because `department` was missing. 79 discovery, activation, and controller tests passed.
@@ -10833,13 +10835,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 51
-- **bugs-found:** 35
+- **hunts:** 52
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — custom group regex without a capture group mapped no roles
+- **last-bug:** 2026-10-09 — SAML EntitiesDescriptor wrapper hid the nested entityID
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): SAML discovery read `entityID` only from the document element, so a one-IdP `EntitiesDescriptor` file failed as missing an issuer. The single nested `EntityDescriptor` is now the issuer source. A file with more than one entity still fails. Regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` failed first.
 
 2026-10-09 seed hunt (seed→hit): `CustomGroupClaimRegex` ignored a full match that was already an allowed role when the pattern had no capture group. The full match is used in that case. Regression `ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group` failed first.
 
@@ -10971,6 +10975,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `SamlMetadataDiscoveryParser.Parse` — `entityID` was read only from the document element, so a one-IdP `EntitiesDescriptor` file failed discovery — **hit 2026-10-09 seed hunt (seed→hit):** use the single nested `EntityDescriptor`; regression `DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor` (failed first: `DiscoverySucceeded` false).
 - [x] (proven) `IdentityClaimRoleMappingResolver.ResolveRoles` — a custom group regex with no capture group matched an allowed role and mapped nothing — **hit 2026-10-09 seed hunt (seed→hit):** use the full match when the first capture is not an allowed role; regression `ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group` (failed first: empty role list).
 - [x] (proven) `IdentityProviderDiscoveryService.DiscoverOidcAsync` — `claims_supported` was omitted from `AvailableClaimNames` — **hit 2026-10-09 seed hunt (seed→hit):** append substantive advertised names; regression `DiscoverAsync_oidc_includes_claims_supported_in_available_claim_names` (failed first: missing `department`).
 - [x] (proven) `SsoWizardTestLoginService.Execute` — `CustomGroupClaimRegex` match timeout threw `RegexMatchTimeoutException` — **hit 2026-10-09 seed hunt (seed→hit):** return a failed test-login diagnostic; regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out`.

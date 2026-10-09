@@ -140,6 +140,71 @@ public sealed class IdentityProviderDiscoveryServiceTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_saml_reads_entity_id_when_metadata_root_is_entities_descriptor()
+    {
+        // SAML metadata instances use either EntityDescriptor or EntitiesDescriptor as the document element.
+        // A single IdP wrapped in EntitiesDescriptor still carries entityID on the child.
+        const string metadataXml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/saml">
+                <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+              </EntityDescriptor>
+            </EntitiesDescriptor>
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(metadataXml, Encoding.UTF8, "application/xml")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.IssuerUri.Should().Be("https://idp.example/saml");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_saml_rejects_metadata_with_more_than_one_entity_descriptor()
+    {
+        const string metadataXml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/one">
+                <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+              </EntityDescriptor>
+              <EntityDescriptor entityID="https://idp.example/two">
+                <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+              </EntityDescriptor>
+            </EntitiesDescriptor>
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(metadataXml, Encoding.UTF8, "application/xml")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("more than one EntityDescriptor");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_saml_timeout_returns_failed_response_instead_of_throwing()
     {
         using HttpClient httpClient = new(new TimeoutSimulatingHandler())

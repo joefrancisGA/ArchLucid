@@ -32,12 +32,13 @@ public static class SamlMetadataDiscoveryParser
         if (root is null)
             throw new InvalidOperationException("SAML metadata document has no root element.");
 
-        string? issuer = root.Attribute("entityID")?.Value?.Trim();
+        XElement entity = ResolveSingleEntityDescriptor(root);
+        string? issuer = entity.Attribute("entityID")?.Value?.Trim();
 
         if (string.IsNullOrWhiteSpace(issuer))
             throw new InvalidOperationException("SAML metadata is missing entityID (issuer).");
 
-        List<string> thumbprints = ExtractSigningCertificateThumbprints(root);
+        List<string> thumbprints = ExtractSigningCertificateThumbprints(entity);
 
         return new SamlMetadataDiscoveryResult
         {
@@ -91,6 +92,27 @@ public static class SamlMetadataDiscoveryParser
         }
 
         return thumbprints;
+    }
+
+    private static XElement ResolveSingleEntityDescriptor(XElement root)
+    {
+        XName entityName = SamlMetadataNs + "EntityDescriptor";
+
+        if (root.Name == entityName)
+            return root;
+
+        // SAML metadata's document element is EntityDescriptor or EntitiesDescriptor.
+        // A one-IdP export still puts entityID on the nested EntityDescriptor.
+        List<XElement> entities = root.Descendants(entityName).ToList();
+
+        if (entities.Count == 1)
+            return entities[0];
+
+        if (entities.Count == 0)
+            throw new InvalidOperationException("SAML metadata is missing entityID (issuer).");
+
+        throw new InvalidOperationException(
+            "SAML metadata contains more than one EntityDescriptor; publish a single-entity metadata document.");
     }
 
     private static string CompressBase64Whitespace(string value) =>

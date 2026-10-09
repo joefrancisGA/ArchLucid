@@ -58,4 +58,35 @@ public sealed class SamlMetadataDiscoveryParserTests
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*entityID*");
     }
+
+    [Fact]
+    public void Parse_single_entity_inside_entities_descriptor_returns_that_issuer()
+    {
+        const string xml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/metadata">
+                <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+              </EntityDescriptor>
+            </EntitiesDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml);
+
+        result.IssuerUri.Should().Be("https://idp.example/metadata");
+    }
+
+    [Fact]
+    public void Parse_multiple_entity_descriptors_throws()
+    {
+        const string xml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/one" />
+              <EntityDescriptor entityID="https://idp.example/two" />
+            </EntitiesDescriptor>
+            """;
+
+        Action act = () => SamlMetadataDiscoveryParser.Parse(xml);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*more than one EntityDescriptor*");
+    }
 }
