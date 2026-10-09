@@ -66,7 +66,7 @@ public sealed class DotenvInfrastructureDeclarationParser(
                 continue;
             }
 
-            string value = rawLine[(separatorIndex + 1)..].Trim();
+            string value = StripUnquotedInlineComment(rawLine[(separatorIndex + 1)..].Trim());
 
             if (value.Length >= 2
                 && ((value.StartsWith('"') && value.EndsWith('"'))
@@ -84,5 +84,46 @@ public sealed class DotenvInfrastructureDeclarationParser(
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    /// <summary>
+    ///     Shell dotenv comments begin at an unquoted <c>#</c> that is preceded by whitespace.
+    ///     A hash inside a URL fragment or a quoted value stays in the setting.
+    /// </summary>
+    private static string StripUnquotedInlineComment(string value)
+    {
+        bool inSingleQuotes = false;
+        bool inDoubleQuotes = false;
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            if (current == '"' && !inSingleQuotes)
+            {
+                inDoubleQuotes = !inDoubleQuotes;
+
+                continue;
+            }
+
+            if (current == '\'' && !inDoubleQuotes)
+            {
+                inSingleQuotes = !inSingleQuotes;
+
+                continue;
+            }
+
+            if (inSingleQuotes || inDoubleQuotes || current != '#')
+                continue;
+
+            if (index > 0 && !char.IsWhiteSpace(value[index - 1]))
+                continue;
+
+            int commentStart = index == 0 ? 0 : index - 1;
+
+            return value[..commentStart].TrimEnd();
+        }
+
+        return value;
     }
 }

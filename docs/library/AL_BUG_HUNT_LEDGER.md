@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `context-ingestion` — `DotenvInfrastructureDeclarationParser` kept a trailing `#` comment on `format=dotenv` values, so `Initial Catalog=archlucid # primary` stored the catalog as `archlucid # primary`, and a quoted value followed by the same comment kept the closing quote in the catalog. Comments now end at an unquoted `#` preceded by whitespace. A `#` inside a URL fragment stays. Regression `Dotenv_inline_comment_does_not_attach_to_sql_catalog`; 812 scoped ContextIngestion/Canonicalization tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-analysis` — `DocxArchitectureAnalysisExportService` rendered manifest counts and then stopped, so a parent manifest version and governance controls, compliance tags, and policy constraints that the markdown export already printed never appeared in the DOCX body. Those fields are now written when the manifest carries them. Regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-pilots` — `BoardPackQuarterWindow.DigestWeekInsideQuarter` took the ISO week around the midpoint of `POST /v1/pilots/board-pack.pdf` period bounds. A shorter override such as 2026-03-25 through 2026-04-01 started the digest on 2026-03-23, and 2026-03-23 through 2026-03-27 ended it on 2026-03-30. `ExecDigestComposer` then counted runs outside the pack window while the value report used the requested bounds. The digest interval is now clamped to that window. Regression `DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window`; 28 scoped BuyerProofPack/BoardPack tests passed.
@@ -26591,7 +26593,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-06 seed hunt (seed→hit): dotenv `export KEY=value` left `export` in `SettingName` / proposal `Name`; fixed prefix strip; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on candidates; 808 scoped tests passed.
 
 - [x] (proven) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines kept `export` in `SettingName` and proposal `Name` while URL host inference still worked — **hit 2026-10-06 seed hunt:** strip optional `export ` shell prefix before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`.
-- [ ] (candidate) `DotenvInfrastructureDeclarationParser` — inline `#` comments on `KEY=value` lines are not stripped from values before host parsing — **seed 2026-10-06:** reachable `format=dotenv` pastes from shell scripts with trailing comments.
+- [x] (proven) `DotenvInfrastructureDeclarationParser` — inline `#` comments on `KEY=value` lines stayed in the value, so a SQL catalog became `archlucid # primary` and a quoted connection string kept the closing quote — **hit 2026-10-09 seed hunt:** strip an unquoted `#` preceded by whitespace before host parsing; regression `Dotenv_inline_comment_does_not_attach_to_sql_catalog`; 812 scoped ContextIngestion/Canonicalization tests passed.
 - [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `env_file:` references are not expanded into proposed edges (only inline `environment:` blocks) — **seed 2026-10-06:** multi-file compose extracts per SN-RT-09.
 - [ ] (candidate) `HelmChartInfrastructureDeclarationParser` — batch parse ignores `values.yaml` connection strings when only `Chart.yaml` triggers helm format — **seed 2026-10-06:** DX-30 chart uploads with values beside templates.
 - [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — legacy state JSON with top-level `modules` array and no `values` / `planned_values` wrapper — **seed 2026-10-06:** mislabeled `terraform-show-json` uploads.
@@ -28533,11 +28535,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1041
-- **bugs-found:** 424
+- **hunts:** 1042
+- **bugs-found:** 425
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-09-18 — hunt #6932: terraform-show-json failover_regions property gap
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — dotenv inline comment attached to SQL catalog
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
