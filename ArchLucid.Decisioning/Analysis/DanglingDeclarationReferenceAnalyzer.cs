@@ -19,8 +19,10 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         "name",
     };
 
+    // Child resources add /{type}/{name} pairs after the parent (SQL databases, subnets).
+    // A fixed parent-length match treated the database id as a reference to the server.
     [GeneratedRegex(
-        @"/subscriptions/[^/]+/resourceGroups/[^/]+/providers/[^/]+/[^/]+/[^/]+",
+        @"/subscriptions/[^/]+/resourceGroups/[^/]+/providers/[^/]+/[^/]+/[^/]+(?:/[^/]+/[^/]+)*",
         RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex ArmResourceIdRegex();
 

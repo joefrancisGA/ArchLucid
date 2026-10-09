@@ -50,6 +50,21 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
     }
 
     /// <inheritdoc />
+    public Task<ScimUserRecord?> GetByUserNameAsync(Guid tenantId, string userName, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+
+        // Live rows only. Directory-removed users stay out of list results, so a later user may reuse that userName.
+        ScimUserRecord? found = _byId.Values.FirstOrDefault(u =>
+            u.TenantId == tenantId
+            && u.DirectoryRemovedUtc is null
+            && string.Equals(u.UserName, userName, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(found);
+    }
+
+    /// <inheritdoc />
     public Task<ScimUserRecord> InsertAsync(
         Guid tenantId,
         string externalId,

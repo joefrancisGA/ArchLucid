@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Advisory.Learning;
+using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -182,13 +184,16 @@ public sealed class AlertSimulationContextProvider(
                 .GeneratePlanAsync(detail.GoldenManifest, findings, comparison, ct)
                 ;
 
-        IReadOnlyList<RecommendationRecord> recommendations = await recommendationRepository
-            .ListByRunAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct)
-            ;
+        IReadOnlyList<RecommendationRecord> recommendations = FilterRecommendationsForSimulationScope(
+            await recommendationRepository
+                .ListByRunAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct),
+            scope,
+            runId);
 
-        RecommendationLearningProfile? learning = await recommendationLearningService
-            .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
-            ;
+        RecommendationLearningProfile? learning = FilterLearningProfileForSimulationScope(
+            await recommendationLearningService
+                .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct),
+            scope);
 
         return new AlertEvaluationContext
         {
@@ -226,5 +231,32 @@ public sealed class AlertSimulationContextProvider(
             CreatedUtc = manifest.CreatedUtc,
             Findings = []
         };
+
+    private static IReadOnlyList<RecommendationRecord> FilterRecommendationsForSimulationScope(
+        IReadOnlyList<RecommendationRecord> recommendations,
+        ScopeContext scope,
+        Guid runId) =>
+        recommendations
+            .Where(record =>
+                record.TenantId == scope.TenantId
+                && record.WorkspaceId == scope.WorkspaceId
+                && record.ProjectId == scope.ProjectId
+                && record.RunId == runId)
+            .ToList();
+
+    private static RecommendationLearningProfile? FilterLearningProfileForSimulationScope(
+        RecommendationLearningProfile? profile,
+        ScopeContext scope)
+    {
+        if (profile is null)
+            return null;
+
+        if (profile.TenantId != scope.TenantId
+            || profile.WorkspaceId != scope.WorkspaceId
+            || profile.ProjectId != scope.ProjectId)
+            return null;
+
+        return profile;
+    }
 
 }

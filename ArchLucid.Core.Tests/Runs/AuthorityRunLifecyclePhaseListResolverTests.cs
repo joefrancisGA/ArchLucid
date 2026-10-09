@@ -28,6 +28,23 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_committed_with_empty_golden_manifest_guid_returns_not_started_for_in_memory_rows()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.Empty,
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header);
+
+        // Same NotStarted path as null manifest: IsCommittedWithGoldenManifest rejects Guid.Empty; SQL CHECK blocks persisted Committed without manifest.
+        phase.Should().Be(AuthorityRunLifecyclePhase.NotStarted);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_failed_with_context_snapshot_returns_failed_not_in_progress()
     {
         RunRecord header = new()
@@ -41,6 +58,38 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header);
 
         phase.Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_failed_with_pipeline_dead_letter_and_golden_manifest_returns_failed()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa26"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_failed_with_golden_manifest_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa24"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Terminal failure resolution precedes golden-manifest progress-marker branch.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
 
     [Fact]
@@ -365,6 +414,21 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
     }
 
     [Fact]
+    public void ResolveFromRunHeader_unparseable_legacy_status_with_context_snapshot_returns_in_progress_for_in_memory_rows_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa25"),
+            LegacyRunStatus = "not-a-valid-run-status",
+            ContextSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            GoldenManifestId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
     public void ResolveFromRunHeader_unparseable_legacy_status_with_golden_manifest_returns_in_progress_for_in_memory_rows_only()
     {
         RunRecord header = new()
@@ -378,5 +442,147 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         // SQL CK_Runs_LegacyRunStatus enum-name allowlist blocks persisted rows; progress-marker branch is intentional for fixtures.
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_partially_completed_with_golden_manifest_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa16"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Terminal failure resolution precedes golden-manifest progress-marker branch.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_partially_completed_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa27"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.PartiallyCompleted),
+            ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_ready_for_commit_with_pipeline_dead_letter_returns_failed_not_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa17"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_created_with_golden_manifest_only_returns_in_progress_not_not_started()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa18"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // Created is not an in-progress legacy status; non-empty GoldenManifestId still marks InProgress for fixture rows.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_tasks_generated_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_ready_for_commit_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa22"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_retrying_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa23"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Retrying),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_waiting_for_results_with_orphan_golden_manifest_returns_in_progress()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa19"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ContextSnapshotId = null,
+        };
+
+        // In-progress legacy status branch runs before golden-manifest progress marker; both yield InProgress.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Fact]
+    public void ResolveFromRunHeader_quality_rejected_with_pipeline_dead_letter_returns_failed_like_terminal_only()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa20"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+            ContextSnapshotId = null,
+            GoldenManifestId = null,
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        // Dead-letter check precedes terminal failure; list/export phase is Failed either way (no distinct badge today).
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
 }

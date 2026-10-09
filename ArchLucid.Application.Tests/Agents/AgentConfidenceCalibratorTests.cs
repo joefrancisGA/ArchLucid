@@ -106,6 +106,34 @@ public sealed class AgentConfidenceCalibratorTests
     }
 
     [Fact]
+    public void BuildIsotonicKnots_pools_adjacent_violators_instead_of_lifting_them_to_the_block_max()
+    {
+        List<AgentConfidenceCalibrationSampleRow> rows =
+        [
+            new() { RawConfidence = 0.2, SemanticScore = 0.9 },
+            new() { RawConfidence = 0.5, SemanticScore = 0.4 },
+            new() { RawConfidence = 0.8, SemanticScore = 0.85 },
+            new() { RawConfidence = 0.2, SemanticScore = 0.9 },
+            new() { RawConfidence = 0.2, SemanticScore = 0.9 },
+            new() { RawConfidence = 0.5, SemanticScore = 0.3 },
+        ];
+
+        IReadOnlyList<AgentConfidenceCalibrator.CalibrationKnot> singleSampleKnots =
+            AgentConfidenceCalibrator.BuildIsotonicKnots(rows.Take(3).ToList());
+
+        singleSampleKnots[0].CalibratedScore.Should().BeApproximately(0.65, 1e-9);
+        singleSampleKnots[1].CalibratedScore.Should().BeApproximately(0.65, 1e-9);
+        singleSampleKnots[2].CalibratedScore.Should().BeApproximately(0.85, 1e-9);
+
+        IReadOnlyList<AgentConfidenceCalibrator.CalibrationKnot> weightedKnots =
+            AgentConfidenceCalibrator.BuildIsotonicKnots(rows.Skip(3).ToList());
+
+        weightedKnots.Should().HaveCount(2);
+        weightedKnots[0].CalibratedScore.Should().BeApproximately(0.7, 1e-9);
+        weightedKnots[1].CalibratedScore.Should().BeApproximately(0.7, 1e-9);
+    }
+
+    [Fact]
     public void Evaluate_uses_calibrated_confidence_for_semantic_floor_when_present()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions

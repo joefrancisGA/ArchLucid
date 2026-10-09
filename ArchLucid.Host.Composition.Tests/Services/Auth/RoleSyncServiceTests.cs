@@ -94,4 +94,35 @@ public sealed class RoleSyncServiceTests
 
         roles.Should().BeEquivalentTo([ArchLucidRoles.Reader]);
     }
+
+    [Fact]
+    public async Task ApplyEntraJwtAndDirectoryOverridesAsync_manual_scim_role_replaces_saml_soap_role_claim()
+    {
+        // SAML IdPs emit this URI. The role transformation still treats it as an ArchLucid role.
+        const string soapRoleClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+        Guid tenantId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        InMemoryScimUserRepository repo = new();
+        await repo.InsertAsync(
+            tenantId,
+            "saml-directory-id-1",
+            "saml@example.com",
+            null,
+            true,
+            ArchLucidRoles.Reader,
+            ScimResolvedRoleOrigin.Manual,
+            CancellationToken.None);
+
+        RoleSyncService sut = new(repo);
+        ClaimsIdentity id = new("test", "name", "role");
+        id.AddClaim(new Claim("tenant_id", tenantId.ToString("D")));
+        id.AddClaim(new Claim("oid", "saml-directory-id-1"));
+        id.AddClaim(new Claim("roles", ArchLucidRoles.Admin));
+        id.AddClaim(new Claim(soapRoleClaim, ArchLucidRoles.Admin));
+        ClaimsPrincipal principal = new(id);
+
+        await sut.ApplyEntraJwtAndDirectoryOverridesAsync(principal, CancellationToken.None);
+
+        principal.FindAll(soapRoleClaim).Should().BeEmpty();
+        principal.FindAll("roles").Select(static claim => claim.Value).Should().BeEquivalentTo([ArchLucidRoles.Reader]);
+    }
 }

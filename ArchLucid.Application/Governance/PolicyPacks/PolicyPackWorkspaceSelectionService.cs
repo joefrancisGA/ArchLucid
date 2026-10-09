@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Application.Governance.PolicyPacks;
 
@@ -36,9 +37,13 @@ public sealed class PolicyPackWorkspaceSelectionService(
         IReadOnlyList<PolicyPackAssignment> assignments =
             await _assignmentRepository.ListByScopeAsync(tenantId, workspaceId, projectId, ct);
 
+        ArgumentNullException.ThrowIfNull(assignments);
+
+        // ListByScopeAsync is newest-first. Grouping must still keep the scope winner
+        // that EffectiveGovernanceFacetMerger uses, not the newest lower-scope row.
         Dictionary<Guid, PolicyPackAssignment> assignmentByPackId = assignments
             .GroupBy(static assignment => assignment.PolicyPackId)
-            .ToDictionary(static group => group.Key, static group => group.First());
+            .ToDictionary(static group => group.Key, SelectWinningAssignment);
 
         List<PolicyPackWorkspaceSelectionItem> rows = [];
 
@@ -71,6 +76,15 @@ public sealed class PolicyPackWorkspaceSelectionService(
         }
 
         return rows;
+    }
+
+    private static PolicyPackAssignment SelectWinningAssignment(IEnumerable<PolicyPackAssignment> assignments)
+    {
+        return assignments
+            .OrderByDescending(EffectiveGovernanceResolver.GetPrecedenceRank)
+            .ThenByDescending(static assignment => assignment.AssignedUtc)
+            .ThenByDescending(static assignment => assignment.AssignmentId)
+            .First();
     }
 
     public async Task<bool> TrySetAssignmentEnabledAsync(

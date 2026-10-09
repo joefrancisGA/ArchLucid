@@ -1,4 +1,5 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { hasUsableMarketingRunExplanationCounts } from "@/lib/marketing/demo-preview-run-explanation-counts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
@@ -9,8 +10,8 @@ function isWeakPlaceholderRunId(runId: string | undefined | null): boolean {
   if (t.length === 0)
     return true;
 
-  // Snapshot / fixture runs sometimes use long repeated placeholder digits or a single repeated character.
-  if (t.length >= 16 && /^(.)\1+$/.test(t))
+  // Snapshot / fixture runs sometimes use repeated placeholder digits or a single repeated character.
+  if (t.length >= 8 && /^(.)\1+$/.test(t))
     return true;
 
   return false;
@@ -28,15 +29,7 @@ function isUsableSeeItPayload(p: DemoCommitPagePreviewResponse): boolean {
   )
     return false;
 
-  const re = p.runExplanation;
-
-  if (re === null || re === undefined)
-    return false;
-
-  if (typeof re.findingCount !== "number" || !Number.isFinite(re.findingCount))
-    return false;
-
-  if (typeof re.complianceGapCount !== "number" || !Number.isFinite(re.complianceGapCount))
+  if (!hasUsableMarketingRunExplanationCounts(p.runExplanation))
     return false;
 
   if (!Array.isArray(p.artifacts) || p.artifacts.length === 0)

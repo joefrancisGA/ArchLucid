@@ -60,4 +60,38 @@ public sealed class TenantCostEstimateServiceTests
 
         result.Should().BeNull();
     }
+
+    [SkippableFact]
+    public async Task TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands()
+    {
+        BillingUnitRatesOptions rates = new()
+        {
+            Currency = "USD",
+            StandardMonthlyUsdLow = 500,
+            StandardMonthlyUsdHigh = 100,
+            EnterpriseMonthlyUsdLow = 900,
+            EnterpriseMonthlyUsdHigh = 200,
+        };
+
+        TenantCostEstimate? standard = await EstimateAsync(TenantTier.Standard, rates);
+        TenantCostEstimate? enterprise = await EstimateAsync(TenantTier.Enterprise, rates);
+
+        standard.Should().NotBeNull();
+        standard!.EstimatedMonthlyUsdLow.Should().Be(100);
+        standard.EstimatedMonthlyUsdHigh.Should().Be(500);
+        enterprise.Should().NotBeNull();
+        enterprise!.EstimatedMonthlyUsdLow.Should().Be(200);
+        enterprise.EstimatedMonthlyUsdHigh.Should().Be(900);
+    }
+
+    private static async Task<TenantCostEstimate?> EstimateAsync(TenantTier tier, BillingUnitRatesOptions rates)
+    {
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Tier = tier });
+
+        TenantCostEstimateService sut = new(tenants.Object, new BillingOptionsTestMonitor<BillingUnitRatesOptions>(rates));
+
+        return await sut.TryGetEstimateAsync(Guid.NewGuid());
+    }
 }

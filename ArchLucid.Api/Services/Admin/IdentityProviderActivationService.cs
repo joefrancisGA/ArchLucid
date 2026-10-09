@@ -18,7 +18,9 @@ public interface IIdentityProviderActivationService
 public sealed class IdentityProviderActivationService(
     ITenantIdentityProviderConfigurationRepository repository) : IIdentityProviderActivationService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
+    // The SSO wizard reads this stored string as camelCase. The API envelope camelCases the record,
+    // but ClaimMappingJson is raw JSON and would otherwise keep PascalCase property names.
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly ITenantIdentityProviderConfigurationRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
@@ -49,11 +51,15 @@ public sealed class IdentityProviderActivationService(
         if (!IdentityProviderSubstantiveTextValidation.HasSubstantiveText(trimmedActorId))
             throw new ArgumentException("actorId is required.", nameof(actorId));
 
+        IdentityProviderPersistedFieldLimits.EnsureUpdatedByActorIdFits(trimmedActorId);
+
         if (!IdentityProviderProtocolParser.TryParse(request.Protocol, out TenantIdentityProtocol parsedProtocol))
             throw new ArgumentException("Protocol must be oidc or saml.");
 
         if (!IdentityProviderUriValidator.TryGetCanonicalAbsoluteHttpOrHttps(request.IssuerUri, out string canonicalIssuerUri))
             throw new ArgumentException("IssuerUri must be an absolute HTTP(S) URL.");
+
+        IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits(canonicalIssuerUri);
 
         IdentityProviderClaimMappingSubstantiveGuards.EnsureNoNullMappingEntries(request.ClaimMapping);
         IdentityProviderClaimMappingSubstantiveGuards.EnsureSubstantiveMappingEntries(request.ClaimMapping);
@@ -79,7 +85,7 @@ public sealed class IdentityProviderActivationService(
                 request.MetadataXml,
                 sameProtocol ? existing?.MetadataXml : null),
             ClaimMappingJson = claimMappingJson,
-            KeyVaultSecretName = ResolveOptionalPersistedField(
+            KeyVaultSecretName = ResolveKeyVaultSecretName(
                 request.KeyVaultSecretName,
                 sameProtocol ? existing?.KeyVaultSecretName : null),
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
@@ -90,6 +96,18 @@ public sealed class IdentityProviderActivationService(
         await _repository.UpsertAsync(record, cancellationToken).ConfigureAwait(false);
 
         return record;
+    }
+
+    /// <summary>
+    ///     Resolves the secret name, then rejects a value the NVARCHAR(256) column cannot store.
+    /// </summary>
+    private static string? ResolveKeyVaultSecretName(string? requestValue, string? existingValue)
+    {
+        string? resolved = ResolveOptionalPersistedField(requestValue, existingValue);
+
+        IdentityProviderPersistedFieldLimits.EnsureKeyVaultSecretNameFits(resolved);
+
+        return resolved;
     }
 
     /// <summary>

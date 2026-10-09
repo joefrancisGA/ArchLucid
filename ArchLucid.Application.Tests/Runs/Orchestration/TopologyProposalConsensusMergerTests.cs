@@ -584,6 +584,209 @@ public sealed class TopologyProposalConsensusMergerTests
     }
 
     [Fact]
+    public void Merge_intersects_relationships_when_models_use_arm_endpoint_without_leading_slash()
+    {
+        const string armCanonical =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api";
+        const string armNoLeadingSlash =
+            "subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api";
+
+        static List<ManifestService> Services(string serviceId) =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = serviceId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armNoLeadingSlash,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armCanonical,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation()
+    {
+        const string armCanonical =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api";
+        const string armTrailingSlash = armCanonical + "/";
+
+        static List<ManifestService> Services(string serviceId) =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = serviceId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armTrailingSlash,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armCanonical,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Merge_intersects_relationships_when_models_use_arm_endpoint_duplicate_slash_variation()
+    {
+        const string armCanonical =
+            "/subscriptions/sub/resourcegroups/rg/providers/microsoft.web/sites/api";
+        const string armDuplicateSlash =
+            "/subscriptions/sub//resourcegroups/rg/providers/microsoft.web/sites/api";
+
+        static List<ManifestService> Services(string serviceId) =>
+        [
+            new ManifestService
+            {
+                ServiceName = "api",
+                ServiceId = serviceId,
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService,
+            },
+        ];
+
+        static List<ManifestDatastore> Datastores() =>
+        [
+            new ManifestDatastore
+            {
+                DatastoreName = "sql",
+                DatastoreId = "ds-sql",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+            },
+        ];
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armDuplicateSlash,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = Services(armCanonical),
+            AddedDatastores = Datastores(),
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = armCanonical,
+                    TargetId = "ds-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void Merge_intersects_relationships_dedupes_duplicate_rows_from_primary()
     {
         ManifestRelationship relationship = new()
@@ -651,5 +854,152 @@ public sealed class TopologyProposalConsensusMergerTests
 
         result.DisagreementCount.Should().Be(0);
         result.MergedProposal.RequiredControls.Should().ContainSingle().Which.Should().Be("SOC2");
+    }
+
+    [Fact]
+    public void Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id()
+    {
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedServices.Should().BeEmpty();
+        result.DisagreementCount.Should().Be(2);
+        result.MergedProposal.Warnings.Should().ContainSingle(w => w.Contains("human review", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Merge_disagreement_count_includes_secondary_only_duplicate_relationship_rows()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-api",
+            TargetId = "ds-sql",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships = [relationship],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primary.AddedServices,
+            AddedDatastores = primary.AddedDatastores,
+            AddedRelationships = [relationship, relationship],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle();
+        result.DisagreementCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "renamed-api",
+            TargetId = "ds-sql",
+            RelationshipType = RelationshipType.ReadsFrom,
+        };
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships = [relationship],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "renamed-api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores = primary.AddedDatastores,
+            AddedRelationships = [relationship],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().ContainSingle()
+            .Which.SourceId.Should().Be("renamed-api");
     }
 }

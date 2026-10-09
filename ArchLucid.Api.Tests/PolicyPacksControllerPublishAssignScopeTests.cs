@@ -59,6 +59,37 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
     }
 
     [Fact]
+    public async Task Publish_returns_bad_request_when_platform_default_pack_cannot_be_republished()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PublishVersionAsync(
+                packId,
+                It.IsAny<PolicyPackPublishBody>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackVersion>
+            {
+                Outcome = PolicyPackHttpOutcome.ValidationFailed,
+                Message = "Platform-default policy packs cannot be republished via API.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        PublishPolicyPackVersionRequest request = new()
+        {
+            Version = "2.0.0",
+            ContentJson = """{"complianceRuleIds":[]}""",
+        };
+
+        IActionResult result = await sut.Publish(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task Assign_returns_not_found_when_pack_belongs_to_another_tenant()
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

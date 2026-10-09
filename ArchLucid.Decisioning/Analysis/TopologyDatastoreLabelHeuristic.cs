@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Analysis;
@@ -12,6 +13,11 @@ internal static class TopologyDatastoreLabelHeuristic
     public static bool IsRegulatedDatastoreTopologyNode(GraphNode node)
     {
         if (!IsTopologyResource(node))
+        {
+            return false;
+        }
+
+        if (IsIamRoleAssignment(node))
         {
             return false;
         }
@@ -41,6 +47,11 @@ internal static class TopologyDatastoreLabelHeuristic
             return false;
         }
 
+        if (IsIamRoleAssignment(node))
+        {
+            return false;
+        }
+
         if (HasDatastoreCategory(node))
         {
             return true;
@@ -65,18 +76,97 @@ internal static class TopologyDatastoreLabelHeuristic
 
     private static bool HasDatastoreCategory(GraphNode node)
     {
+        // Inventory writes GraphNode.Category from the ARM type. Data Factory and Synapse
+        // share the data diagram category but are pipelines, not replica targets.
+        if (IsDataIntegrationArmResource(node))
+        {
+            return false;
+        }
+
+        if (IsDataOrStorageCategory(node.Category))
+        {
+            return true;
+        }
+
         if (!TryGetProperty(node.Properties, "category", out string? category))
         {
             return false;
         }
 
+        return IsDataOrStorageCategory(category);
+    }
+
+    private static bool IsDataOrStorageCategory(string? category)
+    {
         return string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
             || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
     }
 
+    private static bool IsDataIntegrationArmResource(GraphNode node)
+    {
+        string sourceId = node.SourceId ?? string.Empty;
+
+        return sourceId.Contains("Microsoft.DataFactory/", StringComparison.OrdinalIgnoreCase)
+            || sourceId.Contains("Microsoft.Synapse/", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string BuildCombinedLabel(GraphNode node)
     {
-        return $"{node.Label} {node.SourceId}".ToLowerInvariant();
+        // Simple terraform keeps the resource name on the label and the provider type
+        // on terraformType. Show JSON puts the type in the address label. Both are evidence.
+        string typeEvidence = ReadTypeEvidence(node);
+
+        return $"{node.Label} {node.SourceId} {typeEvidence}".ToLowerInvariant();
+    }
+
+    private static string ReadTypeEvidence(GraphNode node)
+    {
+        if (node.Properties is null)
+        {
+            return string.Empty;
+        }
+
+        List<string> parts = [];
+        AppendProperty(node.Properties, "terraformType", parts);
+        AppendProperty(node.Properties, "resourceType", parts);
+        AppendProperty(node.Properties, "arm.type", parts);
+
+        return string.Join(' ', parts);
+    }
+
+    private static void AppendProperty(
+        IReadOnlyDictionary<string, string> properties,
+        string key,
+        List<string> parts)
+    {
+        if (!TryGetProperty(properties, key, out string? value) || value is null)
+        {
+            return;
+        }
+
+        parts.Add(value);
+    }
+
+    private static bool IsIamRoleAssignment(GraphNode node)
+    {
+        if (node.Properties is null)
+        {
+            return false;
+        }
+
+        if (TryGetProperty(node.Properties, "terraformType", out string? terraformType)
+            && DeclarationIamTerraformTypes.IsRoleAssignmentTerraformType(terraformType))
+        {
+            return true;
+        }
+
+        if (TryGetProperty(node.Properties, "resourceType", out string? resourceType)
+            && DeclarationIamTerraformTypes.IsRoleAssignmentResourceType(resourceType))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IndicatesDatastoreCluster(string combined)
@@ -110,7 +200,10 @@ internal static class TopologyDatastoreLabelHeuristic
 
         for (int index = 0; index < parts.Length; index++)
         {
-            if (!parts[index].Equals(token, StringComparison.Ordinal))
+            bool exactToken = parts[index].Equals(token, StringComparison.Ordinal);
+            bool longerProductToken = DecisioningTextTokenMatcher.IsLongerProductToken(parts[index], token);
+
+            if (!exactToken && !longerProductToken)
             {
                 continue;
             }

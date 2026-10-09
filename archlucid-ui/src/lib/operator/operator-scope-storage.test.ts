@@ -5,7 +5,14 @@ import {
   markOperatorHomeRunsSnapshotStale,
   consumeOperatorHomeRunsSnapshotStale,
 } from "@/lib/operator/operator-home-lifecycle-notify";
-import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
+import {
+  defaultLabelsForScopeIds,
+  getEffectiveBrowserProxyScopeHeaders,
+  readOperatorScopeFromStorage,
+  writeOperatorScopeToStorage,
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
+  OPERATOR_SCOPE_STORAGE_KEY,
+} from "@/lib/operator/operator-scope-storage";
 import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
 import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
 import { HAS_EXISTING_RUNS_CACHE_KEY } from "@/lib/operator/operator-run-presence";
@@ -19,6 +26,8 @@ import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { writeLastRegistrationPayloadForTests } from "@/lib/operator/operator-registration-scope-test-helpers";
 import { clearOidcSession, persistTokenResponse } from "@/lib/oidc/session";
+import { WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY } from "@/lib/operator/working-workspace-continuity-sync";
+import { FAVORITE_REVIEWS_STORAGE_KEY } from "@/lib/favorite-reviews";
 
 describe("operator-scope-storage", () => {
   beforeEach(() => {
@@ -30,6 +39,39 @@ describe("operator-scope-storage", () => {
     vi.unstubAllEnvs();
     clearOidcSession();
     localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it("readOperatorScopeFromStorage_returns_null_when_local_storage_json_is_invalid", () => {
+    localStorage.setItem(OPERATOR_SCOPE_STORAGE_KEY, "not-json");
+
+    expect(readOperatorScopeFromStorage()).toBeNull();
+  });
+
+  it("readOperatorScopeFromStorage_returns_null_when_project_id_missing", () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: DEV_SCOPE_TENANT_ID,
+        workspaceId: DEV_SCOPE_WORKSPACE_ID,
+      }),
+    );
+
+    expect(readOperatorScopeFromStorage()).toBeNull();
+  });
+
+  it("defaultLabelsForScopeIds_uses_development_workspace_label_for_dev_workspace_id", () => {
+    const labels = defaultLabelsForScopeIds(DEV_SCOPE_WORKSPACE_ID, "cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    expect(labels.workspace).toBe("Development workspace");
+    expect(labels.project).toBe("cccccccc…");
+  });
+
+  it("defaultLabelsForScopeIds_uses_primary_project_label_for_dev_project_id", () => {
+    const labels = defaultLabelsForScopeIds("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", DEV_SCOPE_PROJECT_ID);
+
+    expect(labels.workspace).toBe("bbbbbbbb…");
+    expect(labels.project).toBe("Primary project");
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_usesLocalStorageWhenAllIdsSet", () => {
@@ -107,6 +149,20 @@ describe("operator-scope-storage", () => {
     expect(h["x-tenant-id"]).toBe(tenantId);
     expect(h["x-workspace-id"]).toBe(workspaceId);
     expect(h["x-project-id"]).toBe(projectId);
+  });
+
+  it("getEffectiveBrowserProxyScopeHeaders_returnsPendingEmptyScopeForSignedInUsersWithoutDedicatedOrRegistration", () => {
+    persistTokenResponse({
+      access_token: "signed-in-access-token",
+      token_type: "Bearer",
+      expires_in: 3600,
+    });
+
+    const h = getEffectiveBrowserProxyScopeHeaders();
+
+    expect(h["x-tenant-id"]).toBe("");
+    expect(h["x-workspace-id"]).toBe("");
+    expect(h["x-project-id"]).toBe("");
   });
 
   it("getEffectiveBrowserProxyScopeHeaders_prefersDedicatedRegistrationScopeForSignedInUsers", () => {
@@ -301,6 +357,68 @@ describe("operator-scope-storage", () => {
     });
 
     expect(consumeOperatorHomeRunsSnapshotStale()).toBe(false);
+  });
+
+  it("readOperatorScopeFromStorage_reflects_direct_localStorage_writes_in_the_same_tab", () => {
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    const nextTenantId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: nextTenantId,
+        workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        workspaceLabel: "WS",
+        projectLabel: "PR",
+      }),
+    );
+
+    expect(readOperatorScopeFromStorage()?.tenantId).toBe(nextTenantId);
+  });
+
+  it("writeOperatorScopeToStorage_clears_recent_views_but_not_favorite_pins", () => {
+    localStorage.setItem(
+      FAVORITE_REVIEWS_STORAGE_KEY,
+      JSON.stringify([{ runId: "run-1", pinnedAt: "2026-09-13T12:00:00Z" }]),
+    );
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: 2, entries: [] }),
+    );
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY)).toBeNull();
+    expect(JSON.parse(localStorage.getItem(FAVORITE_REVIEWS_STORAGE_KEY) ?? "[]")).toHaveLength(1);
+  });
+
+  it("writeOperatorScopeToStorage_leaves_working_workspace_continuity_sync_watermark", () => {
+    localStorage.setItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY, "2026-09-13T12:00:00Z");
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(WORKING_WORKSPACE_CONTINUITY_SYNCED_AT_STORAGE_KEY)).toBe(
+      "2026-09-13T12:00:00Z",
+    );
   });
 
   it("writeOperatorScopeToStorage_clears_home_disclosure_prefs", () => {

@@ -78,21 +78,7 @@ public sealed class AgentModelCatalogEvaluationRecorder(
             evaluations.Add(updatedEvaluation);
         }
 
-        AgentModelCatalogRow updatedRow = new()
-        {
-            AliasId = existing.AliasId,
-            ProviderConnectionKind = existing.ProviderConnectionKind,
-            DeploymentName = existing.DeploymentName,
-            TierBinding = existing.TierBinding,
-            CapabilityTags = existing.CapabilityTags,
-            ApprovedTaskTypes = existing.ApprovedTaskTypes,
-            StructuredOutputLevel = existing.StructuredOutputLevel,
-            DataBoundary = existing.DataBoundary,
-            ExternalSubprocessorDisclosureComplete = existing.ExternalSubprocessorDisclosureComplete,
-            LifecycleStatus = existing.LifecycleStatus,
-            StructuredOutputProbeUtc = existing.StructuredOutputProbeUtc,
-            Evaluations = evaluations
-        };
+        AgentModelCatalogRow updatedRow = existing.WithEvaluations(evaluations);
 
         await _catalogRepository.UpsertAsync(updatedRow, cancellationToken).ConfigureAwait(false);
         _cacheInvalidator.Invalidate();

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.Serialization;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -289,6 +290,66 @@ public sealed class TenantCostSettingsControllerTests
     }
 
     [Fact]
+    public async Task PutAsync_audit_uses_actor_context_id_when_display_name_differs()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.TryGetAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("actor-id@test");
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantCostSettingsController controller = CreateController(
+            repository.Object,
+            scopeProvider.Object,
+            audit.Object,
+            actorContext: actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new System.Security.Claims.ClaimsPrincipal(
+                    new System.Security.Claims.ClaimsIdentity(
+                        [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  Display Name  ")],
+                        "test")),
+            },
+        };
+
+        await controller.PutAsync(
+            new TenantCostSettingsPutRequest
+            {
+                ArchitectHourlyRateUsd = 200m,
+                AverageIncidentCostUsd = 30_000m,
+            },
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be("actor-id@test");
+        captured.ActorUserName.Should().Be("  Display Name  ");
+
+        repository.Verify(
+            r => r.UpsertAsync(
+                It.Is<TenantCostSettingsRecord>(row => row.UpdatedByActorId == "actor-id@test"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry()
     {
         TenantCostSettingsRecord existing = new()
@@ -344,7 +405,8 @@ public sealed class TenantCostSettingsControllerTests
         ITenantCostSettingsRepository repository,
         IScopeContextProvider scopeProvider,
         IAuditService auditService,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IActorContext? actorContext = null)
     {
         Mock<IOptions<ValueReportComputationOptions>> options = new();
         options.Setup(o => o.Value).Returns(Defaults);
@@ -354,10 +416,14 @@ public sealed class TenantCostSettingsControllerTests
             .Setup(r => r.GetByIdAsync(Scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = Scope.TenantId, Name = "contoso" });
 
+        Mock<IActorContext> actors = new();
+        actors.Setup(a => a.GetActorId()).Returns("operator");
+
         return new TenantCostSettingsController(
             repository,
             scopeProvider,
             auditService,
+            actorContext ?? actors.Object,
             options.Object,
             tenantRepository ?? tenants.Object)
         {

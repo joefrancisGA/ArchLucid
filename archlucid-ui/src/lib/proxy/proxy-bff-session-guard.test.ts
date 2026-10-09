@@ -196,6 +196,27 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
     }
   });
 
+  it("allows first-tenant funnel telemetry without CSRF when the BFF session is active", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-first-tenant-funnel",
+      "v1/diagnostics/first-tenant-funnel",
+    );
+
+    expect(result.allowed).toBe(true);
+  });
+
   it("allows core-pilot rail telemetry when the BFF session cookie is expired", () => {
     const issueResult = createBffSessionCookieValue({
       accessToken: "access-token",
@@ -218,6 +239,77 @@ describe("enforceProxyBffSessionGuard (LK-07)", () => {
 
     if (result.allowed) {
       expect(result.payload).toBeNull();
+    }
+  });
+
+  it("blocks bootstrap status GET when the BFF session cookie is expired", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() - 1,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "GET",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "GET",
+      "corr-bootstrap-status-expired",
+      "v1/auth/bootstrap/status",
+    );
+
+    expect(result.allowed).toBe(false);
+
+    if (!result.allowed) {
+      expect(result.response.status).toBe(401);
+    }
+  });
+
+  it("allows pre-auth email-otp challenge POST without CSRF when the BFF session is active", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-email-otp-challenge",
+      "v1/auth/email-otp/challenge",
+    );
+
+    expect(result.allowed).toBe(true);
+  });
+
+  it("rejects bootstrap workspace mutations without a CSRF token when the BFF session is active", () => {
+    const issueResult = createBffSessionCookieValue({
+      accessToken: "access-token",
+      expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
+    });
+
+    const result = enforceProxyBffSessionGuard(
+      mockNextRequest({
+        method: "POST",
+        cookieValue: issueResult?.sessionCookieValue ?? null,
+        origin: ORIGIN,
+      }),
+      "POST",
+      "corr-bootstrap-workspaces-csrf",
+      "v1/auth/bootstrap/workspaces",
+    );
+
+    expect(result.allowed).toBe(false);
+
+    if (!result.allowed) {
+      expect(result.response.status).toBe(403);
     }
   });
 

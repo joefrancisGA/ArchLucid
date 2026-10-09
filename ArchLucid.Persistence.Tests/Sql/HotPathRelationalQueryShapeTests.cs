@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Sql;
 
@@ -62,6 +64,7 @@ public sealed class HotPathRelationalQueryShapeTests
     {
         const string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
 
+        sql.Should().Contain(RunListWarningFlagSql.LeftJoinAggregates);
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
         sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
@@ -73,6 +76,22 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ArchivedUtc IS NULL");
         sql.Should().Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
         sql.Should().Contain("StructuralExecutionMode");
+    }
+
+    [SkippableFact]
+    public void Runs_list_by_project_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("SELECT TOP (@Take)");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().NotContain("@Fetch");
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("SELECT TOP (@Fetch)");
+    }
+
+    [SkippableFact]
+    public void Runs_list_recent_in_scope_unpaged_uses_take_without_probe_fetch_while_keyset_uses_fetch_for_has_more()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain("SELECT TOP (@Take)");
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().NotContain("@Fetch");
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock.Should().Contain("SELECT TOP (@Fetch)");
     }
 
     [SkippableFact]
@@ -278,11 +297,29 @@ public sealed class HotPathRelationalQueryShapeTests
     [SkippableFact]
     public void Run_detail_read_shapes_include_warning_flags_and_governance_columns()
     {
+        RunRepositorySql.SelectByScopedId.Should().NotContain("FROM dbo.Runs WITH (NOLOCK)");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectCoreColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("HasWarnings");
         RunRepositorySql.SelectByRunIdAdmin.Should().NotContain("OperatorGovernanceDecision");
+    }
+
+    [SkippableFact]
+    public void Run_detail_correlated_warning_flags_use_nolock_exists_while_list_shapes_use_left_join_aggregates()
+    {
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .Contain("FROM dbo.FindingsSnapshots fs WITH (NOLOCK)");
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should()
+            .Contain("CASE WHEN EXISTS");
+        RunListWarningFlagSql.LeftJoinAggregates.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
+    }
+
+    [SkippableFact]
+    public void Run_detail_and_list_governance_open_filters_both_target_open_alert_status()
+    {
+        RunDetailReadSql.SelectCorrelatedWarningFlags.Should().Contain("ar.Status = 'Open'");
+        RunListWarningFlagSql.LeftJoinAggregates.Should().Contain("ar.Status = N'Open'");
     }
 
     [SkippableFact]
@@ -333,5 +370,28 @@ public sealed class HotPathRelationalQueryShapeTests
             section.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Length;
 
         return (CountCommaSeparatedTokens(columns), CountCommaSeparatedTokens(values));
+    }
+
+    [Fact]
+    public void SqlRunRepository_list_paths_use_authority_run_list_factory_while_get_by_id_uses_primary()
+    {
+        string listSource = ReadRepoSource("ArchLucid.Persistence/Repositories/SqlRunRepository.List.cs");
+        string byIdSource = ReadRepoSource("ArchLucid.Persistence/Repositories/SqlRunRepository.Query.ById.cs");
+
+        listSource.Should().Contain("authorityRunListConnectionFactory.CreateOpenConnectionAsync");
+        byIdSource.Should().Contain("connectionFactory.CreateOpenConnectionAsync");
+        byIdSource.Should().Contain("RunRepositorySql.SelectByScopedId");
+    }
+
+    private static string ReadRepoSource(string relativePath, [CallerFilePath] string? callerFilePath = null)
+    {
+        string testsSqlDir = Path.GetDirectoryName(callerFilePath)
+                             ?? throw new InvalidOperationException("Caller path unavailable.");
+        string repoRoot = Path.GetFullPath(Path.Combine(testsSqlDir, "..", ".."));
+        string fullPath = Path.Combine(repoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+        File.Exists(fullPath).Should().BeTrue($"expected repository source at '{fullPath}'");
+
+        return File.ReadAllText(fullPath);
     }
 }

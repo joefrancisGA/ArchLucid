@@ -91,16 +91,56 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
 
             if (batch.Count >= safeMax)
             {
-                await PersistBatchAsync(batch, ct).ConfigureAwait(false);
+
+                if (!await PersistOrReturnAsync(batch, ct).ConfigureAwait(false))
+                {
+                    return;
+                }
+
                 batch = [];
             }
         }
 
         if (batch.Count > 0)
-            await PersistBatchAsync(batch, ct).ConfigureAwait(false);
+        {
+            await PersistOrReturnAsync(batch, ct).ConfigureAwait(false);
+        }
     }
 
-    private async Task PersistBatchAsync(IReadOnlyList<UsageEvent> batch, CancellationToken ct)
+    /// <summary>
+    ///     Dequeue already removed these events. A failed persist has to put them back or the next
+    ///     interval cannot retry and API usage is undercounted.
+    /// </summary>
+    private async Task<bool> PersistOrReturnAsync(List<UsageEvent> batch, CancellationToken ct)
+    {
+        try
+        {
+            bool persisted = await TryPersistBatchAsync(batch, ct).ConfigureAwait(false);
+
+            if (!persisted)
+            {
+                ReturnBatchToBuffer(batch);
+            }
+
+            return persisted;
+        }
+        catch (OperationCanceledException)
+        {
+            ReturnBatchToBuffer(batch);
+
+            throw;
+        }
+    }
+
+    private void ReturnBatchToBuffer(IReadOnlyList<UsageEvent> batch)
+    {
+        foreach (UsageEvent usageEvent in batch)
+        {
+            _buffer.Requeue(usageEvent);
+        }
+    }
+
+    private async Task<bool> TryPersistBatchAsync(IReadOnlyList<UsageEvent> batch, CancellationToken ct)
     {
         try
         {
@@ -108,12 +148,17 @@ public sealed class ApiRequestUsageEventBatchFlushHostedService(
             IUsageMeteringService metering = scope.ServiceProvider.GetRequiredService<IUsageMeteringService>();
 
             await metering.RecordBatchAsync(batch, ct).ConfigureAwait(false);
+
+            return true;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+
             if (_logger.IsEnabled(LogLevel.Warning))
 
                 _logger.LogWarning(ex, "API usage metering batch flush failed for {EventCount} events.", batch.Count);
+
+            return false;
         }
     }
 }

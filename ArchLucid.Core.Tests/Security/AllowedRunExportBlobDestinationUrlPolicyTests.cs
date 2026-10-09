@@ -16,6 +16,16 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
     }
 
     [Theory]
+    [InlineData("https://user:pass@acct.blob.core.windows.net/container/run.zip?sas=token")]
+    [InlineData("https://user%3Apass%40x@acct.blob.core.windows.net/container/run.zip?sas=token")]
+    public void TryGetRejectionReason_WhenEmbeddedCredentials_Rejects(string url)
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)
+            .Should()
+            .Contain("embedded credentials");
+    }
+
+    [Theory]
     [InlineData("http://acct.blob.core.windows.net/c?sas=1", "https scheme")]
     [InlineData("https://127.0.0.1/c?sas=1", "private")]
     [InlineData("https://example.com/c?sas=1", "Azure Blob")]

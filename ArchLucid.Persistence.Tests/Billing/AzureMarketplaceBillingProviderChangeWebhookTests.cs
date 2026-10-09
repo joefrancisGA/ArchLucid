@@ -317,6 +317,82 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
         snapshot!.SeatsPurchased.Should().Be(10);
     }
 
+    [SkippableFact]
+    public async Task HandleWebhookAsync_missing_tenant_remembers_dedupe_key_and_replay_rejects_identical_payload()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                GaEnabled = true,
+                OpenIdMetadataAddress =
+                    "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+                ValidAudiences = ["https://marketplaceapi.microsoft.com"]
+            }
+        };
+
+        TestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        ledger
+            .Setup(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        ledger
+            .Setup(l => l.MarkWebhookProcessedAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> tenants = new();
+        Mock<IAuditService> audit = new();
+        BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+        Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
+        verifier
+            .Setup(v => v.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MarketplaceWebhookValidatedToken([]));
+
+        MemoryCacheBillingWebhookReplayGuard replayGuard = new(
+            new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions { SizeLimit = 32 }),
+            TimeProvider.System);
+
+        Mock<IHttpClientFactory> httpFactory = new();
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
+        AzureMarketplaceBillingProvider sut = new(
+            monitor,
+            ledger.Object,
+            replayGuard,
+            activator,
+            verifier.Object,
+            httpFactory.Object,
+            changePlanHandler,
+            changeQtyHandler);
+
+        const string body = """{"action":"Suspend","subscriptionId":"sub-missing-tenant"}""";
+
+        BillingWebhookHandleResult first = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound { RawBody = body, MarketplaceAuthorizationBearer = "bearer" },
+            CancellationToken.None);
+        BillingWebhookHandleResult second = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound { RawBody = body, MarketplaceAuthorizationBearer = "bearer" },
+            CancellationToken.None);
+
+        first.Succeeded.Should().BeTrue();
+        second.IsReplayRejected.Should().BeTrue();
+        ledger.Verify(
+            l => l.MarkWebhookProcessedAsync(It.IsAny<string>(), "IgnoredMissingTenant", It.IsAny<CancellationToken>()),
+            Times.Once);
+        ledger.Verify(
+            l => l.SuspendSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private sealed class TestMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {

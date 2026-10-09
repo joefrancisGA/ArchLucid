@@ -78,6 +78,68 @@ public sealed class UploadedConfigInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task Dotenv_export_prefixed_line_strips_export_for_setting_name()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = ".env",
+            Format = "dotenv",
+            DeclarationId = "dotenv-export-1",
+            Content = "export ARCHLUCID_API_BASE_URL=https://api.example.com\n",
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _dotenvParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.SettingName]
+            .Should().Be("ARCHLUCID_API_BASE_URL");
+        objects[0].Name.Should().StartWith("ARCHLUCID_API_BASE_URL:");
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("api.example.com");
+    }
+
+    [Theory]
+    [InlineData("SQL_CONNECTION=Server=sql1.database.windows.net;Initial Catalog=archlucid # primary\n")]
+    [InlineData("SQL_CONNECTION=\"Server=sql1.database.windows.net;Initial Catalog=archlucid\" # primary\n")]
+    [InlineData("export SQL_CONNECTION=Server=sql1.database.windows.net;Initial Catalog=archlucid # primary\n")]
+    public async Task Dotenv_inline_comment_does_not_attach_to_sql_catalog(string content)
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = ".env",
+            Format = "dotenv",
+            DeclarationId = "dotenv-comment-1",
+            Content = content,
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _dotenvParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("sql1.database.windows.net");
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToCatalog]
+            .Should().Be("archlucid");
+    }
+
+    [Fact]
+    public async Task Dotenv_url_fragment_hash_stays_in_the_value()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = ".env",
+            Format = "dotenv",
+            DeclarationId = "dotenv-fragment-1",
+            Content = "ARCHLUCID_API_BASE_URL=https://api.example.com/app#v1\n",
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _dotenvParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("api.example.com");
+    }
+
+    [Fact]
     public async Task AppSettingsJson_password_key_with_random_string_is_dropped()
     {
         InfrastructureDeclarationReference declaration = new()

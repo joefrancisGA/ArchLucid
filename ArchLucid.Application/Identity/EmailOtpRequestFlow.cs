@@ -182,15 +182,36 @@ public sealed class EmailOtpRequestFlow(
             now,
             cancellationToken).ConfigureAwait(false);
 
-        bool sent = await _emailNotifier.TrySendSignInCodeAsync(
-            displayEmail,
-            rawCode,
-            _options.CodeLifetimeMinutes,
-            cancellationToken).ConfigureAwait(false);
+        bool sent;
+
+        try
+        {
+            sent = await _emailNotifier.TrySendSignInCodeAsync(
+                displayEmail,
+                rawCode,
+                _options.CodeLifetimeMinutes,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            try
+            {
+                // The challenge was persisted before delivery, so cancellation or provider failure must not leave
+                // a code usable when the requester may never have received it.
+                await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                // Preserve the notifier failure; storage recovery is required if best-effort cleanup also fails.
+            }
+
+            throw;
+        }
 
         if (!sent)
         {
-            await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, cancellationToken)
+            await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, CancellationToken.None)
                 .ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordEmailOtpDeliveryFailed();

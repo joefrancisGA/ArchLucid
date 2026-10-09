@@ -16,7 +16,7 @@ public static class AgentRunHeaderPromptSanitizer
         if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
 
-        string escaped = CustomerContentPromptDelimiters.EscapeEmbeddedMarkers(value);
+        string escaped = AzureResourceTagPromptSanitizer.EscapeCustomerMarkersAfterControlStrip(value);
 
         return AzureResourceTagPromptSanitizer.SanitizeScalar(escaped);
     }

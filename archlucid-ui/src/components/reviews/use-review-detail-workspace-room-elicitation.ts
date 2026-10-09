@@ -34,8 +34,9 @@ export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorksp
 
   const syncRoomElicitationToUrl = useCallback(
     (active: boolean) => {
+      // replaceState does not emit popstate. The room panel reads roomElicitation from that event.
       commitHrefIfChanged(reviewRoomElicitationHrefFromSearch(readWindowLocationSearch(), active, pathname), {
-        notify: false,
+        notify: true,
       });
     },
     [pathname],

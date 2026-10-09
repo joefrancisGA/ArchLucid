@@ -121,6 +121,34 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
+    public void Emit_assigns_distinct_cluster_ids_when_subgraph_ids_sanitize_to_the_same_value()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "region-collision",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "node-a", Label = "node-a", NodeType = "vnet", SubgraphId = "region-eastus" },
+                new DiagramNode { NodeId = "node-b", Label = "node-b", NodeType = "vnet", SubgraphId = "region_eastus" },
+            ],
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "region-eastus", Label = "Region eastus", OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "region_eastus", Label = "Region underscore eastus", OrderKey = 1 },
+            ],
+        };
+
+        string[] clusterLines = emitter
+            .Emit(ast)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(line => line.StartsWith("subgraph cluster_", StringComparison.Ordinal))
+            .ToArray();
+
+        clusterLines.Should().HaveCount(2);
+        clusterLines.Distinct(StringComparer.Ordinal).Should().HaveCount(2);
+    }
+
+    [Fact]
     public void Emit_declared_edge_uses_dashed_style()
     {
         DiagramAst ast = new()

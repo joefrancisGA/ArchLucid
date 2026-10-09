@@ -162,6 +162,31 @@ internal static class DecisioningTextTokenMatcher
         return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+';
     }
 
+    /// <summary>
+    ///     A keyword of five letters or more may prefix a longer product token
+    ///     (<c>cosmos</c> in <c>cosmosdb</c>, <c>postgres</c> in <c>postgresql</c>).
+    ///     Shorter cues stay whole tokens so <c>sql</c> does not match <c>nosql</c>.
+    /// </summary>
+    internal static bool IsLongerProductToken(string part, string keyword)
+    {
+        if (string.IsNullOrEmpty(part) || string.IsNullOrEmpty(keyword))
+        {
+            return false;
+        }
+
+        if (keyword.Length < 5 || part.Length <= keyword.Length)
+        {
+            return false;
+        }
+
+        if (!part.StartsWith(keyword, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return char.IsLetter(part[keyword.Length]);
+    }
+
     internal static bool ContainsAffirmativePrivateKeyword(string text)
     {
         if (string.IsNullOrEmpty(text))

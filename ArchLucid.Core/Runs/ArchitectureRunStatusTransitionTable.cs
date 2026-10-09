@@ -143,6 +143,13 @@ public static class ArchitectureRunStatusTransitionTable
 
         string trimmed = legacyRunStatus.Trim();
 
+        if (trimmed.Length > 0 && trimmed[0] == '+')
+        {
+            status = default;
+
+            return false;
+        }
+
         if (Enum.TryParse(trimmed, ignoreCase: true, out ArchitectureRunStatus parsed)
             && Enum.IsDefined(parsed))
         {

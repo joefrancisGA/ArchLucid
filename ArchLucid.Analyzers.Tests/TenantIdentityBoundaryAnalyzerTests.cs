@@ -67,6 +67,138 @@ namespace N
   }
 
   [Fact]
+  public async Task Reports_ClaimsPrincipal_primary_constructor_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Security.Claims;
+
+    public sealed class Handler({|#0:ClaimsPrincipal|} user);
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_ClaimsPrincipal_in_catch_filter_expression_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System;
+    using System.Security.Claims;
+
+    public sealed class C
+    {
+        void M()
+        {
+            try
+            {
+            }
+            catch (Exception ex) when (ex is {|#0:ClaimsPrincipal|})
+            {
+            }
+        }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithLocation(0)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_global_qualified_ClaimsPrincipal_parameter_in_inner_layer_assembly()
+  {
+    const string testCode = """
+
+namespace N
+{
+    public sealed class Handler
+    {
+        void M({|#0:global::System.Security.Claims.ClaimsPrincipal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expected = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(6, 47, 6, 62)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expected);
+  }
+
+  [Fact]
+  public async Task Reports_ClaimsPrincipal_parameter_when_type_is_file_scoped_using_alias()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Principal = System.Security.Claims.ClaimsPrincipal;
+
+    public sealed class Handler
+    {
+        void M({|#0:Principal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(4, 46, 4, 61)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(8, 16, 8, 25)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await RunInnerLayerTestAsync(testCode, expectedAliasTarget, expectedParameter);
+  }
+
+  [Fact]
+  public async Task Reports_ClaimsPrincipal_parameter_when_type_is_global_using_alias()
+  {
+    const string testCode = """
+global using Principal = System.Security.Claims.ClaimsPrincipal;
+
+namespace N
+{
+    public sealed class Handler
+    {
+        void M({|#0:Principal|} user) { }
+    }
+}
+""";
+
+    DiagnosticResult expectedAliasTarget = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(1, 49, 1, 64)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    DiagnosticResult expectedParameter = CSharpAnalyzerVerifier<TenantIdentityBoundaryAnalyzer, DefaultVerifier>.Diagnostic(Arch001Descriptor.Rule)
+        .WithSpan(7, 16, 7, 25)
+        .WithArguments("System.Security.Claims.ClaimsPrincipal");
+
+    await new CSharpAnalyzerTest<TenantIdentityBoundaryAnalyzer, DefaultVerifier>
+    {
+      TestCode = testCode,
+      ExpectedDiagnostics = { expectedAliasTarget, expectedParameter },
+      ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+      SolutionTransforms = { InnerLayerAssemblyNameTransform }
+    }.RunAsync();
+  }
+
+  [Fact]
   public async Task Reports_ClaimsPrincipal_in_inner_layer_assembly()
   {
     const string testCode = """

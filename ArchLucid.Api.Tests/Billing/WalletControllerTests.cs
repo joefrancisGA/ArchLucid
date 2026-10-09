@@ -33,6 +33,38 @@ public sealed class WalletControllerTests(JwtLocalSigningWebAppFactory factory) 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest, "response body: {0}", responseBody);
     }
 
+    [SkippableFact]
+    public async Task GetAsync_returns_wallet_for_reader_role()
+    {
+        // Billing & plans is a ReadAuthority nav item (TB-625). GetAsync adds ReadAuthority, but the controller
+        // still requires AdminAuthority, and ASP.NET combines every Authorize attribute on the endpoint.
+        string token = MintBearerJwtForWalletPolicyTests("ReaderUser", [ArchLucidRoles.Reader]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/billing/wallet");
+
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
+    }
+
+    [SkippableFact]
+    public async Task PutAsync_returns_403_for_reader_role()
+    {
+        string token = MintBearerJwtForWalletPolicyTests("ReaderUser", [ArchLucidRoles.Reader]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage response = await client.PutAsJsonAsync(
+            "/v1/billing/wallet",
+            new LlmTenantWalletPutRequest { AutoReplenishEnabled = false });
+
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden, "response body: {0}", responseBody);
+    }
+
     private string MintBearerJwtForWalletPolicyTests(string name, IReadOnlyList<string> roles) =>
         JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
             factory.PrivatePemForTests,

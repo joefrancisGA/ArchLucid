@@ -25,6 +25,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   SUBPROCESSORS_HELP_CLAIM_DISCIPLINE,
+  SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING,
+  SUBPROCESSORS_HELP_CLAIM_HEADING_ID,
   SUBPROCESSORS_HELP_PRIMARY_ACTION,
   SUBPROCESSORS_HELP_REGISTER_STATUS_LABEL,
   SUBPROCESSORS_HELP_SOURCES,
@@ -79,6 +81,14 @@ describe("HelpSubprocessorsGuideView", () => {
       SUBPROCESSORS_HELP_REGISTER_STATUS_LABEL,
     );
     expect(screen.getByTestId("help-subprocessors-header-metadata")).toHaveTextContent("2026-07-25");
+  });
+
+  it("anchors claim discipline heading id for subprocessors TOC scroll targets", () => {
+    renderSubprocessorsPage();
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: SUBPROCESSORS_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveAttribute("id", SUBPROCESSORS_HELP_CLAIM_HEADING_ID);
   });
 
   it("renders orientation strip, diligence links, and Related budget without self-link", () => {

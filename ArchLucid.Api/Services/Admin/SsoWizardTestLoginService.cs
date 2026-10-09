@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
@@ -88,8 +90,21 @@ public sealed class SsoWizardTestLoginService : ISsoWizardTestLoginService
             };
         }
 
-        IReadOnlyList<string> mappedRoles =
-            IdentityClaimRoleMappingResolver.ResolveRoles(mapping, request.SampleClaimValues);
+        IReadOnlyList<string> mappedRoles;
+
+        try
+        {
+            mappedRoles = IdentityClaimRoleMappingResolver.ResolveRoles(mapping, request.SampleClaimValues);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            // Nested quantifiers on a sample claim exceed the two-second match budget and would otherwise escape as HTTP 500.
+            return new IdentityProviderTestLoginResponse
+            {
+                Success = false,
+                DiagnosticSummary = "CustomGroupClaimRegex timed out while matching sample claim values."
+            };
+        }
 
         if (mappedRoles.Count == 0)
         {

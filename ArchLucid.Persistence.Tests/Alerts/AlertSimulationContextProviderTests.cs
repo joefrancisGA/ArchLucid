@@ -646,6 +646,131 @@ public sealed class AlertSimulationContextProviderTests
     }
 
     [Fact]
+    public async Task GetContextsAsync_when_compared_to_run_has_null_findings_snapshot_still_compares_manifests_with_primary_findings()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid primaryFindingsSnapshotId = Guid.NewGuid();
+        Guid comparedFindingsSnapshotId = Guid.NewGuid();
+
+        ManifestDocument primaryManifest = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        FindingsSnapshot primaryFindings = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = primaryManifest.ContextSnapshotId,
+            GraphSnapshotId = primaryManifest.GraphSnapshotId,
+            Findings =
+            [
+                new Finding { FindingId = "primary-finding", Title = "Primary" }
+            ]
+        };
+
+        ManifestDocument comparedManifest = new()
+        {
+            RunId = comparedToRunId,
+            FindingsSnapshotId = comparedFindingsSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = primaryManifest,
+                FindingsSnapshot = primaryFindings
+            });
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), comparedToRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = comparedToRunId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = comparedManifest,
+                FindingsSnapshot = null
+            });
+
+        Mock<IComparisonService> comparison = new();
+        comparison
+            .Setup(c => c.Compare(comparedManifest, primaryManifest))
+            .Returns(new ComparisonResult { BaseRunId = comparedToRunId, TargetRunId = runId });
+
+        FindingsSnapshot? capturedFindings = null;
+
+        Mock<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<ComparisonResult>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<ManifestDocument, FindingsSnapshot, ComparisonResult, CancellationToken>(
+                (_, findings, _, _) => capturedFindings = findings)
+            .ReturnsAsync(new ArchLucid.Contracts.Advisory.Models.ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+        learning
+            .Setup(l => l.GetLatestProfileAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RecommendationLearningProfile?)null);
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            comparedToRunId,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        comparison.Verify(c => c.Compare(comparedManifest, primaryManifest), Times.Once);
+        capturedFindings!.FindingsSnapshotId.Should().Be(primaryFindingsSnapshotId);
+    }
+
+    [Fact]
     public async Task GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing()
     {
         Guid tenantId = Guid.NewGuid();
@@ -1228,6 +1353,214 @@ public sealed class AlertSimulationContextProviderTests
         capturedFindings.ContextSnapshotId.Should().Be(contextSnapshotId);
         capturedFindings.GraphSnapshotId.Should().Be(graphSnapshotId);
         capturedFindings.Findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_when_compared_to_run_has_no_golden_manifest_builds_primary_without_comparison()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid primaryFindingsSnapshotId = Guid.NewGuid();
+
+        ManifestDocument primaryManifest = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        FindingsSnapshot primaryFindings = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = primaryManifest.ContextSnapshotId,
+            GraphSnapshotId = primaryManifest.GraphSnapshotId,
+            Findings = [],
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId,
+                },
+                GoldenManifest = primaryManifest,
+                FindingsSnapshot = primaryFindings,
+            });
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                comparedToRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = comparedToRunId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId,
+                },
+                GoldenManifest = null,
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            comparedToRunId,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].ComparedToRunId.Should().BeNull();
+        comparison.Verify(
+            c => c.Compare(It.IsAny<ManifestDocument>(), It.IsAny<ManifestDocument>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_when_compared_to_run_has_null_run_record_builds_primary_without_comparison()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid primaryFindingsSnapshotId = Guid.NewGuid();
+
+        ManifestDocument primaryManifest = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        FindingsSnapshot primaryFindings = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = primaryFindingsSnapshotId,
+            ContextSnapshotId = primaryManifest.ContextSnapshotId,
+            GraphSnapshotId = primaryManifest.GraphSnapshotId,
+            Findings = [],
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId,
+                },
+                GoldenManifest = primaryManifest,
+                FindingsSnapshot = primaryFindings,
+            });
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                comparedToRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = null!,
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = comparedToRunId,
+                    FindingsSnapshotId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            comparedToRunId,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].ComparedToRunId.Should().BeNull();
+        comparison.Verify(
+            c => c.Compare(It.IsAny<ManifestDocument>(), It.IsAny<ManifestDocument>()),
+            Times.Never);
     }
 
     [Fact]
@@ -2028,6 +2361,1047 @@ public sealed class AlertSimulationContextProviderTests
     }
 
     [Fact]
+    public async Task GetContextsAsync_recent_run_batch_clamps_recent_run_count_before_listing_runs()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                1,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunSummaryDto>());
+
+        authority
+            .Setup(a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunSummaryDto>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            Mock.Of<IImprovementAdvisorService>(),
+            Mock.Of<IComparisonService>(),
+            Mock.Of<IRecommendationRepository>(),
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        await provider.GetContextsAsync(tenantId, workspaceId, projectId, null, null, 0, "default", CancellationToken.None);
+        await provider.GetContextsAsync(tenantId, workspaceId, projectId, null, null, 100, "default", CancellationToken.None);
+
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                1,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                50,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_recent_run_batch_uses_default_slug_when_run_project_slug_is_whitespace()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunSummaryDto>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            Mock.Of<IImprovementAdvisorService>(),
+            Mock.Of<IComparisonService>(),
+            Mock.Of<IRecommendationRepository>(),
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        await provider.GetContextsAsync(tenantId, workspaceId, projectId, null, null, 5, "   ", CancellationToken.None);
+
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_recent_run_batch_trims_run_project_slug_before_listing_runs()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "claims-intake",
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunSummaryDto>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            Mock.Of<IImprovementAdvisorService>(),
+            Mock.Of<IComparisonService>(),
+            Mock.Of<IRecommendationRepository>(),
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        await provider.GetContextsAsync(tenantId, workspaceId, projectId, null, null, 5, "  claims-intake  ", CancellationToken.None);
+
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "claims-intake",
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_learning_profile_outside_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid foreignTenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+        learning
+            .Setup(l => l.GetLatestProfileAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RecommendationLearningProfile
+            {
+                TenantId = foreignTenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            });
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].LearningProfile.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_learning_profile_when_project_id_mismatches_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid foreignProjectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+        learning
+            .Setup(l => l.GetLatestProfileAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RecommendationLearningProfile
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = foreignProjectId,
+            });
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].LearningProfile.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_learning_profile_when_workspace_mismatches_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid callerWorkspaceId = Guid.NewGuid();
+        Guid foreignWorkspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = callerWorkspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, callerWorkspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+        learning
+            .Setup(l => l.GetLatestProfileAsync(tenantId, callerWorkspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RecommendationLearningProfile
+            {
+                TenantId = tenantId,
+                WorkspaceId = foreignWorkspaceId,
+                ProjectId = projectId,
+            });
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            callerWorkspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].LearningProfile.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_learning_profile_when_project_mismatches_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid callerProjectId = Guid.NewGuid();
+        Guid foreignProjectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = callerProjectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, callerProjectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+        learning
+            .Setup(l => l.GetLatestProfileAsync(tenantId, workspaceId, callerProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RecommendationLearningProfile
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = foreignProjectId,
+            });
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            callerProjectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].LearningProfile.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_keeps_in_scope_recommendations_and_drops_mismatched_run_id_rows()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid otherRunId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    RunId = runId,
+                    Title = "In-scope recommendation",
+                },
+                new RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    RunId = otherRunId,
+                    Title = "Wrong run id from repository drift",
+                },
+            ]);
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].RecommendationRecords.Should().ContainSingle(r => r.Title == "In-scope recommendation");
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_when_explicit_run_id_set_does_not_list_runs_by_project_slug()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "ignored-slug-for-explicit-run",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_explicit_run_path_ignores_recent_run_count_before_listing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            Mock.Of<IRecommendationLearningService>(),
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            999,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        authority.Verify(
+            a => a.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_recommendation_rows_outside_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid foreignTenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    TenantId = foreignTenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    RunId = runId,
+                    Title = "Foreign tenant recommendation must not enter simulation context",
+                }
+            ]);
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].RecommendationRecords.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_recommendation_rows_when_project_id_mismatches_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid callerProjectId = Guid.NewGuid();
+        Guid foreignProjectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = callerProjectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, callerProjectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = foreignProjectId,
+                    RunId = runId,
+                    Title = "Foreign project recommendation must not enter simulation context",
+                }
+            ]);
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            callerProjectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].RecommendationRecords.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_excludes_recommendation_rows_when_workspace_id_mismatches_caller_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid callerWorkspaceId = Guid.NewGuid();
+        Guid foreignWorkspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = callerWorkspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestHash = "sealed-hash",
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = findingsSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan());
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, callerWorkspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RecommendationRecord
+                {
+                    RecommendationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = foreignWorkspaceId,
+                    ProjectId = projectId,
+                    RunId = runId,
+                    Title = "Foreign workspace recommendation must not enter simulation context",
+                }
+            ]);
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            Mock.Of<IComparisonService>(),
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            callerWorkspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        contexts[0].RecommendationRecords.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task GetContextsAsync_recent_run_batch_deduplicates_duplicate_run_ids_from_authority_list()
     {
         Guid tenantId = Guid.NewGuid();
@@ -2120,5 +3494,150 @@ public sealed class AlertSimulationContextProviderTests
 
         contexts.Should().ContainSingle();
         contexts[0].RunId.Should().Be(runId);
+
+        authority.Verify(
+            a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task GetContextsAsync_when_primary_findings_null_and_compare_to_run_set_uses_comparison_plan_overload()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid comparedToRunId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        ManifestDocument primaryManifest = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = findingsSnapshotId,
+            ContextSnapshotId = contextSnapshotId,
+            GraphSnapshotId = graphSnapshotId,
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        ManifestDocument comparedManifest = new()
+        {
+            RunId = comparedToRunId,
+            FindingsSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "sealed-hash",
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = primaryManifest,
+                FindingsSnapshot = null
+            });
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                comparedToRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = comparedToRunId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = comparedManifest,
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = comparedToRunId,
+                    FindingsSnapshotId = comparedManifest.FindingsSnapshotId,
+                    ContextSnapshotId = comparedManifest.ContextSnapshotId,
+                    GraphSnapshotId = comparedManifest.GraphSnapshotId,
+                    Findings = []
+                }
+            });
+
+        ComparisonResult comparisonResult = new()
+        {
+            BaseRunId = comparedToRunId,
+            TargetRunId = runId,
+        };
+
+        FindingsSnapshot? capturedFindings = null;
+
+        Mock<ArchLucid.Core.Persistence.Ports.IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<ComparisonResult>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<ManifestDocument, FindingsSnapshot, ComparisonResult, CancellationToken>(
+                (_, findings, _, _) => capturedFindings = findings)
+            .ReturnsAsync(new ArchLucid.Contracts.Advisory.Models.ImprovementPlan());
+
+        Mock<IComparisonService> comparison = new();
+        comparison
+            .Setup(c => c.Compare(comparedManifest, primaryManifest))
+            .Returns(comparisonResult);
+
+        Mock<IRecommendationRepository> recommendations = new();
+        recommendations
+            .Setup(r => r.ListByRunAsync(tenantId, workspaceId, projectId, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RecommendationRecord>());
+
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object,
+            CreateSealedManifestHashMock());
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            comparedToRunId,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().ContainSingle();
+        advisor.Verify(
+            a => a.GeneratePlanAsync(
+                primaryManifest,
+                It.IsAny<FindingsSnapshot>(),
+                comparisonResult,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        capturedFindings.Should().NotBeNull();
+        capturedFindings!.Findings.Should().BeEmpty();
+        capturedFindings.FindingsSnapshotId.Should().Be(findingsSnapshotId);
     }
 }

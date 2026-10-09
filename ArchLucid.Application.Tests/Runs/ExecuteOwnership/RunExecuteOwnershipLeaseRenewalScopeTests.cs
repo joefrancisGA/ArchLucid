@@ -17,6 +17,66 @@ namespace ArchLucid.Application.Tests.Runs.ExecuteOwnership;
 public sealed class RunExecuteOwnershipLeaseRenewalScopeTests
 {
     [Fact]
+    public void TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        RunExecuteOwnershipLeaseService service = CreateService(leases);
+
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions
+        {
+            Enabled = true,
+            LeaseDurationSeconds = 15,
+            HeartbeatRenewIntervalSeconds = 0,
+        });
+
+        Mock<IArchLucidStorageMode> storage = new();
+        storage.Setup(s => s.IsInMemory).Returns(false);
+
+        using CancellationTokenSource executeCts = new();
+
+        RunExecuteOwnershipLeaseRenewalScope? scope = RunExecuteOwnershipLeaseRenewalScope.TryBegin(
+            service,
+            storage.Object,
+            options.Object,
+            runId,
+            executeCts,
+            NullLogger.Instance);
+
+        scope.Should().NotBeNull(
+            "heartbeat interval math must clamp sub-minimum lease durations before computing renewIntervalSeconds");
+    }
+
+    [Fact]
+    public async Task BeginRenewalScope_invokes_immediate_renew_before_waiting_for_heartbeat_interval()
+    {
+        Guid runId = Guid.NewGuid();
+        int repositoryAcquireOrRenewCalls = 0;
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                repositoryAcquireOrRenewCalls++;
+
+                return true;
+            });
+
+        RunExecuteOwnershipLeaseService service = CreateService(leases);
+        using CancellationTokenSource executeCts = new();
+
+        await service.AcquireAsync(runId, CancellationToken.None);
+
+        await using IAsyncDisposable scope = service.BeginRenewalScope(runId, executeCts);
+
+        await Task.Delay(100);
+
+        repositoryAcquireOrRenewCalls.Should().Be(2,
+            "the renewal loop must renew once immediately before the first PeriodicTimer tick (min 15s)");
+    }
+
+    [Fact]
     public async Task BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease()
     {
         Guid runId = Guid.NewGuid();

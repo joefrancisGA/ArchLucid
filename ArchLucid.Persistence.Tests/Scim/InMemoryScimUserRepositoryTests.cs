@@ -25,10 +25,12 @@ public sealed class InMemoryScimUserRepositoryTests
 
         ScimUserRecord? byId = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
         ScimUserRecord? byExt = await sut.GetByExternalIdAsync(tenantId, "EXT-1", CancellationToken.None);
+        ScimUserRecord? byName = await sut.GetByUserNameAsync(tenantId, "ALICE", CancellationToken.None);
 
         byId.Should().NotBeNull();
         byId.UserName.Should().Be("alice");
         byExt.Should().BeEquivalentTo(byId);
+        byName.Should().BeEquivalentTo(byId);
     }
 
     [SkippableFact]

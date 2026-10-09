@@ -9,6 +9,10 @@ public static class AzureInventoryAdfPipelineFlowExtractor
 {
     public const int DefaultMaxNestedPipelineDepth = 3;
 
+    // ForEach, Until, IfCondition, and Switch nest child activities under typeProperties.
+    // Eight levels covers those containers inside each other without following a hostile payload forever.
+    private const int MaxNestedControlFlowDepth = 8;
+
     public static IReadOnlyList<AzureInventoryAdfPipelineFlowRow> ExtractFlows(
         string factoryResourceId,
         IReadOnlyList<JsonElement> pipelineResources,
@@ -106,14 +110,53 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         List<AzureInventoryAdfPipelineFlowRow> flows,
         HashSet<string> flowKeys)
     {
-        if (!pipelineResource.TryGetProperty("properties", out JsonElement propertiesElement)
-            || propertiesElement.ValueKind is not JsonValueKind.Object
-            || !propertiesElement.TryGetProperty("activities", out JsonElement activitiesElement)
-            || activitiesElement.ValueKind is not JsonValueKind.Array)
+        if (!TryReadTopLevelActivities(pipelineResource, out JsonElement activitiesElement))
         {
             return;
         }
 
+        WalkActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            activitiesElement,
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            MaxNestedControlFlowDepth);
+    }
+
+    private static bool TryReadTopLevelActivities(JsonElement pipelineResource, out JsonElement activitiesElement)
+    {
+        activitiesElement = default;
+
+        if (!pipelineResource.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind is not JsonValueKind.Object
+            || !propertiesElement.TryGetProperty("activities", out activitiesElement)
+            || activitiesElement.ValueKind is not JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void WalkActivityArray(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        JsonElement activitiesElement,
+        IReadOnlyDictionary<string, JsonElement> pipelinesByName,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
+        int remainingNestedDepth,
+        HashSet<string> pipelineVisitStack,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys,
+        int remainingControlFlowDepth)
+    {
         foreach (JsonElement activity in activitiesElement.EnumerateArray())
         {
             if (activity.ValueKind is not JsonValueKind.Object)
@@ -226,7 +269,161 @@ public static class AzureInventoryAdfPipelineFlowExtractor
                     flows,
                     flowKeys);
             }
+
+            TryWalkNestedControlFlowActivities(
+                factoryResourceId,
+                pipelineResourceId,
+                pipelineName,
+                activity,
+                pipelinesByName,
+                dataflowsByName,
+                remainingNestedDepth,
+                pipelineVisitStack,
+                flows,
+                flowKeys,
+                remainingControlFlowDepth);
         }
+    }
+
+    private static void TryWalkNestedControlFlowActivities(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        JsonElement activity,
+        IReadOnlyDictionary<string, JsonElement> pipelinesByName,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
+        int remainingNestedDepth,
+        HashSet<string> pipelineVisitStack,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys,
+        int remainingControlFlowDepth)
+    {
+        if (remainingControlFlowDepth <= 0)
+        {
+            return;
+        }
+
+        if (!activity.TryGetProperty("typeProperties", out JsonElement typeProperties)
+            || typeProperties.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        int childDepth = remainingControlFlowDepth - 1;
+        WalkNamedActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            typeProperties,
+            "activities",
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            childDepth);
+        WalkNamedActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            typeProperties,
+            "ifTrueActivities",
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            childDepth);
+        WalkNamedActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            typeProperties,
+            "ifFalseActivities",
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            childDepth);
+        WalkNamedActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            typeProperties,
+            "defaultActivities",
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            childDepth);
+
+        if (!typeProperties.TryGetProperty("cases", out JsonElement cases)
+            || cases.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (JsonElement switchCase in cases.EnumerateArray())
+        {
+            if (switchCase.ValueKind is not JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            WalkNamedActivityArray(
+                factoryResourceId,
+                pipelineResourceId,
+                pipelineName,
+                switchCase,
+                "activities",
+                pipelinesByName,
+                dataflowsByName,
+                remainingNestedDepth,
+                pipelineVisitStack,
+                flows,
+                flowKeys,
+                childDepth);
+        }
+    }
+
+    private static void WalkNamedActivityArray(
+        string factoryResourceId,
+        string pipelineResourceId,
+        string pipelineName,
+        JsonElement parent,
+        string propertyName,
+        IReadOnlyDictionary<string, JsonElement> pipelinesByName,
+        IReadOnlyDictionary<string, AzureInventoryAdfDataflowRow> dataflowsByName,
+        int remainingNestedDepth,
+        HashSet<string> pipelineVisitStack,
+        List<AzureInventoryAdfPipelineFlowRow> flows,
+        HashSet<string> flowKeys,
+        int remainingControlFlowDepth)
+    {
+        if (!parent.TryGetProperty(propertyName, out JsonElement nestedActivities)
+            || nestedActivities.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        WalkActivityArray(
+            factoryResourceId,
+            pipelineResourceId,
+            pipelineName,
+            nestedActivities,
+            pipelinesByName,
+            dataflowsByName,
+            remainingNestedDepth,
+            pipelineVisitStack,
+            flows,
+            flowKeys,
+            remainingControlFlowDepth);
     }
 
     private static void TryExpandExecutePipeline(

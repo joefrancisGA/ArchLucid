@@ -71,45 +71,72 @@ internal static class ConfigurationSensitiveConfigValueScanner
         if (trimmed.Length < 8 || !trimmed.Contains('='))
             return false;
 
-        if (StartsWithCredentialConnectionPair(trimmed))
-            return true;
-
-        if (!trimmed.Contains(';'))
-            return false;
-
-        return ContainsCredentialConnectionPairMarker(trimmed);
+        return ContainsCredentialConnectionPair(trimmed);
     }
 
-    private static bool StartsWithCredentialConnectionPair(ReadOnlySpan<char> trimmed)
+    /// <summary>
+    ///     ADO.NET and Azure storage connection strings allow whitespace around <c>=</c>.
+    ///     Pair keys are recognized at the start of the value and after each semicolon.
+    /// </summary>
+    private static bool ContainsCredentialConnectionPair(ReadOnlySpan<char> trimmed)
     {
-        foreach (string marker in CredentialConnectionPairMarkers)
+        int index = 0;
+
+        while (index < trimmed.Length)
         {
-            if (trimmed.StartsWith(marker, StringComparison.OrdinalIgnoreCase))
+
+            if (TryMatchCredentialPairAt(trimmed, index))
+                return true;
+
+            int semicolon = trimmed.Slice(index).IndexOf(';');
+
+            if (semicolon < 0)
+                return false;
+
+            index += semicolon + 1;
+
+            while (index < trimmed.Length && char.IsWhiteSpace(trimmed[index]))
+                index++;
+        }
+
+        return false;
+    }
+
+    private static bool TryMatchCredentialPairAt(ReadOnlySpan<char> value, int index)
+    {
+        ReadOnlySpan<char> rest = value.Slice(index);
+
+        foreach (string key in CredentialConnectionPairKeys)
+        {
+
+            if (!rest.StartsWith(key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            int afterKey = key.Length;
+
+            // "Pwd" is a prefix of "Password"; a longer identifier such as Passwordless is not a key.
+
+            if (afterKey < rest.Length && char.IsLetterOrDigit(rest[afterKey]))
+                continue;
+
+            while (afterKey < rest.Length && char.IsWhiteSpace(rest[afterKey]))
+                afterKey++;
+
+            if (afterKey < rest.Length && rest[afterKey] == '=')
                 return true;
         }
 
         return false;
     }
 
-    private static bool ContainsCredentialConnectionPairMarker(ReadOnlySpan<char> trimmed)
-    {
-        foreach (string marker in CredentialConnectionPairMarkers)
-        {
-            if (trimmed.Contains(marker, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static readonly string[] CredentialConnectionPairMarkers =
+    private static readonly string[] CredentialConnectionPairKeys =
     [
-        "Password=",
-        "Pwd=",
-        "AccountKey=",
-        "AccessKey=",
-        "ApiKey=",
-        "ClientSecret=",
-        "SharedAccessKey=",
+        "Password",
+        "Pwd",
+        "AccountKey",
+        "AccessKey",
+        "ApiKey",
+        "ClientSecret",
+        "SharedAccessKey",
     ];
 }

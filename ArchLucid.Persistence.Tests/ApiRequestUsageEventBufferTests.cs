@@ -48,4 +48,28 @@ public sealed class ApiRequestUsageEventBufferTests
         usageEvent!.TenantId.Should().Be(tenantId);
         usageEvent.CorrelationId.Should().Be("trace-a");
     }
+
+    [Fact]
+    public void Requeue_when_metering_disabled_keeps_an_already_accepted_event()
+    {
+        MeteringOptions meteringOptions = new() { Enabled = true };
+        FixedOptionsMonitor<MeteringOptions> options = new(meteringOptions);
+        ApiRequestUsageEventBuffer buffer = new(options);
+        UsageEvent usageEvent = new()
+        {
+            TenantId = Guid.NewGuid(),
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            IdempotencyKey = "request-disabled",
+        };
+
+        buffer.Enqueue(usageEvent);
+        buffer.TryDequeue(out UsageEvent? _).Should().BeTrue();
+        meteringOptions.Enabled = false;
+
+        buffer.Requeue(usageEvent);
+
+        buffer.TryDequeue(out UsageEvent? restored).Should().BeTrue();
+        restored!.IdempotencyKey.Should().Be("request-disabled");
+    }
 }

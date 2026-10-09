@@ -168,7 +168,8 @@ public sealed partial class PostAuthBootstrapController
         string redirectPath,
         Guid authVersion)
     {
-        int lifetimeSeconds = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60) * 60;
+        int lifetimeMinutes = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60);
+        int lifetimeSeconds = lifetimeMinutes * 60;
 
         string jwt = _jwtIssuer.IssueAccessToken(
             platformUserId,
@@ -177,7 +178,8 @@ public sealed partial class PostAuthBootstrapController
             tenantId,
             workspaceId,
             projectId,
-            authVersion);
+            authVersion,
+            lifetimeMinutes);
 
         return new PostAuthBootstrapSessionResponse
         {

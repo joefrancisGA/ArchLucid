@@ -478,6 +478,21 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_gate_disabled_with_empty_traces_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = false,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
+            .Should().BeEmpty(
+                "tenant-disabled quality gate is intentional product configuration, including for empty trace lists");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
@@ -1007,6 +1022,170 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
             .Should().BeEmpty("TB-2226 fail-closed commit blocking applies only to PilotStrict mode");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_warn_only_mode_with_empty_traces_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
+            .Should().BeEmpty(
+                "PilotStrict empty-trace fail-closed (#3469) is unreachable when Mode is not PilotStrict");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_winning_duplicate_quality_warning_only_does_not_block_after_sibling_quality_rejected_cleared()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 12, 21, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace warningOnlyWinner = new()
+        {
+            TraceId = "trace-z-warning-winner",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = true,
+            QualityRejected = false,
+            RecordedQualityGateOutcome = null,
+        };
+        AgentExecutionTrace clearedRejectedSibling = new()
+        {
+            TraceId = "trace-a-cleared-reject",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            QualityWarning = false,
+            QualityRejected = false,
+            RecordedQualityGateOutcome = null,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [warningOnlyWinner, clearedRejectedSibling])
+            .Should().BeEmpty(
+                "selector prefers warning-only duplicate; QualityWarning alone is intentionally non-blocking for PilotStrict");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_variation_selector_task_id_splits_groups_still_blocks_rejected_group()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace cleanVisibleTask = new()
+        {
+            TraceId = "trace-clean",
+            TaskId = "manifest-task",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedVariationSelectorTask = new()
+        {
+            TraceId = "trace-rejected-fe0f",
+            TaskId = "manifest-task\uFE0F",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [cleanVisibleTask, rejectedVariationSelectorTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-fe0f");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_zero_width_task_id_splits_groups_still_blocks_rejected_visible_group()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace cleanVisibleTask = new()
+        {
+            TraceId = "trace-clean",
+            TaskId = "task-visible",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedZwspTask = new()
+        {
+            TraceId = "trace-rejected-zwsp",
+            TaskId = "task-visible\u200B",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [cleanVisibleTask, rejectedZwspTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-zwsp");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_negative_attempt_rejected_does_not_supersede_attempt_zero_rejected()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace negativeAttemptRejected = new()
+        {
+            TraceId = "trace-negative",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = -1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace attemptZeroAccepted = new()
+        {
+            TraceId = "trace-zero-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [negativeAttemptRejected, attemptZeroAccepted])
+            .Should().BeEmpty("AttemptIndex ordering precedes quality rank; attempt 0 wins over negative index");
     }
 
     [Fact]
@@ -1798,6 +1977,43 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_full_width_task_id_group_has_rejected_latest_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace cleanAsciiTask = new()
+        {
+            TraceId = "trace-clean",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedFullWidthTask = new()
+        {
+            TraceId = "trace-rejected-fullwidth",
+            TaskId = "task-\uFF11",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [cleanAsciiTask, rejectedFullWidthTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected-fullwidth");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_real_pilot_strict_has_no_traces_returns_reason()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
@@ -1812,6 +2028,50 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         reasons.Should().ContainSingle();
         reasons[0].Should().Contain("no agent execution traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_mixed_mode_returns_empty_even_with_rejected_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Mixed };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            QualityRejected = true,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
+            .Should()
+            .BeEmpty("Real-only gate; CommitOutputIntegrityService blocks Mixed via StructuralExecutionModeCommitGuard first");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_fallback_mode_returns_empty_even_with_rejected_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Fallback };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            QualityRejected = true,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
+            .Should()
+            .BeEmpty("Real-only gate; CommitOutputIntegrityService blocks Fallback via StructuralExecutionModeCommitGuard first");
     }
 
 }

@@ -25,6 +25,8 @@ public static class AgentArchitectureFindingEmissionGate
             if (result.Findings is not { Count: > 0 } findings)
                 continue;
 
+            result.WithheldFindings ??= [];
+
             List<ArchitectureFinding> retained = [];
 
             foreach (ArchitectureFinding finding in findings)

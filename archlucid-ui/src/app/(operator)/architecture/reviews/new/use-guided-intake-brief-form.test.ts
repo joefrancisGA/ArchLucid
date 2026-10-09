@@ -145,6 +145,39 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(result.current.advanceBlockers).not.toContain(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
   });
 
+  it("still prefills a different example template id in the same browser session", async () => {
+    const firstTemplate =
+      REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === "customer-intake-modernization") ??
+      REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const secondTemplate =
+      REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === "saas-readiness") ??
+      REVIEW_INTAKE_EXAMPLE_TEMPLATES[1]!;
+
+    const first = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: firstTemplate,
+        isCreateArchitectureFlow: false,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(first.result.current.freeTextIntent).toBe(firstTemplate.briefText);
+    });
+
+    first.unmount();
+
+    const second = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: secondTemplate,
+        isCreateArchitectureFlow: false,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(second.result.current.freeTextIntent).toBe(secondTemplate.briefText);
+    });
+  });
+
   it("applies example template prefill only once across hook remounts", async () => {
     const first = renderHook(() =>
       useGuidedIntakeBriefForm({
@@ -197,5 +230,26 @@ describe("useGuidedIntakeBriefForm", () => {
 
     expect(result.current.freeTextIntent).toContain("B2B API platform");
     expect(result.current.businessOutcome).toContain("API platform (B2B)");
+  });
+
+  it("keeps the example template brief when a starter preset is also on the guided intake URL", async () => {
+    // Quick start lets ?template= override ?preset=. Guided intake reads both on one mount.
+    scopeGateSearchParamsHarness.state.query =
+      "path=guided-intake&template=customer-intake-modernization&preset=starter-api-platform-b2b";
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate,
+        isCreateArchitectureFlow: false,
+        requiresSystemName: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.systemName).toBe(exampleTemplate.systemName);
+    });
+
+    expect(result.current.freeTextIntent).toBe(exampleTemplate.briefText);
+    expect(result.current.businessOutcome).toBe(exampleTemplate.businessOutcome);
   });
 });

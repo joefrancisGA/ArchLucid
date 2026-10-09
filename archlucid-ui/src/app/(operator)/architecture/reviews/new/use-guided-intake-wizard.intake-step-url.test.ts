@@ -1,4 +1,4 @@
-import { renderHook, type ReactNode } from "@testing-library/react";
+import { renderHook, waitFor, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -178,5 +178,18 @@ describe("useGuidedIntakeWizard intakeStep URL sync", () => {
     });
 
     expect(result.current.sourceArchitectureId).toBe("architecture-123");
+  });
+
+  it("rewrites intakeStep=2 to clarifications when confirm slide prerequisites are missing", async () => {
+    intakeStepSearchParamsHarness.state.query = "intakeStep=2";
+
+    const { result } = renderHook(() => useGuidedIntakeWizard(), {
+      wrapper: IntakeStepSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.step).toBe(1);
+      expect(intakeStepSearchParamsHarness.state.query).toBe("intakeStep=1");
+    });
   });
 });

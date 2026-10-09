@@ -62,6 +62,7 @@ import {
   parseReviewFindingsListViewFromSearch,
   REVIEW_FINDINGS_LIST_VIEW_PARAM,
 } from "@/lib/findings/review-findings-list-view";
+import { DEFAULT_REVIEW_FINDINGS_TOOLBAR_SORT } from "@/lib/findings/review-findings-toolbar-sort-url";
 import {
   parseReviewFindingsClassificationBandFromSearch,
   reviewFindingsClassificationBandHrefFromSearch,
@@ -279,9 +280,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ? filterFindingsByClassificationBand(densityFilteredFindings, classificationBand)
       : densityFilteredFindings;
   const classificationCounts = countFindingsByClassificationBand(confidenceVisibleScoped);
-  const listFindings = architectWorkspaceChrome
-    ? sortReviewDetailFindingsBySignal(bandScopedFindings)
-    : sortFindingsForToolbar(confidenceVisibleScoped, toolbar.sort);
+  const findingsBeforeSort = architectWorkspaceChrome ? bandScopedFindings : confidenceVisibleScoped;
+  // Density order is the Working default behind the Trust then severity chip. Any other findingsSort is the order that chip wrote.
+  const listFindings =
+    architectWorkspaceChrome && toolbar.sort === DEFAULT_REVIEW_FINDINGS_TOOLBAR_SORT
+      ? sortReviewDetailFindingsBySignal(findingsBeforeSort)
+      : sortFindingsForToolbar(findingsBeforeSort, toolbar.sort);
   const visibleFindingIds = useMemo(() => new Set(listFindings.map((row) => row.findingId)), [listFindings]);
   const hiddenByFilterFindings = useMemo(
     () => toolbarScopedFindings.filter((row) => !visibleFindingIds.has(row.findingId)),

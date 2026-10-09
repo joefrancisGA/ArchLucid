@@ -50,6 +50,8 @@ vi.mock("@/lib/registration-session", () => ({
 import { CallbackClient } from "@/app/(operator)/auth/callback/CallbackClient";
 import { AUTH_CALLBACK_ACCESS_HEADING } from "@/lib/auth/access-request-copy";
 import { AUTH_CALLBACK_PAGE_TITLE } from "@/lib/auth/auth-callback-page-copy";
+import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
+import { getGoogleOidcClientId } from "@/lib/oidc/config";
 import { consumePkceState } from "@/lib/oidc/session";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 
@@ -80,6 +82,40 @@ describe("CallbackClient", () => {
 
     expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_PAGE_TITLE })).toBeInTheDocument();
+  });
+
+  it("exchanges Google callbacks with the Google client id and discovery authority", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "auth-code",
+      state: "google-state",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "google-state",
+      codeVerifier: "google-verifier",
+      nonce: "google-nonce",
+      flow: "google",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockResolvedValueOnce({
+      access_token: "access-token",
+      expires_in: 3600,
+    });
+
+    const replaceMock = vi.fn();
+    vi.stubGlobal("location", { replace: replaceMock });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(exchangeAuthorizationCode).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientId: getGoogleOidcClientId(),
+          codeVerifier: "google-verifier",
+        }),
+      );
+    });
+
+    expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
   });
 
   it("shows the access panel when the callback is missing required parameters", async () => {

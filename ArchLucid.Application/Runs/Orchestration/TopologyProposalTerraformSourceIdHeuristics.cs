@@ -155,6 +155,17 @@ internal static class TopologyProposalTerraformSourceIdHeuristics
             return;
 
         TopologyProposalRelationshipEndpointIndex.AddEndpointKey(endpointKeys, leafAddress);
+        AddInstanceStrippedResourceAddressKey(endpointKeys, leafAddress);
+    }
+
+    private static void AddInstanceStrippedResourceAddressKey(HashSet<string> endpointKeys, string leafAddress)
+    {
+        string? resourceAddress = TerraformAzurermResourceTypeParser.TryStripTrailingInstanceKey(leafAddress);
+
+        if (resourceAddress is null)
+            return;
+
+        TopologyProposalRelationshipEndpointIndex.AddEndpointKey(endpointKeys, resourceAddress);
     }
 
     internal static void AddTerraformLeafResourceAddressResolutionAliases(

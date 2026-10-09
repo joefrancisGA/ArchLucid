@@ -281,4 +281,50 @@ public sealed class ContinueFromRunOrchestratorTests
         secondContinue.CacheReuseReason.Should().NotBeNullOrWhiteSpace();
         secondContinue.PublishBlocked.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task RunAsync_continue_without_request_run_id_does_not_load_prior_persisted_model()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningResult first = await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-no-run-id",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+            DeclaredPriorities = ["Security"],
+        });
+
+        first.ModelId.Should().NotBeNullOrWhiteSpace();
+
+        Func<Task> continueWithoutRunId = async () => await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-no-run-id",
+            ContinueFromExistingRun = true,
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure claims intake",
+            },
+            DeclaredPriorities = ["Security"],
+        });
+
+        await continueWithoutRunId.Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("*No ArchitectureIntelligence model found*");
+    }
+
 }

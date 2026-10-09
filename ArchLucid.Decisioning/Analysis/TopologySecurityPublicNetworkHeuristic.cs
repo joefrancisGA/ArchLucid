@@ -14,7 +14,7 @@ internal static class TopologySecurityPublicNetworkHeuristic
                 DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
                 out _,
                 out string? publicNetworkAccess)
-            && IsEnabledToken(publicNetworkAccess))
+            && DeclarationSecurityEnabledToken.IsPublicNetworkEnabled(publicNetworkAccess))
         {
             return true;
         }
@@ -31,9 +31,6 @@ internal static class TopologySecurityPublicNetworkHeuristic
 
         return false;
     }
-
-    private static bool IsEnabledToken(string? value) =>
-        string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsTruthy(string? value) =>
         string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)

@@ -47,6 +47,8 @@ public static class ArchLucidSaml2ServiceExtensions
             throw new InvalidOperationException(
                 "ArchLucidAuth:Saml2:Enabled is true but IdPMetadata URL is empty.");
 
+        EnsureIdpMetadataIsAbsoluteHttps(samlOptions.IdPMetadata);
+
         services.AddHttpClient(
             Options.DefaultName,
             static client =>
@@ -91,10 +93,33 @@ public static class ArchLucidSaml2ServiceExtensions
         return services;
     }
 
+    /// <summary>
+    ///     Diagnostics and operational health already refuse cleartext IdP metadata. Startup was still
+    ///     fetching that document and trusting the signing certificates in the response.
+    /// </summary>
+    private static void EnsureIdpMetadataIsAbsoluteHttps(string idpMetadata)
+    {
+        string trimmed = idpMetadata.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? metadataUri)
+            || metadataUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new InvalidOperationException(
+                "ArchLucidAuth:Saml2:IdPMetadata must be an absolute HTTPS URL.");
+        }
+    }
+
     /// <summary>Matches <see cref="AuthServiceCollectionExtensions.AddArchLucidAuth" /> default schemes for the active mode.</summary>
-    private static string ResolvePrimaryApiAuthenticationScheme(ArchLucidAuthOptions authOptions)
+    internal static string ResolvePrimaryApiAuthenticationScheme(ArchLucidAuthOptions authOptions)
     {
         ArgumentNullException.ThrowIfNull(authOptions);
+
+        // AddArchLucidAuth nominates JwtBearer for a path or inline public key even when Mode is still
+        // DevelopmentBypass or ApiKey. Mode normalization only rewrites a PEM path, so an inline key
+        // would otherwise make SAML coexistence the default scheme and skip JWT validation.
+
+        if (JwtPemKeyMaterial.HasAnyPemSource(authOptions.JwtSigningPublicKeyPemPath, authOptions.JwtSigningPublicKeyPem))
+            return JwtBearerDefaults.AuthenticationScheme;
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
             return JwtBearerDefaults.AuthenticationScheme;

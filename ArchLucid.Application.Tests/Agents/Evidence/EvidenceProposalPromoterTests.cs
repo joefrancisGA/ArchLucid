@@ -119,6 +119,52 @@ public sealed class EvidenceProposalPromoterTests
             .WithMessage("*invalid*");
     }
 
+    [Fact]
+    public async Task PromoteAsync_rejects_catalog_entry_id_longer_than_persisted_column()
+    {
+        // Title fits NVARCHAR(512). The derived id is "{type}-{slug}" and does not fit NVARCHAR(128).
+        string title = new string('a', 122);
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(r => r.TryGetEvidenceProposalAsync(It.IsAny<ScopeContext>(), "r-long", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EvidenceProposalListItem
+            {
+                ResultId = "r-long",
+                RunId = Guid.NewGuid().ToString(),
+                AgentType = "Topology",
+                ProposedEvidenceJson =
+                    $$"""{"type":"Policy","title":"{{title}}","description":"Use a customer managed key.","rationale":"Catalog gap."}""",
+                CreatedUtc = DateTime.UtcNow,
+                IsPromoted = false,
+            });
+
+        Mock<ITenantCuratedEvidenceRepository> curated = new();
+        curated
+            .Setup(c => c.ListByTenantAsync(TenantScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        EvidenceProposalPromoter sut = BuildSut(agentResults.Object, curated.Object);
+
+        Func<Task> act = () => sut.PromoteAsync("r-long");
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*CatalogEntryId*");
+
+        curated.Verify(
+            c => c.InsertPromotedEntryAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()),
+            Times.Never);
+    }
+
     private static EvidenceProposalPromoter BuildSut(
         IAgentResultRepository agentResults,
         ITenantCuratedEvidenceRepository curated,

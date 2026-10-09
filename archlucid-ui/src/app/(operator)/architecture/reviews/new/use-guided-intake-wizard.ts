@@ -176,6 +176,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     freeTextIntent: form.freeTextIntent,
     businessOutcome: form.businessOutcome,
     systemName: form.systemName,
+    scopeBullets: form.scopeBullets,
     actorSet: form.actorSet,
     setFreeTextIntent: form.setFreeTextIntent,
     setBusinessOutcome: form.setBusinessOutcome,

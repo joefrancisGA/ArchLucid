@@ -17,6 +17,11 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
     IArchitectureDigestRepository digestRepository,
     ISponsorRoiSummaryService SponsorRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
 {
+    /// <summary>
+    /// Risk-register page counted by the decisions-needed summary. Stickiness reads of that page must seal each row run.
+    /// </summary>
+    public const int DecisionsNeededRiskRegisterPageSize = 100;
+
     private readonly IGovernanceApprovalRequestRepository _approvalRepository =
         approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
 
@@ -53,7 +58,13 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                DecisionsNeededRiskRegisterPageSize,
+                options: null,
+                cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -109,10 +120,8 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
                 decisionNeeded.AppendLine($"- **{entry.Title}** — assign owner — [{entry.FindingId}]({entry.EvidenceHref})");
         }
 
-        List<FindingReviewEventRecord> needsEvidence = recent
-            .Where(e => e.Disposition == Disposition.NeedsEvidence)
-            .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
-            .Select(static g => g.OrderByDescending(static e => e.OccurredAtUtc).First())
+        List<FindingReviewEventRecord> needsEvidence = GovernanceDigestOpenDispositionSelector
+            .SelectNeedsEvidence(recent)
             .Take(10)
             .ToList();
 
@@ -128,8 +137,8 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
 
         AppendWaiverExpirySections(decisionNeeded, activeWaivers, now, ref hasDecisionContent);
 
-        List<FindingReviewEventRecord> deferredDue = recent
-            .Where(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now)
+        List<FindingReviewEventRecord> deferredDue = GovernanceDigestOpenDispositionSelector
+            .SelectDeferredDue(recent, now)
             .Take(10)
             .ToList();
 

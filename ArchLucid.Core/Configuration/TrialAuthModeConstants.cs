@@ -11,6 +11,17 @@ public static class TrialAuthModeConstants
         if (modes is null || modes.Count == 0 || string.IsNullOrWhiteSpace(mode))
             return false;
 
-        return modes.Any(m => string.Equals(m.Trim(), mode, StringComparison.OrdinalIgnoreCase));
+        // Configuration binding keeps JSON null array elements as null strings
+        // (Auth:Trial:Modes:0 = null). Trim on that slot throws in JWT bearer setup
+        // and hides a later LocalIdentity or MsaExternalId entry.
+        return modes.Any(candidate => ModeEquals(candidate, mode));
+    }
+
+    private static bool ModeEquals(string? candidate, string mode)
+    {
+        if (candidate is null)
+            return false;
+
+        return string.Equals(candidate.Trim(), mode, StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -218,4 +218,77 @@ describe("claim-discipline-policy", () => {
       { id: "where-to-go-next", title: "Where to go next" },
     ]);
   });
+
+  it("keeps contact-support-help visible where orientation strip is the sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("contact-support-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("contact-support")).toBe(false);
+  });
+
+  it("keeps core-pilot-help strip slug visible while first-architecture-review guide omits sibling help slugs", () => {
+    expect(shouldOmitClaimDisciplineBand("core-pilot-help")).toBe(false);
+    expect(shouldOmitClaimDisciplineBand("help-first-review")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("first-review-guide")).toBe(true);
+  });
+
+  it("omits subprocessors-help orientation claim while header claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("subprocessors-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("subprocessors-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits security-trust-help orientation claim while header claim strip owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("security-trust-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("security-trust-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("keeps users-and-roles-help visible on operator shell where orientation strip is sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("users-and-roles-help")).toBe(false);
+    expect(
+      resolveClaimDisciplineForStrip("users-and-roles-help", "Not a diligence package."),
+    ).toContain("Not a diligence package.");
+  });
+
+  it("keeps report-a-problem-help visible on operator shell where orientation strip is sole claim owner", () => {
+    expect(shouldOmitClaimDisciplineBand("report-a-problem-help")).toBe(false);
+    expect(
+      resolveClaimDisciplineForStrip("report-a-problem-help", "Not a diligence package."),
+    ).toContain("Not a diligence package.");
+  });
+
+  it("omits scope-help registry strip slug while ScopeHelpClaimDisciplineStrip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("scope-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("scope-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits findings-help orientation claim while FindingsHelpClaimDisciplineStrip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("findings-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("findings-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits azure-permissions-help orientation claim while header info strip owns operator claim", () => {
+    expect(shouldOmitClaimDisciplineBand("azure-permissions-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("azure-permissions-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("omits policy-packs-help legacy orientation slug via alias to help-policy-packs", () => {
+    expect(shouldOmitClaimDisciplineBand("policy-packs-help")).toBe(true);
+    expect(resolveClaimDisciplineForStrip("policy-packs-help", "Not a diligence package.")).toBeUndefined();
+  });
+
+  it("drops the residual help catchall claim heading when the header owns the band", () => {
+    expect(shouldOmitClaimDisciplineBand("help-topic-catchall")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "help-topic-catchall",
+        [
+          { id: "overview", title: "Overview" },
+          { id: "help-topic-catchall-claim-discipline-heading", title: "What this guide does not cover" },
+          { id: "where-to-go-next", title: "Where to go next" },
+        ],
+        "help-topic-catchall-claim-discipline-heading",
+      ),
+    ).toEqual([
+      { id: "overview", title: "Overview" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ]);
+  });
 });

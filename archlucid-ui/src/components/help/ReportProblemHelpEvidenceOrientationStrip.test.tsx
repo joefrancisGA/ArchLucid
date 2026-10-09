@@ -1,9 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import {
-  expectClaimDisciplineBandContent,
-  expectWhereToGoNextFollowUpLinks,
-} from "@/lib/claim-discipline-test-helpers";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 import { ReportProblemHelpEvidenceOrientationStrip } from "@/components/help/ReportProblemHelpEvidenceOrientationStrip";
 import {
@@ -15,10 +12,7 @@ describe("ReportProblemHelpEvidenceOrientationStrip", () => {
   it("renders Where to go next follow-ups without duplicate claim discipline or admin destinations", () => {
     render(<ReportProblemHelpEvidenceOrientationStrip />);
 
-    expectClaimDisciplineBandContent(
-      screen,
-      "report-a-problem-help",
-      "report-a-problem-help-claim-discipline",
+    expect(screen.getByTestId("report-a-problem-help-claim-discipline")).toHaveTextContent(
       REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE,
     );
 

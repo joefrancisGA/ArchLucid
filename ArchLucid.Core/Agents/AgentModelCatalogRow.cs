@@ -115,6 +115,37 @@ public sealed class AgentModelCatalogRow
         get;
         init;
     } = [];
+
+    /// <summary>
+    ///     Copies every persisted catalog column and replaces <see cref="Evaluations" />.
+    ///     Catalog upsert writes the whole row, so a partial copy clears tokenizer settings and USD rates.
+    /// </summary>
+    public AgentModelCatalogRow WithEvaluations(IReadOnlyList<AgentModelCatalogEvaluationRow> evaluations)
+    {
+        ArgumentNullException.ThrowIfNull(evaluations);
+
+        return new AgentModelCatalogRow
+        {
+            AliasId = AliasId,
+            ProviderConnectionKind = ProviderConnectionKind,
+            DeploymentName = DeploymentName,
+            TierBinding = TierBinding,
+            CapabilityTags = CapabilityTags,
+            ApprovedTaskTypes = ApprovedTaskTypes,
+            StructuredOutputLevel = StructuredOutputLevel,
+            DataBoundary = DataBoundary,
+            ExternalSubprocessorDisclosureComplete = ExternalSubprocessorDisclosureComplete,
+            LifecycleStatus = LifecycleStatus,
+            StructuredOutputProbeUtc = StructuredOutputProbeUtc,
+            TokenizerProfile = TokenizerProfile,
+            CharsPerToken = CharsPerToken,
+            TokenizerErrorMarginPercent = TokenizerErrorMarginPercent,
+            InputUsdPerMillionTokens = InputUsdPerMillionTokens,
+            OutputUsdPerMillionTokens = OutputUsdPerMillionTokens,
+            ReasoningUsdPerMillionTokens = ReasoningUsdPerMillionTokens,
+            Evaluations = evaluations,
+        };
+    }
 }
 
 /// <summary>Per-task evaluation evidence attached to a catalog row (TB-2105).</summary>

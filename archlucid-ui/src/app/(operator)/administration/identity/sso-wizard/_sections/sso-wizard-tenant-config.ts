@@ -1,14 +1,9 @@
 import type { TenantIdentityProviderConfigurationRecord } from "@/lib/admin-identity-provider-api";
+import { parsePersistedClaimMappingJson } from "@/lib/persisted-claim-mapping-json";
 import { TENANT_IDENTITY_PROTOCOL } from "@/lib/tenant-identity-protocol";
 
 import type { SsoWizardProtocol, SsoWizardState } from "./sso-wizard-state";
 import { createDefaultSsoWizardState } from "./sso-wizard-state";
-
-type ClaimMappingJsonDocument = {
-  roleClaimName?: string;
-  mappings?: { idpValue?: string; archLucidRole?: string }[];
-  customGroupClaimRegex?: string | null;
-};
 
 export type SsoWizardExistingConfigSummary = {
   readonly protocolLabel: string;
@@ -30,18 +25,6 @@ function resolveProtocolLabel(protocol: SsoWizardProtocol | null): string {
   return "Protocol not recorded";
 }
 
-function parseClaimMappingJson(claimMappingJson: string | undefined): ClaimMappingJsonDocument | null {
-  if (typeof claimMappingJson !== "string" || claimMappingJson.trim().length === 0) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(claimMappingJson) as ClaimMappingJsonDocument;
-  } catch {
-    return null;
-  }
-}
-
 export function resolveSsoWizardProtocolFromTenantRecord(
   record: TenantIdentityProviderConfigurationRecord,
 ): SsoWizardProtocol | null {
@@ -60,7 +43,7 @@ export function buildSsoWizardExistingConfigSummary(
   record: TenantIdentityProviderConfigurationRecord,
 ): SsoWizardExistingConfigSummary {
   const protocol = resolveSsoWizardProtocolFromTenantRecord(record);
-  const parsedMapping = parseClaimMappingJson(record.claimMappingJson);
+  const parsedMapping = parsePersistedClaimMappingJson(record.claimMappingJson);
   const mappedRoleCount =
     parsedMapping?.mappings?.filter(
       (entry) => (entry.idpValue?.trim().length ?? 0) > 0 && (entry.archLucidRole?.trim().length ?? 0) > 0,
@@ -81,7 +64,7 @@ export function hydrateSsoWizardStateFromTenantRecord(
 ): SsoWizardState {
   const defaults = createDefaultSsoWizardState();
   const protocol = resolveSsoWizardProtocolFromTenantRecord(record);
-  const parsedMapping = parseClaimMappingJson(record.claimMappingJson);
+  const parsedMapping = parsePersistedClaimMappingJson(record.claimMappingJson);
 
   const savedMappings = (parsedMapping?.mappings ?? [])
     .map((entry) => {

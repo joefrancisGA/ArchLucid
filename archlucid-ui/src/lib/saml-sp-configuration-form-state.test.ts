@@ -47,6 +47,23 @@ describe("saml-sp-configuration-form-state", () => {
     expect(new Set(values.mappings.map((row) => row.rowId)).size).toBe(2);
   });
 
+  it("hydrates PascalCase claim mapping stored before camelCase activation", () => {
+    const values = hydrateSamlSpConfigurationFormValues({
+      protocol: TENANT_IDENTITY_PROTOCOL.Saml,
+      issuerUri: "https://sts.contoso.com/",
+      claimMappingJson: JSON.stringify({
+        RoleClaimName: "department",
+        CustomGroupClaimRegex: "^group-(Admin)$",
+        Mappings: [{ IdpValue: "finance-admins", ArchLucidRole: "Admin" }],
+      }),
+    });
+
+    expect(values.roleClaimName).toBe("department");
+    expect(values.customGroupClaimRegex).toBe("^group-(Admin)$");
+    expect(values.mappings.map((row) => row.idpValue)).toEqual(["finance-admins"]);
+    expect(values.mappings.map((row) => row.archLucidRole)).toEqual(["Admin"]);
+  });
+
   it("requires issuer, role claim, and at least one mapping", () => {
     const invalid = createDefaultSamlSpConfigurationFormValues();
 

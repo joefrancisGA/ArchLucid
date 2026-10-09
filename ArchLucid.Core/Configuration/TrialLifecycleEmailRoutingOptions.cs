@@ -30,7 +30,10 @@ public sealed class TrialLifecycleEmailRoutingOptions
 
     public bool IsLogicAppOwned()
     {
-        return string.Equals(Owner.Trim(), OwnerModes.LogicApp, StringComparison.OrdinalIgnoreCase);
+        // JSON `"Owner": null` overwrites the Hosted initializer. The static parser
+        // already treats a null owner as not Logic App; Trim here throws and stops
+        // TrialScheduledLifecycleEmailScanner before the hosted scan can run.
+        return IsLogicAppOwnerMode(Owner);
     }
 
     public static class OwnerModes

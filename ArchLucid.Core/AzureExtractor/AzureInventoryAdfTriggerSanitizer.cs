@@ -82,24 +82,68 @@ public static class AzureInventoryAdfTriggerSanitizer
         {
             foreach (JsonElement pipeline in pipelinesElement.EnumerateArray())
             {
-                string? referenceName = TryReadString(pipeline, "pipelineReference")
-                                       ?? TryReadString(pipeline, "referenceName");
-
-                if (AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(referenceName))
-                {
-                    pipelineNames.Add(referenceName!.Trim());
-                }
+                AddStaticPipelineName(pipelineNames, TryReadPipelineReferenceName(pipeline));
             }
         }
 
-        string? singlePipeline = AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "pipeline");
-
-        if (AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(singlePipeline))
+        // Tumbling-window and chaining triggers publish one pipeline object, not a pipelines array.
+        if (typePropertiesElement.TryGetProperty("pipeline", out JsonElement pipelineElement))
         {
-            pipelineNames.Add(singlePipeline!.Trim());
+            AddStaticPipelineName(pipelineNames, TryReadPipelineReferenceName(pipelineElement));
         }
 
         return pipelineNames.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static void AddStaticPipelineName(List<string> pipelineNames, string? referenceName)
+    {
+        if (!AzureInventoryAdfStaticReferenceValidator.IsStaticReferenceName(referenceName))
+        {
+            return;
+        }
+
+        pipelineNames.Add(referenceName!.Trim());
+    }
+
+    /// <summary>
+    /// Data Factory 2018-06-01 nests the name at <c>pipelineReference.referenceName</c>.
+    /// Reading the object as text stores the JSON blob instead of the pipeline name.
+    /// </summary>
+    private static string? TryReadPipelineReferenceName(JsonElement pipeline)
+    {
+        if (pipeline.ValueKind is JsonValueKind.String)
+        {
+            return pipeline.GetString();
+        }
+
+        if (pipeline.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        if (pipeline.TryGetProperty("pipelineReference", out JsonElement pipelineReference)
+            && pipelineReference.ValueKind is JsonValueKind.Object)
+        {
+            string? nestedName = TryReadReferenceName(pipelineReference);
+
+            if (!string.IsNullOrWhiteSpace(nestedName))
+            {
+                return nestedName;
+            }
+        }
+
+        return TryReadReferenceName(pipeline);
+    }
+
+    private static string? TryReadReferenceName(JsonElement parent)
+    {
+        if (!parent.TryGetProperty("referenceName", out JsonElement value)
+            || value.ValueKind is not JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return value.GetString();
     }
 
     private static (string? SourceResourceId, string? SourceHost) ExtractSource(

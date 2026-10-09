@@ -76,6 +76,36 @@ public sealed class DeclarationSecurityBaselineClassifierTests
     }
 
     [Fact]
+    public void Classify_flags_terraform_public_network_access_enabled_true()
+    {
+        // azurerm and infra/terraform-storage use public_network_access_enabled = true.
+        // The declaration parser stores that scalar as tf.public_network_access_enabled = "true".
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "true",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql", properties);
+
+        signals.Should().ContainSingle(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
+    public void Classify_does_not_flag_terraform_public_network_access_enabled_false()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access_enabled"] = "false",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql", properties);
+
+        signals.Should().NotContain(signal => signal.Theme == "data-protection");
+    }
+
+    [Fact]
     public void Classify_flags_arm_publicNetworkAccess()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
@@ -116,6 +146,36 @@ public sealed class DeclarationSecurityBaselineClassifierTests
             DeclarationSecurityBaselineClassifier.Classify("cosmos-nosql", properties);
 
         signals.Should().NotContain(signal => signal.Theme == "encryption");
+    }
+
+    [Fact]
+    public void Classify_does_not_flag_azure_tls1_2_as_weak_sql_posture()
+    {
+        // azurerm and ARM emit minimumTlsVersion TLS1_2 (infra/terraform-storage).
+        // The declaration parser lowercases that to tls1_2.
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.min_tls_version"] = "tls1_2",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("artifacts", properties);
+
+        signals.Should().NotContain(signal => signal.Theme == "encryption");
+    }
+
+    [Fact]
+    public void Classify_still_flags_azure_tls1_0_as_weak_sql_posture()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["minimumTlsVersion"] = "TLS1_0",
+        };
+
+        IReadOnlyList<DeclarationSecurityBaselineClassifier.DeclarationSecurityBaselineSignal> signals =
+            DeclarationSecurityBaselineClassifier.Classify("sql-pay", properties);
+
+        signals.Should().Contain(signal => signal.Theme == "encryption");
     }
 
     [Fact]

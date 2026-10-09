@@ -83,6 +83,35 @@ public sealed class WebhookSecretsTests
             .BeTrue();
     }
 
+    [Fact]
+    public void TimestampWithinSkew_accepts_timestamp_exactly_at_skew_boundary_inclusive()
+    {
+        DateTimeOffset now = DateTimeOffset.FromUnixTimeSeconds(1_700_000_000);
+        long payloadUnix = 1_700_000_000 - 120;
+
+        WebhookSecrets.TimestampWithinSkew(now, payloadUnix.ToString(), 120).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_rejects_timestamp_one_second_beyond_skew_boundary()
+    {
+        DateTimeOffset now = DateTimeOffset.FromUnixTimeSeconds(1_700_000_000);
+        long payloadUnix = 1_700_000_000 - 121;
+
+        WebhookSecrets.TimestampWithinSkew(now, payloadUnix.ToString(), 120).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TimestampWithinSkew_rejects_non_numeric_timestamp_when_skew_enabled()
+    {
+        WebhookSecrets.TimestampWithinSkew(
+                TimeProvider.System.GetUtcNow(),
+                "not-unix-seconds",
+                120)
+            .Should()
+            .BeFalse();
+    }
+
     private static string ComputeHmacHex(string secret, string body)
     {
         byte[] key = System.Text.Encoding.UTF8.GetBytes(secret);

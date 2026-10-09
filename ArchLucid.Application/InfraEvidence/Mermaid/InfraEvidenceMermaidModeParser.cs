@@ -120,6 +120,12 @@ public static class InfraEvidenceMermaidModeParser
             return true;
         }
 
+        if (string.Equals(normalized, "data", StringComparison.OrdinalIgnoreCase))
+        {
+            result = Success(DiagramMode.Data, "data", null, includePrivateEndpointNodes, includeRecoveryServices, includeCrossGroupFanOut);
+            return true;
+        }
+
         if (string.Equals(normalized, "dataFlow", StringComparison.OrdinalIgnoreCase))
         {
             result = Success(DiagramMode.DataFlow, "dataFlow", null, includePrivateEndpointNodes, includeRecoveryServices, includeCrossGroupFanOut);

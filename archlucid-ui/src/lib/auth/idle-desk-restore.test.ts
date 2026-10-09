@@ -10,6 +10,10 @@ import {
   restoreIdleDeskScopeAfterSignIn,
 } from "@/lib/auth/idle-desk-restore";
 import {
+  storeEmailOtpChallengeSession,
+  readEmailOtpChallengeSession,
+} from "@/lib/auth/email-otp-session";
+import {
   buildLivelihoodIdleFormSnapshotKey,
   clearLivelihoodIdleFormSnapshotRegistryForTests,
   registerLivelihoodIdleFormSnapshot,
@@ -51,6 +55,15 @@ describe("idle-desk-restore (DR-12)", () => {
     expect(sessionStorage.getItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY)).toBe(
       "/architecture/reviews/run-1?reviewTab=findings",
     );
+  });
+
+  it("leaves email OTP challenge sessionStorage intact when persisting before session clear", () => {
+    storeEmailOtpChallengeSession("ch-idle-1", "o***@example.com", "operator@example.com");
+
+    persistIdleDeskRestoreBeforeSessionClear("/auth/signin?step=code");
+
+    expect(readEmailOtpChallengeSession()?.challengeId).toBe("ch-idle-1");
+    expect(readIdleDeskRestorePayload()?.returnPath).toBe("/auth/signin?step=code");
   });
 
   it("does not store access tokens in sessionStorage", () => {

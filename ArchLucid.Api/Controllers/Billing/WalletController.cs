@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Controllers.Billing;
 
 /// <summary>Self-serve LLM prepaid wallet settings (TB-014).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/billing/wallet")]
 public sealed class WalletController(
@@ -40,10 +40,8 @@ public sealed class WalletController(
     private readonly ILlmTenantWalletService _walletService =
         walletService ?? throw new ArgumentNullException(nameof(walletService));
 
-    // Lowered from the class-level AdminAuthority: viewing the credit balance, auto-replenish cap, and refill
-    // history is not itself a sensitive mutation — the "Billing & plans" nav item is ReadAuthority, and any caller
-    // who can see that page should be able to see their wallet, not just Admins. Mutating it via PutAsync below
-    // still requires AdminAuthority.
+    // Authorize attributes stack. A class-level AdminAuthority policy would still reject ReadAuthority callers
+    // on GET. Billing & plans is a ReadAuthority nav item, so viewing the balance stays on ReadAuthority.
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(LlmTenantWalletGetResponse), StatusCodes.Status200OK)]
@@ -56,6 +54,7 @@ public sealed class WalletController(
     }
 
     [HttpPut]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(LlmTenantWalletGetResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> PutAsync(
         [FromBody] LlmTenantWalletPutRequest? body,
