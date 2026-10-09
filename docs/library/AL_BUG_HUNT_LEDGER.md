@@ -34862,7 +34862,7 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -34894,3 +34894,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.
 - [x] (proven) `groupDiagramNeighborhoodSections` / `DiagramNeighborhoodMapView` — inventory SVG metadata from `DiagramForestLayoutSvgRenderer` emits kind `shared-services` for the shared-services frame, but the subscription map treated every kind other than `vnet` as a resource group, so that tile rendered under Resource groups. Resource-group cells remain `shared`, `remainder`, and `other`. Regression `keeps shared services out of the resource group section`.
+- [ ] (candidate) `diagramOutlineIncludesFocusResource` / `inventoryDiagramNodeElementMatchesFocusId` — normalized substring matching can treat a short reachable focus resource id as the same as a longer node id, moving the camera or dimming an unrelated architecture node; a production Mermaid outline with colliding IDs is still required before promotion.
+- [ ] (candidate) `resolveDiagramClickFocus` — when the clicked node is inside a VNet frame, frame expansion keeps every node whose center is inside that frame, including unrelated nodes; a reachable multi-node SVG and the intended VNet focus contract are still required before promotion.
+
+2026-10-09 seed hunt (seed-only): re-read ArchitectureDiagram viewer, focus, selection, model, readiness, SVG, neighborhood, and provenance paths; no candidate met the full reachability and wrong-outcome bar. Added two mechanism-backed candidates for focus-token collision and VNet frame expansion. The scoped suite reported 96 passed, 13 pre-existing viewer failures, and 17 passed test files.
