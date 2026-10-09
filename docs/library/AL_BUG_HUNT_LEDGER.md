@@ -9288,13 +9288,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 45
+- **hunts:** 46
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — trade-off rationale claimed priorities resolved a pair none of them selected
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed-only): re-read the selected recommendation engine/trade-off builder and focused Alternatives/ProposedChange coverage; no new reachable mechanism-backed candidate emerged after the prior exhaustion pass. No hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-03 seed hunt (seed-only): re-read the selected recommendation engine and its alternatives/proposed-change assembly; no new reachable mechanism-backed candidate emerged; 40 focused tests passed.
 
