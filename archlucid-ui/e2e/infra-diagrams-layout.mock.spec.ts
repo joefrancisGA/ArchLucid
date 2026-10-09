@@ -63,6 +63,8 @@ async function mockDiagramRoutes(
       return;
     }
 
+    // Deep-link snapshotId paints the canvas only after a chosen subscription filter.
+    // Without subscriptionId the workbench resolves the filter to "all", which is not chosen.
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -70,8 +72,10 @@ async function mockDiagramRoutes(
         items: [
           {
             snapshotId,
+            subscriptionId: "sub-1",
             subscriptionName: "sub",
             capturedUtc: "2026-09-10T13:45:35Z",
+            captureStatus: 1,
             resourceCount: 889,
           },
         ],
