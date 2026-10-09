@@ -200,7 +200,7 @@ function normalizeDiagramLabelForMapping(label: string): string {
 }
 
 export function formatDiagramReconcileAssociationType(value: string | null): string {
-  return value ?? "Association type was not stored.";
+  return value?.trim() || "Association type was not stored.";
 }
 
 export function formatDiagramReconcileAzureResourceId(value: string | null): string {
