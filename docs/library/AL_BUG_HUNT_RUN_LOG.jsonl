@@ -8950,3 +8950,4 @@
 {"at":"2026-10-09T04:34:03.9557123Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/DocxArchitectureAnalysisExportService.cs"]}
 {"at":"2026-10-09T04:40:38.3138567Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/Infrastructure/DotenvInfrastructureDeclarationParser.cs"]}
 {"at":"2026-10-09T04:51:17.8294926Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/AgentConfidenceCalibrator.cs"]}
+{"at":"2026-10-09T05:09:00.4756071Z","zoneId":"infra-evidence-diagrams","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceMermaidModeParser.cs","ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotMermaidService.cs","archlucid-ui/src/lib/infra-evidence/infra-evidence-diagrams-filter-url.ts"]}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `infra-evidence-diagrams` — `GET` mermaid `mode=data` is listed in the unsupported-mode error and `DiagramMode.Data` already compiles storage and data-plane nodes, but `InfraEvidenceMermaidModeParser` had no `data` branch, so the request was rejected and preview never emitted a data row. Deep links `mermaidMode=data` were also dropped by the diagrams workbench allowlist. `data` now maps to `DiagramMode.Data`, preview includes that row, and the workbench keeps the mode. Regressions `TryParse_data_maps_to_data_diagram_mode` and `Data_mode_renders_data_factory_and_omits_virtual_networks`; 17 focused parser and data-mode tests passed, and the diagrams filter URL suite passed 13/13.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — `AgentConfidenceCalibrator.BuildIsotonicKnots` replaced a decreasing calibration block with its maximum. Samples at raw confidence 0.2/0.5/0.8 with semantic scores 0.9/0.4/0.85 all became 0.9, so `CalibrateAsync` stored that high score once twenty historical samples exist. Adjacent violators are now pooled by sample weight. The same inputs become 0.65, 0.65, and 0.85. Regression `BuildIsotonicKnots_pools_adjacent_violators_instead_of_lifting_them_to_the_block_max`; 103 scoped Application.Tests.Agents tests passed.
 
 2026-10-09 seed hunt (seed→hit): `context-ingestion` — `DotenvInfrastructureDeclarationParser` kept a trailing `#` comment on `format=dotenv` values, so `Initial Catalog=archlucid # primary` stored the catalog as `archlucid # primary`, and a quoted value followed by the same comment kept the closing quote in the catalog. Comments now end at an unquoted `#` preceded by whitespace. A `#` inside a URL fragment stays. Regression `Dotenv_inline_comment_does_not_attach_to_sql_catalog`; 812 scoped ContextIngestion/Canonicalization tests passed.
@@ -34470,13 +34472,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — mermaid mode=data was rejected before compile
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-09 seed hunt (seed→hit): proved `mode=data` is named in the mermaid error and compiled by `DiagramMode.Data`, but the parser never accepted it, preview omitted the row, and the diagrams workbench dropped `mermaidMode=data`. The mode now compiles and stays on the type picker. Regressions `TryParse_data_maps_to_data_diagram_mode` and `Data_mode_renders_data_factory_and_omits_virtual_networks`.
 2026-10-03 seed hunt (hit): Mermaid preview accepted recovery-services, cross-group fan-out, and AVD display flags but forwarded only private-endpoint visibility to mode rendering; preview responses ignored reachable requested display options; focused service regression passed.
 2026-10-03 seed hunt (hit): diagram outline retained a selected declared/inventory edge detail panel after the incoming outline changed; cleared selection and related connection state on outline changes; 22 outline tests passed.
 2026-10-03 seed hunt (hit): diagram workbench initialized mode from the URL only once, so browser navigation or an external search-param update left the mode picker and render state stale; resynchronized selected mode with URL changes; workbench tests passed apart from one unrelated snapshot-label fixture failure.
@@ -34489,6 +34493,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `InfraEvidenceDiagramOutline` — selected edge detail state survived a changed `outline` prop, leaving stale declared/inventory evidence visible after a snapshot or mode change; fixed by clearing selected edges and connection state when the outline changes; regression `clears a selected edge detail panel when the outline changes`
 - [x] (proven) `DiagramsWorkbenchClient.selectedMode` — `urlMermaidMode` was read only during state initialization, so a reachable URL/search-param change left the mode picker and render request on the prior mode; fixed with URL-to-state synchronization; regression `resynchronizes the selected mode when the URL mode changes`
 - [x] (proven) `MergeDisplayCompileOptions` and `InventoryDiagramPeelBudgetApplier` — Full subscription `includeNetworkDetails=true` from the diagrams workbench Show network details control (including together with `includeCrossGroupFanOut=true`) reached the compiler as false. `??` does not replace a false bool on options built for another display flag, and every peel-budget options copy omitted `IncludeNetworkDetails`, so public IPs, NSGs, route tables, and private endpoints stayed hidden. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set`.
+- [x] (proven) `InfraEvidenceMermaidModeParser.TryParse` — `GET /v1/infra-evidence/snapshots/{id}/mermaid?mode=data` is listed in the rejection text and `DiagramMode.Data` already keeps data and storage nodes, but there was no `data` branch, so the call returned 400 and preview had no data row. The diagrams workbench also discarded `mermaidMode=data`. Regression `TryParse_data_maps_to_data_diagram_mode`.
 
 2026-10-03 seed hunt (seed→hit): `ui-architecture-diagram` — proved a valid JSON local-storage record with missing cache arrays caused `getActiveArchitectureDiagramVersion` to throw while opening a diagram; added cache-shape validation and a malformed-cache regression. 3 focused storage tests passed.
 
