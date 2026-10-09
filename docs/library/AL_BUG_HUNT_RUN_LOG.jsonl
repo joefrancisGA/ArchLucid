@@ -8945,3 +8945,4 @@
 {"at":"2026-10-09T03:44:01.1330763Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
 {"at":"2026-10-09T03:57:09.6627302Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/TopologyExpectedCategoryResolver.cs"]}
 {"at":"2026-10-09T04:05:48.3941899Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/Indexing/RetrievalDocumentBuilder.cs"]}
+{"at":"2026-10-09T04:20:12.5397888Z","zoneId":"scope-binding-middleware","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs"]}

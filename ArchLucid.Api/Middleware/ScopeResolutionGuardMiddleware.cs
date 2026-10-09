@@ -50,7 +50,7 @@ internal sealed class ScopeResolutionGuardMiddleware(
 
     private static bool ShouldSkip(HttpContext context)
     {
-        PathString pathString = NormalizeLeadingSlashSegments(context.Request.Path);
+        PathString pathString = NormalizeProbePath(context.Request.Path);
         string path = pathString.Value ?? string.Empty;
 
         if (path.Contains("/internal/", StringComparison.OrdinalIgnoreCase))
@@ -105,16 +105,33 @@ internal sealed class ScopeResolutionGuardMiddleware(
             || string.Equals(trimmed, "/sitemap.xml", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static PathString NormalizeLeadingSlashSegments(PathString path)
+    /// <summary>
+    ///     Drops empty and <c>.</c> segments so probe checks see the same path a client already
+    ///     resolved. Parent segments stay, because routing still uses the raw request path and
+    ///     <c>/health/live/../v1/runs</c> must not be treated as <c>/v1/runs</c>.
+    /// </summary>
+    private static PathString NormalizeProbePath(PathString path)
     {
         string? value = path.Value;
 
         if (string.IsNullOrEmpty(value))
             return path;
 
-        while (value.StartsWith("//", StringComparison.Ordinal))
-            value = value[1..];
+        string[] rawSegments = value.Split('/');
+        List<string> segments = [];
 
-        return new PathString(value);
+        foreach (string rawSegment in rawSegments)
+        {
+
+            if (rawSegment.Length == 0 || string.Equals(rawSegment, ".", StringComparison.Ordinal))
+                continue;
+
+            segments.Add(rawSegment);
+        }
+
+        if (segments.Count == 0)
+            return new PathString("/");
+
+        return new PathString("/" + string.Join('/', segments));
     }
 }

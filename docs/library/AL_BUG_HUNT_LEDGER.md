@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeResolutionGuardMiddleware` collapsed only a leading `//` before public health checks, so `/health//live`, `/health/./live`, and `//health//ready` still missed `IsPublicHealthProbePath` and returned TB-304 on staging-like hosts. The skip check now drops empty and `.` segments. Parent `..` segments stay, and `Request.Path` is not rewritten. `/health//detailed` and `/health/./livefoo` still require trusted scope. Regression `InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments`; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
+
 2026-10-09 seed hunt (seed→hit): `retrieval` — `BuildForProvenance` set `ContentHash` to the run id, so a later index of the same run skipped even when the provenance graph changed. The retrieval outbox rebuilds that graph from the current findings, artifacts, and authority trace on every drain. The hash now covers the serialized graph, matching decision and finding documents. An unchanged graph still skips. Regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`; 355 scoped retrieval/indexing tests passed.
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyExpectedCategoryResolver` treated scope keywords as raw substrings, so a required capability `log analytics workspace` matched `spa` and dropped the Storage pillar, and `point-in-time restore` matched `rest` and dropped the Data pillar. Those capabilities are copied from the architecture request onto the context snapshot. Short keywords are now whole delimiter tokens, and keywords of five letters or more may still prefix a longer product token (`postgresql`, `networking`). `nosql` stays an explicit datastore cue. Regressions `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`; focused resolver tests passed 8/8, and the picker scope passed 1280 with 14 unrelated baseline failures.
@@ -11705,11 +11707,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 54
-- **bugs-found:** 14
+- **hunts:** 55
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — double-leading-slash health probe paths hit TB-304 on staging-like hosts
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — empty and dot segments on health probe paths hit TB-304 on staging-like hosts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11725,7 +11727,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ScopeIdentityBindingValidator.Validate` — multiple parseable `tenant_id` claims where `FindFirst` disagrees with a later claim but matches a steering `x-tenant-id` header — **cheap-disproof 2026-10-06 seed hunt:** `FindFirst` + header disagreement still rejects; matching header to first claim is consistent with `HttpScopeContextProvider`; regressions `Validate_rejects_conflicting_tenant_header_when_find_first_claim_disagrees_with_later_claim` and `Validate_allows_matching_tenant_header_when_only_find_first_claim_is_considered_for_scope_binding`
 - [x] (proven) `ScopeResolutionGuardMiddleware.ShouldSkip` — double-slash health probe paths (e.g. `//health/live`) on staging-like hosts — **hit 2026-10-06 seed hunt:** `NormalizeLeadingSlashSegments` before probe segment checks; regression `InvokeAsync_staging_host_skips_double_slash_health_live_path`; 91 scoped scope-binding unit tests passed (6 integration tests unavailable).
 
-- [ ] (candidate) `ScopeResolutionGuardMiddleware.NormalizeLeadingSlashSegments` — dot-segment (`/health/./live`) or backslash-normalized probe paths may still miss public health skip rules.
+- [x] (proven) `ScopeResolutionGuardMiddleware.NormalizeProbePath` — empty and `.` segments (`/health//live`, `/health/./live`, `//health//ready`) missed the public health skip after only a leading `//` collapse, so staging-like hosts returned TB-304 — **hit 2026-10-09 seed hunt:** drop empty and `.` segments for the skip check only; parent `..` segments stay because routing uses the raw path; regressions `InvokeAsync_staging_host_skips_health_probe_with_empty_or_dot_segments`, `InvokeAsync_staging_host_rejects_empty_segment_on_authorized_health_path`, and `InvokeAsync_staging_host_does_not_skip_dot_segment_health_impostor`; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
+
+2026-10-09 seed hunt (seed→hit): promoted empty and dot-segment health probe TB-304 gap; proved and fixed; backslash `Request.Path` was not reproduced; 96 scoped scope-binding unit tests passed (6 SQL integration tests unavailable).
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseClaimGuid` — first `tenant_id` claim unparseable with later parseable claim and matching `x-tenant-id` header may pass `Validate` while scope resolves from header on non-Bearer schemes.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — policy names that differ from `PlatformTenantDeletionAuthority` only by case may not skip route tenant binding.
 
