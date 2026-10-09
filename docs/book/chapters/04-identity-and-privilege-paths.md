@@ -726,8 +726,10 @@ $roleDefinitions = Get-MgRoleManagementDirectoryRoleDefinition -All
 $directoryRoles = Get-MgRoleManagementDirectoryRoleAssignment -All |
     ForEach-Object {
         $definitionId = $_.RoleDefinitionId
+        $principal = Get-MgDirectoryObject -DirectoryObjectId $_.PrincipalId
         [pscustomobject]@{
             principalId      = $_.PrincipalId
+            principalType    = $principal.AdditionalProperties['@odata.type']
             roleDefinitionId = $definitionId
             directoryScopeId = $_.DirectoryScopeId
             roleName         = ($roleDefinitions | Where-Object Id -eq $definitionId).DisplayName
@@ -735,9 +737,13 @@ $directoryRoles = Get-MgRoleManagementDirectoryRoleAssignment -All |
     }
 
 $roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw | ConvertFrom-Json
-$assignedGroupIds = $roleAssignments |
+$azureRoleGroupIds = $roleAssignments |
     Where-Object { $_.principalType -eq 'Group' } |
     Select-Object -ExpandProperty principalId -Unique
+$directoryRoleGroupIds = $directoryRoles |
+    Where-Object { $_.principalType -eq '#microsoft.graph.group' } |
+    Select-Object -ExpandProperty principalId -Unique
+$assignedGroupIds = @($azureRoleGroupIds + $directoryRoleGroupIds) | Select-Object -Unique
 
 $memberships = foreach ($groupId in $assignedGroupIds) {
     # transitiveMembers includes nested groups; direct members would hide them.
@@ -808,6 +814,15 @@ resourcecontainers
 
 Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. Add each compute resource id as a child of its `parentScope`. For each storage account, construct its parent scope as `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}`, then add its resource id as a child of that scope so inheritance reaches the resource and not only the resource group.
 
+**Deployment actions (payments lab).** Map each compute resource to the control-plane action your loader treats as `canControlCode`. The sketch in section 4.5 uses `CODE_CONTROL_ACTION` (`Microsoft.Web/sites/write`). Use this table in Step 1; confirm against built-in role definitions and the resource `type` in `compute-identities.json`.
+
+| Snapshot `type` | `canControlCode` action | Notes |
+|-----------------|-------------------------|-------|
+| `microsoft.web/sites` (Function App) | `Microsoft.Web/sites/write` | Matches the payments lab Function App and the derivation sketch. |
+| `microsoft.web/sites` (App Service) | `Microsoft.Web/sites/write` | Same action family for web workloads in this lab. |
+| `Microsoft.Automation/automationAccounts` | `Microsoft.Automation/automationAccounts/write` | Automation account control plane; verify job run permissions separately. |
+| `Microsoft.Logic/workflows` | `Microsoft.Logic/workflows/write` | Logic App workflow resource. |
+
 **Step 1 — Derive privilege edges.** Write a loader that reads those files and emits `Edge` records (section 4.5). Call `expand_group_assignments` and `derive_capability_edges`. Do not pass `hasRoleAt` or `contains` to `find_paths`. `find_paths` ignores those two kinds; a loader that emits only them will find no paths, which is the correct failure if derivation never ran.
 
 1. `memberOf` from `transitive-memberships.json`.
@@ -816,7 +831,7 @@ Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identi
 4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, Global Administrator, or Privileged Role Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
 5. `appFor` links joined through `appId`.
 6. `runsAs` from `compute-identities.json` (observed): the compute resource to each attached managed identity's principal id.
-7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, denies, and conditions. For the Function App the code-control action is `Microsoft.Web/sites/write`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
+7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, denies, and conditions. Pick the code-control action from the deployment-actions table for the resource `type`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
 
 Every edge cites the snapshot file and row. Derived edges also cite the action and the rule.
 
