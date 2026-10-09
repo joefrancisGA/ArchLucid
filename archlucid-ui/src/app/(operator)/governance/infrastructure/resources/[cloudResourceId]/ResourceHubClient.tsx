@@ -1241,7 +1241,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           <EnterpriseTableHeaderCell>
                             <span>Path</span>
                             <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-                              Where the captured evidence is located in the evidence bundle.
+                              Where the captured evidence is located in the evidence package.
                             </span>
                           </EnterpriseTableHeaderCell>
                         </EnterpriseTableRow>

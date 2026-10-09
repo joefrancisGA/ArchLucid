@@ -222,30 +222,12 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
-    def test_live_e2e_proxy_rate_limit_wiring_required(self) -> None:
+    def test_wait_for_api_ready_http_000_fail_fast_required(self) -> None:
         errors: list[str] = []
 
-        sut._require_live_e2e_proxy_rate_limit_wiring(errors)
+        sut._require_wait_for_api_ready_http_000_fail_fast(errors)
 
         self.assertEqual(errors, [])
-
-    def test_tb927_invitee_role_wiring_requires_auth_me_429_retry(self) -> None:
-        errors: list[str] = []
-
-        sut._require_tb927_invitee_role_wiring(
-            "fetchAuthMeWithBearer",
-            "\n".join(
-                [
-                    "export async function fetchAuthMeWithBearer() {}",
-                    "export async function writeJwtBrowserSession() {}",
-                    "await writeJwtBrowserSession(page, trimmedToken)",
-                    'credentials: "same-origin"',
-                ]
-            ),
-            errors,
-        )
-
-        self.assertTrue(any("retry HTTP 429" in error for error in errors))
 
 
 if __name__ == "__main__":

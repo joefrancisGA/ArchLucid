@@ -40,7 +40,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell className={REVIEW_TITLE_COLUMN_CLASS}>
           <span>Review</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            Open the architecture review represented by this row.
+            Open the review package represented by this row.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
