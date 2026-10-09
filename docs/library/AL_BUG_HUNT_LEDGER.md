@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `scim-users` — `POST /scim/v2/Users` and `PATCH` accepted a second live user when `userName` matched an existing user with a different `externalId`, including a case-only change (`ALICE@example.com` vs `alice@example.com`). Entra matches on `userName eq`, and RFC 7643 requires `userName` to be unique. Create, replace, patch, and directory reactivation now return `uniqueness` when another live user already has that name. Directory-removed rows do not block reuse. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`. 33 scoped `ScimUsers` unit tests passed.
+
 2026-10-09 seed hunt (seed→hit): `scim-users` — `GET /scim/v2/Users?filter=` parsed `and` and `or` at the same precedence, so `userName eq "keep" or userName eq "drop" and active eq "false"` became `(keep or drop) and inactive` and omitted the active user who matches only the left comparison. RFC 7644 §3.4.2.2 requires `not` over `and` over `or`. `ScimFilterParser` now parses in that order, which also accepts `not (...) and ...` instead of rejecting the trailing `and`. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`. 55 scoped `ScimUsers` and `ScimFilterParser` tests passed.
 
 2026-10-09 seed hunt (seed→hit): `scim-users` — `PATCH /scim/v2/Users/{id}` `remove` on `userName` or `externalId` deleted the flat-map key, then `ReadPatchRequiredString` restored the stored value, so the call succeeded and the required attribute stayed. Those removes now return `mutability` and leave the row unchanged. Optional `displayName` remove still clears. Regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`. 30 scoped `ScimUsers` unit tests passed.
@@ -10691,13 +10693,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 29
-- **bugs-found:** 20
+- **hunts:** 30
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — user list filter parsed and/or at equal precedence
+- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): `POST /scim/v2/Users` and PATCH `userName` allowed a second live user when only `externalId` differed, including case-only `userName` changes. `EnsureUserNameNotUsedByAnotherLiveUserAsync` now returns `uniqueness` for create, replace, patch, and reactivation. Directory-removed rows are ignored so a deleted name can be reused. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`; 33 scoped ScimUsers unit tests passed.
 
 2026-10-09 seed hunt (seed→hit): `GET /scim/v2/Users` filter `userName eq "keep-inactive@example.com" or userName eq "drop-active@example.com" and active eq "false"` returned no users because `ScimFilterParser` folded `and` and `or` left-to-right. RFC 7644 §3.4.2.2 binds `and` tighter than `or`, so the active `keep-inactive` user must remain. Parser now uses that order (`not`, then `and`, then `or`). Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`; 55 scoped ScimUsers and ScimFilterParser tests passed.
 
@@ -10745,6 +10749,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `ScimUserService.CreateAsync` / `PatchAsync` / `ScimUsersController` — a second live user with the same `userName` and a different `externalId` was stored, including case-only names — **hit 2026-10-09 seed hunt:** live `userName` lookup returns `uniqueness`. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 - [x] (proven) `ScimFilterParser.ParseFilter` / `ScimUsersController.ListAsync` — ungrouped `or` before `and` was parsed left-to-right, so an active user matching only the left comparison was omitted — **hit 2026-10-09 seed hunt:** `not` over `and` over `or` per RFC 7644 §3.4.2.2. Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`.
 - [x] (proven) `ScimUserService.PatchAsync` / `ScimUsersController.PatchAsync` — PATCH `remove` on `userName` or `externalId` deleted the flat-map key and `ReadPatchRequiredString` restored the stored value — **hit 2026-10-09 seed hunt:** required-attribute remove returns `mutability` and does not persist. Regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
 - [x] (invalid) PATCH/DELETE affects a user in another tenant when externalId collides — repository and service scope by `tenantId` + user `id`; externalId collisions are per-tenant only

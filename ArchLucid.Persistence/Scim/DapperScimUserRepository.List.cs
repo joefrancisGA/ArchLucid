@@ -99,4 +99,29 @@ public sealed partial class DapperScimUserRepository
 
         return row?.ToRecord();
     }
+
+    /// <inheritdoc />
+    public async Task<ScimUserRecord?> GetByUserNameAsync(
+        Guid tenantId,
+        string userName,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        // LOWER matches RFC 7644 case-insensitive string compare even when the database collation is case-sensitive.
+        const string sql = """
+                           SELECT TOP (1) u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
+                                  u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
+                           FROM dbo.ScimUsers u
+                           WHERE u.TenantId = @TenantId
+                             AND u.DirectoryRemovedUtc IS NULL
+                             AND LOWER(u.UserName) = LOWER(@UserName);
+                           """;
+
+        UserRow? row = await connection.QuerySingleOrDefaultAsync<UserRow>(
+            new CommandDefinition(sql, new { TenantId = tenantId, UserName = userName }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
 }

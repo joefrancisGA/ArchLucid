@@ -85,6 +85,50 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task CreateAsync_duplicate_user_name_throws_conflict()
+    {
+        // RFC 7643 requires userName to be unique. A second live user with a different externalId
+        // and only a case change still collides for Entra "userName eq" matching.
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "SCIM UserName Tenant",
+            $"slug-{tenantId:N}",
+            TenantTier.Enterprise,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None,
+            enterpriseScimSeatsLimit: 10);
+        ScimUserService sut = CreateService(users, tenants);
+
+        using JsonDocument first = JsonDocument.Parse(
+            """
+            {
+              "userName": "alice@example.com",
+              "externalId": "ext-1",
+              "active": true
+            }
+            """);
+
+        await sut.CreateAsync(tenantId, first.RootElement, CancellationToken.None);
+
+        using JsonDocument second = JsonDocument.Parse(
+            """
+            {
+              "userName": "ALICE@example.com",
+              "externalId": "ext-2",
+              "active": true
+            }
+            """);
+
+        Func<Task> act = () => sut.CreateAsync(tenantId, second.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+    }
+
+    [Fact]
     public async Task ReplaceAsync_duplicate_external_id_throws_conflict()
     {
         Guid tenantId = Guid.NewGuid();
@@ -850,6 +894,48 @@ public sealed class ScimUsersServiceUnitTests
 
         await act.Should().ThrowAsync<ScimUserResourceParseException>();
         (await users.GetByIdAsync(tenantId, created.Id, CancellationToken.None))!.UserName.Should().Be("alice@example.com");
+    }
+
+    [Fact]
+    public async Task PatchAsync_replace_userName_to_another_users_name_throws_conflict()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-1",
+            "alice@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        ScimUserRecord second = await users.InsertAsync(
+            tenantId,
+            "ext-2",
+            "bob@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        using JsonDocument patch = JsonDocument.Parse(
+            """
+            {
+              "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+              "Operations": [{ "op": "replace", "path": "userName", "value": "Alice@example.com" }]
+            }
+            """);
+
+        Func<Task> act = () => sut.PatchAsync(tenantId, second.Id, patch.RootElement, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ScimConflictException>();
+        (await users.GetByIdAsync(tenantId, second.Id, CancellationToken.None))!.UserName.Should().Be("bob@example.com");
     }
 
     [Fact]

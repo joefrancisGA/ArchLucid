@@ -46,6 +46,7 @@ public sealed partial class ScimUserService
             displayName = ResolvePatchDisplayName(displayNameElement, displayName);
 
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
+        await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
 
         bool wasActive = existing.Active;
 
