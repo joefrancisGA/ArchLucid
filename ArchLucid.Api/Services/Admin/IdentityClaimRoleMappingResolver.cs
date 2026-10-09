@@ -80,16 +80,27 @@ public static class IdentityClaimRoleMappingResolver
             if (!match.Success)
                 continue;
 
-            if (match.Groups.Count > 1)
-            {
-                string capturedRole = match.Groups[1].Value.Trim();
+            string capturedRole = ReadRegexMappedRole(match);
 
-                if (AllowedRoles.Contains(capturedRole))
-                    roles.Add(capturedRole);
-            }
+            if (AllowedRoles.Contains(capturedRole))
+                roles.Add(capturedRole);
         }
 
         return roles.OrderBy(static r => r, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static string ReadRegexMappedRole(Match match)
+    {
+        // A capture group wins when it is an allowed role. Otherwise the full match is the role
+        // for patterns such as ^Admin$ that have no parentheses.
+        string captured = match.Groups.Count > 1
+            ? match.Groups[1].Value.Trim()
+            : string.Empty;
+
+        if (AllowedRoles.Contains(captured))
+            return captured;
+
+        return match.Value.Trim();
     }
 
     public static void ValidateMapping(IdentityClaimRoleMappingDocument mapping)
