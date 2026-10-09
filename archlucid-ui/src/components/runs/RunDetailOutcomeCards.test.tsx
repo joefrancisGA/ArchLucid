@@ -119,4 +119,35 @@ describe("RunDetailOutcomeCards", () => {
 
     expect(screen.getByTestId("buyer-governance-gate-footnote")).toHaveTextContent("Operator gate: Passed");
   });
+
+  it("labels missing decision and citation values without replacing stored zero", () => {
+    const { rerender } = render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={null}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={0}
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Decision was not stored.");
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Citation count was not returned.");
+
+    rerender(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        hasGoldenManifest
+        findingCountDisplay={0}
+        warningCountDisplay={0}
+        artifactCount={1}
+        unresolvedIssueCountDisplay={0}
+        aggregateRiskPosture="Approved with monitoring"
+      />,
+    );
+
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("0 citations in evidence trail");
+    expect(screen.getByTestId("buyer-review-decision-summary")).toHaveTextContent("Approved with monitoring");
+  });
 });

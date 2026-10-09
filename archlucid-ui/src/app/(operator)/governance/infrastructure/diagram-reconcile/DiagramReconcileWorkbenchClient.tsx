@@ -199,6 +199,14 @@ function normalizeDiagramLabelForMapping(label: string): string {
   return namePart.toLowerCase();
 }
 
+export function formatDiagramReconcileAssociationType(value: string | null): string {
+  return value ?? "Association type was not stored.";
+}
+
+export function formatDiagramReconcileAzureResourceId(value: string | null): string {
+  return value ?? "Azure resource id was not stored.";
+}
+
 function buildDiagramReconcileCorrespondenceAskHref(
   pathname: string,
   currentSearch: string,
@@ -1904,7 +1912,9 @@ export function DiagramReconcileWorkbenchClient() {
                       ) : null}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <span className="break-all font-mono text-xs">{row.azureResourceId ?? "—"}</span>
+                      <span className="break-all font-mono text-xs">
+                        {formatDiagramReconcileAzureResourceId(row.azureResourceId)}
+                      </span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{explanation}</EnterpriseTableCell>
                     <EnterpriseTableCell>
@@ -2071,7 +2081,7 @@ export function DiagramReconcileWorkbenchClient() {
                       <EnterpriseTableCell>
                         {gap.fromCloudResourceId ?? "—"} → {gap.toCloudResourceId ?? "—"}
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell>{gap.associationType ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>{formatDiagramReconcileAssociationType(gap.associationType)}</EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <StatusTag
                           kind="needs-attention"

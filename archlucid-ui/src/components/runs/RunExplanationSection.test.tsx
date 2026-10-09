@@ -163,6 +163,32 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("Overall OK.")).toBeInTheDocument();
   });
 
+  it("labels a missing risk posture without changing a stored label", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({ riskPosture: "" })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: /risk posture was not stored/i })).toHaveTextContent(
+      "Risk posture was not stored.",
+    );
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ riskPosture: "Not rated" })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: /risk posture not rated/i })).toHaveTextContent("Not rated");
+  });
+
   it("links faithfulness warnings to retrieval grounding diagnostics", () => {
     render(
       <RunExplanationSection

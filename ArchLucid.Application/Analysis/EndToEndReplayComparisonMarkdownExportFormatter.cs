@@ -113,8 +113,8 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine();
             sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine($"- Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
+            sb.AppendLine($"- Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
             sb.AppendLine();
             AppendList(sb, "Added Claims", delta.AddedClaims);
             AppendList(sb, "Removed Claims", delta.RemovedClaims);

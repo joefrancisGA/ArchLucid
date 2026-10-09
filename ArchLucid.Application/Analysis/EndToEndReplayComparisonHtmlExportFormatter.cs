@@ -162,8 +162,8 @@ public static class EndToEndReplayComparisonHtmlExportFormatter
             sb.AppendLine("<h3>" + EscapeHtml(delta.AgentType.ToString()) + "</h3><ul>");
             sb.AppendLine("<li>Left Exists: " + (delta.LeftExists ? "Yes" : "No") + "</li>");
             sb.AppendLine("<li>Right Exists: " + (delta.RightExists ? "Yes" : "No") + "</li>");
-            sb.AppendLine("<li>Left Confidence: " + (delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a") + "</li>");
-            sb.AppendLine("<li>Right Confidence: " + (delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a") + "</li>");
+            sb.AppendLine("<li>Left Confidence: " + WebUtility.HtmlEncode(AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")) + "</li>");
+            sb.AppendLine("<li>Right Confidence: " + WebUtility.HtmlEncode(AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")) + "</li>");
             foreach (string c in delta.AddedClaims)
                 sb.AppendLine("<li>Added claim: " + EscapeHtml(c) + "</li>");
             foreach (string c in delta.RemovedClaims)

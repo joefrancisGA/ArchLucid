@@ -77,8 +77,8 @@ public static class EndToEndReplayComparisonDocxExportFormatter
                         AddParagraph(body, delta.AgentType.ToString(), true);
                         AddBullet(body, $"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
                         AddBullet(body, $"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-                        AddBullet(body, $"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-                        AddBullet(body, $"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+                        AddBullet(body, $"Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
+                        AddBullet(body, $"Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
                         AddDiffSection(body, "Added Claims", delta.AddedClaims);
                         AddDiffSection(body, "Removed Claims", delta.RemovedClaims);
                         AddDiffSection(body, "Added Findings", delta.AddedFindings);

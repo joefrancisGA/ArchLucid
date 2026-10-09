@@ -149,7 +149,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     render(<InfraEvidenceDiagramOutline outline={stateMissingOutline} defaultNodesOpen={true} />);
 
     expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
-    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+    expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
       "No connection state detail was stored.",
     );
   });
@@ -742,6 +742,35 @@ describe("InfraEvidenceDiagramOutline", () => {
     ).toBeTruthy();
   });
 
+  it("separates missing connection state from stored Unknown", () => {
+    const outline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_missing",
+          label: "missing-state",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-data",
+          connectionState: null,
+        },
+        {
+          id: "n_unknown",
+          label: "stored-unknown",
+          resourceType: "Microsoft.Storage/storageAccounts",
+          resourceGroup: "rg-data",
+          connectionState: "Unknown",
+        },
+      ],
+      edges: [],
+    };
+
+    render(<InfraEvidenceDiagramOutline outline={outline} defaultNodesOpen={true} />);
+
+    expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
+      "Connection state was not stored. (1)",
+    );
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent("Needs evidence (1)");
+  });
+
   it("puts orphaned-node problems in a separate Problem column", () => {
     const orphanedOutline: InfraEvidenceMermaidOutline = {
       nodes: [
@@ -875,7 +904,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
 
     expect(screen.queryByTestId("infra-diagrams-connected-nodes-list")).toBeNull();
-    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+    expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
       "No connection state detail was stored.",
     );
   });

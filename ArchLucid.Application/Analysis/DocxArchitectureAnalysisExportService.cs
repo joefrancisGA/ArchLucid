@@ -209,8 +209,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph(delta.AgentType.ToString(), true);
             builder.AddBullet($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             builder.AddBullet($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            builder.AddBullet($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            builder.AddBullet($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddBullet($"Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
+            builder.AddBullet($"Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
             builder.AddDiffSection("Added Claims", delta.AddedClaims);
             builder.AddDiffSection("Removed Claims", delta.RemovedClaims);
             builder.AddDiffSection("Added Findings", delta.AddedFindings);

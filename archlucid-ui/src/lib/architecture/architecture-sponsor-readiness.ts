@@ -115,7 +115,7 @@ export function resolveArchitectureConfidentialityLabel(sourceText: string): str
     return "PCI-sensitive — internal review only";
   }
 
-  return "Internal — preliminary architecture draft";
+  return null;
 }
 
 function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): number {

@@ -429,7 +429,7 @@ export function ArchitectureSponsorSharingPanel(
             <p className="m-0 mt-1">Not approved</p>
             <p className="m-0 mt-1">Known gaps: {knownGaps.join("; ") || "None listed"}</p>
             <p className="m-0 mt-1">
-              Confidentiality: {assessment.confidentialityLabel ?? "Internal — preliminary architecture draft"}
+              Confidentiality: {assessment.confidentialityLabel ?? "Confidentiality was not stored."}
             </p>
           </div>
 

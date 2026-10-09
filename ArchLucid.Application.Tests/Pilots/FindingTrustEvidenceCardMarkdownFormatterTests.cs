@@ -110,6 +110,28 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         sb.ToString().Should().Contain("**Missing**");
     }
 
+    [Fact]
+    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_UsesOmissionCopy()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-4",
+            TopFindingSeverity = "Warning",
+        };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = "SendableWithCaveats",
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = "not-a-classification",
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
+
+        sb.ToString().Should().Contain("Sponsor-proof readiness was not stored.");
+    }
+
     private static ProofPackageCompletenessResponse MinimalProof() =>
         new()
         {

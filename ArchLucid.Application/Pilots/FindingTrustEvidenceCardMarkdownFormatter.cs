@@ -94,7 +94,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "**Incomplete**")} |");
+            $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "Sponsor-proof readiness was not stored.")} |");
 
         sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
         sb.AppendLine(

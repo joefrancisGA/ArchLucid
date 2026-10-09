@@ -132,6 +132,32 @@ describe("adr-from-run", () => {
     expect(md).toContain("**Semantic support:** Unsupported (scorer as057-v1)");
   });
 
+  it("uses omission copy when semantic support scorer version is missing", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "run-1",
+      projectId: "p1",
+      reviewTitle: "Stored title",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [
+        {
+          findingId: "f1",
+          title: "Finding",
+          recommendation: "Fix",
+          severityLabel: "High",
+          aiReasoningExcerpt: "",
+          semanticSupportBand: "Unsupported",
+          semanticSupportBandScorerVersion: null,
+        },
+      ],
+    });
+
+    expect(md).toContain("Scorer version was not stored.");
+  });
+
   it("buildMadrMarkdownFromRun prepends shared career export honesty when provided (PC-13)", () => {
     const input: AdrGeneratorRunInput = {
       runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
