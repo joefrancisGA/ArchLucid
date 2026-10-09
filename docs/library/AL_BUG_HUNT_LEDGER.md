@@ -16404,9 +16404,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — finding evidenceRefs and message ignored for faithfulness
 - **related-pd-tb:** none
@@ -16421,6 +16421,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a JSON-null finding can throw during category coverage evaluation after deserialization — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~239–260; input: reference trace with a null finding element and a required category.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null evidence-reference items is counted toward the PilotStrict minimum without validating each reference — locus: `AgentOutputTraceCitationGate.cs` ~31–42; input: parsed result with `evidenceRefs: [null]`.
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range is silently clamped to 0 or 1 rather than treated as malformed judge output — locus: `AgentOutputFaithfulnessEvaluator.cs` ~174–191; input: completion response with `faithfulnessScore: 2.0` or `-1.0`.
+
+2026-10-09 seed hunt (seed-only): re-read the quality gate, evaluation harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge after the prior seed; no new hypothesis met the same-run failing-repro bar. Seeded five additional reachable `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — a rejected PilotStrict result caused only by citation coverage can be classified from free-form reason tokens rather than the gate outcome cause — locus: `AgentOutputQualityGate.cs` ~49–75; input: rejected PilotStrict evaluation with a non-empty generic reason.
+- [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys are compared case-sensitively even though web serialization uses camelCase — locus: `AgentOutputEvaluationHarness.cs` ~50–73; input: expectation requiring `Findings` against serialized `findings`.
+- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair.
+- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfies the presence gate — locus: `AgentOutputTraceCitationGate.cs` ~50–63; input: PilotStrict output with `citations: [null]`.
+- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
 
 ### Hypotheses
 
