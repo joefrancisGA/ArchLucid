@@ -6,6 +6,8 @@
 
 2026-10-09 seed hunt (seed-only): `ui-claim-discipline-policy` — re-read `claim-discipline-policy.ts` and its focused tests; existing coverage accounts for canonical and legacy slug aliases, intentional visible bands, duplicate-slug prevention, and heading removal when the header owns the claim. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. All 28 focused Vitest tests passed.
 
+2026-10-09 seed hunt (seed-only): `retrieval` — re-read retrieval indexing, scope validation, and Azure Search scope-filter boundaries; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused retrieval/indexing test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `api-key-auth` — re-read the authentication handler, admin rotation service, controller, and focused tests; existing coverage accounts for disabled-auth fail-closed behavior, development bypass gating, key rotation, expiry boundaries, duplicate headers, Unicode normalization, scope claims, and explicit audit actors. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — `assessArchitectureDiagramReadiness` added the architecture name as an extra node even when that label was already the only system. `mergeUserAssertions` inserts the name into systems, and `buildArchitectureDiagramModel` skips a duplicate label, so a one-node diagram passed `MIN_ACTIVE_NODES` (2) and generated. The name now counts only when it adds a node. Regression `stays insufficient when the architecture name repeats the only system` failed first with `sufficient === true`. 11 generate, readiness, and model tests passed. [class:off-by-one]
@@ -18628,6 +18630,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-09 seed hunt (seed-only): re-read retrieval indexing, scope validation, and Azure Search scope-filter boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused retrieval/indexing test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-04 seed hunt #53 (seed→hit): reseeded retrieval; proved shrink reindex removed the whole document then re-upserted, so a failed shrink re-upsert left the document with zero searchable chunks after the batch upsert had already written new ordinals; fixed by deleting only stale `{documentId}-chunk-N` ids via `IVectorIndex.RemoveChunkIdsAsync` after the batch upsert; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`; 354 scoped retrieval/indexing tests passed.
 
 2026-10-04 seed hunt #52 (seed→hit): reseeded retrieval; proved `IndexDocumentsAsync` removed all reindexed document vectors before a batched `UpsertChunksAsync`, so upsert failures left every document in the batch unsearchable without catalog rollback; fixed by upserting first and running remove-then-reupsert only when `IndexedChunkCount` exceeds the new chunk count (content shrink); regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`; 353 scoped retrieval/indexing tests passed.
@@ -18656,7 +18660,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 54
+- **hunts:** 55
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
