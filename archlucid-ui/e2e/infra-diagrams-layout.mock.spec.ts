@@ -102,6 +102,7 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
   test.setTimeout(120_000);
 
   test("peer grid is legible, centered, and honest at default zoom", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1400 });
     await mockDiagramRoutes(page, elevenVnetPeerGridRenderResponse());
 
     await page.goto(
@@ -193,11 +194,22 @@ test.describe(`infra-diagrams-layout (${releaseGateTag})`, { tag: [releaseGateTa
         chrome: {
           cameraIsDescendant: viewport.contains(camera),
           controlsOutsideCamera: !camera.contains(controls),
+          // Overlay chrome is inside the bordered viewport. Stacked chrome
+          // (inventory workbench) sits immediately above that frame in the
+          // same column so a wide SVG cannot scroll it off-screen.
           controlsVisibleInFrame:
-            controlsRect.right <= viewportRect.right + 1
-            && controlsRect.left >= viewportRect.left - 1
-            && controlsRect.top >= viewportRect.top - 1
-            && controlsRect.bottom <= viewportRect.bottom + 1,
+            controlsRect.left >= viewportRect.left - 1
+            && controlsRect.right <= viewportRect.right + 1
+            && (
+              (
+                controlsRect.top >= viewportRect.top - 1
+                && controlsRect.bottom <= viewportRect.bottom + 1
+              )
+              || (
+                controlsRect.bottom <= viewportRect.top + 8
+                && controlsRect.bottom >= viewportRect.top - 96
+              )
+            ),
         },
       };
     }, minNodeHeightPx);
