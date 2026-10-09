@@ -270,12 +270,10 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {row.tokensIn === null || row.tokensIn === undefined
                       ? "Input token count was not stored."
-                      : optionalNumber(row.tokensIn)}{" "}
-                    in /{" "}
+                      : `${optionalNumber(row.tokensIn)} in`}{" / "}
                     {row.tokensOut === null || row.tokensOut === undefined
                       ? "Output token count was not stored."
-                      : optionalNumber(row.tokensOut)}{" "}
-                    out
+                      : `${optionalNumber(row.tokensOut)} out`}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
