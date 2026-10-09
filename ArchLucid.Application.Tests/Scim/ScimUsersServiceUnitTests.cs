@@ -543,6 +543,44 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task ListAsync_filter_gives_and_precedence_over_or()
+    {
+        // RFC 7644 §3.4.2.2: not binds tighter than and, and and binds tighter than or.
+        // Left-associative and/or drops the active user on the left of or when the right clause requires active eq false.
+        Guid tenantId = Guid.NewGuid();
+        InMemoryScimUserRepository users = new();
+        InMemoryTenantRepository tenants = new();
+        ScimUserService sut = CreateService(users, tenants);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-keep",
+            "keep-inactive@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        await users.InsertAsync(
+            tenantId,
+            "ext-drop",
+            "drop-active@example.com",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
+
+        string filter = """userName eq "keep-inactive@example.com" or userName eq "drop-active@example.com" and active eq "false" """;
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await sut.ListAsync(tenantId, filter, 1, 100, CancellationToken.None);
+
+        total.Should().Be(1);
+        items.Should().ContainSingle(u => u.UserName == "keep-inactive@example.com");
+    }
+
+    [Fact]
     public async Task PatchAsync_replace_active_numeric_zero_deactivates_user()
     {
         Guid tenantId = Guid.NewGuid();

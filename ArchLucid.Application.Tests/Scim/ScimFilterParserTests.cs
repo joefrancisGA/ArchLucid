@@ -107,6 +107,25 @@ public sealed class ScimFilterParserTests
     }
 
     [SkippableFact]
+    public void Parse_or_binds_looser_than_and()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(
+            @"userName eq ""a"" or userName eq ""b"" and active eq ""false""");
+        ScimOrNode root = n.Should().BeOfType<ScimOrNode>().Subject;
+        root.Left.Should().BeOfType<ScimComparisonNode>();
+        root.Right.Should().BeOfType<ScimAndNode>();
+    }
+
+    [SkippableFact]
+    public void Parse_not_binds_tighter_than_and()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"not (userName eq ""a"") and active eq true");
+        ScimAndNode root = n.Should().BeOfType<ScimAndNode>().Subject;
+        root.Left.Should().BeOfType<ScimNotNode>();
+        root.Right.Should().BeOfType<ScimComparisonNode>();
+    }
+
+    [SkippableFact]
     public void Parse_not()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"not (userName eq ""x"")");
