@@ -23,7 +23,7 @@ internal static partial class ConsultingDocxSupplementalSections
             ("Request ID", report.Run.RequestId),
             ("Run Status", report.Run.Status.ToString()),
             ("Created UTC", report.Run.CreatedUtc.ToString("O")),
-            ("Completed UTC", report.Run.CompletedUtc?.ToString("O") ?? "n/a"),
+            ("Completed UTC", report.Run.CompletedUtc?.ToString("O") ?? "Completed time was not stored."),
             ("Manifest Version", report.Run.CurrentManifestVersion ?? "n/a")
         ]);
     }

@@ -57,6 +57,21 @@ public sealed class InventoryDiagramVnetPeeringRelationshipApplierTests
     }
 
     [Fact]
+    public void Compile_disconnected_peering_without_remote_name_uses_omission_copy()
+    {
+        GraphNode vnetA = CreateVnet("vnet-a-node", "vnet-a");
+        vnetA.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+            "[{\"properties\":{\"peeringState\":\"Disconnected\",\"remoteVirtualNetwork\":{\"id\":\"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/\"}}}]";
+
+        DiagramAst ast = compiler.Compile(
+            new GraphSnapshot { Nodes = [vnetA] },
+            DiagramMode.FullSubscription);
+
+        ast.Nodes.Single(node => node.Label == "vnet-a").UnresolvedRelationshipDetails.Should()
+            .Contain("Peering to Remote network name was not stored. is not connected");
+    }
+
+    [Fact]
     public void Compile_shared_resource_group_without_peering_draws_no_line()
     {
         GraphSnapshot graph = new()

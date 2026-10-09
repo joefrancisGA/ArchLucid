@@ -44,6 +44,44 @@ describe("decision-register-export (FC-79)", () => {
     expect(csv).toContain("Evidence-backed,Evidence-backed");
   });
 
+  it("uses omission copy only for missing confidence values and sources", () => {
+    const missing = [
+      {
+        ...decisions[0],
+        confidence: null,
+        confidenceSource: " ",
+        buyerConfidenceSource: null,
+      },
+    ];
+
+    const json = formatDecisionRegisterExportJson(missing);
+    const csv = formatDecisionRegisterExportCsv(missing);
+
+    expect(json).toContain("Decision confidence was not stored.");
+    expect(json).toContain("Confidence source was not stored.");
+    expect(json).toContain("Buyer confidence source was not stored.");
+    expect(csv).toContain("Decision confidence was not stored.");
+    expect(csv).toContain("Confidence source was not stored.");
+    expect(csv).toContain("Buyer confidence source was not stored.");
+  });
+
+  it("preserves stored zero and Unknown source values", () => {
+    const stored = [
+      {
+        ...decisions[0],
+        confidence: 0,
+        confidenceSource: "Unknown",
+        buyerConfidenceSource: "Evidence-backed",
+      },
+    ];
+
+    const json = formatDecisionRegisterExportJson(stored);
+
+    expect(json).toContain('"confidence": "0"');
+    expect(json).toContain('"confidenceSource": "Unknown"');
+    expect(json).toContain('"buyerConfidenceSource": "Evidence-backed"');
+  });
+
   it("includes semantic support band stamp and supporting finding bands when context is provided (AS-071)", () => {
     const findings: QuickDecisionFinding[] = [
       {

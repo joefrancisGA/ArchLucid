@@ -23,20 +23,28 @@ export type FindingInspectDiagramCitationPreviewDialogProps = {
   readonly onOpenChange: (open: boolean) => void;
 };
 
+export function resolveDiagramEvidenceFileName(value: string | null | undefined): string {
+  return value?.trim() || "Diagram file name was not stored.";
+}
+
+export function resolveDiagramEvidenceContentType(value: string | null | undefined): string {
+  return value?.trim() || "Content type was not stored.";
+}
+
 /** Opens stored diagram evidence and highlights the cited shape (AS-024 / AS-025). */
 export function FindingInspectDiagramCitationPreviewDialog(
   props: FindingInspectDiagramCitationPreviewDialogProps,
 ): ReactElement {
   const { runId, citation, open, onOpenChange } = props;
-  const [fileName, setFileName] = useState<string>("Diagram evidence");
-  const [contentType, setContentType] = useState<string>("text/plain");
+  const [fileName, setFileName] = useState<string>("Diagram file name was not stored.");
+  const [contentType, setContentType] = useState<string>("Content type was not stored.");
   const [textContent, setTextContent] = useState<string>("");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const resetState = useCallback((): void => {
-    setFileName("Diagram evidence");
-    setContentType("text/plain");
+    setFileName("Diagram file name was not stored.");
+    setContentType("Content type was not stored.");
     setTextContent("");
     setLoadError(null);
     setLoading(false);
@@ -65,8 +73,8 @@ export function FindingInspectDiagramCitationPreviewDialog(
           return;
         }
 
-        setFileName(resolvedFileName?.trim() || "Diagram evidence");
-        setContentType(resolvedContentType?.trim() || "text/plain");
+        setFileName(resolveDiagramEvidenceFileName(resolvedFileName));
+        setContentType(resolveDiagramEvidenceContentType(resolvedContentType));
         setTextContent(await blob.text());
       } catch {
         if (!canceled) {
