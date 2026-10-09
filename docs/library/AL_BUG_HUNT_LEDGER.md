@@ -8,6 +8,8 @@
 
 2026-10-09 seed hunt (seed-only): `retrieval` — re-read retrieval indexing, scope validation, and Azure Search scope-filter boundaries; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused retrieval/indexing test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+2026-10-09 seed hunt (seed-only): `architecture-recommendation` — repeated the selected recommendation engine/trade-off builder review and focused Alternatives/ProposedChange test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `api-key-auth` — re-read the authentication handler, admin rotation service, controller, and focused tests; existing coverage accounts for disabled-auth fail-closed behavior, development bypass gating, key rotation, expiry boundaries, duplicate headers, Unicode normalization, scope claims, and explicit audit actors. No new reachable mechanism-backed candidate met the seed quality bar; no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — `assessArchitectureDiagramReadiness` added the architecture name as an extra node even when that label was already the only system. `mergeUserAssertions` inserts the name into systems, and `buildArchitectureDiagramModel` skips a duplicate label, so a one-node diagram passed `MIN_ACTIVE_NODES` (2) and generated. The name now counts only when it adds a node. Regression `stays insufficient when the architecture name repeats the only system` failed first with `sufficient === true`. 11 generate, readiness, and model tests passed. [class:off-by-one]
@@ -9190,6 +9192,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-09 seed hunt (seed-only): repeated the selected recommendation engine/trade-off builder review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed→hit): promoted trade-off `ResolutionRationale` when no declared priority selects either competing dimension; regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`.
 
 2026-10-04 seed hunt #44 (seed→hit): promoted declared-priority negation gap for `avoid cost` workbook phrasing; proved `Pilot scope should avoid cost increases in phase one` still preferred Cost in Security/Cost trade-offs because dimension-word matching hit `cost` without treating `avoid cost` as negation; extended `IsNegatedDimensionMention` with `avoid(s|ed|ing)? {dimension}` and `omit(s|ted|ting)? {dimension}` rejection phrases; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_avoid_cost`; exact Alternatives/ProposedChange filter passed 45/45.
@@ -9304,7 +9308,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 47
+- **hunts:** 48
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
