@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `cli-tenant-isolation` — reread live deny and run-list probes, offline replay verdicts, scope-header replacement, and the checked-in isolation manifests. No row was promoted. The 204-versus-verified-absent replay gap is the same fail-open manifest merge as the server-error trust gate. Five candidates name a locus and a reachable input.
+
 2026-10-09 seed hunt (seed→hit): `arm-terraform-source-ids` — `TryParseLeafResourceAddress` kept the trailing Terraform instance key. Terraform show JSON appends `[index]` for count and `[key]` for for_each (`TerraformShowJsonInfrastructureDeclarationParser`), so a graph `SourceId` of `module.wrapper.azurerm_app_service.main[0]` indexed only `azurerm_app_service.main[0]`. A relationship that cites the resource address `azurerm_app_service.main` did not resolve, and the inverse (indexed relationship, unindexed graph address) missed as well. The indexed leaf stays the exact key so `main[0]` and `main[1]` remain distinct. The resource address before the key is also indexed, and lookup falls back to that span. Regressions `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index`, `MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key`, and `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried` — the first two failed with an empty edge list. 988 scoped edge-mapper and graph-merge tests passed. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `core-costing` — `ManifestInfrastructureCostNodes.FromGoldenTopology` filtered null services with `OfType<ManifestService>()` and enumerated datastores directly. `JsonSerializerDefaults.Web` keeps a null array element, and `CostSummaryArtifactGenerator` passes `manifest.Topology.Datastores` into that method, so a null datastore threw on `DatastoreName` and dropped the sibling rows. Extractor `resources.json` is the same JSON array shape. `FromExtractorInventory` and `FromCloudInventoryLines` touched `line.ResourceType` with no null filter, so a null Azure or AWS inventory element threw the same way. Datastores now use `OfType<ManifestDatastore>()`, and both inventory loops share `PresentInventoryLines`. Terraform rows stay unfiltered because `TerraformInfrastructureCostResourceRow` is a struct. Regressions `FromGoldenTopology_skips_null_datastore_element_from_json`, `FromExtractorInventory_skips_null_resource_element_from_json`, and `FromAwsExtractorInventory_skips_null_resource_element_from_json` failed first with `NullReferenceException`. 11 scoped costing tests passed. [class:null-deref]
@@ -9393,6 +9395,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-09 seed hunt (seed-only): reread live probes, offline replay, and scope headers; no hunt-ready row shipped; five candidates persisted.
+
 2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but outcome claimed verified `HTTP 200; foreign runId absent`; fixed verified-absent trust gating; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` exclude-run-id replay — `observedStatusCode` 503 with verified `HTTP 200; foreign runId absent` outcome false-passed — **hit 2026-10-05 seed hunt:** `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`.
@@ -9455,10 +9459,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
+- **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -9500,6 +9504,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.ShouldTrustVerifiedAbsentOutcomeOverFieldStatus` — manifest `observedStatusCode` 204 with `observedOutcome` `HTTP 200; foreign runId absent`. Live `ScanRunListForForeignRunIdAsync` maps 204 to list-unavailable SKIP, but 204 is inside the 2xx trust window. Not promoted: same fail-open replay merge as the 503 verified-absent fix.
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` — `observedStatusCode` 201 and `observedOutcome` `HTTP 201; foreign runId absent` replay as Pass. Live empty non-204 2xx bodies are list-unavailable. `AuthorityReadsController.ListRuns` returns 200, not 201.
+- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ProbePrimaryRunVisibilityAsync` — any 2xx, including 204, counts as the supplied run being visible. `RunQueryController.GetRun` returns 200, 304, 404, or 409. 304 requires `If-None-Match`, which `CliHttpProbeSession` does not send.
+- [ ] (candidate) `TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList` — a scannable `items` page whose `runId` values omit the foreign id while `description` contains it. A successful parse does not use the malformed-JSON substring fallback. `RunSummaryResponse` stores the id on `runId`.
+- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — `nextCursor` is percent-encoded once before the next `GET /v1/runs`. `RunCursorCodec.Encode` returns base64url. A cursor that was already percent-encoded would be encoded twice, `ListRuns` would return 400, and the probe would SKIP as list-unavailable.
 - [x] (proven) Offline replay trusted manifest `verdict: pass` even when `observedStatusCode` was 200 on deny-status probes — fixed by deriving deny verdicts from observed status unless manifest marks skip.
 - [x] (invalid) Probe uses the victim tenant's token instead of the attacker token — live mode applies alternate scope headers on a second client; same credential probes cross-tenant scope by design.
 - [x] (proven) Live ship-gate reported overall PASS when cross-tenant probes were SKIP (primary sanity Pass + infra 5xx skips) — fixed by downgrading live overall to SKIP and non-zero exit when isolation was not verified.
