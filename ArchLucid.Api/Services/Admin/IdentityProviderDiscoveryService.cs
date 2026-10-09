@@ -183,31 +183,47 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
     {
         List<string> thumbprints = [];
 
-        using HttpResponseMessage response =
-            await _httpClient.GetAsync(jwksUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                .ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
-            return thumbprints;
-
-        string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-        using JsonDocument document = JsonDocument.Parse(body);
-
-        if (!document.RootElement.TryGetProperty("keys", out JsonElement keys)
-            || keys.ValueKind != JsonValueKind.Array)
-            return thumbprints;
-
-        foreach (JsonElement key in keys.EnumerateArray())
+        try
         {
-            if (!IsJwksSigningKey(key))
-                continue;
+            using HttpResponseMessage response =
+                await _httpClient.GetAsync(jwksUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                    .ConfigureAwait(false);
 
-            string? thumbprint = TryExtractJwksThumbprint(key);
+            if (!response.IsSuccessStatusCode)
+                return thumbprints;
 
-            if (!string.IsNullOrWhiteSpace(thumbprint)
-                && !thumbprints.Contains(thumbprint, StringComparer.OrdinalIgnoreCase))
-                thumbprints.Add(thumbprint.ToUpperInvariant());
+            string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument document = JsonDocument.Parse(body);
+
+            if (!document.RootElement.TryGetProperty("keys", out JsonElement keys)
+                || keys.ValueKind != JsonValueKind.Array)
+                return thumbprints;
+
+            foreach (JsonElement key in keys.EnumerateArray())
+            {
+
+                if (!IsJwksSigningKey(key))
+                    continue;
+
+                string? thumbprint = TryExtractJwksThumbprint(key);
+
+                if (!string.IsNullOrWhiteSpace(thumbprint)
+                    && !thumbprints.Contains(thumbprint, StringComparer.OrdinalIgnoreCase))
+                    thumbprints.Add(thumbprint.ToUpperInvariant());
+            }
+        }
+        catch (JsonException)
+        {
+            // HTTP errors already leave thumbprints empty. A non-JSON JWKS body is the same outcome.
+            return thumbprints;
+        }
+        catch (HttpRequestException)
+        {
+            return thumbprints;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return thumbprints;
         }
 
         return thumbprints;

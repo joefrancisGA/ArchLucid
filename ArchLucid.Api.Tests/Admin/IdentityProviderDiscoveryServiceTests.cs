@@ -564,6 +564,47 @@ public sealed class IdentityProviderDiscoveryServiceTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_oidc_keeps_success_when_jwks_body_is_not_json()
+    {
+        // A non-success JWKS response leaves thumbprints empty and still returns the OpenID issuer.
+        // An HTML or plain-text JWKS body must not be reported as a bad OpenID document.
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/",
+              "jwks_uri": "https://idp.example/jwks"
+            }
+            """;
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            string body = request.RequestUri!.AbsolutePath.EndsWith("/jwks", StringComparison.Ordinal)
+                ? "<html>jwks unavailable</html>"
+                : discoveryJson;
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeTrue();
+        response.IssuerUri.Should().Be("https://idp.example/");
+        response.SigningCertificateThumbprints.Should().BeEmpty();
+        response.DiagnosticSummary.Should().NotContain("not valid JSON");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_oidc_omits_jwks_encryption_keys_from_signing_thumbprints()
     {
         // The wizard shows these values as signing certificate thumbprints. SAML discovery already
