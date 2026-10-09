@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `DrRpoRequirementParser` treated a bare integer as minutes and skipped comparison words. Architecture request templates state `Restore RPO under 1 hour` and `Target RTO < 5 minutes, RPO < 30 seconds`. Draft intake copies a quality attribute such as `RPO 1 day` onto a requirement after `RequestQualityAttributeMaterializer` has already mapped a day to 24 hours, so the requirement path reported 1 minute. One objective grammar accepts upper-bound words and `<`, and converts seconds, hours, and days into minutes (a positive fraction of a minute rounds up). Regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours` failed first. 13 scoped DrRpo parser, quality-attribute, and finding-engine tests passed. [class:other]
+
 2026-10-09 seed hunt (seed-only): `cli-tenant-isolation` — reread live deny and run-list probes, offline replay verdicts, scope-header replacement, and the checked-in isolation manifests. No row was promoted. The 204-versus-verified-absent replay gap is the same fail-open manifest merge as the server-error trust gate. Five candidates name a locus and a reachable input.
 
 2026-10-09 seed hunt (seed→hit): `arm-terraform-source-ids` — `TryParseLeafResourceAddress` kept the trailing Terraform instance key. Terraform show JSON appends `[index]` for count and `[key]` for for_each (`TerraformShowJsonInfrastructureDeclarationParser`), so a graph `SourceId` of `module.wrapper.azurerm_app_service.main[0]` indexed only `azurerm_app_service.main[0]`. A relationship that cites the resource address `azurerm_app_service.main` did not resolve, and the inverse (indexed relationship, unindexed graph address) missed as well. The indexed leaf stays the exact key so `main[0]` and `main[1]` remain distinct. The resource address before the key is also indexed, and lookup falls back to that span. Regressions `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index`, `MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key`, and `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried` — the first two failed with an empty edge list. 988 scoped edge-mapper and graph-merge tests passed. [class:off-by-one]
@@ -16447,13 +16449,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 44
-- **bugs-found:** 35
+- **hunts:** 45
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — workspace capability matched spa and dropped storage expectation
+- **last-bug:** 2026-10-09 — RPO day and under-hour phrases parsed as the wrong minute budget
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `DrRpoRequirementParser` skipped `under` and `<` bounds and counted `RPO 1 day` as 1 minute; shared duration grammar for seconds, minutes, hours, and days; regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours`; 13 scoped DrRpo tests passed.
+
+- [x] (proven) `DrRpoRequirementParser` recovery objectives — `RPO under 1 hour`, `RPO < 30 seconds`, and `RPO 1 day` — **hit 2026-10-09 seed hunt:** comparison words were skipped and a day was counted as one minute; one duration grammar converts seconds, hours, and days; regressions `TryParseRecoveryObjectives_parses_under_hour_phrase_from_architecture_request`, `TryParseRecoveryObjectives_parses_comparison_targets_from_multi_region_request`, and `TryParseRecoveryObjectives_parses_day_unit_as_twenty_four_hours`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved `TopologyExpectedCategoryResolver.ContainsAnyKeyword` still used raw substrings, so reachable request capabilities `log analytics workspace` and `point-in-time restore` dropped Storage and Data from expected topology categories; short keywords are whole delimiter tokens and longer product tokens may still use a five-letter prefix; regression `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`; focused resolver tests passed 8/8 and the picker scope passed 1280 with 14 unrelated baseline failures.
 
