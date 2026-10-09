@@ -41,7 +41,7 @@ type RunRetrievalGroundingPanelProps = {
 
 function optionalNumber(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value))
-    return "-";
+    return value === null || value === undefined ? "Token count was not stored." : "-";
 
   return String(value);
 }
@@ -51,23 +51,23 @@ function graphRagSummary(row: RunRetrievalGroundingRow): string {
   const seeds = row.graphRagSeedHits;
   const latency = row.graphRagExpansionLatencyMs;
 
-  if ((neighbors === null || neighbors === undefined || neighbors === 0)
-    && (seeds === null || seeds === undefined || seeds === 0)
+  if ((neighbors === null || neighbors === undefined)
+    && (seeds === null || seeds === undefined)
     && (latency === null || latency === undefined))
-    return "-";
+    return "Graph-RAG detail was not stored.";
 
   const parts: string[] = [];
 
   if (typeof neighbors === "number")
     parts.push(`${neighbors} nbr`);
 
-  if (typeof seeds === "number" && seeds > 0)
+  if (typeof seeds === "number")
     parts.push(`${seeds} seed`);
 
   if (typeof latency === "number" && !Number.isNaN(latency))
     parts.push(`${Math.round(latency)} ms`);
 
-  return parts.length > 0 ? parts.join(" · ") : "-";
+  return parts.length > 0 ? parts.join(" · ") : "Graph-RAG detail was not stored.";
 }
 
 /** Redaction-safe forensic panel: chunk ids and metadata only, never raw prompt or retrieved text. */
@@ -251,7 +251,9 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
             <EnterpriseTableBody>
               {rows.map((row) => (
                 <EnterpriseTableRow key={row.traceId}>
-                  <EnterpriseTableCell className="whitespace-nowrap">{row.agentName?.trim() || "Unknown"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {row.agentName?.trim() || "Agent name was not stored."}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">{row.corpusKind?.trim() || "-"}</EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
@@ -266,7 +268,14 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                     {formatRunRetrievalCitationCoverage(row.citationCoverage)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
-                    {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
+                    {row.tokensIn === null || row.tokensIn === undefined
+                      ? "Input token count was not stored."
+                      : optionalNumber(row.tokensIn)}{" "}
+                    in /{" "}
+                    {row.tokensOut === null || row.tokensOut === undefined
+                      ? "Output token count was not stored."
+                      : optionalNumber(row.tokensOut)}{" "}
+                    out
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("whitespace-nowrap", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[12rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>

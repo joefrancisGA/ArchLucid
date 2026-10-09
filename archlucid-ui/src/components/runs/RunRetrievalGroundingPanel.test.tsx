@@ -46,6 +46,52 @@ describe("RunRetrievalGroundingPanel", () => {
     expect(screen.getByText("120 in / 40 out")).toBeInTheDocument();
   });
 
+  it("renders omission copy for missing metadata and preserves zero counts", () => {
+    render(
+      <RunRetrievalGroundingPanel
+        payload={payload({
+          rows: [
+            {
+              ...payload().rows[0]!,
+              agentName: null,
+              tokensIn: null,
+              tokensOut: 0,
+              graphRagNeighborsAdded: 0,
+              graphRagSeedHits: null,
+              graphRagExpansionLatencyMs: null,
+            },
+          ],
+        })}
+        failure={null}
+      />,
+    );
+
+    expect(screen.getByText("Agent name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/Input token count was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/0 out/)).toBeInTheDocument();
+    expect(screen.getByText("0 nbr")).toBeInTheDocument();
+  });
+
+  it("renders omission copy when all graph-RAG details are missing", () => {
+    render(
+      <RunRetrievalGroundingPanel
+        payload={payload({
+          rows: [
+            {
+              ...payload().rows[0]!,
+              graphRagNeighborsAdded: null,
+              graphRagSeedHits: null,
+              graphRagExpansionLatencyMs: null,
+            },
+          ],
+        })}
+        failure={null}
+      />,
+    );
+
+    expect(screen.getByText("Graph-RAG detail was not stored.")).toBeInTheDocument();
+  });
+
   it("renders degraded metadata state", () => {
     render(
       <RunRetrievalGroundingPanel

@@ -64,14 +64,17 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
     return String(decision.confidence);
   }
 
-  return "Unknown";
+  return "Decision confidence was not stored.";
 }
 
-function formatDispositionSource(value: string | null | undefined): string {
+function formatDispositionSource(
+  value: string | null | undefined,
+  missingValue: string,
+): string {
   const trimmed = value?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return "Unknown";
+    return missingValue;
   }
 
   return trimmed;
@@ -111,8 +114,11 @@ export function mapDecisionRegisterExportRows(
       selectedOption: decision.selectedOption,
       rationale: decision.rationale,
       confidence: formatConfidence(decision),
-      confidenceSource: formatDispositionSource(decision.confidenceSource),
-      buyerConfidenceSource: formatDispositionSource(decision.buyerConfidenceSource),
+      confidenceSource: formatDispositionSource(decision.confidenceSource, "Confidence source was not stored."),
+      buyerConfidenceSource: formatDispositionSource(
+        decision.buyerConfidenceSource,
+        "Buyer confidence source was not stored.",
+      ),
       recordedAtUtc: decision.recordedAtUtc,
       runId: decision.runId,
       manifestId: decision.manifestId,
