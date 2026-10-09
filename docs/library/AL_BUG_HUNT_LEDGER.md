@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — sandbox `POST /v1/admin/identity/test-login` runs `CustomGroupClaimRegex` with a two-second match budget. A pattern such as `(a+)+$` against a sample value that forces backtracking threw `RegexMatchTimeoutException` out of `SsoWizardTestLoginService`, so the wizard saw an HTTP 500 instead of a failed test login. The timeout is now a `Success=false` diagnostic. Regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out` failed first with that exception. 75 test-login, activation, and controller tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `IdentityProviderActivationService` stored `ClaimMappingJson` with PascalCase names (`RoleClaimName`, `Mappings`, `IdpValue`, `ArchLucidRole`). The SSO wizard and SAML settings form parse that string as camelCase, so a saved department mapping reloaded as the default `groups` form. Activation now writes camelCase, matching diagnostics `JsonSerializerDefaults.Web`. The wizard and SAML form also read older PascalCase rows. Regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` failed first with a missing `roleClaimName` key. 62 activation and controller tests passed, and 12 claim-mapping hydrate tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery returned JWKS `x5t` as the raw base64url string. The SSO wizard shows that value as a signing-certificate thumbprint, while SAML discovery shows the hex SHA-1 thumbprint. A key whose `x5t` was the base64url SHA-1 of the certificate was displayed as `T9G2VBPHI8ARCO42T6DDLPVCJL4` instead of `B7D8365413C78BC02B0A8E364FA75D94FBC2265E`. `x5t` is now decoded to hex, and a value that is not a 20-byte SHA-1 falls through to `x5c`. Regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` failed first with the base64url string. 77 discovery, activation, and controller tests passed.
@@ -10827,13 +10829,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 48
-- **bugs-found:** 32
+- **hunts:** 49
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — activation stored claim mapping JSON in PascalCase so the wizard could not reload it
+- **last-bug:** 2026-10-09 — sandbox test login threw when a custom group regex match timed out
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): `CustomGroupClaimRegex` match timeouts escaped `SsoWizardTestLoginService` as `RegexMatchTimeoutException`. Test login now returns a failed diagnostic. Regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out` failed first.
 
 2026-10-09 seed hunt (seed→hit): `ClaimMappingJson` was PascalCase while the wizard reads camelCase, so saved mappings reloaded as defaults. Activation now writes camelCase, and the wizard and SAML form still read older PascalCase rows. Regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` failed first.
 
@@ -10959,6 +10963,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `SsoWizardTestLoginService.Execute` — `CustomGroupClaimRegex` match timeout threw `RegexMatchTimeoutException` — **hit 2026-10-09 seed hunt (seed→hit):** return a failed test-login diagnostic; regression `Execute_returns_failure_when_custom_group_claim_regex_match_times_out`.
 - [x] (proven) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` used PascalCase names the SSO wizard does not read — **hit 2026-10-09 seed hunt (seed→hit):** serialize with `JsonSerializerDefaults.Web`; regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` (failed first: missing `roleClaimName`).
 - [x] (proven) `IdentityProviderDiscoveryService.TryExtractJwksThumbprint` — JWKS `x5t` was returned as base64url and shown as the signing-certificate thumbprint — **hit 2026-10-09 seed hunt (seed→hit):** decode RFC 7517 `x5t` to hex SHA-1; regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` (failed first as `T9G2VBPHI8ARCO42T6DDLPVCJL4`).
 - [x] (proven) `IdentityProviderDiscoveryService.BuildOidcDiscoveryUri` — OIDC metadata URL query swallowed `/.well-known/openid-configuration`, and a well-known URL that already had a query was appended again — **hit 2026-10-09 seed hunt (seed→hit):** insert the segment on the path and keep `Query`; regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` (failed first as `?tenant=acme/.well-known/openid-configuration`).
