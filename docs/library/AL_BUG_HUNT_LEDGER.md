@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/import-faithfulness-harness` returned the catalog row when `ApprovedTaskTypes` was empty. `PUT` on that catalog allows an empty list, and the import UI treats HTTP 200 as a completed import, so no evaluation was stored. Import now fails before any upsert when no approved task type remains after trim. Regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence` failed first with no exception. 3 catalog evaluation tests passed.
+
 2026-10-09 seed hunt (seed→hit): `application-agents` — `POST /v1/admin/agent-model-catalog/{aliasId}/evaluations/{taskType}/record` and faithfulness import rebuild the catalog row in `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` without tokenizer settings or USD rates. Catalog upsert writes every column, so a recorded evaluation reset `CharsPerToken` to 4 and cleared `InputUsdPerMillionTokens`, `OutputUsdPerMillionTokens`, and `ReasoningUsdPerMillionTokens`. `AgentModelCatalogRow.WithEvaluations` now copies every persisted column and replaces only the evaluation list. Regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates` failed first with chars per token 4. 2 catalog evaluation tests passed.
 
 2026-10-09 seed hunt (seed→hit): `application-agents` — brief grounding dropped a service such as `public-http-gateway` but kept a relationship from that service to an id that was never a proposal node, such as `partner-system`. The prune treated any undeclared endpoint as a reason to keep the edge. An edge is now dropped when either declared endpoint was removed. Regression `EnrichAsync_drops_relationship_when_only_one_endpoint_was_removed_by_brief_grounding` failed first with the relationship still present. 9 grounding tests passed.
@@ -32004,13 +32006,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 35
-- **bugs-found:** 33
+- **hunts:** 36
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — evaluation recording cleared catalog tokenizer settings and USD rates
+- **last-bug:** 2026-10-09 — faithfulness import succeeded when the alias had no approved task types
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): faithfulness harness import returned the existing catalog row when `ApprovedTaskTypes` was empty, so the operator saw a successful import with no evaluation stored. Import now rejects that row before upsert. Regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence` failed first with no exception.
+
+- [x] (proven) `AgentModelCatalogFaithfulnessHarnessImporter.ImportForAliasAsync` — an alias whose `ApprovedTaskTypes` is empty, which `PUT /v1/admin/agent-model-catalog/{aliasId}` accepts, made import return the unchanged row — **hit 2026-10-09 seed hunt:** reject before upsert when no task type remains after trim; regression `Import_rejects_alias_when_no_approved_task_type_can_take_harness_evidence`. [class:fail-open-validation]
 
 2026-10-09 seed hunt (seed→hit): recording a catalog evaluation rebuilt the row without tokenizer settings or USD rates, and the catalog upsert cleared those columns. `WithEvaluations` copies every persisted column. Regression `RecordTaskEvaluationAsync_keeps_tokenizer_settings_and_usd_rates` failed first with chars per token 4.
 
