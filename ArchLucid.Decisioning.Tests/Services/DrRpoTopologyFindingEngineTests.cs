@@ -181,6 +181,39 @@ public sealed class DrRpoTopologyFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica()
+    {
+        // Simple terraform names the resource "polyglot" and stores the type separately.
+        // infra/terraform-cosmos/main.tf declares azurerm_cosmosdb_account "polyglot".
+        GraphSnapshot graph = BuildTerraformTypeFixture(
+            label: "polyglot",
+            terraformType: "azurerm_cosmosdb_account");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain("polyglot");
+        finding.Title.Should().Contain("RPO 60 min");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment()
+    {
+        // Same module assigns data-plane roles. Those types contain cosmosdb but are not replica targets.
+        GraphSnapshot graph = BuildTerraformTypeFixture(
+            label: "workload_data_contributor",
+            terraformType: "azurerm_cosmosdb_sql_role_assignment");
+
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_inventory_data_factory_shares_the_data_diagram_category()
     {
         GraphSnapshot graph = BuildInventoryCategoryFixture(
@@ -415,6 +448,38 @@ public sealed class DrRpoTopologyFindingEngineTests
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["armResourceId"] = sourceId,
+            },
+        };
+
+        return new GraphSnapshot
+        {
+            Nodes = [qualityAttribute, datastore],
+        };
+    }
+
+    private static GraphSnapshot BuildTerraformTypeFixture(string label, string terraformType)
+    {
+        GraphNode qualityAttribute = new()
+        {
+            NodeId = "qa-availability-1",
+            NodeType = GraphNodeTypes.QualityAttribute,
+            Label = "Availability quality attribute",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["theme"] = "availability",
+                ["rpoHours"] = "1",
+            },
+        };
+
+        GraphNode datastore = new()
+        {
+            NodeId = "tf-store",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = label,
+            SourceId = "decl-7f3a",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = terraformType,
             },
         };
 

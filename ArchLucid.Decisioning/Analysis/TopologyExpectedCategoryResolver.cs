@@ -184,27 +184,12 @@ public static class TopologyExpectedCategoryResolver
                 return true;
             }
 
-            if (IsLongerProductToken(part, normalizedKeyword))
+            if (DecisioningTextTokenMatcher.IsLongerProductToken(part, normalizedKeyword))
             {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private static bool IsLongerProductToken(string part, string keyword)
-    {
-        if (keyword.Length < 5 || part.Length <= keyword.Length)
-        {
-            return false;
-        }
-
-        if (!part.StartsWith(keyword, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return char.IsLetter(part[keyword.Length]);
     }
 }

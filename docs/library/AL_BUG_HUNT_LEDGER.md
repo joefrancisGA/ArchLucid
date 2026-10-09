@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` matched the keyword `cosmos` only as a whole delimiter token and ignored `terraformType`. The simple terraform parser names `azurerm_cosmosdb_account` `polyglot` and stores the provider type on `terraformType` (`infra/terraform-cosmos/main.tf`). That account with an RPO quality attribute and no replica properties was skipped. Keywords of five letters or more now prefix a longer product token (`cosmosdb`, `postgresql`), and declaration type fields are part of the evidence text. Cosmos role assignments stay off the replica check. Regression `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` failed first with an empty finding list. 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` treated only a `category` property as a datastore category. `ArchitectureInventoryObservedFactGraphBuilder` sets `GraphNode.Category` from `AzureInventoryTopologyCategory`, which maps `Microsoft.DocumentDB/databaseAccounts` and `Microsoft.DBforPostgreSQL` to data. An account named `orders-catalog` with that ARM id and no replica properties was skipped by the RPO check. The heuristic now reads `GraphNode.Category`. Data Factory and Synapse stay off the replica check because they share the data diagram category. Regression `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` failed first with an empty finding list. 23 scoped DrRpo and datastore-heuristic tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `DanglingDeclarationReferenceAnalyzer` matched only the parent length of an ARM id (`/subscriptions/.../providers/{type}/{name}`). Inventory overlay nodes store the full id on `armResourceId` and label the node with the last segment (`ArchitectureInventoryObservedFactGraphBuilder`). A SQL database id `.../servers/sql-pay-prod/databases/payments` was reported as a dangling reference to the server. The matcher now keeps extra `/{type}/{name}` pairs. A database id that is not on the graph still flags. Regression `Analyze_does_not_flag_nested_sql_database_id_on_its_own_inventory_node` failed first with a truncated server token. 8 scoped dangling-reference tests passed. [class:other]
@@ -16463,13 +16465,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 52
-- **bugs-found:** 43
+- **hunts:** 53
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Inventory data category skipped Cosmos and PostgreSQL RPO checks
+- **last-bug:** 2026-10-09 — Terraform cosmosdb account skipped RPO checks
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved a simple-terraform Cosmos account named `polyglot` with `terraformType` `azurerm_cosmosdb_account` was skipped by the RPO walk; longer product tokens and declaration type fields now count, and Cosmos role assignments stay excluded; regressions `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` and `AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment`; 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed.
+
+- [x] (proven) `TopologyDatastoreLabelHeuristic` — `terraformType` `azurerm_cosmosdb_account` on resource `polyglot` — **hit 2026-10-09 seed hunt:** exact token `cosmos` missed `cosmosdb`, and the type lived only on `terraformType`, so the RPO walk skipped the account; five-letter keywords may prefix a longer product token and declaration type fields are included; regressions `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` and `AnalyzeAsync_emits_none_when_terraform_type_is_cosmos_role_assignment`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved inventory `GraphNode.Category` = data was ignored for Cosmos and PostgreSQL, so an RPO quality attribute emitted no gap; the heuristic reads that field and still excludes Data Factory and Synapse; regressions `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` and `AnalyzeAsync_emits_none_when_inventory_data_factory_shares_the_data_diagram_category`; 23 scoped DrRpo and datastore-heuristic tests passed.
 
