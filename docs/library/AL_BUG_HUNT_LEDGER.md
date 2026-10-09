@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `core-costing` — `ManifestInfrastructureCostNodes.FromGoldenTopology` filtered null services with `OfType<ManifestService>()` and enumerated datastores directly. `JsonSerializerDefaults.Web` keeps a null array element, and `CostSummaryArtifactGenerator` passes `manifest.Topology.Datastores` into that method, so a null datastore threw on `DatastoreName` and dropped the sibling rows. Extractor `resources.json` is the same JSON array shape. `FromExtractorInventory` and `FromCloudInventoryLines` touched `line.ResourceType` with no null filter, so a null Azure or AWS inventory element threw the same way. Datastores now use `OfType<ManifestDatastore>()`, and both inventory loops share `PresentInventoryLines`. Terraform rows stay unfiltered because `TerraformInfrastructureCostResourceRow` is a struct. Regressions `FromGoldenTopology_skips_null_datastore_element_from_json`, `FromExtractorInventory_skips_null_resource_element_from_json`, and `FromAwsExtractorInventory_skips_null_resource_element_from_json` failed first with `NullReferenceException`. 11 scoped costing tests passed. [class:null-deref]
+
 2026-10-09 seed hunt (seed-only): `llm-wallet` — reread wallet GET/PUT authorization, overage settlement, SQL and in-memory settings updates, and Stripe option binding. No new row was shipped. The unreleased overage hold is a state-machine-gap sibling of the missing compensating transition already fixed on refill enqueue, and the in-memory first-PUT mismatch would be another `other` hit. JSON `{"Stripe":null}` leaves `BillingOptions.Stripe` non-null, so wallet GET does not throw on the publishable key. Three candidates name a locus and a reachable input.
 
 2026-10-09 seed hunt (seed→hit): `llm-wallet` — `WalletController` kept `AdminAuthority` on the class and added `ReadAuthority` on `GetAsync`. ASP.NET combines every `Authorize` attribute on the endpoint, so a Reader, Operator, Architect, or Sponsor JWT still failed `TenantAdminOnly` and `GET /v1/billing/wallet` returned 403. Billing & plans is a ReadAuthority nav item (TB-625). The class policy is now `AuthenticatedUserOnly`, GET stays `ReadAuthority`, and PUT carries `AdminAuthority`. Regression `GetAsync_returns_wallet_for_reader_role` failed first with 403. `PutAsync_returns_403_for_reader_role` keeps mutation on admin. 3 `WalletControllerTests` passed. [class:authz-scope]
@@ -24613,6 +24615,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-09 seed hunt (seed→hit): proved a JSON null datastore or inventory element threw in `ManifestInfrastructureCostNodes` and dropped the sibling cost node; 11 scoped costing tests passed.
+
 2026-10-05 seed hunt (dry): promoted sole-Azure retail blend summary-note candidate; repro failed on trunk after sync (fix already shipped); 421 scoped Costing tests passed.
 
 2026-10-05 seed hunt (seed→hit): promoted multi-cloud all-retail summary-note mislabel; proved `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` returned the sole-Azure Retail headline when every line was live `RetailApi` pricing across AWS and GCP (`soleFamily` null); fixed by requiring explicit `CloudProvider.Azure` before the Azure all-retail copy and using a multi-cloud headline otherwise; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`; 422 scoped Costing tests passed.
@@ -26442,11 +26446,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 946
-- **bugs-found:** 224
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — all-retail AWS/GCP cost summaries incorrectly claimed Azure Retail API sizing
+- **hunts:** 947
+- **bugs-found:** 225
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — JSON null datastore and inventory elements threw while building cost nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26516,6 +26520,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 ### Hypotheses
 
+- [x] (proven) `ManifestInfrastructureCostNodes.FromGoldenTopology` / `FromExtractorInventory` / `FromCloudInventoryLines` — a JSON null datastore or `resources.json` element threw `NullReferenceException` and dropped the sibling cost node — **hit 2026-10-09 seed hunt:** `CostSummaryArtifactGenerator` passes topology lists deserialized with Web defaults, which retain null array elements; datastores use `OfType<ManifestDatastore>()` and inventory lines share `PresentInventoryLines`. Regressions `FromGoldenTopology_skips_null_datastore_element_from_json`, `FromExtractorInventory_skips_null_resource_element_from_json`, and `FromAwsExtractorInventory_skips_null_resource_element_from_json`. [class:null-deref]
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` with mixed AWS+GCP `RetailApi` lines still defaulted to the Azure Retail all-retail headline — **hit 2026-10-05 seed hunt:** explicit Azure sole-family branch plus multi-cloud all-retail headline; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — sole-Azure partial retail blends fell through to the generic multi-cloud blend headline — **hit 2026-10-05 seed hunt:** Azure-specific blend branch; regression `ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` short-circuited to the Azure Retail headline even when every line was AWS or GCP `RetailApi` pricing — **hit 2026-10-05 seed hunt:** resolve sole cloud family before the all-retail branch; regressions `ComposeRetailBlendNote_aws_only_all_retail_does_not_claim_azure_retail` and `ComposeRetailBlendNote_gcp_only_all_retail_does_not_claim_azure_retail`.

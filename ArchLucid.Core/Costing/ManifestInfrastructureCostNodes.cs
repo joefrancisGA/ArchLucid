@@ -23,8 +23,9 @@ public static class ManifestInfrastructureCostNodes
         }
 
         if (datastores is null) return nodes;
-        
-        nodes.AddRange(from ds in datastores let name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? "(unnamed datastore)" : ds.DatastoreName select new InfrastructureCostQueryNode("Datastore", name, ds.RuntimePlatform, NormalizeRegion(ds.AzureArmRegion), NormalizeSkuHint(ds.AzurePricingSku), NormalizeQuantity(ds.InstanceCount)));
+
+        // OfType drops JSON null array elements. Web defaults retain them, and a null row NREs on DatastoreName.
+        nodes.AddRange(from ds in datastores.OfType<ManifestDatastore>() let name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? "(unnamed datastore)" : ds.DatastoreName select new InfrastructureCostQueryNode("Datastore", name, ds.RuntimePlatform, NormalizeRegion(ds.AzureArmRegion), NormalizeSkuHint(ds.AzurePricingSku), NormalizeQuantity(ds.InstanceCount)));
 
         return nodes;
     }
@@ -41,7 +42,7 @@ public static class ManifestInfrastructureCostNodes
 
         // ReSharper disable once LoopCanBeConvertedToQuery
 
-        foreach (AzureExtractorInventoryResourceLine line in resources)
+        foreach (AzureExtractorInventoryResourceLine line in PresentInventoryLines(resources))
         {
             RuntimePlatform? platform = AzureArmResourceCostMapper.TryInferPlatform(line.ResourceType);
 
@@ -106,6 +107,13 @@ public static class ManifestInfrastructureCostNodes
         return nodes;
     }
 
+    /// <summary>
+    /// Drops null inventory elements. Extractor <c>resources.json</c> is a JSON array, and Web defaults keep null slots.
+    /// </summary>
+    private static IEnumerable<AzureExtractorInventoryResourceLine> PresentInventoryLines(
+        IReadOnlyList<AzureExtractorInventoryResourceLine> resources)
+        => resources.Where(static line => line is not null);
+
     private static List<InfrastructureCostQueryNode> FromCloudInventoryLines(
         IReadOnlyList<AzureExtractorInventoryResourceLine>? resources,
         Func<string?, RuntimePlatform?> inferPlatform,
@@ -117,7 +125,7 @@ public static class ManifestInfrastructureCostNodes
         if (resources is null || resources.Count == 0)
             return nodes;
 
-        foreach (AzureExtractorInventoryResourceLine line in resources)
+        foreach (AzureExtractorInventoryResourceLine line in PresentInventoryLines(resources))
         {
             RuntimePlatform? platform = inferPlatform(line.ResourceType);
 
