@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-webhooks-settings` — opening `/integrations/webhooks?webhookEnableId=` while `listAlertRoutingSubscriptions` failed made the confirm effect treat the empty inventory as a missing subscription and `router.replace` dropped the id. Manual refresh then wrote null pending state and deleted the same param before the retry could resolve it. The effect now waits until a load succeeds, and a null confirmation write that does not change the open id leaves the query in place. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
+
 2026-10-09 seed hunt (seed→hit): `ui-architecture-diagram` — findings dual-pane updates `highlightedNodeId` after the diagram model is loaded, but `useArchitectureDiagramPanel` only applied that highlight when `diagramModel` changed. A later highlight left the first provenance node pressed. The effect now depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`. 13 `ArchitectureDiagramPanel` vitest tests passed.
 
 2026-10-09 seed hunt (seed→hit): `scim-users` — `POST /scim/v2/Users` and `PATCH` accepted a second live user when `userName` matched an existing user with a different `externalId`, including a case-only change (`ALICE@example.com` vs `alice@example.com`). Entra matches on `userName eq`, and RFC 7643 requires `userName` to be unique. Create, replace, patch, and directory reactivation now return `uniqueness` when another live user already has that name. Directory-removed rows do not block reuse. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`. 33 scoped `ScimUsers` unit tests passed.
@@ -10397,13 +10399,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 38
-- **bugs-found:** 26
+- **hunts:** 39
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — case-variant OnCallWebhook channelType hidden from webhookRows
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): promoted failed-load deep-link clearing. `useWebhooksSettingsMutations` waited only on `loading`, so a rejected `listAlertRoutingSubscriptions` looked like a missing subscription and stripped `webhookEnableId`. `refreshSubscriptions` then called `setPendingEnable(null)` and rewrote the URL even though no dialog was open. The effect now returns until `hasLoadedSuccessfully`, and unchanged confirmation ids do not sync the URL. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
 
 2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
 2026-10-03 seed hunt (seed-only): re-read the picked client and hook source plus 58 focused tests; no new mechanism-backed candidate met the reachability and wrong-outcome bar, and all existing webhook regressions passed.
@@ -10421,6 +10425,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — failed `listAlertRoutingSubscriptions` cleared `webhookEnableId` before refresh could open enable confirmation — **hit 2026-10-09 seed hunt:** unverified inventory was treated as a missing subscription, and a null pending write rewrote the confirm URL; regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`.
 - [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
 - [x] (proven) `WebhooksSettingsClient` / `resolveWebhooksCreateSteps` — the initial pending subscription request passed `subscriptionsLoaded=false`, which the checklist treated as a completed enable step; the checklist now requires verified loading completion and subscription enablement; regressions `does not mark the enable step done while subscriptions are still loading` and `keeps enable step incomplete while subscriptions are still loading`.
 - [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — see cheap-disproof 2026-10-04 thorough hunt above.
