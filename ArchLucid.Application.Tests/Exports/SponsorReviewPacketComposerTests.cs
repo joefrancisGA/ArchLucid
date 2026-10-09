@@ -237,5 +237,6 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("Manifest version was not stored.");
         markdown.Should().Contain("Review ID was not stored.");
+        markdown.Should().Contain("- **Status:** Created");
     }
 }

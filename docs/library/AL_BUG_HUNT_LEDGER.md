@@ -5300,7 +5300,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
 - **hunts:** 266
-- **bugs-found:** 489
+- **bugs-found:** 266
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — quarantine restore safe-retry returned false after successful restore
@@ -15274,7 +15274,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 24
-- **bugs-found:** 26
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-30 — failed OIDC discovery preserved a prior stale post-sign-in return path
@@ -25869,7 +25869,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
 - **hunts:** 36
 - **last-hunt:** 2026-10-06
-- **bugs-found:** 44
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-06 — deterministic Mermaid repair dropped NSG inbound rule chips before forest layout
 - **related-pd-tb:** none
@@ -28964,7 +28964,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
 - **hunts:** 21
-- **bugs-found:** 25
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-30 — showcase payload null timeline row
@@ -29065,7 +29065,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
 - **hunts:** 33
-- **bugs-found:** 34
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-30
 - **last-bug:** 2026-09-26 — workspace metrics strip omitted paginated totalCount on demo-only overview rows
