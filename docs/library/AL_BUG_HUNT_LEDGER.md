@@ -33938,7 +33938,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 58 · **Bugs found:** 31 · **Consecutive dry hunts:** 0
+**Hunts:** 59 · **Bugs found:** 31 · **Consecutive dry hunts:** 1
+
+2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-09 seed hunt (seed→hit): `useNewRunWizardPendingEvidence` launched automatic quick-start inventory evidence upload without a rejection handler. A reachable network exception from the upload client left the review created but the hook stuck in `"uploading"` and produced an unhandled rejection. Upload exceptions now become a failed evidence state with a safe error message, cleared progress, and retryable pending-file state; regression `records automatic inventory upload exceptions as failed evidence uploads` failed first with `"uploading"`. The focused pending-evidence suite passed 7/7; the full `reviews/new` scope retained 71 pre-existing baseline failures.
 
@@ -33963,6 +33965,12 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `useGuidedIntakePriorRunPrefill` — rejected prior-package loading escaped as an unhandled promise rejection — **hit 2026-10-09 seed hunt (seed→hit):** catch optional prefill failures; regression `handles a rejected prior-package load`.
 - [x] (proven) `useGuidedIntakeDraftCreate.hydrateClarificationsFromDraft` — saved-session clarification loading escaped as an unhandled rejection — **hit 2026-10-09 seed hunt (seed→hit):** map hydration failures through the draft-load error resolver; regression `reports clarification hydration failure instead of rejecting session restore`.
 - [x] (proven) `useGuidedIntakeDraftCreate.applyBranchDraft` — branch clarification refresh escaped as an unhandled rejection — **hit 2026-10-09 seed hunt (seed→hit):** map branch refresh failures through the draft-load error resolver; regression `reports branch clarification refresh failure instead of rejecting branch selection`.
+
+- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — two rapid functional scope-gate updates can compare the second URL write against a stale ref and leave the query behind rendered state — locus: `use-first-pilot-intake-wizard.ts` ~125–141; input: double-click the scope disclosure control before the first router/history notification.
+ - [ ] (candidate) `useNewRunWizardSubmit.recheckUnresolvedRun` — resumed-run pending evidence upload is awaited without converting a caller-thrown exception into submit/creation-progress state — locus: `use-new-run-wizard-submit.ts` ~176–183; input: unresolved create recheck succeeds, then an injected upload client rejects.
+ - [ ] (candidate) `useFirstPilotIntakeSubmit` — a browser storage failure while clearing the wizard session occurs after run creation and can turn the completed start into a generic creation failure — locus: `use-first-pilot-intake-submit.ts` ~151–162; input: successful quick-start create with a denied or quota-exhausted session storage write.
+ - [ ] (candidate) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission sets submit error after a run exists but before navigation, leaving the spawned review only reachable through another list refresh — locus: `use-guided-intake-draft-submit.ts` ~66–78; input: admitted draft followed by a rejected operator-home cache invalidation.
+ - [ ] (candidate) `useFirstPilotIntakeWizard` — example-template prefill can overwrite a restored quick-start title/brief when both effects commit in the same mount — locus: `use-first-pilot-intake-wizard.ts` ~199–207 and ~232–241; input: accept a saved session while an `example=` query is active.
 
 2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
 
@@ -34063,9 +34071,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 57
-- **bugs-found:** 30
-- **consecutive-dry-hunts:** 0
+- **hunts:** 59
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — branch clarification refresh escaped as an unhandled rejection
 - **related-pd-tb:** none
