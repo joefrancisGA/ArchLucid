@@ -5819,13 +5819,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-01
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed-only): re-read `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` after post-commit churn; no new mechanism-backed hunt-ready row survived cheap disproof in this exhausted zone. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.ApplyToResults` — a JSON-null `AgentResult` element can be dereferenced before the existing null check on `ProposedChanges` — locus: `AgentProposalStructuralPostProcessor.cs` ~17–26; input: execute payload whose agent-results array contains a null element.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeServices` — a JSON-null service entry can reach `TopologyEndpointSources.Service.TryClaim` without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~87–104; input: agent proposal with a null item in `addedServices`.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.DedupeDatastores` — a JSON-null datastore entry can reach endpoint claiming without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~108–123; input: agent proposal with a null item in `addedDatastores`.
+- [ ] (candidate) `AgentProposalStructuralPostProcessor.FilterRelationships` — a JSON-null relationship element can reach endpoint key checks without an element guard — locus: `AgentProposalStructuralPostProcessor.cs` ~50–76; input: agent proposal with a null item in `addedRelationships`.
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.CollectDeclaredBatchEndpointKeys` — null service/datastore entries can fail batch endpoint collection before later valid agent proposals are merged — locus: `CrossAgentProposalConsistencyGate.cs` ~53–84; input: multi-agent execute payload containing a null topology node alongside valid proposals.
 
 2026-09-12 seed hunt #1946 (seed-only): reopened after master merge git churn; re-read post-processor and consistency-gate sources; no new mechanism-backed hunt-ready rows beyond closed ledger entries; 32 scoped Application tests passed.
 
