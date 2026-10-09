@@ -9021,3 +9021,4 @@
 {"at":"2026-10-09T19:05:30.4117520Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium"}
 {"at":"2026-10-09T19:10:15.0397603Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium"}
 {"at":"2026-10-09T19:14:31.4521149Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-09T19:22:26.7372801Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}

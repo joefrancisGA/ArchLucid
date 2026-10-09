@@ -26664,13 +26664,13 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — negative string aggregate counts bypassed the nonnegative guard
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-03 seed hunt (seed-only): re-read the aggregate and structured explanation readers; no newly promoted hunt-ready row survived cheap-disproof. Seeded five reachable candidates for numeric whole-number range coercion, alternate citation object fields, structured object text aliases, citation token coercion, and malformed aggregate root handling.
 
@@ -26740,10 +26740,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — schema-defined numeric `confidence` accepted JSON booleans through the shared coercion reader, so `true` became confidence `1.0` instead of unknown; structured confidence now rejects boolean tokens while aggregate compatibility fields retain boolean coercion; regression `TryNormalizeStructuredJson_ignores_boolean_confidence`. [class:boolean-coercion]
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed persisted or LLM aggregate JSON threw `JsonException` instead of degrading to an absent confidence signal; the aggregate parser now returns `null` for malformed JSON; regression `FromAggregateJson_returns_null_for_malformed_json`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — negative string-encoded decision, unresolved-issue, and compliance-gap counts passed the direct `int.TryParse` branch despite the nonnegative count contract; the shared reader now rejects negative parsed integers; regression `FromAggregateJson_ignores_negative_string_encoded_whole_number_counts`.
-- [ ] (candidate) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-insensitive aggregate properties use the first occurrence, so conflicting duplicate `citations` or `faithfulnessSupportRatio` fields from an LLM payload may produce a different disposition than the final JSON value; producer duplicate-key reachability and the required duplicate-key contract need confirmation.
-- [ ] (candidate) `StructuredExplanationParser.TryReadNonEmptyTextToken` — negative numeric `evidenceRefs` are normalized into provenance strings even though numeric citation/count fields reject negative values; a reachable structured LLM payload and downstream provenance interpretation need confirmation before promotion.
+- [x] (invalid) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-insensitive aggregate properties use the first occurrence, so conflicting duplicate `citations` or `faithfulnessSupportRatio` fields from an LLM payload may produce a different disposition than the final JSON value — **cheap-disproof 2026-10-09 thorough hunt:** the scoped producer/schema files define no duplicate-key contract or required last-value semantics; no reachable wrong outcome is established.
+- [x] (valid-no-repro) `StructuredExplanationParser.TryReadNonEmptyTextToken` — negative numeric `evidenceRefs` are normalized into provenance strings even though numeric citation/count fields reject negative values — **cheap-disproof 2026-10-09 thorough hunt:** structured evidence references remain opaque strings, and no reachable downstream path in the zone interprets `-1` as valid provenance or produces user-visible evidence; no failing repro.
 
 2026-10-09 seed hunt (seed-only): re-read aggregate property lookup, scalar coercion, structured list/reasoning normalization, and confidence disposition paths after the preceding parser fixes; no distinct candidate met the full reachability and wrong-outcome bar. Added two candidates for duplicate aggregate keys and negative numeric structured evidence references. The scoped RunExplanation suite passed 46 tests.
+
+2026-10-09 thorough hunt (dry): cheap-disproved the duplicate case-insensitive aggregate-property candidate because the scoped producer/schema files define no duplicate-key contract, and the negative numeric structured evidence-reference candidate because evidence references are opaque strings with no reachable downstream interpretation that treats `-1` as valid provenance. The scoped RunExplanation suite passed 46 tests; no failing repro or production change.
 
 2026-10-09 seed hunt (seed→hit): proved boolean structured confidence coercion could turn malformed LLM output into maximum confidence; rejected booleans on the structured confidence path while preserving aggregate compatibility coercion; 44 scoped RunExplanation tests passed.
 2026-10-09 seed hunt (seed→hit): proved malformed aggregate explanation JSON could abort confidence/export processing; `FromAggregateJson` now fails closed with `null`; 45 scoped RunExplanation tests passed.
