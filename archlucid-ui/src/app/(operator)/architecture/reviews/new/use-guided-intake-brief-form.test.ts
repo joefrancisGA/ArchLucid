@@ -231,4 +231,25 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(result.current.freeTextIntent).toContain("B2B API platform");
     expect(result.current.businessOutcome).toContain("API platform (B2B)");
   });
+
+  it("keeps the example template brief when a starter preset is also on the guided intake URL", async () => {
+    // Quick start lets ?template= override ?preset=. Guided intake reads both on one mount.
+    scopeGateSearchParamsHarness.state.query =
+      "path=guided-intake&template=customer-intake-modernization&preset=starter-api-platform-b2b";
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate,
+        isCreateArchitectureFlow: false,
+        requiresSystemName: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.systemName).toBe(exampleTemplate.systemName);
+    });
+
+    expect(result.current.freeTextIntent).toBe(exampleTemplate.briefText);
+    expect(result.current.businessOutcome).toBe(exampleTemplate.businessOutcome);
+  });
 });

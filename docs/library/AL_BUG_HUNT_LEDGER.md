@@ -33477,6 +33477,10 @@ ABQ-09 churn hotspot; review detail route tree.
 
 **Hunts:** 49 · **Bugs found:** 22 · **Consecutive dry hunts:** 1
 
+2026-10-09 seed hunt (seed→hit): proved `useGuidedIntakeBriefForm` applied a `preset=starter-*` brief after the example-template effect, so `?template=` plus a starter preset left the starter system name and brief; quick start already lets the example template override the preset; starter prefill now skips when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`; 7 brief-form tests passed.
+
+- [x] (proven) `useGuidedIntakeBriefForm` — starter preset overwrote the example-template brief on the same mount — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when `exampleTemplate` is set; regression above.
+
 2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected review-intake route; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
@@ -33555,11 +33559,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 50
-- **bugs-found:** 23
+- **hunts:** 51
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — policy-pack deeplink was erased by accelerator/preset form reset
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — starter preset overwrote an example-template brief on guided intake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -33584,6 +33588,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ### Hypotheses
 
+- [x] (proven) `useGuidedIntakeBriefForm` — starter `preset=` overwrote `template=` / `example=` brief fields — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`.
 - [x] (proven) `useNewRunWizardQueryPrefill` — **hit 2026-10-08 thorough hunt:** policy-pack `setValue("policyReferences")` ran before an accelerator/preset `reset`, so the reset erased the explicit policy deeplink; reapplied the policy pack after both reset paths; regression `retains policy-pack prefill when an accelerator reset runs on the same mount`.
 - [x] (invalid) `useFirstPilotIntakeWizard` — **cheap-disproof 2026-10-08 thorough hunt:** scope bullets and L0 answers are only reachable after the operator has entered the title/brief content that `hasSaveableContent` requires, so the proposed content-only session cannot occur.
 - [x] (valid-no-repro) `useFirstPilotIntakeWizard.handleSessionRestore` — **cheap-disproof 2026-10-08 thorough hunt:** scope restoration reads the committed browser search through `readWindowLocationSearch`, and the focused session/URL tests found no concurrent-update loss.
