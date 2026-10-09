@@ -8929,3 +8929,4 @@
 {"at":"2026-10-08T23:49:05.7684386Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/findings/use-run-detail-findings-toolbar-state.ts"]}
 {"at":"2026-10-09T00:07:56.8597588Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs"]}
 {"at":"2026-10-09T00:29:21.4284994Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Services/Admin/IdentityProviderDiscoveryService.cs"]}
+{"at":"2026-10-09T00:41:14.0840149Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/Summary/ConfigurationSensitiveConfigValueScanner.cs"]}

@@ -23567,13 +23567,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 41
-- **bugs-found:** 24
+- **hunts:** 42
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — single-pair `ApiKey=` effective values leaked in config summary
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — credential connection pairs with space before `=` leaked in config summary
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `ConfigurationSensitiveConfigValueScanner` left ADO.NET and Azure storage pairs visible when a credential key had whitespace before `=` (`Password =`, `Pwd =`, `ClientSecret =`, `AccountKey =`) on non-sensitive effective values; pair matching now allows that whitespace and still ignores longer identifiers such as `Passwordless`; regressions `Resolve_redacts_connection_string_when_credential_key_has_space_before_equals` and `Resolve_preserves_non_credential_values_that_contain_equals`; 1074 scoped Configuration tests passed.
+
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — credential keys with space before `=` leaked — **hit 2026-10-09 seed hunt (seed→hit):** match keys at pair boundaries with optional whitespace before `=`; regression above.
 
 2026-09-27 seed hunt (seed→hit): reseeded JSON credential property scan after kebab-case fix; proved dotted JSON property names (`api.key`, `credentials.api_key`) bypassed delimiter tokenization; fixed by dot-delimiter splits and recursive `IsSensitiveConfigPropertyName` on split tokens; regressions `Resolve_redacts_json_effective_values_when_property_names_use_dotted_api_key` and `Resolve_redacts_json_effective_values_when_dotted_property_names_embed_snake_case_api_key`; 1044 scoped Configuration tests passed.
 
@@ -23639,6 +23643,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner` — credential connection pairs with whitespace before `=` stayed visible on non-sensitive paths — **hit 2026-10-09 seed hunt (seed→hit):** pair-boundary match allows whitespace before `=`; regression `Resolve_redacts_connection_string_when_credential_key_has_space_before_equals`.
 - [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)
 - [x] (invalid) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — **disproved 2026-09-07 (#1201):** `ConfigurationSensitiveConfigPathMatcher` treats embedded `Token` in `ReplacementToken` as non-sensitive; catalog default `[REDACTED]` is the configured value, not summary redaction; regression `Resolve_preserves_llm_prompt_redaction_replacement_token`
 - [x] (proven) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — **hit 2026-09-07 (#1201):** provider only checked ASP.NET `Production`/`Staging` while `QuickScanSafetyOptionsValidator` also treats `SaaS` and `ARCHLUCID_ENVIRONMENT=Production|Staging` as production-like; store failures left anonymous Quick Scan enabled on those hosts; fixed via shared `QuickScanSafetyProductionLikeHostClassification` and provider `IConfiguration` wiring; regressions `GetSnapshotAsync_store_failure_in_saas_environment_fails_closed`, `GetSnapshotAsync_store_failure_when_archlucid_environment_is_production_fails_closed`

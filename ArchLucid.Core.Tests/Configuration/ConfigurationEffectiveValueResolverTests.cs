@@ -454,6 +454,46 @@ public sealed class ConfigurationEffectiveValueResolverTests
         value.Should().Be("***");
     }
 
+    [Theory]
+    [InlineData("Password = super-secret")]
+    [InlineData("Pwd = super-secret")]
+    [InlineData("Server=prod; ClientSecret = super-secret")]
+    [InlineData("AccountEndpoint=https://acct.documents.azure.com/; AccountKey = super-secret")]
+    public void Resolve_redacts_connection_string_when_credential_key_has_space_before_equals(string effectiveValue)
+    {
+        // ADO.NET and Azure storage parsers accept whitespace around '='. The summary scanner
+        // only matched Key= with no space, so those secrets stayed visible on non-sensitive paths.
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Theory]
+    [InlineData("Server = prod.database.windows.net")]
+    [InlineData("Passwordless=true")]
+    public void Resolve_preserves_non_credential_values_that_contain_equals(string effectiveValue)
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be(effectiveValue);
+    }
+
     [Fact]
     public void Resolve_redacts_json_object_effective_values_when_string_property_contains_connection_string()
     {
