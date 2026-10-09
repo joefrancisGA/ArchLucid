@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `ui-review-detail-workspace` — Present and Exit presenter wrote `presenter=1` through `commitHrefIfChanged` with `notify: false`, so `replaceState` never emitted `popstate`. `useReviewDetailWorkspaceTabs` applied presenter mode only from that event, and it did not follow `useSearchParams` the way `reviewTab` and `workbenchFocus` already do. In Working mode, Present left the tabbed workspace up after the address bar gained `presenter=1`, and Exit left the projector surface up after the query was removed. A Next.js soft navigation that sets or clears `presenter` had the same stuck surface. Present and Exit now notify, and presenter mode reconciles from `useSearchParams`. Regressions `enters presenter mode when Present updates the address bar without a popstate event`, `leaves presenter mode when Exit presenter updates the address bar without a popstate event`, and `follows presenter query changes without a popstate event`. 30 focused workspace and tab URL-sync vitest tests passed. `RunDetailPresenterElicitationBridge` still has 6 pre-existing failures that mock search params without the address bar.
+
 2026-10-09 seed hunt (seed→hit): `application-governance-policy` — mutation corrections compared a caller run id to the persisted architecture run id with ordinal string equality. Submit stores `ArchitectureRun.RunId` as canonical N, and `POST` correction bodies can send the dashed form. Approval, promotion, activation, and finalize corrections then returned not-found for the same run. Comparisons now use `GovernanceRunIdNormalizer.AreEquivalent`, and in-memory promotion and activation lookups retry the other GUID form. Regressions `RecordAsync_accepts_dashed_run_id_when_approval_stores_canonical_n`, `RecordAsync_accepts_dashed_run_id_when_promotion_stores_canonical_n`, `RecordAsync_accepts_dashed_run_id_when_activation_stores_canonical_n`, and `RecordAsync_accepts_dashed_run_id_when_finalize_subject_is_canonical_n`; 8 mutation-correction tests passed, and the PolicyPack/Governance filter passed 756 with 4 pre-existing bundled-pack and audit-demo failures.
 
 2026-10-09 seed hunt (seed→hit): `infra-evidence-diagrams` — `GET` mermaid `mode=data` is listed in the unsupported-mode error and `DiagramMode.Data` already compiles storage and data-plane nodes, but `InfraEvidenceMermaidModeParser` had no `data` branch, so the request was rejected and preview never emitted a data row. Deep links `mermaidMode=data` were also dropped by the diagrams workbench allowlist. `data` now maps to `DiagramMode.Data`, preview includes that row, and the workbench keeps the mode. Regressions `TryParse_data_maps_to_data_diagram_mode` and `Data_mode_renders_data_factory_and_omits_virtual_networks`; 17 focused parser and data-mode tests passed, and the diagrams filter URL suite passed 13/13.
@@ -33438,6 +33440,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 ## Zone: ui-review-detail-workspace
 
+2026-10-09 seed hunt (seed→hit): Present and Exit presenter wrote the address bar with `notify: false`, and presenter mode in `useReviewDetailWorkspaceTabs` followed only mount/`popstate`, not `useSearchParams`. Working mode stayed on the previous surface. Present and Exit now dispatch `popstate`, and presenter mode follows the search param. Regressions in `ReviewDetailWorkspace.test.tsx` and `use-review-detail-workspace-tabs.url-sync.test.ts`; 30 focused vitest tests passed.
+
 2026-10-08 seed hunt (seed→hit): re-read findings last-visit restore against `useRunDetailFindingsToolbarState`. Restore updated the URL without `notify`, so the toolbar listener (registered on mount and `popstate` only) never applied the restored `findingsFilter`. Mark the run restored before the history update and pass `{ notify: true }`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed. Cheap-disproof closed the hidden evidence vocabulary-rail duplicate (hidden tab panels mount no content).
 
 2026-09-27 seed hunt #20 (seed→hit): reseeded ui-review-detail-workspace; proved `QuickDecisionSummaryEmptyState` treated omitted `analysisStagesComplete` as neither in-progress nor finalize-eligible on create-home (`packageCommitted === false`), falling through to buyer-polished finalized headline copy; default create-home pre-commit to in-progress empty unless `analysisStagesComplete === true`; regression `create-home treats missing analysisStagesComplete as in-progress for empty state (TB-1853)`; 23 `QuickDecisionSummary` create-home/buyer-polished tests + 34 review-detail band vitest tests passed.
@@ -33469,11 +33473,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 34
-- **bugs-found:** 25
+- **hunts:** 35
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — findings toolbar published the previous review search and owner onto the next review
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — presenter mode stayed on the previous surface after Present, Exit, or a soft navigation changed presenter
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
@@ -33506,6 +33510,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ### Hypotheses
 
+- [x] (proven) `useReviewDetailWorkspacePresenter` / `useReviewDetailWorkspaceTabs` — Present and Exit wrote `presenter` with `replaceState` and `notify: false`, and Next.js soft navigation updated `useSearchParams` without `popstate`, so Working presenter mode stayed on the previous surface — **hit 2026-10-09 seed hunt:** notify on Present and Exit, and reconcile `presenterMode` from `useSearchParams`. Regressions `enters presenter mode when Present updates the address bar without a popstate event`, `leaves presenter mode when Exit presenter updates the address bar without a popstate event`, and `follows presenter query changes without a popstate event`.
 - [x] (proven) `useRunDetailFindingsToolbarState` — a client-side move from `/architecture/reviews/run-1` to `/architecture/reviews/run-2` kept `q`, `owner`, and `findingsFilter` from the first review, then the 250ms search and owner effects wrote them onto the second review. Sync now follows `pathname` as well as `popstate`. Regression `does not publish the previous review toolbar onto the next review URL`.
 - [x] (proven) `useReviewFindingsLastVisitRestore` / `reviewFindingsLastVisitRestoredRunIds` — module-level restore guard kept `runId` after unmount, suppressing DR-13 toolbar restore when the same review remounted with a bare findings URL — **hit 2026-10-05 seed hunt:** clear guard entry on effect cleanup; regression `restores again when the same run remounts with a bare findings URL`
 - [x] (proven) `RunDetailFindingsWorkspace` — classification-band state remained on the prior run’s band during a client-side `runId` transition when the URL omitted `findingsBand` — **hit 2026-10-05 seed hunt:** re-sync classification band (and list view) from location on `runId` change; regression `resets classification band when runId changes without a band query param`

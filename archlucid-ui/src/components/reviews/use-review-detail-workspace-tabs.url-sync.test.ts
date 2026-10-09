@@ -118,6 +118,26 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.workbenchFocusColumn).toBe("evidence");
   });
 
+  it("follows presenter query changes without a popstate event", () => {
+    const { result, rerender } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.presenterMode).toBe(false);
+
+    searchParamsHarness.applyQuery("reviewTab=overview&presenter=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview&presenter=1");
+    rerender();
+
+    expect(result.current.presenterMode).toBe(true);
+
+    searchParamsHarness.applyQuery("reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+    rerender();
+
+    expect(result.current.presenterMode).toBe(false);
+  });
+
   it("follows reviewTab query changes without a popstate event", () => {
     const { result, rerender } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
       wrapper: SearchParamsRerenderHost,
