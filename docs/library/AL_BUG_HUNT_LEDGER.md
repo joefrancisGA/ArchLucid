@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — reread the selected mapper/index implementation and focused relationship tests; no fresh reachable mechanism-backed candidate remained after the prior reseeds, so no row was added or promoted. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — reread the selected mapper/index implementation and focused relationship tests; the new alias-target and endpoint-shape lenses did not meet the full hunt-ready bar. Seeded three bounded `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — reread the selected mapper/index implementation and focused tests; existing coverage establishes endpoint-type mappings, alias trimming, ARM case normalization, and non-topology filtering, but no fresh mechanism-backed row met the hunt-ready bar. Seeded five bounded `(candidate)` rows. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -4726,6 +4728,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-09 seed hunt (seed-only): repeated the selected edge mapper, endpoint index, and focused test review; no new row was promoted. The scoped test command was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+2026-10-09 seed hunt (seed-only): repeated the selected mapper/index and focused test review; no fresh reachable mechanism-backed candidate remained after prior reseeds, and the scoped test command was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 - [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — an `endpointAliases` value that does not resolve to an indexed node is retained as a raw node id, so the mapper can emit an edge to an absent graph node before later dangling-edge cleanup removes it — locus: unresolved alias target fallback after `TryResolveNodeId`; input: stale rename alias from manifest reconciliation pointing to a deleted ARM/Terraform node id.
 - [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — an ARM-looking endpoint that contains a valid resource id followed by an unrecognized suffix falls through all identity paths, even when the graph stores the same resource id without that suffix — locus: exact ARM recognizer and normalization path; input: Azure relationship endpoint carrying a provider-emitted subresource suffix.
 - [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` — ARM resource-id values are added to the known-key set through property extraction, while `AddGraphNodeResolutionKeys` also retains raw labels and ids; a duplicate label that equals a normalized ARM id can cause merge-gate validation and mapper resolution to choose different resource categories — locus: cross-source alias key overlap; input: mixed ARM inventory/Terraform nodes sharing a display label equal to another resource id.
@@ -4800,7 +4804,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 90
+- **hunts:** 91
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
