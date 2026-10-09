@@ -111,7 +111,7 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
     }
 
     [Fact]
-    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_UsesOmissionCopy()
+    public void AppendMarkdownSection_UnrecognizedSponsorReadiness_PreservesPersistedValue()
     {
         StringBuilder sb = new();
         PilotRunDeltas deltas = new()
@@ -125,6 +125,31 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
             PublishingTier = "Partial",
             EvidenceCompleteness = "Partial",
             SponsorProofReadiness = "not-a-classification",
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
+
+        string md = sb.ToString();
+        md.Should().Contain("**Unrecognized**");
+        md.Should().Contain("`not-a-classification`");
+        md.Should().NotContain("Sponsor-proof readiness was not stored.");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_MissingSponsorReadiness_UsesOmissionCopy()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-5",
+            TopFindingSeverity = "Warning",
+        };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = "SendableWithCaveats",
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = "  ",
         };
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
