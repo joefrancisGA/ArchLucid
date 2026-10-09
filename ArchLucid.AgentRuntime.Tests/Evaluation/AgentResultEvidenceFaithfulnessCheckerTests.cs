@@ -322,4 +322,56 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
         report.SupportRatio.Should().Be(0.0);
         report.UnsupportedIds.Should().Contain("claim:citation-fidelity");
     }
+
+    [Fact]
+    public void Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[],"findings":[{"category":"Topology","description":"kubernetes cluster nodes scheduling policy","evidenceRefs":["does-not-exist"]}]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("finding:unresolved-ref");
+    }
+
+    [Fact]
+    public void Evaluate_finding_message_with_resolved_ref_is_supported()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[],"findings":[{"category":"Topology","message":"kubernetes cluster nodes scheduling policy","evidenceRefs":["pattern-a"]}]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(1.0);
+        report.UnsupportedIds.Should().NotContain("finding:grounding");
+    }
 }

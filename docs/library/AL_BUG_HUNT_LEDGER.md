@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `agent-runtime-evaluation` — finding faithfulness ignored `evidenceRefs` and the `message` field the topology, critic, and compliance prompts emit. An unresolved finding citation still counted as supported when `description` overlapped the package, and a prompt-shaped `message` with a resolved ref counted as ungrounded. Findings now use the same evidence-ref rules as claims and the same message aliases as `ArchitectureFinding`. Regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
+
 2026-10-09 seed hunt (seed→hit): `security-analyzers` — `RequireAuthorizationAnalyzer` accepted interface `[Authorize]` on declared actions, but the concrete inherited-action scan checked only direct attributes and the override chain. An empty derived controller therefore reported AL0001 for a base action whose `[Authorize]` lived on the implemented interface. Inherited actions now use `ActionHasAuthorization`. Regression `Does_not_report_derived_controller_when_inherited_action_is_authorized_on_interface`; 89 scoped analyzer tests passed (`RunAnalyzers=false`).
 
 2026-10-09 seed hunt (seed→hit): `application-billing-logic` — `TenantLlmCostTopRunRanker` included reasoning-only traces but ranked unpriced runs by prompt plus completion tokens only, so a one-token prompt run outranked a reasoning-only run and could take the last dashboard slot. The tie-break now counts reasoning tokens. Regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`; 30 scoped Marketplace, checkout, cost-reporting, and top-run tests passed.
@@ -16116,13 +16118,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 29
-- **bugs-found:** 17
+- **hunts:** 30
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — scalar evidenceRefs ignored for faithfulness
+- **last-hunt:** 2026-10-09
+- **last-bug:** 2026-10-09 — finding evidenceRefs and message ignored for faithfulness
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): findings ignored `evidenceRefs` and prompt `message` text; unresolved finding citations counted as supported and prompt-shaped messages counted as ungrounded; findings now share claim evidence-ref rules and architecture-finding message aliases; regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
 
 ### Hypotheses
 
@@ -16192,6 +16196,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentResultJsonEvidenceGrounding.TryDescribeClaim` — scalar `evidenceRefs` property ignored so malformed claims used package-wide overlap — **hit 2026-10-05 seed hunt:** return false when `evidenceRefs` is present but not a JSON array; regression `Evaluate_non_array_evidence_refs_count_as_unresolved`
 
 2026-10-05 seed hunt (seed→hit): promoted malformed evidenceRefs shape candidate; 191 scoped AgentRuntime `Evaluation` tests passed.
+
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker` / `AgentResultJsonEvidenceGrounding.TryGetFindingTextParts` — findings ignored `evidenceRefs` and prompt `message` — **hit 2026-10-09 seed hunt:** an unresolved finding citation stayed supported when `description` overlapped the package, and a topology-shaped `message` with a resolved ref stayed ungrounded; findings now reject unresolved refs and read message aliases; regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`.
 
 ---
 
