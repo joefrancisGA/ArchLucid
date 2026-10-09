@@ -403,6 +403,64 @@ public sealed class IdentityProviderDiscoveryServiceTests
     }
 
     [Fact]
+    public async Task DiscoverAsync_oidc_rejects_document_fetched_from_a_different_host()
+    {
+        // The issuer still matches the metadata URL, which is what a cross-host redirect can echo.
+        // The wizard would otherwise activate that issuer from a document served by another host.
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/realms/acme"
+            }
+            """;
+
+        using HttpClient httpClient = new(new FinalHostHandler(
+            new Uri("https://evil.example/.well-known/openid-configuration"),
+            new StringContent(discoveryJson, Encoding.UTF8, "application/json")));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "https://idp.example/realms/acme"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("different host");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_saml_rejects_metadata_fetched_from_a_different_host()
+    {
+        const string metadataXml = """
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              entityID="https://idp.example/saml">
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+            </EntityDescriptor>
+            """;
+
+        using HttpClient httpClient = new(new FinalHostHandler(
+            new Uri("https://evil.example/metadata"),
+            new StringContent(metadataXml, Encoding.UTF8, "application/xml")));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("different host");
+    }
+
+    [Fact]
     public async Task DiscoverAsync_oidc_accepts_issuer_when_only_the_trailing_slash_differs()
     {
         const string discoveryJson =
@@ -687,6 +745,33 @@ public sealed class IdentityProviderDiscoveryServiceTests
             await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
 
             return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+    }
+
+    private sealed class FinalHostHandler : HttpMessageHandler
+    {
+        private readonly Uri _finalUri;
+        private readonly HttpContent _content;
+
+        public FinalHostHandler(Uri finalUri, HttpContent content)
+        {
+            _finalUri = finalUri;
+            _content = content;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            // SocketsHttpHandler reports the post-redirect URI on the same request message.
+            request.RequestUri = _finalUri;
+            HttpResponseMessage response = new(HttpStatusCode.OK)
+            {
+                Content = _content,
+                RequestMessage = request
+            };
+
+            return Task.FromResult(response);
         }
     }
 

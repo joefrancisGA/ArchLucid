@@ -67,6 +67,13 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
                 await _httpClient.GetAsync(discoveryUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                     .ConfigureAwait(false);
 
+            if (!ResponseStayedOnRequestedHost(discoveryUri, response))
+            {
+                return Failed(
+                    protocol,
+                    "OpenID configuration was fetched from a different host than the metadata URL.");
+            }
+
             string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -130,6 +137,13 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         {
             using HttpResponseMessage response =
                 await _httpClient.GetAsync(metadataUri, cancellationToken).ConfigureAwait(false);
+
+            if (!ResponseStayedOnRequestedHost(metadataUri, response))
+            {
+                return Failed(
+                    protocol,
+                    "SAML metadata was fetched from a different host than the metadata URL.");
+            }
 
             string xml = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
@@ -331,6 +345,18 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         {
             return false;
         }
+    }
+
+    private static bool ResponseStayedOnRequestedHost(Uri requested, HttpResponseMessage response)
+    {
+        // HttpClient reports the post-redirect URI here. A cross-host redirect can echo the
+        // issuer the operator typed and still supply another host's keys.
+        Uri? finalUri = response.RequestMessage?.RequestUri;
+
+        if (finalUri is null || string.IsNullOrEmpty(finalUri.IdnHost))
+            return true;
+
+        return string.Equals(finalUri.IdnHost, requested.IdnHost, StringComparison.OrdinalIgnoreCase);
     }
 
     private static Uri BuildOidcDiscoveryUri(Uri metadataUri)
