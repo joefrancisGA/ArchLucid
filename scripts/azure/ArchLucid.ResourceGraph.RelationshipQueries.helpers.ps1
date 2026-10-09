@@ -91,11 +91,7 @@ function Add-ArchLucidArgNetworkAssociationRowsFromNicRecord
         [string] $NicResourceId,
         [object] $IpConfigurationsJson,
         [string] $NetworkSecurityGroupId = $null,
-        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null,
-
-        [System.Collections.IList] $FirewallSubnetFacts = $null,
-
-        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
     )
 
     foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray $IpConfigurationsJson))
@@ -685,7 +681,11 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 
         [string] $ResourceGroupScope = "",
 
-        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null
+        [System.Collections.IList] $PublicIpIpConfigurationFacts = $null,
+
+        [System.Collections.IList] $FirewallSubnetFacts = $null,
+
+        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null
     )
 
     if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
