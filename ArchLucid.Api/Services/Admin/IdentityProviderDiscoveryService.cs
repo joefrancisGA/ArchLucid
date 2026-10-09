@@ -247,12 +247,15 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
     private static Uri BuildOidcDiscoveryUri(Uri metadataUri)
     {
-        string absolute = metadataUri.AbsoluteUri.TrimEnd('/');
+        const string wellKnownSuffix = "/.well-known/openid-configuration";
+        string path = metadataUri.AbsolutePath.TrimEnd('/');
 
-        if (absolute.EndsWith("/.well-known/openid-configuration", StringComparison.OrdinalIgnoreCase))
-            return metadataUri;
+        if (!path.EndsWith(wellKnownSuffix, StringComparison.OrdinalIgnoreCase))
+            path = $"{path}{wellKnownSuffix}";
 
-        string discovery = $"{absolute}/.well-known/openid-configuration";
+        // AbsoluteUri places the query after the path. Appending the well-known segment
+        // there puts it inside the query (tenant=acme/.well-known/...).
+        string discovery = $"{metadataUri.GetLeftPart(UriPartial.Authority)}{path}{metadataUri.Query}";
 
         if (!Uri.TryCreate(discovery, UriKind.Absolute, out Uri? built))
             throw new InvalidOperationException("Could not build OpenID discovery URL.");

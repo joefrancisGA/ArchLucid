@@ -214,6 +214,55 @@ public sealed class IdentityProviderDiscoveryServiceTests
         requested[0].Should().EndWith("/.well-known/openid-configuration");
     }
 
+    [Theory]
+    [InlineData(
+        "https://idp.example/oidc?tenant=acme",
+        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme")]
+    [InlineData(
+        "https://idp.example/oidc/?tenant=acme",
+        "https://idp.example/oidc/.well-known/openid-configuration?tenant=acme")]
+    [InlineData(
+        "https://idp.example/.well-known/openid-configuration?tenant=acme",
+        "https://idp.example/.well-known/openid-configuration?tenant=acme")]
+    public async Task DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path(
+        string metadataUrl,
+        string expectedRequest)
+    {
+        // Tenant routers put the tenant in the query. The well-known segment belongs on the path.
+        const string discoveryJson =
+            """
+            {
+              "issuer": "https://idp.example/oidc"
+            }
+            """;
+
+        List<string> requested = [];
+
+        using HttpClient httpClient = new(new CannedResponseHandler(request =>
+        {
+            requested.Add(request.RequestUri!.AbsoluteUri);
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(discoveryJson, Encoding.UTF8, "application/json")
+            };
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = metadataUrl
+            },
+            CancellationToken.None);
+
+        requested.Should().ContainSingle();
+        requested[0].Should().Be(expectedRequest);
+        response.DiscoverySucceeded.Should().BeTrue();
+    }
+
     [Fact]
     public async Task DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing()
     {
