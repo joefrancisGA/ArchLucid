@@ -168,6 +168,8 @@
 
 2026-10-09 thorough hunt (hit): `agent-runtime-safety` — client-supplied `RequestId` escaped TB-949 markers before control characters were stripped, so a JSON control byte inside `CUSTOMER_CONTENT_END` was deleted afterward and closed the architecture quarantine early. Marker escape now follows control-character removal for prompt identifiers and run-header fields. Regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
 
+2026-10-09 thorough hunt (dry): `agent-runtime-safety` — cheap-disproved cancellation-before-scan because `AzureContentSafetyGuard` calls `ThrowIfCancellationRequested`; SDK cancellation warning because `OperationCanceledException` is excluded from SDK-failure handling; Unicode-separator header identifiers because the sanitizer strips `\u2028` and `\u2029`; duplicate tag keys because case-insensitive last-writer behavior is documented and intentional; and framing-instruction placement because trusted framing remains outside customer markers while truncation preserves section bounds. The scoped test command was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`; no failing repro or code change.
+
 2026-10-08 seed hunt (seed→hit): `ui-review-detail-workspace` — last-visit restore wrote the findings filter into the address bar with `commitHrefIfChanged` and did not notify listeners, so `useRunDetailFindingsToolbarState` stayed on `all` after a bare findings URL restored `findingsFilter=high`. Mark the run restored before `replaceState` and dispatch `popstate`. Regression `updates the findings toolbar when last-visit restore writes the filter into the URL`; 5 scoped last-visit vitest tests passed.
 
 2026-10-08 seed hunt (seed-only): `technology-ledger-merge` — cheap-disproof closed five open `(candidate)` rows (same-ref reseed does not update labels; cold-start mutates the instance about to be inserted; double-space region slugs stay distinct refs; null `TechnologyName` has no writer; inventory vs topology same display name is intentional); seeded five follow-on `(candidate)` rows; 125 scoped `FullyQualifiedName~TechnologyLedger` tests passed (`RunAnalyzers=false`); no production code changed.
@@ -15880,10 +15882,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 60
+- **hunts:** 61
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-09 — request id control character reassembled customer-content end marker
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15924,15 +15926,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `NullContentSafetyGuard.CheckInputAsync` and `CheckOutputAsync` ignore an already-canceled token and return allowed — cheap-disproof 2026-10-02 thorough hunt: the guard is an intentional disabled-content-safety pass-through and focused tests establish allowed/no-category behavior; no cancellation-contract failure was reproduced.
 - [x] (proven) `ContentSafetyEnabledButUnconfiguredGuard.CheckInputAsync` and `CheckOutputAsync` discard the cancellation token before throwing configuration failure — **hit 2026-10-06 seed hunt:** misconfigured enabled-without-client hosts threw `InvalidOperationException` during cooperative shutdown instead of `OperationCanceledException`; `ThrowIfCancellationRequested` before fail-fast throw; regression `CheckInputAsync_when_token_cancelled_throws_operation_canceled_before_configuration_error`.
 
-- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — method entry does not call `ThrowIfCancellationRequested` before guard scans (relies on guard/inner only).
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` — method entry does not call `ThrowIfCancellationRequested` before guard scans — **cheap-disproof 2026-10-09 thorough hunt:** the input and output guards are the cancellation boundary for this client, and `AzureContentSafetyGuard` checks cancellation before its scan/allow paths; no reachable wrong outcome was reproduced.
 
-- [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — `OperationCanceledException` from the Azure SDK is excluded from `HandleSdkFailure` but may still be logged as a warning before rethrow depending on SDK behavior.
+- [x] (valid-no-repro) `AzureContentSafetyGuard.AnalyzeAsync` — `OperationCanceledException` from the Azure SDK is excluded from `HandleSdkFailure` but may still be logged as a warning before rethrow depending on SDK behavior — **cheap-disproof 2026-10-09 thorough hunt:** cancellation is explicitly excluded from SDK-failure handling, so the warning/fallback path is not entered; no cancellation misclassification was reproduced.
 
-- [ ] (candidate) `AgentRunHeaderPromptSanitizer.SanitizeOutsideQuarantineField` — `IsNullOrWhiteSpace` returns empty string without collapsing embedded Unicode line separators in header identifiers.
+- [x] (valid-no-repro) `AgentRunHeaderPromptSanitizer.SanitizeOutsideQuarantineField` — `IsNullOrWhiteSpace` returns empty string without collapsing embedded Unicode line separators in header identifiers — **cheap-disproof 2026-10-09 thorough hunt:** header sanitization strips Unicode line and paragraph separators before rendering; no line injection or wrong prompt structure was reproduced.
 
-- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — duplicate keys after `Trim()` collapse via case-insensitive dictionary (last-writer) without deterministic ordering signal to operators.
+- [x] (valid-no-repro) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — duplicate keys after `Trim()` collapse via case-insensitive dictionary (last-writer) without deterministic ordering signal to operators — **cheap-disproof 2026-10-09 thorough hunt:** case-insensitive last-writer behavior is the documented/intentional normalization contract; no incorrect production outcome was shown.
 
-- [ ] (candidate) `CustomerContentPromptDelimiters.AppendQuarantinedSection` — `FramingInstruction` line is trusted host text placed immediately outside begin marker (customer prose cannot spoof it, but truncation helpers must preserve it).
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.AppendQuarantinedSection` — `FramingInstruction` line is trusted host text placed immediately outside begin marker — **cheap-disproof 2026-10-09 thorough hunt:** trusted framing is intentionally outside customer-content markers, and truncation preserves the begin/end bounds; no framing spoof or truncation failure was reproduced.
 - [x] (invalid) `CustomerContentPromptDelimiters.AppendQuarantinedSection` writes callback content directly between the begin/end markers — cheap-disproof 2026-10-02 thorough hunt: every production caller escapes customer content before writing it, so the callback-level concern has no reachable untrusted-input path.
 - [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard.DegradedAllowAsync` returns an allowed result after `IPromptRedactor.RedactAlways` without proving that every harmful category is covered by the deny-list — cheap-disproof 2026-10-02 thorough hunt: the existing fail-open scrub/audit coverage showed the intended degraded boundary and no failing repro for an uncovered denial category.
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` trims tag keys but wraps only tag values — cheap-disproof 2026-10-02 thorough hunt: `SanitizeTagMap_trims_keys_and_wraps_values_without_production_prompt_key_reachability` documents that tag keys are not production prompt inputs.
