@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `IdentityProviderActivationService` stored `ClaimMappingJson` with PascalCase names (`RoleClaimName`, `Mappings`, `IdpValue`, `ArchLucidRole`). The SSO wizard and SAML settings form parse that string as camelCase, so a saved department mapping reloaded as the default `groups` form. Activation now writes camelCase, matching diagnostics `JsonSerializerDefaults.Web`. The wizard and SAML form also read older PascalCase rows. Regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` failed first with a missing `roleClaimName` key. 62 activation and controller tests passed, and 12 claim-mapping hydrate tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery returned JWKS `x5t` as the raw base64url string. The SSO wizard shows that value as a signing-certificate thumbprint, while SAML discovery shows the hex SHA-1 thumbprint. A key whose `x5t` was the base64url SHA-1 of the certificate was displayed as `T9G2VBPHI8ARCO42T6DDLPVCJL4` instead of `B7D8365413C78BC02B0A8E364FA75D94FBC2265E`. `x5t` is now decoded to hex, and a value that is not a 20-byte SHA-1 falls through to `x5c`. Regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` failed first with the base64url string. 77 discovery, activation, and controller tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — `POST /v1/admin/identity/discover` accepts an OIDC metadata URL with a query, then `BuildOidcDiscoveryUri` appended `/.well-known/openid-configuration` to `AbsoluteUri`. A tenant-router URL `https://idp.example/oidc?tenant=acme` was fetched as `https://idp.example/oidc?tenant=acme/.well-known/openid-configuration`, and a URL that already was the well-known document plus a query was appended a second time. The well-known segment is now inserted on the path and the query is kept. Regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` failed first on those request URLs. 75 discovery, activation, and controller tests passed.
@@ -10825,13 +10827,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 47
-- **bugs-found:** 31
+- **hunts:** 48
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — OIDC discovery showed JWKS x5t as base64url instead of a hex thumbprint
+- **last-bug:** 2026-10-09 — activation stored claim mapping JSON in PascalCase so the wizard could not reload it
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): `ClaimMappingJson` was PascalCase while the wizard reads camelCase, so saved mappings reloaded as defaults. Activation now writes camelCase, and the wizard and SAML form still read older PascalCase rows. Regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` failed first.
 
 2026-10-09 seed hunt (seed→hit): JWKS `x5t` was returned as base64url and shown as the signing thumbprint. It is now the hex SHA-1 form SAML discovery already uses. A non-SHA-1 `x5t` falls through to `x5c`. Regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` failed first.
 
@@ -10955,6 +10959,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` used PascalCase names the SSO wizard does not read — **hit 2026-10-09 seed hunt (seed→hit):** serialize with `JsonSerializerDefaults.Web`; regression `ActivateAsync_persists_claim_mapping_json_with_wizard_property_names` (failed first: missing `roleClaimName`).
 - [x] (proven) `IdentityProviderDiscoveryService.TryExtractJwksThumbprint` — JWKS `x5t` was returned as base64url and shown as the signing-certificate thumbprint — **hit 2026-10-09 seed hunt (seed→hit):** decode RFC 7517 `x5t` to hex SHA-1; regression `DiscoverAsync_oidc_reports_jwks_x5t_as_hex_certificate_thumbprint` (failed first as `T9G2VBPHI8ARCO42T6DDLPVCJL4`).
 - [x] (proven) `IdentityProviderDiscoveryService.BuildOidcDiscoveryUri` — OIDC metadata URL query swallowed `/.well-known/openid-configuration`, and a well-known URL that already had a query was appended again — **hit 2026-10-09 seed hunt (seed→hit):** insert the segment on the path and keep `Query`; regression `DiscoverAsync_oidc_keeps_metadata_query_outside_the_well_known_path` (failed first as `?tenant=acme/.well-known/openid-configuration`).
 - [x] (proven) `IdentityProviderConfigurationController.ActivateAsync` — audit `ActorUserId` was set to the persisted `jwt:{tid}:{oid}` actor id, then `AuditService` replaced it with `NameIdentifier` — **hit 2026-10-09 seed hunt (seed→hit):** `ExplicitActor` on the activation audit; regression `ActivateAsync_persisted_audit_keeps_jwt_actor_id_when_name_identifier_differs` (failed first as `obj-guid`).

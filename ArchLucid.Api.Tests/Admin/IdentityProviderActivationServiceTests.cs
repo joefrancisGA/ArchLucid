@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Core.Identity;
@@ -46,6 +48,50 @@ public sealed class IdentityProviderActivationServiceTests
 
         loaded.Should().NotBeNull();
         loaded!.ClaimMappingJson.Should().Contain("al-admins");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_persists_claim_mapping_json_with_wizard_property_names()
+    {
+        // The SSO wizard and SAML settings form parse this string as camelCase JSON.
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        await sut.ActivateAsync(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "department",
+                    CustomGroupClaimRegex = "^group-(Admin)$",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "finance-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(loaded!.ClaimMappingJson);
+        document.RootElement.GetProperty("roleClaimName").GetString().Should().Be("department");
+        document.RootElement.GetProperty("customGroupClaimRegex").GetString().Should().Be("^group-(Admin)$");
+        JsonElement entry = document.RootElement.GetProperty("mappings")[0];
+        entry.GetProperty("idpValue").GetString().Should().Be("finance-admins");
+        entry.GetProperty("archLucidRole").GetString().Should().Be("Admin");
     }
 
     [Fact]

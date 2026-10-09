@@ -8976,3 +8976,4 @@
 {"at":"2026-10-09T09:27:23.0631578Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs"]}
 {"at":"2026-10-09T09:40:28.7033283Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Services/Admin/IdentityProviderDiscoveryService.cs"]}
 {"at":"2026-10-09T09:54:30.8687128Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Services/Admin/IdentityProviderDiscoveryService.cs"]}
+{"at":"2026-10-09T10:05:50.2477917Z","zoneId":"identity-provider-config","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs","archlucid-ui/src/lib/persisted-claim-mapping-json.ts"]}

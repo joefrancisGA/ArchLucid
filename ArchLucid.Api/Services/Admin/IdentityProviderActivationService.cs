@@ -18,7 +18,9 @@ public interface IIdentityProviderActivationService
 public sealed class IdentityProviderActivationService(
     ITenantIdentityProviderConfigurationRepository repository) : IIdentityProviderActivationService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
+    // The SSO wizard reads this stored string as camelCase. The API envelope camelCases the record,
+    // but ClaimMappingJson is raw JSON and would otherwise keep PascalCase property names.
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly ITenantIdentityProviderConfigurationRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
