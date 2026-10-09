@@ -9017,3 +9017,4 @@
 {"at":"2026-10-09T18:21:46.8453642Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/architecture/architecture-diagram-readiness.ts","archlucid-ui/src/lib/architecture/architecture-diagram-named-node.ts","archlucid-ui/src/lib/architecture/architecture-diagram-model.ts"],"severity":"medium","defectClass":"off-by-one"}
 {"at":"2026-10-09T18:45:42.3657878Z","zoneId":"artifact-synthesis","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-09T18:52:53.1021109Z","zoneId":"ui-architecture-diagram","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-09T18:59:11.8803108Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","severity":"medium","defectClass":"boolean-coercion"}

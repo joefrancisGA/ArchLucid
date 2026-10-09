@@ -55,7 +55,10 @@ public static partial class StructuredExplanationParser
 
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
             {
-                double? finiteConfidence = RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
+                // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
+                double? finiteConfidence = confidenceElement.ValueKind is JsonValueKind.True or JsonValueKind.False
+                    ? null
+                    : RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
 
                 if (finiteConfidence is { } numericConfidence)
                     confidence = ClampConfidence((decimal)numericConfidence);
