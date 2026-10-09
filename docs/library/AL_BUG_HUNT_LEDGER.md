@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed-only): `api-key-auth` — reread the API-key handler, admin rotation service/controller, and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused API test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — repeated the selected mapper/index and focused-test review; no fresh reachable mechanism-backed candidate remained after prior reseeds, so no row was added or promoted. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-09 seed hunt (seed-only): `arm-terraform-source-ids` — repeated the selected mapper/index and focused-test review; no fresh reachable mechanism-backed candidate remained after prior reseeds, so no row was added or promoted. The focused test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -11743,6 +11745,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-09 seed hunt (seed-only): re-read the selected API-key handler, admin service/controller, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — locus: ordered `matchesAdmin` before `matchesReader` branches; input: identical `Authentication:ApiKey:AdminKey` and `ReadOnlyKey` configuration.
+- [ ] (candidate) `AdminApiKeySettingsService.Rotate` — append rotation preserves the full raw configured key string, so a stale or malformed comma-separated segment can survive every non-invalidating rotation and continue affecting authentication — locus: `AppendConfigSuffix` built from `current`; input: operator rotates through the admin settings endpoint with an existing multi-segment key configuration.
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route records the unbounded route `keyId` in audit JSON even when slot parsing rejects it, creating an audit-shape difference from the validated rotate route — locus: audit payload uses raw `keyId` after `Rotate`; input: attacker-controlled invalid `keyId` path segment on `/admin/apikeys/{keyId}/rotate`.
+- [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — configuration reload can observe `Enabled=true` with an empty or normalized-empty key slot and fail all requests without distinguishing an operator-visible misconfiguration from invalid credentials — locus: `CurrentValue` read followed by key matching; input: Key Vault/app-configuration reload that temporarily publishes an empty `AdminKey` or `ReadOnlyKey`.
+- [ ] (candidate) `AdminApiKeySettingsService.GetSnapshot` — expiration metadata is returned without normalizing or validating its offset, so a configuration value representing the same instant with a non-UTC offset may display inconsistently with the handler’s UTC comparison — locus: `BuildSlot` passes `expiresAtUtc` through unchanged; input: JSON/config binding of an offset `DateTimeOffset` expiry from deployment configuration.
+
 2026-10-05 seed hunt (seed→hit): embedded Unicode line separator (U+2028) in configured key material broke auth while admin snapshot still showed configured; strip `LineSeparator`/`ParagraphSeparator` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_line_separator_still_authenticates`, `Normalize_strips_embedded_line_separator_from_key_material`, `GetSnapshot_treats_line_separator_only_readonly_slot_as_unconfigured`; 69 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
 
 2026-10-05 seed hunt (seed→hit): embedded tab in configured key material broke auth while admin snapshot still showed configured; strip `UnicodeCategory.Control` in `ApiKeyMaterialNormalizer`; regressions `When_admin_key_config_has_embedded_tab_still_authenticates`, `Normalize_strips_embedded_tab_from_key_material`, `GetSnapshot_treats_tab_only_admin_slot_as_unconfigured`; 67 scoped unit tests passed (2 endpoint tests failed — no SQL Server in cloud VM).
@@ -11772,7 +11780,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 75
+- **hunts:** 76
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
