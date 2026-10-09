@@ -108,7 +108,7 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
                 workloadDiagramNode.NodeId,
                 nextHopDiagramNodeId);
             string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
-                ? "Next hop name was not stored."
+                ? "Routed through next hop (name was not stored)"
                 : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
 
             InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
