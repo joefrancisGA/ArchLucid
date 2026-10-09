@@ -52,6 +52,13 @@ function resolveDraftCreateError(error: unknown): unknown {
   return blocked !== null ? new Error(blocked) : error;
 }
 
+function resolveDraftLoadError(error: unknown): unknown {
+  const failure = toApiLoadFailure(error);
+  const blocked = architectureDraftBlockedReason(failure);
+
+  return blocked !== null ? new Error(blocked) : error;
+}
+
 export function useGuidedIntakeDraftCreate(options: Options) {
   const { core, form, isCreateArchitectureFlow, navigate, priorRunId, setStep, sourceArchitectureId } = options;
   const { isWorkingMode } = useWorkspaceMode();
@@ -172,9 +179,7 @@ export function useGuidedIntakeDraftCreate(options: Options) {
         }
       })
       .catch((error: unknown) => {
-        const failure = toApiLoadFailure(error);
-        const blocked = architectureDraftBlockedReason(failure);
-        core.setSubmitError(blocked !== null ? new Error(blocked) : error);
+        core.setSubmitError(resolveDraftLoadError(error));
       });
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,
@@ -210,7 +215,12 @@ export function useGuidedIntakeDraftCreate(options: Options) {
   const hydrateClarificationsFromDraft = useCallback(
     async (id: string) => {
       core.setClarificationSelectionHydrated(false);
-      await refreshQuestions(id);
+
+      try {
+        await refreshQuestions(id);
+      } catch (error) {
+        core.setSubmitError(resolveDraftLoadError(error));
+      }
     },
     [core, refreshQuestions],
   );

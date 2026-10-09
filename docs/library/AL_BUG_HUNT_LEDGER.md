@@ -33938,7 +33938,9 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 55 · **Bugs found:** 28 · **Consecutive dry hunts:** 0
+**Hunts:** 56 · **Bugs found:** 29 · **Consecutive dry hunts:** 0
+
+2026-10-09 seed hunt (seed→hit): `useGuidedIntakeDraftCreate.hydrateClarificationsFromDraft` propagated a reachable clarification request rejection from session restore, so the saved guided intake could produce an unhandled rejection instead of an inline error. Hydration now maps the failure through the existing draft-load resolver; regression `reports clarification hydration failure instead of rejecting session restore`; 9 related guided-intake tests passed. The route scope retained 71 pre-existing baseline failures.
 
 2026-10-09 seed hunt (seed→hit): `useGuidedIntakePriorRunPrefill` attached no rejection handler to the reachable prior-package rerun request, so a failed optional prefill became an unhandled promise rejection. The request now catches and ignores optional prefill failures so manual intake remains available; regression `handles a rejected prior-package load`; 6 focused guided-intake tests passed. The route scope retained 71 pre-existing baseline failures.
 
@@ -33955,6 +33957,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `useGuidedIntakeBriefForm` — starter preset overwrote the example-template brief on the same mount — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when `exampleTemplate` is set; regression above.
 - [x] (proven) `useGuidedIntakePriorRunPrefill` — delayed prior-package loading overwrote scope bullets edited while the request was in flight — **hit 2026-10-09 seed hunt (seed→hit):** apply prior scope only when the current scope is empty; regression `does not overwrite scope edits made while prior-package loading is in flight`.
 - [x] (proven) `useGuidedIntakePriorRunPrefill` — rejected prior-package loading escaped as an unhandled promise rejection — **hit 2026-10-09 seed hunt (seed→hit):** catch optional prefill failures; regression `handles a rejected prior-package load`.
+- [x] (proven) `useGuidedIntakeDraftCreate.hydrateClarificationsFromDraft` — saved-session clarification loading escaped as an unhandled rejection — **hit 2026-10-09 seed hunt (seed→hit):** map hydration failures through the draft-load error resolver; regression `reports clarification hydration failure instead of rejecting session restore`.
 
 2026-10-08 thorough hunt (hit): proved that a policy-pack deeplink was written before an accelerator/preset `reset`, so the reset erased the explicit `policyReferences`; reapplied the policy-pack deeplink after reset and added a regression; 10 prefill tests and 15 related intake tests passed.
 
@@ -34006,6 +34009,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — returning-job chooser query state is preserved when leaving Quick Start for another path and can reopen stale on return — locus: `ReviewsNewPathSwitcher.tsx` ~174–204; input: open the returning-job chooser, switch to guided intake, then return to Quick Start in the same route.
 - [ ] (candidate) `useNewRunWizardQueryPrefill` / zero-config demo — demo package application can race policy-pack deeplink prefill when both effects run on the same mount — locus: `use-new-run-wizard-query-prefill.ts` ~76–181; input: `zeroConfigDemo=1` with a `policyPackId` deeplink.
 - [ ] (candidate) `useFirstPilotIntakeWizard.handleSessionRestore` — restored scope gate state can be overwritten by the URL-sync effect after a saved session is accepted — locus: `use-first-pilot-intake-wizard.ts` ~190–207 and ~145–170; input: saved scope-confirmed quick-start session reopened without `scopeGate=1`.
+- [ ] (candidate) `useGuidedIntakeDraftCreate.applyBranchDraft` — branch question refresh is awaited by a caller that discards the returned promise, so a reachable question-load failure can escape after branch selection — locus: `use-guided-intake-draft-create.ts` ~218–237; input: branch response accepted, followed by rejected `getDraftQuestions`.
+- [ ] (candidate) `useNewRunWizardPendingEvidence` — automatic post-create evidence upload is launched without a rejection handler if the upload client throws rather than returning a failure result — locus: `use-new-run-wizard-pending-evidence.ts` ~162–180; input: quick-start run creation followed by a network exception during pending evidence upload.
+- [ ] (candidate) `useFirstPilotIntakeWizard` — prior-package semantic-count loading can race a second revised-clone navigation and publish counts for the previous run — locus: `use-first-pilot-intake-wizard.ts` ~267–291; input: change `rerun=` while the first counts request is unresolved.
+- [ ] (candidate) `useNewRunWizardQueryPrefill` — zero-config demo application may overwrite policy-pack deeplink fields when both effects commit on the same mount — locus: `use-new-run-wizard-query-prefill.ts` ~76–181; input: `zeroConfigDemo=1` combined with a `policyPackId` deeplink.
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `does not apply specialty cloud query on mount when only packId and cloud are present`, `applies specialty cloud with example template prefill at step 2`, `rewinds restored confirm bookmarks to clarifications when draftId is present`, `restores saved template form values wholesale via reset`, and `retains evidence files when post-create upload is deferred`; reaffirmed `keeps summary polling enabled on every quick-review step after a run is spawned`; scoped reviews/new vitest 141 passed with 71 pre-existing baseline failures.
 
@@ -34047,11 +34054,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 55
-- **bugs-found:** 28
+- **hunts:** 56
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — optional prior-package load escaped as an unhandled rejection
+- **last-bug:** 2026-10-09 — saved clarification hydration escaped as an unhandled rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

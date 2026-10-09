@@ -1,8 +1,9 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const { getDraftRequest, initializeArchitectureCreation } = vi.hoisted(() => ({
+const { getDraftRequest, getDraftQuestions, initializeArchitectureCreation } = vi.hoisted(() => ({
   getDraftRequest: vi.fn(),
+  getDraftQuestions: vi.fn(),
   initializeArchitectureCreation: vi.fn(),
 }));
 
@@ -17,7 +18,7 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
   createDraftRequest: vi.fn(),
-  getDraftQuestions: vi.fn(),
+  getDraftQuestions,
   getDraftRequest,
   patchDraftRequest: vi.fn(),
 }));
@@ -108,5 +109,35 @@ describe("useGuidedIntakeDraftCreate", () => {
     await waitFor(() => {
       expect(setSubmitError).toHaveBeenCalledWith(failure);
     });
+  });
+
+  it("reports clarification hydration failure instead of rejecting session restore", async () => {
+    const failure = new Error("clarifications unavailable");
+    getDraftQuestions.mockRejectedValueOnce(failure);
+    const setSubmitError = vi.fn();
+    const core = {
+      setClarificationSelectionHydrated: vi.fn(),
+      setAllQuestions: vi.fn(),
+      setRequiredMustQuestionKeys: vi.fn(),
+      setPendingQuestions: vi.fn(),
+      setSubmitError,
+    } as never;
+    const { result } = renderHook(() =>
+      useGuidedIntakeDraftCreate({
+        core,
+        form: {} as never,
+        isCreateArchitectureFlow: false,
+        navigate: vi.fn(),
+        priorRunId: null,
+        setStep: vi.fn(),
+        sourceArchitectureId: "",
+      }),
+    );
+
+    await act(async () => {
+      await result.current.hydrateClarificationsFromDraft("draft-1");
+    });
+
+    expect(setSubmitError).toHaveBeenCalledWith(failure);
   });
 });
