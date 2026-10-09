@@ -9012,3 +9012,4 @@
 {"at":"2026-10-09T17:13:42.5020474Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DanglingDeclarationReferenceAnalyzer.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-09T17:23:07.2943031Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/TopologyDatastoreLabelHeuristic.cs"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-09T17:45:01.7075334Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/TopologyDatastoreLabelHeuristic.cs"],"severity":"medium","defectClass":"other"}
+{"at":"2026-10-09T17:53:46.3256161Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/PolicyPacks/PolicyPackWorkspaceSelectionService.cs"],"severity":"medium","defectClass":"other"}

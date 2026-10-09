@@ -1,5 +1,6 @@
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -67,5 +68,87 @@ public sealed class PolicyPackWorkspaceSelectionServiceScopeTests
         assignments.Verify(
             r => r.UpdateAsync(It.IsAny<PolicyPackAssignment>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ListAsync_prefers_project_assignment_over_newer_tenant_assignment()
+    {
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid tenantAssignmentId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid projectAssignmentId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        // ListByScopeAsync returns AssignedUtc descending, so the newer tenant row arrives first.
+        PolicyPackAssignment newerTenant = new()
+        {
+            AssignmentId = tenantAssignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = Guid.Empty,
+            ProjectId = Guid.Empty,
+            PolicyPackId = packId,
+            PolicyPackVersion = "2.0.0",
+            ScopeLevel = GovernanceScopeLevel.Tenant,
+            IsEnabled = true,
+            AssignedUtc = new DateTime(2026, 10, 9, 12, 0, 0, DateTimeKind.Utc),
+        };
+        PolicyPackAssignment olderProject = new()
+        {
+            AssignmentId = projectAssignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsEnabled = false,
+            AssignedUtc = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([newerTenant, olderProject]);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.ListByScopeAsync(
+                CallerScope.TenantId,
+                CallerScope.WorkspaceId,
+                CallerScope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = CallerScope.TenantId,
+                    Name = "payments-baseline",
+                    CurrentVersion = "2.0.0",
+                },
+            ]);
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new();
+        platformAvailability
+            .Setup(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(true));
+
+        PolicyPackWorkspaceSelectionService sut = new(
+            packs.Object,
+            assignments.Object,
+            platformAvailability.Object,
+            Mock.Of<IPolicyPackResolverCacheInvalidator>());
+
+        IReadOnlyList<PolicyPackWorkspaceSelectionItem> rows = await sut.ListAsync(
+            CallerScope.TenantId,
+            CallerScope.WorkspaceId,
+            CallerScope.ProjectId,
+            CancellationToken.None);
+
+        PolicyPackWorkspaceSelectionItem row = rows.Should().ContainSingle().Subject;
+        row.AssignmentId.Should().Be(projectAssignmentId);
+        row.IsEnabled.Should().BeFalse();
     }
 }

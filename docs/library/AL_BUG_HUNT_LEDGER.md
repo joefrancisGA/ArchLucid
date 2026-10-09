@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `application-governance-policy` — `PolicyPackWorkspaceSelectionService.ListAsync` kept the first assignment per pack. `ListByScopeAsync` returns rows newest-first, so a newer tenant assignment hid an older project assignment for the same pack. Effective governance ranks project above tenant (`EffectiveGovernanceResolver.GetPrecedenceRank`). The selection list now uses that rank, then `AssignedUtc`, then assignment id. Regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment` failed first with the tenant assignment id. 6 workspace-selection tests passed. [class:other]
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` matched the keyword `cosmos` only as a whole delimiter token and ignored `terraformType`. The simple terraform parser names `azurerm_cosmosdb_account` `polyglot` and stores the provider type on `terraformType` (`infra/terraform-cosmos/main.tf`). That account with an RPO quality attribute and no replica properties was skipped. Keywords of five letters or more now prefix a longer product token (`cosmosdb`, `postgresql`), and declaration type fields are part of the evidence text. Cosmos role assignments stay off the replica check. Regression `AnalyzeAsync_emits_finding_when_terraform_cosmosdb_account_has_no_replica` failed first with an empty finding list. 33 scoped DrRpo, datastore-heuristic, and category-resolver tests passed. [class:other]
 
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyDatastoreLabelHeuristic` treated only a `category` property as a datastore category. `ArchitectureInventoryObservedFactGraphBuilder` sets `GraphNode.Category` from `AzureInventoryTopologyCategory`, which maps `Microsoft.DocumentDB/databaseAccounts` and `Microsoft.DBforPostgreSQL` to data. An account named `orders-catalog` with that ARM id and no replica properties was skipped by the RPO check. The heuristic now reads `GraphNode.Category`. Data Factory and Synapse stay off the replica check because they share the data diagram category. Regression `AnalyzeAsync_emits_finding_when_inventory_cosmos_account_has_data_category_and_no_replica` failed first with an empty finding list. 23 scoped DrRpo and datastore-heuristic tests passed. [class:other]
@@ -32281,13 +32283,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 38
-- **bugs-found:** 31
+- **hunts:** 39
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — mutation correction rejected equivalent dashed and canonical-N run IDs
+- **last-bug:** 2026-10-09 — workspace selection kept a newer tenant assignment over the project assignment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved workspace pack selection kept the newest assignment, so a newer tenant row hid the project assignment that effective governance would apply; selection now uses `GetPrecedenceRank`, then `AssignedUtc`, then assignment id; regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment`; 6 workspace-selection tests passed.
+
+- [x] (proven) `PolicyPackWorkspaceSelectionService.ListAsync` — newer tenant assignment and older disabled project assignment for the same pack — **hit 2026-10-09 seed hunt:** `GroupBy` + `First` followed `AssignedUtc DESC`, so the list showed the tenant row; selection now shares `EffectiveGovernanceResolver.GetPrecedenceRank` with facet merge; regression `ListAsync_prefers_project_assignment_over_newer_tenant_assignment`. [class:other]
 
 2026-10-09 seed hunt (seed→hit): proved mutation corrections treated a dashed request run id as a different run from the canonical-N id stored on the approval, promotion, activation, or finalize subject. `GovernanceRunIdNormalizer.AreEquivalent` now accepts both forms, and in-memory promotion and activation reads retry the other form. Regressions `RecordAsync_accepts_dashed_run_id_when_approval_stores_canonical_n` and the promotion, activation, and finalize siblings.
 2026-10-08 seed hunt (seed→hit): proved governance preview compared manifest and caller GUID run IDs as ordinal strings, so a dashed preview request for a canonical-N manifest returned manifest-not-found, and a current activation stored in the other format was dropped from the diff; fixed with `GovernanceRunIdNormalizer.AreEquivalent`; regressions `PreviewActivationAsync_accepts_equivalent_guid_run_id_formats` and `PreviewActivationAsync_keeps_current_activation_when_run_id_formats_differ`; 16 GovernancePreviewServiceTests passed.

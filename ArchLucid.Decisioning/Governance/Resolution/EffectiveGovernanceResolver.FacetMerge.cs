@@ -29,9 +29,10 @@ public sealed partial class EffectiveGovernanceResolver
     /// <remarks>
     ///     <strong>Why tier &gt; pin:</strong> an unpinned project assignment (3000) still beats a pinned tenant assignment
     ///     (1100), so scope always wins over pin.
-    ///     Exposed as <c>internal</c> for unit tests. Used by <see cref="EffectiveGovernanceFacetMerger" />.
+    ///     Public so workspace selection uses the same rank as facet merge. Used by
+    ///     <see cref="EffectiveGovernanceFacetMerger" />.
     /// </remarks>
-    internal static int GetPrecedenceRank(PolicyPackAssignment assignment)
+    public static int GetPrecedenceRank(PolicyPackAssignment assignment)
     {
         int tier = assignment.ScopeLevel switch
         {
