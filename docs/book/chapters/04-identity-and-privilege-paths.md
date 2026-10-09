@@ -512,12 +512,16 @@ def derive_capability_edges(
             hit_citation: str | None = None
             shared_key = resource.get("shared_key")
 
-            if shared_key in ("enabled", "not set"):
+            if shared_key in ("enabled", "not set", "not set (platform default)"):
                 keys_citation = _granting_citation(blocks, LIST_KEYS_ACTION, "control")
                 keys_denied = _deny_hits(denies, children_of, principal, scope, LIST_KEYS_ACTION, "control")
 
                 if keys_citation and not keys_denied:
-                    qualifier = "platform default assumed enabled" if shared_key == "not set" else "enabled"
+                    qualifier = (
+                        "platform default assumed enabled"
+                        if shared_key in ("not set", "not set (platform default)")
+                        else "enabled"
+                    )
                     hit_notes.append(f"{LIST_KEYS_ACTION} ({qualifier})")
                     hit_citation = keys_citation
 
