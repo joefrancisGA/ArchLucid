@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `retrieval` — `BuildForProvenance` set `ContentHash` to the run id, so a later index of the same run skipped even when the provenance graph changed. The retrieval outbox rebuilds that graph from the current findings, artifacts, and authority trace on every drain. The hash now covers the serialized graph, matching decision and finding documents. An unchanged graph still skips. Regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`; 355 scoped retrieval/indexing tests passed.
+
 2026-10-09 seed hunt (seed→hit): `decisioning` — `TopologyExpectedCategoryResolver` treated scope keywords as raw substrings, so a required capability `log analytics workspace` matched `spa` and dropped the Storage pillar, and `point-in-time restore` matched `rest` and dropped the Data pillar. Those capabilities are copied from the architecture request onto the context snapshot. Short keywords are now whole delimiter tokens, and keywords of five letters or more may still prefix a longer product token (`postgresql`, `networking`). `nosql` stays an explicit datastore cue. Regressions `ResolveExpectedCategories_does_not_treat_workspace_capability_as_static_spa` and `ResolveExpectedCategories_does_not_treat_restore_capability_as_rest_api`; focused resolver tests passed 8/8, and the picker scope passed 1280 with 14 unrelated baseline failures.
 
 2026-10-09 seed hunt (seed→hit): `ui-claim-discipline-policy` — buyer-polished residual help TOC appended `#help-topic-catchall-claim-discipline-heading` and then called `resolveGuideHeadingsForStrip("help-topic-catchall", …)`, but that slug was absent from the omit set, so the filter kept the row. The header claim is a paragraph with no matching id and the bottom strip is sources-only, leaving desktop and mobile TOC links with no target. `help-topic-catchall` is now omitted. Regression `drops the residual help catchall claim heading when the header owns the band`; the buyer-polished catchall view no longer renders those links. 29 scoped claim-discipline and catchall tests passed.
@@ -18298,13 +18300,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 53
-- **last-hunt:** 2026-10-04
-- **bugs-found:** 23
+- **hunts:** 54
+- **last-hunt:** 2026-10-09
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-04 — shrink reindex remove-all + re-upsert left document empty on re-upsert failure
+- **last-bug:** 2026-10-09 — provenance reindex skipped because content hash was only the run id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): proved `RetrievalDocumentBuilder.BuildForProvenance` hashed only the run id, so `IndexDocumentsAsync` skipped a changed provenance graph on a later index of the same run; hash now includes the serialized graph; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`; 355 scoped retrieval/indexing tests passed.
+
+- [x] (proven) `RetrievalDocumentBuilder.BuildForProvenance` content hash ignores graph bytes — same run id, changed provenance graph — **hit 2026-10-09 seed hunt:** unchanged-document skip kept the first graph searchable; hash now covers serialized graph content; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`.
 
 2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
 

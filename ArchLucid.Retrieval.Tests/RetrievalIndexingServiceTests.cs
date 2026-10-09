@@ -1,5 +1,7 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
@@ -987,4 +989,76 @@ public sealed class RetrievalIndexingServiceTests
         catalog.TryGet(documentId, out RetrievalDocumentIndexState? state).Should().BeTrue();
         state!.ContentHash.Should().Be("HASH-SHORT");
     }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[] { 1f, 0f, 0f, 0f }).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            new InMemoryRetrievalDocumentIndexCatalog(),
+            caps.Object);
+
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        RetrievalDocumentBuilder builder = new();
+        RetrievalDocument first = builder.BuildForProvenance(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            GraphWithMarker("alpha-marker"))[0];
+        RetrievalDocument second = builder.BuildForProvenance(
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            GraphWithMarker("beta-marker"))[0];
+
+        await sut.IndexDocumentsAsync([first], CancellationToken.None);
+        await sut.IndexDocumentsAsync([second], CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> hits = await index.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "provenance",
+                TopK = 5,
+            },
+            [1f, 0f, 0f, 0f],
+            CancellationToken.None);
+
+        hits.Should().Contain(hit => hit.Text.Contains("beta-marker", StringComparison.Ordinal));
+        hits.Should().NotContain(hit => hit.Text.Contains("alpha-marker", StringComparison.Ordinal));
+    }
+
+    private static DecisionProvenanceGraph GraphWithMarker(string marker) =>
+        new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    ReferenceId = marker,
+                    Name = marker,
+                },
+            ],
+        };
 }
