@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-09 seed hunt (seed→hit): `identity-provider-config` — activation stored an issuer URI, Key Vault secret name, or actor id longer than the columns in `dbo.TenantIdentityProviderConfigurations`. Migration 183 defines `IssuerUri` as NVARCHAR(2048) and `KeyVaultSecretName` and `UpdatedByActorId` as NVARCHAR(256). A longer value reached SQL MERGE and failed on truncation, so the wizard saw HTTP 500 instead of the validation 400 the activate action already maps from `ArgumentException`. Those three fields are now rejected before upsert. Regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column` failed first with no exception. 51 activation tests passed.
+
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — discovery accepted a document whose final host differed from the metadata URL. An OpenID document fetched from `evil.example` still succeeded when its `issuer` echoed `https://idp.example/realms/acme`, and SAML metadata fetched from `evil.example` succeeded with that file's `entityID`. The wizard copies those values into activate. A response whose recorded host is not the requested host is now rejected. Regression `DiscoverAsync_oidc_rejects_document_fetched_from_a_different_host` failed first with `DiscoverySucceeded` true. 25 discovery tests passed.
 
 2026-10-09 seed hunt (seed→hit): `identity-provider-config` — OIDC discovery treated a non-JSON `jwks_uri` body as a failed OpenID document. A metadata URL whose issuer matched and whose JWKS endpoint returned HTML failed with "OpenID configuration response was not valid JSON", so the wizard did not keep the issuer. An HTTP error from that same endpoint already left thumbprints empty and kept discovery successful. Parse, transport, and timeout failures on `jwks_uri` now do the same. Regression `DiscoverAsync_oidc_keeps_success_when_jwks_body_is_not_json` failed first with `DiscoverySucceeded` false. 23 discovery tests passed.
@@ -10845,13 +10847,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 57
-- **bugs-found:** 41
+- **hunts:** 58
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — discovery accepted a document fetched from a different host
+- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-09 seed hunt (seed→hit): an issuer URI, Key Vault secret name, or actor id longer than migration 183's NVARCHAR columns was upserted. SQL truncation then failed the request. Those fields are rejected before upsert. Regression `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column` failed first.
+
+- [x] (proven) `IdentityProviderActivationService.ActivateAsync` — canonical `IssuerUri` longer than 2048 characters, `KeyVaultSecretName` longer than 256, or `UpdatedByActorId` longer than 256 was upserted — **hit 2026-10-09 seed hunt (seed→hit):** `IdentityProviderPersistedFieldLimits` before upsert; regressions `ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column`, `ActivateAsync_rejects_canonical_issuer_uri_longer_than_persisted_column`, and `ActivateAsync_rejects_actor_id_longer_than_persisted_column`. [class:fail-open-validation]
 
 2026-10-09 seed hunt (seed→hit): a discovery response whose final host differed from the metadata URL was accepted when the document echoed the expected issuer or entityID. That response is now rejected. Regression `DiscoverAsync_oidc_rejects_document_fetched_from_a_different_host` failed first.
 
