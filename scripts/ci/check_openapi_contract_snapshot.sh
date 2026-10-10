@@ -12,7 +12,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-bash scripts/ci/ensure_openapi_contract_build.sh
+if ! bash scripts/ci/ensure_openapi_contract_build.sh; then
+  echo "::error title=OpenAPI contract build failed::The OpenAPI snapshot tests were not reached because the contract test project failed to build. Resolve compiler or restore errors before investigating snapshot drift."
+
+  exit 1
+fi
 
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
   --no-build \
