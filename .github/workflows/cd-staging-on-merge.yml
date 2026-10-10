@@ -95,6 +95,32 @@ jobs:
           echo "BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
           echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
 
+      - name: Write immutable staging dispatch record
+        env:
+          TARGET_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.target_sha || github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cat > artifacts/staging-dispatch.json <<EOF
+          {
+            "schema": "archlucid.staging-dispatch.v1",
+            "environment": "staging",
+            "targetSha": "${TARGET_SHA}",
+            "workflowRunUrl": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}",
+            "workflowRunId": "${GITHUB_RUN_ID}",
+            "workflowAttempt": "${GITHUB_RUN_ATTEMPT:-1}",
+            "generatedUtc": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          }
+          EOF
+
+      - name: Upload staging dispatch record
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: staging-dispatch-${{ github.run_id }}
+          path: artifacts/staging-dispatch.json
+          if-no-files-found: warn
+
       - name: Assert BUILD_ID / OCI label / lineage / target-preflight contract
         run: |
           python3 scripts/ci/oci_build_identity.py --assert-workflows
