@@ -29813,13 +29813,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread graph serialization, cache corruption handling, structured diagram identity, inventory normalization, WAF catalog indexing, and provenance joins. The truncated MessagePack cache payload lens was tested and already returns a cache miss (`null`); remaining comparisons are explicit identity contracts or normalized internal IDs/GUIDs. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed-only): reread structured diagram compilation/reconstruction, inventory overlay normalization, graph projection, WAF trade-off indexing, and provenance graph joins after the casing-parity fixes; remaining comparisons were either explicit case-sensitive diagram identity contracts or normalized internal IDs/GUIDs, so no new hunt-ready row met the reachability and wrong-outcome bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
