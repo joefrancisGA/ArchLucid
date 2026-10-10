@@ -1006,6 +1006,11 @@ export function reviewDetailErrorShellMessage(visibleText: string): string {
   return `Review detail error shell is visible (Something went wrong). Visible text: ${compactText}`;
 }
 
+/** Describes the two DOM signals used by the long-lived review-detail readiness poll. */
+export function reviewDetailReadinessState(rootVisible: boolean, headingVisible: boolean): string {
+  return `retry (review-detail-root=${rootVisible ? "visible" : "hidden"}, main-h1=${headingVisible ? "visible" : "hidden"})`;
+}
+
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(
   page: Page,
@@ -1053,7 +1058,7 @@ export async function expectLiveRunDetailPageReady(
         const rootVisible = await reviewDetailRoot.isVisible().catch(() => false);
         const headingVisible = await mainHeading.isVisible().catch(() => false);
 
-        return rootVisible && headingVisible ? "ready" : "retry";
+        return rootVisible && headingVisible ? "ready" : reviewDetailReadinessState(rootVisible, headingVisible);
       },
       { timeout: timeoutMs, intervals: [500] },
     )
