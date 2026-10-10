@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Planning;
 ///     Registers a graph-complete <see cref="IValidator{ArchitectureRequest}" /> so composition
 ///     <c>ValidateOnBuild</c> can activate <see cref="ArchitectureRequestIntakeFacade" />.
 /// </summary>
-public static class ArchitectureRequestIntakeValidatorRegistration
+internal static class ArchitectureRequestIntakeValidatorRegistration
 {
     public static void Register(IServiceCollection services)
     {

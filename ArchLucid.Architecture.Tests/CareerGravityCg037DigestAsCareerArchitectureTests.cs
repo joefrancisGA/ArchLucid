@@ -14,18 +14,10 @@ public sealed class CareerGravityCg037DigestAsCareerArchitectureTests
     [Fact]
     public void Cg037_exec_digest_wires_career_honesty_presenter()
     {
-        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestCareerHonestyPresenter.cs"));
-        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestComposer.cs"));
-        string dispatcher = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Notifications",
-                "Email",
-                "ExecDigestEmailDispatcher.cs"));
-        string sponsorPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ExecDigest/ExecDigestCareerHonestyPresenter.cs");
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ExecDigest/ExecDigestComposer.cs");
+        string dispatcher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs");
+        string sponsorPanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -47,7 +39,7 @@ public sealed class CareerGravityCg037DigestAsCareerArchitectureTests
     [Fact]
     public void Cg037_docs_record_digest_rehearsal_honesty()
     {
-        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docs = File.ReadAllText(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-037");

@@ -14,8 +14,7 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_authority_run_completed_payload_stamps_career_posture()
     {
-        string finalizer = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "AuthorityCommittedPipelineFinalizer.cs"));
+        string finalizer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityCommittedPipelineFinalizer.cs");
 
         finalizer.Should().Contain("IntegrationEventCareerHonestyPresenter.Resolve");
         finalizer.Should().Contain("careerComplete");
@@ -25,10 +24,8 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_manifest_finalized_payload_stamps_career_posture()
     {
-        string sql = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestFinalizationService.Sql.cs"));
-        string legacy = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestFinalizationService.Legacy.cs"));
+        string sql = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.Sql.cs");
+        string legacy = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.Legacy.cs");
 
         sql.Should().Contain("IntegrationEventCareerHonestyPresenter.Resolve");
         legacy.Should().Contain("IntegrationEventCareerHonestyPresenter.Resolve");
@@ -37,9 +34,9 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_schema_registry_requires_mode_on_complete_events()
     {
-        string authoritySchema = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authoritySchema = File.ReadAllText(
             Path.Combine(RepoRoot, "schemas", "integration-events", "authority-run-completed.v1.schema.json"));
-        string manifestSchema = ArchitectureSourceProbe.ReadPathWithPartials(
+        string manifestSchema = File.ReadAllText(
             Path.Combine(RepoRoot, "schemas", "integration-events", "manifest-finalized.v1.schema.json"));
 
         authoritySchema.Should().Contain("structuralExecutionMode");

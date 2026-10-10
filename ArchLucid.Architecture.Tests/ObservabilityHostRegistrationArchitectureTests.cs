@@ -11,9 +11,9 @@ public sealed class ObservabilityHostRegistrationArchitectureTests
     [SkippableFact]
     public void ApiAndWorkerHosts_RegisterArchLucidOpenTelemetry()
     {
-        string apiProgram = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "Program.cs"));
-        string workerProgram = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Worker", "Program.cs"));
-        string jobsProgram = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Jobs.Cli", "Program.cs"));
+        string apiProgram = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Program.cs");
+        string workerProgram = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Worker/Program.cs");
+        string jobsProgram = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Jobs.Cli/Program.cs");
 
         apiProgram.Should().Contain("AddArchLucidOpenTelemetry");
         workerProgram.Should().Contain("AddArchLucidOpenTelemetry");
@@ -23,8 +23,7 @@ public sealed class ObservabilityHostRegistrationArchitectureTests
     [SkippableFact]
     public void ObservabilityExtensions_ExportsAgentOutputAndLlmMeters()
     {
-        string extensions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Startup", "ObservabilityExtensions.cs"));
+        string extensions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Startup/ObservabilityExtensions.cs");
 
         extensions.Should().Contain("metrics.AddMeter(ArchLucidInstrumentation.MeterName)");
         extensions.Should().Contain("ArchLucidInstrumentation.AgentLlmCompletion.Name");
@@ -38,9 +37,9 @@ public sealed class ObservabilityHostRegistrationArchitectureTests
     [SkippableFact]
     public void WorkerAndJobsCli_ProductionAppsettings_IncludeObservabilitySection()
     {
-        string workerProduction = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workerProduction = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Worker", "appsettings.Production.json"));
-        string jobsProduction = ArchitectureSourceProbe.ReadPathWithPartials(
+        string jobsProduction = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Jobs.Cli", "appsettings.Production.json"));
 
         workerProduction.Should().Contain("\"Observability\"");

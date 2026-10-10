@@ -201,50 +201,66 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         DiagramAstSubgraphPruner.PruneUnusedSubgraphs(ast);
 
-        DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
-        DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
-        DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
         bool retainNetworkDetailNodes = mode == DiagramMode.ResourceGroup
             || (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails);
-        InventoryDiagramNodeRelationshipApplier.Apply(
-            ast,
-            graph,
-            nodeIdMap,
-            mode,
-            retainNetworkDetailNodes);
-        InventoryDiagramParentAttachmentApplier.Apply(
-            ast,
-            graph,
-            nodeIdMap,
-            retainNetworkDetailNodes);
+
+        // Data architecture is a placement canvas: containment and movement hydrators
+        // would draw Reads from / Writes to that the mode's honesty caption forbids.
+
+        if (!isDataArchitectureMode)
+        {
+            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+            DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+            InventoryDiagramNodeRelationshipApplier.Apply(
+                ast,
+                graph,
+                nodeIdMap,
+                mode,
+                retainNetworkDetailNodes);
+            InventoryDiagramParentAttachmentApplier.Apply(
+                ast,
+                graph,
+                nodeIdMap,
+                retainNetworkDetailNodes);
+        }
 
         if (mode == DiagramMode.FullSubscription && !options.IncludeNetworkDetails)
         {
-            RemoveFullSubscriptionNetworkDetailNodes(ast);
+            RemoveFullSubscriptionNetworkDetailNodes(ast, keepPrivateEndpointNodes: options.IncludePrivateEndpointNodes);
         }
 
-        DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramPrivateAccessRelationshipApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
-        InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
-        InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
-        InventoryDiagramExternalTargetApplier.Apply(ast, graph, nodeIdMap, mode);
-        InventoryDiagramRoleAccessApplier.Apply(ast, graph, nodeIdMap);
-        InventoryDiagramLikelyRelationshipApplier.Apply(ast);
+        if (!isDataArchitectureMode)
+        {
+            DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramPrivateAccessRelationshipApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
+            InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
+            InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
+            InventoryDiagramExternalTargetApplier.Apply(ast, graph, nodeIdMap, mode);
+            InventoryDiagramRoleAccessApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramLikelyRelationshipApplier.Apply(ast);
+        }
         InventoryDiagramOrphanedStateApplier.Apply(
             ast,
             graph,
             nodeIdMap,
             options.OrphanAnalysisGraph);
+
         if (isDataFlowMode)
         {
             InventoryDiagramDataFlowTraversalHopApplier.Apply(ast, graph, nodeIdMap, includedEdges);
         }
 
         DiagramInventoryConnectionRollupApplier.Apply(ast);
-        DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
+
+        if (!isDataArchitectureMode)
+        {
+            DiagramAstLayoutEdgeBuilder.EnsureLayoutEdgesWhenEmpty(ast);
+        }
+
         DiagramSparseComponentPacker.Pack(ast);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
@@ -289,9 +305,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
 
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = IndexNodesById(graph.Nodes);
 
         List<GraphNode> expanded = vaultNodes.ToList();
 
@@ -579,10 +593,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
     }
 
-    private static void RemoveFullSubscriptionNetworkDetailNodes(DiagramAst ast)
+    private static void RemoveFullSubscriptionNetworkDetailNodes(DiagramAst ast, bool keepPrivateEndpointNodes)
     {
         HashSet<string> hiddenNodeIds = ast.Nodes
-            .Where(node => IsFullSubscriptionNetworkDetailNode(node.ArmResourceType))
+            .Where(node => IsFullSubscriptionNetworkDetailNode(node.ArmResourceType, keepPrivateEndpointNodes))
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
 
@@ -596,18 +610,27 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             hiddenNodeIds.Contains(edge.FromNodeId) || hiddenNodeIds.Contains(edge.ToNodeId));
     }
 
-    private static bool IsFullSubscriptionNetworkDetailNode(string? armType)
+    private static bool IsFullSubscriptionNetworkDetailNode(string? armType, bool keepPrivateEndpointNodes)
     {
         if (string.IsNullOrWhiteSpace(armType))
         {
             return false;
         }
 
-        return armType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
+        if (armType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase)
             || armType.Contains("networkSecurityGroups", StringComparison.OrdinalIgnoreCase)
-            || armType.Contains("routeTables", StringComparison.OrdinalIgnoreCase)
-            || (armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
-                && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase));
+            || armType.Contains("routeTables", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (keepPrivateEndpointNodes)
+        {
+            return false;
+        }
+
+        return armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool HidePrivateEndpointCards(DiagramMode mode, DiagramAstCompileOptions options)
@@ -627,10 +650,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
     private static List<GraphNode> ApplyFullSubscriptionNodeFilter(List<GraphNode> nodes)
     {
-        return NetworkDiagramNodeFilter.ExcludeSubnets(
-            NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                ExcludeCollapsedAccessConnectors(
-                    ExcludeExternalSourceNodes(nodes))));
+        // Keep subnets so derived VM→subnet edges (via NIC hops) have a visible landing node.
+        return NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
+            ExcludeCollapsedAccessConnectors(
+                ExcludeExternalSourceNodes(nodes)));
     }
 
     private static List<GraphNode> ApplyNetworkInterfaceCollapse(
@@ -679,9 +702,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
 
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = IndexNodesById(graph.Nodes);
 
         foreach (GraphEdge edge in graph.Edges)
         {
@@ -907,7 +928,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         foreach (GraphNode node in nodes)
         {
-            if (node.Properties == null
+            if (node.Properties is null
                 || !node.Properties.TryGetValue("arm.parentId", out string? parentId)
                 || string.IsNullOrWhiteSpace(parentId))
             {
@@ -966,5 +987,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         return string.Equals(edge.EdgeType, GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static Dictionary<string, GraphNode> IndexNodesById(IEnumerable<GraphNode> nodes)
+    {
+        return nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
     }
 }

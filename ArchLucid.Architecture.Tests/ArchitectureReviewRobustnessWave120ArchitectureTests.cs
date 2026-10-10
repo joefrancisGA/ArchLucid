@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
     [Fact]
     public void Suggestion1425_1432_pilot_sponsor_collateral_sealed_manifest_mappers()
     {
-        string pilotPacks = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
+        string pilotPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string pilotGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
 
         pilotPacks.Should().Contain("GetExecutiveReviewPacket");
         pilotPacks.Should().Contain("GetSponsorProofPackZip");
@@ -35,9 +33,9 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
     [Fact]
     public void Suggestion1433_1435_sponsor_collateral_programmatic_download_and_banner_blocked_reason_wiring()
     {
-        string pilotsCollateralApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pilotsCollateralApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "pilots-collateral-download-api.ts"));
-        string pilotsCollateralBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pilotsCollateralBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -45,11 +43,11 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
                 "lib",
                 "pilots",
                 "pilots-collateral-mutation-blocked-reason.ts"));
-        string reportsDownload = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reportsDownload = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
-        string exportJobsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportJobsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-export-jobs.ts"));
-        string firstValueBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string firstValueBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -57,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
                 "lib",
                 "pilots",
                 "first-value-report-mutation-blocked-reason.ts"));
-        string sponsorSentBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorSentBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -65,9 +63,9 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-pack-sent-mutation-blocked-reason.ts"));
-        string exportActions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportActions = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
-        string sponsorBannerHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorBannerHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "use-email-run-to-sponsor-banner.ts"));
 
         pilotsCollateralApi.Should().Contain("downloadSponsorProofPackZip");
@@ -90,11 +88,11 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
     [Fact]
     public void Suggestion1436_sponsor_collateral_programmatic_test_parity()
     {
-        string sponsorBannerTest = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorBannerTest = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorBanner.test.tsx"));
-        string sponsorBanner = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorBanner = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorBanner.tsx"));
-        string exportActions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportActions = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
         sponsorBannerTest.Should().Contain("programmatic secondary export actions");

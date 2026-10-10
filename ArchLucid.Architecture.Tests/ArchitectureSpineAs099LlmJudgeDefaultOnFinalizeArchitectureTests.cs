@@ -15,8 +15,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_options_default_enable_llm_judge_on_finalize_true_emit_stays_false()
     {
-        string optionsSource = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "FindingSemanticSupportBandOptions.cs"));
+        string optionsSource = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Findings/FindingSemanticSupportBandOptions.cs");
 
         optionsSource.Should().Contain("EnableLlmJudgeOnFinalize");
         optionsSource.Should().Contain("= true");
@@ -28,14 +27,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_real_composition_registers_premium_semantic_support_judge()
     {
-        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Composition",
-                "Startup",
-                "Modules",
-                "Agents",
-                "AgentExecutionCompositionModule.ExecutorWiring.cs"));
+        string composition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/Modules/Agents/AgentExecutionCompositionModule.ExecutorWiring.cs");
 
         composition.Should().Contain("RemoveAll<IFindingSemanticSupportBandLlmJudge>");
         composition.Should().Contain("PremiumFindingSemanticSupportBandLlmJudge");
@@ -44,13 +36,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold()
     {
-        string integrity = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string integrity = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs");
 
         integrity.Should().Contain("_semanticSupportBandFinalizeJudge");
         integrity.Should().Contain("ApplyAsync(run, findings, scope, cancellationToken)");
@@ -61,12 +47,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         judgeIndex.Should().BeGreaterThan(0);
         holdIndex.Should().BeGreaterThan(judgeIndex);
 
-        string readiness = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "FinalizeReadinessService.cs"));
+        string readiness = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/FinalizeReadinessService.cs");
 
         readiness.Should().Contain("_semanticSupportBandFinalizeJudge");
         readiness.Should().Contain("ApplyAsync(architectureRun, findings, scope, cancellationToken)");
@@ -75,12 +56,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_host_still_registers_noop_for_emit_default()
     {
-        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Composition",
-                "Startup",
-                "ServiceCollectionExtensions.Decisioning.cs"));
+        string composition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs");
 
         composition.Should().Contain("NoOpFindingSemanticSupportBandLlmJudge");
     }
@@ -91,7 +67,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         string adrPath = Path.Combine(RepoRoot, AdrRelativePath);
         File.Exists(adrPath).Should().BeTrue();
 
-        string adr = ArchitectureSourceProbe.ReadPathWithPartials(adrPath);
+        string adr = File.ReadAllText(adrPath);
         adr.Should().Contain("## Trade-offs");
         adr.Should().Contain("## Constraints");
         adr.Should().Contain("## Expected impact");
@@ -102,7 +78,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         adr.Should().Contain("**Status:** Accepted");
         adr.Should().NotContain("G-REAL-06 live packets");
 
-        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
+        string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
         readme.Should().Contain("0099-semantic-support-llm-judge-default-on-finalize.md");
         readme.Should().Contain("0098-working-instrument-after-spawn-is-desk.md");
         readme.Should().Contain("**Status: Accepted** 2026-09-13");
@@ -111,13 +87,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_authority_commit_registers_finalize_judge()
     {
-        string registrar = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Composition",
-                "Startup",
-                "Modules",
-                "AuthorityCommitPipelineCompositionRegistrar.cs"));
+        string registrar = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/Modules/AuthorityCommitPipelineCompositionRegistrar.cs");
 
         registrar.Should().Contain("IFindingSemanticSupportBandFinalizeJudge");
         registrar.Should().Contain("FindingSemanticSupportBandFinalizeJudge");

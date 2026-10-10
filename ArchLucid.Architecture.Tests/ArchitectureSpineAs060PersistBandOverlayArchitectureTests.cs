@@ -22,15 +22,7 @@ public sealed class ArchitectureSpineAs060PersistBandOverlayArchitectureTests
     [Fact]
     public void As060_findings_stage_persists_and_freezes_overlay()
     {
-        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "Stages",
-                "AuthorityPipelineFindingsStage.cs"));
+        string stage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineFindingsStage.cs");
 
         stage.Should().Contain("PersistSnapshotOverlaysAsync");
         stage.Should().Contain("FreezeSnapshotOverlaysAsync");
@@ -39,14 +31,14 @@ public sealed class ArchitectureSpineAs060PersistBandOverlayArchitectureTests
     [Fact]
     public void As060_migration_and_unified_schema_define_overlay_table()
     {
-        string migration = ArchitectureSourceProbe.ReadPathWithPartials(
+        string migration = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
                 "Migrations",
                 "379_FindingSemanticSupportBandOverlays.sql"));
 
-        string unified = ArchitectureSourceProbe.ReadPathWithPartials(
+        string unified = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid_Unified_Schema.sql"));
 
         migration.Should().Contain("FindingSemanticSupportBandOverlays");

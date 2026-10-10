@@ -15,29 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
     [Fact]
     public void Suggestion1413_1419_provenance_and_comparison_history_sealed_manifest_mappers()
     {
-        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceController.cs"));
-        string provenanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceController.SealedManifestGuard.cs"));
-        string comparisonHistory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.History.cs"));
-        string comparisonsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.SealedManifestGuard.cs"));
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.cs");
+        string provenanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.SealedManifestGuard.cs");
+        string comparisonHistory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string comparisonsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
 
         provenance.Should().Contain("GetFullGraph");
         provenance.Should().Contain("GetDecisionGraph");
@@ -55,9 +36,9 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
     [Fact]
     public void Suggestion1420_1422_provenance_alias_and_comparison_history_blocked_reason_wiring()
     {
-        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenanceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -65,9 +46,9 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
                 "lib",
                 "graph",
                 "provenance-graph-alias-blocked-reason.ts"));
-        string runComparisonHistoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runComparisonHistoryApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-comparison-history-api.ts"));
-        string runComparisonHistoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runComparisonHistoryBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -75,7 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
                 "lib",
                 "compare",
                 "run-comparison-history-blocked-reason.ts"));
-        string runComparisonHistoryHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runComparisonHistoryHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-comparison-history-query.ts"));
 
         graphApi.Should().Contain("getProvenanceGraph");
@@ -93,7 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
     [Fact]
     public void Suggestion1423_1424_compare_picked_summary_fail_closed_ux()
     {
-        string compareFormFetch = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareFormFetch = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -104,7 +85,7 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-form-fetch.ts"));
-        string compareFormDiffSubmit = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareFormDiffSubmit = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -115,7 +96,7 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-form-diff-submit.ts"));
-        string comparePickers = ArchitectureSourceProbe.ReadPathWithPartials(
+        string comparePickers = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -126,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareRunPickersSection.tsx"));
-        string compareForm = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareForm = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion356_remediation_instance_create_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceSealedManifestHashGuard.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceSealedManifestHashGuard.cs");
 
         service.Should().Contain("RemediationInstanceSealedManifestHashGuard");
         service.Should().Contain("CreateFromMatchAsync");
@@ -38,13 +26,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion357_remediation_preflight_and_approve_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("RunPreflightAsync");
         service.Should().Contain("ApproveAsync");
@@ -54,13 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion358_remediation_assign_and_execute_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("AssignWaveAsync");
         service.Should().Contain("ExecuteAsync");
@@ -70,13 +46,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion359_remediation_verify_and_close_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("VerifyAsync");
         service.Should().Contain("CloseAsync");
@@ -85,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion367_run_detail_deliverables_export_ui_fail_closed()
     {
-        string section = ArchitectureSourceProbe.ReadPathWithPartials(
+        string section = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -105,9 +75,9 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion369_header_share_and_meeting_packet_export_ui_fail_closed()
     {
-        string shareMenu = ArchitectureSourceProbe.ReadPathWithPartials(
+        string shareMenu = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "ReviewHeaderShareMenu.tsx"));
-        string meetingPacket = ArchitectureSourceProbe.ReadPathWithPartials(
+        string meetingPacket = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "ReviewMeetingPacketButton.tsx"));
 
         shareMenu.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -117,7 +87,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion371_manifest_json_download_ui_fail_closed()
     {
-        string button = ArchitectureSourceProbe.ReadPathWithPartials(
+        string button = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "DownloadManifestButton.tsx"));
 
         button.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -126,9 +96,9 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion372_consulting_docx_export_ui_fail_closed()
     {
-        string consulting = ArchitectureSourceProbe.ReadPathWithPartials(
+        string consulting = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ConsultingDocxExportButton.tsx"));
-        string whitelabel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string whitelabel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ReviewBoardWhitelabelConsultingExportButton.tsx"));
 
         consulting.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -138,7 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion373_terraform_advisory_export_ui_fail_closed()
     {
-        string button = ArchitectureSourceProbe.ReadPathWithPartials(
+        string button = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ExportTerraformAdvisoryButton.tsx"));
 
         button.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -147,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion374_sponsor_and_traceability_export_ui_fail_closed()
     {
-        string runActions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runActions = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -159,7 +129,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailRunActionsSection.tsx"));
-        string sponsorExports = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorExports = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -170,7 +140,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorExportsSection.tsx"));
-        string emailSponsor = ArchitectureSourceProbe.ReadPathWithPartials(
+        string emailSponsor = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
         runActions.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -181,18 +151,8 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_outbox_metadata_when_run_scoped()
     {
-        string outboxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Integration",
-                "IntegrationEventOutboxManifestHashGuard.cs"));
-        string publishing = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "ComplianceDriftIntegrationEventPublishing.cs"));
+        string outboxGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Integration/IntegrationEventOutboxManifestHashGuard.cs");
+        string publishing = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/ComplianceDriftIntegrationEventPublishing.cs");
 
         outboxGuard.Should().Contain("IntegrationEventTypes.ComplianceDriftEscalatedV1");
         publishing.Should().Contain("TryResolveVerifiedManifestHashOrNullAsync");

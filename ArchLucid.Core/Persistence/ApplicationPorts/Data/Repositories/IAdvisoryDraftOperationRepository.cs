@@ -23,9 +23,4 @@ public interface IAdvisoryDraftOperationRepository
     Task UpdateAsync(
         AdvisoryDraftOperationRow row,
         CancellationToken cancellationToken);
-
-    /// <summary>Loads a row by operation id when the caller only has the opaque draft operation id.</summary>
-    Task<AdvisoryDraftOperationRow?> GetByOperationIdAsync(
-        Guid operationId,
-        CancellationToken cancellationToken);
 }

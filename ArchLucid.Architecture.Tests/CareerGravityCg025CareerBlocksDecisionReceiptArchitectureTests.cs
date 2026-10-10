@@ -15,10 +15,8 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_service_stamps_posture_after_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
-        string stamper = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptCareerPostureStamper.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptService.cs");
+        string stamper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptCareerPostureStamper.cs");
 
         service.Should().Contain("DecisionReceiptCareerPostureStamper.ApplyCommittedRunPosture");
         stamper.Should().Contain("RehearsalIncomplete");
@@ -29,8 +27,7 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_contract_requires_posture_fields()
     {
-        string contract = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Exports", "DecisionReceiptDocument.cs"));
+        string contract = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Exports/DecisionReceiptDocument.cs");
 
         contract.Should().Contain("StructuralExecutionMode");
         contract.Should().Contain("WorkingCareerRehearsalDoor");
@@ -40,9 +37,9 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_ts_helper_includes_career_posture_on_committed_run()
     {
-        string exportHelper = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHelper = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "decision-receipt-export.ts"));
-        string postureHelper = ArchitectureSourceProbe.ReadPathWithPartials(
+        string postureHelper = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "decision-receipt-career-posture.ts"));
 
         exportHelper.Should().Contain("resolveDecisionReceiptCareerPosture");
@@ -53,7 +50,7 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_docs_record_decision_receipt_career_gate()
     {
-        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docs = File.ReadAllText(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-025");

@@ -70,17 +70,24 @@ export function isLivePrivateBetaJwtConfigured(): boolean {
 }
 
 /**
- * Working desk redirects bare `/architecture/reviews/new` to the architecture create desk
- * or last-open identity (DA-09 / ADR 0077). Eval chrome keeps Start review.
+ * Working desk redirects bare `/architecture/reviews/new` to Create architecture or the
+ * last-open identity desk (DA-09 / ADR 0077). Eval chrome keeps Start review.
  */
 export async function expectPrivateBetaStartIntakeSurface(page: Page): Promise<void> {
   const startReviewTitle = page.getByTestId("reviews-new-page-title");
   const createArchitectureTitle = page.getByTestId("architecture-new-page-title");
   const architectureDesk = page.getByTestId("architecture-identity-desk");
+  const workingRedirect = page.getByTestId("reviews-new-working-redirect");
 
-  await expect(startReviewTitle.or(createArchitectureTitle).or(architectureDesk)).toBeVisible({
-    timeout: 60_000,
-  });
+  await expect(
+    startReviewTitle.or(createArchitectureTitle).or(architectureDesk).or(workingRedirect),
+  ).toBeVisible({ timeout: 60_000 });
+
+  if (await workingRedirect.isVisible().catch(() => false)) {
+    await expect(createArchitectureTitle.or(architectureDesk).or(startReviewTitle)).toBeVisible({
+      timeout: 60_000,
+    });
+  }
 }
 
 const EMPTY_DRAFT_LIST_PAGE_JSON = JSON.stringify({

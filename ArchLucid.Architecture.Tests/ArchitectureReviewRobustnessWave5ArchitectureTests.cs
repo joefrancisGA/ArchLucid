@@ -15,14 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion41_cross_run_engines_load_prior_graph_snapshot()
     {
-        string topologyEngine = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "TopologyCrossRunDiffFindingEngine.cs"));
+        string topologyEngine = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/TopologyCrossRunDiffFindingEngine.cs");
 
         topologyEngine.Should().Contain("IGraphSnapshotRepository");
         topologyEngine.Should().Contain("GetByIdAsync");
 
-        string analyzer = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "GraphSnapshotTopologyDiffAnalyzer.cs"));
+        string analyzer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Analysis/GraphSnapshotTopologyDiffAnalyzer.cs");
 
         analyzer.Should().Contain("AnalyzeCategoryDelta(GraphSnapshot graphSnapshot, GraphSnapshot? priorGraph)");
     }
@@ -40,8 +38,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
+        string pinService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunPolicyPackPinService.cs");
 
         pinService.Should().Contain("PinnedPolicyPackRow");
         pinService.Should().Contain("PolicyPackVersion");
@@ -59,12 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Findings",
-                "EffectfulFindingEngineEvidenceLoader.cs"));
+        string loader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Findings/EffectfulFindingEngineEvidenceLoader.cs");
 
         loader.Should().Contain("TryGetDownloadByPackageIdAsync");
     }
@@ -72,7 +64,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion44_commit_reverifies_pin_and_draft_hashes()
     {
-        string commitIntegrity = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
+        string commitIntegrity = ArchitectureSourceProbe.ReadCommitIntegrityFamily();
 
         commitIntegrity.Should().Contain("VerifyPinIntegrityOrThrowAsync");
         commitIntegrity.Should().Contain("SpawnedDocumentContentHashSha256");
@@ -82,13 +74,11 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion45_manifest_hash_includes_architecture_version_id()
     {
-        string manifestDocument = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Manifest", "ManifestDocument.cs"));
+        string manifestDocument = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Manifest/ManifestDocument.cs");
 
         manifestDocument.Should().Contain("ArchitectureVersionId");
 
-        string hashService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
+        string hashService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/ManifestHashService.cs");
 
         hashService.Should().Contain("manifest.ArchitectureVersionId");
     }
@@ -96,8 +86,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion46_replay_execute_uses_authority_path()
     {
-        string replayExecute = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
+        string replayExecute = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Replay/ReplayRunExecutePreparedStage.cs");
 
         replayExecute.Should().Contain("ExecuteAuthorityPreparedReplayAsync");
         replayExecute.Should().Contain("AuthorityPipelineComplete");
@@ -118,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
+        string governance = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -133,7 +122,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
 
         governance.Should().Contain("resolveAuthorityLifecycleCommitBlock");
 
-        string strip = ArchitectureSourceProbe.ReadPathWithPartials(
+        string strip = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPackageStatusStrip.tsx"));
 
         strip.Should().Contain("authorityLifecyclePhase");
@@ -142,19 +131,11 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion48_authority_phase_writes_split_from_legacy_status()
     {
-        string transitionService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Runs", "IRunStateTransitionService.cs"));
+        string transitionService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Runs/IRunStateTransitionService.cs");
 
         transitionService.Should().Contain("ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress");
 
-        string processor = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "AuthorityPipelineMaterializeWork.cs"));
+        string processor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineMaterializeWork.cs");
 
         processor.Should().Contain("ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress");
     }
@@ -162,8 +143,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion49_synthesis_kernel_pack_pin_and_admittance_guard()
     {
-        string kernel = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
+        string kernel = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureSynthesisKernel.cs");
 
         kernel.Should().Contain("StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow");
         kernel.Should().Contain("_runCreatePinOrchestrator.ApplyCreateTimePinsAsync");
@@ -181,12 +161,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Hosting",
-                "FindingEngineRegistrationDistinctnessHostedService.cs"));
+        string hosted = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Hosting/FindingEngineRegistrationDistinctnessHostedService.cs");
 
         hosted.Should().Contain("RegisteredFindingEngineTypeRegistry.ReplaceRegisteredEngineTypeIds");
     }

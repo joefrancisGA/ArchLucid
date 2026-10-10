@@ -45,6 +45,11 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
             },
             {
+                "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.Aggregates.cs",
+                "ProductLearningPilotSignalSql",
+                "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
+            },
+            {
                 "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.InsertList.cs",
                 "ProductLearningPilotSignalSql",
                 "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
@@ -70,6 +75,11 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Sql/AgentResultWriteSql.cs"
             },
             {
+                "ArchLucid.Persistence/Data/Repositories/AgentResultInsertBatch.cs",
+                "AgentResultWriteSql",
+                "ArchLucid.Persistence/Sql/AgentResultWriteSql.cs"
+            },
+            {
                 "ArchLucid.Persistence/Data/Repositories/AgentExecutionTraceRepository.cs",
                 "AgentExecutionTraceSql",
                 "ArchLucid.Persistence/Sql/AgentExecutionTraceSql.cs"
@@ -81,6 +91,11 @@ public sealed class RepositorySqlExtractionRatchetTests
             },
             {
                 "ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.Write.cs",
+                "GoldenManifestWriteSql",
+                "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.Supersede.cs",
                 "GoldenManifestWriteSql",
                 "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
             },

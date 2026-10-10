@@ -15,55 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
     [Fact]
     public void Suggestion1065_1071_comparison_provenance_run_comparison_and_governance_openapi_409()
     {
-        string comparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonController.SealedManifestGuard.cs"));
-        string provenanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceController.SealedManifestGuard.cs"));
-        string provenanceQueryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceQueryController.SealedManifestGuard.cs"));
-        string runComparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunComparisonController.SealedManifestGuard.cs"));
-        string resolutionGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceResolutionController.SealedManifestGuard.cs"));
-        string setupGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceSetupController.SealedManifestGuard.cs"));
-        string environmentCatalogGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceEnvironmentCatalogController.SealedManifestGuard.cs"));
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.SealedManifestGuard.cs");
+        string provenanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.SealedManifestGuard.cs");
+        string provenanceQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.SealedManifestGuard.cs");
+        string runComparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs");
+        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
+        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
+        string environmentCatalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
 
         comparisonGuard.Should().Contain("MapComparisonSealedManifestConflict");
         provenanceGuard.Should().Contain("MapProvenanceSealedManifestConflict");
@@ -77,7 +35,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
     [Fact]
     public void Suggestion1072_1073_comparison_search_and_record_blocked_reason_wiring()
     {
-        string searchBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string searchBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,7 +43,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-search-blocked-reason.ts"));
-        string recordBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recordBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -93,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-record-blocked-reason.ts"));
-        string comparisonApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string comparisonApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-record-api.ts"));
 
         searchBlocked.Should().Contain("comparisonSearchBlockedReason");
@@ -105,7 +63,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
     [Fact]
     public void Suggestion1074_1076_provenance_graph_authority_provenance_and_environment_catalog_blocked_reason_wiring()
     {
-        string provenanceGraphBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenanceGraphBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -113,9 +71,9 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "graph",
                 "provenance-graph-alias-blocked-reason.ts"));
-        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string authorityProvenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -123,7 +81,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "graph",
                 "authority-provenance-alias-blocked-reason.ts"));
-        string authorityProvenanceApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -131,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "api",
                 "authority-provenance-query-api.ts"));
-        string environmentCatalogBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string environmentCatalogBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -139,7 +97,7 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-read-blocked-reason.ts"));
-        string environmentCatalogApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string environmentCatalogApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

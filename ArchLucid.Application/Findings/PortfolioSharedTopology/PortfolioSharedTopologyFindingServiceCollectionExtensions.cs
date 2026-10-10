@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.Findings;
 
-public static class PortfolioSharedTopologyFindingServiceCollectionExtensions
+internal static class PortfolioSharedTopologyFindingServiceCollectionExtensions
 {
     public static IServiceCollection AddPortfolioSharedTopologyFindingEngine(this IServiceCollection services)
     {

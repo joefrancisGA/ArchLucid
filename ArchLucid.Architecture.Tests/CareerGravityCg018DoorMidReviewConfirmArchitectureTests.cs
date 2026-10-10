@@ -48,7 +48,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
         confirmHelper.Should().Contain("hasInFlightReviewPipeline");
         confirmHelper.Should().Contain("does not stop the in-flight operation");
         confirmHelper.Should().Contain("artifacts");
-        copy.Should().Contain("Change execution door during in-flight analysis?");
+        copy.Should().Contain("Change review type during in-flight analysis?");
     }
 
     [Fact]

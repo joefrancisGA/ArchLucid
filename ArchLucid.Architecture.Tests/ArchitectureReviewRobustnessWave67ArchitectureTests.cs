@@ -15,34 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion789_791_draft_wizard_and_architecture_identity_mutation_openapi_409()
     {
-        string draftController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.cs"));
-        string wizardDrafts = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "WizardIntakeDraftsController.cs"));
-        string architectures = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "ArchitecturesController.cs"));
-        string architectureGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "ArchitecturesController.SealedManifestGuard.cs"));
+        string draftController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.cs");
+        string wizardDrafts = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/WizardIntakeDraftsController.cs");
+        string architectures = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
+        string architectureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
 
         draftController.Should().Contain("CreateDraft");
         draftController.Should().Contain("EnsureDraftIntakeSealedManifestReadAllowedAsync");
@@ -61,27 +37,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion792_794_governance_promotion_activation_and_approval_mutation_openapi_409()
     {
-        string promotions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PromotionsActivations.cs"));
-        string approvalCreate = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Create.cs"));
-        string approvalBatch = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Batch.cs"));
+        string promotions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PromotionsActivations.cs");
+        string approvalCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Create.cs");
+        string approvalBatch = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Batch.cs");
 
         promotions.Should().Contain("Promote");
         promotions.Should().Contain("Activate");
@@ -98,7 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion795_798_create_coverage_disposition_and_correction_mutation_blocked_reason_ui_wiring()
     {
-        string createRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string createRunBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,9 +64,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "runs",
                 "architecture-request-create-mutation-blocked-reason.ts"));
-        string wizardSubmit = ArchitectureSourceProbe.ReadPathWithPartials(
+        string wizardSubmit = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "wizard-form-create-run-submit.ts"));
-        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string coverageBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -116,7 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "runs",
                 "run-coverage-acknowledgement-mutation-blocked-reason.ts"));
-        string dispositions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dispositions = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -129,7 +87,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "findings",
                 "[findingId]",
                 "use-finding-inspect-governance-stickiness-dispositions.ts"));
-        string dispositionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dispositionBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -137,7 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "findings",
                 "finding-disposition-mutation-blocked-reason.ts"));
-        string correctionDialog = ArchitectureSourceProbe.ReadPathWithPartials(
+        string correctionDialog = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -145,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "components",
                 "governance",
                 "GovernanceRecordCorrectionDialog.tsx"));
-        string correctionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string correctionBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -167,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion799_800_wizard_and_draft_create_mutation_blocked_reason_ui_wiring()
     {
-        string wizardBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string wizardBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -175,9 +133,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "architecture",
                 "wizard-intake-draft-mutation-blocked-reason.ts"));
-        string wizardPersistence = ArchitectureSourceProbe.ReadPathWithPartials(
+        string wizardPersistence = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-wizard-session-persistence.ts"));
-        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -185,7 +143,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftCreateHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftCreateHook = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -196,9 +154,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "reviews",
                 "new",
                 "use-guided-intake-draft-create.ts"));
-        string creationInit = ArchitectureSourceProbe.ReadPathWithPartials(
+        string creationInit = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-creation-init.ts"));
-        string autosavePersist = ArchitectureSourceProbe.ReadPathWithPartials(
+        string autosavePersist = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-draft-autosave-persist.ts"));
 
         wizardBlocked.Should().Contain("wizardIntakeDraftMutationBlockedReason");

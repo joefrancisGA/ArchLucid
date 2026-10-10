@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn031VitestSpawnLockNotWritableArchitectureTests
     [Fact]
     public void Sn031_module_names_spawn_locked_fields_and_patch_blocked_copy()
     {
-        string module = ArchitectureSourceProbe.ReadPathWithPartials(
+        string module = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-spawn-lock-not-writable.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_SPAWN_LOCKED_ARCHITECTURE_FIELD_TEST_IDS");
@@ -25,7 +25,7 @@ public sealed class SystemNotJobSn031VitestSpawnLockNotWritableArchitectureTests
     [Fact]
     public void Sn031_vitest_ratchet_disables_spawn_locked_fields_and_checks_patch_guard()
     {
-        string test = ArchitectureSourceProbe.ReadPathWithPartials(
+        string test = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -42,12 +42,7 @@ public sealed class SystemNotJobSn031VitestSpawnLockNotWritableArchitectureTests
     [Fact]
     public void Sn031_application_test_blocks_patch_on_run_spawned_status()
     {
-        string applicationTest = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application.Tests",
-                "Drafts",
-                "DraftRequestSpawnLockPatchBlockedTests.cs"));
+        string applicationTest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Drafts/DraftRequestSpawnLockPatchBlockedTests.cs");
 
         applicationTest.Should().Contain("SN-031");
         applicationTest.Should().Contain("DraftRequestStatus.RunSpawned");

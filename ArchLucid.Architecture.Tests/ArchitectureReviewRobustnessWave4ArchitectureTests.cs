@@ -24,8 +24,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string topologyEngine = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "TopologyCrossRunDiffFindingEngine.cs"));
+        string topologyEngine = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/TopologyCrossRunDiffFindingEngine.cs");
 
         topologyEngine.Should().Contain("CrossRunDiffFindingPriorGuard.EnsurePriorPresentOrThrow");
     }
@@ -33,13 +32,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion32_evidence_pin_on_finding_analysis_context()
     {
-        string context = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
+        string context = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/FindingAnalysisContext.cs");
 
         context.Should().Contain("EvidencePackagePin? EvidencePin");
 
-        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
+        string pinService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunEvidencePackagePinService.cs");
 
         pinService.Should().Contain("ResolvePinsFromHeader");
         pinService.Should().Contain("HasCreateTimePinCommitment");
@@ -48,18 +45,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion33_pack_required_engine_types_entailment()
     {
-        string packDocument = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "PolicyPackContentDocument.cs"));
+        string packDocument = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Governance/PolicyPackContentDocument.cs");
 
         packDocument.Should().Contain("requiredEngineTypes");
 
-        string mergeStage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Services",
-                "Findings",
-                "FindingsMergeAndGateStage.cs"));
+        string mergeStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/Findings/FindingsMergeAndGateStage.cs");
 
         mergeStage.Should().Contain("GetMissingEngineTypeViolations");
     }
@@ -76,20 +66,19 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string migration342 = ArchitectureSourceProbe.ReadPathWithPartials(
+        string migration342 = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "342_RunPolicyPackPin.sql"));
 
         migration342.Should().Contain("@runTable");
         migration342.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
-        string bootstrapSql = ArchitectureSourceProbe.ReadPathWithPartials(
+        string bootstrapSql = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
 
         bootstrapSql.Should().Contain("PinnedPolicyPackIdsJson");
         bootstrapSql.Should().Contain("@policyPackPinRunTable");
 
-        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
+        string pinService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunPolicyPackPinService.cs");
 
         pinService.Should().Contain("ApplyToRunHeaderAsync");
     }
@@ -106,8 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion36_replay_skips_agent_tasks_when_authority_complete()
     {
-        string replayPrepare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
+        string replayPrepare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Replay/ReplayRunPrepareStage.cs");
 
         replayPrepare.Should().Contain("AuthorityPipelineComplete");
         replayPrepare.Should().Contain("NoScheduledAgentTasksException");
@@ -116,21 +104,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion37_stable_llm_recommendation_ids()
     {
-        string stableId = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "ArchitectureIntelligence",
-                "ArchitectureRecommendationStableId.cs"));
+        string stableId = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationStableId.cs");
 
         stableId.Should().Contain("FromLlmRecommendation");
 
-        string mapper = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceLlmResponseMapper.cs"));
+        string mapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ArchitectureIntelligenceLlmResponseMapper.cs");
 
         mapper.Should().Contain("ArchitectureRecommendationStableId.FromLlmRecommendation");
     }
@@ -138,13 +116,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion38_authority_lifecycle_phase_on_run_detail_response()
     {
-        string runDetails = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Models", "RunDetailsResponse.cs"));
+        string runDetails = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Models/RunDetailsResponse.cs");
 
         runDetails.Should().Contain("AuthorityLifecyclePhase");
 
-        string queryService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Services", "Authority", "RunGraphQueryService.cs"));
+        string queryService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Services/Authority/RunGraphQueryService.cs");
 
         queryService.Should().Contain("response.AuthorityLifecyclePhase");
     }
@@ -152,13 +128,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion39_block_create_on_mixed_or_fallback_mode()
     {
-        string coordination = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Coordination",
-                "ArchitectureRunAuthorityCoordination.cs"));
+        string coordination = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Coordination/ArchitectureRunAuthorityCoordination.cs");
 
         coordination.Should().Contain("StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow");
     }
@@ -177,15 +147,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string findingsStage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "Stages",
-                "AuthorityPipelineFindingsStage.cs"));
+        string findingsStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineFindingsStage.cs");
 
         findingsStage.Should().Contain("_evidenceGraphMaterializer?.Materialize");
     }

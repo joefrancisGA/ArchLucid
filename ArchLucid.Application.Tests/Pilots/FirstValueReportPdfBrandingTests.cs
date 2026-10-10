@@ -10,7 +10,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.User;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -38,7 +37,7 @@ public sealed class FirstValueReportPdfBrandingTests
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("11111111-1111-1111-1111-111111111111", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
@@ -54,7 +53,7 @@ public sealed class FirstValueReportPdfBrandingTests
             branding.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
 
-        byte[]? pdf = await sut.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005", "http://localhost:5000");
+        byte[]? pdf = await sut.BuildPdfAsync("11111111-1111-1111-1111-111111111111", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
         string pdfText = ExtractPdfText(pdf!);
@@ -68,7 +67,7 @@ public sealed class FirstValueReportPdfBrandingTests
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("22222222-2222-2222-2222-222222222222", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
@@ -92,8 +91,8 @@ public sealed class FirstValueReportPdfBrandingTests
         FirstValueReportPdfBuilder tenantBPdf = new(
             CreateMarkdownBuilder(query.Object, deltas.Object, tenantBBranding.Object));
 
-        byte[]? tenantAPdfBytes = await tenantAPdf.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006", "http://localhost:5000");
-        byte[]? tenantBPdfBytes = await tenantBPdf.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006", "http://localhost:5000");
+        byte[]? tenantAPdfBytes = await tenantAPdf.BuildPdfAsync("22222222-2222-2222-2222-222222222222", "http://localhost:5000");
+        byte[]? tenantBPdfBytes = await tenantBPdf.BuildPdfAsync("22222222-2222-2222-2222-222222222222", "http://localhost:5000");
 
         string tenantAText = ExtractPdfText(tenantAPdfBytes!);
         string tenantBText = ExtractPdfText(tenantBPdfBytes!);
@@ -167,7 +166,9 @@ public sealed class FirstValueReportPdfBrandingTests
                 ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             });
 
-        IConfiguration configuration = FirstValueReportBuilderTestDoubles.CreateCareerExportReadyConfiguration();
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(FirstValueReportBuilderTestDoubles.CreateCareerCompleteRealModeHonestyValues())
+            .Build();
 
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
@@ -188,6 +189,8 @@ public sealed class FirstValueReportPdfBrandingTests
                     UpdatedUtc = DateTimeOffset.UtcNow,
                 });
 
+        IManifestHashService hashes = FirstValueReportBuilderTestDoubles.CreateManifestHashService();
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -200,10 +203,10 @@ public sealed class FirstValueReportPdfBrandingTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
-            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyManifestHash(),
+            FirstValueReportBuilderTestDoubles.CreateAuthorityQueryForSponsorExport(hashes),
+            hashes,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
@@ -240,19 +243,18 @@ public sealed class FirstValueReportPdfBrandingTests
     {
         ArchitectureRun run = new()
         {
-            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005",
+            RunId = "11111111-1111-1111-1111-111111111111",
             RequestId = "req",
             Status = ArchitectureRunStatus.Committed,
             CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
             CompletedUtc = new DateTime(2026, 4, 1, 1, 0, 0, DateTimeKind.Utc),
             CurrentManifestVersion = "v1",
-            StructuralExecutionMode = StructuralExecutionMode.Simulator,
-            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
+            StructuralExecutionMode = StructuralExecutionMode.Real,
         };
 
         GoldenManifest manifest = new()
         {
-            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005",
+            RunId = "11111111-1111-1111-1111-111111111111",
             SystemName = "DemoSystem",
             Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = run.CreatedUtc },
             Governance = new ManifestGovernance(),

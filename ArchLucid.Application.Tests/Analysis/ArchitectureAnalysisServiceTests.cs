@@ -18,7 +18,6 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Analysis;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureAnalysisServiceTests
 {

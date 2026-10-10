@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion311_docx_compare_with_run_fail_closed_on_sealed_hash()
     {
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.cs");
 
         controller.Should().Contain("RunExportSealedManifestHashGuard");
         controller.Should().Contain("compareWithRunId.Value.ToString(\"N\")");
@@ -25,8 +24,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion312_decision_receipt_run_build_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptService.cs");
 
         service.Should().Contain("RunExportSealedManifestHashGuard");
         service.Should().Contain("BuildForRunAsync");
@@ -35,8 +33,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion313_architecture_review_export_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "ArchitectureReviewExportService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewExportService.cs");
 
         service.Should().Contain("RunExportSealedManifestHashGuard");
         service.Should().Contain("GenerateReportAsync");
@@ -45,18 +42,8 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion314_structured_diagram_ingest_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "StructuredDiagramIngestService.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "StructuredDiagramIngestSealedManifestHashGuard.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/StructuredDiagramIngestService.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/StructuredDiagramIngestSealedManifestHashGuard.cs");
 
         service.Should().Contain("StructuredDiagramIngestSealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -65,18 +52,8 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion315_diagram_infrastructure_reconciliation_fail_closed_on_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "DiagramInfrastructureReconciliationService.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "DiagramInfrastructureReconciliationSealedManifestHashGuard.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/DiagramInfrastructureReconciliationService.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/DiagramInfrastructureReconciliationSealedManifestHashGuard.cs");
 
         service.Should().Contain("DiagramInfrastructureReconciliationSealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -85,8 +62,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion316_first_value_report_fail_closed_on_sealed_hash()
     {
-        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "FirstValueReportBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/FirstValueReportBuilder.cs");
 
         builder.Should().Contain("RunExportSealedManifestHashGuard");
         builder.Should().Contain("BuildReportAsync");
@@ -95,7 +71,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion326_submitted_architecture_copy_fail_closed()
     {
-        string section = ArchitectureSourceProbe.ReadPathWithPartials(
+        string section = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,7 +90,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion327_328_architecture_diagram_mermaid_copy_download_fail_closed()
     {
-        string hook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string hook = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -131,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion329_finding_iac_stub_copy_fail_closed()
     {
-        string panel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string panel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingIacStubPanel.tsx"));
 
         panel.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -140,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion330_332_evidence_graph_export_fail_closed()
     {
-        string experience = ArchitectureSourceProbe.ReadPathWithPartials(
+        string experience = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -159,7 +135,7 @@ public sealed class ArchitectureReviewRobustnessWave29ArchitectureTests
     [Fact]
     public void Suggestion333_golden_manifest_markdown_export_fail_closed()
     {
-        string menu = ArchitectureSourceProbe.ReadPathWithPartials(
+        string menu = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GoldenManifestExportMenu.tsx"));
 
         menu.Should().Contain("runCollateralSealedManifestCopyBlockedReason");

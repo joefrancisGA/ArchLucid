@@ -28,7 +28,7 @@ public sealed class ArchitectureSpineAs100WaveCloseAuditArchitectureTests
         source.Should().Contain("NotVerifiable");
         source.Should().Contain("RestrictToShares");
         source.Should().Contain("AgentExecution:Mode");
-        source.Should().Contain("Wave 23");
+        source.Should().Contain("wave 23");
         source.Should().Contain("G-REAL-06");
         source.Should().Contain("IE-01");
     }

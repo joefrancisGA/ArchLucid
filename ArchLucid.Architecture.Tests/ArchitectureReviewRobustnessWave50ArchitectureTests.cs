@@ -15,28 +15,17 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
     [Fact]
     public void Suggestion585_590_timelines_trail_ledger_coverage_and_graph_openapi_409()
     {
-        string timelinesBundle = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.Timelines.cs"));
-        string sealedGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.SealedManifestGuard.cs"));
-        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityTrail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string technologyLedger = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "TechnologyLedgerController.cs"));
-        string clarificationQuestions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ReviewClarificationQuestionsController.cs"));
-        string runCoverage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunCoverageController.cs"));
-        string runCoverageAck = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunCoverageController.Acknowledgement.cs"));
-        string runDetailQuery = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Detail.cs"));
-        string runProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
-        string graphSnapshot = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "GraphController.Snapshot.cs"));
+        string timelinesBundle = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.Timelines.cs");
+        string sealedGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.SealedManifestGuard.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string authorityTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string technologyLedger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string clarificationQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string runCoverage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.cs");
+        string runCoverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
+        string runDetailQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs");
+        string runProvenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
+        string graphSnapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs");
 
         timelinesBundle.Should().Contain("GetTimelinesBundle");
         timelinesBundle.Should().Contain("EnsureSealedManifestReadAllowed");
@@ -74,48 +63,48 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
     [Fact]
     public void Suggestion591_594_sealed_manifest_aware_reads_and_blocked_reason_helpers()
     {
-        string pageBundleClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pageBundleClient = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-run-detail-page-bundle-client.ts"));
-        string timelinesBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string timelinesBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-detail-timelines-bundle-blocked-reason.ts"));
-        string runDetailList = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runDetailList = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string pipelineBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pipelineBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-pipeline-timeline-blocked-reason.ts"));
-        string technologyLedgerApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string technologyLedgerApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "technology-ledger.ts"));
-        string technologyLedgerBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string technologyLedgerBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "technology-ledger-blocked-reason.ts"));
-        string clarificationApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "review-clarification-questions-api.ts"));
-        string clarificationBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "review-clarification-questions-blocked-reason.ts"));
-        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
 
         pageBundleClient.Should().Contain("fetchRunDetailTimelinesBundle");
-        pageBundleClient.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(pageBundleClient);
         timelinesBlockedReason.Should().Contain("runDetailTimelinesBundleBlockedReason");
         runDetailList.Should().Contain("getRunStageTimeline");
         runDetailList.Should().Contain("getRunPipelineTimeline");
-        runDetailList.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailList);
         pipelineBlockedReason.Should().Contain("runPipelineTimelineBlockedReason");
         technologyLedgerApi.Should().Contain("getTechnologyLedger");
-        technologyLedgerApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(technologyLedgerApi);
         technologyLedgerBlockedReason.Should().Contain("technologyLedgerBlockedReason");
         clarificationApi.Should().Contain("getReviewClarificationQuestions");
-        clarificationApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(clarificationApi);
         clarificationBlockedReason.Should().Contain("reviewClarificationQuestionsBlockedReason");
         graphApi.Should().Contain("getArchitectureGraphPage");
         graphApi.Should().Contain("getArchitectureGraphTemporalSnapshot");
         graphApi.Should().Contain("mergeArchitectureGraphPages");
-        graphApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(graphApi);
     }
 
     [Fact]
     public void Suggestion595_below_fold_fail_closed_ux()
     {
-        string pipelineTimelineSection = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pipelineTimelineSection = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -127,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailPipelineTimelineSection.tsx"));
-        string pipelineTimelineLoader = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pipelineTimelineLoader = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -139,11 +128,11 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-pipeline-timeline-cached.ts"));
-        string technologyBaseline = ArchitectureSourceProbe.ReadPathWithPartials(
+        string technologyBaseline = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "technology-baseline", "TechnologyBaselinePanel.tsx"));
-        string clarificationHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-review-clarification-questions.ts"));
-        string clarificationPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationPanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "architecture", "ArchitectureCreatedClarificationsPanel.tsx"));
 
         pipelineTimelineSection.Should().Contain("runPipelineTimelineBlockedReason");
@@ -156,13 +145,13 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
     [Fact]
     public void Suggestion596_sponsor_summary_export_anchor_consolidation()
     {
-        string pageHeader = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pageHeader = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPageHeader.tsx"));
-        string summaryExportApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string summaryExportApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-summary-export-api.ts"));
-        string summaryExportDownload = ArchitectureSourceProbe.ReadPathWithPartials(
+        string summaryExportDownload = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-run-summary-export.ts"));
-        string downloadUrls = ArchitectureSourceProbe.ReadPathWithPartials(
+        string downloadUrls = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-urls.ts"));
 
         pageHeader.Should().Contain("downloadRunSummaryExport");

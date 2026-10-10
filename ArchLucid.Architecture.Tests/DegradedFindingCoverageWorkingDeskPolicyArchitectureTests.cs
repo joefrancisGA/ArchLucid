@@ -16,8 +16,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Server_blocks_degraded_coverage_on_working_desk_finalize_only()
     {
-        string validator = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "CareerArtifacts", "CareerArtifactCompletenessValidator.cs"));
+        string validator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/CareerArtifactCompletenessValidator.cs");
 
         validator.Should().Contain("if (!input.WorkingDesk || input.ArtifactKind != CareerArtifactKind.Finalize || !input.DegradedFindingCoverage)");
         validator.Should().Contain("DegradedFindingCoverageCode");
@@ -27,13 +26,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Orchestrator_passes_working_desk_and_degraded_coverage_into_finalize_completeness_input()
     {
-        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("IsWorkingDeskAsync");
         orchestrator.Should().Contain("RunFindingCoverageProjection.Build");
@@ -44,7 +37,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Ui_scorecard_wires_working_desk_degraded_block_via_buyer_polished_inverse()
     {
-        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
+        string doThisNext = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -55,10 +48,10 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
                 "reviews",
                 "[reviewId]",
                 "_sections",
-                "run-detail-page-presentation-governance.ts"));
+                "RunDetailReviewPackageDoThisNextResolved.tsx"));
 
-        governance.Should().Contain("blockDegradedFindingCoverageOnWorking: model.buyerPolishedArtifactTable !== true");
-        governance.Should().Contain("degradedFindingCoverage: model.resolvedDetail.degradedFindingCoverage === true");
+        doThisNext.Should().Contain("blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true");
+        doThisNext.Should().Contain("degradedFindingCoverage: props.degradedFindingCoverage");
     }
 
     private static string FindRepoRoot()

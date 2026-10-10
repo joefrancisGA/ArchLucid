@@ -15,34 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
     [Fact]
     public void Suggestion765_768_773_attestation_recurrence_and_policy_simulate_openapi_409()
     {
-        string attestationController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Attestation.cs"));
-        string schedulesController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Schedules.cs"));
-        string recurrenceFacade = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Recurrence.cs"));
-        string policySimulate = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Simulate.cs"));
+        string attestationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs");
+        string schedulesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs");
+        string recurrenceFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Recurrence.cs");
+        string policySimulate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs");
 
         attestationController.Should().Contain("UpsertRealizedValueAttestation");
         attestationController.Should().Contain("Status409Conflict");
@@ -63,9 +39,9 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
     [Fact]
     public void Suggestion766_770_realized_value_workflow_and_review_context_ui_wiring()
     {
-        string attestationMutationHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string attestationMutationHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-realized-value-attestation-mutation.ts"));
-        string attestationMutationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string attestationMutationBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -73,9 +49,9 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "governance",
                 "realized-value-attestation-mutation-blocked-reason.ts"));
-        string workflowMutations = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowMutations = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-workflow-mutations.ts"));
-        string workflowMutationHost = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowMutationHost = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,7 +61,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "governance",
                 "_sections",
                 "GovernanceWorkflowMutationHost.tsx"));
-        string workflowMutationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowMutationBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -93,7 +69,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-mutation-blocked-reason.ts"));
-        string reviewContextLoader = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewContextLoader = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -103,9 +79,9 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "governance",
                 "_sections",
                 "load-governance-review-context.ts"));
-        string reviewContextHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewContextHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-review-context-query.ts"));
-        string reviewContextBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewContextBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -113,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "governance",
                 "governance-review-context-blocked-reason.ts"));
-        string reviewContextCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewContextCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -136,7 +112,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
     [Fact]
     public void Suggestion769_772_recurrence_keyboard_disposition_and_policy_simulate_ui_wiring()
     {
-        string recurrenceClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recurrenceClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -144,7 +120,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "components",
                 "governance",
                 "use-recurrence-schedules-client.ts"));
-        string recurrenceCreate = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recurrenceCreate = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -152,7 +128,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "components",
                 "governance",
                 "RecurrenceScheduleCreatePanel.tsx"));
-        string recurrenceMutationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recurrenceMutationBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -160,7 +136,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "governance",
                 "recurrence-schedule-mutation-blocked-reason.ts"));
-        string keyboardHost = ArchitectureSourceProbe.ReadPathWithPartials(
+        string keyboardHost = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -169,7 +145,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "governance",
                 "findings",
                 "FindingKeyboardTriageHost.tsx"));
-        string keyboardBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string keyboardBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -177,7 +153,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "findings",
                 "finding-keyboard-disposition-blocked-reason.ts"));
-        string policyPreview = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policyPreview = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -185,7 +161,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "components",
                 "policy",
                 "PolicyPackImpactPreviewPanel.tsx"));
-        string policyBuilder = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policyBuilder = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -196,7 +172,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "policy-packs",
                 "_sections",
                 "use-policy-pack-visual-builder.ts"));
-        string policySimulateBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policySimulateBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -218,7 +194,7 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
     [Fact]
     public void Suggestion775_776_pre_finalize_simulate_and_draft_autosave_ui_wiring()
     {
-        string preFinalizeSimulateApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preFinalizeSimulateApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -226,9 +202,9 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "api",
                 "pre-finalize-synthetic-simulation-api.ts"));
-        string commitRunButton = ArchitectureSourceProbe.ReadPathWithPartials(
+        string commitRunButton = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CommitRunButton.tsx"));
-        string preFinalizeSimulateBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preFinalizeSimulateBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -236,9 +212,9 @@ public sealed class ArchitectureReviewRobustnessWave65ArchitectureTests
                 "lib",
                 "runs",
                 "pre-finalize-synthetic-simulation-blocked-reason.ts"));
-        string draftAutosave = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftAutosave = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-draft-autosave-persist.ts"));
-        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

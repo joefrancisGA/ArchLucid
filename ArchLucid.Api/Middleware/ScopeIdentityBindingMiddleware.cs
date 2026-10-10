@@ -58,7 +58,12 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
         if (!context.Request.Path.StartsWithSegments("/scim", StringComparison.OrdinalIgnoreCase))
             return;
 
-        IAuthenticationService? authentication = context.RequestServices.GetService<IAuthenticationService>();
+        IServiceProvider? services = context.RequestServices;
+
+        if (services is null)
+            return;
+
+        IAuthenticationService? authentication = services.GetService<IAuthenticationService>();
 
         if (authentication is null)
             return;

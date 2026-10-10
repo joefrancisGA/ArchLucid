@@ -15,91 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
     [Fact]
     public void Suggestion993_999_advisory_query_docx_ledger_remediation_diagram_and_hub_openapi_409()
     {
-        string advisory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string advisoryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.SealedManifestGuard.cs"));
-        string queryTrail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.Trail.cs"));
-        string queryRunDetail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.RunDetail.cs"));
-        string queryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.SealedManifestGuard.cs"));
-        string docxExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
-        string docxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "DocxExportController.SealedManifestGuard.cs"));
-        string ledger = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "TechnologyLedgerController.cs"));
-        string ledgerGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "TechnologyLedgerController.SealedManifestGuard.cs"));
-        string remediation = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "RemediationInstancesController.cs"));
-        string remediationGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "RemediationInstancesController.SealedManifestGuard.cs"));
-        string diagramIngest = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.cs"));
-        string diagramGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.SealedManifestGuard.cs"));
-        string evidenceHub = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "CloudResourceEvidenceHubController.cs"));
-        string evidenceHubGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "CloudResourceEvidenceHubController.SealedManifestGuard.cs"));
+        string advisory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.cs");
+        string advisoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.SealedManifestGuard.cs");
+        string queryTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string queryRunDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
+        string queryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
+        string docxExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.cs");
+        string docxGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.SealedManifestGuard.cs");
+        string ledger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string ledgerGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.SealedManifestGuard.cs");
+        string remediation = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs");
+        string remediationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.SealedManifestGuard.cs");
+        string diagramIngest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.cs");
+        string diagramGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.SealedManifestGuard.cs");
+        string evidenceHub = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs");
+        string evidenceHubGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs");
 
         advisory.Should().Contain("MapAdvisorySealedManifestConflict");
         advisoryGuard.Should().Contain("MapAdvisorySealedManifestConflict");
@@ -121,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
     [Fact]
     public void Suggestion1000_1003_pilot_pdf_and_sponsor_csv_blocked_reason_wiring()
     {
-        string firstValueBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string firstValueBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -129,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
                 "lib",
                 "pilots",
                 "first-value-report-mutation-blocked-reason.ts"));
-        string boardPackBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string boardPackBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -137,7 +67,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
                 "lib",
                 "pilots",
                 "board-pack-mutation-blocked-reason.ts"));
-        string onePagerBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string onePagerBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -145,7 +75,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-one-pager-mutation-blocked-reason.ts"));
-        string roiCsvBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string roiCsvBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -153,9 +83,9 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-roi-csv-export-mutation-blocked-reason.ts"));
-        string reportsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reportsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
-        string roiCsvApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string roiCsvApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -177,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
     [Fact]
     public void Suggestion1004_value_report_docx_blocked_reason_wiring()
     {
-        string valueReportBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string valueReportBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -185,7 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave84ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-value-report-docx-mutation-blocked-reason.ts"));
-        string exportJobs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportJobs = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-export-jobs.ts"));
 
         valueReportBlocked.Should().Contain("sponsorValueReportDocxMutationBlockedReason");

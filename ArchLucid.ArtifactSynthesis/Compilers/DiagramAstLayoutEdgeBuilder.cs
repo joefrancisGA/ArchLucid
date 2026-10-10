@@ -63,8 +63,6 @@ internal static class DiagramAstLayoutEdgeBuilder
                 continue;
             }
 
-            bool addedSubnetPlacement = false;
-
             foreach (string subnetNodeId in DiagramAstVnetTopologyResolver.ResolveSubnetNodeIdsForVirtualMachine(
                          node.NodeId,
                          placementHops,
@@ -78,21 +76,10 @@ internal static class DiagramAstLayoutEdgeBuilder
 
                 if (visibleEdgeKeys.Contains($"{vmMermaidId}|{subnetMermaidId}"))
                 {
-                    addedSubnetPlacement = true;
                     continue;
                 }
 
-                if (!TryAddDerivedPlacementEdge(ast, visibleEdgeKeys, vmMermaidId, subnetMermaidId))
-                {
-                    continue;
-                }
-
-                addedSubnetPlacement = true;
-            }
-
-            if (addedSubnetPlacement)
-            {
-                continue;
+                TryAddDerivedPlacementEdge(ast, visibleEdgeKeys, vmMermaidId, subnetMermaidId);
             }
 
             foreach (string vnetNodeId in DiagramAstVnetTopologyResolver.ResolveVnetNodeIdsForVirtualMachine(

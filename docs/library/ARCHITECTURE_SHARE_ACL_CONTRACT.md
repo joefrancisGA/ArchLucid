@@ -2,7 +2,7 @@
 
 # Architecture share ACL contract (AS-090)
 
-Architecture-scoped sharing is **inside one tenant**. It does not replace ADR 0037 catalog isolation and does not add SQL RLS / SQL row-level security (AS-097). ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests pins that ArchitectureShares stay application-scoped.
+Architecture-scoped sharing is **inside one tenant**. It does not replace ADR 0037 catalog isolation and does not add SQL row-level security (AS-097).
 
 ## Roles
 
@@ -12,24 +12,22 @@ Architecture-scoped sharing is **inside one tenant**. It does not replace ADR 00
 | **Decide** | Yes (when shared) | Yes, only when caller also has **ExecuteAuthority** | No |
 | **Admin** | Yes (when shared) | Yes, only when caller also has **ExecuteAuthority** | Yes |
 
-Decide share without ExecuteAuthority cannot dispose findings or commit. ExecuteAuthority without share cannot dispose a restricted package. ArchitectureShareAccessEvaluator encodes that intersection.
-
 When `RestrictToShares = false` (grandfather default, AS-088), every workspace member with ReadAuthority can view the architecture. ExecuteAuthority gates decide actions as today.
+
+Intersection (AS-090): **Decide share without ExecuteAuthority cannot dispose**. **ExecuteAuthority without share cannot dispose**. Evaluator: `ArchitectureShareAccessEvaluator`.
 
 ## Actor keys (AS-096)
 
 - Share rows store `ActorOid` as the Entra user key from `IActorContext.GetActorId()` (`jwt:{tenantId}:{oid}`).
 - SCIM groups are **not** share targets. SCIM group ids (`group:` / `scim-group:`) are rejected with HTTP 400.
 
+SQL RLS is forbidden on architecture shares (AS-097). Guard: `ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests`.
+
 ## Restrict-to-shares (AS-089)
 
 - Opt-in only. Default remains open.
 - Enabling restrict while the share list is empty **auto-inserts the current actor as Admin** so the operator cannot hide the package from everyone including themselves.
 - Operators must set `confirmRestrict = true` when enabling restrict.
-
-## In-app help (AS-098)
-
-Help topic `architecture-sharing` (ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTests) names the boundary: one tenant, not a second tenant, and not chat or live presence.
 
 ## Visibility (AS-094 / AS-095)
 
@@ -44,6 +42,10 @@ Required durable audit events:
 - `ArchitectureIdentity.ShareRevoked`
 - `ArchitectureIdentity.RestrictToSharesEnabled`
 - `ArchitectureIdentity.RestrictToSharesDisabled`
+
+## Help boundary (AS-098)
+
+In-app help (`/help/architecture-sharing`) names the architecture-share boundary as **one tenant**, not a second tenant and not chat or live presence. Guard: `ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTests`.
 
 ## API surface (AS-099)
 

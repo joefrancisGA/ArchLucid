@@ -19,7 +19,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
 
         findings.Should().Contain("missing create-time architecture version content hash (κ) pin");
 
-        string commit = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
+        string commit = ArchitectureSourceProbe.ReadCommitIntegrityFamily();
 
         commit.Should().Contain("missing create-time architecture version content hash (κ) pin");
     }
@@ -27,20 +27,12 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion92_hasher_a_v5_binds_kappa_content_hash()
     {
-        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
+        string hasher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/ManifestHashService.cs");
 
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CreateTimeArchitectureVersionContentHashSha256");
 
-        string binder = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Commit",
-                "AuthorityCommitCreateTimePinBinder.cs"));
+        string binder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitCreateTimePinBinder.cs");
 
         binder.Should().Contain("CreateTimeArchitectureVersionContentHashSha256");
     }
@@ -48,21 +40,12 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion93_graph_reuse_checks_pin_fingerprints()
     {
-        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "Graph", "GraphSnapshotCommittedReuseResolver.cs"));
+        string resolver = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/Graph/GraphSnapshotCommittedReuseResolver.cs");
 
         resolver.Should().Contain("policyPackPinsHashSha256Hex");
         resolver.Should().Contain("architectureVersionContentHashSha256Hex");
 
-        string graphStage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "Stages",
-                "AuthorityPipelineGraphStage.cs"));
+        string graphStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineGraphStage.cs");
 
         graphStage.Should().Contain("PolicyPackPinsHashSha256Hex");
     }
@@ -70,8 +53,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion94_no_live_evidence_or_policy_fallbacks()
     {
-        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Findings", "EffectfulFindingEngineEvidenceLoader.cs"));
+        string loader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Findings/EffectfulFindingEngineEvidenceLoader.cs");
 
         loader.Should().NotContain("TryGetLatestDownloadInScopeAsync");
 
@@ -84,7 +66,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion95_knowledge_model_content_hash_pinned()
     {
-        string migration = ArchitectureSourceProbe.ReadPathWithPartials(
+        string migration = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
@@ -93,8 +75,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
 
         migration.Should().Contain("PinnedKnowledgeModelContentHashSha256");
 
-        string pin = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunHeaderKnowledgeModelContentPin.cs"));
+        string pin = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunHeaderKnowledgeModelContentPin.cs");
 
         pin.Should().Contain("PinnedKnowledgeModelContentHashSha256");
     }
@@ -111,8 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
             .Should()
             .BeTrue();
 
-        string prior = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "PriorReviewSnapshots.cs"));
+        string prior = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/PriorReviewSnapshots.cs");
 
         prior.Should().Contain("PriorPinnedEvidencePackagePinsHashSha256Hex");
     }
@@ -129,8 +109,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
             .Should()
             .BeTrue();
 
-        string hasherB = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Manifest", "GoldenManifestFingerprint.cs"));
+        string hasherB = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Manifest/GoldenManifestFingerprint.cs");
 
         hasherB.Should().Contain("ManifestCreateTimePinCanonicalProjection");
     }
@@ -138,8 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion98_compare_records_duplicate_keys()
     {
-        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Comparison", "ComparisonService.cs"));
+        string compare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Comparison/ComparisonService.cs");
 
         compare.Should().Contain("DuplicateKeyConflicts");
         compare.Should().NotContain("g => g.First()");
@@ -148,8 +126,7 @@ public sealed class ArchitectureReviewRobustnessWave10ArchitectureTests
     [Fact]
     public void Suggestion99_board_export_uses_lifecycle_guard()
     {
-        string export = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "ArchitectureReviewExportService.cs"));
+        string export = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewExportService.cs");
 
         export.Should().Contain("AuthorityLifecycleCompareExportGuard");
         export.Should().NotContain("detail.IsCommitted");

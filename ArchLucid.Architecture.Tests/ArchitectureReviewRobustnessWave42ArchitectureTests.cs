@@ -15,22 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
     [Fact]
     public void Suggestion489_495_openapi_409_declarations()
     {
-        string insights = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.Insights.cs"));
-        string posture = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePostureController.cs"));
-        string manifestSummary = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string auditDownload = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.Export.Download.cs"));
-        string auditCsv = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.Export.Csv.cs"));
-        string remediation = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingRemediationAssignmentController.cs"));
-        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReplayController.cs"));
-        string ask = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.cs"));
+        string insights = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs");
+        string posture = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs");
+        string manifestSummary = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string auditDownload = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Download.cs");
+        string auditCsv = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs");
+        string remediation = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingRemediationAssignmentController.cs");
+        string replay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.cs");
+        string ask = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/AskController.cs");
 
         insights.Should().Contain("Status409Conflict");
         posture.Should().Contain("Status409Conflict");
@@ -47,13 +39,13 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
     [Fact]
     public void Suggestion496_498_export_download_409_ux()
     {
-        string runExport = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runExport = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-run-export.ts"));
-        string terraform = ArchitectureSourceProbe.ReadPathWithPartials(
+        string terraform = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-terraform.ts"));
-        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findings = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string exportJobs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportJobs = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-export-jobs.ts"));
 
         runExport.Should().Contain("formatExportSealedManifestAwareApiError");
@@ -65,9 +57,9 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
     [Fact]
     public void Suggestion499_explain_run_fail_closed()
     {
-        string blockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string blockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "explain-run-blocked-reason.ts"));
-        string collapsible = ArchitectureSourceProbe.ReadPathWithPartials(
+        string collapsible = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -87,7 +79,7 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
     [Fact]
     public void Suggestion500_governance_and_manifest_sealed_hash_409_ux()
     {
-        string blockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string blockedReason = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -95,7 +87,7 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
                 "lib",
                 "governance",
                 "governance-sealed-manifest-blocked-reason.ts"));
-        string overview = ArchitectureSourceProbe.ReadPathWithPartials(
+        string overview = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -105,7 +97,7 @@ public sealed class ArchitectureReviewRobustnessWave42ArchitectureTests
                 "governance",
                 "_sections",
                 "GovernanceOverviewSummaryPanelShell.tsx"));
-        string manifestError = ArchitectureSourceProbe.ReadPathWithPartials(
+        string manifestError = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

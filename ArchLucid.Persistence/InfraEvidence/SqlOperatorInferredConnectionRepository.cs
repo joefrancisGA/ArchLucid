@@ -28,6 +28,9 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                                MERGE dbo.OperatorInferredConnections AS target
                                USING (SELECT @ConnectionId AS ConnectionId) AS source
                                    ON target.ConnectionId = source.ConnectionId
+                                  AND target.TenantId = @TenantId
+                                  AND target.WorkspaceId = @WorkspaceId
+                                  AND target.ProjectId = @ProjectId
                                WHEN NOT MATCHED THEN
                                    INSERT (
                                        ConnectionId, TenantId, WorkspaceId, ProjectId, SnapshotId,

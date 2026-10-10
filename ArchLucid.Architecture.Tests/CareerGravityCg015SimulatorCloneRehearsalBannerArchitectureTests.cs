@@ -27,8 +27,8 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
         File.Exists(as078Path).Should().BeTrue();
         File.Exists(as085Path).Should().BeTrue();
 
-        string as078 = ArchitectureSourceProbe.ReadPathWithPartials(as078Path);
-        string as085 = ArchitectureSourceProbe.ReadPathWithPartials(as085Path);
+        string as078 = File.ReadAllText(as078Path);
+        string as085 = File.ReadAllText(as085Path);
 
         as078.Should().Contain("host-simulator-pinned");
         as078.Should().Contain("resolveEffectiveWorkingCareerRehearsalDoor");
@@ -41,10 +41,9 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
     [Fact]
     public void Cg015_does_not_flip_host_agent_execution_mode_default()
     {
-        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string catalog = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Configuration", "ConfigurationKeyCatalog.AgentExecution.cs"));
-        string bannerResolver = ArchitectureSourceProbe.ReadPathWithPartials(
+        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string catalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Configuration/ConfigurationKeyCatalog.AgentExecution.cs");
+        string bannerResolver = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -63,7 +62,7 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
     [Fact]
     public void Cg015_working_simulator_clone_banner_is_rehearsal_not_sample_or_guided()
     {
-        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
+        string copy = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -71,7 +70,7 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
                 "lib",
                 "governance",
                 "working-career-rehearsal-door-copy.ts"));
-        string banner = ArchitectureSourceProbe.ReadPathWithPartials(
+        string banner = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -79,7 +78,7 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
                 "components",
                 "workspace-mode",
                 "WorkingSimulatorCloneRehearsalBanner.tsx"));
-        string shell = ArchitectureSourceProbe.ReadPathWithPartials(
+        string shell = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

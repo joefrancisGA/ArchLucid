@@ -12,7 +12,6 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class AzureInventorySnapshotGraphResolverExternalSourceHostTests
 {

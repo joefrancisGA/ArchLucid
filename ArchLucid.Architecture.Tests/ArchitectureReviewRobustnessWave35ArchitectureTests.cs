@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion405_export_replay_lifecycle_fail_closed()
     {
-        string replayService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "ExportReplayService.cs"));
+        string replayService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/ExportReplayService.cs");
 
         replayService.Should().Contain("AuthorityLifecycleCompareExportGuard");
         replayService.Should().Contain("RunExportSealedManifestHashGuard");
@@ -25,8 +24,7 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion406_export_replay_maps_conflict_to_409()
     {
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
 
         controller.Should().Contain("ReplayExportRecord");
         controller.Should().Contain("ConflictException");
@@ -36,13 +34,7 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion407_blob_push_sealed_hash_preflight_at_accept()
     {
-        string pushController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.Export.Push.cs"));
+        string pushController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Push.cs");
 
         pushController.Should().Contain("EnsureSealedManifestHashOrConflict");
         pushController.Should().Contain("PushRunExportToBlob");
@@ -51,26 +43,9 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion408_410_drift_workbench_fail_closed_when_run_cited()
     {
-        string driftService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "InfraEvidenceDriftWorkbenchQueryService.cs"));
-        string snapshotsController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceSnapshotsController.cs"));
-        string diffsController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceDiffsController.cs"));
+        string driftService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/InfraEvidenceDriftWorkbenchQueryService.cs");
+        string snapshotsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs");
+        string diffsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceDiffsController.cs");
 
         driftService.Should().Contain("InfraEvidenceSnapshotSealedManifestHashGuard");
         driftService.Should().Contain("ListSnapshotsAsync");
@@ -85,13 +60,7 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion411_comparison_replay_maps_conflict_to_409()
     {
-        string replayController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.Replay.cs"));
+        string replayController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
 
         replayController.Should().Contain("ReplayComparison");
         replayController.Should().Contain("ConflictException");
@@ -101,8 +70,7 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion412_comparison_replay_regenerate_lifecycle_parity()
     {
-        string replayService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "ComparisonReplayService.cs"));
+        string replayService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/ComparisonReplayService.cs");
 
         replayService.Should().Contain("AuthorityLifecycleCompareExportGuard");
         replayService.Should().Contain("RegenerateEndToEndAsync");
@@ -111,15 +79,8 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion413_board_export_execution_mode_honesty()
     {
-        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "BoardExportExecutionModeNoticeResolver.cs"));
-        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Exports",
-                "ArchitectureReviewBoard",
-                "ArchitectureReviewBoardExportDocumentFactory.StableId.cs"));
+        string resolver = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/BoardExportExecutionModeNoticeResolver.cs");
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewBoard/ArchitectureReviewBoardExportDocumentFactory.StableId.cs");
 
         resolver.Should().Contain("StructuralExecutionMode.Fallback");
         resolver.Should().Contain("StructuralExecutionMode.Mixed");
@@ -129,11 +90,11 @@ public sealed class ArchitectureReviewRobustnessWave35ArchitectureTests
     [Fact]
     public void Suggestion414_416_share_deliverable_presenter_ui_fail_closed()
     {
-        string shareLink = ArchitectureSourceProbe.ReadPathWithPartials(
+        string shareLink = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "usability", "ShareableReviewLinkButton.tsx"));
-        string deliverable = ArchitectureSourceProbe.ReadPathWithPartials(
+        string deliverable = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "usability", "ExportDeliverableDialog.tsx"));
-        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
+        string presenter = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "ReviewPresenterHeaderButton.tsx"));
 
         shareLink.Should().Contain("runCollateralSealedManifestCopyBlockedReason");

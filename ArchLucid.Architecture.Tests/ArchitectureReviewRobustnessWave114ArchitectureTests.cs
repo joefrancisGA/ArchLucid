@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1353_1355_architecture_graph_full_page_and_temporal_snapshot_sealed_manifest_mappers()
     {
-        string reviewGraph = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.ReviewGraph.cs"));
-        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.Snapshot.cs"));
+        string reviewGraph = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.ReviewGraph.cs");
+        string snapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs");
 
         reviewGraph.Should().Contain("MapGraphSealedManifestConflict");
         reviewGraph.Should().Contain("GetArchitectureGraph");
@@ -40,20 +28,8 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1356_1359_interactive_graph_run_query_and_graph_guard_sealed_manifest_mappers()
     {
-        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.Provenance.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.SealedManifestGuard.cs"));
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.SealedManifestGuard.cs");
 
         provenance.Should().Contain("MapProductRunQuerySealedManifestConflict");
         provenance.Should().Contain("GetInteractiveGraphSnapshot");
@@ -65,9 +41,9 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1360_1364_architecture_graph_paging_temporal_snapshot_and_fail_closed_wiring()
     {
-        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string graphBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -75,9 +51,9 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
                 "lib",
                 "graph",
                 "architecture-graph-temporal-snapshot-blocked-reason.ts"));
-        string loadViewModel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string loadViewModel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "load-architecture-graph-view-model.ts"));
-        string graphPageFetch = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphPageFetch = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -88,7 +64,7 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
                 "evidence-graph",
                 "_sections",
                 "use-graph-page-fetch.ts"));
-        string graphError = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphError = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

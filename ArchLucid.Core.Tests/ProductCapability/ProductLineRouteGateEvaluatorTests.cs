@@ -5,7 +5,6 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.ProductCapability;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ProductLineRouteGateEvaluatorTests
 {

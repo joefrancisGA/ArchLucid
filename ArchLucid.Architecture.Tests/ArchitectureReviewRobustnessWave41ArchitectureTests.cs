@@ -15,11 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion477_478_audit_evidence_lineage_and_package_409_ux()
     {
-        string lineageApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lineageApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "audit-evidence-lineage-api.ts"));
-        string packageApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string packageApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "audit-evidence-package-api.ts"));
-        string lineageClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lineageClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -44,30 +44,13 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion479_485_openapi_409_declarations()
     {
-        string governancePreview = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.cs"));
-        string docxExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
-        string consultingDocx = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.ConsultingDocx.Download.cs"));
-        string pilotsBoardPack = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsBoardPackController.cs"));
-        string roiController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string preCommit = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernancePreCommitSimulationController.cs"));
+        string governancePreview = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.cs");
+        string docxExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.cs");
+        string consultingDocx = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.ConsultingDocx.Download.cs");
+        string pilotsBoardPack = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsBoardPackController.cs");
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
+        string preCommit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs");
 
         governancePreview.Should().Contain("Status409Conflict");
         docxExport.Should().Contain("Status409Conflict");
@@ -82,7 +65,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion486_487_decision_receipt_and_trust_evidence_fail_closed()
     {
-        string stampStrip = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stampStrip = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -94,7 +77,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailReviewPackageDecisionReceiptStrip.tsx"));
-        string feasibilitySection = ArchitectureSourceProbe.ReadPathWithPartials(
+        string feasibilitySection = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailFeasibilityVerdictSection.tsx"));
-        string proofChain = ArchitectureSourceProbe.ReadPathWithPartials(
+        string proofChain = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunTrustEvidenceProofChain.tsx"));
 
         stampStrip.Should().Contain("manifestVersion={props.manifestVersion}");
@@ -118,13 +101,13 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion488_before_after_and_board_pack_roi_409_honesty()
     {
-        string beforeAfter = ArchitectureSourceProbe.ReadPathWithPartials(
+        string beforeAfter = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "BeforeAfterDeltaPanel.tsx"));
-        string boardPackApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string boardPackApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "sponsor-roi-board-pack-api.ts"));
-        string downloads = ArchitectureSourceProbe.ReadPathWithPartials(
+        string downloads = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
-        string exportConflict = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportConflict = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-sealed-manifest-conflict.ts"));
 
         beforeAfter.Should().Contain("roiSourceFreshnessDisposition");

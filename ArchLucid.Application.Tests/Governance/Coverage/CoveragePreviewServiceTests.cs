@@ -85,7 +85,7 @@ public sealed class CoveragePreviewServiceTests
         preview.ContextualRecommendedCount.Should().Be(1);
         preview.Assignments.Should().Contain(row =>
             row.PolicyPackDisplayName == "PCI-DSS (Architecture / Segmentation)"
-            && row.CoverageType == CoverageType.ContextualRecommended);
+            && !row.IncludedInRunEvaluation);
     }
 
     private static async Task SeedBaselinePacksAsync(InMemoryPolicyPackRepository packRepository)

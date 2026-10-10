@@ -15,23 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion171_export_receipt_matches_sealed_hash()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptService.cs");
 
         service.Should().Contain("ManifestDecisionReceiptExportBinder.BuildVerifiedExportReceipt");
 
-        string binder = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "ManifestDecisionReceiptExportBinder.cs"));
+        string binder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestDecisionReceiptExportBinder.cs");
 
         binder.Should().Contain("CommittedDecisionReceiptHashSha256");
 
-        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
+        string tests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Exports/DecisionReceiptServiceTests.cs");
 
         tests.Should().Contain("BuildForRunAsync_FeasibleManifest_ReturnsReceiptMatchingSealedHash");
     }
@@ -39,30 +31,23 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion172_fail_closed_when_verdict_missing_on_export()
     {
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptService.cs");
 
         int exportIndex = service.IndexOf("BuildForRunAsync", StringComparison.Ordinal);
         string exportBody = service[exportIndex..];
 
-        exportBody.Should().Contain("if (verdict is null)\n            return NotFound();");
+        exportBody.Should().Contain("TryGetSealedReceiptReadinessOutcome");
+        exportBody.Should().Contain("DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete");
 
-        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
+        string tests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Exports/DecisionReceiptServiceTests.cs");
 
-        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNotFound");
+        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsSealedReceiptIncomplete");
     }
 
     [Fact]
     public void Suggestion173_skip_persist_persists_decision_trace()
     {
-        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "ManifestFinalizationService.Artifacts.cs"));
+        string artifacts = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.Artifacts.cs");
 
         int skipIndex = artifacts.IndexOf("SkipPersistingPipelineArtifacts", StringComparison.Ordinal);
         int traceIndex = artifacts.IndexOf("decisionTraceRepository.SaveAsync", StringComparison.Ordinal);
@@ -71,13 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
         traceIndex.Should().BeGreaterThan(0);
         traceIndex.Should().BeLessThan(skipIndex);
 
-        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application.Tests",
-                "Runs",
-                "Finalization",
-                "ManifestFinalizationServiceTests.cs"));
+        string tests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Runs/Finalization/ManifestFinalizationServiceTests.cs");
 
         tests.Should().Contain("skipPersistingPipelineArtifacts: true");
         tests.Should().Contain("Times.Once");
@@ -86,13 +65,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion174_review_standards_snapshot_fail_closed()
     {
-        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "ManifestFinalizationService.Artifacts.cs"));
+        string artifacts = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.Artifacts.cs");
 
         artifacts.Should().Contain("review standards snapshot requires preloaded architecture request and findings snapshot");
         artifacts.Should().Contain("_committedReviewStandardsSnapshotCapturer.ApplyToManifest");
@@ -101,8 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion175_compare_fail_closed_on_empty_inventory()
     {
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunComparePinFingerprintGuard.cs"));
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunComparePinFingerprintGuard.cs");
 
         guard.Should().Contain("committed artifact inventory hash is required for both runs");
     }
@@ -110,14 +82,12 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion176_version_string_compare_uses_facade_outcomes()
     {
-        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
+        string compare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Compare.cs");
 
         compare.Should().Contain("CompareManifestVersionsAsync");
         compare.Should().Contain("MapVersionManifestCompareOutcome");
 
-        string facade = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string facade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/CompareRunsApplicationFacade.cs");
 
         facade.Should().Contain("CompareManifestVersionsAsync");
     }
@@ -125,38 +95,23 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion177_distinct_problem_type_for_inventory_mismatch()
     {
-        string problemTypes = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "ProblemDetails", "ProblemDetailsOptions.cs"));
+        string problemTypes = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/ProblemDetails/ProblemDetailsOptions.cs");
 
         problemTypes.Should().Contain("CommittedArtifactInventoryMismatch");
 
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
-        controller.Should().Contain("ProblemTypes.CommittedArtifactInventoryMismatch");
+        controller.Should().Contain("ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch");
     }
 
     [Fact]
     public void Suggestion178_recovery_verifies_sealed_receipt_hash()
     {
-        string verifier = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Commit",
-                "AuthorityCommitRecoveryVerifier.cs"));
+        string verifier = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitRecoveryVerifier.cs");
 
         verifier.Should().Contain("EnsureDecisionReceiptHashConsistentOrThrow");
 
-        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("EnsureDecisionReceiptHashConsistentOrThrow");
     }
@@ -164,13 +119,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion179_in_memory_finding_properties_stay_synced()
     {
-        string converter = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Findings",
-                "Serialization",
-                "FindingJsonConverter.cs"));
+        string converter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Findings/Serialization/FindingJsonConverter.cs");
 
         converter.Should().Contain("value.Properties[FindingPropertyKeys.EvidencePackageId]");
     }
@@ -178,18 +127,11 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
     [Fact]
     public void Suggestion180_scope_assert_messages_match_operation_kind()
     {
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunScopeAssertionGuard.cs"));
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunScopeAssertionGuard.cs");
 
         guard.Should().Contain("operationLabel");
 
-        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Async",
-                "ArchitectureRunAsyncOperationHostedService.cs"));
+        string hosted = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Async/ArchitectureRunAsyncOperationHostedService.cs");
 
         int createIndex = hosted.IndexOf("ArchitectureRunAsyncOperationKind.Create", StringComparison.Ordinal);
         int executeIndex = hosted.IndexOf("ArchitectureRunAsyncOperationKind.Execute", StringComparison.Ordinal);

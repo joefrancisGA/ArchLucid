@@ -15,41 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
     [Fact]
     public void Suggestion1113_1119_coverage_replay_pilot_and_compare_action_level_sealed_manifest_conflict_mappers()
     {
-        string runCoverageAck = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunCoverageController.Acknowledgement.cs"));
-        string authorityReplay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityReplayController.cs"));
-        string pilotPacks = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsController.Packs.cs"));
-        string authorityCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.cs"));
-        string manifestCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Compare.cs"));
+        string runCoverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
+        string authorityReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.cs");
+        string pilotPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string authorityCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
+        string manifestCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Compare.cs");
 
         runCoverageAck.Should().Contain("MapRunCoverageSealedManifestConflict");
         authorityReplay.Should().Contain("MapAuthorityReplaySealedManifestConflict");
@@ -61,7 +31,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
     [Fact]
     public void Suggestion1120_1123_async_create_replay_and_policy_pack_blocked_reason_wiring()
     {
-        string createBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string createBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -69,9 +39,9 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "runs",
                 "architecture-request-create-mutation-blocked-reason.ts"));
-        string createAsyncApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string createAsyncApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-create-async.ts"));
-        string replayBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -79,9 +49,9 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "runs",
                 "review-replay-mutation-blocked-reason.ts"));
-        string replayApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "recommendation-replay-api.ts"));
-        string policyMutateBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policyMutateBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -89,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "policy",
                 "policy-pack-mutation-blocked-reason.ts"));
-        string policyDryRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policyDryRunBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -97,7 +67,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "policy",
                 "policy-pack-dry-run-mutation-blocked-reason.ts"));
-        string policyMutateApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string policyMutateApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "policy-packs-api-mutate.ts"));
 
         createBlocked.Should().Contain("architectureRequestCreateMutationBlockedReason");
@@ -113,7 +83,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
     [Fact]
     public void Suggestion1124_compare_and_explain_get_blocked_reason_wiring()
     {
-        string compareLoadBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareLoadBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -121,7 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "api",
                 "compare-runs-load-blocked-reason.ts"));
-        string agentCompareBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string agentCompareBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -129,7 +99,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "compare",
                 "compare-agent-results-blocked-reason.ts"));
-        string explainRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string explainRunBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -137,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave94ArchitectureTests
                 "lib",
                 "explain",
                 "explain-run-blocked-reason.ts"));
-        string compareApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
 
         compareLoadBlocked.Should().Contain("compareRunsLoadBlockedReason");

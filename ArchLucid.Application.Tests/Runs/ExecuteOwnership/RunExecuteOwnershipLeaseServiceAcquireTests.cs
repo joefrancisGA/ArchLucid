@@ -74,7 +74,7 @@ public sealed class RunExecuteOwnershipLeaseServiceAcquireTests
                     repositoryGate.TrySetResult();
                 }
 
-                await repositoryGate.Task.ConfigureAwait(false);
+                await repositoryGate.Task;
 
                 return true;
             });

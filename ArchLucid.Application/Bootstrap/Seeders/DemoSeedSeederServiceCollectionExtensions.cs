@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Bootstrap.Seeders;
 
-public static class DemoSeedSeederServiceCollectionExtensions
+internal static class DemoSeedSeederServiceCollectionExtensions
 {
     public static IServiceCollection AddDemoSeedScenarioSeeders(this IServiceCollection services)
     {

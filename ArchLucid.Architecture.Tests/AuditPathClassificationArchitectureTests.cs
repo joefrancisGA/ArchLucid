@@ -55,6 +55,8 @@ public sealed class AuditPathClassificationArchitectureTests
         "ImportRequestFileService",
         "ApprovalSlaMonitor",
         "AzureExtractorIngestService",
+        "AzureExtractorPreparedZipPersistStage",
+        "AzureExtractorPreparedZipValidateStage",
         "CloudInventoryExtractorIngestService",
         "RunExportAuditService",
         "ComparisonAuditService",
@@ -125,10 +127,8 @@ public sealed class AuditPathClassificationArchitectureTests
         "RunExportQueryFacade",
         "DigestSubscriptionFacade",
         "TenantTrialIdentityHandoffStage",
-        "AzureExtractorPreparedZipPersistStage",
-        "AzureExtractorPreparedZipValidateStage",
+        "TenantTrialConversionStage",
         "BillingCheckoutFacade",
-        "RunScopedLlmBudgetReservationService",
         "EvidenceAddedIncrementalReReviewCoordinator",
         "FindingVerificationService",
         "RunCoverageAcknowledgementService",
@@ -142,8 +142,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "SecurityAssetAssertionService",
         "SecurityDeclaredConnectionService",
         "RunAssumptionAcknowledgementService",
-        "AuthorityCommitFailureRecorder",
-        "TenantTrialConversionStage"
+        "AuthorityCommitFailureRecorder"
     ];
 
     private static string FindRepoRoot()

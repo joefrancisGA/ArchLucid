@@ -15,36 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
     [Fact]
     public void Suggestion753_758_disposition_coverage_exceptions_and_policy_assign_openapi_409()
     {
-        string dispositions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Dispositions.cs"));
-        string runCoverageAck = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunCoverageController.Acknowledgement.cs"));
-        string exceptions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Exceptions.cs"));
-        string policyAssign = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string policyMapper = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Http", "Governance", "PolicyPackHttpResultMapper.cs"));
+        string dispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs");
+        string runCoverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
+        string exceptions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs");
+        string policyAssign = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string policyMapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/PolicyPackHttpResultMapper.cs");
 
         dispositions.Should().Contain("RecordDisposition");
         dispositions.Should().Contain("RecordBulkDisposition");
@@ -68,9 +43,9 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
     [Fact]
     public void Suggestion759_761_governance_workflow_ask_coverage_and_remediation_ui_wiring()
     {
-        string workflowHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-workflow-run-lists-query.ts"));
-        string workflowCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -78,7 +53,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "components",
                 "governance",
                 "GovernanceWorkflowRunListsBlockedCallout.tsx"));
-        string workflowShell = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowShell = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -88,7 +63,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "governance",
                 "_sections",
                 "GovernanceWorkflowPageShell.tsx"));
-        string workflowMutations = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowMutations = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -98,7 +73,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "governance",
                 "_sections",
                 "use-governance-workflow-page-mutations.ts"));
-        string remediationHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string remediationHook = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,7 +86,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "findings",
                 "[findingId]",
                 "use-finding-inspect-governance-stickiness-remediation.ts"));
-        string remediationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string remediationBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -119,11 +94,11 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "lib",
                 "findings",
                 "finding-remediation-assignment-blocked-reason.ts"));
-        string askHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string askHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-ask-run-coverage-honesty-query.ts"));
-        string askStrip = ArchitectureSourceProbe.ReadPathWithPartials(
+        string askStrip = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ask", "AskRunCoverageHonestyStrip.tsx"));
-        string askBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string askBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "ask", "ask-run-coverage-honesty-blocked-reason.ts"));
 
         workflowHook.Should().Contain("governanceWorkflowRunReadBlockedReason");
@@ -140,9 +115,9 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
     [Fact]
     public void Suggestion762_764_package_print_quiet_engines_bulk_and_merge_conflict_ui_wiring()
     {
-        string meetingCaptureHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string meetingCaptureHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-package-print-meeting-capture-query.ts"));
-        string packagePrintClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string packagePrintClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -155,7 +130,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "print",
                 "_sections",
                 "PackagePrintPageClient.tsx"));
-        string packagePrintView = ArchitectureSourceProbe.ReadPathWithPartials(
+        string packagePrintView = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -168,7 +143,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "print",
                 "_sections",
                 "PackagePrintPageView.tsx"));
-        string meetingCaptureBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string meetingCaptureBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -176,7 +151,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "lib",
                 "reviews",
                 "package-print-meeting-capture-blocked-reason.ts"));
-        string quietEnginesHint = ArchitectureSourceProbe.ReadPathWithPartials(
+        string quietEnginesHint = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -186,7 +161,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "governance",
                 "findings",
                 "GovernanceFindingsQueueQuietEnginesHint.tsx"));
-        string quietEnginesBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string quietEnginesBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -194,9 +169,9 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "lib",
                 "governance",
                 "governance-findings-queue-quiet-engines-blocked-reason.ts"));
-        string bulkActions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string bulkActions = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "usability", "GovernanceFindingsBulkActions.tsx"));
-        string bulkBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string bulkBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -204,7 +179,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "lib",
                 "governance",
                 "finding-bulk-disposition-blocked-reason.ts"));
-        string mergePanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string mergePanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -212,7 +187,7 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
                 "components",
                 "findings",
                 "FindingMergeConflictResolvePanel.tsx"));
-        string mergeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string mergeBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

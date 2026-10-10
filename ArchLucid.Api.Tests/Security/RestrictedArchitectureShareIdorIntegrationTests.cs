@@ -84,7 +84,7 @@ public sealed class RestrictedArchitectureShareIdorIntegrationTests(RestrictedAr
 
         response.StatusCode.Should().Be(
             HttpStatusCode.NotFound,
-            because: $"{routeFamily} must return 404 (AS-095), not 403, for same-tenant principals without architecture share.");
+            because: $"{routeFamily} must not resolve for same-tenant principals without architecture share.");
 
         string body = await response.Content.ReadAsStringAsync();
         body.Should().NotContain(RestrictedArchitectureShareIdorSeedFixture.SecretDisplayName);

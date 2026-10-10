@@ -31,9 +31,16 @@ internal static class InventoryDiagramPrivateAccessRelationshipApplier
             return;
         }
 
-        foreach (DiagramEdge edge in ast.Edges.Where(edge => !edge.IsLayoutOnly).ToList())
+        foreach (DiagramEdge edge in ast.Edges.Where(candidate => !candidate.IsLayoutOnly).ToList())
         {
             if (!IsPrivateEndpointEdge(edge))
+            {
+                continue;
+            }
+
+            // Visible PE cards keep Current/Observed labels; "Private access" is only the hidden-PE shortcut.
+
+            if (EdgeTouchesVisiblePrivateEndpoint(ast, edge))
             {
                 continue;
             }
@@ -54,5 +61,23 @@ internal static class InventoryDiagramPrivateAccessRelationshipApplier
     {
         return string.Equals(edge.Label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool EdgeTouchesVisiblePrivateEndpoint(DiagramAst ast, DiagramEdge edge)
+    {
+        ArgumentNullException.ThrowIfNull(ast);
+        ArgumentNullException.ThrowIfNull(edge);
+
+        return ast.Nodes.Any(node =>
+            (string.Equals(node.NodeId, edge.FromNodeId, StringComparison.Ordinal)
+                || string.Equals(node.NodeId, edge.ToNodeId, StringComparison.Ordinal))
+            && IsPrivateEndpointArmType(node.ArmResourceType));
+    }
+
+    private static bool IsPrivateEndpointArmType(string? armType)
+    {
+        return !string.IsNullOrWhiteSpace(armType)
+            && armType.Contains("privateEndpoints", StringComparison.OrdinalIgnoreCase)
+            && !armType.Contains("managedPrivateEndpoints", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -15,70 +15,18 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
     [Fact]
     public void Suggestion969_975_ask_finding_compare_manifest_and_digest_openapi_409()
     {
-        string ask = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.cs"));
-        string askGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.SealedManifestGuard.cs"));
-        string findingAsk = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "ArchitectureFindingAskController.cs"));
-        string findingAskGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "ArchitectureFindingAskController.SealedManifestGuard.cs"));
-        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
-        string compareGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.SealedManifestGuard.cs"));
-        string manifestExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Export.cs"));
-        string manifestDiagram = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Get.Diagram.cs"));
-        string manifestGet = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Get.Manifest.cs"));
-        string manifestGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.SealedManifestGuard.cs"));
-        string digests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisorySchedulingController.Digests.cs"));
-        string digestsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisorySchedulingController.SealedManifestGuard.cs"));
+        string ask = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/AskController.cs");
+        string askGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/AskController.SealedManifestGuard.cs");
+        string findingAsk = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.cs");
+        string findingAskGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.SealedManifestGuard.cs");
+        string compare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
+        string compareGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.SealedManifestGuard.cs");
+        string manifestExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Export.cs");
+        string manifestDiagram = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Diagram.cs");
+        string manifestGet = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Manifest.cs");
+        string manifestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.SealedManifestGuard.cs");
+        string digests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisorySchedulingController.Digests.cs");
+        string digestsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisorySchedulingController.SealedManifestGuard.cs");
 
         ask.Should().Contain("MapAskSealedManifestConflict");
         askGuard.Should().Contain("MapAskSealedManifestConflict");
@@ -98,15 +46,15 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
     [Fact]
     public void Suggestion976_979_audit_artifact_compare_diff_and_scoped_proxy_blocked_reason_wiring()
     {
-        string auditBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string auditBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "audit", "audit-export-blocked-reason.ts"));
-        string auditApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string auditApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "audit-api.ts"));
-        string exportRecordBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportRecordBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "exports", "export-record-blocked-reason.ts"));
-        string artifactsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string artifactsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-artifacts.ts"));
-        string compareDiffBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareDiffBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,9 +62,9 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
                 "lib",
                 "compare",
                 "compare-manifest-diff-blocked-reason.ts"));
-        string manifestDiff = ArchitectureSourceProbe.ReadPathWithPartials(
+        string manifestDiff = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "resolve-architecture-manifest-json-for-diff.ts"));
-        string scopedProxyBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string scopedProxyBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -124,7 +72,7 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
                 "lib",
                 "api",
                 "scoped-proxy-download-blocked-reason.ts"));
-        string scopedProxyApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string scopedProxyApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -146,7 +94,7 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
     [Fact]
     public void Suggestion980_comparison_replay_pdf_blocked_reason_wiring()
     {
-        string replayBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -154,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-replay-mutation-blocked-reason.ts"));
-        string exportJobs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportJobs = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-export-jobs.ts"));
 
         replayBlocked.Should().Contain("comparisonReplayMutationBlockedReason");

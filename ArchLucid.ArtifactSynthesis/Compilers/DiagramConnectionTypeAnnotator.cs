@@ -5,7 +5,8 @@ using ArchLucid.KnowledgeGraph.Inventory;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Makes omitted VNet-to-VNet relationship labels explicit without inferring a relationship type.
+///     Labels blank or generic VNet-to-VNet connectors as peering. Executive VNet pairs are peering
+///     when a stored edge exists; the compiler does not invent extra pairs here.
 /// </summary>
 internal static class DiagramConnectionTypeAnnotator
 {
@@ -40,7 +41,7 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            edge.Label = "Relationship was not stored";
+            edge.Label = "peering";
         }
     }
 

@@ -15,54 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
     [Fact]
     public void Suggestion837_842_create_replay_governance_pilot_mutation_openapi_409()
     {
-        string createRun = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Create.Sync.cs"));
-        string asyncCreate = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.AsyncOperations.cs"));
-        string runsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.SealedManifestGuard.cs"));
-        string authorityReplay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReplayController.cs"));
-        string authorityReplayGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityReplayController.SealedManifestGuard.cs"));
-        string mutationCorrections = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.MutationCorrections.cs"));
-        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.SealedManifestGuard.cs"));
-        string pilotsPacks = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
+        string createRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Create.Sync.cs");
+        string asyncCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.AsyncOperations.cs");
+        string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
+        string authorityReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.cs");
+        string authorityReplayGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.SealedManifestGuard.cs");
+        string mutationCorrections = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.MutationCorrections.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
+        string pilotsPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string pilotsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
 
         createRun.Should().Contain("CreateRun");
         createRun.Should().Contain("EnsureArchitectureRunCreateSealedManifestAllowedAsync");
@@ -90,15 +51,15 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
     [Fact]
     public void Suggestion843_846_pin_sponsor_share_and_first_value_mutation_blocked_reason_ui_wiring()
     {
-        string pinBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pinBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "review-pin-mutation-blocked-reason.ts"));
-        string pinHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pinHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-review-pin-mutation.ts"));
-        string pinToggle = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pinToggle = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "FavoriteReviewToggle.tsx"));
-        string lifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lifecycleApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-lifecycle.ts"));
-        string preliminaryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preliminaryBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,7 +67,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-preliminary-share-mutation-blocked-reason.ts"));
-        string sponsorPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorPanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,7 +75,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "components",
                 "architecture",
                 "ArchitectureSponsorSharingPanel.tsx"));
-        string packSentBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string packSentBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -122,7 +83,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-pack-sent-mutation-blocked-reason.ts"));
-        string firstValueBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string firstValueBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -130,7 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "lib",
                 "pilots",
                 "first-value-report-mutation-blocked-reason.ts"));
-        string sponsorBanner = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorBanner = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "use-email-run-to-sponsor-banner.ts"));
 
         pinBlocked.Should().Contain("reviewPinMutationBlockedReason");
@@ -149,7 +110,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
     [Fact]
     public void Suggestion847_848_comparison_docx_and_async_replay_mutation_blocked_reason_ui_wiring()
     {
-        string docxBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docxBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -157,7 +118,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-docx-mutation-blocked-reason.ts"));
-        string comparePanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string comparePanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -168,7 +129,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-results-panel.ts"));
-        string asyncReplayBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string asyncReplayBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -176,7 +137,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "lib",
                 "runs",
                 "review-async-replay-mutation-blocked-reason.ts"));
-        string replayForm = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayForm = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -187,7 +148,7 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
                 "validate-route",
                 "_sections",
                 "use-replay-form.ts"));
-        string lifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lifecycleApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-lifecycle.ts"));
 
         docxBlocked.Should().Contain("comparisonDocxMutationBlockedReason");

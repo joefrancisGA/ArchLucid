@@ -15,48 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
     [Fact]
     public void Suggestion1125_1131_export_assignment_pilot_and_compare_action_level_sealed_manifest_conflict_mappers()
     {
-        string architectureExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArchitectureExportController.cs"));
-        string runsExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsExportController.cs"));
-        string docxExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "DocxExportController.cs"));
-        string policyAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string pilotPacks = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsController.Packs.cs"));
-        string authorityCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.cs"));
+        string architectureExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs");
+        string runsExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.cs");
+        string docxExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.cs");
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string pilotPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string authorityCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
 
         architectureExport.Should().Contain("MapArchitectureExportSealedManifestConflict");
         runsExport.Should().Contain("MapRunsExportSealedManifestConflict");
@@ -69,7 +33,7 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
     [Fact]
     public void Suggestion1132_1134_policy_assign_and_governance_environment_blocked_reason_wiring()
     {
-        string assignBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string assignBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -77,9 +41,9 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
                 "lib",
                 "policy",
                 "policy-pack-assign-mutation-blocked-reason.ts"));
-        string assignApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string assignApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "policy-packs-api-assign.ts"));
-        string workflowBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -87,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-mutation-blocked-reason.ts"));
-        string catalogBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string catalogBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -95,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
                 "lib",
                 "governance",
                 "governance-environment-catalog-mutation-blocked-reason.ts"));
-        string environmentsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string environmentsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-environments.ts"));
 
         assignBlocked.Should().Contain("policyPackAssignMutationBlockedReason");
@@ -109,7 +73,7 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
     [Fact]
     public void Suggestion1135_1136_review_pin_and_sponsor_pack_sent_blocked_reason_wiring()
     {
-        string pinBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pinBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -117,9 +81,9 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
                 "lib",
                 "runs",
                 "review-pin-mutation-blocked-reason.ts"));
-        string lifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lifecycleApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-lifecycle.ts"));
-        string sponsorSentBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorSentBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -127,7 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave95ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-pack-sent-mutation-blocked-reason.ts"));
-        string exportJobsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportJobsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-export-jobs.ts"));
 
         pinBlocked.Should().Contain("reviewPinMutationBlockedReason");

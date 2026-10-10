@@ -16,19 +16,11 @@ public sealed class CareerGravityCg019ExecutePostureStampArchitectureTests
     [Fact]
     public void Cg019_sql_and_run_record_persist_working_door_stamp()
     {
-        string ddl = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
-        string migration = ArchitectureSourceProbe.ReadPathWithPartials(
+        string ddl = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
+        string migration = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "390_Runs_ExecutePostureStamp.sql"));
-        string runRecord = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Persistence",
-                "ApplicationPorts",
-                "Models",
-                "RunRecord.cs"));
-        string registry = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "CommittedRunHeaderAnchorRegistry.cs"));
+        string runRecord = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs");
+        string registry = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/CommittedRunHeaderAnchorRegistry.cs");
 
         ddl.Should().Contain("WorkingCareerRehearsalDoor");
         ddl.Should().Contain("ExecutePostureCapturedUtc");
@@ -45,16 +37,8 @@ public sealed class CareerGravityCg019ExecutePostureStampArchitectureTests
     [Fact]
     public void Cg019_capture_service_stamps_before_agent_loop_and_does_not_rewrite_honesty_validator()
     {
-        string capture = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ExecuteTimeCareerPostureCaptureService.cs"));
-        string tailHooks = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Execute",
-                "ArchitectureRunExecuteTailHooksStage.cs"));
+        string capture = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/ExecuteTimeCareerPostureCaptureService.cs");
+        string tailHooks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Execute/ArchitectureRunExecuteTailHooksStage.cs");
         string validatorPath = Path.Combine(
             RepoRoot,
             "ArchLucid.Decisioning",
@@ -77,15 +61,14 @@ public sealed class CareerGravityCg019ExecutePostureStampArchitectureTests
         capture.Should().NotContain("G-REAL-06");
         tailHooks.Should().Contain("IExecuteTimeCareerPostureCaptureService");
         tailHooks.Should().Contain("TryCaptureAndPersistAsync");
-        ArchitectureSourceProbe.ReadPathWithPartials(validatorPath).Should().NotContain("IExecuteTimeCareerPostureCaptureService");
+        File.ReadAllText(validatorPath).Should().NotContain("IExecuteTimeCareerPostureCaptureService");
     }
 
     [Fact]
     public void Cg019_does_not_flip_host_execute_mode_default()
     {
-        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string capture = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ExecuteTimeCareerPostureCaptureService.cs"));
+        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string capture = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/ExecuteTimeCareerPostureCaptureService.cs");
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");
         capture.Should().NotContain("G-REAL-06");

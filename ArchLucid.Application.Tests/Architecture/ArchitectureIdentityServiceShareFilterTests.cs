@@ -64,6 +64,7 @@ public sealed class ArchitectureIdentityServiceShareFilterTests
             actorOidForShareFilter: SharedActorOid);
 
         sharedPage.Items.Select(item => item.ArchitectureId).Should().BeEquivalentTo([open.ArchitectureId, restricted.ArchitectureId]);
+        sharedPage.TotalCount.Should().Be(2);
 
         ArchitectureIdentityListPage otherPage = await sut.ListIdentitiesAsync(
             Scope,
@@ -72,6 +73,7 @@ public sealed class ArchitectureIdentityServiceShareFilterTests
             actorOidForShareFilter: OtherActorOid);
 
         otherPage.Items.Select(item => item.ArchitectureId).Should().ContainSingle(id => id == open.ArchitectureId);
+        otherPage.TotalCount.Should().Be(1);
     }
 
     [Fact]

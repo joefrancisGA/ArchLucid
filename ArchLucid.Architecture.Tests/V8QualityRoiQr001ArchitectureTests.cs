@@ -14,15 +14,10 @@ public sealed class V8QualityRoiQr001ArchitectureTests
     [Fact]
     public void Qr001_decisioning_graph_factory_and_advisory_guard_exist()
     {
-        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning.Tests",
-                "GoldenCorpus",
-                "GoldenCorpusIngestDeclarationGraphFactory.cs"));
-        string guardScript = ArchitectureSourceProbe.ReadPathWithPartials(
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusIngestDeclarationGraphFactory.cs");
+        string guardScript = File.ReadAllText(
             Path.Combine(RepoRoot, "scripts", "ci", "check_insight_density_advisory_surfaces.py"));
-        string ratchet = ArchitectureSourceProbe.ReadPathWithPartials(
+        string ratchet = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "v8-quality-roi-ratchet.test.ts"));
 
         factory.Should().Contain("StructuredDiagramGraphMerger");

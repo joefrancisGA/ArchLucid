@@ -15,69 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
     [Fact]
     public void Suggestion813_818_run_execute_finalize_ledger_clarification_request_governance_openapi_409()
     {
-        string executeRun = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Execute.cs"));
-        string asyncOperations = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.AsyncOperations.cs"));
-        string commitRun = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.CommitReplayPin.Commit.cs"));
-        string technologyLedger = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "TechnologyLedgerController.cs"));
-        string clarificationQuestions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.cs"));
-        string architectureRequests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.ArchitectureRequests.cs"));
-        string governanceCatalog = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceEnvironmentCatalogController.cs"));
-        string runsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.SealedManifestGuard.cs"));
-        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceEnvironmentCatalogController.SealedManifestGuard.cs"));
+        string executeRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Execute.cs");
+        string asyncOperations = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.AsyncOperations.cs");
+        string commitRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.CommitReplayPin.Commit.cs");
+        string technologyLedger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string clarificationQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string architectureRequests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.ArchitectureRequests.cs");
+        string governanceCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
+        string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
 
         executeRun.Should().Contain("ExecuteRun");
         executeRun.Should().Contain("ExecuteRunSelective");
@@ -112,7 +58,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
     [Fact]
     public void Suggestion819_821_review_execute_selective_and_risk_exception_mutation_blocked_reason_ui_wiring()
     {
-        string reviewExecuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewExecuteBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -120,9 +66,9 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "runs",
                 "review-execute-mutation-blocked-reason.ts"));
-        string reRunReviewButton = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reRunReviewButton = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "ReRunReviewButton.tsx"));
-        string selectiveExecuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string selectiveExecuteBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -130,7 +76,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "runs",
                 "review-selective-execute-mutation-blocked-reason.ts"));
-        string agentResultsSummary = ArchitectureSourceProbe.ReadPathWithPartials(
+        string agentResultsSummary = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -138,7 +84,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "components",
                 "runs",
                 "RunAgentResultsSummaryCard.tsx"));
-        string riskExceptionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string riskExceptionBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -146,7 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "governance",
                 "risk-exception-mutation-blocked-reason.ts"));
-        string findingInspectWaivers = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingInspectWaivers = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -171,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
     [Fact]
     public void Suggestion822_824_ledger_clarification_and_governance_catalog_mutation_blocked_reason_ui_wiring()
     {
-        string technologyLedgerBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string technologyLedgerBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -179,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "runs",
                 "technology-ledger-mutation-blocked-reason.ts"));
-        string technologyBaselinePanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string technologyBaselinePanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -188,7 +134,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "reviews",
                 "technology-baseline",
                 "TechnologyBaselinePanel.tsx"));
-        string clarificationAnswersBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationAnswersBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -196,7 +142,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "runs",
                 "clarification-answers-mutation-blocked-reason.ts"));
-        string clarificationAnswerCapture = ArchitectureSourceProbe.ReadPathWithPartials(
+        string clarificationAnswerCapture = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -204,7 +150,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "components",
                 "architecture",
                 "ClarificationAnswerCapturePanel.tsx"));
-        string governanceCatalogBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string governanceCatalogBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -212,7 +158,7 @@ public sealed class ArchitectureReviewRobustnessWave69ArchitectureTests
                 "lib",
                 "governance",
                 "governance-environment-catalog-mutation-blocked-reason.ts"));
-        string governanceEnvironmentsClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string governanceEnvironmentsClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

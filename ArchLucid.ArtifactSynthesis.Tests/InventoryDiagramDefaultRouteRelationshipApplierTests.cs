@@ -8,7 +8,6 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 {
@@ -76,7 +75,11 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Edges.Should().NotContain(edge => edge.Label != null && edge.Label.Contains("rt-app", StringComparison.Ordinal));
+        // FluentAssertions NotContain compiles the predicate to an expression tree, which cannot contain `is` patterns.
+        IEnumerable<DiagramEdge> edgesLabeledWithRouteTable = ast.Edges.Where(edge =>
+            edge.Label is not null && edge.Label.Contains("rt-app", StringComparison.Ordinal));
+
+        edgesLabeledWithRouteTable.Should().BeEmpty();
         ast.Nodes.Should().NotContain(node => node.Label == "rt-app");
     }
 

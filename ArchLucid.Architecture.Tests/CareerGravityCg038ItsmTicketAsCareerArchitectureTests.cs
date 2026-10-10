@@ -14,23 +14,9 @@ public sealed class CareerGravityCg038ItsmTicketAsCareerArchitectureTests
     [Fact]
     public void Cg038_itsm_outbound_wires_career_honesty_presenter()
     {
-        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Integrations",
-                "Itsm",
-                "Outbound",
-                "ItsmOutboundCareerHonestyPresenter.cs"));
-        string service = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Integrations",
-                "Itsm",
-                "Outbound",
-                "ItsmOutboundIssueCreationService.cs"));
-        string dialog = ArchitectureSourceProbe.ReadPathWithPartials(
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundCareerHonestyPresenter.cs");
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs");
+        string dialog = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "itsm", "ItsmOutboundCreateIssueDialog.tsx"));
 
         presenter.Should().Contain("RehearsalSummaryPrefix");
@@ -41,7 +27,7 @@ public sealed class CareerGravityCg038ItsmTicketAsCareerArchitectureTests
     [Fact]
     public void Cg038_docs_record_itsm_rehearsal_honesty()
     {
-        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docs = File.ReadAllText(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-038");

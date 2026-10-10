@@ -29,7 +29,7 @@ public sealed partial class AuditController
 
         return this.ConflictProblem(
             $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
-                + "Narrow the date range or filters, or raise maxRows up to 10,000.",
+            + "Narrow the date range or filters, or raise maxRows up to 10,000.",
             ProblemTypes.AuditExportRowCapExceeded);
     }
 }

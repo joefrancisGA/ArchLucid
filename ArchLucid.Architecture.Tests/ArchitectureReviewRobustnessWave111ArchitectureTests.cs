@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
     [Fact]
     public void Suggestion1317_1319_review_trail_rationale_manifest_summary_and_golden_manifest_sealed_manifest_mappers()
     {
-        string trail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
+        string trail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
 
         trail.Should().Contain("MapRunQuerySealedManifestConflict");
         trail.Should().Contain("GetRunRationale");
@@ -27,8 +26,7 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
     [Fact]
     public void Suggestion1320_1323_review_trail_reads_run_manifest_and_detail_sealed_manifest_mappers()
     {
-        string reads = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
+        string reads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
 
         reads.Should().Contain("MapReviewTrailSealedManifestConflict");
         reads.Should().Contain("GetReviewTrail");
@@ -40,17 +38,17 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
     [Fact]
     public void Suggestion1324_1328_rationale_trail_manifest_explanation_and_provenance_blocked_reason_wiring()
     {
-        string detailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
+        string detailArtifacts = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string runsList = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runsList = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string rationaleBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string rationaleBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-rationale-blocked-reason.ts"));
-        string reviewTrailBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reviewTrailBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-review-trail-blocked-reason.ts"));
-        string manifestBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string manifestBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-manifest-read-blocked-reason.ts"));
-        string explanationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string explanationBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -58,7 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
                 "lib",
                 "explain",
                 "run-explanation-summary-blocked-reason.ts"));
-        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenanceBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "provenance", "run-provenance-blocked-reason.ts"));
 
         detailArtifacts.Should().Contain("runRationaleBlockedReason");

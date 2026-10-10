@@ -47,8 +47,8 @@ public sealed class TryCommandOptionsTests
         TryCommandOptions? options = TryCommandOptions.Parse(["--real", "--rehearse"], out string? error);
 
         options.Should().BeNull();
-        error.Should().Contain("Career");
-        error.Should().Contain("Rehearsal");
+        error.Should().Contain("Record review type");
+        error.Should().Contain("Practice review type");
     }
 
     [Fact]

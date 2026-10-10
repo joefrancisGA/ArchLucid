@@ -203,20 +203,11 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
             .Returns(Task.CompletedTask);
 
-        Mock<IPolicyPackAssignmentRepository> assignmentRepo = new();
-        assignmentRepo
-            .Setup(repository => repository.ListByScopeAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
         PolicyPacksAppService appService = new(
             management,
             packs,
             versions,
-            assignmentRepo.Object,
+            assignments,
             audit.Object,
             Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IIntegrationEventPublisher>(),

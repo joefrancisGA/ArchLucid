@@ -15,91 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
     [Fact]
     public void Suggestion981_987_roi_replay_export_review_trail_analysis_artifact_and_clarification_openapi_409()
     {
-        string roi = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string roiGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.SealedManifestGuard.cs"));
-        string comparisonReplay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.Replay.cs"));
-        string comparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.SealedManifestGuard.cs"));
-        string exportReplay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string exportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ExportsController.SealedManifestGuard.cs"));
-        string reviewTrail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string reviewTrailGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityReadsController.SealedManifestGuard.cs"));
-        string analysisExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.AnalyzeExport.cs"));
-        string consultingDocx = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.ConsultingDocx.Download.cs"));
-        string analysisGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.SealedManifestGuard.cs"));
-        string artifactExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.Export.Download.cs"));
-        string artifactGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.SealedManifestGuard.cs"));
-        string clarification = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.cs"));
-        string clarificationGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.SealedManifestGuard.cs"));
+        string roi = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
+        string roiGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.SealedManifestGuard.cs");
+        string comparisonReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
+        string exportReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string exportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.SealedManifestGuard.cs");
+        string reviewTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string reviewTrailGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs");
+        string analysisExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.AnalyzeExport.cs");
+        string consultingDocx = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.ConsultingDocx.Download.cs");
+        string analysisGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.SealedManifestGuard.cs");
+        string artifactExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs");
+        string artifactGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.SealedManifestGuard.cs");
+        string clarification = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string clarificationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.SealedManifestGuard.cs");
 
         roi.Should().Contain("MapRoiReadSealedManifestConflict");
         roiGuard.Should().Contain("MapRoiReadSealedManifestConflict");
@@ -121,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
     [Fact]
     public void Suggestion988_991_api_get_compare_load_run_export_and_terraform_blocked_reason_wiring()
     {
-        string apiGetBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string apiGetBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -129,9 +59,9 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "api",
                 "api-get-sealed-manifest-aware-blocked-reason.ts"));
-        string apiGet = ArchitectureSourceProbe.ReadPathWithPartials(
+        string apiGet = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "api-get-sealed-manifest-aware.ts"));
-        string compareLoadBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareLoadBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -139,9 +69,9 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "api",
                 "compare-runs-load-blocked-reason.ts"));
-        string compareApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string runExportBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runExportBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -149,7 +79,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "runs",
                 "run-export-zip-mutation-blocked-reason.ts"));
-        string runExportApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runExportApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -157,7 +87,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "api",
                 "downloads-blob-trigger-run-export.ts"));
-        string terraformBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string terraformBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -165,7 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "runs",
                 "terraform-advisory-export-mutation-blocked-reason.ts"));
-        string terraformApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string terraformApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -187,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
     [Fact]
     public void Suggestion992_consulting_docx_blocked_reason_wiring()
     {
-        string consultingBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string consultingBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -195,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave83ArchitectureTests
                 "lib",
                 "compare",
                 "consulting-docx-mutation-blocked-reason.ts"));
-        string reportsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string reportsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
 
         consultingBlocked.Should().Contain("consultingDocxMutationBlockedReason");

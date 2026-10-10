@@ -74,6 +74,7 @@ public sealed class CriticAgentResultGoldenJsonTests
                                    {
                                      "findingId": "f-u",
                                      "severity": "Info",
+                                     "enforcementTier": "Advisory",
                                      "message": "Mixed scripts: \u03B1\u00DF \u042F.",
                                      "trace": {
                                        "sourceAgentExecutionTraceId": null,
@@ -185,9 +186,9 @@ public sealed class CriticAgentResultGoldenJsonTests
 
         AgentResultParser sut = CreateStrictSchemaParser();
 
-        AgentResult parsed = sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
+        Action act = () => sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
 
-        parsed.Findings[0].Severity.Should().Be(FindingSeverity.Info);
+        act.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
     }
 
     [SkippableFact]
@@ -268,6 +269,7 @@ public sealed class CriticAgentResultGoldenJsonTests
                 {
                   "findingId": "hollow",
                   "severity": "Info",
+                  "enforcementTier": "Advisory",
                   "description": "   ",
                   "message": "",
                   "title": "\t",
@@ -313,6 +315,7 @@ public sealed class CriticAgentResultGoldenJsonTests
                 {
                   "findingId": "f1",
                   "severity": 1,
+                  "enforcementTier": "Advisory",
                   "message": "ok",
                   "trace": {
                     "sourceAgentExecutionTraceId": null,
@@ -364,6 +367,7 @@ public sealed class CriticAgentResultGoldenJsonTests
                   "findingId": "f-c-1",
                   "sourceAgent": "Critic",
                   "severity": "Warning",
+                  "enforcementTier": "Advisory",
                   "title": "Golden critic surface finding.",
                   "trace": {
                     "sourceAgentExecutionTraceId": null,

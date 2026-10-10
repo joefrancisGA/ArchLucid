@@ -14,13 +14,10 @@ public sealed class CareerGravityCg036AlertFireRehearsalArchitectureTests
     [Fact]
     public void Cg036_alert_service_wires_career_honesty_applicator()
     {
-        string alertService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertService.cs"));
-        string compositeAlertService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "CompositeAlertService.cs"));
-        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Alerts", "AlertCareerHonestyPresenter.cs"));
-        string inboxCard = ArchitectureSourceProbe.ReadPathWithPartials(
+        string alertService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Persistence/Alerts/AlertService.cs");
+        string compositeAlertService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Persistence/Alerts/CompositeAlertService.cs");
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Alerts/AlertCareerHonestyPresenter.cs");
+        string inboxCard = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "alerts", "AlertsInboxAlertCard.tsx"));
 
         presenter.Should().Contain("RehearsalTitlePrefix");
@@ -34,7 +31,7 @@ public sealed class CareerGravityCg036AlertFireRehearsalArchitectureTests
     [Fact]
     public void Cg036_docs_record_alert_rehearsal_honesty()
     {
-        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docs = File.ReadAllText(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-036");

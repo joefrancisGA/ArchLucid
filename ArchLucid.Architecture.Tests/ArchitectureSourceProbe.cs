@@ -1,5 +1,3 @@
-using System.Text;
-
 using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
@@ -16,76 +14,7 @@ internal static class ArchitectureSourceProbe
     {
         string path = Path.Combine(new[] { RepoRoot }.Concat(relativeSegments).ToArray());
         File.Exists(path).Should().BeTrue($"expected source at {path}");
-        return ReadPathWithPartials(path);
-    }
-
-    /// <summary>
-    ///     Reads <paramref name="absolutePath"/> plus same-stem partials (<c>Foo.Bar.cs</c> next to <c>Foo.cs</c>)
-    ///     so source ratchets survive extraction into partial files.
-    /// </summary>
-    internal static string ReadPathWithPartials(string absolutePath)
-        => ReadPathWithPartials(absolutePath, Encoding.UTF8);
-
-    internal static string ReadPathWithPartials(string absolutePath, Encoding encoding)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(absolutePath);
-        ArgumentNullException.ThrowIfNull(encoding);
-
-        if (!File.Exists(absolutePath))
-            return File.ReadAllText(absolutePath, encoding);
-
-        string extension = Path.GetExtension(absolutePath);
-        if (!string.Equals(extension, ".cs", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(extension, ".ts", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(extension, ".tsx", StringComparison.OrdinalIgnoreCase))
-        {
-            return File.ReadAllText(absolutePath, encoding);
-        }
-
-        string? directory = Path.GetDirectoryName(absolutePath);
-        if (string.IsNullOrWhiteSpace(directory))
-            return File.ReadAllText(absolutePath, encoding);
-
-        // Nested partials (Foo.Bar.cs) must also pull Foo.cs and Foo.Baz.cs so a ratchet
-        // aimed at one slice still sees guards extracted onto sibling slices.
-        HashSet<string> files = new(StringComparer.OrdinalIgnoreCase) { absolutePath };
-        string fileName = Path.GetFileNameWithoutExtension(absolutePath);
-        string[] stemParts = fileName.Split('.');
-
-        for (int length = stemParts.Length; length >= 1; length--)
-        {
-            string candidateStem = string.Join('.', stemParts.Take(length));
-            string primary = Path.Combine(directory, candidateStem + extension);
-
-            if (File.Exists(primary))
-                files.Add(primary);
-
-            foreach (string sibling in Directory.GetFiles(
-                directory,
-                candidateStem + ".*" + extension,
-                SearchOption.TopDirectoryOnly))
-            {
-                if (IsTestCompanion(sibling))
-                    continue;
-
-                files.Add(sibling);
-            }
-        }
-
-        string[] ordered = files
-            .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        return string.Join('\n', ordered.Select(path => File.ReadAllText(path, encoding)));
-    }
-
-    private static bool IsTestCompanion(string path)
-    {
-        string name = Path.GetFileName(path);
-
-        return name.Contains(".test.", StringComparison.OrdinalIgnoreCase)
-            || name.Contains(".spec.", StringComparison.OrdinalIgnoreCase)
-            || name.EndsWith("Tests.cs", StringComparison.OrdinalIgnoreCase);
+        return File.ReadAllText(path);
     }
 
     internal static string ReadMatching(string relativeDirectory, string searchPattern)
@@ -126,14 +55,77 @@ internal static class ArchitectureSourceProbe
             "FindingAnalysisContextBuilder*.cs");
     }
 
-    internal static string ReadCommitOutputIntegrityPipeline()
+    /// <summary>
+    ///     Reads the named file first, then the type's primary file and <c>TypeName.*.cs</c> partials.
+    ///     Non-<c>.cs</c> paths stay exact so markdown/TS ratchets are not globbed as C#.
+    /// </summary>
+    internal static string ReadCsTypeFamily(string relativeFilePath)
     {
-        return ReadFile("ArchLucid.Application", "Runs", "Orchestration", "CommitOutputIntegrityService.cs")
+        ArgumentException.ThrowIfNullOrWhiteSpace(relativeFilePath);
+
+        string normalized = relativeFilePath.Replace('\\', '/');
+        string[] segments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        string exactPath = Path.Combine(new[] { RepoRoot }.Concat(segments).ToArray());
+        File.Exists(exactPath).Should().BeTrue($"expected source at {exactPath}");
+
+        string extension = Path.GetExtension(normalized);
+
+        if (!string.Equals(extension, ".cs", StringComparison.OrdinalIgnoreCase))
+            return File.ReadAllText(exactPath);
+
+        int lastSlash = normalized.LastIndexOf('/');
+        string directoryRel = lastSlash < 0 ? string.Empty : normalized[..lastSlash];
+        string fileName = lastSlash < 0 ? normalized : normalized[(lastSlash + 1)..];
+        string typeName = fileName.Split('.')[0];
+        string directory = Path.Combine(RepoRoot, directoryRel.Replace('/', Path.DirectorySeparatorChar));
+
+        List<string> files = [exactPath];
+        string primary = Path.Combine(directory, typeName + ".cs");
+
+        if (File.Exists(primary) && !PathsEqual(primary, exactPath))
+            files.Add(primary);
+
+        if (Directory.Exists(directory))
+        {
+
+            foreach (string partial in Directory
+                         .GetFiles(directory, typeName + ".*.cs", SearchOption.TopDirectoryOnly)
+                         .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase))
+            {
+
+                if (files.Any(existing => PathsEqual(existing, partial)))
+                    continue;
+
+                files.Add(partial);
+            }
+        }
+
+        return string.Join('\n', files.Select(File.ReadAllText));
+    }
+
+    /// <summary>
+    ///     Commit integrity after evaluator extraction: orchestrator plus create-time and architecture-version pins.
+    /// </summary>
+    internal static string ReadCommitIntegrityFamily()
+    {
+        return ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs")
             + "\n"
-            + ReadFile("ArchLucid.Application", "Governance", "CommitCreateTimePinIntegrityEvaluator.cs")
+            + ReadCsTypeFamily("ArchLucid.Application/Governance/CommitCreateTimePinIntegrityEvaluator.cs")
             + "\n"
-            + ReadFile("ArchLucid.Application", "Governance", "CommitArchitectureVersionPinIntegrityEvaluator.cs")
-            + "\n"
-            + ReadFile("ArchLucid.Application", "Architecture", "ArchitectureVersionContentFingerprintVerifier.cs");
+            + ReadCsTypeFamily("ArchLucid.Application/Governance/CommitArchitectureVersionPinIntegrityEvaluator.cs");
+    }
+
+    private static bool PathsEqual(string left, string right) =>
+        string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+
+    internal static void ShouldUseSealedManifestAwareRead(string source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        bool sealedAware = source.Contains("apiGetSealedManifestAware", StringComparison.Ordinal)
+            || source.Contains("formatExportSealedManifestAwareApiError", StringComparison.Ordinal);
+
+        sealedAware.Should().BeTrue(
+            "client must keep a sealed-manifest-aware GET or the shared 409 formatter");
     }
 }

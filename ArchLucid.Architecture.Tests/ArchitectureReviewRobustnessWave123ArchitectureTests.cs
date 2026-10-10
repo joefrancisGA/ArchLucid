@@ -15,43 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
     [Fact]
     public void Suggestion1461_1467_export_compare_replay_drift_trace_and_assigned_count_sealed_manifest_mappers()
     {
-        string exports = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string comparisonsReplay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.Replay.cs"));
-        string comparisonsDrift = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.Drift.cs"));
-        string comparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.SealedManifestGuard.cs"));
-        string traceForensicsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "InternalArchitectureTraceForensicsController.SealedManifestGuard.cs"));
-        string stickinessRegisters = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Registers.cs"));
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string comparisonsReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
+        string comparisonsDrift = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Drift.cs");
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
+        string traceForensicsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/InternalArchitectureTraceForensicsController.SealedManifestGuard.cs");
+        string stickinessRegisters = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
 
         exports.Should().Contain("CompareExportRecords");
         exports.Should().Contain("CompareExportRecordsSummary");
@@ -72,9 +41,9 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
     [Fact]
     public void Suggestion1468_1471_export_compare_replay_cost_assigned_count_and_graph_blocked_reason_wiring()
     {
-        string exportCompareApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportCompareApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-record-compare-api.ts"));
-        string exportCompareBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportCompareBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -82,11 +51,11 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
                 "lib",
                 "exports",
                 "export-record-compare-blocked-reason.ts"));
-        string exportCompareHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportCompareHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-record-compare-query.ts"));
-        string replayCostApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayCostApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-replay-cost-api.ts"));
-        string replayCostBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayCostBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -94,9 +63,9 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-replay-cost-blocked-reason.ts"));
-        string stickinessApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string assignedCountBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string assignedCountBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -104,11 +73,11 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
                 "lib",
                 "governance",
                 "governance-assigned-to-me-count-blocked-reason.ts"));
-        string assignedCountHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string assignedCountHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-assigned-to-me-findings-count-query.ts"));
-        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string graphBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -136,7 +105,7 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
     [Fact]
     public void Suggestion1472_export_compare_replay_cost_and_assigned_count_fail_closed_ux()
     {
-        string exportCompareCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportCompareCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -148,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportRecordCompareCallout.tsx"));
-        string replayCostSection = ArchitectureSourceProbe.ReadPathWithPartials(
+        string replayCostSection = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -159,7 +128,7 @@ public sealed class ArchitectureReviewRobustnessWave123ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "ArchitectureComparisonReplayCostSection.tsx"));
-        string assignedCountCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string assignedCountCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

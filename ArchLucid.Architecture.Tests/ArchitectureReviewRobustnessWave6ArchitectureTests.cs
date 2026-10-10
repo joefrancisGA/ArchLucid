@@ -19,14 +19,14 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
             .Should()
             .BeTrue();
 
-        string sql = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sql = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "343_RunCreatePinsWave6.sql"));
 
         sql.Should().Contain("PinnedEvidencePackagePinsJson");
         sql.Should().Contain("@runTable");
         sql.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
-        string bootstrapSql = ArchitectureSourceProbe.ReadPathWithPartials(
+        string bootstrapSql = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
 
         bootstrapSql.Should().Contain("PinnedEvidencePackagePinsJson");
@@ -36,8 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion52_commit_requires_policy_pack_pin_hash()
     {
-        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
+        string pinService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunPolicyPackPinService.cs");
 
         pinService.Should().Contain("run is missing a policy pack pin hash");
     }
@@ -45,20 +44,12 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion53_focused_pilot_restored_from_run_header()
     {
-        string scopePin = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunGovernanceScopePinService.cs"));
+        string scopePin = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunGovernanceScopePinService.cs");
 
         scopePin.Should().Contain("PinnedFocusedPilotModeEnabled");
         scopePin.Should().Contain("BeginRestoredScope");
 
-        string executor = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "AuthorityPipelineStagesExecutor.cs"));
+        string executor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs");
 
         executor.Should().Contain("BeginRestoredScope");
     }
@@ -66,12 +57,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion54_cross_run_prior_graph_fail_closed()
     {
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Findings",
-                "CrossRunDiffFindingPriorGuard.cs"));
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Findings/CrossRunDiffFindingPriorGuard.cs");
 
         guard.Should().Contain("EnsurePriorGraphLoadedOrThrow");
     }
@@ -79,17 +65,11 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion55_multi_cloud_evidence_pins_on_context()
     {
-        string context = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
+        string context = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/FindingAnalysisContext.cs");
 
         context.Should().Contain("EvidencePins");
 
-        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Findings",
-                "EffectfulFindingEngineEvidenceLoader.cs"));
+        string loader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Findings/EffectfulFindingEngineEvidenceLoader.cs");
 
         loader.Should().Contain("RunEvidencePackagePinService.AwsProvider");
         loader.Should().Contain("RunEvidencePackagePinService.GcpProvider");
@@ -107,7 +87,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
             .Should()
             .BeTrue();
 
-        string commitIntegrity = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
+        string commitIntegrity = ArchitectureSourceProbe.ReadCommitIntegrityFamily();
 
         commitIntegrity.Should().Contain("ArchitectureVersionContentFingerprintVerifier");
     }
@@ -115,8 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion57_manifest_hasher_v3_binds_create_time_pins()
     {
-        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
+        string hasher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/ManifestHashService.cs");
 
         hasher.Should().Contain("CreateTimePolicyPackPins");
         hasher.Should().Contain("CreateTimeEvidencePackagePins");
@@ -125,8 +104,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion58_lifecycle_phase_on_list_and_compare_guard()
     {
-        string runSummary = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "RunSummary.cs"));
+        string runSummary = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/RunSummary.cs");
 
         runSummary.Should().Contain("AuthorityLifecyclePhase");
 
@@ -139,8 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion59_replay_blocks_four_agent_when_stage_outcomes_exist()
     {
-        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
+        string replay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Replay/ReplayRunExecutePreparedStage.cs");
 
         replay.Should().Contain("SourceRunHasAuthorityStageProgressAsync");
         replay.Should().Contain("four-agent / DecisionEngineV2 replay is not permitted");

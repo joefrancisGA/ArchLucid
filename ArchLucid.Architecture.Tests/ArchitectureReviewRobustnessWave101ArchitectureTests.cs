@@ -15,13 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
     [Fact]
     public void Suggestion1197_1199_manifest_compare_lifecycle_and_inventory_sealed_manifest_conflict_mappers()
     {
-        string comparisonController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonController.cs"));
+        string comparisonController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
         comparisonController.Should().Contain("MapComparisonSealedManifestConflict");
     }
@@ -29,13 +23,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
     [Fact]
     public void Suggestion1200_1203_compare_explain_sealed_manifest_conflict_mappers()
     {
-        string explanationCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
+        string explanationCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
 
         explanationCompare.Should().Contain("MapExplanationSealedManifestConflict");
     }
@@ -43,7 +31,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
     [Fact]
     public void Suggestion1204_1208_governance_draft_risk_and_recurrence_blocked_reason_wiring()
     {
-        string governanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string governanceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -51,9 +39,9 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-mutation-blocked-reason.ts"));
-        string governanceApprovalsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string governanceApprovalsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-approvals.ts"));
-        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -61,9 +49,9 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftLifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftLifecycleApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-lifecycle.ts"));
-        string riskBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string riskBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -71,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
                 "lib",
                 "governance",
                 "risk-exception-mutation-blocked-reason.ts"));
-        string recurrenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recurrenceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -79,7 +67,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
                 "lib",
                 "governance",
                 "recurrence-schedule-mutation-blocked-reason.ts"));
-        string stickinessApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

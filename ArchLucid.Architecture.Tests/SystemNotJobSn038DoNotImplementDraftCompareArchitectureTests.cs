@@ -28,7 +28,7 @@ public sealed class SystemNotJobSn038DoNotImplementDraftCompareArchitectureTests
 
         residuals.Should().Contain("SN-038");
         residuals.Should().Contain("not-shipped");
-        residuals.Should().Contain("Draft-to-draft Compare");
+        residuals.Should().Contain("Compare architecture drafts");
         residuals.Should().Contain("SN-014");
 
         doc.Should().Contain("SN-038");

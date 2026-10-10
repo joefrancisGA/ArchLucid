@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn035OpenapiCloneAndEnvelopeArchitectureTests
     [Fact]
     public void Sn035_ratchet_module_documents_no_wire_change_line()
     {
-        string module = ArchitectureSourceProbe.ReadPathWithPartials(
+        string module = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-openapi-clone-and-envelope.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_OPENAPI_CLONE_AND_ENVELOPE_NO_WIRE_CHANGE_LINE");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn035OpenapiCloneAndEnvelopeArchitectureTests
     [Fact]
     public void Sn035_openapi_snapshot_documents_clone_snapshot_and_branch_paths()
     {
-        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
+        string snapshot = File.ReadAllText(
             Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "Contracts", "openapi-v1.contract.snapshot.json"));
 
         snapshot.Should().Contain("/v1/architecture/draft/{draftId}/clone-snapshot");
@@ -40,25 +40,20 @@ public sealed class SystemNotJobSn035OpenapiCloneAndEnvelopeArchitectureTests
     [Fact]
     public void Sn035_clone_snapshot_controller_has_no_request_body_door_or_invariant_fields()
     {
-        string clonePath = Path.Combine(
-            RepoRoot,
+        string controller = ArchitectureSourceProbe.ReadFile(
             "ArchLucid.Api",
             "Controllers",
             "Architecture",
             "DraftRequestsController.Lifecycle.CloneSnapshot.cs");
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(clonePath);
-        string cloneExact = File.ReadAllText(clonePath);
-        string branchController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.Branch.cs"));
+        string branchController = ArchitectureSourceProbe.ReadFile(
+            "ArchLucid.Api",
+            "Controllers",
+            "Architecture",
+            "DraftRequestsController.Lifecycle.Branch.cs");
 
         controller.Should().Contain("CloneDraftSnapshot");
-        cloneExact.Should().NotContain("[FromBody]");
-        cloneExact.Should().NotContain("workingCareerRehearsalDoor");
+        controller.Should().NotContain("[FromBody]");
+        controller.Should().NotContain("workingCareerRehearsalDoor");
         branchController.Should().Contain("BranchDraftRequest");
         branchController.Should().Contain("OverrideKind");
     }
@@ -66,7 +61,7 @@ public sealed class SystemNotJobSn035OpenapiCloneAndEnvelopeArchitectureTests
     [Fact]
     public void Sn035_vitest_ratchet_names_no_wire_change_and_forbids_draft_compare_api()
     {
-        string test = ArchitectureSourceProbe.ReadPathWithPartials(
+        string test = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

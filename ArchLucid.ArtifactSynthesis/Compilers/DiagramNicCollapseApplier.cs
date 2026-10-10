@@ -107,9 +107,9 @@ internal static class DiagramNicCollapseApplier
             .Select(node => node.NodeId)
             .ToHashSet(StringComparer.Ordinal);
 
-        Dictionary<string, GraphNode> nodesById = graph.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> nodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
         List<GraphNode> expanded = nodes.ToList();
 

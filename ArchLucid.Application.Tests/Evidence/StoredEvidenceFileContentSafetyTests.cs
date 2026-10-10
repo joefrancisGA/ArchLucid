@@ -4,7 +4,6 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Evidence;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class StoredEvidenceFileContentSafetyTests
 {

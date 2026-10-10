@@ -85,7 +85,8 @@ public sealed class AuthorityPipelineDecisioningStage(
             ClosedLoopStrengtheningScoreSyncResult scoreSyncResult = _closedLoopScoreSyncService.SyncScoreSignals(
                 manifest,
                 context.GraphSnapshot,
-                context.FindingsSnapshot);
+                context.FindingsSnapshot)
+                ?? new ClosedLoopStrengtheningScoreSyncResult();
 
             if (scoreSyncResult.ProjectedFindingCount > 0
                 || scoreSyncResult.EnrichedGraphNodeCount > 0

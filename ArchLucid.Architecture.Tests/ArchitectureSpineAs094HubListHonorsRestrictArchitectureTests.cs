@@ -14,17 +14,17 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
     {
         string path = Path.Combine(
             RepoRoot,
-            "ArchLucid.Api",
-            "Controllers",
-            "Architecture",
-            "ArchitecturesController.ShareAccessGuard.cs");
+            "ArchLucid.Persistence",
+            "Repositories",
+            "SqlArchitectureIdentityRepository.List.cs");
 
         File.Exists(path).Should().BeTrue();
 
-        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
+        string source = File.ReadAllText(path);
 
-        source.Should().Contain("CountRestrictedWithoutActorShareAsync");
-        source.Should().Contain("adjustedTotalCount");
+        source.Should().Contain("RestrictToShares = 0");
+        source.Should().Contain("s.ActorOid = @ActorOid");
+        source.Should().Contain("SELECT COUNT(1)");
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
+        string source = File.ReadAllText(path);
 
         source.Should().Contain("AS-094");
         source.Should().Contain("CanExposeArchitectureScopedHitAsync");
@@ -45,8 +45,9 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
     {
         string listTests = Path.Combine(
             RepoRoot,
-            "ArchLucid.Api.Tests",
-            "ArchitecturesControllerRestrictedShareIdorTests.cs");
+            "ArchLucid.Application.Tests",
+            "Architecture",
+            "ArchitectureIdentityServiceShareFilterTests.cs");
         string searchTests = Path.Combine(
             RepoRoot,
             "ArchLucid.Api.Tests",
@@ -55,8 +56,9 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
         File.Exists(listTests).Should().BeTrue();
         File.Exists(searchTests).Should().BeTrue();
 
-        ArchitectureSourceProbe.ReadPathWithPartials(listTests).Should().Contain("response.TotalCount.Should().Be(0)");
-        ArchitectureSourceProbe.ReadPathWithPartials(searchTests).Should().Contain("FilterAsync_omits_run_and_finding_hits_for_restricted_architecture");
+        File.ReadAllText(listTests).Should().Contain("ListIdentitiesAsync_hides_restricted_architecture_without_share");
+        File.ReadAllText(listTests).Should().Contain("otherPage.TotalCount.Should().Be(1)");
+        File.ReadAllText(searchTests).Should().Contain("FilterAsync_omits_run_and_finding_hits_for_restricted_architecture");
     }
 
     [Fact]
@@ -71,7 +73,7 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
+        string source = File.ReadAllText(path);
 
         source.Should().Contain("visibleArchitectureIds");
         source.Should().Contain("architectureDraftEntryIsVisibleToActor");

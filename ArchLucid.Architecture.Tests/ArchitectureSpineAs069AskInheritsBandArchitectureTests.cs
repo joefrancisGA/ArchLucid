@@ -12,8 +12,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_service_system_prompt_requires_weakest_band_inheritance()
     {
-        string askService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskService.cs"));
+        string askService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Services/Ask/AskService.cs");
 
         askService.Should().Contain("weakest semantic support band");
         askService.Should().Contain("TB-1003");
@@ -22,8 +21,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_user_prompt_composer_wires_band_index_constraint()
     {
-        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskUserPromptComposer.cs"));
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Services/Ask/AskUserPromptComposer.cs");
 
         composer.Should().Contain("BuildPromptConstraintSection");
         composer.Should().Contain("findingBandIndex");
@@ -32,7 +30,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ui_footnote_component_exists_for_ask_thread()
     {
-        string footnote = ArchitectureSourceProbe.ReadPathWithPartials(
+        string footnote = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -40,7 +38,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
                 "components",
                 "ask",
                 "AskCitedFindingsSemanticSupportBandFootnote.tsx"));
-        string footnoteCopy = ArchitectureSourceProbe.ReadPathWithPartials(
+        string footnoteCopy = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

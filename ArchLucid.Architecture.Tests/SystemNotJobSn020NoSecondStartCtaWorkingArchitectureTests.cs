@@ -36,7 +36,7 @@ public sealed class SystemNotJobSn020NoSecondStartCtaWorkingArchitectureTests
                 "OperatorHomeWorkingPrimaryCta.tsx"));
 
         workingPrimary.Should().Contain("resolveWorkingHomeSingleStartPrimaryLabel");
-        workingPrimary.Should().Contain("resolveWorkingHomeNewReviewBridgeCopy");
+        workingPrimary.Should().Contain("REVIEWS_NEW_GUIDED_INTAKE_HREF");
         workingPrimary.Should().NotContain("START_REVIEW_LABEL");
     }
 

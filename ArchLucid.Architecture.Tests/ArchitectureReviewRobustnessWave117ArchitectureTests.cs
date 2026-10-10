@@ -15,27 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave117ArchitectureTests
     [Fact]
     public void Suggestion1389_1395_architecture_intelligence_read_and_mutation_sealed_manifest_mappers()
     {
-        string productPublish = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.ProductPublish.cs"));
-        string aiRun = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.Run.cs"));
-        string aiGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.SealedManifestGuard.cs"));
+        string productPublish = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.ProductPublish.cs");
+        string aiRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.Run.cs");
+        string aiGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.SealedManifestGuard.cs");
 
         productPublish.Should().Contain("GetProductRunSourceContextAsync");
         productPublish.Should().Contain("MapArchitectureIntelligenceSealedManifestConflict");
@@ -51,7 +33,7 @@ public sealed class ArchitectureReviewRobustnessWave117ArchitectureTests
     [Fact]
     public void Suggestion1396_1399_source_context_blocked_reason_and_query_wiring()
     {
-        string aiBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
+        string aiBlockedReason = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -59,11 +41,11 @@ public sealed class ArchitectureReviewRobustnessWave117ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-intelligence-source-context-blocked-reason.ts"));
-        string closedLoopApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string closedLoopApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-intelligence-api-closed-loop.ts"));
-        string sourceContextQuery = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sourceContextQuery = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-intelligence-source-context-query.ts"));
-        string productContext = ArchitectureSourceProbe.ReadPathWithPartials(
+        string productContext = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,7 +67,7 @@ public sealed class ArchitectureReviewRobustnessWave117ArchitectureTests
     [Fact]
     public void Suggestion1400_source_context_load_failure_callout_and_api_barrel()
     {
-        string loadFailure = ArchitectureSourceProbe.ReadPathWithPartials(
+        string loadFailure = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -96,9 +78,9 @@ public sealed class ArchitectureReviewRobustnessWave117ArchitectureTests
                 "architecture-intelligence",
                 "_sections",
                 "ArchitectureIntelligenceProductContextLoadFailure.tsx"));
-        string aiApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string aiApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-intelligence-api.ts"));
-        string pageClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pageClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

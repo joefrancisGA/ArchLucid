@@ -15,16 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion621_626_export_history_request_authority_provenance_governance_and_findings_openapi_409()
     {
-        string exports = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string architectureRequest = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.ArchitectureRequests.cs"));
-        string authorityProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceQueryController.cs"));
-        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.PromotionsActivations.cs"));
-        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string architectureRequest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.ArchitectureRequests.cs");
+        string authorityProvenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.cs");
+        string governance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PromotionsActivations.cs");
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
 
         exports.Should().Contain("GetRunExportHistory");
         exports.Should().Contain("EnsureSealedManifestReadAllowedAsync");
@@ -53,15 +48,15 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion627_628_pre_finalize_and_governance_stickiness_sealed_reads()
     {
-        string preFinalizeApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preFinalizeApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "pre-finalize-checklist.ts"));
-        string preFinalizeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preFinalizeBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "pre-finalize-checklist-blocked-reason.ts"));
-        string preFinalizePanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string preFinalizePanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "PreFinalizeChecklistPanel.tsx"));
-        string stickinessRegisters = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessRegisters = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string stickinessBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -71,29 +66,29 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
                 "governance-stickiness-summary-blocked-reason.ts"));
 
         preFinalizeApi.Should().Contain("getPreFinalizeChecklist");
-        preFinalizeApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(preFinalizeApi);
         preFinalizeBlocked.Should().Contain("preFinalizeChecklistBlockedReason");
         preFinalizePanel.Should().Contain("preFinalizeChecklistBlockedReason");
         stickinessRegisters.Should().Contain("getGovernanceReviewsAwaitingAction");
         stickinessRegisters.Should().Contain("getGovernanceDecisionsNeededSummary");
-        stickinessRegisters.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(stickinessRegisters);
         stickinessBlocked.Should().Contain("governanceStickinessSummaryBlockedReason");
     }
 
     [Fact]
     public void Suggestion629_631_blocked_reason_hooks_for_request_advisory_and_intelligence_run_model()
     {
-        string architectureRequestHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string architectureRequestHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-request-query.ts"));
-        string advisoryHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string advisoryHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-advisory-recommendations-query.ts"));
-        string intelligenceHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string intelligenceHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-intelligence-run-model-query.ts"));
-        string architectureRequestBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string architectureRequestBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "architecture-request-blocked-reason.ts"));
-        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string advisoryBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory", "advisory-run-read-blocked-reason.ts"));
-        string intelligenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string intelligenceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,24 +109,24 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion632_finding_provenance_export_history_and_authority_provenance_alias_clients()
     {
-        string findingHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-finding-provenance-query.ts"));
-        string exportHistoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-export-history-api.ts"));
-        string exportHistoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "exports", "run-export-history-blocked-reason.ts"));
-        string authorityProvenanceApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "authority-provenance-query-api.ts"));
-        string authorityProvenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph", "authority-provenance-alias-blocked-reason.ts"));
 
         findingHook.Should().Contain("findingProvenanceBlockedReason");
         exportHistoryApi.Should().Contain("getRunExportHistory");
-        exportHistoryApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportHistoryApi);
         exportHistoryBlocked.Should().Contain("runExportHistoryBlockedReason");
         authorityProvenanceApi.Should().Contain("getAuthorityProvenanceGraph");
         authorityProvenanceApi.Should().Contain("/v1/authority/runs/");
-        authorityProvenanceApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(authorityProvenanceApi);
         authorityProvenanceBlocked.Should().Contain("authorityProvenanceAliasBlockedReason");
     }
 }

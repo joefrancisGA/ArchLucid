@@ -15,34 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave115ArchitectureTests
     [Fact]
     public void Suggestion1365_1368_sponsor_summary_and_run_package_export_sealed_manifest_mappers()
     {
-        string architectureExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArchitectureExportController.cs"));
-        string architectureExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArchitectureExportController.SealedManifestGuard.cs"));
-        string runsExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsExportController.cs"));
-        string runsExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsExportController.SealedManifestGuard.cs"));
+        string architectureExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs");
+        string architectureExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.SealedManifestGuard.cs");
+        string runsExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.cs");
+        string runsExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.SealedManifestGuard.cs");
 
         architectureExport.Should().Contain("MapArchitectureExportSealedManifestConflict");
         architectureExport.Should().Contain("ExportRunSummary");
@@ -54,27 +30,9 @@ public sealed class ArchitectureReviewRobustnessWave115ArchitectureTests
     [Fact]
     public void Suggestion1369_1371_run_summary_sse_and_summary_read_sealed_manifest_mappers()
     {
-        string runEvents = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityRunEventsController.cs"));
-        string runEventsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityRunEventsController.SealedManifestGuard.cs"));
-        string runDetail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.RunDetail.cs"));
+        string runEvents = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityRunEventsController.cs");
+        string runEventsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityRunEventsController.SealedManifestGuard.cs");
+        string runDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
 
         runEvents.Should().Contain("MapRunEventsSealedManifestConflict");
         runEvents.Should().Contain("GetRunEvents");
@@ -86,9 +44,9 @@ public sealed class ArchitectureReviewRobustnessWave115ArchitectureTests
     [Fact]
     public void Suggestion1372_1376_sponsor_summary_export_anchor_and_blocked_reason_wiring()
     {
-        string summaryExportApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string summaryExportApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-summary-export-api.ts"));
-        string summaryExportDownload = ArchitectureSourceProbe.ReadPathWithPartials(
+        string summaryExportDownload = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -96,9 +54,9 @@ public sealed class ArchitectureReviewRobustnessWave115ArchitectureTests
                 "lib",
                 "api",
                 "downloads-blob-trigger-run-summary-export.ts"));
-        string downloadUrls = ArchitectureSourceProbe.ReadPathWithPartials(
+        string downloadUrls = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-urls.ts"));
-        string summaryExportBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string summaryExportBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,9 +64,9 @@ public sealed class ArchitectureReviewRobustnessWave115ArchitectureTests
                 "lib",
                 "runs",
                 "run-summary-export-mutation-blocked-reason.ts"));
-        string pageHeader = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pageHeader = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPageHeader.tsx"));
-        string apiIndex = ArchitectureSourceProbe.ReadPathWithPartials(
+        string apiIndex = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "index.ts"));
 
         summaryExportApi.Should().Contain("downloadRunSummaryExport");

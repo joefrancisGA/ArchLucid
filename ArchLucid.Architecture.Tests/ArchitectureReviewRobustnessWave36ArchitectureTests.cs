@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion417_418_export_record_compare_lifecycle_fail_closed()
     {
-        string replayService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "ComparisonReplayService.cs"));
-        string compareFacade = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportQueryFacade.cs"));
+        string replayService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/ComparisonReplayService.cs");
+        string compareFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/RunExportQueryFacade.cs");
 
         replayService.Should().Contain("AuthorityLifecycleCompareExportGuard");
         replayService.Should().Contain("RegenerateExportDiffAsync");
@@ -29,15 +27,8 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion419_420_one_pager_execution_mode_and_career_honesty()
     {
-        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Exports",
-                "ArchitectureReviewBoard",
-                "RunSummaryOnePagerDocumentFactory.cs"));
-        string exportService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "RunSummaryOnePagerExportService.cs"));
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewBoard/RunSummaryOnePagerDocumentFactory.cs");
+        string exportService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/RunSummaryOnePagerExportService.cs");
 
         factory.Should().Contain("BoardExportExecutionModeNoticeResolver");
         exportService.Should().Contain("CareerExportCoverageHonestyMaterialLoader");
@@ -47,7 +38,7 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion421_422_package_print_route_and_sponsor_sharing_ui_fail_closed()
     {
-        string printClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string printClient = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -60,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
                 "print",
                 "_sections",
                 "PackagePrintPageClient.tsx"));
-        string sponsorPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorPanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "architecture", "ArchitectureSponsorSharingPanel.tsx"));
 
         printClient.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -70,10 +61,8 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion423_424_cloud_resource_hub_snapshot_guard_and_409()
     {
-        string hubService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "CloudResourceEvidenceHubService.cs"));
-        string hubController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "CloudResourceEvidenceHubController.cs"));
+        string hubService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs");
+        string hubController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs");
 
         hubService.Should().Contain("InfraEvidenceSnapshotSealedManifestHashGuard");
         hubController.Should().Contain("ConflictException");
@@ -83,12 +72,9 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion425_426_infra_evidence_ask_snapshot_guard_and_409()
     {
-        string askGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "InfraEvidenceAskSealedManifestHashGuard.cs"));
-        string askService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "InfraEvidenceAskGroundingService.cs"));
-        string askController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "InfraEvidenceAskController.cs"));
+        string askGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/InfraEvidenceAskSealedManifestHashGuard.cs");
+        string askService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/InfraEvidenceAskGroundingService.cs");
+        string askController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceAskController.cs");
 
         askGuard.Should().Contain("InfraEvidenceSnapshotSealedManifestHashGuard");
         askService.Should().Contain("ConflictException");
@@ -98,17 +84,9 @@ public sealed class ArchitectureReviewRobustnessWave36ArchitectureTests
     [Fact]
     public void Suggestion427_428_muted_top_findings_and_drift_report_fail_closed()
     {
-        string onePagerFactory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Exports",
-                "ArchitectureReviewBoard",
-                "RunSummaryOnePagerDocumentFactory.cs"));
-        string driftService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "AzureInventoryDriftClassificationService.cs"));
-        string inventoryController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "InfraEvidenceInventoryController.cs"));
+        string onePagerFactory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewBoard/RunSummaryOnePagerDocumentFactory.cs");
+        string driftService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/AzureInventoryDriftClassificationService.cs");
+        string inventoryController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceInventoryController.cs");
 
         onePagerFactory.Should().Contain("IsMuted");
         driftService.Should().Contain("InfraEvidenceSnapshotSealedManifestHashGuard");

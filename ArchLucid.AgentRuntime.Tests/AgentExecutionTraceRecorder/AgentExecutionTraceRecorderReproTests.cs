@@ -162,6 +162,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
+        // Successful blob persist clears the flag (null), rather than storing false.
         t.BlobUploadFailed.Should().BeNull();
     }
 

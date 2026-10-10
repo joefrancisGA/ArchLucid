@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1209_1211_compare_explain_and_policy_pack_sealed_manifest_conflict_mappers()
     {
-        string explanationCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
-        string policyAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
+        string explanationCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
 
         explanationCompare.Should().Contain("MapExplanationSealedManifestConflict");
         policyAssignment.Should().Contain("MapPolicyPackSealedManifestConflict");
@@ -37,20 +25,8 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1212_1215_demo_viewer_compare_sealed_manifest_conflict_mappers()
     {
-        string demoCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Demo",
-                "DemoViewerController.Compare.cs"));
-        string demoGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Demo",
-                "DemoViewerController.SealedManifestGuard.cs"));
+        string demoCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.Compare.cs");
+        string demoGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.SealedManifestGuard.cs");
 
         demoCompare.Should().Contain("MapDemoViewerSealedManifestConflict");
         demoGuard.Should().Contain("MapDemoViewerSealedManifestConflict");
@@ -59,7 +35,7 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1216_1220_draft_intake_and_recurrence_blocked_reason_wiring()
     {
-        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -67,13 +43,13 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftCrudApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftCrudApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-crud.ts"));
-        string draftQuestionsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftQuestionsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-questions.ts"));
-        string draftLifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string draftLifecycleApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-lifecycle.ts"));
-        string recurrenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string recurrenceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -81,7 +57,7 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
                 "lib",
                 "governance",
                 "recurrence-schedule-mutation-blocked-reason.ts"));
-        string stickinessApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessApi = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

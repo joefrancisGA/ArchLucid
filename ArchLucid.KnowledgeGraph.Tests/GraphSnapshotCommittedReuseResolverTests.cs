@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
@@ -19,13 +21,9 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         Guid runId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
-        GraphSnapshot stored = new()
-        {
-            GraphSnapshotId = graphId,
-            RunId = runId,
-            ContextSnapshotId = contextId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime()
-        };
+        ContextSnapshot contextSnapshot = BuildContextSnapshot(contextId);
+        ArchitectureKnowledgeModel knowledgeModel = BuildKnowledgeModel();
+        GraphSnapshot stored = BuildGraphWithContextPins(contextId, runId, graphId, contextSnapshot, knowledgeModel);
 
         Mock<IGraphSnapshotRepository> repo = new();
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -37,7 +35,9 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
             graphId,
             contextId,
             repo.Object,
-            CancellationToken.None);
+            CancellationToken.None,
+            contextSnapshot: contextSnapshot,
+            knowledgeModel: knowledgeModel);
 
         result.Should().NotBeNull();
         result!.ResolutionMode.Should().Be("reused_from_run_header");
@@ -77,13 +77,9 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid staleHeaderId = Guid.NewGuid();
-        GraphSnapshot orphan = new()
-        {
-            GraphSnapshotId = graphId,
-            RunId = runId,
-            ContextSnapshotId = contextId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime()
-        };
+        ContextSnapshot contextSnapshot = BuildContextSnapshot(contextId);
+        ArchitectureKnowledgeModel knowledgeModel = BuildKnowledgeModel();
+        GraphSnapshot orphan = BuildGraphWithContextPins(contextId, runId, graphId, contextSnapshot, knowledgeModel);
 
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
@@ -100,10 +96,82 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
             staleHeaderId,
             contextId,
             repo.Object,
-            CancellationToken.None);
+            CancellationToken.None,
+            contextSnapshot: contextSnapshot,
+            knowledgeModel: knowledgeModel);
 
         result.Should().NotBeNull();
         result!.ResolutionMode.Should().Be("reused_from_orphan_save");
         result.Snapshot.GraphSnapshotId.Should().Be(graphId);
+    }
+
+    private static ContextSnapshot BuildContextSnapshot(Guid contextSnapshotId)
+    {
+        return new ContextSnapshot
+        {
+            SnapshotId = contextSnapshotId,
+            RunId = Guid.NewGuid(),
+            ProjectId = "proj",
+            CreatedUtc = DateTime.UtcNow,
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = "a",
+                    ObjectType = "type",
+                    Name = "A",
+                    SourceType = "src",
+                    SourceId = "1",
+                },
+            ],
+        };
+    }
+
+    private static ArchitectureKnowledgeModel BuildKnowledgeModel()
+    {
+        DateTime utcNow = DateTime.UtcNow;
+
+        return new ArchitectureKnowledgeModel
+        {
+            ModelId = "km-test",
+            TenantId = "tenant-test",
+            SchemaVersion = 1,
+            CreatedUtc = utcNow,
+            UpdatedUtc = utcNow,
+            Elements = [],
+        };
+    }
+
+    private static GraphSnapshot BuildGraphWithContextPins(
+        Guid contextSnapshotId,
+        Guid runId,
+        Guid graphId,
+        ContextSnapshot contextSnapshot,
+        ArchitectureKnowledgeModel knowledgeModel)
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["contextCanonicalFingerprint"] = GraphSnapshotCanonicalFingerprint.Compute(contextSnapshot),
+            ["knowledgeModelFingerprint"] =
+                GraphSnapshotCanonicalFingerprint.ComputeKnowledgeModelFingerprint(knowledgeModel),
+        };
+
+        return new GraphSnapshot
+        {
+            GraphSnapshotId = graphId,
+            RunId = runId,
+            ContextSnapshotId = contextSnapshotId,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "ctx",
+                    NodeType = "ContextSnapshot",
+                    Label = "Context",
+                    Properties = properties,
+                },
+            ],
+        };
     }
 }

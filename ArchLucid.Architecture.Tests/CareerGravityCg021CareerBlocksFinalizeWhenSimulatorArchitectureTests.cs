@@ -15,17 +15,9 @@ public sealed class CareerGravityCg021CareerBlocksFinalizeWhenSimulatorArchitect
     [Fact]
     public void Cg021_server_mapper_passes_working_door_stamp_into_finalize_validator()
     {
-        string mapper = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "CareerArtifactCompletenessInputMapper.cs"));
-        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
-        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "CareerArtifacts", "SimulatorCareerHonestyPresenter.cs"));
+        string mapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs");
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/SimulatorCareerHonestyPresenter.cs");
 
         mapper.Should().Contain("workingCareerRehearsalDoor");
         orchestrator.Should().Contain("workingCareerRehearsalDoor: runRecord.WorkingCareerRehearsalDoor");
@@ -35,7 +27,7 @@ public sealed class CareerGravityCg021CareerBlocksFinalizeWhenSimulatorArchitect
     [Fact]
     public void Cg021_ui_finalize_blocked_honesty_splits_ready_label_from_finalize_mutation()
     {
-        string finalizeHonesty = ArchitectureSourceProbe.ReadPathWithPartials(
+        string finalizeHonesty = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,7 +35,7 @@ public sealed class CareerGravityCg021CareerBlocksFinalizeWhenSimulatorArchitect
                 "lib",
                 "runs",
                 "run-pipeline-finalize-blocked-honesty.ts"));
-        string simulatorHonesty = ArchitectureSourceProbe.ReadPathWithPartials(
+        string simulatorHonesty = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "simulator-career-honesty.ts"));
 
         finalizeHonesty.Should().Contain("shouldBlockFinalizeForCareerHonesty");
@@ -55,7 +47,7 @@ public sealed class CareerGravityCg021CareerBlocksFinalizeWhenSimulatorArchitect
     [Fact]
     public void Cg021_docs_record_career_simulator_finalize_gate()
     {
-        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
+        string docs = File.ReadAllText(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-021");

@@ -19,7 +19,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_try_options_define_real_and_rehearse_flags()
     {
-        string options = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, TryOptionsRelativePath));
+        string options = File.ReadAllText(Path.Combine(RepoRoot, TryOptionsRelativePath));
 
         options.Should().Contain("--real");
         options.Should().Contain("--rehearse");
@@ -31,7 +31,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_try_help_names_career_and_rehearsal_doors()
     {
-        string help = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, TryHelpRelativePath));
+        string help = File.ReadAllText(Path.Combine(RepoRoot, TryHelpRelativePath));
 
         help.Should().Contain("Record");
         help.Should().Contain("Practice");
@@ -43,8 +43,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_real_mode_smoke_accepts_rehearse_alias_without_aoai_requirement()
     {
-        string options = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommandOptions.cs"));
+        string options = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/Commands/RealModeSmokeCommandOptions.cs");
 
         options.Should().Contain("\"--rehearse\"");
         options.Should().Contain("allowSimulator = true");
@@ -53,14 +52,13 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_cli_usage_and_validate_config_use_career_rehearsal_vocabulary()
     {
-        string usage = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommand.cs"));
+        string usage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/Commands/RealModeSmokeCommand.cs");
 
         usage.Should().Contain("--rehearse");
         usage.Should().Contain("Practice review type");
         usage.Should().Contain("Record path");
 
-        string validateConfig = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
+        string validateConfig = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
 
         validateConfig.Should().Contain("Practice review type");
         validateConfig.Should().Contain("Record path");
@@ -69,7 +67,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_validate_config_mode_check_mentions_cli_doors()
     {
-        string evaluator = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
+        string evaluator = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
 
         evaluator.Should().Contain("Record review type");
         evaluator.Should().Contain("Practice review type");

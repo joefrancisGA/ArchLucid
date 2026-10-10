@@ -15,36 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
     [Fact]
     public void Suggestion1449_1456_governance_and_review_trail_sealed_manifest_mappers()
     {
-        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string governanceLists = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PromotionsActivations.cs"));
-        string governanceInsights = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.Insights.cs"));
-        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.SealedManifestGuard.cs"));
-        string runQueryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.SealedManifestGuard.cs"));
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string governanceLists = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PromotionsActivations.cs");
+        string governanceInsights = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
+        string runQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.SealedManifestGuard.cs");
 
         authorityReads.Should().Contain("GetReviewTrailExport");
         authorityReads.Should().Contain("MapReviewTrailSealedManifestConflict");
@@ -64,9 +39,9 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
     [Fact]
     public void Suggestion1457_1459_governance_workflow_and_coordinator_provenance_blocked_reason_wiring()
     {
-        string approvalsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string approvalsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-approvals.ts"));
-        string workflowRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowRunBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -74,7 +49,7 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-run-read-blocked-reason.ts"));
-        string lineageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lineageBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -82,9 +57,9 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "lib",
                 "governance",
                 "governance-approval-lineage-blocked-reason.ts"));
-        string environmentsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string environmentsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-environments.ts"));
-        string activationsBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string activationsBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -92,13 +67,13 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "lib",
                 "governance",
                 "governance-workflow-read-blocked-reason.ts"));
-        string detailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
+        string detailArtifacts = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenanceBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "provenance", "run-provenance-blocked-reason.ts"));
-        string workflowHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-workflow-run-lists-query.ts"));
-        string lineageHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lineageHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-approval-request-lineage-query.ts"));
 
         approvalsApi.Should().Contain("listApprovalRequests");
@@ -123,7 +98,7 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
     [Fact]
     public void Suggestion1460_governance_workflow_traceability_and_provenance_fail_closed_ux()
     {
-        string workflowCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string workflowCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -131,7 +106,7 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "components",
                 "governance",
                 "GovernanceWorkflowRunListsBlockedCallout.tsx"));
-        string runActions = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runActions = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -143,7 +118,7 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailRunActionsSection.tsx"));
-        string traceabilityBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string traceabilityBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -151,7 +126,7 @@ public sealed class ArchitectureReviewRobustnessWave122ArchitectureTests
                 "lib",
                 "runs",
                 "traceability-bundle-export-blocked-reason.ts"));
-        string provenancePage = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenancePage = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

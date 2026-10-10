@@ -15,99 +15,24 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion897_903_policy_pilot_finding_and_diagram_mutation_openapi_409()
     {
-        string policySimulate = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Simulate.cs"));
-        string policyGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.SealedManifestGuard.cs"));
-        string findingUnmute = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingMuteController.Unmute.cs"));
-        string findingMuteGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingMuteController.SealedManifestGuard.cs"));
-        string pilotDeltas = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Deltas.cs"));
-        string pilotGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsController.SealedManifestGuard.cs"));
-        string diagramIngest = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.cs"));
-        string diagramIngestGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.SealedManifestGuard.cs"));
-        string diagramReconcile = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramReconciliationController.cs"));
-        string diagramReconcileGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramReconciliationController.SealedManifestGuard.cs"));
-        string diagramVision = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramVisionIngestController.cs"));
-        string diagramVisionGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramVisionIngestController.SealedManifestGuard.cs"));
-        string muteRepository = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Persistence",
-                "ApplicationPorts",
-                "Interfaces",
-                "IFindingRecordMuteRepository.cs"));
+        string policySimulate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs");
+        string policyGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.SealedManifestGuard.cs");
+        string findingUnmute = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.Unmute.cs");
+        string findingMuteGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.SealedManifestGuard.cs");
+        string pilotDeltas = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Deltas.cs");
+        string pilotGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
+        string diagramIngest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.cs");
+        string diagramIngestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.SealedManifestGuard.cs");
+        string diagramReconcile = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramReconciliationController.cs");
+        string diagramReconcileGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramReconciliationController.SealedManifestGuard.cs");
+        string diagramVision = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramVisionIngestController.cs");
+        string diagramVisionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramVisionIngestController.SealedManifestGuard.cs");
+        string muteRepository = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/IFindingRecordMuteRepository.cs");
 
         policySimulate.Should().Contain("Simulate");
         policySimulate.Should().Contain("SimulateBulk");
-        policySimulate.Should().Contain("EnsurePolicyPackSimulateRunSealedManifestAllowedAsync");
-        policySimulate.Should().Contain("EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync");
-        policyGuard.Should().Contain("GovernanceDispositionSealedManifestGuard");
+        policySimulate.Should().Contain("MapPolicyPackSealedManifestConflict");
+        policyGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
         findingUnmute.Should().Contain("DeleteMuteAsync");
         findingUnmute.Should().Contain("EnsureFindingMuteRunSealedManifestAllowedAsync");
         findingMuteGuard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -130,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion904_906_unmute_consulting_and_run_package_blocked_reason_ui_wiring()
     {
-        string findingUnmuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingUnmuteBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -138,18 +63,18 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "lib",
                 "findings",
                 "finding-unmute-mutation-blocked-reason.ts"));
-        string findingUnmuteClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingUnmuteClient = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-unmute-client.ts"));
-        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string whitelabelButton = ArchitectureSourceProbe.ReadPathWithPartials(
+        string whitelabelButton = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "components",
                 "ReviewBoardWhitelabelConsultingExportButton.tsx"));
-        string meetingPacket = ArchitectureSourceProbe.ReadPathWithPartials(
+        string meetingPacket = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -157,7 +82,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "components",
                 "reviews",
                 "ReviewMeetingPacketButton.tsx"));
-        string headerShare = ArchitectureSourceProbe.ReadPathWithPartials(
+        string headerShare = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -177,21 +102,11 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion907_908_artifact_bundle_and_pilot_closeout_blocked_reason_wiring()
     {
-        string artifactList = ArchitectureSourceProbe.ReadPathWithPartials(
+        string artifactList = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ArtifactListTable.tsx"));
-        string runActions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "app",
-                "(operator)",
-                "architecture",
-                "reviews",
-                "[reviewId]",
-                "_sections",
-                "RunDetailRunActionsSection.tsx"));
-        string closeoutBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runActions = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
+        string closeoutBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -199,7 +114,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "lib",
                 "pilots",
                 "pilot-closeout-mutation-blocked-reason.ts"));
-        string closeoutClient = ArchitectureSourceProbe.ReadPathWithPartials(
+        string closeoutClient = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "pilots", "pilot-closeout-client.ts"));
 
         artifactList.Should().Contain("artifactBundleMutationBlockedReason");

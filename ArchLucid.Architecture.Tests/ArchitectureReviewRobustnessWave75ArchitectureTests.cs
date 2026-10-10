@@ -15,61 +15,16 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
     [Fact]
     public void Suggestion885_891_pilot_governance_and_analysis_mutation_openapi_409()
     {
-        string pilotDeltas = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Deltas.cs"));
-        string pilotCloseout = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Closeout.cs"));
-        string pilotGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsController.SealedManifestGuard.cs"));
-        string findingMute = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingMuteController.cs"));
-        string findingMuteGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingMuteController.SealedManifestGuard.cs"));
-        string consultingDocxAsync = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.ConsultingDocx.AsyncRecommend.cs"));
-        string analysisGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.SealedManifestGuard.cs"));
-        string governanceDryRun = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PolicyPacks.DryRun.cs"));
-        string governanceSimulate = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PolicyPacks.Simulate.cs"));
-        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.SealedManifestGuard.cs"));
+        string pilotDeltas = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Deltas.cs");
+        string pilotCloseout = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Closeout.cs");
+        string pilotGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
+        string findingMute = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.cs");
+        string findingMuteGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.SealedManifestGuard.cs");
+        string consultingDocxAsync = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.ConsultingDocx.AsyncRecommend.cs");
+        string analysisGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.SealedManifestGuard.cs");
+        string governanceDryRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PolicyPacks.DryRun.cs");
+        string governanceSimulate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PolicyPacks.Simulate.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
 
         pilotDeltas.Should().Contain("GetPilotRunDeltas");
         pilotDeltas.Should().Contain("EnsureRunSealedManifestReadAllowedAsync");
@@ -95,7 +50,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
     [Fact]
     public void Suggestion892_894_export_and_dry_run_mutation_blocked_reason_ui_wiring()
     {
-        string decisionReceiptBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string decisionReceiptBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -103,7 +58,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "lib",
                 "runs",
                 "decision-receipt-mutation-blocked-reason.ts"));
-        string decisionReceiptButton = ArchitectureSourceProbe.ReadPathWithPartials(
+        string decisionReceiptButton = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,7 +66,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "components",
                 "draft-intake",
                 "DecisionReceiptExportButton.tsx"));
-        string terraformBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string terraformBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -119,14 +74,14 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "lib",
                 "runs",
                 "terraform-advisory-export-mutation-blocked-reason.ts"));
-        string terraformButton = ArchitectureSourceProbe.ReadPathWithPartials(
+        string terraformButton = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "components",
                 "ExportTerraformAdvisoryButton.tsx"));
-        string dryRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dryRunBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -134,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "lib",
                 "policy",
                 "policy-pack-dry-run-mutation-blocked-reason.ts"));
-        string dryRunModal = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dryRunModal = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -154,7 +109,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
     [Fact]
     public void Suggestion895_896_pilot_deltas_and_finding_mute_blocked_reason_ui_wiring()
     {
-        string pilotDeltasBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pilotDeltasBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -162,13 +117,13 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "lib",
                 "pilots",
                 "pilot-run-deltas-blocked-reason.ts"));
-        string pilotDeltasHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pilotDeltasHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-pilot-run-deltas-query.ts"));
-        string beforeAfterPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string beforeAfterPanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "BeforeAfterDeltaPanel.tsx"));
-        string sponsorBanner = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorBanner = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "use-email-run-to-sponsor-banner.ts"));
-        string aiReadinessGate = ArchitectureSourceProbe.ReadPathWithPartials(
+        string aiReadinessGate = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -176,7 +131,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "components",
                 "runs",
                 "RunDetailAiReadinessGateCard.tsx"));
-        string findingMuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingMuteBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -184,7 +139,7 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
                 "lib",
                 "findings",
                 "finding-mute-mutation-blocked-reason.ts"));
-        string findingMuteDialog = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingMuteDialog = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

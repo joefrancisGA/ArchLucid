@@ -25,10 +25,8 @@ public sealed class CareerGravityCg014NewWorkingTenantCareerIntentArchitectureTe
     [Fact]
     public void Cg014_preferences_get_maps_unset_door_through_parse_or_default()
     {
-        string appearanceController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "User", "UserPreferencesController.Appearance.cs"));
-        string getPreferencesTest = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "UserPreferencesControllerTests.cs"));
+        string appearanceController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/User/UserPreferencesController.Appearance.cs");
+        string getPreferencesTest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api.Tests/UserPreferencesControllerTests.cs");
 
         appearanceController.Should().Contain("WorkingCareerRehearsalDoorValues.ParseOrDefault(workingCareerRehearsalDoorStored)");
         getPreferencesTest.Should().Contain("body.WorkingCareerRehearsalDoor.Should().Be(WorkingCareerRehearsalDoorValues.Default)");
@@ -45,7 +43,7 @@ public sealed class CareerGravityCg014NewWorkingTenantCareerIntentArchitectureTe
 
         File.Exists(as080Path).Should().BeTrue();
 
-        string as080 = ArchitectureSourceProbe.ReadPathWithPartials(as080Path);
+        string as080 = File.ReadAllText(as080Path);
 
         as080.Should().Contain("NEW_WORKING_TENANT_CAREER_REHEARSAL_DOOR_DEFAULT");
         as080.Should().Contain("LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT");
@@ -55,11 +53,9 @@ public sealed class CareerGravityCg014NewWorkingTenantCareerIntentArchitectureTe
     [Fact]
     public void Cg014_does_not_flip_host_agent_execution_mode_default()
     {
-        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string catalog = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Configuration", "ConfigurationKeyCatalog.AgentExecution.cs"));
-        string doorValues = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "User", "WorkingCareerRehearsalDoorValues.cs"));
+        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string catalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Configuration/ConfigurationKeyCatalog.AgentExecution.cs");
+        string doorValues = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/User/WorkingCareerRehearsalDoorValues.cs");
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");
         catalog.Should().Contain("E(\"AgentExecution\", \"AgentExecution:Mode\"");
@@ -71,7 +67,7 @@ public sealed class CareerGravityCg014NewWorkingTenantCareerIntentArchitectureTe
     [Fact]
     public void Cg014_legacy_simulator_grandfather_stays_rehearsal_for_cg015()
     {
-        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(
+        string doorModule = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "working-career-rehearsal-door.ts"));
 
         doorModule.Should().Contain("LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT");

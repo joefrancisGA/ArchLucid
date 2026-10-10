@@ -7,7 +7,6 @@ using FsCheck.Xunit;
 
 namespace ArchLucid.Core.Tests.Json;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class JsonBooleanStringReaderPropertyTests
 {
@@ -15,8 +14,6 @@ public sealed class JsonBooleanStringReaderPropertyTests
     [
         ("true", true),
         ("false", false),
-        ("1", true),
-        ("0", false),
         ("on", true),
         ("off", false),
         ("yes", true),

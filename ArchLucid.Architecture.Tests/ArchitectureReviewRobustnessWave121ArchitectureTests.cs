@@ -15,24 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
     [Fact]
     public void Suggestion1437_1443_export_and_comparison_history_sealed_manifest_mappers()
     {
-        string exports = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string exportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.SealedManifestGuard.cs"));
-        string comparisonHistory = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.History.cs"));
-        string provenanceQueryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceQueryController.SealedManifestGuard.cs"));
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string exportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.SealedManifestGuard.cs");
+        string comparisonHistory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string provenanceQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.SealedManifestGuard.cs");
 
         exports.Should().Contain("GetRunExportHistory");
         exports.Should().Contain("GetExportRecord");
@@ -50,15 +36,15 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
     [Fact]
     public void Suggestion1444_1447_export_history_authority_provenance_and_review_trail_blocked_reason_wiring()
     {
-        string exportHistoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-export-history-api.ts"));
-        string exportHistoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "exports", "run-export-history-blocked-reason.ts"));
-        string exportHistoryHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-export-history-query.ts"));
-        string exportRecordComparisonApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportRecordComparisonApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-record-comparison-api.ts"));
-        string exportRecordComparisonBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportRecordComparisonBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -66,11 +52,11 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
                 "lib",
                 "compare",
                 "export-record-comparison-history-blocked-reason.ts"));
-        string exportRecordComparisonHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportRecordComparisonHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-record-comparison-history-query.ts"));
-        string authorityProvenanceApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "authority-provenance-query-api.ts"));
-        string authorityProvenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string authorityProvenanceBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -78,9 +64,9 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
                 "lib",
                 "graph",
                 "authority-provenance-alias-blocked-reason.ts"));
-        string detailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
+        string detailArtifacts = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string provenanceBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "provenance", "run-provenance-blocked-reason.ts"));
 
         exportHistoryApi.Should().Contain("getRunExportHistory");
@@ -104,7 +90,7 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
     [Fact]
     public void Suggestion1448_export_history_comparison_history_and_provenance_alias_fail_closed_ux()
     {
-        string exportHistoryCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -116,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportHistoryCallout.tsx"));
-        string exportRecordComparisonCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportRecordComparisonCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -128,7 +114,7 @@ public sealed class ArchitectureReviewRobustnessWave121ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportRecordComparisonHistoryCallout.tsx"));
-        string graphAliasCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphAliasCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

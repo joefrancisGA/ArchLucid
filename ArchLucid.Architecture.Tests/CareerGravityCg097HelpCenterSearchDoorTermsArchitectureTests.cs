@@ -30,10 +30,10 @@ public sealed class CareerGravityCg097HelpCenterSearchDoorTermsArchitectureTests
                 "lib",
                 "product-documentation-registry-entries-operator-workspace.ts"));
 
-        topics.Should().Contain("simulator: [\"career-rehearsal-doors\"]");
-        topics.Should().Contain("\"career door\": [\"career-rehearsal-doors\"]");
-        topics.Should().Contain("rehearsal: [\"career-rehearsal-doors\"]");
-        topics.Should().Contain("\"career-complete\": [\"career-rehearsal-doors\"]");
+        topics.Should().Contain("simulator: [\"career-vs-rehearsal\", \"career-rehearsal-doors\"]");
+        topics.Should().Contain("\"career door\": [\"career-vs-rehearsal\", \"career-rehearsal-doors\"]");
+        topics.Should().Contain("rehearsal: [\"career-vs-rehearsal\", \"career-rehearsal-doors\"]");
+        topics.Should().Contain("\"career-complete\": [\"career-vs-rehearsal\", \"career-rehearsal-doors\"]");
         topics.Should().Contain("id: \"career-rehearsal-doors\"");
         registry.Should().Contain("\"slug\": \"career-rehearsal-doors\"");
         registry.Should().Contain("career door");

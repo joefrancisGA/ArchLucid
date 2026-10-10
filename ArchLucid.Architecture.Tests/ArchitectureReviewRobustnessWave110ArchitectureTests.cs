@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
     [Fact]
     public void Suggestion1305_1308_findings_export_inspect_and_evidence_chain_sealed_manifest_mappers()
     {
-        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string findingInspect = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingInspectController.cs"));
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
+        string findingInspect = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingInspectController.cs");
 
         findings.Should().Contain("MapProductRunQuerySealedManifestConflict");
         findingInspect.Should().Contain("MapFindingInspectSealedManifestConflict");
@@ -27,22 +25,9 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
     [Fact]
     public void Suggestion1309_1311_finding_llm_audit_aggregate_explanation_and_pipeline_timeline_sealed_manifest_mappers()
     {
-        string findingExplain = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.FindingExplain.cs"));
-        string runExplain = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.RunExplain.cs"));
-        string trail = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
+        string findingExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
+        string runExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs");
+        string trail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
 
         findingExplain.Should().Contain("MapExplanationSealedManifestConflict");
         runExplain.Should().Contain("MapExplanationSealedManifestConflict");
@@ -52,9 +37,9 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
     [Fact]
     public void Suggestion1312_1316_finding_reads_and_traceability_export_blocked_reason_wiring()
     {
-        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingsApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string findingInspectBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingInspectBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -62,7 +47,7 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
                 "lib",
                 "findings",
                 "finding-inspect-blocked-reason.ts"));
-        string evidenceChainBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string evidenceChainBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -70,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
                 "lib",
                 "explain",
                 "finding-evidence-chain-blocked-reason.ts"));
-        string findingExplainBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string findingExplainBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -78,7 +63,7 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
                 "lib",
                 "explain",
                 "finding-explain-blocked-reason.ts"));
-        string llmAuditBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string llmAuditBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -86,9 +71,9 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
                 "lib",
                 "findings",
                 "finding-llm-audit-blocked-reason.ts"));
-        string traceabilityExport = ArchitectureSourceProbe.ReadPathWithPartials(
+        string traceabilityExport = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-artifact-bundle.ts"));
-        string traceabilityBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
+        string traceabilityBlocked = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

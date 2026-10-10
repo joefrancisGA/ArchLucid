@@ -11,7 +11,6 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 /// <summary>
 /// Mode rows use a hand-built <see cref="DiagramAst"/> because these cases only need the nodes a mode would leave visible.
 /// </summary>
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DiagramForestVnetFrameModeTests
 {

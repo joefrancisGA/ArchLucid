@@ -8,7 +8,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.User;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Manifest;
@@ -206,7 +205,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             authority.Object,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
             configuration,
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -249,7 +248,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
             Mock.Of<IConfiguration>(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -281,8 +280,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
                 RunId = runId,
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
-                StructuralExecutionMode = StructuralExecutionMode.Simulator,
-                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
+                StructuralExecutionMode = StructuralExecutionMode.Real
             },
             Manifest = manifest,
             HasBrokenManifestReference = false,

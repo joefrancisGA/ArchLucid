@@ -15,15 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion453_remediation_instance_list_sealed_hash_guard_and_409()
     {
-        string queryService = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceQueryService.cs"));
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
+        string queryService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceQueryService.cs");
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs");
 
         queryService.Should().Contain("ListInstancesAsync");
         queryService.Should().Contain("RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync");
@@ -35,15 +28,8 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion455_456_demo_and_workspace_context_compare_facade_preflight()
     {
-        string demoCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Demo", "DemoViewerController.Compare.cs"));
-        string workspaceContext = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.WorkspaceContext.cs"));
+        string demoCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.Compare.cs");
+        string workspaceContext = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
 
         demoCompare.Should().Contain("compareRunsFacade");
         demoCompare.Should().Contain("LoadScopedRunPairAsync");
@@ -57,12 +43,9 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion458_464_openapi_409_roi_freshness_and_holistic_guard()
     {
-        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
-        string referenceExport = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "ReferenceEvidenceAdminExportService.cs"));
-        string holistic = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.CompareHolistic.cs"));
+        string replay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
+        string referenceExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/ReferenceEvidenceAdminExportService.cs");
+        string holistic = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
 
         replay.Should().Contain("ReplayComparisonsBatch");
         replay.Should().Contain("Status409Conflict");
@@ -74,7 +57,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion454_457_460_463_compare_run_detail_and_infra_ui_fail_closed()
     {
-        string compareChrome = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareChrome = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,7 +68,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareResultsPanelVerdictChrome.tsx"));
-        string deferredModel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string deferredModel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -97,7 +80,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-deferred-model.ts"));
-        string sponsorPack = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorPack = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -107,7 +90,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "why-archlucid",
                 "_sections",
                 "WhyArchLucidSponsorPackBody.tsx"));
-        string infraConflict = ArchitectureSourceProbe.ReadPathWithPartials(
+        string infraConflict = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -115,7 +98,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "lib",
                 "infra-evidence",
                 "infra-evidence-sealed-manifest-conflict.ts"));
-        string deliverablesCard = ArchitectureSourceProbe.ReadPathWithPartials(
+        string deliverablesCard = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -128,7 +111,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "_sections",
                 "ManifestDetailDeliverablesCard.tsx"));
 
-        compareChrome.Should().Contain("compareRunPairBlockedReason(aiFailure)");
+        compareChrome.Should().Contain("compareRunPairBlockedReason(legacyFailure)");
         deferredModel.Should().Contain("priorCommittedRunComparisonBlockedReason");
         sponsorPack.Should().Contain("roiSourceFreshnessDisposition");
         infraConflict.Should().Contain("infraEvidenceSealedManifestConflictMessage");

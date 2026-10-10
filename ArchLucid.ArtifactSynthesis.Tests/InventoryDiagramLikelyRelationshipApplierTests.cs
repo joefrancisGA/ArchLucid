@@ -7,7 +7,6 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class InventoryDiagramLikelyRelationshipApplierTests
 {

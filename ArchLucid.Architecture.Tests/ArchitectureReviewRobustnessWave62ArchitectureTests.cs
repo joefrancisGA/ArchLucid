@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
     [Fact]
     public void Suggestion729_731_export_history_intelligence_and_comparison_history_ui_wiring()
     {
-        string exportHistoryCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string exportHistoryCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -27,9 +27,9 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportHistoryCallout.tsx"));
-        string comparisonHistoryHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string comparisonHistoryHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-record-comparison-history-query.ts"));
-        string comparisonHistoryCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string comparisonHistoryCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -41,7 +41,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportRecordComparisonHistoryCallout.tsx"));
-        string intelligenceCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string intelligenceCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -52,7 +52,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "architecture-intelligence",
                 "_sections",
                 "ArchitectureIntelligenceRunModelGuardCallout.tsx"));
-        string runDetailExports = ArchitectureSourceProbe.ReadPathWithPartials(
+        string runDetailExports = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -64,7 +64,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailArtifactsExportsSection.tsx"));
-        string intelligencePage = ArchitectureSourceProbe.ReadPathWithPartials(
+        string intelligencePage = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -89,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
     [Fact]
     public void Suggestion732_737_disposition_timeline_stickiness_evidence_and_graph_alias_ui_wiring()
     {
-        string dispositionCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dispositionCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "findings",
                 "[findingId]",
                 "FindingInspectDispositionBlockedCallout.tsx"));
-        string dispositionHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string dispositionHook = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -115,7 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "findings",
                 "[findingId]",
                 "use-finding-inspect-governance-stickiness-dispositions.ts"));
-        string pipelineTimelineLoader = ArchitectureSourceProbe.ReadPathWithPartials(
+        string pipelineTimelineLoader = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -127,15 +127,15 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-pipeline-timeline-cached.ts"));
-        string stageTimelineHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stageTimelineHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-stage-timeline-query.ts"));
-        string progressTracker = ArchitectureSourceProbe.ReadPathWithPartials(
+        string progressTracker = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunProgressTracker.tsx"));
-        string stickinessCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string stickinessCallout = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "governance", "GovernanceStickinessSummaryGuardCallout.tsx"));
-        string explainPanel = ArchitectureSourceProbe.ReadPathWithPartials(
+        string explainPanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "FindingExplainPanel.tsx"));
-        string graphAliasCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string graphAliasCallout = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -161,14 +161,10 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
     [Fact]
     public void Suggestion738_739_manifest_summary_and_retrieval_search_openapi_409()
     {
-        string manifestSummary = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Get.Summary.cs"));
-        string manifestGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.SealedManifestGuard.cs"));
-        string retrievalController = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.cs"));
-        string retrievalGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.SealedManifestGuard.cs"));
+        string manifestSummary = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Summary.cs");
+        string manifestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.SealedManifestGuard.cs");
+        string retrievalController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.cs");
+        string retrievalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.SealedManifestGuard.cs");
 
         manifestSummary.Should().Contain("GetManifestSummary");
         manifestSummary.Should().Contain("Status409Conflict");
@@ -182,11 +178,11 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
     [Fact]
     public void Suggestion740_end_to_end_compare_lifecycle_hint_blocked_reason_ui()
     {
-        string compareHook = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-compare-runs-end-to-end-query.ts"));
-        string lifecycleHint = ArchitectureSourceProbe.ReadPathWithPartials(
+        string lifecycleHint = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingCrossReviewLifecycleHint.tsx"));
-        string compareCallout = ArchitectureSourceProbe.ReadPathWithPartials(
+        string compareCallout = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingCrossReviewCompareBlockedCallout.tsx"));
 
         compareHook.Should().Contain("compareRunPairBlockedReason");

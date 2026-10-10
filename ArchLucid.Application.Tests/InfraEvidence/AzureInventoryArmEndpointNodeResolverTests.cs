@@ -3,7 +3,6 @@ using ArchLucid.Application.InfraEvidence.Mermaid;
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
 [Trait("Category", "Unit")]
-[Trait("Suite", "Application")]
 public sealed class AzureInventoryArmEndpointNodeResolverTests
 {
     private const string Parent = "/subscriptions/s/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet";
@@ -53,9 +52,7 @@ public sealed class AzureInventoryArmEndpointNodeResolverTests
     {
         Dictionary<string, string> nodes = new(StringComparer.OrdinalIgnoreCase)
         {
-            [Parent] = "parent",
-            [Child] = "child",
-            [Grandchild] = "grandchild",
+            [Parent] = "parent", [Child] = "child", [Grandchild] = "grandchild",
             [Child + "/widgets/alias"] = "grandchild",
         };
 

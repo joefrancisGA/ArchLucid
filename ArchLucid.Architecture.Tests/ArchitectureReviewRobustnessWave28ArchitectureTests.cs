@@ -15,13 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion281_282_governance_disposition_fail_closed_on_sealed_hash()
     {
-        string dispositions = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Findings.Dispositions.cs"));
+        string dispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs");
 
         dispositions.Should().Contain("GovernanceDispositionSealedManifestGuard");
         dispositions.Should().Contain("RecordDispositionAsync");
@@ -31,20 +25,9 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion283_284_compare_run_pair_fail_closed_on_sealed_hash()
     {
-        string pairLoad = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Analysis",
-                "CompareRunsApplicationFacade.PairLoad.cs"));
-        string manifestCompare = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Analysis",
-                "CompareRunsApplicationFacade.ManifestCompare.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsSealedManifestHashGuard.cs"));
+        string pairLoad = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/CompareRunsApplicationFacade.PairLoad.cs");
+        string manifestCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/CompareRunsApplicationFacade.ManifestCompare.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/CompareRunsSealedManifestHashGuard.cs");
 
         pairLoad.Should().Contain("CompareRunsSealedManifestHashGuard");
         manifestCompare.Should().Contain("CompareRunsSealedManifestHashGuard");
@@ -54,15 +37,8 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion285_286_compare_api_maps_sealed_manifest_hash_mismatch()
     {
-        string holistic = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
-        string comparison = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
+        string holistic = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
+        string comparison = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
         holistic.Should().Contain("ManifestCompareLoadOutcome.SealedManifestHashMismatch");
         comparison.Should().Contain("ManifestCompareLoadOutcome.SealedManifestHashMismatch");
@@ -71,14 +47,8 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion287_authority_manifest_id_compare_fail_closed_on_sealed_hash()
     {
-        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "AuthorityManifestIdCompareSealedManifestHashGuard.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/AuthorityManifestIdCompareSealedManifestHashGuard.cs");
 
         controller.Should().Contain("AuthorityManifestIdCompareSealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -87,14 +57,7 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion288_findings_csv_export_fail_closed_on_sealed_hash()
     {
-        string csv = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Query",
-                "Stages",
-                "RunFindingsCsvExportStage.cs"));
+        string csv = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Query/Stages/RunFindingsCsvExportStage.cs");
 
         csv.Should().Contain("RunExportSealedManifestHashGuard");
     }
@@ -102,20 +65,8 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion289_commit_sponsor_email_dispatch_reverify_sealed_hash()
     {
-        string notifier = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Notifications",
-                "Email",
-                "CommitSponsorEmailNotifier.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Notifications",
-                "Email",
-                "CommitSponsorEmailDispatchSealedManifestHashGuard.cs"));
+        string notifier = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Notifications/Email/CommitSponsorEmailNotifier.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Notifications/Email/CommitSponsorEmailDispatchSealedManifestHashGuard.cs");
 
         notifier.Should().Contain("CommitSponsorEmailDispatchSealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -124,10 +75,8 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion290_advisory_apply_fail_closed_on_sealed_hash()
     {
-        string apply = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Advisory", "AdvisoryWorkflowFacade.Apply.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Advisory", "AdvisoryApplySealedManifestHashGuard.cs"));
+        string apply = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Advisory/AdvisoryWorkflowFacade.Apply.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Advisory/AdvisoryApplySealedManifestHashGuard.cs");
 
         apply.Should().Contain("AdvisoryApplySealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -136,15 +85,8 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion291_advisory_digest_read_fail_closed_on_sealed_hash()
     {
-        string digests = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisorySchedulingController.Digests.cs"));
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Advisory", "AdvisoryDigestReadSealedManifestHashGuard.cs"));
+        string digests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisorySchedulingController.Digests.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Advisory/AdvisoryDigestReadSealedManifestHashGuard.cs");
 
         digests.Should().Contain("AdvisoryDigestReadSealedManifestHashGuard");
         guard.Should().Contain("GovernanceDispositionSealedManifestGuard");
@@ -153,12 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion292_batch_replay_pin_inventory_guard_handles_sealed_hash_mismatch()
     {
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Analysis",
-                "ComparisonBatchReplayPinInventoryGuard.cs"));
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/ComparisonBatchReplayPinInventoryGuard.cs");
 
         guard.Should().Contain("ScopedRunPairLoadOutcome.SealedManifestHashMismatch");
     }
@@ -166,28 +103,9 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion293_297_run_integration_event_manifest_hash_metadata()
     {
-        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Integration",
-                "RunIntegrationEventManifestHashResolver.cs"));
-        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "FindingsIntegrationEventPublishing.cs"));
-        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Workflow",
-                "Stages",
-                "GovernanceWorkflowIntegrationEventSupport.cs"));
+        string resolver = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Integration/RunIntegrationEventManifestHashResolver.cs");
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/FindingsIntegrationEventPublishing.cs");
+        string governance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs");
 
         resolver.Should().Contain("TryResolveVerifiedManifestHashAsync");
         findings.Should().Contain("RunIntegrationEventManifestHashResolver");
@@ -199,12 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion298_299_outbox_guard_includes_wave28_run_scoped_event_types()
     {
-        string outboxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Integration",
-                "IntegrationEventOutboxManifestHashGuard.cs"));
+        string outboxGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Integration/IntegrationEventOutboxManifestHashGuard.cs");
 
         outboxGuard.Should().Contain("IntegrationEventTypes.FindingsHighSeverityCapturedV1");
         outboxGuard.Should().Contain("IntegrationEventTypes.GovernanceApprovalSubmittedV1");
@@ -214,13 +127,13 @@ public sealed class ArchitectureReviewRobustnessWave28ArchitectureTests
     [Fact]
     public void Suggestion300_310_ui_run_collateral_clipboard_export_fail_closed()
     {
-        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
+        string guard = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-collateral-sealed-manifest-guard.ts"));
-        string copyManifest = ArchitectureSourceProbe.ReadPathWithPartials(
+        string copyManifest = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CopyManifestButton.tsx"));
-        string copyAi = ArchitectureSourceProbe.ReadPathWithPartials(
+        string copyAi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CopyForAiAssistantButton.tsx"));
-        string sponsorLink = ArchitectureSourceProbe.ReadPathWithPartials(
+        string sponsorLink = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "CopyExecutiveSponsorLinkButton.tsx"));
 
         guard.Should().Contain("runCollateralSealedManifestCopyBlockedReason");

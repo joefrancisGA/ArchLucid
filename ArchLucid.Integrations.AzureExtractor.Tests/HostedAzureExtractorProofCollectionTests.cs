@@ -7,7 +7,6 @@ using Xunit;
 
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class HostedAzureExtractorProofCollectionTests
 {
