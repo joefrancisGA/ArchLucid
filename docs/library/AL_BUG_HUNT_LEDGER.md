@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the dual toggle-confirmation URL candidate: `webhooksToggleConfirmHrefFromSearch` intentionally deletes `webhookEnableId` whenever a disable id is present, and no application path generates both ids. The focused webhooks and URL-helper suites passed 202 tests. No production change.
+
 2026-10-10 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook source plus all 61 focused webhooks tests; no new reachable mechanism-backed wrong outcome met the same-run repro bar. Seeded one bounded candidate for a URL carrying both toggle-confirmation ids. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook source plus the existing buyer-polished settings regression; no new reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `WebhooksSettings` test passed 1/1. No production or regression code changed.
@@ -10962,9 +10964,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
@@ -10974,7 +10976,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): re-read `WebhooksSettingsClient.tsx` and `use-webhooks-settings.ts`, including the buyer-polished shell regression; no new reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `WebhooksSettingsClient.buyer-polished.test.tsx` test passed 1/1. No production or regression code changed.
 
-2026-10-10 seed hunt (seed-only): re-read the selected client/hook paths and all 61 focused webhooks tests; no candidate met the same-run failing-repro bar. Seeded one bounded candidate for a manually opened `/integrations/webhooks?webhookDisableId=...&webhookEnableId=...` URL: the confirmation effect handles the disable id first and does not process the enable id. No production or regression code changed.
+2026-10-10 thorough hunt (dry): cheap-disproved the dual toggle-confirmation URL candidate: `webhooksToggleConfirmHrefFromSearch` intentionally enforces one confirmation id by deleting `webhookEnableId` when a disable id is present, and the app only writes one id at a time. The focused webhooks and URL-helper suites passed 202 tests. No production change.
 
 2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
 2026-10-03 seed hunt (seed-only): re-read the picked client and hook source plus 58 focused tests; no new mechanism-backed candidate met the reachability and wrong-outcome bar, and all existing webhook regressions passed.
@@ -10992,7 +10994,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `useWebhooksSettingsMutations` URL confirmation effect — a manually opened URL containing both `webhookDisableId` and `webhookEnableId` processes the disable id first and ignores the enable id, so the requested enable confirmation can be absent; input: `/integrations/webhooks?webhookDisableId=<enabled-id>&webhookEnableId=<disabled-id>`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL confirmation effect — a manually opened URL containing both `webhookDisableId` and `webhookEnableId` processes the disable id first and ignores the enable id, so the requested enable confirmation can be absent — **cheap-disproof 2026-10-10 thorough hunt:** `webhooksToggleConfirmHrefFromSearch` intentionally canonicalizes confirmation state to one id, the app never generates both ids, and the dual-parameter URL has no promised simultaneous-confirmation behavior.
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — failed `listAlertRoutingSubscriptions` cleared `webhookEnableId` before refresh could open enable confirmation — **hit 2026-10-09 seed hunt:** unverified inventory was treated as a missing subscription, and a null pending write rewrote the confirm URL; regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`.
 - [x] (proven) `WebhooksIntegrationEvidenceOrientationStrip` — `Integration readiness` was declared as a webhook follow-up but removed by the shared administration-path filter, contradicting the page’s readiness guidance; added an explicit preserve-admin-follow-ups opt-in and regression coverage in `page.test.tsx` and `webhooks-integration-evidence-copy.test.tsx`.
 - [x] (proven) `WebhooksSettingsClient` / `resolveWebhooksCreateSteps` — the initial pending subscription request passed `subscriptionsLoaded=false`, which the checklist treated as a completed enable step; the checklist now requires verified loading completion and subscription enablement; regressions `does not mark the enable step done while subscriptions are still loading` and `keeps enable step incomplete while subscriptions are still loading`.
