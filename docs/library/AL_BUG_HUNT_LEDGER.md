@@ -34427,6 +34427,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-10 seed hunt (seed-only): re-read the selected orchestrator, cache, and manifest-builder files with focused tests; cache isolation, tombstone, pinning, coalescing, and normalization boundaries were covered, with no new reachable wrong outcome.
+
 2026-10-07 seed hunt #33 (seed→hit): promoted `ClosedLoopReasoningSourceTextNormalizer` path-separator candidate; proved `docs\arch.md` vs `docs/arch.md` split `ContentHash`; fixed by normalizing backslashes to forward slashes in `FileName`; regression `Build_matches_content_hash_when_file_name_differs_only_by_path_separator`; seeded five follow-on candidates; 84 scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed→hit): MIME charset parameter on `SourceTexts.ContentType` split cache manifest hash; `NormalizeContentTypeForLookup` + lowercase in normalizer; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`; seeded five follow-on candidates; 83 scoped tests passed.
