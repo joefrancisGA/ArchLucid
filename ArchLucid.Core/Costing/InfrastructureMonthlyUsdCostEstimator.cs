@@ -120,6 +120,10 @@ public sealed class InfrastructureMonthlyUsdCostEstimator
                 return await azureRetail.TryGetConsumptionMonthlyUsdAsync(node, cancellationToken).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Live pricing probe failed; illustrative fallback.");

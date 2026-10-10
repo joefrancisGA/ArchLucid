@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `core-costing` — live Azure pricing cancellation was swallowed by both the Retail client’s broad HTTP catch and the estimator’s broad fallback catch, so a canceled pricing request silently returned an illustrative estimate. Both layers now rethrow `OperationCanceledException`; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; scoped Costing tests passed 426/426.
+
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — dotenv comment scanning treated an escaped quote inside a double-quoted value as a quote delimiter, so a reachable `#` in the value truncated valid SQL connection settings and suppressed the inferred edge. The scanner now tracks escaped quotes and unescapes supported double-quoted dotenv escapes; regression `Dotenv_escaped_quote_does_not_make_hash_inside_quoted_value_a_comment`; scoped ContextIngestion/Canonicalization tests passed 813/813.
 
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — re-read aggregate scalar readers, case-insensitive property lookup, structured list/reasoning coercion, and the prompt schema; no existing row was hunt-ready. The scoped `RunExplanation` suite passed 47/47; seeded one source-backed duplicate-property candidate and made no production change.
@@ -25079,6 +25081,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-10 seed hunt (seed→hit): live pricing cancellation was swallowed and returned illustrative fallback; rethrow `OperationCanceledException` in the Azure Retail client and monthly estimator; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; 426 scoped Costing tests passed.
+
 2026-10-09 seed hunt (seed→hit): proved a JSON null datastore or inventory element threw in `ManifestInfrastructureCostNodes` and dropped the sibling cost node; 11 scoped costing tests passed.
 
 2026-10-05 seed hunt (dry): promoted sole-Azure retail blend summary-note candidate; repro failed on trunk after sync (fix already shipped); 421 scoped Costing tests passed.
@@ -26910,11 +26914,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 947
-- **bugs-found:** 225
+- **hunts:** 948
+- **bugs-found:** 226
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — JSON null datastore and inventory elements threw while building cost nodes
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — live pricing cancellation was swallowed as illustrative fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -26985,6 +26989,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ### Hypotheses
 
 - [x] (proven) `ManifestInfrastructureCostNodes.FromGoldenTopology` / `FromExtractorInventory` / `FromCloudInventoryLines` — a JSON null datastore or `resources.json` element threw `NullReferenceException` and dropped the sibling cost node — **hit 2026-10-09 seed hunt:** `CostSummaryArtifactGenerator` passes topology lists deserialized with Web defaults, which retain null array elements; datastores use `OfType<ManifestDatastore>()` and inventory lines share `PresentInventoryLines`. Regressions `FromGoldenTopology_skips_null_datastore_element_from_json`, `FromExtractorInventory_skips_null_resource_element_from_json`, and `FromAwsExtractorInventory_skips_null_resource_element_from_json`. [class:null-deref]
+- [x] (proven) `AzureRetailPricesCatalogClient` / `InfrastructureMonthlyUsdCostEstimator` — an `OperationCanceledException` from a reachable live Azure Retail pricing request was caught as an ordinary probe failure, so cancellation returned an illustrative fallback instead of propagating; **hit 2026-10-10 seed hunt:** rethrow cancellation in both broad catches; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; 426 scoped Costing tests passed.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` with mixed AWS+GCP `RetailApi` lines still defaulted to the Azure Retail all-retail headline — **hit 2026-10-05 seed hunt:** explicit Azure sole-family branch plus multi-cloud all-retail headline; regression `ComposeRetailBlendNote_multi_cloud_all_retail_does_not_claim_only_azure_retail`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — sole-Azure partial retail blends fell through to the generic multi-cloud blend headline — **hit 2026-10-05 seed hunt:** Azure-specific blend branch; regression `ComposeRetailBlendNote_azure_only_blend_mentions_azure_like_aws_and_gcp`.
 - [x] (proven) `InfrastructureCostSummaryNotes.ComposeRetailBlendNote` — `AllRetailPricing` short-circuited to the Azure Retail headline even when every line was AWS or GCP `RetailApi` pricing — **hit 2026-10-05 seed hunt:** resolve sole cloud family before the all-retail branch; regressions `ComposeRetailBlendNote_aws_only_all_retail_does_not_claim_azure_retail` and `ComposeRetailBlendNote_gcp_only_all_retail_does_not_claim_azure_retail`.

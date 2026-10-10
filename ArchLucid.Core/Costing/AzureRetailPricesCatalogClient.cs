@@ -102,6 +102,10 @@ public sealed partial class AzureRetailPricesCatalogClient
                 pagePayload =
                     await http.GetFromJsonAsync<RetailPage>(cursor, Serialization.JsonOptions.Value, ct).ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex,
