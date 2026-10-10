@@ -42,4 +42,16 @@ public sealed class ScimSurfaceArchitectureGuardTests
         text.Should().Contain("ScimBearerAuthenticationHandler");
         text.Should().Contain("ScimBearerDefaults.AuthenticationScheme");
     }
+
+    [Fact]
+    public void ScopeIdentityBindingMiddleware_authenticates_ScimBearer_before_header_binding()
+    {
+        string root = FindRepoRoot();
+        string path = Path.Combine(root, "ArchLucid.Api", "Middleware", "ScopeIdentityBindingMiddleware.cs");
+        File.Exists(path).Should().BeTrue();
+        string text = File.ReadAllText(path);
+        text.Should().Contain("ScimBearerDefaults.AuthenticationScheme");
+        text.Should().Contain("AuthenticateAsync");
+        text.Should().Contain("/scim");
+    }
 }

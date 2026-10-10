@@ -6,7 +6,11 @@ using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+
+using Moq;
 
 namespace ArchLucid.Api.Tests.Security;
 
@@ -220,7 +224,7 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
-    public async Task InvokeAsync_api_key_with_tenant_claim_rejects_x_project_id_header()
+    public async Task InvokeAsync_api_key_with_tenant_claim_allows_x_project_id_header()
     {
         DefaultHttpContext context = CreateContext();
         context.User = new ClaimsPrincipal(new ClaimsIdentity(
@@ -236,14 +240,11 @@ public sealed class ScopeIdentityBindingMiddlewareTests
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeFalse();
-        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
-        string body = await ReadResponseBodyAsync(context);
-        body.Should().Contain("x-project-id");
+        nextCalled.Should().BeTrue();
     }
 
     [Fact]
-    public async Task InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header()
+    public async Task InvokeAsync_api_key_with_tenant_claim_allows_x_workspace_id_header()
     {
         DefaultHttpContext context = CreateContext();
         context.User = new ClaimsPrincipal(new ClaimsIdentity(
@@ -259,8 +260,7 @@ public sealed class ScopeIdentityBindingMiddlewareTests
             return Task.CompletedTask;
         });
 
-        nextCalled.Should().BeFalse();
-        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        nextCalled.Should().BeTrue();
     }
 
     [Fact]
@@ -393,6 +393,59 @@ public sealed class ScopeIdentityBindingMiddlewareTests
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         string body = await ReadResponseBodyAsync(context);
         body.Should().Contain("x-tenant-id");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_authenticates_scim_bearer_then_rejects_mismatched_tenant_header()
+    {
+        Guid tokenTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.Request.Headers["x-tenant-id"] = "99999999-9999-9999-9999-999999999999";
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", tokenTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_unauthenticated_scim_path_without_authentication_service_calls_next()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity());
+        context.RequestServices = new ServiceCollection().BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeTrue();
     }
 
     private static DefaultHttpContext CreateContext()

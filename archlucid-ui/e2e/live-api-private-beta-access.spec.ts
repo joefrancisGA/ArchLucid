@@ -7,8 +7,6 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-
 import {
   acceptInvitationAsPlatformUser,
   assertJwtScopeBindingRejectsForgedTenantHeader,
@@ -16,6 +14,7 @@ import {
   clearJwtBrowserSession,
   createAdminUserInvite,
   expireAdminUserInvitation,
+  expectPrivateBetaStartIntakeSurface,
   fetchAuthMeViaProxy,
   fetchAuthMeWithBearer,
   listPendingInvitations,
@@ -387,11 +386,15 @@ test.describe(
     }
 
     const reviewsNewTitle = page.getByTestId("reviews-new-page-title");
+    const createArchitectureTitle = page.getByTestId("architecture-new-page-title");
+    const architectureDesk = page.getByTestId("architecture-identity-desk");
 
     await page.goto("/architecture/reviews/new", { waitUntil: "domcontentloaded" });
-    // Authority redirect runs from an effect after /me; it can finish after domcontentloaded.
+    // Authority redirect and Working DA-09 desk redirect both finish after /me.
     await Promise.race([
       reviewsNewTitle.waitFor({ state: "visible", timeout: 60_000 }),
+      createArchitectureTitle.waitFor({ state: "visible", timeout: 60_000 }),
+      architectureDesk.waitFor({ state: "visible", timeout: 60_000 }),
       page.waitForURL(/\/auth\//, { timeout: 60_000 }),
     ]).catch(() => undefined);
 
@@ -401,8 +404,7 @@ test.describe(
     }
 
     await waitAndDismissFirstSessionPurposeChooser(page);
-    await expect(reviewsNewTitle).toBeVisible({ timeout: 60_000 });
-    await expect(reviewsNewTitle).toHaveText(START_REVIEW_LABEL);
+    await expectPrivateBetaStartIntakeSurface(page);
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
