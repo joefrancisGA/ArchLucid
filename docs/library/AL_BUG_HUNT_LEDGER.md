@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-oidc` — re-read BFF synchronization, refresh, discovery, token persistence, and JWT hint boundaries; no new row met the full hunt-ready bar for promotion. Seeded five bounded `(candidate)` rows. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): `ui-oidc` — promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
@@ -18892,6 +18894,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-10 seed hunt (seed-only): re-read BFF synchronization, refresh, discovery, token persistence, and JWT hint boundaries; no new row met the full hunt-ready bar for promotion. Seeded five bounded `(candidate)` rows. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
@@ -18924,7 +18928,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -19039,6 +19043,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `getOidcScopes` — a whitespace-normalized but otherwise arbitrary public scope string is sent to the authorization request, so a deployment typo can request an unintended scope set — **cheap-disproof 2026-10-10 thorough hunt:** the public environment value is deployment configuration, and the authorization request intentionally forwards configured scopes; no attacker-controlled or in-zone scope mutation path exists.
 - [x] (valid-no-repro) `storePostSignInReturnUrl` — safe-path validation permits unbounded query and fragment payloads, so a large callback return URL can inflate session storage and make the next redirect unusable — **cheap-disproof 2026-10-10 thorough hunt:** same-origin validation rejects unsafe destinations and the storage API is only reached from bounded application navigation inputs in this zone; no quota failure or unusable redirect was reproduced.
 - [x] (valid-no-repro) `clearOidcSession` — clearing local OIDC keys starts asynchronous BFF cookie deletion without awaiting it, so an immediate authenticated API request after sign-out may still use the old HttpOnly cookie — **cheap-disproof 2026-10-10 thorough hunt:** sign-out clears local credentials before navigation and the BFF deletion helper is independently invoked by session cleanup; the existing in-flight sync regression proves repeated deletion, but no protected-request race produced a wrong authenticated outcome.
+
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — a non-2xx BFF `POST /api/auth/bff-session` response is ignored, so callback flow can continue with local session hints while the HttpOnly BFF session was not issued — locus: fetch response handling; input: deployment with BFF signing secret unavailable returning HTTP 503.
+- [ ] (candidate) `persistNonSensitiveSessionHints` — display-name and expiry hints are written before the asynchronous BFF sync completes, so an unavailable BFF may leave the browser appearing signed in while proxy authentication is absent — locus: hint persistence before `syncBffSessionCookieFromTokenResponse`; input: successful IdP token exchange followed by BFF sync failure.
+- [ ] (candidate) `refreshBffSessionCookie` — a future but non-integral `expires_at_ms` response is accepted as a client expiry hint, potentially creating fractional expiry skew against the server cookie — locus: numeric expiry validation; input: BFF refresh JSON with fractional `expires_at_ms`.
+- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` — any non-empty URL returned by the same-origin RP logout endpoint is passed to the caller without client-side origin validation — locus: response URL acceptance; input: malformed or misconfigured discovery logout endpoint reflected by the BFF route.
+- [ ] (candidate) `decodeJwtPayload` — syntactically valid JSON arrays or primitives in an IdP JWT payload are accepted as a record and then used for display-hint extraction without object-shape validation — locus: JSON parse return cast; input: token payload JSON that is not an object.
 
 ---
 
