@@ -34043,7 +34043,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
@@ -34054,6 +34054,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-10 seed hunt (seed-only): reread the selected service/store paths and lease lifecycle tests for a distinct cleanup or error-handling mechanism; no fresh reachable defect remained after the existing retry, release, cancellation, ordering, and lease-expiry fixes. The scoped test project was blocked before execution by pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected service/store and lifecycle-test reread after the prior cleanup/error pass; no distinct reachable mechanism or wrong outcome emerged. The scoped test project was again blocked before execution by pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`. No production or regression code was changed.
+
+2026-10-10 seed hunt (seed-only): repeated the selected concurrency reread with the full lifecycle test inventory; cleanup retries, permit release, cancellation propagation, FIFO ordering, and lease renewal/expiry behavior remain covered or out of contract. The scoped test project was blocked before execution by the same pre-existing `CS0111` duplicate member. No production or regression code was changed.
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
 
