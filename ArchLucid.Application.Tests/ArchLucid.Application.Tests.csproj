@@ -96,6 +96,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="InfraEvidence\GraphEquivalence\master-3c0c4fd9.json" />
+    <EmbeddedResource Include="InfraEvidence\GraphEquivalence\private-link-4396.json" />
   </ItemGroup>
 
   <ItemGroup>

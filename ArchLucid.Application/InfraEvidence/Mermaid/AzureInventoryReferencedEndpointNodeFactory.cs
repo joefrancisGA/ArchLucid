@@ -9,6 +9,38 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 internal static class AzureInventoryReferencedEndpointNodeFactory
 {
+    /// <summary>
+    ///     Resolves a normalized ARM resource target under snapshot visibility rules,
+    ///     retaining related collected nodes before creating a missing-resource reference.
+    /// </summary>
+    public static IReadOnlyList<string> ResolveVisibleTargetNodeIds(
+        string normalizedArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
+        IReadOnlySet<string> collectedArmIds,
+        IReadOnlySet<string> hiddenArmIds,
+        bool includeNeverShowArmTypes,
+        bool retainIdentityDiagramArmTypes)
+    {
+        if (!TryReadResourceType(normalizedArmId, out _)
+            || (!includeNeverShowArmTypes && IsHiddenEndpoint(
+                normalizedArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
+        {
+            return [];
+        }
+
+        IReadOnlyList<string> relatedNodeIds = AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
+            nodeIdByArmId, normalizedArmId);
+        if (relatedNodeIds.Count > 0)
+        {
+            return relatedNodeIds;
+        }
+
+        EnsureNode(normalizedArmId, nodeIdByArmId, nodes, seenNodeIds);
+        return AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(nodeIdByArmId, normalizedArmId);
+    }
+
     public static bool IsHiddenEndpoint(string armId, IReadOnlySet<string> collectedArmIds, IReadOnlySet<string> hiddenArmIds, bool retainIdentityDiagramArmTypes)
     {
         return hiddenArmIds.Contains(armId)
