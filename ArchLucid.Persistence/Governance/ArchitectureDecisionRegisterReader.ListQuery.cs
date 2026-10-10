@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;

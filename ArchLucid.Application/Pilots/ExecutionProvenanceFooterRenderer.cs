@@ -29,10 +29,10 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
         string deployment = input.RealModeFellBackToSimulator
             ? IsOmitted(input.PilotAoaiDeploymentSnapshot)
                 ? "Deployment snapshot was not stored."
-                : input.PilotAoaiDeploymentSnapshot
+                : input.PilotAoaiDeploymentSnapshot ?? string.Empty
             : IsOmitted(input.HostAzureOpenAiDeploymentName)
                 ? "Azure OpenAI deployment was not stored."
-                : input.HostAzureOpenAiDeploymentName;
+                : input.HostAzureOpenAiDeploymentName ?? string.Empty;
 
         return $"""
                 ## Execution provenance

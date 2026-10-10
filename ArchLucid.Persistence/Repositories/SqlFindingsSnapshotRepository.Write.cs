@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
