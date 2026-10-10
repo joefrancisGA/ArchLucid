@@ -25,7 +25,7 @@ The lab is **deliberately vulnerable**. It creates users who can take over an ap
 
 ## A.2 What it costs
 
-Most of the lab costs little or nothing while idle: identities, role assignments, storage with a few files, and a Basic App Service plan. Three items cost real money and are all controlled by one variable, `deploy_network`:
+Most identities, role assignments, and lightly used storage cost little or nothing while idle. The Basic App Service plan is billed while provisioned even when idle and is not controlled by `deploy_network`; the following three network items add further cost and are controlled by that variable:
 
 | Item | Why it's there | Rough cost driver |
 |------|----------------|-------------------|
