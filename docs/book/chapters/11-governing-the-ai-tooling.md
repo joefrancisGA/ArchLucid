@@ -170,14 +170,22 @@ So the audit record holds identifiers, versions, hashes, results, and decisions,
 ```python
 import hashlib
 import json
+import re
 
 # Fields an audit record may contain. Anything else is rejected, so content can't creep in.
 AUDIT_FIELDS = frozenset({
     "correlationId", "tenantId", "snapshotId", "packBuilderVersion", "packSha256",
     "audience", "promptTemplateVersion", "modelDeployment", "modelVersion",
     "validatorVersion", "validatorProblems", "attempt", "outputSha256",
-    "inputTokens", "outputTokens", "reviewer", "decision", "atUtc",
+    "inputTokens", "outputTokens", "reviewer", "decision", "contentRetained", "atUtc",
 })
+COUNT_FIELDS = frozenset({"validatorProblems", "attempt", "inputTokens", "outputTokens"})
+HASH_FIELDS = frozenset({"packSha256", "outputSha256"})
+FLAG_FIELDS = frozenset({"contentRetained"})
+DECISIONS = frozenset({"approved", "rejected", "pending"})
+# Every other field is an identifier, version, or timestamp: short and without spaces, so prose can't fit.
+IDENTIFIER = re.compile(r"[A-Za-z0-9._:@/+-]{1,128}")
+SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 
 
 def sha256_of(value: object) -> str:
@@ -187,12 +195,39 @@ def sha256_of(value: object) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def audit_value_problem(name: str, value: object) -> str | None:
+    """Return why a value doesn't fit its field, or None if it does."""
+    if name in COUNT_FIELDS:
+        # bool is a subclass of int in Python, so exclude it explicitly.
+        ok = isinstance(value, int) and not isinstance(value, bool) and value >= 0
+        return None if ok else "must be a non-negative integer"
+
+    if name in FLAG_FIELDS:
+        return None if isinstance(value, bool) else "must be true or false"
+
+    if not isinstance(value, str):
+        return "must be a string"
+
+    if name in HASH_FIELDS:
+        return None if SHA256_HEX.fullmatch(value) else "must be a SHA-256 hex digest"
+
+    if name == "decision":
+        return None if value in DECISIONS else f"must be one of {', '.join(sorted(DECISIONS))}"
+
+    return None if IDENTIFIER.fullmatch(value) else "must be a short identifier with no spaces"
+
+
 def audit_record(**fields: object) -> dict:
-    """Build an audit record. Unknown fields raise, so a prompt or a draft can't be logged by accident."""
+    """Build an audit record. Unknown fields and free-text values raise, so a prompt or a draft can't be logged by accident."""
     unknown = sorted(set(fields) - AUDIT_FIELDS)
 
     if unknown:
         raise ValueError(f"not allowed in an audit record: {', '.join(unknown)}")
+
+    problems = [f"{name} {problem}" for name, value in fields.items() if (problem := audit_value_problem(name, value))]
+
+    if problems:
+        raise ValueError("; ".join(problems))
 
     return dict(fields)
 ```
@@ -218,6 +253,7 @@ record = audit_record(
     outputTokens=312,
     reviewer="user:security-architect-02",
     decision="approved",
+    contentRetained=False,
     atUtc="2026-10-20T15:11:09Z",
 )
 ```
@@ -226,6 +262,8 @@ record = audit_record(
 
 The allowlist is the important design choice. A blocklist ("don't log prompts") fails the first time someone adds a field called `context` or `debugPayload`. An allowlist fails closed: a new field needs a code change, and the review of that change is where someone asks whether it's content.
 
+Allowing a field name isn't enough on its own. Without a check on the value, a caller in a hurry can put a whole draft into `decision` or `reviewer`, and the allowlist passes it. So each field also has a shape: counts are non-negative integers, hashes are SHA-256 digests, `decision` comes from a fixed set, and everything else is a short identifier with no spaces. A sentence doesn't fit any of those shapes.
+
 ### When you need content
 
 Sometimes you do need the content: to debug a prompt, to investigate a misstatement that reached a reader, or to build the Chapter 8 test set. Make that an exception with its own controls:
@@ -233,7 +271,7 @@ Sometimes you do need the content: to debug a prompt, to investigate a misstatem
 - **A separate, restricted store**, not the shared log workspace. Access through an eligible role, activated for a stated reason.
 - **Short retention**, measured in days, enforced by a lifecycle policy.
 - **Encryption at rest with keys you control**, if your policy requires it.
-- **Opt-in per run**, recorded in the audit record by a flag, so you can see when content was kept and why.
+- **Opt-in per run**, recorded in the audit record by the `contentRetained` flag, so you can see when content was kept. The reason belongs with the activation request for the restricted store, not in the audit record.
 
 ### Check your platform's logs
 
@@ -271,7 +309,7 @@ The model is rarely the biggest cost. Packs are small, explanations are short, a
 
 Three controls cover most of it.
 
-**Cache by everything that determines the output.** An explanation depends on the tenant, the pack, the audience, the prompt template, and the model version. If none of those changed, the explanation doesn't need to be regenerated:
+**Cache by everything that determines the output.** An explanation depends on the tenant, the pack, the audience, the prompt template, and the model version. Whether it may be served also depends on the validator that approved it. If none of those changed, the explanation doesn't need to be regenerated:
 
 ```python
 def explanation_cache_key(tenant_id: str, pack_sha256: str, audience: str, prompt_version: str, model_version: str, validator_version: str) -> str:
@@ -284,13 +322,13 @@ def explanation_cache_key(tenant_id: str, pack_sha256: str, audience: str, promp
     return "explain:" + ":".join(f"{len(part)}:{part}" for part in parts)
 ```
 
-Using the pack hash rather than the snapshot ID means an unchanged pack from a new snapshot is a cache hit, which is the common case for a stable estate. Including the prompt and model versions means a change to either regenerates everything, which is what you want after an upgrade. Including the tenant is the isolation rule from section 11.7. Cache only explanations that passed validation and were approved, so the cache can't serve a draft that a reviewer rejected.
+Using the pack hash rather than the snapshot ID means an unchanged pack from a new snapshot is a cache hit, which is the common case for a stable estate. Including the prompt and model versions means a change to either regenerates everything, which is what you want after an upgrade. Including the validator version means that tightening a rule invalidates every explanation the old rules approved, instead of letting them keep coming back as cache hits. Including the tenant is the isolation rule from section 11.7. Each part is prefixed with its length, so no choice of IDs can make two different sets of inputs produce the same key. With a plain `:` join, tenant `a:b` with pack `c` and tenant `a` with pack `b:c` would collide. Cache only explanations that passed validation and were approved, so the cache can't serve a draft that a reviewer rejected.
 
 **Budget tokens, and fail closed.** Give each run and each tenant a token budget. When it's exhausted, the pipeline stops calling the model and reports "explanation unavailable" for the remaining items. It must never skip validation or review to save tokens, or fall back to an unvalidated cached draft:
 
 ```python
 class TokenBudget:
-    """Tracks token use for one run. Refuses calls once the limit would be exceeded."""
+    """Tracks token use for one run. Reserves each call's worst case first, so the limit can't be overshot."""
 
     def __init__(self, limit: int) -> None:
         if limit <= 0:
@@ -298,15 +336,32 @@ class TokenBudget:
 
         self.limit = limit
         self.used = 0
+        self.reserved = 0
 
-    def allow(self, estimated_tokens: int) -> bool:
-        return self.used + estimated_tokens <= self.limit
+    def reserve(self, input_tokens: int, max_output_tokens: int) -> int | None:
+        """Reserve the most a call can use. Returns the reservation, or None if the call must not be made."""
+        if input_tokens < 0 or max_output_tokens <= 0:
+            raise ValueError("token counts must be positive")
 
-    def record(self, actual_tokens: int) -> None:
+        worst_case = input_tokens + max_output_tokens
+
+        if self.used + self.reserved + worst_case > self.limit:
+            return None
+
+        self.reserved += worst_case
+
+        return worst_case
+
+    def settle(self, reservation: int, actual_tokens: int) -> None:
+        """Replace a reservation with the usage the response reported."""
+        self.reserved -= reservation
         self.used += actual_tokens
+
+        if actual_tokens > reservation:
+            raise RuntimeError("usage exceeded the reservation; the output cap was not enforced")
 ```
 
-Estimate before the call from the pack size and the expected output length, call only if `allow` says yes, and record the actual usage from the response. Chapter 7's retry limit, at most two corrections, is part of the budget too. A draft that fails validation three times is a signal about the pack or the prompt, not a reason to spend more.
+The reservation is the worst case, not a guess. Count the input with the model's tokenizer, and pass `max_output_tokens` to the service as the request's output-token limit, so the service enforces it. Call only if `reserve` returns a reservation, then `settle` it with the usage the response reports, which releases the unused part. An estimate can be low; a reservation the service enforces can't be exceeded. If `settle` ever raises, the output cap wasn't sent, and that's a bug to fix, not a rounding error. Chapter 7's retry limit, at most two corrections, is part of the budget too. A draft that fails validation three times is a signal about the pack or the prompt, not a reason to spend more.
 
 **Use the smallest model that passes the test set.** Not every job needs the largest model. Classifying a change note's type or extracting fields from a ticket can use a smaller, cheaper model. Writing a board summary may need a larger one. Decide with Chapter 8's test set: run each candidate model against it, and pick the cheapest one that passes. That turns a cost decision into an evidence-based one, and it gives you a ready answer when a model version is retired.
 
@@ -348,7 +403,9 @@ resource "azurerm_storage_container_immutability_policy" "snapshots" {
   storage_container_resource_manager_id = azurerm_storage_container.snapshots.id
   immutability_period_in_days           = var.snapshot_retention_days
   protected_append_writes_enabled       = true
-  locked                                 = true
+  # Irreversible: once locked, the period can be extended but never shortened or removed.
+  # Apply with false first, check the retention period, then set true.
+  locked = true
 }
 
 # Model service: no API keys, no public endpoint, pinned model version.
@@ -451,7 +508,7 @@ And the jobs models shouldn't do:
 
 This lab deploys the tooling's core resources with the controls from this chapter, then points the book's own methods at them. It uses the companion lab tenant (Appendix A) and your lab outputs from Chapters 3 to 10.
 
-**Step 1 — Deploy.** Apply the Terraform module from section 11.9 in a separate resource group, completed with the blob private endpoint, the private DNS zones and links, and a dedicated Log Analytics workspace. Use a user-assigned managed identity for each component in section 11.3.
+**Step 1 — Deploy.** Apply the Terraform module from section 11.9 in a separate resource group, completed with the blob private endpoint, the private DNS zones and links, and a dedicated Log Analytics workspace. Use a user-assigned managed identity for each component in section 11.3. Set `locked = false` on the immutability policy for the lab, or a short `snapshot_retention_days`. A locked policy keeps the storage account from being deleted until the retention period ends.
 
 **Step 2 — Prove key authentication is disabled.** If your lab operator can list the storage account's keys, try to use one for a data-plane request, and try to call the Azure OpenAI deployment with an API key. Both key-authenticated calls should fail. Then call the deployment with the explanation pipeline's managed identity from inside the virtual network, and confirm it succeeds. Call it from outside, and confirm it fails.
 
