@@ -348,6 +348,7 @@ resource "azurerm_storage_container_immutability_policy" "snapshots" {
   storage_container_resource_manager_id = azurerm_storage_container.snapshots.id
   immutability_period_in_days           = var.snapshot_retention_days
   protected_append_writes_enabled       = true
+  locked                                 = true
 }
 
 # Model service: no API keys, no public endpoint, pinned model version.
