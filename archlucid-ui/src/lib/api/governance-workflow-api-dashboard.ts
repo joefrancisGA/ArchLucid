@@ -16,7 +16,7 @@ import {
   governanceSetupGuideBlockedReason,
 } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -26,7 +26,7 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
   alertRoutingSubscriptions: AlertRoutingSubscription[];
 }> {
   try {
-    return await apiGet(`${governanceBase()}/setup-guide-bundle`);
+    return await apiGetSealedManifestAware(`${governanceBase()}/setup-guide-bundle`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceSetupGuideBlockedReason(failure);
@@ -38,7 +38,7 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
 /** Fetches the governance resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   try {
-    return await apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
+    return await apiGetSealedManifestAware<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceResolutionBlockedReason(failure);
@@ -60,7 +60,7 @@ export async function getGovernanceDashboard(
   });
 
   try {
-    return await apiGet<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
+    return await apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceDashboardBlockedReason(failure);
@@ -82,7 +82,7 @@ export async function getComplianceDriftTrend(
   });
 
   try {
-    return await apiGet<ComplianceDriftTrendPoint[]>(
+    return await apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
       `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
     );
   } catch (error: unknown) {

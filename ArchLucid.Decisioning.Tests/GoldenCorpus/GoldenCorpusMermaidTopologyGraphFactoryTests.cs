@@ -6,6 +6,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GoldenCorpusMermaidTopologyGraphFactoryTests
 {
     [Fact]

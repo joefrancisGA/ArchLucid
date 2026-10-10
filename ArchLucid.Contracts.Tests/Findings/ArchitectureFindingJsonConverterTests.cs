@@ -162,6 +162,45 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_omitted_enforcement_tier_defaults_to_advisory()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Golden agent JSON may omit enforcementTier."
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
+    [Fact]
+    public void Deserialize_unreadable_enforcement_tier_throws_required()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Present but unreadable tier must not collapse to PolicyViolation.",
+                              "enforcementTier": ""
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*enforcementTier is required*");
+    }
+
+    [Fact]
     public void Deserialize_integer_enforcement_tier_out_of_range_throws()
     {
         const string json = """

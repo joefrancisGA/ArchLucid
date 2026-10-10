@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn006CompareGateInventoryArchitectureTests
     [Fact]
     public void Sn006_inventory_doc_names_compare_gate_and_journey_table()
     {
-        string markdown = File.ReadAllText(
+        string markdown = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_COMPARE_GATE_INVENTORY.md"));
 
         markdown.Should().Contain("AuthorityCompareService");
@@ -27,9 +27,9 @@ public sealed class SystemNotJobSn006CompareGateInventoryArchitectureTests
     [Fact]
     public void Sn006_inventory_module_lists_journeys_and_cheap_path_owner()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-gate-inventory.ts"));
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-gate-inventory.test.ts"));
 
         inventory.Should().Contain("SYSTEM_NOT_JOB_COMPARE_GATE_JOURNEYS");
@@ -43,7 +43,7 @@ public sealed class SystemNotJobSn006CompareGateInventoryArchitectureTests
     [Fact]
     public void Sn006_authority_compare_service_requires_golden_manifest_ids()
     {
-        string compareService = File.ReadAllText(
+        string compareService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",

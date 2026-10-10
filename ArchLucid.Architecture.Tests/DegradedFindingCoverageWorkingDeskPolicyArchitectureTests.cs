@@ -16,7 +16,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Server_blocks_degraded_coverage_on_working_desk_finalize_only()
     {
-        string validator = File.ReadAllText(
+        string validator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "CareerArtifacts", "CareerArtifactCompletenessValidator.cs"));
 
         validator.Should().Contain("if (!input.WorkingDesk || input.ArtifactKind != CareerArtifactKind.Finalize || !input.DegradedFindingCoverage)");
@@ -27,7 +27,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Orchestrator_passes_working_desk_and_degraded_coverage_into_finalize_completeness_input()
     {
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -44,7 +44,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Ui_scorecard_wires_working_desk_degraded_block_via_buyer_polished_inverse()
     {
-        string governance = File.ReadAllText(
+        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

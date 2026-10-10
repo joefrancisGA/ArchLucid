@@ -12,8 +12,8 @@ public sealed class ArchitectureSpineAs059SupportBandWireArchitectureTests
     [Fact]
     public void As059_finding_contract_exposes_semantic_support_band_property()
     {
-        string finding = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "Finding.cs"));
-        string architectureFinding = File.ReadAllText(
+        string finding = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "Finding.cs"));
+        string architectureFinding = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "ArchitectureFinding.cs"));
 
         finding.Should().Contain("SemanticSupportBand");
@@ -23,7 +23,7 @@ public sealed class ArchitectureSpineAs059SupportBandWireArchitectureTests
     [Fact]
     public void As059_defaults_applicator_runs_in_findings_merge_stage()
     {
-        string stage = File.ReadAllText(
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -37,7 +37,7 @@ public sealed class ArchitectureSpineAs059SupportBandWireArchitectureTests
     [Fact]
     public void As059_emission_applicator_runs_in_findings_merge_stage()
     {
-        string stage = File.ReadAllText(
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -51,7 +51,7 @@ public sealed class ArchitectureSpineAs059SupportBandWireArchitectureTests
     [Fact]
     public void As059_density_gate_does_not_reference_semantic_support_band()
     {
-        string densityGate = File.ReadAllText(
+        string densityGate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "DeterministicInsightDensityGate.cs"));
 
         densityGate.Should().NotContain("SemanticSupportBand");

@@ -37,7 +37,7 @@ public sealed class AssuranceKernelArchitectureTests
             string fullPath = Path.Combine(RepoRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
             File.Exists(fullPath).Should().BeTrue($"missing truth-kernel file {relativePath}");
 
-            string source = File.ReadAllText(fullPath);
+            string source = ArchitectureSourceProbe.ReadPathWithPartials(fullPath);
 
             foreach (string token in forbidden)
             {
@@ -69,9 +69,9 @@ public sealed class AssuranceKernelArchitectureTests
         File.Exists(provenanceValidator).Should().BeTrue();
         File.Exists(checklistRouter).Should().BeTrue();
 
-        File.ReadAllText(failureClassifier).Should().Contain("IsCommitBlocking");
-        File.ReadAllText(provenanceValidator).Should().Contain("Evidence");
-        File.ReadAllText(checklistRouter).Should().Contain("ChecklistCoverage");
+        ArchitectureSourceProbe.ReadPathWithPartials(failureClassifier).Should().Contain("IsCommitBlocking");
+        ArchitectureSourceProbe.ReadPathWithPartials(provenanceValidator).Should().Contain("Evidence");
+        ArchitectureSourceProbe.ReadPathWithPartials(checklistRouter).Should().Contain("ChecklistCoverage");
     }
 
     [Fact]

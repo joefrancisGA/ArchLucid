@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn023FindingsAreVerbsOnTheSystemArchitectureTest
     [Fact]
     public void Sn023_module_names_findings_surface_resolvers()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn023FindingsAreVerbsOnTheSystemArchitectureTest
     [Fact]
     public void Sn023_presentation_wires_working_copy_resolvers()
     {
-        string presentation = File.ReadAllText(
+        string presentation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -49,7 +49,7 @@ public sealed class SystemNotJobSn023FindingsAreVerbsOnTheSystemArchitectureTest
     [Fact]
     public void Sn023_vitest_ratchet_names_register_and_nested_desk_copy()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs077WorkingChromeModeChooserArchitectureTe
     [Fact]
     public void As077_door_module_documents_architecture_first_persistence()
     {
-        string doorModule = File.ReadAllText(Path.Combine(RepoRoot, DoorModuleRelativePath));
+        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DoorModuleRelativePath));
 
         doorModule.Should().Contain("Architecture-level");
         doorModule.Should().Contain("Tenant-level");
@@ -32,7 +32,7 @@ public sealed class ArchitectureSpineAs077WorkingChromeModeChooserArchitectureTe
     [Fact]
     public void As077_chooser_uses_segmented_buttons_and_working_only_gate()
     {
-        string chooser = File.ReadAllText(Path.Combine(RepoRoot, ChooserRelativePath));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ChooserRelativePath));
 
         chooser.Should().Contain("OperatorSegmentedModeToolbar");
         chooser.Should().Contain("isWorkingWorkspaceMode");
@@ -44,7 +44,7 @@ public sealed class ArchitectureSpineAs077WorkingChromeModeChooserArchitectureTe
     [Fact]
     public void As077_top_bar_mounts_working_door_chooser()
     {
-        string topBar = File.ReadAllText(Path.Combine(RepoRoot, TopBarRelativePath));
+        string topBar = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, TopBarRelativePath));
 
         topBar.Should().Contain("WorkingCareerRehearsalChooser");
         topBar.Should().NotContain("isOperatorExperienceFullShellEnv() && <WorkingCareerRehearsalChooser");

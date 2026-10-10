@@ -15,29 +15,29 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
     [Fact]
     public void Suggestion741_743_feedback_inspect_and_advisory_action_openapi_409()
     {
-        string explainFeedback = File.ReadAllText(
+        string explainFeedback = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "FindingFeedbackController.cs"));
-        string explainFeedbackGuard = File.ReadAllText(
+        string explainFeedbackGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "FindingFeedbackController.SealedManifestGuard.cs"));
-        string architectureFeedback = File.ReadAllText(
+        string architectureFeedback = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.FindingFeedback.cs"));
-        string runsGuard = File.ReadAllText(
+        string runsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.SealedManifestGuard.cs"));
-        string findingInspect = File.ReadAllText(
+        string findingInspect = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingInspectController.cs"));
-        string findingInspectGuard = File.ReadAllText(
+        string findingInspectGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingInspectController.SealedManifestGuard.cs"));
-        string advisoryController = File.ReadAllText(
+        string advisoryController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
 
         explainFeedback.Should().Contain("PostFindingFeedbackAsync");
@@ -58,9 +58,9 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
     [Fact]
     public void Suggestion744_746_assigned_count_llm_audit_and_temporal_graph_ui_wiring()
     {
-        string assignedCountHook = File.ReadAllText(
+        string assignedCountHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-assigned-to-me-findings-count-query.ts"));
-        string assignedCountCallout = File.ReadAllText(
+        string assignedCountCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -69,7 +69,7 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "governance",
                 "findings",
                 "GovernanceAssignedToMeCountBlockedCallout.tsx"));
-        string navBadge = File.ReadAllText(
+        string navBadge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -78,15 +78,15 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "governance",
                 "findings",
                 "GovernanceAssignedToMeFindingsNavBadge.tsx"));
-        string llmAuditHook = File.ReadAllText(
+        string llmAuditHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-finding-llm-audit-query.ts"));
-        string llmAuditBlocked = File.ReadAllText(
+        string llmAuditBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-llm-audit-blocked-reason.ts"));
-        string debugPanel = File.ReadAllText(
+        string debugPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingInspectContextDebugPanel.tsx"));
-        string graphViewer = File.ReadAllText(
+        string graphViewer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ArchitectureGraphViewer.tsx"));
-        string temporalCallout = File.ReadAllText(
+        string temporalCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -110,9 +110,9 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
     [Fact]
     public void Suggestion747_750_retrieval_explanation_seal_delta_and_advisory_bootstrap_ui_wiring()
     {
-        string retrievalHook = File.ReadAllText(
+        string retrievalHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-retrieval-grounding-query.ts"));
-        string explanationLoader = File.ReadAllText(
+        string explanationLoader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -124,11 +124,11 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-explanation-summary.ts"));
-        string sealDeltaHook = File.ReadAllText(
+        string sealDeltaHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-seal-delta-query.ts"));
-        string advisoryScans = File.ReadAllText(
+        string advisoryScans = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "advisory", "AdvisoryScansContent.tsx"));
-        string advisoryContent = File.ReadAllText(
+        string advisoryContent = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "advisory", "use-advisory-scans-content.ts"));
 
         retrievalHook.Should().Contain("runRetrievalGroundingBlockedReason");
@@ -142,7 +142,7 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
     [Fact]
     public void Suggestion751_752_evidence_trail_and_sealed_records_compare_fallback_ui_wiring()
     {
-        string evidenceTrail = File.ReadAllText(
+        string evidenceTrail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -153,7 +153,7 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "evidence-graph",
                 "_sections",
                 "EvidenceTrailTracePanel.tsx"));
-        string enrichRows = File.ReadAllText(
+        string enrichRows = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -164,9 +164,9 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "sealed-records",
                 "_sections",
                 "enrich-signed-records-list-rows.ts"));
-        string compareFallbackHook = File.ReadAllText(
+        string compareFallbackHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-prior-same-request-compare-fallback-query.ts"));
-        string compareFallbackCallout = File.ReadAllText(
+        string compareFallbackCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -174,7 +174,7 @@ public sealed class ArchitectureReviewRobustnessWave63ArchitectureTests
                 "components",
                 "compare",
                 "PriorSameRequestCompareFallbackBlockedCallout.tsx"));
-        string postCommitHint = File.ReadAllText(
+        string postCommitHint = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "PostCommitAdvancedAnalysisHint.tsx"));
 
         evidenceTrail.Should().Contain("explainRunBlockedReason");

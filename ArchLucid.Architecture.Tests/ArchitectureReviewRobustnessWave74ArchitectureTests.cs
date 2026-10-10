@@ -15,81 +15,81 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
     [Fact]
     public void Suggestion873_882_governance_roi_export_and_analysis_mutation_openapi_409()
     {
-        string stickinessExceptions = File.ReadAllText(
+        string stickinessExceptions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceStickinessController.Exceptions.cs"));
-        string stickinessDispositions = File.ReadAllText(
+        string stickinessDispositions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceStickinessController.Dispositions.cs"));
-        string stickinessSchedules = File.ReadAllText(
+        string stickinessSchedules = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceStickinessController.Schedules.cs"));
-        string stickinessGuard = File.ReadAllText(
+        string stickinessGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceStickinessController.SealedManifestGuard.cs"));
-        string artifactDownload = File.ReadAllText(
+        string artifactDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ArtifactExportController.Export.Download.cs"));
-        string artifactGuard = File.ReadAllText(
+        string artifactGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ArtifactExportController.SealedManifestGuard.cs"));
-        string roiController = File.ReadAllText(
+        string roiController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string roiGuard = File.ReadAllText(
+        string roiGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.SealedManifestGuard.cs"));
-        string draftController = File.ReadAllText(
+        string draftController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.cs"));
-        string policyAssignment = File.ReadAllText(
+        string policyAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.Assignment.cs"));
-        string policyGuard = File.ReadAllText(
+        string policyGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.SealedManifestGuard.cs"));
-        string consultingDocx = File.ReadAllText(
+        string consultingDocx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "AnalysisReportsController.ConsultingDocx.Download.cs"));
-        string analysisGuard = File.ReadAllText(
+        string analysisGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -131,7 +131,7 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
     [Fact]
     public void Suggestion883_artifact_bundle_mutation_blocked_reason_ui_wiring()
     {
-        string bundleBlocked = File.ReadAllText(
+        string bundleBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -139,11 +139,11 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
                 "lib",
                 "runs",
                 "artifact-bundle-mutation-blocked-reason.ts"));
-        string manifestGrid = File.ReadAllText(
+        string manifestGrid = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDeliverableGrid.tsx"));
-        string sponsorExports = File.ReadAllText(
+        string sponsorExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
-        string artifactsSection = File.ReadAllText(
+        string artifactsSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -165,7 +165,7 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
     [Fact]
     public void Suggestion884_run_export_zip_mutation_blocked_reason_ui_wiring()
     {
-        string exportZipBlocked = File.ReadAllText(
+        string exportZipBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -173,9 +173,9 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
                 "lib",
                 "runs",
                 "run-export-zip-mutation-blocked-reason.ts"));
-        string sponsorExports = File.ReadAllText(
+        string sponsorExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
-        string artifactsSection = File.ReadAllText(
+        string artifactsSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

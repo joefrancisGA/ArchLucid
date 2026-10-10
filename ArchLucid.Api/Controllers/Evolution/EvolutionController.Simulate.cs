@@ -48,7 +48,7 @@ public sealed partial class EvolutionController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 
@@ -97,7 +97,7 @@ public sealed partial class EvolutionController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 }

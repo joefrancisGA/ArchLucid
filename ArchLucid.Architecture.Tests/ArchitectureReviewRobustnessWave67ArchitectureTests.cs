@@ -15,28 +15,28 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion789_791_draft_wizard_and_architecture_identity_mutation_openapi_409()
     {
-        string draftController = File.ReadAllText(
+        string draftController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.cs"));
-        string wizardDrafts = File.ReadAllText(
+        string wizardDrafts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "WizardIntakeDraftsController.cs"));
-        string architectures = File.ReadAllText(
+        string architectures = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "ArchitecturesController.cs"));
-        string architectureGuard = File.ReadAllText(
+        string architectureGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -61,21 +61,21 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion792_794_governance_promotion_activation_and_approval_mutation_openapi_409()
     {
-        string promotions = File.ReadAllText(
+        string promotions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceController.PromotionsActivations.cs"));
-        string approvalCreate = File.ReadAllText(
+        string approvalCreate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceController.ApprovalRequests.Create.cs"));
-        string approvalBatch = File.ReadAllText(
+        string approvalBatch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -98,7 +98,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion795_798_create_coverage_disposition_and_correction_mutation_blocked_reason_ui_wiring()
     {
-        string createRunBlocked = File.ReadAllText(
+        string createRunBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,9 +106,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "runs",
                 "architecture-request-create-mutation-blocked-reason.ts"));
-        string wizardSubmit = File.ReadAllText(
+        string wizardSubmit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "wizard-form-create-run-submit.ts"));
-        string coverageBlocked = File.ReadAllText(
+        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -116,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "runs",
                 "run-coverage-acknowledgement-mutation-blocked-reason.ts"));
-        string dispositions = File.ReadAllText(
+        string dispositions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -129,7 +129,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "findings",
                 "[findingId]",
                 "use-finding-inspect-governance-stickiness-dispositions.ts"));
-        string dispositionBlocked = File.ReadAllText(
+        string dispositionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -137,7 +137,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "findings",
                 "finding-disposition-mutation-blocked-reason.ts"));
-        string correctionDialog = File.ReadAllText(
+        string correctionDialog = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -145,7 +145,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "components",
                 "governance",
                 "GovernanceRecordCorrectionDialog.tsx"));
-        string correctionBlocked = File.ReadAllText(
+        string correctionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -167,7 +167,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion799_800_wizard_and_draft_create_mutation_blocked_reason_ui_wiring()
     {
-        string wizardBlocked = File.ReadAllText(
+        string wizardBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -175,9 +175,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "architecture",
                 "wizard-intake-draft-mutation-blocked-reason.ts"));
-        string wizardPersistence = File.ReadAllText(
+        string wizardPersistence = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-wizard-session-persistence.ts"));
-        string draftBlocked = File.ReadAllText(
+        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -185,7 +185,7 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftCreateHook = File.ReadAllText(
+        string draftCreateHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -196,9 +196,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
                 "reviews",
                 "new",
                 "use-guided-intake-draft-create.ts"));
-        string creationInit = File.ReadAllText(
+        string creationInit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-creation-init.ts"));
-        string autosavePersist = File.ReadAllText(
+        string autosavePersist = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-draft-autosave-persist.ts"));
 
         wizardBlocked.Should().Contain("wizardIntakeDraftMutationBlockedReason");

@@ -14,14 +14,14 @@ public sealed class SystemNotJobSn039DoNotImplementLivePresenceArchitectureTests
     [Fact]
     public void Sn039_records_live_presence_as_not_shipped_residual()
     {
-        string residuals = File.ReadAllText(
+        string residuals = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "lib",
                 "system-not-job-out-of-wave-residuals.ts"));
-        string doc = File.ReadAllText(
+        string doc = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_OUT_OF_WAVE_RESIDUALS.md"));
 
         residuals.Should().Contain("SN-039");

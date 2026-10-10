@@ -23,7 +23,7 @@ public sealed class HostRuntimeKnobsArchitectureTests
 
         File.Exists(propsPath).Should().BeTrue();
 
-        string propsText = File.ReadAllText(propsPath);
+        string propsText = ArchitectureSourceProbe.ReadPathWithPartials(propsPath);
 
         propsText.Should().Contain("<ServerGarbageCollection>true</ServerGarbageCollection>");
         propsText.Should().Contain("<TieredPGO>true</TieredPGO>");
@@ -38,7 +38,7 @@ public sealed class HostRuntimeKnobsArchitectureTests
         foreach (string relativePath in HostProjectPaths)
         {
             string path = Path.Combine(RepoRoot, relativePath);
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
             text.Should().Contain(
                 @"Import Project=""..\ArchLucid.Host.Runtime.props""",
@@ -50,7 +50,7 @@ public sealed class HostRuntimeKnobsArchitectureTests
     public void Tb2161_api_dockerfile_keeps_icu_and_disables_invariant_globalization()
     {
         string dockerfilePath = Path.Combine(RepoRoot, "ArchLucid.Api", "Dockerfile");
-        string dockerfileText = File.ReadAllText(dockerfilePath);
+        string dockerfileText = ArchitectureSourceProbe.ReadPathWithPartials(dockerfilePath);
 
         dockerfileText.Should().Contain("ArchLucid.Host.Runtime.props");
         dockerfileText.Should().Contain("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false");

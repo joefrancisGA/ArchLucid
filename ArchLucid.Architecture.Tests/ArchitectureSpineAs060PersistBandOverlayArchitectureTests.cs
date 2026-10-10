@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs060PersistBandOverlayArchitectureTests
     [Fact]
     public void As060_findings_stage_persists_and_freezes_overlay()
     {
-        string stage = File.ReadAllText(
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -39,14 +39,14 @@ public sealed class ArchitectureSpineAs060PersistBandOverlayArchitectureTests
     [Fact]
     public void As060_migration_and_unified_schema_define_overlay_table()
     {
-        string migration = File.ReadAllText(
+        string migration = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
                 "Migrations",
                 "379_FindingSemanticSupportBandOverlays.sql"));
 
-        string unified = File.ReadAllText(
+        string unified = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid_Unified_Schema.sql"));
 
         migration.Should().Contain("FindingSemanticSupportBandOverlays");

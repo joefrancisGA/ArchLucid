@@ -32,7 +32,7 @@ public sealed partial class TenantAuthDomainAdminController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(
@@ -70,7 +70,7 @@ public sealed partial class TenantAuthDomainAdminController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(
@@ -166,7 +166,7 @@ public sealed partial class TenantAuthDomainAdminController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(

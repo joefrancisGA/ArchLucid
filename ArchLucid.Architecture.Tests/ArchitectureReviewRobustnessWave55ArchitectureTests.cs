@@ -15,15 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion645_648_export_compare_comparisons_replay_drift_and_search_openapi_409()
     {
-        string exports = File.ReadAllText(
+        string exports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string comparisonsHistory = File.ReadAllText(
+        string comparisonsHistory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.History.cs"));
-        string comparisonGuard = File.ReadAllText(
+        string comparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.SealedManifestGuard.cs"));
-        string comparisonsReplay = File.ReadAllText(
+        string comparisonsReplay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
-        string comparisonsDrift = File.ReadAllText(
+        string comparisonsDrift = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Drift.cs"));
 
         exports.Should().Contain("CompareExportRecords");
@@ -46,13 +46,13 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion649_651_governance_lineage_rationale_and_assigned_to_me_count_openapi_409()
     {
-        string governanceInsights = File.ReadAllText(
+        string governanceInsights = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.Insights.cs"));
-        string governanceGuard = File.ReadAllText(
+        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.SealedManifestGuard.cs"));
-        string stickinessRegisters = File.ReadAllText(
+        string stickinessRegisters = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Registers.cs"));
-        string stickinessFacade = File.ReadAllText(
+        string stickinessFacade = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "Stickiness", "GovernanceStickinessFacade.cs"));
 
         governanceInsights.Should().Contain("GetApprovalRequestLineage");
@@ -69,7 +69,7 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion652_trace_forensics_by_trace_id_openapi_409()
     {
-        string forensics = File.ReadAllText(
+        string forensics = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -85,16 +85,16 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion653_656_governance_lineage_assigned_count_replay_cost_and_temporal_graph_clients()
     {
-        string approvalsApi = File.ReadAllText(
+        string approvalsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-approvals.ts"));
-        string lineageHook = File.ReadAllText(
+        string lineageHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "hooks",
                 "use-approval-request-lineage-query.ts"));
-        string lineagePageHook = File.ReadAllText(
+        string lineagePageHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -107,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
                 "lineage",
                 "_sections",
                 "use-governance-approval-lineage-page.ts"));
-        string lineageBlocked = File.ReadAllText(
+        string lineageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -115,9 +115,9 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
                 "lib",
                 "governance",
                 "governance-approval-lineage-blocked-reason.ts"));
-        string stickinessApi = File.ReadAllText(
+        string stickinessApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string assignedCountBlocked = File.ReadAllText(
+        string assignedCountBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -125,11 +125,11 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
                 "lib",
                 "governance",
                 "governance-assigned-to-me-count-blocked-reason.ts"));
-        string replayCostApi = File.ReadAllText(
+        string replayCostApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-replay-cost-api.ts"));
-        string graphApi = File.ReadAllText(
+        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string temporalBlocked = File.ReadAllText(
+        string temporalBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

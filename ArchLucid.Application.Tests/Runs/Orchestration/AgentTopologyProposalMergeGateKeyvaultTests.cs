@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateKeyvaultTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "kv-1", label: "vault", sourceId: "azurerm_keyvault.main"));
+            ComputeNode(nodeId: "kv-1", label: "vault", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-vault")));
 

@@ -15,12 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion131_decision_receipt_fail_closed_on_missing_hash()
     {
-        string composer = File.ReadAllText(
+        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptComposer.cs"));
 
         composer.Should().Contain("Committed-run decision receipts require a manifest hash binding");
 
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestDecisionReceiptExportBinder.cs"));
 
         service.Should().Contain("EnsureSealedManifestHashMatchesOrThrow");
@@ -38,7 +38,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
             .Should()
             .BeTrue();
 
-        string validator = File.ReadAllText(
+        string validator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -61,7 +61,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
             .Should()
             .BeTrue();
 
-        string capturer = File.ReadAllText(
+        string capturer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -75,7 +75,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion134_hasher_b_binds_committed_artifact_inventory()
     {
-        string fingerprint = File.ReadAllText(
+        string fingerprint = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Manifest", "GoldenManifestFingerprint.cs"));
 
         fingerprint.Should().Contain("committedArtifactInventory");
@@ -85,7 +85,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion135_openapi_documents_receipt_and_compare_fingerprints()
     {
-        string openApi = File.ReadAllText(
+        string openApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -100,7 +100,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion136_execute_and_quality_gate_emit_lifecycle_transitions()
     {
-        string writer = File.ReadAllText(
+        string writer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -115,7 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion137_replay_factory_requires_source_header()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayAuthorityRunRecordFactory.cs"));
 
         factory.Should().Contain("source run header is required");
@@ -124,7 +124,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion138_incomplete_execute_asserts_scope()
     {
-        string handler = File.ReadAllText(
+        string handler = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -138,7 +138,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion139_recovery_verifier_checks_inventory()
     {
-        string verifier = File.ReadAllText(
+        string verifier = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -153,7 +153,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion140_manifest_compare_requires_pin_fingerprints()
     {
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         compare.Should().Contain("EnsureCreateTimePinFingerprintsMatchOrThrow");

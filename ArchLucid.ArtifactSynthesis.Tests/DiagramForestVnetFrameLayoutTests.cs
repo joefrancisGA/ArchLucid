@@ -12,6 +12,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class DiagramForestVnetFrameLayoutTests
 {
     private readonly DiagramForestLayoutSvgRenderer renderer = new();

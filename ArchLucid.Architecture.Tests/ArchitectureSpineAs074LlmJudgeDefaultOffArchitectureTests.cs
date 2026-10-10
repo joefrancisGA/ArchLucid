@@ -24,7 +24,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_options_default_enable_llm_judge_false()
     {
-        string optionsSource = File.ReadAllText(
+        string optionsSource = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "FindingSemanticSupportBandOptions.cs"));
 
         optionsSource.Should().Contain("EnableLlmJudge");
@@ -35,7 +35,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_host_registers_noop_llm_judge_by_default()
     {
-        string composition = File.ReadAllText(
+        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -50,7 +50,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_scorer_remains_heuristic_default_without_llm_judge_flag()
     {
-        string scorer = File.ReadAllText(
+        string scorer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -64,7 +64,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_emission_applicator_skips_llm_judge_when_option_disabled()
     {
-        string emission = File.ReadAllText(
+        string emission = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -80,7 +80,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_adr_0085_documents_default_off_llm_judge()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("AS-074");
         adr.Should().Contain("default off");

@@ -14,18 +14,18 @@ public sealed class CheapExplorationCe001Adr0092ArchitectureTests
     [Fact]
     public void Ce001_adr_0092_is_accepted_and_ce_runner_modules_exist()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0092-working-cheap-what-if-envelope.md"));
 
         adr.Should().Contain("**Status:** Accepted");
         adr.Should().Contain("labeled what-if envelope");
 
-        string runnerModule = File.ReadAllText(
+        string runnerModule = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "cheap-exploration-envelope-runner-entry.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "cheap-exploration-adr-guard.test.ts"));
 
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "cheap-exploration-adr-inventory.ts"));
 
         runnerModule.Should().Contain("CHEAP_EXPLORATION_SKETCH_A_CHANGE_DESK_CTA_LABEL");

@@ -15,86 +15,86 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion897_903_policy_pilot_finding_and_diagram_mutation_openapi_409()
     {
-        string policySimulate = File.ReadAllText(
+        string policySimulate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.Simulate.cs"));
-        string policyGuard = File.ReadAllText(
+        string policyGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.SealedManifestGuard.cs"));
-        string findingUnmute = File.ReadAllText(
+        string findingUnmute = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingMuteController.Unmute.cs"));
-        string findingMuteGuard = File.ReadAllText(
+        string findingMuteGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingMuteController.SealedManifestGuard.cs"));
-        string pilotDeltas = File.ReadAllText(
+        string pilotDeltas = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Deltas.cs"));
-        string pilotGuard = File.ReadAllText(
+        string pilotGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Pilots",
                 "PilotsController.SealedManifestGuard.cs"));
-        string diagramIngest = File.ReadAllText(
+        string diagramIngest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramIngestController.cs"));
-        string diagramIngestGuard = File.ReadAllText(
+        string diagramIngestGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramIngestController.SealedManifestGuard.cs"));
-        string diagramReconcile = File.ReadAllText(
+        string diagramReconcile = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramReconciliationController.cs"));
-        string diagramReconcileGuard = File.ReadAllText(
+        string diagramReconcileGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramReconciliationController.SealedManifestGuard.cs"));
-        string diagramVision = File.ReadAllText(
+        string diagramVision = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramVisionIngestController.cs"));
-        string diagramVisionGuard = File.ReadAllText(
+        string diagramVisionGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "ArchitectureDiagramVisionIngestController.SealedManifestGuard.cs"));
-        string muteRepository = File.ReadAllText(
+        string muteRepository = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
@@ -130,7 +130,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion904_906_unmute_consulting_and_run_package_blocked_reason_ui_wiring()
     {
-        string findingUnmuteBlocked = File.ReadAllText(
+        string findingUnmuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -138,18 +138,18 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "lib",
                 "findings",
                 "finding-unmute-mutation-blocked-reason.ts"));
-        string findingUnmuteClient = File.ReadAllText(
+        string findingUnmuteClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-unmute-client.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string whitelabelButton = File.ReadAllText(
+        string whitelabelButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "components",
                 "ReviewBoardWhitelabelConsultingExportButton.tsx"));
-        string meetingPacket = File.ReadAllText(
+        string meetingPacket = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -157,7 +157,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "components",
                 "reviews",
                 "ReviewMeetingPacketButton.tsx"));
-        string headerShare = File.ReadAllText(
+        string headerShare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -177,9 +177,9 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
     [Fact]
     public void Suggestion907_908_artifact_bundle_and_pilot_closeout_blocked_reason_wiring()
     {
-        string artifactList = File.ReadAllText(
+        string artifactList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ArtifactListTable.tsx"));
-        string runActions = File.ReadAllText(
+        string runActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -191,7 +191,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailRunActionsSection.tsx"));
-        string closeoutBlocked = File.ReadAllText(
+        string closeoutBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -199,7 +199,7 @@ public sealed class ArchitectureReviewRobustnessWave76ArchitectureTests
                 "lib",
                 "pilots",
                 "pilot-closeout-mutation-blocked-reason.ts"));
-        string closeoutClient = File.ReadAllText(
+        string closeoutClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "pilots", "pilot-closeout-client.ts"));
 
         artifactList.Should().Contain("artifactBundleMutationBlockedReason");

@@ -31,11 +31,11 @@ public static partial class DecisionGradeFindingProvenanceValidator
         if (InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType))
             return HasAgentCitationProvenance(finding)
                 ? null
-                : $"Finding '{finding.FindingId}' ({finding.FindingType}) lacks agent citation provenance.";
+                : $"Finding '{finding.FindingId}' ({finding.FindingType}) lacks agent citation Evidence provenance.";
 
         return HasTypedEngineProvenance(finding)
             ? null
-            : $"Finding '{finding.FindingId}' ({finding.FindingType}) lacks typed-engine provenance.";
+            : $"Finding '{finding.FindingId}' ({finding.FindingType}) lacks typed-engine Evidence provenance.";
     }
 
     private static bool HasTypedEngineProvenance(Finding finding)

@@ -34,6 +34,19 @@ public sealed partial class ArchitecturesController
             cancellationToken);
     }
 
+    private async Task<IActionResult?> EnsureArchitectureShareAdminAllowedAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        return await _architectureShareAccessGate.EnsureArchitectureAdminAllowedAsync(
+            this,
+            User,
+            scope,
+            architectureId,
+            cancellationToken);
+    }
+
     private async Task<ArchitectureIdentityListPage> FilterArchitectureListByShareAccessAsync(
         ScopeContext scope,
         ArchitectureIdentityListPage page,
@@ -53,12 +66,37 @@ public sealed partial class ArchitecturesController
                 visibleItems.Add(item);
         }
 
+        int hiddenRestrictedCount = await CountRestrictedWithoutActorShareAsync(scope, page, cancellationToken);
+        int adjustedTotalCount = Math.Max(0, page.TotalCount - hiddenRestrictedCount);
+
         return new ArchitectureIdentityListPage
         {
             Items = visibleItems,
-            TotalCount = visibleItems.Count,
+            TotalCount = adjustedTotalCount,
             Page = page.Page,
             PageSize = page.PageSize,
         };
+    }
+
+    private async Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        ArchitectureIdentityListPage page,
+        CancellationToken cancellationToken)
+    {
+        int hidden = 0;
+
+        foreach (ArchitectureIdentityListItem item in page.Items)
+        {
+            ArchitectureShareAccessEvaluation access = await _architectureShareAccessGate.EvaluateArchitectureAsync(
+                User,
+                scope,
+                item.ArchitectureId,
+                cancellationToken);
+
+            if (!access.CanRead)
+                hidden++;
+        }
+
+        return hidden;
     }
 }

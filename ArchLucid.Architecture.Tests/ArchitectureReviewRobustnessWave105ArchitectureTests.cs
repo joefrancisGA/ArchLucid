@@ -15,21 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
     [Fact]
     public void Suggestion1245_1247_finding_verification_export_and_async_sealed_manifest_mappers()
     {
-        string export = File.ReadAllText(
+        string export = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingVerificationController.Export.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingVerificationController.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -46,28 +46,28 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
     [Fact]
     public void Suggestion1248_1251_learning_and_product_learning_report_sealed_manifest_mappers()
     {
-        string learningReport = File.ReadAllText(
+        string learningReport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "LearningController.PlanningReport.cs"));
-        string learningGuard = File.ReadAllText(
+        string learningGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "LearningController.SealedManifestGuard.cs"));
-        string productLearning = File.ReadAllText(
+        string productLearning = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "ProductLearningController.Triage.cs"));
-        string productLearningGuard = File.ReadAllText(
+        string productLearningGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -84,9 +84,9 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
     [Fact]
     public void Suggestion1252_1256_verification_merge_ask_and_request_draft_blocked_reason_wiring()
     {
-        string verificationApi = File.ReadAllText(
+        string verificationApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "finding-verification-api.ts"));
-        string verificationBlocked = File.ReadAllText(
+        string verificationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -94,7 +94,7 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
                 "lib",
                 "findings",
                 "finding-verification-mutation-blocked-reason.ts"));
-        string mergeConflictApi = File.ReadAllText(
+        string mergeConflictApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
                 "lib",
                 "governance",
                 "finding-merge-conflict-api.ts"));
-        string mergeConflictBlocked = File.ReadAllText(
+        string mergeConflictBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -110,13 +110,13 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
                 "lib",
                 "findings",
                 "finding-merge-conflict-blocked-reason.ts"));
-        string conversationApi = File.ReadAllText(
+        string conversationApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "conversation-api.ts"));
-        string askBlocked = File.ReadAllText(
+        string askBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "ask", "ask-blocked-reason.ts"));
-        string requestDraftApi = File.ReadAllText(
+        string requestDraftApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-request-draft-api.ts"));
-        string requestDraftBlocked = File.ReadAllText(
+        string requestDraftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

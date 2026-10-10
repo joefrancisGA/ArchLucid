@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn008CloneFromSnapshotWorkingPathArchitectureTes
     [Fact]
     public void Sn008_entry_module_names_desk_cta_confirm_and_palette_discovery()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-clone-from-snapshot-entry.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_CLONE_FROM_SNAPSHOT_DESK_CTA_LABEL");
@@ -27,7 +27,7 @@ public sealed class SystemNotJobSn008CloneFromSnapshotWorkingPathArchitectureTes
     [Fact]
     public void Sn008_clone_control_wires_confirm_dialog_and_spawn_locked_desk_action()
     {
-        string control = File.ReadAllText(
+        string control = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -44,11 +44,11 @@ public sealed class SystemNotJobSn008CloneFromSnapshotWorkingPathArchitectureTes
     [Fact]
     public void Sn008_palette_handler_exposes_clone_action_on_spawn_locked_surfaces()
     {
-        string handlers = File.ReadAllText(
+        string handlers = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "command-palette-handler-actions.ts"));
-        string dom = File.ReadAllText(
+        string dom = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "command-palette-work-action-dom.ts"));
-        string bridge = File.ReadAllText(
+        string bridge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

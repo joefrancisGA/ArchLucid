@@ -2,7 +2,6 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph.Diagram;
-using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.KnowledgeGraph.Inventory;
 

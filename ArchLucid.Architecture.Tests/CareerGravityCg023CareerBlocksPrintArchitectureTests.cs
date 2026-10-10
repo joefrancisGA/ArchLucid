@@ -15,7 +15,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
     [Fact]
     public void Cg023_package_print_client_resolves_door_stamp_for_rehearsal_strip()
     {
-        string client = File.ReadAllText(
+        string client = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -28,7 +28,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
                 "print",
                 "_sections",
                 "PackagePrintPageClient.tsx"));
-        string helper = File.ReadAllText(
+        string helper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "package-print-rehearsal-honesty.ts"));
 
         client.Should().Contain("resolvePackagePrintRehearsalHonestyStrip");
@@ -41,7 +41,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
     [Fact]
     public void Cg023_print_view_renders_print_only_rehearsal_strip()
     {
-        string view = File.ReadAllText(
+        string view = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -54,7 +54,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
                 "print",
                 "_sections",
                 "PackagePrintPageView.tsx"));
-        string strip = File.ReadAllText(
+        string strip = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -78,7 +78,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
     [Fact]
     public void Cg023_globals_css_styles_print_rehearsal_strip()
     {
-        string globals = File.ReadAllText(
+        string globals = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "app", "globals.css"));
 
         globals.Should().Contain("package-print-rehearsal-honesty-strip");
@@ -88,7 +88,7 @@ public sealed class CareerGravityCg023CareerBlocksPrintArchitectureTests
     [Fact]
     public void Cg023_docs_record_package_print_rehearsal_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-023");

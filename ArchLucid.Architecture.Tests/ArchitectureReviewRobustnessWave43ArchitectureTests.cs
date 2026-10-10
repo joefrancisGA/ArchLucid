@@ -15,15 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
     [Fact]
     public void Suggestion501_504_scoped_proxy_and_audit_export_409_ux()
     {
-        string scopedProxy = File.ReadAllText(
+        string scopedProxy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-scoped-proxy.ts"));
-        string auditApi = File.ReadAllText(
+        string auditApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "audit-api.ts"));
-        string auditBlockedReason = File.ReadAllText(
+        string auditBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "audit", "audit-export-blocked-reason.ts"));
-        string runScopedExport = File.ReadAllText(
+        string runScopedExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunScopedAuditExportButton.tsx"));
-        string auditPage = File.ReadAllText(
+        string auditPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -46,11 +46,11 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
     [Fact]
     public void Suggestion505_508_ask_and_finding_explain_fail_closed()
     {
-        string askRecovery = File.ReadAllText(
+        string askRecovery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "ask-sse-recovery.ts"));
-        string askBlockedReason = File.ReadAllText(
+        string askBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "ask", "ask-blocked-reason.ts"));
-        string askMainPanel = File.ReadAllText(
+        string askMainPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -61,15 +61,15 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
                 "ask-review-questions",
                 "_sections",
                 "AskMainPanel.tsx"));
-        string findingAskPanel = File.ReadAllText(
+        string findingAskPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingAskInlinePanel.tsx"));
-        string findingAskBlockedReason = File.ReadAllText(
+        string findingAskBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-ask-blocked-reason.ts"));
-        string findingExplain = File.ReadAllText(
+        string findingExplain = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "finding-explain-blocked-reason.ts"));
-        string findingExplainPanel = File.ReadAllText(
+        string findingExplainPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "FindingExplainPanel.tsx"));
-        string findingLlmAudit = File.ReadAllText(
+        string findingLlmAudit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
 
         askRecovery.Should().Contain("formatAskStreamHttpError");
@@ -87,11 +87,11 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
     [Fact]
     public void Suggestion509_511_roi_freshness_and_openapi_409()
     {
-        string pilotReport = File.ReadAllText(
+        string pilotReport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "PilotValueReport.cs"));
-        string pilotService = File.ReadAllText(
+        string pilotService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "PilotValueReportService.cs"));
-        string exportControls = File.ReadAllText(
+        string exportControls = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
                 "sponsor-report",
                 "_sections",
                 "PilotValueReportExportControls.tsx"));
-        string pilotPage = File.ReadAllText(
+        string pilotPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -113,7 +113,7 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
                 "sponsor-report",
                 "_sections",
                 "use-pilot-value-report-pilot-page.ts"));
-        string roiController = File.ReadAllText(
+        string roiController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
 
         pilotReport.Should().Contain("RoiSourceFreshnessDisposition");
@@ -129,13 +129,13 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
     [Fact]
     public void Suggestion512_anchor_export_consolidation()
     {
-        string auditApi = File.ReadAllText(
+        string auditApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "audit-api.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string sponsorBoardPack = File.ReadAllText(
+        string sponsorBoardPack = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "sponsor-roi-board-pack-api.ts"));
-        string browserTrigger = File.ReadAllText(
+        string browserTrigger = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-browser.ts"));
 
         auditApi.Should().Contain("triggerBrowserBlobDownload");

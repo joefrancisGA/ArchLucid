@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_ui_export_module_exposes_band_and_scorer_version_helpers()
     {
-        string exportModule = File.ReadAllText(
+        string exportModule = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-semantic-support-band-export.ts"));
 
         exportModule.Should().Contain("FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION");
@@ -26,7 +26,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_career_export_honesty_includes_semantic_support_markdown_section()
     {
-        string careerHonesty = File.ReadAllText(
+        string careerHonesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "career-export-coverage-honesty.ts"));
 
         careerHonesty.Should().Contain("formatCareerExportSemanticSupportBandMarkdownSection");
@@ -35,7 +35,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_findings_itsm_json_export_includes_semantic_support_band_stamp()
     {
-        string itsmExport = File.ReadAllText(
+        string itsmExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-findings-itsm-export.ts"));
 
         itsmExport.Should().Contain("semanticSupportBandStamp");
@@ -45,7 +45,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_decision_register_export_includes_semantic_support_band_stamp()
     {
-        string decisionRegisterExport = File.ReadAllText(
+        string decisionRegisterExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "decision-register-export.ts"));
 
         decisionRegisterExport.Should().Contain("semanticSupportBandStamp");
@@ -55,7 +55,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_print_view_exposes_semantic_support_stamp_line()
     {
-        string printView = File.ReadAllText(
+        string printView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "package-print-view.ts"));
 
         printView.Should().Contain("semanticSupportBandStampLine");
@@ -65,7 +65,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_adr_markdown_includes_semantic_support_per_finding()
     {
-        string adrMarkdown = File.ReadAllText(
+        string adrMarkdown = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "adr-from-run-markdown.ts"));
 
         adrMarkdown.Should().Contain("Semantic support");
@@ -75,7 +75,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_career_export_composer_includes_semantic_support_markdown_formatter()
     {
-        string composer = File.ReadAllText(
+        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

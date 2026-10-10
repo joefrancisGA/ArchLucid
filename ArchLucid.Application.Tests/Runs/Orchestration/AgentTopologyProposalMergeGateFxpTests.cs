@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateFxpTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "fx-1", label: "fxp", sourceId: "azurerm_fxp.main"));
+            ComputeNode(nodeId: "fx-1", label: "fxp", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fxp")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

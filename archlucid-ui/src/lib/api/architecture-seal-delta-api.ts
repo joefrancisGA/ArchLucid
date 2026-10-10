@@ -4,7 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { architectureSealDeltaBlockedReason } from "@/lib/architecture/architecture-seal-delta-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -12,7 +12,7 @@ export async function getArchitectureSealDelta(
   architectureId: string,
 ): Promise<ArchitectureSealDeltaResponse> {
   try {
-    return await apiGet<ArchitectureSealDeltaResponse>(
+    return await apiGetSealedManifestAware<ArchitectureSealDeltaResponse>(
       `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/seal-delta`,
     );
   } catch (error: unknown) {

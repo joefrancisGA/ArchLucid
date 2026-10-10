@@ -88,7 +88,7 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
         {
             string root = ArchitectureConstraintRepositoryPaths.RepositoryRoot;
             string fullPath = Path.Combine(root, entry.RelativeSourcePath.Replace('/', Path.DirectorySeparatorChar));
-            string text = File.ReadAllText(fullPath);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(fullPath);
 
             text.Should().Contain(
                 "Compatibility stub",
@@ -156,7 +156,7 @@ public sealed class DecisioningCompatibilityStubArchitectureTests
                 continue;
             }
 
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
             if (!CompatibilityStubMarker.IsMatch(text))
             {

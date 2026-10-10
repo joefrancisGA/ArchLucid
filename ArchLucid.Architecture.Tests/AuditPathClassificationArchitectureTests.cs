@@ -124,7 +124,26 @@ public sealed class AuditPathClassificationArchitectureTests
         "TraceabilityBundleExportApplicationService",
         "RunExportQueryFacade",
         "DigestSubscriptionFacade",
-        "TenantTrialIdentityHandoffStage"
+        "TenantTrialIdentityHandoffStage",
+        "AzureExtractorPreparedZipPersistStage",
+        "AzureExtractorPreparedZipValidateStage",
+        "BillingCheckoutFacade",
+        "RunScopedLlmBudgetReservationService",
+        "EvidenceAddedIncrementalReReviewCoordinator",
+        "FindingVerificationService",
+        "RunCoverageAcknowledgementService",
+        "AzureInventorySnapshotHeaderService",
+        "OperationalSecurityExceptionService",
+        "OperationalSecurityFindingIngestService",
+        "OperatorInferredConnectionService",
+        "RemediationInstanceService",
+        "SecureNowArchitectNeighborhoodRunner",
+        "SecureNowQuestionDispositionService",
+        "SecurityAssetAssertionService",
+        "SecurityDeclaredConnectionService",
+        "RunAssumptionAcknowledgementService",
+        "AuthorityCommitFailureRecorder",
+        "TenantTrialConversionStage"
     ];
 
     private static string FindRepoRoot()

@@ -15,17 +15,17 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion705_707_posture_seal_delta_and_export_replay_openapi_409()
     {
-        string postureController = File.ReadAllText(
+        string postureController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePostureController.cs"));
-        string postureGuard = File.ReadAllText(
+        string postureGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePostureController.SealedManifestGuard.cs"));
-        string architecturesController = File.ReadAllText(
+        string architecturesController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
-        string architecturesGuard = File.ReadAllText(
+        string architecturesGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.SealedManifestGuard.cs"));
-        string sealDeltaGuard = File.ReadAllText(
+        string sealDeltaGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSealDeltaSealedManifestReadGuard.cs"));
-        string exportsController = File.ReadAllText(
+        string exportsController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
 
         postureController.Should().Contain("GetPosture");
@@ -43,23 +43,23 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion708_710_run_inventory_preview_and_coverage_preview_openapi_409()
     {
-        string authorityReadsController = File.ReadAllText(
+        string authorityReadsController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityReadsGuard = File.ReadAllText(
+        string authorityReadsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.SealedManifestGuard.cs"));
-        string authorityQueryList = File.ReadAllText(
+        string authorityQueryList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.List.cs"));
-        string authorityQueryGuard = File.ReadAllText(
+        string authorityQueryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.SealedManifestGuard.cs"));
-        string runInventoryGuard = File.ReadAllText(
+        string runInventoryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunInventorySealedManifestReadGuard.cs"));
-        string previewController = File.ReadAllText(
+        string previewController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.cs"));
-        string previewGuard = File.ReadAllText(
+        string previewGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.SealedManifestGuard.cs"));
-        string coverageController = File.ReadAllText(
+        string coverageController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceCoverageController.cs"));
-        string coveragePreviewGuard = File.ReadAllText(
+        string coveragePreviewGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -88,11 +88,11 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion711_712_run_list_and_draft_intake_sealed_clients()
     {
-        string runsListApi = File.ReadAllText(
+        string runsListApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-list.ts"));
-        string runListBlocked = File.ReadAllText(
+        string runListBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-list-blocked-reason.ts"));
-        string loadRunsPage = File.ReadAllText(
+        string loadRunsPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "reviews",
                 "_sections",
                 "load-runs-page-model.ts"));
-        string runsPageView = File.ReadAllText(
+        string runsPageView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,14 +114,16 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "reviews",
                 "_sections",
                 "RunsPageView.tsx"));
-        string draftApi = File.ReadAllText(
+        string draftApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-crud.ts"));
-        string draftHook = File.ReadAllText(
+        string draftHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-draft-query.ts"));
-        string draftBlocked = File.ReadAllText(
+        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-draft-blocked-reason.ts"));
 
-        runsListApi.Should().Contain("apiGetSealedManifestAware");
+        runsListApi.Should().Contain("apiGet");
+        runsListApi.Should().Contain("runListBlockedReason");
+        runsListApi.Should().NotContain("apiGetSealedManifestAware");
         runListBlocked.Should().Contain("runListBlockedReason");
         loadRunsPage.Should().Contain("runListBlockedReason");
         runsPageView.Should().Contain("runs-page-list-blocked-reason");
@@ -134,7 +136,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion713_716_export_compare_search_drift_and_attestation_ui_wiring()
     {
-        string exportCompareCallout = File.ReadAllText(
+        string exportCompareCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -146,7 +148,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportRecordCompareCallout.tsx"));
-        string runDetailExports = File.ReadAllText(
+        string runDetailExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -158,7 +160,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailArtifactsExportsSection.tsx"));
-        string comparePanel = File.ReadAllText(
+        string comparePanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -169,7 +171,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareResultsPanel.tsx"));
-        string comparePanelHook = File.ReadAllText(
+        string comparePanelHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -180,9 +182,9 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-results-panel.ts"));
-        string driftHook = File.ReadAllText(
+        string driftHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-comparison-drift-download.ts"));
-        string lineageContent = File.ReadAllText(
+        string lineageContent = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -195,7 +197,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "lineage",
                 "_sections",
                 "GovernanceApprovalLineageDetailContent.tsx"));
-        string sponsorKpi = File.ReadAllText(
+        string sponsorKpi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -206,7 +208,7 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorRoiDashboardLiveKpiCards.tsx"));
-        string overviewLoadState = File.ReadAllText(
+        string overviewLoadState = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

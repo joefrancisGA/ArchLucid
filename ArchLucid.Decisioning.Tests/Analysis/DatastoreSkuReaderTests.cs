@@ -6,6 +6,8 @@ using Xunit;
 
 namespace ArchLucid.Decisioning.Tests.Analysis;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class DatastoreSkuReaderTests
 {
     [Fact]

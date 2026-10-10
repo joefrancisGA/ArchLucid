@@ -13,7 +13,8 @@ import type {
   EvolutionResultsResponse,
   EvolutionSimulateResponse,
 } from "@/types/evolution";
-import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders, type ApiGetOptions } from "./http";
+import { apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders, type ApiGetOptions } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { advisoryRunReadBlockedReason } from "@/lib/advisory/advisory-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -29,7 +30,7 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
   const q = params.toString();
 
   try {
-    return await apiGet<ImprovementPlan>(
+    return await apiGetSealedManifestAware<ImprovementPlan>(
       `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
     );
   } catch (error: unknown) {
@@ -79,7 +80,7 @@ export async function fetchProductLearningDashboard(options?: {
   const q = productLearningSinceQuery(options?.since);
   const base = `/${ApiV1Routes.productLearning}`;
 
-  return apiGet<ProductLearningDashboardBundle>(`${base}/dashboard${q}`);
+  return apiGetSealedManifestAware<ProductLearningDashboardBundle>(`${base}/dashboard${q}`);
 }
 
 function learningMaxQuery(param: "maxThemes" | "maxPlans", value: number | undefined): string {
@@ -93,7 +94,7 @@ function learningMaxQuery(param: "maxThemes" | "maxPlans", value: number | undef
 /** Lists improvement themes for the current scope (newest first). */
 export async function fetchLearningThemes(maxThemes?: number): Promise<LearningThemesListResponse> {
   const q = learningMaxQuery("maxThemes", maxThemes);
-  return apiGet<LearningThemesListResponse>(`/${ApiV1Routes.learning}/themes${q}`);
+  return apiGetSealedManifestAware<LearningThemesListResponse>(`/${ApiV1Routes.learning}/themes${q}`);
 }
 
 /** Lists improvement plans for the current scope (newest first). */
@@ -102,13 +103,13 @@ export async function fetchLearningPlans(
   options?: { readonly signal?: AbortSignal },
 ): Promise<LearningPlansListResponse> {
   const q = learningMaxQuery("maxPlans", maxPlans);
-  return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`, options);
+  return apiGetSealedManifestAware<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`, options);
 }
 
 /** Loads one improvement plan with steps, link counts, and optional parent theme. */
 export async function fetchLearningPlanDetail(planId: string): Promise<LearningPlanDetailResponse> {
   const id = planId.trim();
-  return apiGet<LearningPlanDetailResponse>(`/${ApiV1Routes.learning}/plans/${encodeURIComponent(id)}`);
+  return apiGetSealedManifestAware<LearningPlanDetailResponse>(`/${ApiV1Routes.learning}/plans/${encodeURIComponent(id)}`);
 }
 
 /** Aggregated planning KPIs for the current scope. */
@@ -127,7 +128,7 @@ export async function fetchLearningSummary(options?: {
   const q = params.toString();
   const suffix = q ? `?${q}` : "";
 
-  return apiGet<LearningSummaryResponse>(`/${ApiV1Routes.learning}/summary${suffix}`);
+  return apiGetSealedManifestAware<LearningSummaryResponse>(`/${ApiV1Routes.learning}/summary${suffix}`);
 }
 
 /**
@@ -152,21 +153,21 @@ export async function fetchLearningPlanningListBundle(options?: {
   const q = params.toString();
   const suffix = q ? `?${q}` : "";
 
-  return apiGet(`/${ApiV1Routes.learning}/list-bundle${suffix}`);
+  return apiGetSealedManifestAware(`/${ApiV1Routes.learning}/list-bundle${suffix}`);
 }
 
 /** Lists 60R evolution candidate change sets for the current scope (newest first server-side). */
 export async function fetchEvolutionCandidates(max?: number): Promise<EvolutionCandidateChangeSetListResponse> {
   const q = max !== undefined ? `?max=${encodeURIComponent(String(max))}` : "";
 
-  return apiGet<EvolutionCandidateChangeSetListResponse>(`/${ApiV1Routes.evolution}/candidates${q}`);
+  return apiGetSealedManifestAware<EvolutionCandidateChangeSetListResponse>(`/${ApiV1Routes.evolution}/candidates${q}`);
 }
 
 /** Loads candidate, plan snapshot JSON, and simulation runs with parsed evaluation fields. */
 export async function fetchEvolutionResults(candidateId: string): Promise<EvolutionResultsResponse> {
   const id = candidateId.trim();
 
-  return apiGet<EvolutionResultsResponse>(`/${ApiV1Routes.evolution}/results/${encodeURIComponent(id)}`);
+  return apiGetSealedManifestAware<EvolutionResultsResponse>(`/${ApiV1Routes.evolution}/results/${encodeURIComponent(id)}`);
 }
 
 /**

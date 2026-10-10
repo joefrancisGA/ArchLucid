@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTest
     [Fact]
     public void Sn017_module_names_nested_compare_resolver_and_child_surfaces()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTest
     [Fact]
     public void Sn017_desk_compare_action_uses_nested_resolver()
     {
-        string compareAction = File.ReadAllText(
+        string compareAction = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -47,7 +47,7 @@ public sealed class SystemNotJobSn017DeskChildrenNotPeerProductsArchitectureTest
     [Fact]
     public void Sn017_vitest_ratchet_names_nested_compare_and_guided_peer_fallback()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

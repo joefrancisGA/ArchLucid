@@ -15,15 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion379_380_analysis_build_and_export_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "ArchitectureAnalysisService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Analysis",
                 "ArchitectureAnalysisSealedManifestHashGuard.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -40,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion381_run_detail_header_package_export_ui_fail_closed()
     {
-        string header = File.ReadAllText(
+        string header = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPageHeader.tsx"));
 
         header.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -50,7 +50,7 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion382_findings_itsm_export_ui_fail_closed()
     {
-        string toolbar = File.ReadAllText(
+        string toolbar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingsItsmExportToolbar.tsx"));
 
         toolbar.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -60,13 +60,13 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion383_cloud_resource_evidence_hub_fail_closed_when_run_scoped()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "CloudResourceEvidenceHubService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -80,14 +80,14 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion384_390_outbox_processors_fail_closed_on_sealed_hash()
     {
-        string retrievalProcessor = File.ReadAllText(
+        string retrievalProcessor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Core",
                 "Coordination",
                 "Retrieval",
                 "RetrievalIndexingOutboxProcessor.cs"));
-        string cosmosProcessor = File.ReadAllText(
+        string cosmosProcessor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Core",
@@ -102,21 +102,21 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion385_386_391_emitters_use_verified_manifest_hash_resolver()
     {
-        string manifestFinalization = File.ReadAllText(
+        string manifestFinalization = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Runs",
                 "Finalization",
                 "ManifestFinalizationService.Legacy.cs"));
-        string authorityFinalizer = File.ReadAllText(
+        string authorityFinalizer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Runs",
                 "Orchestration",
                 "AuthorityCommittedPipelineFinalizer.cs"));
-        string advisoryScan = File.ReadAllText(
+        string advisoryScan = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -131,13 +131,13 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion387_388_outbox_drain_and_webhook_samples_include_manifest_hash()
     {
-        string outboxGuard = File.ReadAllText(
+        string outboxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
                 "Integration",
                 "IntegrationEventOutboxManifestHashGuard.cs"));
-        string samples = File.ReadAllText(
+        string samples = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Integration", "IntegrationWebhookPayloadSamples.cs"));
 
         outboxGuard.Should().Contain("IntegrationEventTypes.GovernancePolicyPackPublishedV1");
@@ -148,7 +148,7 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
     [Fact]
     public void Suggestion389_sponsor_roi_csv_ui_fail_closed_when_scoped_review_unsealed()
     {
-        string section = File.ReadAllText(
+        string section = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -14,9 +14,9 @@ public sealed class CareerGravityCg035RoiNotCareerProofArchitectureTests
     [Fact]
     public void Cg035_roi_summary_wires_tile_career_honesty_strip()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "roi", "roi-tile-career-honesty.ts"));
-        string roiSummary = File.ReadAllText(
+        string roiSummary = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -27,7 +27,7 @@ public sealed class CareerGravityCg035RoiNotCareerProofArchitectureTests
                 "roi-summary",
                 "_sections",
                 "RoiSummaryPageView.tsx"));
-        string sponsorReport = File.ReadAllText(
+        string sponsorReport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -49,7 +49,7 @@ public sealed class CareerGravityCg035RoiNotCareerProofArchitectureTests
     [Fact]
     public void Cg035_docs_record_roi_tile_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-035");

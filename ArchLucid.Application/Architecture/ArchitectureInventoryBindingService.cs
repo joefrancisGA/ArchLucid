@@ -3,6 +3,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.Architecture;
 

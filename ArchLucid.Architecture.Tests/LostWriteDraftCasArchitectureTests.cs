@@ -14,11 +14,11 @@ public sealed class LostWriteDraftCasArchitectureTests
     [Fact]
     public void Lw015_force_overwrite_audit_is_required_and_fail_closed()
     {
-        string support = File.ReadAllText(
+        string support = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftForceOverwriteAuditSupport.cs"));
-        string required = File.ReadAllText(
+        string required = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Audit", "RequiredAuditEventTypes.cs"));
-        string mutate = File.ReadAllText(
+        string mutate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
 
         support.Should().Contain("LogOrThrowAsync");
@@ -41,9 +41,9 @@ public sealed class LostWriteDraftCasArchitectureTests
             "ArchLucid.Application",
             "Drafts",
             "DraftStartReviewStaleUpdatedUtcGuard.cs");
-        string mutate = File.ReadAllText(
+        string mutate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
-        string submit = File.ReadAllText(
+        string submit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftAdmissionService.SubmitAndHeal.cs"));
 
         File.Exists(patchGuardPath).Should().BeTrue();
@@ -57,14 +57,14 @@ public sealed class LostWriteDraftCasArchitectureTests
     [Fact]
     public void Lw026_in_memory_draft_repository_does_not_bypass_cas_guard()
     {
-        string repository = File.ReadAllText(
+        string repository = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
                 "Data",
                 "Repositories",
                 "InMemoryDraftRequestRepository.cs"));
-        string mutate = File.ReadAllText(
+        string mutate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
 
         repository.Should().NotContain("ExpectedUpdatedUtc");

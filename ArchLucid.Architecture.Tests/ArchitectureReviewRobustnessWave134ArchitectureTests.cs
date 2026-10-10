@@ -15,56 +15,56 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
     [Fact]
     public void Suggestion1593_1598_policy_pack_and_draft_mutation_runtime_409_mappers()
     {
-        string policyCrud = File.ReadAllText(
+        string policyCrud = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.Crud.cs"));
-        string policyAssignment = File.ReadAllText(
+        string policyAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "PolicyPacksController.Assignment.cs"));
-        string policyMutationGuard = File.ReadAllText(
+        string policyMutationGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Governance",
                 "PolicyPacks",
                 "PolicyPackHttpFacade.MutationSealedManifestGuard.cs"));
-        string draftQuestions = File.ReadAllText(
+        string draftQuestions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.Questions.cs"));
-        string draftAdmit = File.ReadAllText(
+        string draftAdmit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.Lifecycle.AdmitSubmit.cs"));
-        string draftBranch = File.ReadAllText(
+        string draftBranch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.Lifecycle.Branch.cs"));
-        string draftAbandonReopen = File.ReadAllText(
+        string draftAbandonReopen = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.Lifecycle.AbandonReopen.cs"));
-        string draftCloneSnapshot = File.ReadAllText(
+        string draftCloneSnapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
     [Fact]
     public void Suggestion1599_1601_policy_draft_and_risk_exception_ui_wiring()
     {
-        string policyMutationBlocked = File.ReadAllText(
+        string policyMutationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,7 +111,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "lib",
                 "policy",
                 "policy-pack-mutation-blocked-reason.ts"));
-        string policyCreatePublish = File.ReadAllText(
+        string policyCreatePublish = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -122,7 +122,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "policy-packs",
                 "_sections",
                 "use-policy-packs-create-publish.ts"));
-        string policyWorkspaceSelection = File.ReadAllText(
+        string policyWorkspaceSelection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -133,7 +133,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "policy-packs",
                 "_sections",
                 "use-policy-packs-workspace-selection.ts"));
-        string draftBlocked = File.ReadAllText(
+        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -141,7 +141,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftAdmitHook = File.ReadAllText(
+        string draftAdmitHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -152,7 +152,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "reviews",
                 "new",
                 "use-guided-intake-draft-admit.ts"));
-        string draftSubmitHook = File.ReadAllText(
+        string draftSubmitHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -163,9 +163,9 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "reviews",
                 "new",
                 "use-guided-intake-draft-submit.ts"));
-        string presenterElicitation = File.ReadAllText(
+        string presenterElicitation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-review-presenter-elicitation.ts"));
-        string riskExceptionClient = File.ReadAllText(
+        string riskExceptionClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -173,7 +173,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "components",
                 "governance",
                 "use-risk-exceptions-client.ts"));
-        string riskExceptionBlocked = File.ReadAllText(
+        string riskExceptionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -196,7 +196,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
     [Fact]
     public void Suggestion1602_1604_feedback_advisory_and_finalize_ui_wiring()
     {
-        string findingFeedback = File.ReadAllText(
+        string findingFeedback = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -204,7 +204,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "components",
                 "findings",
                 "FindingFeedbackThumbs.tsx"));
-        string findingFeedbackBlocked = File.ReadAllText(
+        string findingFeedbackBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -212,7 +212,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "lib",
                 "findings",
                 "finding-feedback-mutation-blocked-reason.ts"));
-        string advisoryScans = File.ReadAllText(
+        string advisoryScans = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -220,7 +220,7 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "components",
                 "advisory",
                 "use-advisory-scans-content.ts"));
-        string advisoryBlocked = File.ReadAllText(
+        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -228,9 +228,9 @@ public sealed class ArchitectureReviewRobustnessWave134ArchitectureTests
                 "lib",
                 "advisory",
                 "advisory-recommendation-apply-mutation-blocked-reason.ts"));
-        string commitRunButton = File.ReadAllText(
+        string commitRunButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CommitRunButton.tsx"));
-        string finalizeBlocked = File.ReadAllText(
+        string finalizeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

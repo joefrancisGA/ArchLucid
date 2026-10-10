@@ -15,17 +15,19 @@ public sealed class ArchitectureReviewRobustnessWave47ArchitectureTests
     [Fact]
     public void Suggestion549_551_provenance_and_seal_delta_openapi_409()
     {
-        string readHandlers = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Support", "AuthorityRunReadHandlers.cs"));
-        string authorityReads = File.ReadAllText(
+        string readHandlers =
+            ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "Support", "AuthorityRunReadHandlers.cs"))
+            + ArchitectureSourceProbe.ReadPathWithPartials(
+                Path.Combine(RepoRoot, "ArchLucid.Api", "Support", "AuthorityRunReadHandlers.SealedManifestGuard.cs"));
+        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityTrail = File.ReadAllText(
+        string authorityTrail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string runProvenance = File.ReadAllText(
+        string runProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
-        string sealDeltaService = File.ReadAllText(
+        string sealDeltaService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSealDeltaService.cs"));
-        string architecturesController = File.ReadAllText(
+        string architecturesController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
 
         readHandlers.Should().Contain("SealedManifestReadGuard");
@@ -43,11 +45,11 @@ public sealed class ArchitectureReviewRobustnessWave47ArchitectureTests
     [Fact]
     public void Suggestion550_555_provenance_and_explain_sealed_manifest_aware_reads()
     {
-        string runDetailArtifacts = File.ReadAllText(
+        string runDetailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string provenanceBlockedReason = File.ReadAllText(
+        string provenanceBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "provenance", "run-provenance-blocked-reason.ts"));
-        string provenancePage = File.ReadAllText(
+        string provenancePage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -69,15 +71,15 @@ public sealed class ArchitectureReviewRobustnessWave47ArchitectureTests
     [Fact]
     public void Suggestion552_557_seal_delta_and_finding_reads_fail_closed()
     {
-        string sealDeltaApi = File.ReadAllText(
+        string sealDeltaApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-seal-delta-api.ts"));
-        string sealDeltaPanel = File.ReadAllText(
+        string sealDeltaPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "architecture", "ArchitectureSealDeltaPanel.tsx"));
-        string compareReads = File.ReadAllText(
+        string compareReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string runFindings = File.ReadAllText(
+        string runFindings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
 
         sealDeltaApi.Should().Contain("apiGetSealedManifestAware");
@@ -93,17 +95,17 @@ public sealed class ArchitectureReviewRobustnessWave47ArchitectureTests
     [Fact]
     public void Suggestion558_560_programmatic_download_consolidation()
     {
-        string bundleButton = File.ReadAllText(
+        string bundleButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDetailBundleExportButton.tsx"));
-        string emailRunExports = File.ReadAllText(
+        string emailRunExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
-        string runDetailHeader = File.ReadAllText(
+        string runDetailHeader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPageHeader.tsx"));
-        string architectureDocx = File.ReadAllText(
+        string architectureDocx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-architecture-package-docx.ts"));
-        string deliverableGrid = File.ReadAllText(
+        string deliverableGrid = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDeliverableGrid.tsx"));
-        string sponsorHandoff = File.ReadAllText(
+        string sponsorHandoff = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

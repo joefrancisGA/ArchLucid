@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateQfkTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "qf-1", label: "qfk", sourceId: "azurerm_qfk.main"));
+            ComputeNode(nodeId: "qf-1", label: "qfk", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-qfk")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

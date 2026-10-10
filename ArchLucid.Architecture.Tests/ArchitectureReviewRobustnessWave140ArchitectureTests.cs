@@ -15,48 +15,48 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
     [Fact]
     public void Suggestion1665_1670_1676_pilot_intelligence_batch_and_revoke_runtime_409_mappers()
     {
-        string pilotsPacks = File.ReadAllText(
+        string pilotsPacks = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotsGuard = File.ReadAllText(
+        string pilotsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
-        string boardPack = File.ReadAllText(
+        string boardPack = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsBoardPackController.cs"));
-        string boardPackGuard = File.ReadAllText(
+        string boardPackGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Pilots",
                 "PilotsBoardPackController.SealedManifestGuard.cs"));
-        string intelligenceRun = File.ReadAllText(
+        string intelligenceRun = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "ArchitectureIntelligence",
                 "ArchitectureIntelligenceController.Run.cs"));
-        string intelligenceGuard = File.ReadAllText(
+        string intelligenceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "ArchitectureIntelligence",
                 "ArchitectureIntelligenceController.SealedManifestGuard.cs"));
-        string batchCreate = File.ReadAllText(
+        string batchCreate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunsController.Create.Batch.cs"));
-        string runsGuard = File.ReadAllText(
+        string runsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunsController.SealedManifestGuard.cs"));
-        string revokeRisk = File.ReadAllText(
+        string revokeRisk = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -92,7 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
     [Fact]
     public void Suggestion1671_1673_intelligence_board_pack_and_first_value_ui_wiring()
     {
-        string intelligenceBlocked = File.ReadAllText(
+        string intelligenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -100,7 +100,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-intelligence-run-mutation-blocked-reason.ts"));
-        string intelligenceActions = File.ReadAllText(
+        string intelligenceActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,7 +111,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "architecture-intelligence",
                 "_sections",
                 "use-architecture-intelligence-actions.ts"));
-        string boardPackBlocked = File.ReadAllText(
+        string boardPackBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -119,7 +119,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "lib",
                 "pilots",
                 "board-pack-mutation-blocked-reason.ts"));
-        string pilotPage = File.ReadAllText(
+        string pilotPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -130,7 +130,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "sponsor-report",
                 "_sections",
                 "use-pilot-value-report-pilot-page.ts"));
-        string firstValueBlocked = File.ReadAllText(
+        string firstValueBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -138,11 +138,11 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "lib",
                 "pilots",
                 "first-value-report-mutation-blocked-reason.ts"));
-        string manifestGrid = File.ReadAllText(
+        string manifestGrid = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDeliverableGrid.tsx"));
-        string ctoRecap = File.ReadAllText(
+        string ctoRecap = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "cto-demo", "CtoDemoRecapCard.tsx"));
-        string ctoClosing = File.ReadAllText(
+        string ctoClosing = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "cto-demo", "CtoDemoAuditClosingBeat.tsx"));
 
         intelligenceBlocked.Should().Contain("architectureIntelligenceRunMutationBlockedReason");
@@ -158,7 +158,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
     [Fact]
     public void Suggestion1674_1675_sponsor_docx_and_one_pager_ui_wiring()
     {
-        string docxBlocked = File.ReadAllText(
+        string docxBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -166,7 +166,7 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-value-report-docx-mutation-blocked-reason.ts"));
-        string onePagerBlocked = File.ReadAllText(
+        string onePagerBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -174,9 +174,9 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "lib",
                 "pilots",
                 "sponsor-one-pager-mutation-blocked-reason.ts"));
-        string docxButton = File.ReadAllText(
+        string docxButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GenerateSponsorValueReportButton.tsx"));
-        string pilotPage = File.ReadAllText(
+        string pilotPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -187,9 +187,9 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
                 "sponsor-report",
                 "_sections",
                 "use-pilot-value-report-pilot-page.ts"));
-        string downloads = File.ReadAllText(
+        string downloads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
-        string sponsorExports = File.ReadAllText(
+        string sponsorExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

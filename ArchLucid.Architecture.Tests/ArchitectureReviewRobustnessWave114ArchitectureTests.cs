@@ -15,14 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1353_1355_architecture_graph_full_page_and_temporal_snapshot_sealed_manifest_mappers()
     {
-        string reviewGraph = File.ReadAllText(
+        string reviewGraph = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "GraphController.ReviewGraph.cs"));
-        string snapshot = File.ReadAllText(
+        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -40,14 +40,14 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1356_1359_interactive_graph_run_query_and_graph_guard_sealed_manifest_mappers()
     {
-        string provenance = File.ReadAllText(
+        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunQueryController.Provenance.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -65,9 +65,9 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1360_1364_architecture_graph_paging_temporal_snapshot_and_fail_closed_wiring()
     {
-        string graphApi = File.ReadAllText(
+        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string graphBlocked = File.ReadAllText(
+        string graphBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -75,9 +75,9 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
                 "lib",
                 "graph",
                 "architecture-graph-temporal-snapshot-blocked-reason.ts"));
-        string loadViewModel = File.ReadAllText(
+        string loadViewModel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "load-architecture-graph-view-model.ts"));
-        string graphPageFetch = File.ReadAllText(
+        string graphPageFetch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -88,7 +88,7 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
                 "evidence-graph",
                 "_sections",
                 "use-graph-page-fetch.ts"));
-        string graphError = File.ReadAllText(
+        string graphError = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

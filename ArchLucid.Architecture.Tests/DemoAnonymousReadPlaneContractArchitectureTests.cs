@@ -16,7 +16,7 @@ public sealed class DemoAnonymousReadPlaneContractArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1251");
         text.Should().Contain("DemoScopes");
         text.Should().Contain("AllowAnonymous");
@@ -33,11 +33,11 @@ public sealed class DemoAnonymousReadPlaneContractArchitectureTests
         File.Exists(packetPath).Should().BeTrue();
         File.Exists(aliasPath).Should().BeTrue();
 
-        string packet = File.ReadAllText(packetPath);
+        string packet = ArchitectureSourceProbe.ReadPathWithPartials(packetPath);
         packet.Should().Contain("demo-anonymous-read-plane-m-218");
         packet.Should().Contain("TB-1251");
 
-        File.ReadAllText(aliasPath).Should().Contain("M-218");
+        ArchitectureSourceProbe.ReadPathWithPartials(aliasPath).Should().Contain("M-218");
     }
 
     [Fact]
@@ -51,9 +51,9 @@ public sealed class DemoAnonymousReadPlaneContractArchitectureTests
         File.Exists(demoExplain).Should().BeTrue();
         File.Exists(showcaseStatic).Should().BeTrue();
 
-        File.ReadAllText(demoScopes).Should().Contain("BuildDemoScope");
-        File.ReadAllText(demoExplain).Should().Contain("AllowAnonymous");
-        File.ReadAllText(showcaseStatic).Should().Contain("CANONICAL_ANONYMOUS_PROOF_HREF");
+        ArchitectureSourceProbe.ReadPathWithPartials(demoScopes).Should().Contain("BuildDemoScope");
+        ArchitectureSourceProbe.ReadPathWithPartials(demoExplain).Should().Contain("AllowAnonymous");
+        ArchitectureSourceProbe.ReadPathWithPartials(showcaseStatic).Should().Contain("CANONICAL_ANONYMOUS_PROOF_HREF");
     }
 
     private static string FindRepoRoot()

@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateStackTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "stk-1", label: "stack", sourceId: "azurerm_stack.main"));
+            ComputeNode(nodeId: "stk-1", label: "stack", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-stack")));
 

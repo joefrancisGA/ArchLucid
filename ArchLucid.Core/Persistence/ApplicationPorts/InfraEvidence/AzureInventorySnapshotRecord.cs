@@ -1,6 +1,4 @@
-using ArchLucid.Core.InfraEvidence;
-
-namespace ArchLucid.Persistence.InfraEvidence;
+namespace ArchLucid.Core.InfraEvidence;
 
 public sealed class AzureInventorySnapshotRecord
 {

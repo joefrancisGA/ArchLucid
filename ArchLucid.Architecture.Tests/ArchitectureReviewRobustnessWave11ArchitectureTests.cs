@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion101_replay_prepare_reverifies_pins()
     {
-        string replay = File.ReadAllText(
+        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
 
         replay.Should().Contain("VerifyPinIntegrityOrThrowAsync");
@@ -43,7 +43,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
             .Should()
             .BeTrue();
 
-        string azure = File.ReadAllText(
+        string azure = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Findings", "OrphanedAzureResourceFindingEngine.cs"));
 
         azure.Should().Contain("EffectfulFindingEngineCollectionFreshness");
@@ -53,7 +53,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion104_golden_cohort_uses_pin_aware_hasher()
     {
-        string cohort = File.ReadAllText(
+        string cohort = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning.Tests",
@@ -66,7 +66,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion105_openapi_documents_content_hash_pins()
     {
-        string openApi = File.ReadAllText(
+        string openApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -80,7 +80,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion106_focused_pilot_pins_in_reuse_and_hasher()
     {
-        string graphStage = File.ReadAllText(
+        string graphStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -92,7 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
 
         graphStage.Should().Contain("FocusedPilotModeEnabled");
 
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("CreateTimeFocusedPilotModeEnabled");
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion107_knowledge_model_load_verifies_content_hash()
     {
-        string access = File.ReadAllText(
+        string access = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -133,7 +133,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
             .Should()
             .BeTrue();
 
-        string materialization = File.ReadAllText(
+        string materialization = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -149,12 +149,12 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion110_findings_list_and_first_value_use_lifecycle_guard()
     {
-        string findingsQuery = File.ReadAllText(
+        string findingsQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Query", "RunFindingsQueryService.cs"));
 
         findingsQuery.Should().Contain("IRunFindingsListStage");
 
-        string firstValue = File.ReadAllText(
+        string firstValue = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "FirstValueReportBuilder.cs"));
 
         firstValue.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");

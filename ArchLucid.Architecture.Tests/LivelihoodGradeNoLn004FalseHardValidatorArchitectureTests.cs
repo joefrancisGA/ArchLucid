@@ -11,19 +11,19 @@ public sealed class LivelihoodGradeNoLn004FalseHardValidatorArchitectureTests
     [Fact]
     public void Ln004_validator_wired_into_career_artifact_completeness()
     {
-        string validator = File.ReadAllText(
+        string validator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
                 "CareerArtifacts",
                 "CareerArtifactCompletenessValidator.cs"));
-        string dedicated = File.ReadAllText(
+        string dedicated = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
                 "CareerArtifacts",
                 "WorkingCareerHardInfeasibleCitationValidator.cs"));
-        string mapper = File.ReadAllText(
+        string mapper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

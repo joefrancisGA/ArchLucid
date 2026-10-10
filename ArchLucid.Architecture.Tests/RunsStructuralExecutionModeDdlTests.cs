@@ -12,7 +12,7 @@ public sealed class RunsStructuralExecutionModeDdlTests
     [Fact]
     public void ArchLucid_sql_requires_structural_execution_mode_on_runs()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
 
         sql.Should().MatchRegex(
             new Regex(@"(?<!\w)StructuralExecutionMode(?!\w).*NOT\s+NULL", RegexOptions.IgnoreCase | RegexOptions.Singleline),

@@ -16,7 +16,7 @@ public sealed class GoldenCohortRelockVsRubberStampContractArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1172");
         text.Should().Contain("rubber stamp");
         text.Should().Contain("Never re-lockable");
@@ -33,8 +33,8 @@ public sealed class GoldenCohortRelockVsRubberStampContractArchitectureTests
         File.Exists(readmePath).Should().BeTrue();
         File.Exists(cohortPath).Should().BeTrue();
 
-        File.ReadAllText(readmePath).Should().Contain("ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED");
-        File.ReadAllText(cohortPath).Should().Contain("expectedCommittedManifestSha256");
+        ArchitectureSourceProbe.ReadPathWithPartials(readmePath).Should().Contain("ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED");
+        ArchitectureSourceProbe.ReadPathWithPartials(cohortPath).Should().Contain("expectedCommittedManifestSha256");
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public sealed class GoldenCohortRelockVsRubberStampContractArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        File.ReadAllText(path).Should().Contain("TB-1156");
+        ArchitectureSourceProbe.ReadPathWithPartials(path).Should().Contain("TB-1156");
     }
 
     private static string FindRepoRoot()

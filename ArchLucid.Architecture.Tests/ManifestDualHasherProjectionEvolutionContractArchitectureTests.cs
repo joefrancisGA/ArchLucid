@@ -16,7 +16,7 @@ public sealed class ManifestDualHasherProjectionEvolutionContractArchitectureTes
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1156");
         text.Should().Contain("ManifestHashService");
         text.Should().Contain("GoldenManifestFingerprint.ComputeContentSha256Hex");
@@ -36,9 +36,9 @@ public sealed class ManifestDualHasherProjectionEvolutionContractArchitectureTes
         File.Exists(fingerprintPath).Should().BeTrue();
         File.Exists(projectionPath).Should().BeTrue();
 
-        File.ReadAllText(manifestHashPath).Should().Contain("CreatedUtc");
-        File.ReadAllText(fingerprintPath).Should().Contain("ComputeContentSha256Hex");
-        File.ReadAllText(projectionPath).Should().Contain("MapGovernance");
+        ArchitectureSourceProbe.ReadPathWithPartials(manifestHashPath).Should().Contain("CreatedUtc");
+        ArchitectureSourceProbe.ReadPathWithPartials(fingerprintPath).Should().Contain("ComputeContentSha256Hex");
+        ArchitectureSourceProbe.ReadPathWithPartials(projectionPath).Should().Contain("MapGovernance");
     }
 
     private static string FindRepoRoot()

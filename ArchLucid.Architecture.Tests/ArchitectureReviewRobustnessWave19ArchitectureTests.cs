@@ -24,12 +24,12 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion181_export_receipt_mismatch_fail_closed()
     {
-        string problemTypes = File.ReadAllText(
+        string problemTypes = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "ProblemDetails", "ProblemDetailsOptions.cs"));
 
         problemTypes.Should().Contain("DecisionReceiptSealedHashMismatch");
 
-        string download = File.ReadAllText(
+        string download = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -40,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
         download.Should().Contain("DecisionReceiptRunBuildOutcome.SealedHashMismatch");
         download.Should().Contain("ProblemTypes.DecisionReceiptSealedHashMismatch");
 
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
 
         tests.Should().Contain("BuildForRunAsync_SealedReceiptHashMismatch_ReturnsSealedHashMismatch");
@@ -49,7 +49,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion182_export_binds_verdict_and_version_from_sealed_document()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
 
         int exportIndex = service.IndexOf("BuildForRunAsync", StringComparison.Ordinal);
@@ -63,7 +63,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion183_zip_export_verifies_sealed_receipt_hash()
     {
-        string loader = File.ReadAllText(
+        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportAuthorityMaterialLoader.cs"));
 
         loader.Should().Contain("BuildVerifiedExportReceipt");
@@ -77,12 +77,12 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
 
         facade.Should().Contain("InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints");
 
-        string diff = File.ReadAllText(
+        string diff = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Diffs", "ManifestDiffResult.cs"));
 
         diff.Should().Contain("CompareInputFingerprints? InputFingerprints");
 
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
 
         compare.Should().Contain("BuildVersionCompareDiff");
@@ -100,7 +100,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion186_pin_fingerprints_fail_closed_when_empty()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunComparePinFingerprintGuard.cs"));
 
         guard.Should().Contain("create-time {label} is required for both runs");
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
         loadBody.Should().Contain("EnsureCreateTimePinFingerprintsMatchOrThrow");
         loadBody.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
 
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunComparisonController.Agents.cs"));
 
         controller.Should().Contain("ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch");
@@ -126,7 +126,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion188_recovery_verifies_manifest_hash_without_mutating_receipt()
     {
-        string verifier = File.ReadAllText(
+        string verifier = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -137,7 +137,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
 
         verifier.Should().Contain("EnsureSealedManifestHashMatchesOrThrow");
 
-        string scratch = File.ReadAllText(
+        string scratch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -151,7 +151,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion189_commit_and_finalize_assert_caller_scope()
     {
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -162,7 +162,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
         orchestrator.Should().Contain("RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow");
         orchestrator.Should().Contain("\"Commit\"");
 
-        string finalization = File.ReadAllText(
+        string finalization = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestFinalizationService.cs"));
 
         finalization.Should().Contain("RunScopeAssertionGuard.EnsureCallerScopeMatchesRunOrThrow");
@@ -172,7 +172,7 @@ public sealed class ArchitectureReviewRobustnessWave19ArchitectureTests
     [Fact]
     public void Suggestion190_finding_enforcement_tier_and_read_path_property_sync()
     {
-        string converter = File.ReadAllText(
+        string converter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",

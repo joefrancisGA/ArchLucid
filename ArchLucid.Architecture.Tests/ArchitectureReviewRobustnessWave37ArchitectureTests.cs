@@ -15,13 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave37ArchitectureTests
     [Fact]
     public void Suggestion429_430_compare_pair_lifecycle_and_409_mapping()
     {
-        string pairLoad = File.ReadAllText(
+        string pairLoad = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.PairLoad.cs"));
-        string results = File.ReadAllText(
+        string results = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsResults.cs"));
-        string agentsController = File.ReadAllText(
+        string agentsController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunComparisonController.Agents.cs"));
-        string e2eService = File.ReadAllText(
+        string e2eService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "EndToEndReplayComparisonService.cs"));
 
         pairLoad.Should().Contain("TryEnsureCompletePair");
@@ -35,15 +35,15 @@ public sealed class ArchitectureReviewRobustnessWave37ArchitectureTests
     [Fact]
     public void Suggestion431_434_infra_diagram_drift_guards_and_409()
     {
-        string reconciliationService = File.ReadAllText(
+        string reconciliationService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "DiagramInfrastructureReconciliationService.cs"));
-        string reconciliationController = File.ReadAllText(
+        string reconciliationController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "ArchitectureDiagramReconciliationController.cs"));
-        string visionController = File.ReadAllText(
+        string visionController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "ArchitectureDiagramVisionIngestController.cs"));
-        string inventoryController = File.ReadAllText(
+        string inventoryController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "InfraEvidenceInventoryController.cs"));
-        string narrativeService = File.ReadAllText(
+        string narrativeService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "AzureInventoryDiffNarrativeService.cs"));
 
         reconciliationService.Should().Contain("DiagramInfrastructureReconciliationSealedManifestHashGuard");
@@ -57,7 +57,7 @@ public sealed class ArchitectureReviewRobustnessWave37ArchitectureTests
     [Fact]
     public void Suggestion435_437_pilot_pack_409_mapping()
     {
-        string packsController = File.ReadAllText(
+        string packsController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
 
         packsController.Should().Contain("GetSponsorProofPackZip");
@@ -69,22 +69,22 @@ public sealed class ArchitectureReviewRobustnessWave37ArchitectureTests
     [Fact]
     public void Suggestion438_440_replay_warnings_roi_freshness_remediation_read_guard()
     {
-        string manifestDiffComplexity = File.ReadAllText(
+        string manifestDiffComplexity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Analysis",
                 "ComparisonReplayPayloadComplexity.ManifestDiff.cs"));
-        string sponsorEvidence = File.ReadAllText(
+        string sponsorEvidence = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "SponsorEvidencePackService.cs"));
-        string remediationQuery = File.ReadAllText(
+        string remediationQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "RemediationInstances",
                 "RemediationInstanceQueryService.cs"));
-        string remediationController = File.ReadAllText(
+        string remediationController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
 
         manifestDiffComplexity.Should().Contain("warning-only drift");

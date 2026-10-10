@@ -78,6 +78,7 @@ internal static class TestClassTraitConventionScanner
 
     private static void ScanSourceFile(string path, string repositoryRoot, List<string> violations)
     {
+        // Scan each file independently so sibling partials are not merged into one syntax tree.
         string text = File.ReadAllText(path, Encoding.UTF8);
         SyntaxTree tree = CSharpSyntaxTree.ParseText(text, path: path);
         CompilationUnitSyntax unit = tree.GetCompilationUnitRoot();

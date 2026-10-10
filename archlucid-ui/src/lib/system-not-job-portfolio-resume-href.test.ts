@@ -11,7 +11,7 @@ import {
 const repoRoot = join(__dirname, "..", "..", "..");
 
 describe("SN-012 portfolio resume href resolver", () => {
-  it("SG-040: lands Working resume on the architecture desk when architecture id is known", () => {
+  it("SG-040: nests Working resume review href on the architecture desk when architecture id is known", () => {
     expect(
       resolveSystemNotJobWorkingResumeReviewHref({
         runId: "run-42",

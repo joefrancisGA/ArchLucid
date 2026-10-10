@@ -69,6 +69,20 @@ export function isLivePrivateBetaJwtConfigured(): boolean {
   return isLiveJwtTokenConfigured();
 }
 
+/**
+ * Working desk redirects bare `/architecture/reviews/new` to the architecture create desk
+ * or last-open identity (DA-09 / ADR 0077). Eval chrome keeps Start review.
+ */
+export async function expectPrivateBetaStartIntakeSurface(page: Page): Promise<void> {
+  const startReviewTitle = page.getByTestId("reviews-new-page-title");
+  const createArchitectureTitle = page.getByTestId("architecture-new-page-title");
+  const architectureDesk = page.getByTestId("architecture-identity-desk");
+
+  await expect(startReviewTitle.or(createArchitectureTitle).or(architectureDesk)).toBeVisible({
+    timeout: 60_000,
+  });
+}
+
 const EMPTY_DRAFT_LIST_PAGE_JSON = JSON.stringify({
   items: [],
   totalCount: 0,

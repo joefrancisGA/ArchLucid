@@ -35,7 +35,7 @@ export const WORKING_SIMULATOR_CLONE_REHEARSAL_BANNER_BODY =
   "This host is pinned to rule-based analysis. Working stays in Practice so clones without live AI keep running. This is practice, not a sample workspace and not Guided teaching. Record execute stays blocked until live AI is ready.";
 
 export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_TITLE =
-  "Change review type during in-flight analysis?";
+  "Change execution door during in-flight analysis?";
 
 export const WORKING_CAREER_REHEARSAL_DOOR_CHANGE_CONFIRM_ACTION = "Change review type";
 

@@ -15,15 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave118ArchitectureTests
     [Fact]
     public void Suggestion1401_1407_run_findings_advisory_and_architecture_request_sealed_manifest_mappers()
     {
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string advisory = File.ReadAllText(
+        string advisory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string advisoryGuard = File.ReadAllText(
+        string advisoryGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.SealedManifestGuard.cs"));
-        string architectureRequests = File.ReadAllText(
+        string architectureRequests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.ArchitectureRequests.cs"));
-        string runsGuard = File.ReadAllText(
+        string runsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.SealedManifestGuard.cs"));
 
         findings.Should().Contain("ListRunFindings");
@@ -43,19 +43,19 @@ public sealed class ArchitectureReviewRobustnessWave118ArchitectureTests
     [Fact]
     public void Suggestion1408_1411_architecture_request_and_advisory_read_blocked_reason_wiring()
     {
-        string architectureRequestList = File.ReadAllText(
+        string architectureRequestList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string architectureRequestBlocked = File.ReadAllText(
+        string architectureRequestBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "architecture-request-blocked-reason.ts"));
-        string advisoryApi = File.ReadAllText(
+        string advisoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory-api.ts"));
-        string advisoryBlocked = File.ReadAllText(
+        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory", "advisory-run-read-blocked-reason.ts"));
-        string learningEvolution = File.ReadAllText(
+        string learningEvolution = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "learning-evolution-api.ts"));
-        string architectureRequestQuery = File.ReadAllText(
+        string architectureRequestQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-request-query.ts"));
-        string advisoryRecommendationsQuery = File.ReadAllText(
+        string advisoryRecommendationsQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-advisory-recommendations-query.ts"));
 
         architectureRequestList.Should().Contain("getArchitectureRequest");
@@ -73,9 +73,9 @@ public sealed class ArchitectureReviewRobustnessWave118ArchitectureTests
     [Fact]
     public void Suggestion1412_advisory_scans_bootstrap_fail_closed_ux()
     {
-        string advisoryScansContent = File.ReadAllText(
+        string advisoryScansContent = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "advisory", "AdvisoryScansContent.tsx"));
-        string advisoryScansHook = File.ReadAllText(
+        string advisoryScansHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "advisory", "use-advisory-scans-content.ts"));
 
         advisoryScansContent.Should().Contain("advisory-run-read-blocked-reason");

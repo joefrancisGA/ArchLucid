@@ -15,13 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
     [Fact]
     public void Suggestion465_468_infra_evidence_sealed_manifest_409_formatters()
     {
-        string askApi = File.ReadAllText(
+        string askApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "infra-evidence", "infra-evidence-ask-api.ts"));
-        string hubApi = File.ReadAllText(
+        string hubApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "infra-evidence", "infra-evidence-hub-api.ts"));
-        string driftApi = File.ReadAllText(
+        string driftApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "infra-evidence", "infra-evidence-drift-api.ts"));
-        string mermaidApi = File.ReadAllText(
+        string mermaidApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "infra-evidence", "infra-evidence-mermaid-api.ts"));
 
         askApi.Should().Contain("formatInfraEvidenceSealedManifestAwareApiError");
@@ -33,9 +33,9 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
     [Fact]
     public void Suggestion469_470_holistic_critic_and_email_sponsor_ui_fail_closed()
     {
-        string holisticBlocked = File.ReadAllText(
+        string holisticBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "holistic-critic-blocked-reason.ts"));
-        string holisticPanel = File.ReadAllText(
+        string holisticPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -47,7 +47,7 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailHolisticCriticPanel.tsx"));
-        string emailActions = File.ReadAllText(
+        string emailActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
         holisticBlocked.Should().Contain("holisticCriticBlockedReason");
@@ -59,11 +59,11 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
     [Fact]
     public void Suggestion471_474_roi_freshness_ui_and_verdict()
     {
-        string handoffCard = File.ReadAllText(
+        string handoffCard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "pilots", "PilotRoiValidationHandoffCard.tsx"));
-        string handoffLib = File.ReadAllText(
+        string handoffLib = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "pilot-roi-validation-handoff.ts"));
-        string sponsorSection = File.ReadAllText(
+        string sponsorSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -74,7 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorRoiSummarySection.tsx"));
-        string aiGate = File.ReadAllText(
+        string aiGate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailAiReadinessGateCard.tsx"));
 
         handoffCard.Should().Contain("roiSourceFreshnessDisposition");
@@ -87,11 +87,11 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
     [Fact]
     public void Suggestion475_476_reference_evidence_admin_export_guards_and_openapi_409()
     {
-        string exportService = File.ReadAllText(
+        string exportService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "ReferenceEvidenceAdminExportService.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "ReferenceEvidenceAdminController.cs"));
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "ReferenceEvidenceAdminZipResultFactory.cs"));
 
         exportService.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");

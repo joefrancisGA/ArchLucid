@@ -15,21 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion259_260_alert_simulation_primary_and_compare_fail_closed_on_sealed_hash()
     {
-        string simulate = File.ReadAllText(
+        string simulate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Alerts",
                 "AlertSimulationController.Simulate.cs"));
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Alerts",
                 "AlertSimulationController.CompareCandidates.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -45,7 +45,7 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion261_alert_simulation_multi_run_sweep_skips_unverified_runs()
     {
-        string provider = File.ReadAllText(
+        string provider = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
@@ -61,11 +61,11 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion263_264_production_alert_evaluate_fail_closed_on_sealed_hash()
     {
-        string alertService = File.ReadAllText(
+        string alertService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertService.cs"));
-        string composite = File.ReadAllText(
+        string composite = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "CompositeAlertService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertEvaluateSealedManifestHashGuard.cs"));
 
         alertService.Should().Contain("AlertEvaluateSealedManifestHashGuard");
@@ -76,11 +76,11 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion265_alert_persist_reverify_fail_closed_on_sealed_hash()
     {
-        string alertService = File.ReadAllText(
+        string alertService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertService.cs"));
-        string composite = File.ReadAllText(
+        string composite = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "CompositeAlertService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertPersistSealedManifestHashGuard.cs"));
 
         alertService.Should().Contain("AlertPersistSealedManifestHashGuard");
@@ -91,15 +91,15 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion266_267_alert_outbox_manifest_hash_metadata()
     {
-        string publishing = File.ReadAllText(
+        string publishing = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Alerts", "AlertIntegrationEventPublishing.cs"));
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
                 "Alerts",
                 "AlertIntegrationEventManifestHashResolver.cs"));
-        string outboxGuard = File.ReadAllText(
+        string outboxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
@@ -118,11 +118,11 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion272_sponsor_roi_multi_run_rollup_fail_closed_on_sealed_hash()
     {
-        string summary = File.ReadAllText(
+        string summary = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Roi", "SponsorRoiSummaryBuilder.cs"));
-        string history = File.ReadAllText(
+        string history = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Roi", "SponsorRoiHistoryBuilder.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Roi", "SponsorRoiBoardPackSealedManifestGuard.cs"));
 
         summary.Should().Contain("EnsureSummaryRunsSealedOrThrowAsync");
@@ -133,9 +133,9 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion277_278_sponsor_roi_json_get_and_export_fail_closed_on_sealed_hash()
     {
-        string export = File.ReadAllText(
+        string export = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Roi", "SponsorRoiExportBuilder.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
 
         export.Should().Contain("EnsureRunIdsSealedOrThrowAsync");
@@ -146,22 +146,22 @@ public sealed class ArchitectureReviewRobustnessWave27ArchitectureTests
     [Fact]
     public void Suggestion279_governance_insights_and_posture_fail_closed_on_sealed_hash()
     {
-        string dashboard = File.ReadAllText(
+        string dashboard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "GovernanceDashboardService.cs"));
-        string insightsGuard = File.ReadAllText(
+        string insightsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Governance",
                 "GovernanceInsightsSealedManifestHashGuard.cs"));
-        string posture = File.ReadAllText(
+        string posture = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Governance",
                 "Posture",
                 "ArchitecturePostureService.cs"));
-        string postureGuard = File.ReadAllText(
+        string postureGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

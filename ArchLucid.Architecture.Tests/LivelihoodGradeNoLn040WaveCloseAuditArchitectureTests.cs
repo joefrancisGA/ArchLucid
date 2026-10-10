@@ -19,7 +19,7 @@ public sealed class LivelihoodGradeNoLn040WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("LN-040");
         source.Should().Contain("Uncited hard cannot export");

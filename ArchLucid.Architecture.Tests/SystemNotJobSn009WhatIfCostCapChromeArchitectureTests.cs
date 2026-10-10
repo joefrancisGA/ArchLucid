@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn009WhatIfCostCapChromeArchitectureTests
     [Fact]
     public void Sn009_cost_cap_module_names_r12_cap_and_budget_pill_exclusion()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-what-if-cost-cap-chrome.ts"));
 
         module.Should().Contain("resolveDraftBranchWhatIfCostCapChrome");
@@ -27,7 +27,7 @@ public sealed class SystemNotJobSn009WhatIfCostCapChromeArchitectureTests
     [Fact]
     public void Sn009_clone_confirm_dialog_wires_cost_cap_chrome()
     {
-        string confirmDialog = File.ReadAllText(
+        string confirmDialog = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -44,7 +44,7 @@ public sealed class SystemNotJobSn009WhatIfCostCapChromeArchitectureTests
     [Fact]
     public void Sn009_vitest_ratchet_names_over_cap_blocking()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-what-if-cost-cap-chrome.test.ts"));
 
         test.Should().Contain("SN-009");

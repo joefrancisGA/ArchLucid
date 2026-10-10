@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs082CareerRehearsalHelpArchitectureTests
     [Fact]
     public void As082_help_topic_registry_and_copy_name_both_doors()
     {
-        string registry = File.ReadAllText(
+        string registry = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -24,7 +24,7 @@ public sealed class ArchitectureSpineAs082CareerRehearsalHelpArchitectureTests
         registry.Should().Contain("Career");
         registry.Should().Contain("Rehearsal");
 
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "career-rehearsal-help-guide-content.ts"));
 
         copy.Should().Contain("Career");
@@ -36,7 +36,7 @@ public sealed class ArchitectureSpineAs082CareerRehearsalHelpArchitectureTests
     [Fact]
     public void As082_help_view_module_exists()
     {
-        string view = File.ReadAllText(
+        string view = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

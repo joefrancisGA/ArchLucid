@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion161_receipt_hash_sealed_after_governance_and_review_snapshots()
     {
-        string artifacts = File.ReadAllText(
+        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -35,7 +35,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion162_fail_closed_when_feasibility_verdict_missing()
     {
-        string capturer = File.ReadAllText(
+        string capturer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -50,7 +50,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion163_export_receipts_for_all_sealed_committed_runs()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
 
         int runExportIndex = service.IndexOf("BuildForRunAsync", StringComparison.Ordinal);
@@ -59,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
         string runExportBody = service[runExportIndex..];
         runExportBody.Should().NotContain("IsExportableVerdict");
 
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application.Tests", "Exports", "DecisionReceiptServiceTests.cs"));
 
         tests.Should().Contain("BuildForRunAsync_FeasibleManifest_ReturnsReceiptMatchingSealedHash");
@@ -68,12 +68,12 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion164_version_string_compare_enforces_inventory_fingerprints()
     {
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
 
         compare.Should().Contain("CompareManifestVersionsAsync");
 
-        string facade = File.ReadAllText(
+        string facade = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         facade.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
@@ -83,7 +83,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion165_compare_fail_closed_when_run_headers_missing()
     {
-        string facade = File.ReadAllText(
+        string facade = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         facade.Should().Contain("if (baseHeader is null)");
@@ -94,12 +94,12 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion166_distinct_outcome_for_inventory_mismatch()
     {
-        string outcomes = File.ReadAllText(
+        string outcomes = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsResults.cs"));
 
         outcomes.Should().Contain("CommittedArtifactInventoryMismatch");
 
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
 
         controller.Should().Contain("ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch");
@@ -108,7 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion167_skip_persist_persists_sealed_manifest_body()
     {
-        string artifacts = File.ReadAllText(
+        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -122,7 +122,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
         skipIndex.Should().BeGreaterThan(0);
         saveIndex.Should().BeGreaterThan(skipIndex);
 
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application.Tests",
@@ -137,7 +137,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion168_recovery_and_finalize_share_decision_trace_mapper_bytes()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -147,7 +147,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
 
         factory.Should().Contain("DecisionTraceRecordMapper.ToDto(request.Trace)");
 
-        string recovery = File.ReadAllText(
+        string recovery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -162,7 +162,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion169_evidence_package_id_synced_with_properties_bag()
     {
-        string converter = File.ReadAllText(
+        string converter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
@@ -172,7 +172,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
 
         converter.Should().Contain("FindingPropertyKeys.EvidencePackageId");
 
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core.Tests",
@@ -186,7 +186,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion170_async_create_asserts_caller_scope()
     {
-        string hosted = File.ReadAllText(
+        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -204,7 +204,7 @@ public sealed class ArchitectureReviewRobustnessWave17ArchitectureTests
     [Fact]
     public void Suggestion161_162_167_hasher_v12_baseline()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
