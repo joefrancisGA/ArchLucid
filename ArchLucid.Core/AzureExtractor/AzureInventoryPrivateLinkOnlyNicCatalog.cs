@@ -71,19 +71,18 @@ public static class AzureInventoryPrivateLinkOnlyNicCatalog
 
         foreach (AzureInventoryResourceRecord resource in resources)
         {
-            IReadOnlyDictionary<string, string> propertyLookup = propertiesByResourceRowId.TryGetValue(
+            // Keep every collected value: multiple sources can report the same property key.
+            IEnumerable<KeyValuePair<string, string>> propertyRows = propertiesByResourceRowId.TryGetValue(
                     resource.ResourceRowId,
                     out List<AzureInventoryResourcePropertyReadModel>? resourceProperties)
-                ? resourceProperties.ToDictionary(
-                    static property => property.PropertyKey,
-                    static property => property.PropertyValue ?? string.Empty,
-                    StringComparer.OrdinalIgnoreCase)
-                : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                ? resourceProperties.Select(static property => new KeyValuePair<string, string>(
+                    property.PropertyKey, property.PropertyValue ?? string.Empty))
+                : [];
 
             CollectResourceNicSignals(
                 resource.ResourceType,
                 resource.AzureResourceId,
-                propertyLookup,
+                propertyRows,
                 vmAttachedNicArmIds,
                 privateEndpointNicArmIds);
         }
@@ -140,7 +139,7 @@ public static class AzureInventoryPrivateLinkOnlyNicCatalog
     private static void CollectResourceNicSignals(
         string? resourceType,
         string? azureResourceId,
-        IReadOnlyDictionary<string, string> properties,
+        IEnumerable<KeyValuePair<string, string>> properties,
         HashSet<string> vmAttachedNicArmIds,
         HashSet<string> privateEndpointNicArmIds)
     {
@@ -227,7 +226,7 @@ public static class AzureInventoryPrivateLinkOnlyNicCatalog
         return privateEndpointNicArmIds;
     }
 
-    private static bool HasPrivateEndpointProperty(IReadOnlyDictionary<string, string> properties)
+    private static bool HasPrivateEndpointProperty(IEnumerable<KeyValuePair<string, string>> properties)
     {
         foreach (KeyValuePair<string, string> property in properties)
         {
@@ -246,7 +245,7 @@ public static class AzureInventoryPrivateLinkOnlyNicCatalog
     }
 
     private static IEnumerable<string> ReadDelimitedIds(
-        IReadOnlyDictionary<string, string> properties,
+        IEnumerable<KeyValuePair<string, string>> properties,
         string propertyKeyPrefix)
     {
         List<string> values = [];
@@ -265,7 +264,8 @@ public static class AzureInventoryPrivateLinkOnlyNicCatalog
         }
 
         if (values.Count == 0
-            && properties.TryGetValue(propertyKeyPrefix, out string? singleValue)
+            && properties is IReadOnlyDictionary<string, string> propertyLookup
+            && propertyLookup.TryGetValue(propertyKeyPrefix, out string? singleValue)
             && !string.IsNullOrWhiteSpace(singleValue))
         {
             values.Add(singleValue.Trim());
