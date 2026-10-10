@@ -989,6 +989,7 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     [InlineData("{\"citations\":[]}")]
     [InlineData("{\"citations\":[null]}")]
     [InlineData("{\"citations\":[\"\"]}")]
+    [InlineData("{\"citations\":[{\"source\":\"\"}]}")]
     [InlineData("[]")]
     public async Task TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations(string json)
     {

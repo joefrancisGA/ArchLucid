@@ -61,7 +61,9 @@ internal static class AgentOutputTraceCitationGate
                    && citationsElement.ValueKind == JsonValueKind.Array
                    && citationsElement.EnumerateArray().Any(static citation =>
                        citation.ValueKind == JsonValueKind.Object
-                       && citation.EnumerateObject().Any());
+                       && citation.EnumerateObject().Any(static property =>
+                           property.Value.ValueKind == JsonValueKind.String
+                           && !string.IsNullOrWhiteSpace(property.Value.GetString())));
         }
         catch (JsonException)
         {
