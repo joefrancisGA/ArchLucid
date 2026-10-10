@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-auth-callback` — re-read `AuthCallbackAccessPanel.tsx` and its complete 63-test component suite; the remaining input/response, honeypot, lifecycle, and accessibility lenses either match existing contracts or duplicate previously tested mechanisms. No fresh hunt-ready hypothesis was promoted and no production code changed.
+
 2026-10-10 thorough hunt (hit): `ui-governance-findings-queue` — a mixed findings/decision queue rendered decision rows with findings bulk-selection checkboxes, and `availableFindingIds` admitted decision ids to bulk disposition. Findings-only selection is now enforced in the client, table, grouped table, and row renderer; regression `does not expose decision rows to findings bulk selection`; focused queue tests passed 6/6 and UI typecheck passed.
 
 2026-10-10 seed hunt (seed→hit): `email-otp-auth` — proved that a failed email delivery deleted every active challenge for the email, including a newer concurrent resend that had delivered successfully. Cleanup now targets the failed request’s challenge id through the repository interface and both storage implementations; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
@@ -10431,7 +10433,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 30 · **Bugs found:** 3 · **Consecutive dry hunts:** 8
+**Hunts:** 31 · **Bugs found:** 3 · **Consecutive dry hunts:** 8
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
