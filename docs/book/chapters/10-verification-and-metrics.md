@@ -1,11 +1,11 @@
-> **Scope:** Chapter 10 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The metrics, thresholds, and report layout here are illustrative examples for the reader, not any product's actual rules.
-> **Status:** draft
+> **Scope:** Chapter 10 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The metrics, thresholds, and report layout here are illustrative examples for the reader, not any product's actual rules.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 10 — Verification and outcome metrics
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000 words. Azure Policy error codes, Resource Graph change history retention, and GitHub environment API fields must be re-verified against current documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Azure Policy error codes, Resource Graph change history retention, and GitHub environment API fields were checked against current documentation in October 2026; re-check them before submission.*
 
 ---
 
@@ -312,9 +312,7 @@ Treat every new path to a high-consequence target as a finding in its own right,
 
 ### Resource Graph change history
 
-Azure Resource Graph keeps recent property changes for many resource types (Chapter 3). It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and sometimes who changed it. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: its retention is limited, it doesn't cover directory objects such as app owners and directory roles, and it records changes, not the full state you need to re-run a path search.
-
-> **As of 2026-10:** Verify Resource Graph change history (`resourcechanges`) retention, which resource types it covers, and whether it records the caller.
+Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3). It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days, it covers Azure resources but not directory objects such as app owners and directory roles, and it records changes, not the full state you need to re-run a path search.
 
 ---
 
@@ -338,13 +336,11 @@ Two practices make gaps rarer in the first place.
 
 Chapter 9 left P4 open under a risk acceptance with checkable compensating controls and an expiry date. Each of those is a postcondition, checked on every snapshot:
 
-- "The GitHub `production` environment requires at least two reviewers." This is a state postcondition against data collected from GitHub, not Azure. The collector reads the environment's protection rules.
+- "The GitHub `production` environment has a `required_reviewers` protection rule, with self-review prevented." This is a state postcondition against data collected from GitHub, not Azure. The collector reads the environment's `protection_rules` from the GitHub REST API. Note that GitHub needs only one of the listed reviewers to approve, so listing two names isn't a two-person rule.
 - "`mi-pay-reconcile` holds Storage Blob Data Reader on one container only, not the whole account."
 - "Today is before the acceptance's expiry date."
 
 If any of them fails, or becomes "not verified," the acceptance lapses and P4 counts as open in every metric. The register entry isn't deleted. It's marked lapsed, with the failing check, and the owner is asked to renew or act. That's what makes an acceptance a control rather than a comment.
-
-> **As of 2026-10:** Verify the GitHub REST API fields for environment protection rules and required reviewers.
 
 ---
 
@@ -354,9 +350,7 @@ Verification isn't a single event. A postcondition that was verified last week c
 
 The mechanics are simple once postconditions exist. Re-check every verified postcondition on every snapshot. When one fails, reopen the recommendation's ticket under its stable ID (Chapter 9), attach the failing check and the diff, and record the regression. Don't open a new ticket. The history of the recommendation, including the earlier verification, is part of the evidence.
 
-Regressions are where Chapter 9's durability analysis pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply, which surfaces the drift as a failed deployment instead of a silent reversal. The Activity Log records the denied write.
-
-> **As of 2026-10:** Verify the error code Azure returns when a policy with a deny effect blocks a write (`RequestDisallowedByPolicy`) and how it appears in the Activity Log.
+Regressions are where Chapter 9's durability analysis pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply with the error code `RequestDisallowedByPolicy`, naming the policy assignment and definition. That surfaces the drift as a failed deployment instead of a silent reversal, and the Activity Log records the denied write.
 
 A denied write isn't a regression. The postcondition still holds. But it's worth a ticket to the owning team, because their code disagrees with the environment, and the next person to "fix" the failed pipeline may try to remove the policy.
 
@@ -482,7 +476,7 @@ What changed
   New paths: none
 
 Exposure windows
-  P2 (dev-lead to custdata): open at least 19 days; unknown before first collection
+  P2 (dev-lead to custdata): open at least 26 days; unknown before first collection
   P6 (helpdesk-07 to custarchive): still open; at least 33 days
 
 Not verified this period
@@ -573,15 +567,13 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 - **Regression** — a verified postcondition that fails on a later snapshot.
 - **Outcome metric** — a measure that decreases only when exposure decreases.
 - **Exposure window** — how long a path was open, reported as observed lower and upper bounds.
-- **Coverage** — the part of the estate a snapshot actually read, compared with what was expected.
+- **Coverage (collection)** — the part of the estate a snapshot actually read, compared with what was expected. Not the same as Chapter 8's coverage check, which is about citations.
 
 ---
 
 ## Author notes (remove before submission)
 
 - The opening story, dates, durations, recommendation IDs, and report layout are illustrative and fictional. Keep the scope header's statement that they aren't any product's rules.
-- Verify: `RequestDisallowedByPolicy` and how denied writes appear in the Activity Log; Resource Graph `resourcechanges` retention, coverage, and caller information; GitHub REST API fields for environment protection rules.
-- Verify: Application Administrator's ability to add credentials to any application, matching Chapter 4's rule 4.
-- Verify: which built-in roles can delete policy assignments (Owner, Resource Policy Contributor, User Access Administrator), for lab Step 7.
+- Verified 2026-10-10 (revision pass 1): `RequestDisallowedByPolicy`; `resourcechanges` 14-day retention and `changedBy` / `clientType`; GitHub `protection_rules` and `required_reviewers` (one approval suffices); Application Administrator can add credentials to any application; Owner, Resource Policy Contributor, and User Access Administrator can delete policy assignments, Contributor can't.
 - Consider a figure showing the exposure-window bounds on a timeline of snapshots.
 - Add the Chapter 10 fact checks to GTM **M-306** when it is picked up.

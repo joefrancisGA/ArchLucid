@@ -1,11 +1,11 @@
-> **Scope:** Chapter 9 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The ranking rules and cost tiers here are illustrative examples for the reader, not any product's actual rules.
-> **Status:** draft
+> **Scope:** Chapter 9 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The ranking rules and cost tiers here are illustrative examples for the reader, not any product's actual rules.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 9 — Advisory remediation
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000 words. Terraform provider resource names, Azure Policy built-in definitions, and role names must be re-verified against current documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Terraform provider resource names, Azure Policy built-in definitions, and role names were checked against current documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -255,11 +255,11 @@ def undoable_changes(edges: list[Edge], plan: list[Change], entries: list[str]) 
 For the payments plan, this flags the shared key change: `payments-deploy` can reverse it and is still reachable through P4. There are two ways to make the change durable:
 
 - **Narrow `payments-deploy`'s role** so it can't change storage account settings. This was the high-cost change the greedy plan skipped. Now it has a reason.
-- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled. Contributor can't modify policy assignments, because the role excludes authorization writes, so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
+- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled. Contributor can't modify policy assignments, because the role's `NotActions` exclude `Microsoft.Authorization/*/Write` and `Microsoft.Authorization/*/Delete`, so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this, "Storage accounts should prevent shared key access", whose `effect` parameter accepts Audit, Deny, or Disabled. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
 
 The CISO's plan in the opening story used the second option. Durability is the reason "disable shared key access" appeared together with "with an Azure Policy assignment" in that plan.
 
-> **As of 2026-10:** Verify the built-in Azure Policy definition for preventing storage account shared key access and its supported effects, and that Contributor lacks `Microsoft.Authorization/policyAssignments/write`.
+> **As of 2026-10:** The built-in definition's ID is `8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54`, and its default effect is Audit, so the assignment must set Deny explicitly. Built-in definitions are occasionally versioned; check the ID in your tenant.
 
 The general rule: for every change in a plan, ask who can undo it, and whether any of them is still on a path. Configuration-based cuts are especially prone to this. Identity removals usually aren't, unless someone on a remaining path holds a role that can re-grant them.
 
@@ -274,7 +274,7 @@ An open path the business accepts is still a path. It shouldn't vanish from the 
 - the path IDs it covers,
 - who accepted it, in what role, and when,
 - the reason ("deploying `pay-reconcile` is the pipeline's function"),
-- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires two approvals; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
+- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires approval from a designated reviewer, with self-review prevented; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
 - an **expiry date**, after which the acceptance must be renewed or the path treated as open.
 
 Two rules keep acceptances honest:
@@ -350,7 +350,7 @@ The three changes in the payments plan, as Terraform:
 # 1. Remove dev-lead as an owner of the payments-deploy app registration.
 #    Delete the owner resource; ownership remains with the platform automation identity.
 # resource "azuread_application_owner" "payments_deploy_dev_lead" {
-#   application_id  = azuread_application.payments_deploy.id
+#   application_id  = azuread_application_registration.payments_deploy.id
 #   owner_object_id = data.azuread_user.dev_lead.object_id
 # }
 
@@ -372,7 +372,7 @@ resource "azurerm_resource_group_policy_assignment" "deny_storage_shared_key" {
 }
 ```
 
-> **As of 2026-10:** Verify `azuread_application_owner` and `azuread_directory_role_assignment` in the current `azuread` provider, `shared_access_key_enabled` and `azurerm_resource_group_policy_assignment` in the current `azurerm` provider, and the built-in policy's ID and effect parameter name.
+> **As of 2026-10:** Resource and argument names checked against the `azuread` and `azurerm` provider documentation in October 2026. `azuread_application_owner` works only with applications managed through `azuread_application_registration`, not the older `azuread_application` resource. Re-check against the provider versions you pin.
 
 Three practical points:
 
@@ -470,7 +470,7 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 
 ## Key terms
 
-- **Cut point** — a hop where one change breaks a path.
+- **Cut point** — a hop where one change breaks one or more paths.
 - **Change** — an action a person can take that removes one or more edges.
 - **Cut set** — a set of changes that together close every path between chosen entry points and targets.
 - **Plan** — an ordered cut set with costs, owners, and the paths left open.
@@ -484,7 +484,5 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 ## Author notes (remove before submission)
 
 - The opening story, cost tiers, and ranking rules are illustrative and fictional. Keep the scope header's statement that they aren't any product's rules.
-- Verify: built-in Azure Policy for preventing storage shared key access, its effects, and the definition ID; that Contributor excludes policy assignment writes.
-- Verify: `azuread_application_owner`, `azuread_directory_role_assignment`, `azurerm_resource_group_policy_assignment`, and `shared_access_key_enabled` in current provider versions; Terraform `import` block availability.
-- Verify: which directory roles can manage application owners, so the `reversible_by` example for owner removal is accurate.
+- Verified 2026-10-10 (revision pass 1): built-in shared key policy ID, `effect` values, and default; Contributor `NotActions`; `azuread_application_owner` (requires `azuread_application_registration`), `azuread_directory_role_assignment`, `azurerm_resource_group_policy_assignment`, `shared_access_key_enabled`; Application Administrator and Cloud Application Administrator hold `applications/owners/update` tenant-wide, so either can reverse an owner removal; GitHub required reviewers need one approval.
 - Add the Chapter 9 fact checks to GTM **M-306** when it is picked up.
