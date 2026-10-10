@@ -170,11 +170,13 @@ Rules:
 4. Never state or imply that access has occurred. If the pack has a gap about
    observing access, say plainly that use cannot be determined.
 5. Do not include numbers, percentages, or estimates that are not in the pack.
-6. If the pack does not contain enough to answer, say "The evidence pack does not
-   contain enough information to answer this" and stop.
+6. If the pack does not contain enough to answer, set "status" to
+   "insufficient_evidence", return no sentences, and stop.
 ```
 
 Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (Chapter 8).
+
+The exit is a field in the output rather than a sentence for the model to write. Matching a fixed sentence is fragile: a model that paraphrases it ("The pack doesn't include that") has used the exit, but a string match says it hasn't. A field is either set or not. Your code can then produce a consistent message for the reader, and a test can assert whether the exit was taken.
 
 ### Structured output
 
@@ -182,6 +184,7 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 
 ```json
 {
+  "status": "answered",
   "sentences": [
     { "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.", "cites": ["P1", "P2", "P3", "P4", "P5", "P6"] },
     { "text": "All six pass through one deployment identity, payments-deploy.", "cites": ["H4"] }
@@ -189,7 +192,9 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 }
 ```
 
-Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text.
+`status` is either `answered` or `insufficient_evidence`. An exit looks like `{"status": "insufficient_evidence", "sentences": []}`. A draft that sets the exit and still returns sentences has broken rule 6, and the validator treats it as a failure.
+
+Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. A schema can also limit `status` to its two values, so the exit can't be misspelled. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text. Appendix C, section C.1, gives the full schema.
 
 > **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list. The list changes as models are added and retired, so check it before you pick a deployment.
 
@@ -211,6 +216,7 @@ Checks worth running on every draft:
 4. **No numbers that aren't in the pack.** This catches invented percentages, timelines, and counts.
 5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in a cited claim. This catches invented roles and resources.
 6. **Inference language is preserved.** A sentence citing only deterministic inferences shouldn't use "is" or "has" for the inferred capability. This is hard to check exactly; a simple heuristic catches the common slips.
+7. **The exit is clean.** A draft with `status` set to `insufficient_evidence` returns no sentences.
 
 A minimal validator in Python:
 
@@ -242,6 +248,9 @@ def validate(draft: dict, pack: dict) -> list[str]:
     pack_text = " ".join(item.get("claim", "") for item in items.values())
     pack_numbers = set(NUMBER_PATTERN.findall(pack_text)) | {str(len(pack.get("paths", [])))}
     problems: list[str] = []
+
+    if draft.get("status") == "insufficient_evidence" and draft.get("sentences"):
+        problems.append("Draft sets status insufficient_evidence but still returns sentences.")
 
     for index, sentence in enumerate(draft.get("sentences", []), start=1):
         text = sentence.get("text", "")
@@ -451,7 +460,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 1. Remove gaps G1 and G2 from the pack. Does the board summary still say that use can't be determined? (It shouldn't be able to, and the validator can't catch the omission. This is a pack-construction failure, which is why gaps must always be included.)
 2. Add an AI-inferred hop ("`custarchive` likely contains payment card data (AI-inferred)") and check whether the output preserves "likely" and the AI label.
-3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model uses the rule 6 exit rather than inventing a figure.
+3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model sets `status` to `insufficient_evidence` (the rule 6 exit) rather than inventing a figure.
 4. Paste the opening story's board summary into the validator and confirm every problem is reported.
 
 **Step 6 — Measure.** Time how long it takes you to review and approve the four outputs, and compare it with how long writing one of them by hand would take.
