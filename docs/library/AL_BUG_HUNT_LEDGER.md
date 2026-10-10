@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `architecture-recommendation` — repeated the selected engine/trade-off review after the Unicode boundary fix; no fresh row met the full reachability and wrong-outcome bar. The scoped Alternatives/ProposedChange suite passed 45/45; retained the existing five bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed-only): `architecture-recommendation` — re-read recommendation actionability, trade-off attachment, Unicode priority matching, and stable recommendation identity; no fresh row met the full reachability and wrong-outcome bar after the Unicode boundary fix. The scoped Alternatives/ProposedChange suite passed 45/45; retained five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed→hit): `architecture-recommendation` — `ArchitectureRecommendationTradeOffBuilder` used ASCII-only word boundaries, so a reachable Unicode priority such as `Securityüberwachung` falsely matched the standalone `Security` dimension and forced Security-first resolution. Matching now uses Unicode-aware `\b` boundaries; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`; scoped Alternatives/ProposedChange tests passed 45/45.
@@ -9406,6 +9408,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed-only): repeated the selected engine/trade-off review after the Unicode boundary fix; no new hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45; retained the existing five bounded candidates and made no production code change.
+
 2026-10-10 seed hunt (seed-only): re-read recommendation actionability, trade-off attachment, Unicode priority matching, and stable recommendation identity; no new hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45; seeded five bounded candidates and made no production code change.
 
 2026-10-10 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated `Security` inside a Unicode word as a standalone declared priority, so `Securityüberwachung` incorrectly forced Security-first resolution; use Unicode-aware word boundaries; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`; 45 scoped Alternatives/ProposedChange tests passed.
@@ -9541,7 +9545,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 54
+- **hunts:** 55
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
