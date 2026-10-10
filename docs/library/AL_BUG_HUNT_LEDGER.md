@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
 
+2026-10-10 seed hunt (seed-only): `retrieval` — re-read retrieval chunkers, embedding cache/provider cardinality, Azure scope filters, in-memory matching, and generated finding identity after the finding-ID fix; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; seeded bounded follow-up candidates and made no production change.
+
 2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalDocumentBuilder.BuildForFindings` generated a new random finding document id whenever a reachable deserialized finding had no `FindingId`, so repeated indexing accumulated duplicate finding vectors instead of replacing the prior document. Missing IDs now use a run-scoped deterministic index; regression `BuildForFindings_missing_finding_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 359/359.
 
 2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalQueryService.ResolveQueryPlanAsync` mutated caller-owned policy-pack assignments, so reusing a query after changing workspace/project scope searched with stale assignments. Policy-pack resolution now remains local to the search plan; regression `SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change`; scoped Retrieval/Indexing tests passed 358/358.
@@ -18904,7 +18906,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 60
+- **hunts:** 61
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
@@ -18923,6 +18925,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
 - [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` maps inner vectors positionally without checking cardinality, so a reachable mixed blank/nonblank batch can index past the returned vectors after a provider filters blank inputs.
 - [ ] (candidate) `RetrievalDocumentBuilder.BuildForFindings` uses list position for missing finding IDs, so reordering a findings snapshot between retries can assign a prior finding's document identity to a different finding.
+- [ ] (candidate) `AzureAiSearchVectorIndex.RemoveChunkIdsAsync` forwards stale chunk IDs without an ambient-scope check, so a reachable cleanup input containing a colliding chunk ID could delete a vector outside the current tenant scope.
+- [ ] (candidate) `InMemoryVectorIndex.RemoveChunksForDocumentAsync` ignores cancellation while mutating stored chunks, so cancellation arriving during a reachable retry can still complete destructive cleanup after the indexing operation is abandoned.
+- [ ] (candidate) `RetrievalDocumentBuilder.BuildForArtifacts` emits one document per artifact without duplicate-ID detection, so a reachable artifact retry list containing the same `ArtifactId` twice can silently overwrite one artifact's vector during upsert.
 
 2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
 
