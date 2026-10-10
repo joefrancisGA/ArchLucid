@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 49
-- **bugs-found:** 42
+- **hunts:** 50
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — persisted observed-fact property casing prevented diagram rebinding
+- **last-bug:** 2026-10-10 — persisted source-evidence property casing dropped diagram citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.TryReadSourceEvidenceItemId` used an exact persisted property-key lookup, so a reachable diagram snapshot with casing-drifted `structuredDiagram.sourceEvidenceItemId` rebound without its citation metadata; source-evidence lookup now reuses `GraphNodePropertyReader`; regression `Rebind_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and focused rebinder tests passed 7/7 after the fix.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.TryReadSourceEvidenceItemId` — casing-drifted persisted source-evidence keys dropped citation metadata during diagram rebinding — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader`; regression `Rebind_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`.
 
 2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` used exact persisted property-key checks on its fallback path, so a reachable overlay with casing-drifted provenance and inventory identity keys was not considered bindable and left a compiled diagram node in the graph; fallback metadata and identity checks now reuse `GraphNodePropertyReader`; regression `Rebind_property_fallback_reads_observed_fact_keys_when_persisted_casing_differs`; pre-fix repro failed and focused rebinder tests passed 6/6 after the fix.
 

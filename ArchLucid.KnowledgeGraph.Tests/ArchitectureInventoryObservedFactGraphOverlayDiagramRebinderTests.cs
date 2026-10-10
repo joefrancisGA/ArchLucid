@@ -120,6 +120,31 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_reads_source_evidence_id_when_persisted_property_key_uses_different_casing()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        GraphNode diagramNode = BuildDiagramNode("diagram-node:sql", "pay-sql-prod");
+        diagramNode.Properties["STRUCTUREDDIAGRAM.SOURCEEVIDENCEITEMID"] = "evidence-123";
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [diagramNode, overlay.Nodes[0]],
+            Edges = [],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes
+            .Single(node => node.NodeId == CloudResourceId.ToString("D"))
+            .Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should()
+            .Be("evidence-123");
+    }
+
+    [Fact]
     public void Rebind_unmatchedLeftover_leavesDiagramNode()
     {
         GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);

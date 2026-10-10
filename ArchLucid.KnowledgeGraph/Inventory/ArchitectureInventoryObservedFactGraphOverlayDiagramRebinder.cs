@@ -139,7 +139,8 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
             return null;
         }
 
-        if (!diagramNode.Properties.TryGetValue(
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                diagramNode.Properties,
                 StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
                 out string? evidenceItemId)
             || string.IsNullOrWhiteSpace(evidenceItemId))
