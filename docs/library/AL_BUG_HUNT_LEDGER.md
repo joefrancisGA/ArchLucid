@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker again exposed only the retired ledger path with no open, hunt-ready, or candidate hypotheses. Re-read the recorded Governance/Tenancy controller and trial-facade findings; existing actor-id and run-id normalization defects are closed, and no new reachable mechanism-backed candidate could be promoted without inventing a defect. No production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker exposed only the retired ledger path. Re-read the known Governance/Tenancy controller loci and trial facade boundary; all previously identified actor-id and run-id normalization paths are already closed, and no new reachable mechanism-backed candidate could be promoted without inventing a defect. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): repeated the architecture-model contract reread after the prior diagram-node candidate; existing constants and round-trip coverage exposed no fresh reachable wrong outcome. The scoped Contracts suite passed 520/520. No production or regression code was changed.
@@ -31189,7 +31191,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 316
+- **hunts:** 317
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 519
 - **consecutive-dry-hunts:** 0
