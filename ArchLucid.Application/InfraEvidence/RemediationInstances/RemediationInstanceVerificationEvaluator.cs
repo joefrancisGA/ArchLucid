@@ -231,11 +231,24 @@ public static class RemediationInstanceVerificationEvaluator
                 return false;
             }
 
-            string? actual = snapshot.Properties
-                .Where(property => property.ResourceRowId == resource.ResourceRowId)
-                .FirstOrDefault(property =>
-                    string.Equals(property.PropertyKey, propertyKey, StringComparison.OrdinalIgnoreCase))
-                ?.PropertyValue;
+            AzureInventoryResourcePropertyReadModel? property = snapshot.Properties
+                .FirstOrDefault(candidate => candidate.ResourceRowId == resource.ResourceRowId
+                    && string.Equals(candidate.PropertyKey, propertyKey, StringComparison.OrdinalIgnoreCase));
+
+            if (property is null || string.IsNullOrWhiteSpace(property.PropertyValue))
+            {
+                failure = $"Insufficient evidence: property '{propertyKey}' is missing or has no collected value.";
+                return false;
+            }
+
+            // Imported structured JSON may contain redaction markers without a row-level flag.
+            if (property.IsRedacted || property.PropertyValue.Contains("[REDACTED]", StringComparison.OrdinalIgnoreCase))
+            {
+                failure = $"Insufficient evidence: property '{propertyKey}' is redacted and cannot verify the postcondition.";
+                return false;
+            }
+
+            string actual = property.PropertyValue;
 
             if (!string.Equals(actual, expectedValue, StringComparison.OrdinalIgnoreCase))
             {
