@@ -15,6 +15,7 @@ import {
   AUTH_INVITE_VALIDATION_FAILURE_TITLE,
 } from "@/lib/auth/auth-invite-page-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { clearInvitationToken, storeInvitationToken } from "@/lib/auth/email-otp-session";
 import {
   mapInvitationStatusToRecoveryContext,
@@ -37,6 +38,7 @@ export function InvitationAcceptPageClient() {
 
   const [validation, setValidation] = useState<InvitationValidationResponse | null>(null);
   const [recoveryContext, setRecoveryContext] = useState<InvitationRecoveryContext | null>(null);
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [validationAttempt, setValidationAttempt] = useState(0);
 
@@ -44,6 +46,7 @@ export function InvitationAcceptPageClient() {
     setLoading(true);
     setValidation(null);
     setRecoveryContext(null);
+    setRetryAfterSeconds(null);
 
     try {
       const result = await validateInvitationToken(invitationToken);
@@ -59,8 +62,18 @@ export function InvitationAcceptPageClient() {
       }
 
       storeInvitationToken(invitationToken);
-    } catch {
+    } catch (error: unknown) {
       clearInvitationToken();
+
+      // Preserve the server's bounded retry hint so rate-limited invitees do not
+      // repeatedly refresh into the same capped validation request.
+      if (isApiRequestError(error) && error.httpStatus === 429) {
+        setRetryAfterSeconds(error.retryAfterSeconds);
+        setRecoveryContext("rate-limited");
+
+        return;
+      }
+
       setRecoveryContext("validation-failed");
     } finally {
       setLoading(false);
@@ -98,13 +111,13 @@ export function InvitationAcceptPageClient() {
               data-testid="invitation-invalid-alert"
             >
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                {resolveInvalidInvitationMessage(recoveryContext)}
+                {resolveInvalidInvitationMessage(recoveryContext, retryAfterSeconds)}
               </p>
             </div>
             <InvitationInvalidRecoveryActions
               context={recoveryContext}
               onRetry={
-                recoveryContext === "validation-failed" && token
+                (recoveryContext === "validation-failed" || recoveryContext === "rate-limited") && token
                   ? () => {
                       setValidationAttempt((attempt) => attempt + 1);
                     }

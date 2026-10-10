@@ -6,6 +6,7 @@ import { ApiRequestError } from "@/lib/api-request-error";
 import {
   AUTH_INVITE_PUBLIC_EXIT_LABEL,
   AUTH_INVITE_REQUEST_ACCESS_LABEL,
+  AUTH_INVITE_RATE_LIMITED_MESSAGE,
   AUTH_INVITE_SIGN_IN_WITHOUT_TOKEN_LABEL,
   AUTH_INVITE_VALIDATION_FAILED_MESSAGE,
   resolveInvalidInvitationMessage,
@@ -332,5 +333,30 @@ describe("InvitationAcceptPageClient (TB-1476)", () => {
     expectRecoveryControls();
     expect(screen.getByTestId("invitation-recovery-retry")).toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+  });
+
+  it("shows the Retry-After hint and retry control for a capped validation request", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockRejectedValue(
+      new ApiRequestError("Invitation validation rate limited", {
+        problem: null,
+        correlationId: "corr-invite-validation-429",
+        httpStatus: 429,
+        retryAfterSeconds: 900,
+      }),
+    );
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-invalid-alert")).toHaveTextContent(
+        "Try again in about 900 seconds",
+      );
+    });
+
+    expect(screen.getByTestId("invitation-recovery-retry")).toBeInTheDocument();
+    expect(screen.getByTestId("invitation-invalid-alert")).not.toHaveTextContent(
+      AUTH_INVITE_RATE_LIMITED_MESSAGE,
+    );
   });
 });

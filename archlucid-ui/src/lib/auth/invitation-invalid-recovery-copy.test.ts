@@ -39,4 +39,11 @@ describe("invitation-invalid-recovery-copy (TB-1474)", () => {
     expect(resolveInvalidInvitationMessage("accepted")).toContain("already been used");
     expect(resolveInvalidInvitationMessage("missing-token")).toContain("not valid");
   });
+
+  it("preserves the bounded Retry-After hint for rate-limited validation", () => {
+    expect(resolveInvalidInvitationMessage("rate-limited", 900)).toContain(
+      "Try again in about 900 seconds",
+    );
+    expect(resolveInvalidInvitationMessage("rate-limited", null)).toContain("retry window");
+  });
 });
