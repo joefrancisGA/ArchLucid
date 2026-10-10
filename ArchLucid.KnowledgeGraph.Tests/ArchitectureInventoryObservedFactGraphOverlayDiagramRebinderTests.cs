@@ -89,6 +89,37 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
     }
 
     [Fact]
+    public void Rebind_property_fallback_reads_observed_fact_keys_when_persisted_casing_differs()
+    {
+        GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);
+        GraphNode overlayNode = overlay.Nodes[0];
+        overlayNode.SourceType = "legacy-inventory";
+        overlayNode.Properties.Remove(StructuredDiagramGraphPropertyKeys.ProvenanceKind);
+        overlayNode.Properties["STRUCTUREDDIAGRAM.PROVENANCEKIND"] =
+            StructuredDiagramGraphProvenanceKinds.ObservedFact;
+        overlayNode.Properties.Remove("armResourceId");
+        overlayNode.Properties["ARMRESOURCEID"] = ArmResourceId;
+
+        GraphSnapshot merged = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                BuildDiagramNode("diagram-node:sql", "pay-sql-prod"),
+                overlayNode,
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
+
+        rebound.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+    }
+
+    [Fact]
     public void Rebind_unmatchedLeftover_leavesDiagramNode()
     {
         GraphSnapshot overlay = BuildOverlayNode(label: "pay-sql-prod", armResourceId: ArmResourceId);

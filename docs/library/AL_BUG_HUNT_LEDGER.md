@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 48
-- **bugs-found:** 41
+- **hunts:** 49
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — persisted external-source marker casing caused ADF nodes to fall back to graph node type
+- **last-bug:** 2026-10-10 — persisted observed-fact property casing prevented diagram rebinding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` used exact persisted property-key checks on its fallback path, so a reachable overlay with casing-drifted provenance and inventory identity keys was not considered bindable and left a compiled diagram node in the graph; fallback metadata and identity checks now reuse `GraphNodePropertyReader`; regression `Rebind_property_fallback_reads_observed_fact_keys_when_persisted_casing_differs`; pre-fix repro failed and focused rebinder tests passed 6/6 after the fix.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.IsInventoryObservedFact` — casing-drifted persisted `structuredDiagram.provenanceKind` / inventory identity keys left the diagram node unbound — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader` for fallback property reads; regression `Rebind_property_fallback_reads_observed_fact_keys_when_persisted_casing_differs`.
 
 2026-10-10 seed hunt (seed→hit): `AzureInventoryDataFlowStageResolver.Resolve` read the persisted `arm.externalSource` marker with an ordinal dictionary lookup, so a reachable graph snapshot whose marker key casing differed fell through to the ordinary node type instead of classifying an ADF linked-service node as a source; external-source marker lookup now reuses `GraphNodePropertyReader`; regression `Resolve_reads_external_source_marker_when_persisted_property_key_uses_different_casing`; focused resolver tests passed 50/50.
 

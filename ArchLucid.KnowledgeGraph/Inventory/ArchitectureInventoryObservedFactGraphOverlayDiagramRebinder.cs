@@ -104,7 +104,8 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
             return false;
         }
 
-        if (!node.Properties.TryGetValue(
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                node.Properties,
                 StructuredDiagramGraphPropertyKeys.ProvenanceKind,
                 out string? provenance)
             || !string.Equals(
@@ -115,9 +116,15 @@ public static class ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
             return false;
         }
 
-        return node.Properties.ContainsKey("inventory.snapshotId")
-            || node.Properties.ContainsKey("armResourceId")
-            || node.Properties.ContainsKey("arm.id");
+        return GraphNodePropertyReader.TryGetPropertyValue(
+                   node.Properties,
+                   "inventory.snapshotId",
+                   out _)
+            || GraphNodePropertyReader.TryGetPropertyValue(
+                node.Properties,
+                "armResourceId",
+                out _)
+            || GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.id", out _);
     }
 
     private static bool IsLeftoverDiagramTopologyNode(GraphNode node)
