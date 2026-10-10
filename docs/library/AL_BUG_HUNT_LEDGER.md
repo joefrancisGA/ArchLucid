@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `agent-runtime-safety` — cheap-disproved both nullable-collection candidates as unreachable at the selected production boundary: `SanitizeTagMap` has no selected runtime caller receiving nullable Azure tag values, and `AgentEvidencePackage` is assembled in-process rather than deserialized from the proposed JSON shape. The focused picker filter passed 584 tests. No production change.
+
 2026-10-10 thorough hunt (dry): `securenow-question-queue` — the retained `SqlSecureNowQuestionDispositionRepository.UpsertAsync` concurrency candidate remains plausible because its SQL `MERGE` has no explicit serialization hint, but no SQL Server was reachable for a failing concurrent repro. The scoped Application test build was blocked by pre-existing duplicate `CreateEmptyAgentResultRepository`; no production change.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected Safety and PromptInjection sources and focused tests; no new reachable mechanism-backed wrong outcome met the same-run hunt-ready bar. Seeded two bounded candidates for nullable externally populated tag/evidence collections. The picker filter passed 584 tests. No production or regression code changed.
@@ -16356,10 +16358,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 69
+- **hunts:** 70
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16369,6 +16371,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 thorough hunt (hit): cancel-contract parity on `NullContentSafetyGuard` and `CircuitBreakingContentSafetyGuard`; cheap-disproof/invalid closed three seeded candidates; 605 scoped agent-runtime-safety tests passed.
 
 2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard` whitespace early-return skipped `ThrowIfCancellationRequested`; fixed before non-cancellable allow path; 577 scoped agent-runtime-safety tests passed.
+
+2026-10-10 thorough hunt (dry): cheap-disproved the nullable Azure tag-value and nullable evidence-collection candidates as unreachable from the selected runtime callers; the focused picker filter passed 584/584. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): re-read the selected Safety and PromptInjection paths and the picker filter; no candidate met the same-run failing-repro bar. Seeded two bounded candidates for externally populated nullable collections: `AzureResourceTagPromptSanitizer.SanitizeTagMap` receiving a null tag value, and `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` receiving an evidence payload with a null collection. The picker filter passed 584 tests. No production change.
 
@@ -16384,8 +16388,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract and could throw instead of returning a sanitized tag map; input: Azure resource metadata deserialized with `"tags":{"owner":null}`.
-- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — an externally populated evidence payload with a null collection reaches a direct `foreach` over `Policies`, `ServiceCatalog`, `Patterns`, or `Notes` and could throw before prompt construction; input: agent evidence JSON containing `"policies":null` or another nullable collection.
+- [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract — **cheap-disproof 2026-10-10 thorough hunt:** no selected production caller passes a nullable Azure tag map into this sanitizer; the proposed JSON input has no reachability citation in the selected paths.
+- [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — an externally populated evidence payload with a null collection reaches a direct `foreach` over `Policies`, `ServiceCatalog`, `Patterns`, or `Notes` — **cheap-disproof 2026-10-10 thorough hunt:** the selected runtime assembles `AgentEvidencePackage` in process and provides initialized collections; no selected JSON/API deserialization boundary supplies a null collection.
 
 - [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — cancellation is checked only before iterating potentially large evidence collections — **cheap-disproof 2026-10-10 thorough hunt:** the sanitizer has no asynchronous or reentrant callback boundary during its synchronous loops, so no reachable mid-loop cancellation input could be constructed.
 - [x] (proven) `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` with a caller token that is not yet canceled is converted into fail-open/fail-closed content-safety output — **hit 2026-10-10 thorough hunt:** the generic exception catch converted an inner timeout cancellation into SDK output; all `OperationCanceledException` instances now propagate; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`.
