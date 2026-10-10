@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-form-validation` — repeated the selected SignupForm review after the prior seed pass; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `architecture-recommendation` — repeated the selected engine/trade-off review after the Unicode boundary fix; no fresh row met the full reachability and wrong-outcome bar. The scoped Alternatives/ProposedChange suite passed 45/45; retained the existing five bounded candidates and made no production change.
@@ -5292,6 +5294,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-10 seed hunt (seed-only): repeated the selected SignupForm review after the prior seed pass; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
+
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
 **Hunts:** 47 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
@@ -5394,7 +5398,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
