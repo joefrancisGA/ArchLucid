@@ -27379,13 +27379,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — string numeric classification ordinal silently accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): reread the recently changed Architecture and SecureNow contract files plus their JSON round-trip/converter coverage; no fresh contract-only wrong outcome met the reachability and mechanism bar. The scoped Contracts filter passed 520/520. Existing bounded candidates remain downstream validation/parser questions; no production or regression code was changed.
 
