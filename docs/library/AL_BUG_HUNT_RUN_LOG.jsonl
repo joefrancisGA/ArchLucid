@@ -9300,3 +9300,4 @@
 {"at":"2026-10-10T19:08:48.3360826Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-10T19:13:08.7617026Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-10T19:20:58.3588879Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
+{"at":"2026-10-10T19:25:14.8418886Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
