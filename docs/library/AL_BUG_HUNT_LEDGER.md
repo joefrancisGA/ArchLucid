@@ -18951,6 +18951,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): re-read OIDC configuration, discovery URL construction, PKCE storage, and session cleanup boundaries. No new row met the full hunt-ready bar; seeded five bounded candidates for configuration URL validation, redirect URI shape, stale PKCE lifetime, missing browser storage, and callback state reuse. The focused OIDC suite passed 71/71.
 
+2026-10-10 thorough hunt (dry): cheap-disproved all five configuration/session candidates: discovery normalization is deterministic, redirect URI validation is deployment configuration, stale PKCE has no wrong outcome without state reuse, malformed storage has no production writer, and cross-provider selection requires an unreachable state collision. No failing repro or fix was established. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
@@ -19119,11 +19121,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `createPkcePair` — the fixed 32-byte verifier path depends on browser Web Crypto availability — **cheap-disproof 2026-10-10 thorough hunt:** unsupported browser capability is an environment prerequisite, not a reachable input or incorrect OIDC state transition in these helpers.
 - [x] (invalid) `storePkceState` — exported storage accepts empty state, verifier, or nonce values — **cheap-disproof 2026-10-10 thorough hunt:** production redirect callers supply generated non-empty values; no reachable caller in the selected files writes incomplete PKCE state.
 
-- [ ] (candidate) `getOidcAuthority` / `discoveryUrlForAuthority` — a deployment authority with an unusual but parseable URL shape may normalize to a discovery origin/path different from the configured issuer.
-- [ ] (candidate) `getOidcRedirectUri` — a fixed public configuration redirect URI is forwarded without URL-shape validation, so a reachable deployment typo may produce a callback URL the IdP rejects.
-- [ ] (candidate) `readPkceStateForFlow` — PKCE state has no local age bound, so a browser tab restored after a long suspension may consume stale verifier material during a later callback.
-- [ ] (candidate) `readSessionKey` — a session-storage implementation returning whitespace-only values is treated as present for PKCE and return-path state, so malformed persisted state may reach callback handling.
-- [ ] (candidate) `consumePkceState` — matching state is consumed from either flow without an explicit provider/authority binding in this helper, so a cross-provider callback with a reused state could select the wrong verifier.
+- [x] (valid-no-repro) `getOidcAuthority` / `discoveryUrlForAuthority` — an unusual but parseable deployment authority may normalize to a different discovery origin/path — **cheap-disproof 2026-10-10 thorough hunt:** scheme normalization and URL parsing deterministically construct the discovery URL; no attacker-controlled authority or wrong provider selection is reachable from these files.
+- [x] (invalid) `getOidcRedirectUri` — a fixed public configuration redirect URI is forwarded without URL-shape validation — **cheap-disproof 2026-10-10 thorough hunt:** the value is deployment configuration for a registered public client, not an attacker input; an invalid registration is an operational configuration error.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE state has no local age bound — **cheap-disproof 2026-10-10 thorough hunt:** callback matching still requires the cryptographic state/verifier pair and stale storage alone does not create a new authorization or cross-provider binding.
+- [x] (invalid) `readSessionKey` — whitespace-only storage values are treated as present for PKCE and return-path state — **cheap-disproof 2026-10-10 thorough hunt:** production callers write generated PKCE values and safe return paths; no selected-file caller writes malformed whitespace state.
+- [x] (invalid) `consumePkceState` — matching state is consumed from either flow without explicit provider binding — **cheap-disproof 2026-10-10 thorough hunt:** independently generated states must collide for cross-provider selection, and the callback flow is selected by the stored state pair; no reachable collision was established.
 
 ---
 
