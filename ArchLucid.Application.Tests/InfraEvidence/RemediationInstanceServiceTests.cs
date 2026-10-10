@@ -233,8 +233,11 @@ public sealed class RemediationInstanceServiceTests
             blocker.Contains("strictly later than the change implementation attestation"));
     }
 
-    [Fact]
-    public async Task Verify_with_later_snapshot_closes_workflow()
+    [Theory]
+    [InlineData("observed")]
+    [InlineData("redacted")]
+    [InlineData("missing")]
+    public async Task Verify_with_later_snapshot_requires_collected_property_evidence(string evidenceState)
     {
         InMemoryRemediationInstanceRepository instanceRepository = new();
         Guid instanceId = Guid.NewGuid();
@@ -275,8 +278,25 @@ public sealed class RemediationInstanceServiceTests
             SnapshotB,
             resourceRowId,
             present: true,
-            includeDisabledPublicAccess: true,
+            includeDisabledPublicAccess: evidenceState != "missing",
             capturedUtc: new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc));
+
+        if (evidenceState == "redacted")
+        {
+            AzureInventorySnapshotDetailReadModel original = snapshotRepository.Snapshots[SnapshotB];
+            snapshotRepository.Snapshots[SnapshotB] = new AzureInventorySnapshotDetailReadModel
+            {
+                Header = original.Header,
+                Resources = original.Resources,
+                Properties = [new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = resourceRowId,
+                    PropertyKey = "enablePublicNetworkAccess",
+                    PropertyValue = "false",
+                    IsRedacted = true,
+                }],
+            };
+        }
 
         RemediationInstanceService sut = CreateSut(
             instanceRepository,
@@ -289,6 +309,17 @@ public sealed class RemediationInstanceServiceTests
             instanceId,
             SnapshotB,
             "verifier");
+
+        if (evidenceState != "observed")
+        {
+            verifyResult.Succeeded.Should().BeFalse();
+            verifyResult.Blockers.Should().Contain(blocker => blocker.StartsWith("Insufficient evidence:", StringComparison.Ordinal));
+            RemediationInstanceRecord persisted = instanceRepository.Instances.Single(instance => instance.InstanceId == instanceId);
+            persisted.Status.Should().Be(RemediationInstanceStatus.VerificationFailed);
+            persisted.VerificationResultJson.Should().Contain("Insufficient evidence:");
+            (await sut.CloseAsync(CreateScope(), instanceId, "closer")).Succeeded.Should().BeFalse();
+            return;
+        }
 
         verifyResult.Succeeded.Should().BeTrue();
         verifyResult.Status.Should().Be(RemediationInstanceStatus.Verified);
