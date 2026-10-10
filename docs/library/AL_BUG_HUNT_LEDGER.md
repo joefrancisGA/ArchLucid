@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — re-read the selected confidence, quality-gate, reference-case, harness, and judge paths after the host-mode confidence fix. The only apparent confidence-mode candidate was already proven in the current branch; no fresh independent row met the promotion bar. The scoped Evaluation filter passed 200/200. No production change.
+
 2026-10-10 seed hunt (seed→hit): confidence enrichment omitted the host `AgentExecutionOptions.Mode` when persisted task mode was absent, so a real trace with an uncited finding could skip real-only finding-citation coverage and pass the confidence schema gate. The host mode now flows through the confidence pipeline and quality evaluator; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`; 200 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — reread the trace quality evaluator, confidence pipeline, reference-case evaluator, faithfulness components, and embedding scorer. The selected code exposed a fresh candidate where confidence enrichment does not forward the host `AgentExecutionOptions.Mode` into the quality evaluator when persisted task mode is absent; this was not promoted without a same-run failing repro. The scoped Evaluation filter passed 200/200. No production change.
@@ -16801,7 +16803,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
