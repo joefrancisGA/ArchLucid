@@ -34427,6 +34427,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-10 seed hunt (seed→hit): promoted Unicode line separators in uploaded source content; U+2028/U+2029 produced different review-cache `ContentHash` values from LF in an isolated failing repro; extended line-ending normalization to map both separators to LF; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`. The focused xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated repro passed after the fix.
+
 2026-10-10 seed hunt (seed-only): re-read the selected orchestrator, cache, and manifest-builder files; no new reachable cache or manifest wrong outcome emerged beyond covered cases.
 
 2026-10-10 seed hunt (seed-only): re-read the selected orchestrator, cache, and manifest-builder files with focused tests; no new reachable cache or manifest wrong outcome emerged beyond covered cases.
@@ -34484,11 +34486,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 35
-- **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — source `FileName` path separator split review cache manifest hash
+- **hunts:** 37
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — Unicode line separators split review cache manifest hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34501,7 +34503,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — duplicate source texts with equal sort keys are semantically order-independent — **cheap-disproved 2026-10-10 seed hunt:** duplicate same-name/content-type bodies are distinct ordered attachment inputs; existing `Build_changes_content_hash_when_duplicate_filename_has_different_content` protects that contract.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashPriorities` — equivalent priority permutations split cache keys — **cheap-disproved 2026-10-10 seed hunt:** `ClosedLoopDeclaredPrioritiesNormalizer` sorts normalized priorities before hashing.
 
-- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — Unicode line separators U+2028/U+2029 may split cache keys from equivalent plain-text uploads — locus: normalized `Content` in `ClosedLoopReasoningSourceTextNormalizer.cs`; input: a reachable text upload using U+2028 instead of LF; wrong outcome: avoidable duplicate review execution.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — Unicode line separators U+2028/U+2029 split cache keys from equivalent plain-text uploads — **hit 2026-10-10 seed hunt:** normalized U+2028/U+2029 to LF alongside CRLF/lone CR; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`.
 - [ ] (candidate) `ReviewResultCache.TryEvictOldestUnpinnedEntry` — equal `CreatedUtc` timestamps make eviction order depend on concurrent-dictionary enumeration — locus: oldest-entry tie comparison in `ReviewResultCache.Eviction.cs`; input: more than 128 cache writes under one clock tick; wrong outcome: nondeterministic retention of otherwise equivalent cache entries.
 - [ ] (candidate) `ReviewCacheManifestBuilder.HashTenantConfiguration` — semantically equivalent non-GUID workspace identifiers with separator normalization gaps may split cache keys — locus: tenant/workspace/project normalization before `TenantConfigurationHash`; input: API request workspace ids differing only by supported path separator representation; wrong outcome: duplicate review execution.
 

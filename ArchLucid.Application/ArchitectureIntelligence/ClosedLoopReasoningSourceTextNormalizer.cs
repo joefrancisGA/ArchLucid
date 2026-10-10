@@ -32,6 +32,10 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
 
     private static string NormalizeLineEndings(string content)
     {
-        return content.Replace("\r\n", "\n").Replace('\r', '\n');
+        return content
+            .Replace("\r\n", "\n")
+            .Replace('\r', '\n')
+            .Replace('\u2028', '\n')
+            .Replace('\u2029', '\n');
     }
 }
