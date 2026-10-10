@@ -3,12 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
-import { fetchRunDetailCriticalPageBundle } from "./fetch-run-detail-page-bundle-client";
-import { apiGet } from "./api/http-verbs-get";
-
-vi.mock("./api/http-verbs-get", () => ({
-  apiGet: vi.fn(),
+const { apiGetSealedManifestAware } = vi.hoisted(() => ({
+  apiGetSealedManifestAware: vi.fn(),
 }));
+
+vi.mock("@/lib/api/api-get-sealed-manifest-aware", () => ({
+  apiGetSealedManifestAware,
+}));
+
+import { fetchRunDetailCriticalPageBundle } from "./fetch-run-detail-page-bundle-client";
 
 describe("fetch-run-detail-page-bundle-client showcase spine", () => {
   it("does not call the network for customer-intake-modernization", async () => {
@@ -31,7 +34,7 @@ describe("fetch-run-detail-page-bundle-client showcase spine", () => {
       correlationId: "test-correlation-id",
       httpStatus: 404,
     });
-    vi.mocked(apiGet).mockRejectedValueOnce(notFound);
+    apiGetSealedManifestAware.mockRejectedValueOnce(notFound);
 
     await expect(fetchRunDetailCriticalPageBundle("missing-review-id")).rejects.toBe(notFound);
   });
