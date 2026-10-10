@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): repeated the architecture-model contract reread after the prior diagram-node candidate; existing constants and round-trip coverage exposed no fresh reachable wrong outcome. The scoped Contracts suite passed 520/520. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): repeated the Contracts architecture-model reread, including diagram node kinds/provenance and infrastructure comparison constants; no new contract-only wrong outcome met the promotion bar. The scoped Contracts suite passed 520/520. Seeded one bounded candidate for arbitrary diagram node-kind values; no production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
@@ -27357,6 +27359,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-10 seed hunt (seed-only): repeated the architecture-model contract reread after the prior diagram-node candidate; existing constants and round-trip coverage exposed no fresh reachable wrong outcome. The scoped Contracts suite passed 520/520. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): repeated the Contracts architecture-model reread, including diagram node kinds/provenance and infrastructure comparison constants; no new contract-only wrong outcome met the promotion bar. The scoped Contracts suite passed 520/520. Seeded one bounded candidate for arbitrary diagram node-kind values; no production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
@@ -27373,7 +27377,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
