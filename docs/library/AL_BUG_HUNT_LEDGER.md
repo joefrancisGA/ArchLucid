@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `archlucid-core` — the picker exposed only the ledger path for this retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter was attempted but stopped at the existing ARCH002 `DateTime.Now` analyzer baseline.
+
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC suite passed all 45 tests.
 
 2026-10-10 seed hunt (seed-only): `ui-oidc` — reread OIDC configuration, redirect, token, discovery, and session boundaries; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused OIDC module suite passed all 70 tests.
@@ -19036,6 +19038,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-10 seed hunt (seed-only): the picker still exposed only this ledger path for the retired mega-zone; no source-level candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter was attempted but stopped at the existing ARCH002 `DateTime.Now` analyzer baseline.
+
 2026-10-08 seed hunt (seed→hit): promoted and proved Site Recovery replication rows kept `initialRecoveryFabricLocation` instead of current `recoveryFabricLocation`; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`; 1/1 scoped sanitizer tests passed.
 
 2026-10-07 seed hunt (seed→hit): promoted and proved null `GraphNode.NodeId` and null edge endpoint ids crashed merge via `NormalizeNodeId`; fixed null-coalescing before trim; regressions in `GraphSnapshotKnowledgeModelMergerNullCollectionTests`; scoped merger 12/12 Core + 7/7 KnowledgeGraph; Core filter 7298 passed, 1 baseline ADF failure.
@@ -19054,8 +19058,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 471
-- **last-hunt:** 2026-10-09
+- **hunts:** 472
+- **last-hunt:** 2026-10-10
 - **bugs-found:** 3511
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
