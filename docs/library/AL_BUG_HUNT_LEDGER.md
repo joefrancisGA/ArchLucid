@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected safety and prompt-injection sources after the cancellation fix and candidate closure; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
+
 2026-10-10 thorough hunt (dry): `core-explanation-json` — re-ran the 47-test `RunExplanation` filter and closed the stale duplicate-property candidate as already proven by the preceding hit; no additional failing repro or production change.
 
 2026-10-10 thorough hunt (hit): `core-explanation-json` — case-insensitive property lookup stopped at the first duplicate JSON property, so an empty `reasoning` could hide a later valid `REASONING` from an LLM response. Lookup now uses the last matching property, matching common JSON deserializer behavior; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`; 47 scoped `RunExplanation` tests passed.
@@ -16331,7 +16333,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 65
+- **hunts:** 66
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
