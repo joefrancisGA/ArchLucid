@@ -32,7 +32,7 @@ export function InvitationInvalidRecoveryActions({
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3" data-testid="invitation-invalid-recovery">
-      {context === "validation-failed" && onRetry ? (
+      {(context === "validation-failed" || context === "rate-limited") && onRetry ? (
         <Button
           type="button"
           variant="primary"
