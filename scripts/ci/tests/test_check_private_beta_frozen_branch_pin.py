@@ -26,7 +26,7 @@ class TestPrivateBetaFrozenBranchPin(unittest.TestCase):
             self.assertIsNone(pin_check.read_pinned_sha(pin_path))
 
     @patch.object(pin_check, "is_ancestor", return_value=False)
-    @patch.object(pin_check, "git_ref_sha", return_value="e59cffa423")
+    @patch.object(pin_check, "git_ref_sha", return_value="11c35de476")
     @patch.object(pin_check, "git_ref_exists", return_value=True)
     @patch.object(pin_check, "repository_root")
     def test_stale_pin_warns_without_failing(
@@ -48,7 +48,7 @@ class TestPrivateBetaFrozenBranchPin(unittest.TestCase):
 
             print_mock.assert_called_once()
             self.assertIn("::warning::", print_mock.call_args.args[0])
-            self.assertIn("e59cffa423", print_mock.call_args.args[0])
+            self.assertIn("11c35de476", print_mock.call_args.args[0])
 
 
 if __name__ == "__main__":
