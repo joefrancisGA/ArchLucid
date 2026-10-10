@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-auth-callback` — reviewed the success/failure transition, hidden honeypot serialization, field-edit timing, and native-form interaction paths against the focused tests; no fresh hunt-ready candidate met the reachability and distinct-mechanism bar. No production code changed.
+
 2026-10-10 seed hunt (seed-only): `ui-auth-callback` — rechecked the direct fetch boundary, HTTP status branches, editable in-flight form state, honeypot behavior, and success transition against the 63-test suite; no untested reachable mechanism with a distinct wrong outcome was found. No production code changed.
 
 2026-10-10 seed hunt (seed-only): `ui-auth-callback` — repeated the source/test reread across submission generation, response classification, required-field validation, honeypot state, and recovery controls; all remaining lenses were already covered or lacked a distinct reachable wrong outcome. No production code changed.
@@ -10439,7 +10441,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 35 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
+**Hunts:** 36 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
