@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `core-explanation-json` — re-ran the 47-test `RunExplanation` filter and closed the stale duplicate-property candidate as already proven by the preceding hit; no additional failing repro or production change.
+
 2026-10-10 thorough hunt (hit): `core-explanation-json` — case-insensitive property lookup stopped at the first duplicate JSON property, so an empty `reasoning` could hide a later valid `REASONING` from an LLM response. Lookup now uses the last matching property, matching common JSON deserializer behavior; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`; 47 scoped `RunExplanation` tests passed.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected safety and prompt-injection sources after the cancellation fix; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
@@ -27310,6 +27312,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-10 thorough hunt (dry): re-ran the exact `RunExplanation` filter with 47 passing tests and classified the stale duplicate-property row as proven by the preceding hit; no production change.
+
 2026-10-10 thorough hunt (hit): promoted `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-variant properties in model-produced JSON used the first value, allowing an empty `reasoning` or list field to hide a later usable value. The lookup now retains the last case-insensitive match; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`. The scoped `RunExplanation` filter passed 47 tests.
 
 2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
@@ -27321,9 +27325,9 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 30
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — duplicate case-variant explanation property hid later valid reasoning
 - **related-pd-tb:** none
@@ -27356,7 +27360,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` / `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — an LLM response containing duplicate top-level property names that differ only by case, with the first `reasoning` or list field empty and the later field valid, may stop at the first token and discard an otherwise structured explanation; reachable input is model-produced JSON from the `StructuredExplanationLlmPromptSchema` response contract.
+- [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` / `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — an LLM response containing duplicate top-level property names that differ only by case, with the first `reasoning` or list field empty and the later field valid, may stop at the first token and discard an otherwise structured explanation — **hit 2026-10-10 thorough hunt:** lookup now uses the last case-insensitive property match; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`.
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — a parseable non-object aggregate root reaches object-only property enumeration and throws instead of returning a safe absent result — **hit 2026-10-03 thorough hunt:** guard non-object `JsonElement` roots before confidence sub-readers; regression `FromAggregateJson_returns_null_for_non_object_root`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
