@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected safety and prompt-injection sources after the cancellation fix; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
+
 2026-10-10 thorough hunt (dry): `agent-runtime-safety` — re-ran the scoped 584-test filter and classified the retained candidates: sanitizer mid-loop cancellation is valid-no-repro because there is no asynchronous/reentrant boundary; streaming-buffer unboundedness is valid-no-repro because provider `maxTokens` is the reachable output bound; the inner-cancellation candidate is already proven and fixed. No additional production change.
 
 2026-10-10 thorough hunt (hit): `agent-runtime-safety` — `CircuitBreakingContentSafetyGuard` caught `OperationCanceledException` only when the caller token was canceled, so an inner timeout/cancellation with an unrelated token was converted into fail-open/fail-closed SDK output. The guard now propagates all operation-cancellation exceptions; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`; 584 scoped safety and prompt-injection tests passed. The sanitizer cancellation and streaming-buffer candidates had no failing repro.
@@ -15441,6 +15443,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-10 seed hunt (seed-only): re-read the selected Safety and PromptInjection files; no new hunt-ready row was found after the cancellation fix and candidate classifications. The exact picker filter passed 584 tests, with no production or regression code change.
+
 2026-10-10 thorough hunt (dry): re-ran the exact picker filter with 584 passing tests; retained candidate rows are now classified as two valid-no-repro boundaries and one previously proven cancellation fix, with no new failing repro or production change.
 
 2026-10-10 thorough hunt (hit): promoted `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` from a timeout token was caught by the generic exception path when the caller token remained active, converting cancellation into SDK error output (or fail-open allow). The guard now rethrows all `OperationCanceledException` instances; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`. Cheap-disproved the sanitizer mid-loop cancellation candidate because the sanitizer has no asynchronous/reentrant callback boundary, and recorded the streaming-buffer candidate as valid-no-repro because provider `maxTokens` is the reachable output bound and no separate configured character limit exists. The scoped picker filter passed 584 tests.
@@ -16323,10 +16327,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 64
+- **hunts:** 65
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
