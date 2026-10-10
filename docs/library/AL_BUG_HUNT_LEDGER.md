@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — a reachable reference-trace JSON payload containing `findings: [null]` threw during required finding-category evaluation instead of recording a failed reference case. Null finding entries are now skipped before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`; 194 scoped Evaluation tests passed.
+
 2026-10-10 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack assignment mutations, catalog CRUD and page-bundle/version reads, simulation/validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis met the hunt-ready bar and no candidate was promoted. The focused `PolicyPacksController` filter passed 80/80. No production change.
 
 2026-10-10 seed hunt (seed→hit): `api-policy-packs` — `GetVersion` trimmed and validated a semver route value but forwarded the original padded value to the facade, so a reachable `GET /v1/policy-packs/{policyPackId}/versions/{packVersion}` request such as `1.0.0%20` could return version-not-found despite valid semver. The controller now forwards the normalized version; regression `GetVersion_forwards_trimmed_pack_version_to_facade`; 81 scoped `PolicyPacksController` tests passed.
@@ -16779,11 +16781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 31
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
+- **hunts:** 32
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — finding evidenceRefs and message ignored for faithfulness
+- **last-bug:** 2026-10-10 — null reference-trace finding threw during reference-case category evaluation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16791,9 +16793,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-09 seed hunt (seed-only): re-read the evaluation quality gate, harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
+- [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
+
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
 - [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding can throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — locus: `AgentOutputEvaluationHarness.cs` ~79–83; input: serialized `AgentResult` containing a null finding element.
-- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a JSON-null finding can throw during category coverage evaluation after deserialization — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~239–260; input: reference trace with a null finding element and a required category.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null evidence-reference items is counted toward the PilotStrict minimum without validating each reference — locus: `AgentOutputTraceCitationGate.cs` ~31–42; input: parsed result with `evidenceRefs: [null]`.
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range is silently clamped to 0 or 1 rather than treated as malformed judge output — locus: `AgentOutputFaithfulnessEvaluator.cs` ~174–191; input: completion response with `faithfulnessScore: 2.0` or `-1.0`.
 
