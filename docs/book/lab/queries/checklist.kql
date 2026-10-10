@@ -1,6 +1,8 @@
 // Chapter 1 Step 1: a list view of the lab, one row per finding, sorted by severity.
 // Covers what Resource Graph can see. The guest account comes from Microsoft Graph, and missing
 // diagnostic settings from your posture tool.
+// The RDP check reads only destinationPortRange, which matches the lab's single-port rule. Real NSGs also
+// use destinationPortRanges and port ranges; Appendix B section B.7 has the fuller pattern.
 resources
 | where type =~ 'microsoft.storage/storageaccounts'
 | where isnull(properties.allowSharedKeyAccess) or tobool(properties.allowSharedKeyAccess)

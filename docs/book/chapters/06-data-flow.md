@@ -395,3 +395,4 @@ AzureActivity
 - Still to do: exercise `activity_problems` with Chapter 7's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.
 - Have counsel review section 6.5's framing so it stays clear of legal advice.
 - Add the Chapter 6 fact checks to GTM **M-306** when it is picked up.
+- Step 1 asks the collector to read app setting names, but Reader can't list app settings, and the list action returns values, secrets included. Revise Step 1 to use Appendix B section B.6's options, starting with reading declared flows from infrastructure as code.
