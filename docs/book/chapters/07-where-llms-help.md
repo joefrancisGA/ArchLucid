@@ -1,11 +1,11 @@
-> **Scope:** Chapter 7 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 7 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 7 — Where LLMs help
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 8,000 words. Facts about Azure AI services, model features, and pricing must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure AI services and model features were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -191,7 +191,7 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 
 Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text.
 
-> **As of 2026-10:** Verify which Azure OpenAI models and API versions support schema-constrained ("structured") outputs.
+> **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list. The list changes as models are added and retired, so check it before you pick a deployment.
 
 ### Settings
 
@@ -342,7 +342,7 @@ A few rules keep this safe:
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
-> **As of 2026-10:** Verify the current `azurerm` provider attribute name for disabling shared key access, and any related settings such as default-to-Entra-ID-authentication options.
+In the current `azurerm` provider the property is `shared_access_key_enabled`. A related setting, `default_to_oauth_authentication`, makes the portal use Entra ID by default; it doesn't block keys, so a draft that sets only that one hasn't made the change.
 
 ---
 
@@ -402,7 +402,7 @@ Most current model services, including Azure OpenAI, support this "tool calling"
 
 There are two broad options for teams working in Azure, and many organizations use both.
 
-**Azure OpenAI, through Azure AI Foundry.** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
+**Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry).** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
 - **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data.
 - **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11).
@@ -412,7 +412,9 @@ There are two broad options for teams working in Azure, and many organizations u
 
 **Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
 
-> **As of 2026-10:** Verify current product names (Security Copilot was earlier branded Copilot for Security), Azure OpenAI data-handling and abuse-monitoring terms, private endpoint support, structured output and tool-calling support by model, and regional availability.
+Microsoft renamed Copilot for Security to Security Copilot in 2024, so older material uses the earlier name. On data handling, Azure OpenAI doesn't use prompts or completions to train models. Abuse monitoring applies by default, and modified abuse monitoring, which stops prompts being stored for review, is a Limited Access program you apply for.
+
+> **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often. Check the current Azure OpenAI documentation for the region you deploy in.
 
 Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures. Chapter 11 covers governing it.
 
@@ -484,10 +486,8 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 ## Author notes (remove before submission)
 
-- Verify: Azure OpenAI structured output support by model and API version; tool/function calling support; data retention, training use, and abuse-monitoring terms and exemption process; private endpoint support; model version pinning and retirement policy.
-- Verify: Microsoft Security Copilot current name, positioning, and integrations.
-- Verify: `azurerm_storage_account` attribute `shared_access_key_enabled` and related Entra-default settings in the current provider version.
-- The validator is intentionally simple; test it against the opening story and the lab outputs before publication, and make sure the name regex doesn't flag ordinary hyphenated English words in practice.
+- Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
+- The validator is intentionally simple. It passes the opening story and offline fixtures; still check against live lab outputs that the name regex doesn't flag ordinary hyphenated English words.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

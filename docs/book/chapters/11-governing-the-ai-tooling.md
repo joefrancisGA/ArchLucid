@@ -1,11 +1,11 @@
-> **Scope:** Chapter 11 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The architecture, retention periods, and budgets here are illustrative examples for the reader, not any product's actual design.
-> **Status:** draft
+> **Scope:** Chapter 11 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The architecture, retention periods, and budgets here are illustrative examples for the reader, not any product's actual design.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 11 — Governing the AI tooling itself
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000 words. Terraform resource and argument names, Azure OpenAI deployment types and data-handling terms, role names, and private DNS zone names must be re-verified against current documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Terraform resource and argument names, Azure OpenAI deployment types and data-handling terms, role names, and private DNS zone names were checked against current documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -91,13 +91,11 @@ A few points deserve emphasis.
 
 **No keys anywhere.** Disable shared key access on the evidence storage account, and disable local (API key) authentication on the Azure OpenAI resource. Every caller then authenticates with Entra ID, so every call is tied to an identity, every permission is an RBAC role assignment that the collector can read, and there's no key to leak. Chapter 4 showed what shared keys do to a path graph: anyone who can list them holds the data plane. The tooling shouldn't recreate that pattern for its own data.
 
-**The model caller needs a data-plane role only.** On Azure OpenAI, the built-in **Cognitive Services OpenAI User** role allows calling deployments without managing the resource. The explanation pipeline needs that and nothing more. Contributor on the resource would let it change deployments and network settings.
-
-> **As of 2026-10:** Verify the current name and data actions of the Cognitive Services OpenAI User role, and the property that disables local authentication on Azure OpenAI resources.
+**The model caller needs a data-plane role only.** On Azure OpenAI, the built-in **Cognitive Services OpenAI User** role allows calling deployments without managing the resource. The explanation pipeline needs that and nothing more. Contributor on the resource would let it change deployments and network settings. The setting that turns off API keys is the resource's `disableLocalAuth` property (`local_auth_enabled = false` in Terraform).
 
 **Separate the collector from everything else.** The collector's identity is the most powerful one in the system: Reader across the estate plus directory read permissions. It should do nothing except collect. If the derivation code ran under the collector's identity, any bug or injected input in derivation would run with tenant-wide read access.
 
-**Append-only for snapshots.** The collector needs to add snapshots, never modify them. A container with a time-based immutability policy enforces that at the storage layer: once written, a blob can't be overwritten or deleted until the retention period ends, even by an account owner. That's what makes Chapter 3's hashes trustworthy. The manifest proves the files haven't changed, and the policy makes changing them impossible within the retention period.
+**Append-only for snapshots.** The collector needs to add snapshots, never modify them. A container with a time-based immutability policy enforces that at the storage layer: once written, a blob can't be overwritten or deleted until the retention period ends. That holds even for an account owner only once the policy is **locked**. An unlocked policy can be shortened or removed by anyone with permission to manage it, which is exactly the "lifting the immutability policy" step in the table above. Test the policy unlocked, then lock it. Locking is irreversible: afterward the period can be extended but never shortened. That's what makes Chapter 3's hashes trustworthy. The manifest proves the files haven't changed, and the policy makes changing them impossible within the retention period.
 
 **People get eligibility, not standing access.** Administrators of the tooling should hold eligible roles through Privileged Identity Management, activated for a stated reason, with approval for the most powerful ones. Chapter 4's Rule 5 said eligible isn't active, and the search shouldn't treat it as active. It should still report eligible paths separately, because activation is one step away.
 
@@ -113,9 +111,6 @@ Chapter 5's opening story was a storage account with a private endpoint and publ
 - **Compute integrated with the virtual network**, so the collector, derivation, and explanation components reach those endpoints privately. Outbound traffic from them should go only where it needs to: Azure Resource Manager, Microsoft Graph, the private endpoints, and your ITSM system.
 
 Then check it with Chapter 5's own query. Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and require it to return nothing. Add that as a Chapter 10 postcondition, re-checked on every snapshot, so a debugging session that turns public access back on shows up as a regression within a day.
-
-> **As of 2026-10:** Verify the private endpoint sub-resource names and private DNS zone names for Azure OpenAI and Blob Storage.
-
 Private endpoints have a cost: each endpoint is billed hourly, plus data processed, and private DNS zones add a small monthly charge. For a system that holds a ranked list of an organization's weaknesses, that's an easy trade. It's also the main reason to keep the tooling's footprint small: three or four endpoints, not one per microservice.
 
 ---
@@ -131,21 +126,22 @@ Ask, for each field, whether the explanation needs it:
 - **Resource and identity names.** Often needed for an engineer's ticket, rarely for a board summary. Use placeholders such as "APP-1" and "User A" for audiences that don't act on the specific resource, and substitute the names back in after validation, outside the model.
 - **Object IDs and subscription IDs.** Almost never needed for prose. Keep them in the record, not the pack.
 - **Personal data.** User names and email addresses appear in privilege graphs because people hold roles. Use a role-based description ("the payments team's developer lead") or a placeholder unless the audience needs the person.
+- **App setting names.** Chapter 3 recorded that secret-bearing settings exist without recording their values, and left keeping the setting *names* as a governance choice. Decide it here. Names like `PAYMENTS_STORAGE_CONNECTION` help an engineer, but they also tell a reader where the credentials are. Keep them in snapshots if your engineers need them, and leave them out of packs for audiences that don't.
 - **Secret values.** Never. Chapter 3 kept them out of snapshots, so they can't reach a pack. Keep it that way when someone proposes "just adding the connection string so the model can explain it."
 
 ### Residency and processing location
 
-Azure OpenAI offers several deployment types, and they differ in where requests may be processed. A regional deployment processes requests in the resource's region. Other types route requests across a geographic zone or globally for capacity, while storing data at rest in the resource's geography. Which one satisfies your obligations is a question for your privacy and legal teams, and the answer should be recorded as a decision, with the deployment type pinned in Terraform so it can't drift.
+Azure OpenAI offers several deployment types, and they differ in where requests may be processed. A **Standard** deployment processes requests within the geography you deploy in. **Data Zone** deployments may process them anywhere in a defined zone, such as the US or the EU. **Global** deployments may process them in any region where the model is available. All of them store data at rest in the resource's geography. Which one satisfies your obligations is a question for your privacy and legal teams, and the answer should be recorded as a decision, with the deployment type pinned in Terraform so it can't drift.
 
-> **As of 2026-10:** Verify current Azure OpenAI deployment types (for example Standard, Data Zone, and Global), where each processes and stores data, and their regional availability.
+> **As of 2026-10:** Which deployment types each model offers, and in which regions, changes often. Check the model availability table for your region before you pin a type.
 
 The same question applies to the evidence store, logs, and backups. A snapshot is personal data in most jurisdictions, because it names people and what they can do. Store it in a region you've chosen deliberately, and make sure geo-redundant replication doesn't copy it somewhere you haven't.
 
 ### Data handling terms
 
-Chapter 7 listed the questions to settle: what the service retains, whether prompts are used for training, and what abuse monitoring applies. For security evidence, abuse monitoring deserves particular attention. Some monitoring involves storing prompts for a period and, in limited cases, human review. If that's unacceptable for your evidence, find out whether your agreement allows an exemption, and record which applies.
+Chapter 7 listed the questions to settle: what the service retains, whether prompts are used for training, and what abuse monitoring applies. For security evidence, abuse monitoring deserves particular attention. Some monitoring involves storing prompts for a period and, in limited cases, human review. If that's unacceptable for your evidence, apply for modified abuse monitoring, which is a Limited Access program with eligibility criteria, and record which terms apply.
 
-> **As of 2026-10:** Verify Azure OpenAI's current data retention, abuse monitoring, and modified abuse monitoring eligibility terms.
+> **As of 2026-10:** Abuse monitoring retention and the modified abuse monitoring eligibility criteria are contractual terms that Microsoft revises. Re-read them when you renew.
 
 ### Retention, immutability, and erasure
 
@@ -239,14 +235,11 @@ Sometimes you do need the content: to debug a prompt, to investigate a misstatem
 
 Your application isn't the only thing that can log content. Check every component on the request path:
 
-- **The model service's diagnostic logs.** Find out what each log category records, and send it only to the tooling's own workspace.
-- **API gateways.** If you put API Management or another gateway in front of the model, check whether it logs request and response bodies. Gateways often can, and teams often turn it on to debug.
+- **The model service's diagnostic logs.** Find out what each log category records, and send it only to the tooling's own workspace. The `RequestResponse` category can include request and response payloads, so treat it as content.
+- **API gateways.** If you put API Management or another gateway in front of the model, check whether it logs request and response bodies. Gateways often can, and teams often turn it on to debug. API Management's option to log LLM prompts and completions is off by default; make sure it stays that way.
 - **Application telemetry.** SDKs and logging frameworks may capture request bodies or exceptions that include them. The opening story's leak came from here.
 
 Then add the log workspaces to the tooling targets from section 11.2, and let the path search tell you who can read them.
-
-> **As of 2026-10:** Verify which Azure OpenAI diagnostic log categories exist and whether any include prompt or completion content, and API Management's request and response body logging settings.
-
 ---
 
 ## 11.7 Isolation when the tooling is shared
@@ -329,7 +322,7 @@ resource "azurerm_storage_account" "evidence" {
   account_tier                    = "Standard"
   account_replication_type        = "ZRS"     # zone-redundant; stays in the chosen region
   shared_access_key_enabled       = false
-  public_network_access_enabled   = false
+  public_network_access           = "Disabled"
   allow_nested_items_to_be_public = false
   min_tls_version                 = "TLS1_2"
 
@@ -405,13 +398,15 @@ resource "azurerm_role_assignment" "explainer_calls_model" {
 
 The blob private endpoint, the private DNS zones and their virtual network links, the remaining role assignments, the log workspace, and the diagnostic settings follow the same pattern.
 
-> **As of 2026-10:** Verify these resources and arguments against the current `azurerm` provider: `shared_access_key_enabled` and `public_network_access_enabled` on storage accounts; `storage_account_id` on storage containers; `azurerm_storage_container_immutability_policy` and its arguments; `local_auth_enabled`, `custom_subdomain_name`, and `public_network_access_enabled` on `azurerm_cognitive_account`; the `sku` block on `azurerm_cognitive_deployment`; and whether the provider needs `storage_use_azuread = true` when shared key access is disabled.
+Two provider details matter. Storage accounts take `public_network_access = "Disabled"`, while Cognitive Services accounts take `public_network_access_enabled = false`; the two resources use different argument shapes. And because the storage account rejects shared keys, set `storage_use_azuread = true` in the `azurerm` provider block, so Terraform itself uses Entra ID for blob operations. The identity running Terraform then needs a storage data-plane role.
+
+> **As of 2026-10:** Arguments checked against the `azurerm` provider documentation in October 2026. Re-check them against the provider version you pin.
 
 Three practices make the module more than a template.
 
 **Back it with policy.** Terraform defines the intended state. Azure Policy assignments with deny effects keep it. Deny storage accounts with shared key access or public network access enabled, and deny Cognitive Services accounts with local authentication or public network access enabled, at the tooling's resource group or above. This is Chapter 9's durable cut applied to the tooling: a debugging session can't turn public access back on, even with Contributor.
 
-**Verify it like any other fix.** Write Chapter 10 postconditions for the module's security settings: shared key disabled, local auth disabled, public access disabled, the immutability policy present, the role assignments exactly as defined. Re-check them on every snapshot. The tooling's own configuration is part of what it verifies.
+**Verify it like any other fix.** Write Chapter 10 postconditions for the module's security settings: shared key disabled, local auth disabled, public access disabled, the immutability policy present and locked, the role assignments exactly as defined. Re-check them on every snapshot. The tooling's own configuration is part of what it verifies.
 
 **Review changes to the module as security changes.** A pull request that adds a diagnostic setting, a role assignment, or a network rule to the tooling changes who can see the map. Require review from the security team, not just the platform team.
 
@@ -510,7 +505,7 @@ That division is the argument of the book. Models make security work faster to c
 ## Author notes (remove before submission)
 
 - The opening story, identity counts, versions, and budgets are illustrative and fictional. Keep the scope header's statement that they aren't any product's design.
-- Verify: Cognitive Services OpenAI User role name and data actions; Azure OpenAI local auth property; private endpoint sub-resources and private DNS zone names; deployment types and processing locations; data retention and abuse monitoring terms; diagnostic log categories and content; API Management body logging.
-- Verify every Terraform resource and argument in section 11.9 against the current `azurerm` provider, including the immutability policy resource and `storage_use_azuread`.
+- Verified 2026-10-10 (revision pass 1): Cognitive Services OpenAI User role; `disableLocalAuth`; private endpoint sub-resources and private DNS zones; deployment types and processing locations; abuse monitoring and modified abuse monitoring; `RequestResponse` payload logging; API Management LLM logging off by default; locked vs unlocked immutability (text corrected).
+- Verified 2026-10-10 (revision pass 1): section 11.9 Terraform arguments, including storage `public_network_access` (corrected from `public_network_access_enabled`), the immutability policy resource, the cognitive deployment `sku` block, the private endpoint `account` sub-resource, and `storage_use_azuread`.
 - Consider a reference architecture figure with Azure icons (permitted in architectural diagrams under Microsoft's terms), showing the components, identities, private endpoints, and the content-free audit path.
 - Add the Chapter 11 fact checks to GTM **M-306** when it is picked up.

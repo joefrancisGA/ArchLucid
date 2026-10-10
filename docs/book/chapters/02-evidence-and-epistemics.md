@@ -1,11 +1,11 @@
-> **Scope:** Chapter 2 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 2 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 2 — Evidence and epistemics
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000–7,000 words. Facts about Azure behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000–7,000 words. Facts about Azure behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -400,7 +400,8 @@ Run the same prompt three times. Note how the answers differ. That variation is 
 
 ## Author notes (remove before submission)
 
-- Verify against current Microsoft docs: Contributor's inclusion of `Microsoft.Storage/storageAccounts/listKeys/action`; `allowSharedKeyAccess` default behavior; federated credential subject format for GitHub Actions; `authorizationresources` table coverage of role assignments, deny assignments, and conditions.
+- Verified 2026-10-10 (revision pass 1): Contributor's `*` actions include `listKeys`; a null `allowSharedKeyAccess` behaves as `true`; GitHub federated credential subject formats.
+- Still to verify: `authorizationresources` coverage of deny assignments and conditions (shared with Chapter 3).
 - Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 6.
 - Possible figure: the hop table from 2.3 rendered as a diagram, with a different line style per evidence category.
 - Running example (payments → `custdata`) should be reused in Chapters 4, 9, and 10.

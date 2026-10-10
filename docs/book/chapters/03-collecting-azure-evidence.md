@@ -1,11 +1,11 @@
-> **Scope:** Chapter 3 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 3 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 3 — Collecting Azure evidence read-only
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 8,000 words. Facts about Azure behavior, API names, and cmdlet parameters must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure behavior and API names were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check. Cmdlet parameters still need a live check before submission.*
 
 ---
 
@@ -82,7 +82,7 @@ For Azure Resource Manager, the built-in **Reader** role is the right starting p
 
 Reader has a useful property: it grants read actions but not the list-secrets actions that many services expose separately. A Reader can see that a storage account exists and how it's configured, but can't call `listKeys`. It can see an App Service's configuration, but not the values of its application settings. Reader keeps the collector from accidentally collecting secrets.
 
-> **As of 2026-10:** Verify the current definition of Reader and any service-specific exceptions before relying on this in a design review. Role definitions change, and a few services expose sensitive data through read actions.
+> **As of 2026-10:** Reader's definition was checked and grants `*/read` with no list-secrets actions. A few services expose sensitive data through plain read actions, and role definitions change, so re-check before relying on this in a design review.
 
 ### Microsoft Graph: narrow application permissions
 
@@ -97,7 +97,9 @@ Identity evidence comes from Microsoft Graph, which uses its own permission mode
 
 Avoid `Directory.Read.All` unless you need its breadth. Every application permission requires admin consent, and the narrower set is easier to justify to your identity team.
 
-> **As of 2026-10:** Check each permission's exact scope in the Microsoft Graph permissions reference. Names and coverage have shifted over time, especially around role management.
+`RoleManagement.Read.Directory` covers both directory role assignments and PIM eligibility. If your identity team prefers narrower grants, `RoleEligibilitySchedule.Read.Directory` reads eligibility alone.
+
+> **As of 2026-10:** Graph permission names and coverage have shifted over time, especially around role management. Check each one in the Microsoft Graph permissions reference before requesting consent.
 
 ### No secrets for the collector either
 
@@ -147,9 +149,7 @@ Handle absence explicitly and keep it visible:
     'disabled')
 ```
 
-Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. Chapter 2 called this the difference between an observed fact and a derived fact.
-
-> **As of 2026-10:** Verify the current default for `allowSharedKeyAccess` on new and existing storage accounts.
+Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. Chapter 2 called this the difference between an observed fact and a derived fact. The rule to apply is Microsoft's documented one: a null `allowSharedKeyAccess` behaves as `true`, so shared key requests are accepted.
 
 ### Role assignments with role names
 
@@ -249,7 +249,7 @@ $federated = foreach ($app in $applications) {
 
 For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Chapter 4 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
 
-> **As of 2026-10:** Verify the current GitHub OIDC issuer URL and subject formats, including environment- and pull-request-based subjects.
+> **As of 2026-10:** GitHub's issuer is `https://token.actions.githubusercontent.com`. Repositories created after July 15, 2026 use immutable subjects that include owner and repository IDs (`repo:owner@id/repo@id:…`), so expect both formats in one tenant. Re-check the formats before you write rules that parse them.
 
 Calling Graph once per application is slow in large tenants. Batching requests, or filtering to applications that have service principals with Azure role assignments, cuts the time considerably. Get it correct first, then make it fast.
 
@@ -374,9 +374,7 @@ Snapshots age. How often to collect depends on how fast your estate changes and 
 - **Verifying a fix** (Chapter 10): collect on demand after the change, so the verification uses evidence newer than the fix.
 - **Investigations:** use activity sources and change history, not just the latest snapshot.
 
-Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It has limited retention, so treat it as a short-term supplement to snapshots, not a replacement.
-
-> **As of 2026-10:** Verify the current retention and coverage of Resource Graph change history (`resourcechanges`).
+Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It keeps 14 days and covers Azure resources only, not Entra objects, so treat it as a short-term supplement to snapshots, not a replacement.
 
 Whatever cadence you choose, every derived result should carry the snapshot ID and time it was computed from. "The payments path exists" means little without "as of 2026-10-06 09:16 UTC".
 
@@ -491,7 +489,8 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 
 ## Author notes (remove before submission)
 
-- Verify: Reader excludes `listKeys` and App Service application-setting values; minimal Graph permission set names and coverage (especially `RoleManagement.Read.Directory` and PIM eligibility); `allowSharedKeyAccess` default; whether `authorizationresources` includes deny assignments and role assignment conditions; current GitHub OIDC issuer and subject formats; `resourcechanges` retention.
+- Verified 2026-10-10 (revision pass 1): Reader excludes list-secrets actions; Graph permission names, including `RoleManagement.Read.Directory` and PIM eligibility; `allowSharedKeyAccess` null behavior; GitHub issuer, subject formats and immutable subjects; `resourcechanges` 14-day retention.
+- Still to verify: whether `authorizationresources` includes deny assignments and role assignment conditions.
 - Verify cmdlet details: `Search-AzGraph` `-First` maximum, `-SkipToken` and `-UseTenantScope` parameters, and the shape of its return object (`.Data`, `.SkipToken`) in the current Az.ResourceGraph version; `Get-MgApplicationFederatedIdentityCredential` parameter names.
 - Decide whether PIM eligibility for Azure resources belongs here or in Chapter 4.
 - The lab's query files (`queries/*.kql`) belong in the companion lab repo; keep them in sync with sections 3.3 and 3.10.
