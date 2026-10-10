@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `retrieval` — re-read embedding batch/cardinality handling, manifest summarization, agentic retry orchestration, fine-tuning export, and policy-pack indexing; no fresh row met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 362/362; retained five bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed→hit): `retrieval` — `StructureAwareTextChunker` treated a shorter three-backtick line inside a valid four-backtick Markdown fence as a closing delimiter, fragmenting reachable manifest/artifact code content into unwrapped chunks. Fence parsing now requires a closing fence at least as long as its opener; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`; scoped Retrieval/Indexing tests passed 362/362.
 
 2026-10-10 seed hunt (seed→hit): `retrieval` — `PriorManifestRetrievalDocumentBuilder` generated random decision and finding document IDs whenever reachable deserialized records lacked source IDs, so repeated run-completion indexing accumulated duplicate vectors instead of replacing prior documents. Missing IDs now use manifest/run-scoped deterministic indexes; regressions `PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_is_stable_across_rebuilds` and `BuildFromFindings_missing_finding_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 361/361.
@@ -18894,6 +18896,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-10 seed hunt (seed-only): re-read embedding cardinality, summarization, agentic retry, fine-tuning export, and policy-pack indexing paths; no new hunt-ready row was promoted. The exact Retrieval/Indexing filter passed 362/362; seeded five bounded candidates and made no production code change.
+
 2026-10-10 seed hunt (seed→hit): `StructureAwareTextChunker` closed a valid four-backtick Markdown fence on an inner three-backtick content line, so long manifest/artifact code blocks lost fence wrappers during chunking; fence closure now requires the opener length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`; 362 scoped Retrieval/Indexing tests passed.
 
 2026-10-10 seed hunt (seed→hit): missing prior-manifest decision and finding IDs generated random retrieval document IDs across retries; use manifest/run-scoped deterministic indexes; regressions `PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_is_stable_across_rebuilds` and `BuildFromFindings_missing_finding_id_is_stable_across_rebuilds`; 361 scoped Retrieval/Indexing tests passed.
@@ -18936,7 +18940,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 67
+- **hunts:** 68
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
@@ -18993,6 +18997,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `StructureAwareTextChunker` treated any three-backtick line inside a longer fenced block as a closing delimiter — **hit 2026-10-10 seed hunt:** a reachable four-backtick manifest/artifact code block containing a three-backtick line was split into unwrapped chunks; closure now requires at least the opener's fence length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`.
+- [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch; reachable callers include the faithfulness scorer and retrieval indexer, but their current chunkers remove blank chunks before dispatch.
+- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` coerces `MaxManifestsPerExport = 0` to one manifest, so a deployment configuration intending to disable export volume may still emit training data; the input is `Retrieval:FineTuning:MaxManifestsPerExport`.
+- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job; the reachable input is the orchestration manifest batch.
+- [ ] (candidate) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepts a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID; the input is the deployed policy-pack template file.
+- [ ] (candidate) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized; the input is the vector-search hit list.
 - [x] (proven) Index query returns chunks from another tenant's corpus — **hit 2026-08-18:** Azure policy-pack OData filter omitted platform sentinel `tenantId`, allowing cross-tenant `PolicyPack` matches when `IncludePlatformCorpora` is on.
 - [x] (valid-no-repro) Pricing estimate uses the wrong model tariff for the tenant plan — EA multiplier and cache keys are tenant-scoped; covered by existing pricing tests.
 - [x] (valid-no-repro) Reindex job deletes vectors for the wrong workspace — `RetrievalIndexingService` validates scope and passes all four scope fields to delete.
