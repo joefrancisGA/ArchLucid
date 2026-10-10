@@ -219,6 +219,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (s.serviceName === null || s.serviceName === undefined) {
         lines.push("- Service name was not stored.");
+
+        if (sid) {
+          lines.push(`  - **Service id:** \`${sid}\``);
+        }
       } else {
         lines.push(`- **${name}**${sid ? ` (\`${sid}\`)` : ""}`);
       }
