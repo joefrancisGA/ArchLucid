@@ -65,15 +65,15 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId)}` |");
+                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId)}` |");
+                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId)}` |");
+                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,

@@ -59,6 +59,9 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("`Error`");
         md.Should().Contain("v3");
         md.Should().Contain("Findings snapshot id");
+        md.Should().Contain("Context snapshot id was not stored.");
+        md.Should().Contain("Graph snapshot id was not stored.");
+        md.Should().Contain("Decision trace id was not stored.");
         md.Should().Contain("Golden manifest id was not stored.");
         md.Should().Contain("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         md.Should().Contain("**Not** a legal attestation");

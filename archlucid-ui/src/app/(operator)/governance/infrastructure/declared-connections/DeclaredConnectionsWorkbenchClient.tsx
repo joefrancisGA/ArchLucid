@@ -668,7 +668,7 @@ export function DeclaredConnectionsWorkbenchClient() {
                               </div>
                               <div>
                                 <dt className="font-medium">Evidence reference</dt>
-                                <dd className="m-0 text-al-text-secondary">{row.evidenceReference ?? "—"}</dd>
+                                <dd className="m-0 text-al-text-secondary">{row.evidenceReference ?? "Evidence reference was not stored."}</dd>
                               </div>
                               <div>
                                 <dt className="font-medium">Provenance</dt>

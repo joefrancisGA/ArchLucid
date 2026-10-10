@@ -67,7 +67,7 @@ function parseWithheldRow(value: unknown): WithheldFindingRow | null {
   return {
     withheldFindingId,
     reason,
-    originEngineType: readString(record.originEngineType) ?? "unknown",
+    originEngineType: readString(record.originEngineType) ?? "Origin engine was not stored.",
     originAgentType: readString(record.originAgentType),
     title,
     traceTargetId: readString(record.traceTargetId),

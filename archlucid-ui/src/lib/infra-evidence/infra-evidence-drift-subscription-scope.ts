@@ -18,7 +18,7 @@ export function resolveInfraEvidenceSnapshotSubscriptionLabel(
 ): string {
   const label = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
 
-  return label ?? "Unknown subscription";
+  return label ?? "Subscription was not stored.";
 }
 
 export function infraEvidenceSnapshotsShareSubscription(

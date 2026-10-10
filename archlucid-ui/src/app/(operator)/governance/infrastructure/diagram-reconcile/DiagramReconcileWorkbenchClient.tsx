@@ -1172,7 +1172,7 @@ export function DiagramReconcileWorkbenchClient() {
         const item = buildDiagramReconcileOperationalFindingRequestItem(row, runId.trim(), selectedSnapshotId.trim());
         const result = await ingestOperationalSecurityFindings({ items: [item] });
         const ingestItem = result.items?.[0];
-        const outcome = ingestItem?.outcome ?? "Unknown";
+        const outcome = ingestItem?.outcome ?? "Ingest outcome was not stored.";
         const findingId = ingestItem?.findingId?.trim() ?? "";
 
         if (findingId.length > 0) {
@@ -2079,7 +2079,7 @@ export function DiagramReconcileWorkbenchClient() {
                       data-testid={`infra-diagram-reconcile-edge-gap-${gap.edgeGapId}`}
                     >
                       <EnterpriseTableCell>
-                        {gap.fromCloudResourceId ?? "—"} → {gap.toCloudResourceId ?? "—"}
+                        {gap.fromCloudResourceId ?? "From resource id was not stored."} → {gap.toCloudResourceId ?? "To resource id was not stored."}
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatDiagramReconcileAssociationType(gap.associationType)}</EnterpriseTableCell>
                       <EnterpriseTableCell>
