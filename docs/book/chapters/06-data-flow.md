@@ -280,6 +280,8 @@ Counting, filtering, and grouping log records is a query's job, not a model's. "
 Chapter 7's validator rejects activity words such as "accessed" and "has been exposed" unless a cited item records observed activity. With flows and access events in the pack, make that rule exact: activity verbs are allowed only when a sentence cites an item whose category is **observed activity**, and the sentence must carry that item's time window.
 
 ```python
+import re
+
 ACTIVITY_WORDS = re.compile(
     r"\b(?:read|wrote|accessed|downloaded|exfiltrat\w*|exposed|stole|stolen|breach\w*|compromised)\b|\bwas used\b",
     re.IGNORECASE,
