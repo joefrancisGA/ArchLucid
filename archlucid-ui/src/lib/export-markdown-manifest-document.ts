@@ -255,6 +255,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (ds.name === null || ds.name === undefined) {
         lines.push("- Datastore name was not stored.");
+
+        if (did) {
+          lines.push(`  - **Datastore id:** \`${did}\``);
+        }
       } else {
         lines.push(`- **${name}**${did ? ` (\`${did}\`)` : ""}`);
       }
