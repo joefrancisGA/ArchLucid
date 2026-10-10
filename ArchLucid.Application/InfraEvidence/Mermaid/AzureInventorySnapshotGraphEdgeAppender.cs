@@ -18,7 +18,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? label = null,
         string? provenanceKind = null,
         bool promoteStrongerProvenance = true,
-        bool preserveNullProvenance = false)
+        bool preserveNullProvenance = false,
+        bool allowSelfEdges = false)
     {
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
@@ -32,7 +33,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
 
         return Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
             declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance,
-            preserveNullProvenance: preserveNullProvenance);
+            preserveNullProvenance: preserveNullProvenance, allowSelfEdges: allowSelfEdges);
     }
 
     /// <summary>
@@ -67,9 +68,11 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? provenanceKind,
         string? declaredConnectionId,
         bool promoteStrongerProvenance,
-        bool preserveNullProvenance = false)
+        bool preserveNullProvenance = false,
+        bool allowSelfEdges = false)
     {
-        if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
+        // Recovery Services historically retains self-edges; other producers reject them by default.
+        if (!allowSelfEdges && string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
         {
             return null;
         }
