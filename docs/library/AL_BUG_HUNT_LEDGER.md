@@ -35963,9 +35963,9 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
 - **last-bug:** 2026-10-09 — architecture name was counted twice when it repeated the only system
 - **related-pd-tb:** none
@@ -35976,6 +35976,8 @@ ABQ-09 churn hotspot.
 - [x] (proven) `assessArchitectureDiagramReadiness` — architecture name that repeats the only system was counted as a second node, so `MIN_ACTIVE_NODES` passed and `generateArchitectureDiagram` built a one-node model — **hit 2026-10-09 seed hunt:** shared `architectureNameAddsDiagramNode` with `buildArchitectureDiagramModel`. Regression `stays insufficient when the architecture name repeats the only system`. [class:off-by-one]
 
 2026-10-09 seed hunt (seed→hit): `ArchitectureDiagramPanel` passes `highlightedNodeId` from the findings dual-pane into `useArchitectureDiagramPanel`. That effect selected a node only when `diagramModel` changed, so a highlight that arrived after the diagram was ready left the first node pressed. The effect now lists `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`; 13 `ArchitectureDiagramPanel` vitest tests passed.
+
+2026-10-10 thorough hunt (dry): cheap-disproved the VNet frame candidate against the existing contract regression `keeps cards in the clicked node's VNet frame when the outline omits containment`; no failing repro. The focus-token collision candidate remains a bounded candidate because the selected files do not establish a reachable production outline with colliding short and long ids. The focused camera/click tests passed 9/9; the broader architecture directory run had unrelated pre-existing component failures.
 
 2026-10-08 seed hunt (seed→hit): proved inventory subscription maps filed `shared-services` neighborhoods under Resource groups because every non-`vnet` kind was treated as a resource group; resource-group cells stay `shared`, `remainder`, and `other`, and shared services render in their own section; regression `keeps shared services out of the resource group section`; 6 focused neighborhood-map tests passed.
 2026-10-03 seed hunt (hit): chained generated-content data-flow narratives dropped every leg after the first; expanded flow parsing to emit consecutive resolved endpoint edges; focused architecture diagram tests passed.
@@ -35996,6 +35998,6 @@ ABQ-09 churn hotspot.
 - [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.
 - [x] (proven) `groupDiagramNeighborhoodSections` / `DiagramNeighborhoodMapView` — inventory SVG metadata from `DiagramForestLayoutSvgRenderer` emits kind `shared-services` for the shared-services frame, but the subscription map treated every kind other than `vnet` as a resource group, so that tile rendered under Resource groups. Resource-group cells remain `shared`, `remainder`, and `other`. Regression `keeps shared services out of the resource group section`.
 - [ ] (candidate) `diagramOutlineIncludesFocusResource` / `inventoryDiagramNodeElementMatchesFocusId` — normalized substring matching can treat a short reachable focus resource id as the same as a longer node id, moving the camera or dimming an unrelated architecture node; a production Mermaid outline with colliding IDs is still required before promotion.
-- [ ] (candidate) `resolveDiagramClickFocus` — when the clicked node is inside a VNet frame, frame expansion keeps every node whose center is inside that frame, including unrelated nodes; a reachable multi-node SVG and the intended VNet focus contract are still required before promotion.
+- [x] (valid-no-repro) `resolveDiagramClickFocus` — when the clicked node is inside a VNet frame, frame expansion keeps every node whose center is inside that frame — **cheap-disproof 2026-10-10 thorough hunt:** the existing test `keeps cards in the clicked node's VNet frame when the outline omits containment` establishes this as the intended VNet focus behavior; the focused click-focus suite passed.
 
 2026-10-09 seed hunt (seed-only): re-read ArchitectureDiagram viewer, focus, selection, model, readiness, SVG, neighborhood, and provenance paths; no candidate met the full reachability and wrong-outcome bar. Added two mechanism-backed candidates for focus-token collision and VNet frame expansion. The scoped suite reported 96 passed, 13 pre-existing viewer failures, and 17 passed test files.
