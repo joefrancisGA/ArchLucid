@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
-import { apiGet } from "@/lib/api/http";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
 import { fetchRunDetailCriticalPageBundle } from "./fetch-run-detail-page-bundle-client";
+import { apiGet } from "./api/http";
 
-vi.mock("@/lib/api/http", () => ({
+vi.mock("./api/http", () => ({
   apiGet: vi.fn(),
 }));
 
