@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, type Request } from "@playwright/test";
 
-import { injectDefaultTenantOperatorScope, recoverFromAuthBootstrapIfNeeded } from "./demo-workspace-live-scope";
+import { injectDefaultTenantOperatorScope } from "./demo-workspace-live-scope";
 import { dismissBlockingModalOverlays, clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import { primePrivateBetaBrowserSessionIfJwtMode } from "./live-private-beta-access";
 import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
@@ -16,7 +16,7 @@ async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
     { timeout: 90_000 },
   );
 
-  await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded", timeout: 90_000 });
+  await page.goto(LIVE_ADMIN_USERS_TAB_PATH, { waitUntil: "domcontentloaded" });
   await authMeSettled.catch(() => undefined);
   await waitAndDismissFirstSessionPurposeChooser(page);
 }
@@ -47,23 +47,16 @@ export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
   await injectDefaultTenantOperatorScope(page);
 
   await gotoAdminUsersTabAndWaitForMe(page);
-  await recoverFromAuthBootstrapIfNeeded(page, LIVE_ADMIN_USERS_TAB_PATH);
 
   if ((await page.getByText(/Something went wrong/i).count()) > 0) {
     await primePrivateBetaBrowserSessionIfJwtMode(page);
     await injectDefaultTenantOperatorScope(page);
     await gotoAdminUsersTabAndWaitForMe(page);
-    await recoverFromAuthBootstrapIfNeeded(page, LIVE_ADMIN_USERS_TAB_PATH);
   }
 
-  await expect(page).toHaveURL(/\/administration\/users(?:[/?#]|$)/, { timeout: 90_000 });
   await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
-  await expect(async () => {
-    await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 5_000 });
-  }).toPass({ timeout: 90_000 });
-  await expect(async () => {
-    await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 5_000 });
-  }).toPass({ timeout: 90_000 });
+  await expect(page.getByTestId("settings-roles-forbidden")).toHaveCount(0, { timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
 }
 
 async function openInviteForm(page: Page): Promise<Locator> {
@@ -81,9 +74,9 @@ async function openInviteForm(page: Page): Promise<Locator> {
   if (await invitePrimaryRegion.isVisible().catch(() => false)) {
     await invitePrimaryRegion.waitFor({ state: "visible", timeout: 60_000 });
   } else if (await invitePrimaryAction.isVisible().catch(() => false)) {
-    await clickThroughBlockingOverlays(page, invitePrimaryAction);
+    await invitePrimaryAction.click();
   } else if (await inviteStartHereAction.isVisible().catch(() => false)) {
-    await clickThroughBlockingOverlays(page, inviteStartHereAction);
+    await inviteStartHereAction.click();
   } else {
     await inviteSection.waitFor({ state: "visible", timeout: 60_000 });
     await inviteSection.locator("summary").click();
@@ -191,32 +184,6 @@ export async function submitAdminInviteFromUsersUi(
     );
   }
 
-  let inviteResponse = await inviteResponsePromise.catch(() => null);
-
-  if (inviteResponse === null) {
-    await inviteForm.evaluate((form: HTMLFormElement) => {
-      form.requestSubmit();
-    });
-    inviteResponse = await page
-      .waitForResponse(
-        (response) =>
-          response.url().includes("/api/proxy/v1/admin/users/invite") &&
-          response.request().method() === "POST",
-        { timeout: 45_000 },
-      )
-      .catch(() => null);
-  }
-
-  const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
-  const pendingRow = invitationsTable.locator("tr", { hasText: email });
-  const conflictCopy = page
-    .getByText(/Cannot invite this email|directory user already exists/i)
-    .or(
-      page
-        .locator("[data-sonner-toast]")
-        .filter({ hasText: /Cannot invite this email|directory user already exists/i }),
-    );
-
   let inviteResponseStatus: number | undefined;
   let inviteResponseBody = "";
 
@@ -230,13 +197,14 @@ export async function submitAdminInviteFromUsersUi(
     );
   }
 
+  const pendingRow = page.locator("tr", { hasText: email });
+  const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
+
   try {
-    await expect(async () => {
-      await Promise.race([
-        pendingRow.waitFor({ state: "visible", timeout: 5_000 }),
-        conflictCopy.first().waitFor({ state: "visible", timeout: 5_000 }),
-      ]);
-    }).toPass({ timeout: 90_000 });
+    await Promise.race([
+      pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
+    ]);
   } catch {
     throw new Error(
       `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit. Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`,

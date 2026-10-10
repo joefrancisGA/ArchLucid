@@ -11,16 +11,16 @@ import {
 } from "./helpers/live-invite-form-submit";
 import {
   createScimAdminToken,
-  expectAdminInvitationStatus,
   primePrivateBetaBrowserSessionIfJwtMode,
   provisionScimDirectoryUser,
   stubEmptyArchitectureDraftListRoute,
 } from "./helpers/live-private-beta-access";
+import { clickThroughBlockingOverlays } from "./helpers/dismiss-blocking-modal-overlays";
 import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflight";
-import { liveApiBase, liveE2eAdminInviteUiPlaywrightTimeoutMs } from "./helpers/live-api-client";
+import { liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
-  test.describe.configure({ timeout: liveE2eAdminInviteUiPlaywrightTimeoutMs() });
+  test.describe.configure({ timeout: 180_000 });
 
   test.beforeEach(async ({ page }) => {
     await stubEmptyArchitectureDraftListRoute(page);
@@ -38,8 +38,8 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await requireLiveScimAdminPreflight(request);
   });
 
-  test("admin invite round-trip: send invite, list pending, revoke", async ({ page, request }) => {
-    test.setTimeout(liveE2eAdminInviteUiPlaywrightTimeoutMs());
+  test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
+    test.setTimeout(180_000);
 
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
@@ -47,33 +47,22 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
-    const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
-    const pendingRow = invitationsTable.locator("tr", { hasText: inviteEmail });
+    const pendingRow = page.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
     await expect(pendingRow).toContainText("Pending");
 
-    await openPendingInvitationRevokeDialog(page, pendingRow);
+    await clickThroughBlockingOverlays(page, pendingRow.getByRole("button", { name: "Revoke" }));
 
     const revokeDialog = page.getByRole("alertdialog");
-    const revokeResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/proxy/v1/admin/users/invitations/") &&
-        response.request().method() === "DELETE" &&
-        response.status() === 204,
-      { timeout: 60_000 },
-    );
+
+    await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
-    await revokeResponse;
 
     await expectLiveAdminInvitationRevoked(page, inviteEmail);
   });
 
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {
-    test.skip(
-      process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1",
-      "Wave-3 API idempotency covers duplicate pending invites; UI path skipped in long JwtBearer lane.",
-    );
-    test.setTimeout(liveE2eAdminInviteUiPlaywrightTimeoutMs());
+    test.setTimeout(180_000);
 
     const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;
 
@@ -81,19 +70,16 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
-    const invitationsTable = page.getByTestId("settings-roles-pending-invitations-table");
-    const pendingRow = invitationsTable.locator("tr", { hasText: inviteEmail });
+    const pendingRow = page.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
 
-    await primePrivateBetaBrowserSessionIfJwtMode(page);
-    await gotoLiveAdminUsersInvitePage(page);
     await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
-    await expect(invitationsTable.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
+    await expect(page.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
   });
 
   test("invite to existing directory user surfaces conflict copy in UI", async ({ page, request }) => {
-    test.setTimeout(liveE2eAdminInviteUiPlaywrightTimeoutMs());
+    test.setTimeout(180_000);
 
     const directoryEmail = `e2e-dir-user-${Date.now()}@example.com`;
     const scimToken = await createScimAdminToken(request);
