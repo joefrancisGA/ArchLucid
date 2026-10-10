@@ -123,21 +123,6 @@ internal static class ArmJsonLinkedTemplateBatchIndex
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
     {
-        if (element.TryGetProperty(propertyName, out value))
-            return true;
-
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
+        return InfrastructureDeclarationJsonElementReader.TryGetPropertyIgnoreCase(element, propertyName, out value);
     }
 }
