@@ -15,10 +15,12 @@
 
 1. **EX-SI-01.** A missing subnet property must not blank `adf-pipeline-flows.json` and the other companions.
 2. **EX-COST-01.** The quick start must not query Cost Management or retail prices unless the user passes the matching flag.
+3. **EX-SI-02.** The Resource Graph association call must accept `-FirewallSubnetFacts` and `-VirtualNetworkSubnetFacts`.
 
-Re-collect only after **EX-SI-01** is in the script you run. `scriptVersion` `0.4.5` is the build that wrote the empty arrays.
+Re-collect only after **EX-SI-02** is in the script you run. `scriptVersion` `0.4.6` is the build that skipped SecurityInventory with `A parameter cannot be found that matches parameter name 'FirewallSubnetFacts'`.
 
 | ID | File | Intent |
 |----|------|--------|
 | **EX-SI-01** | [azure-extractor-si-01-companion-isolation.md](azure-extractor-si-01-companion-isolation.md) | Keep each companion when another companion throws. A subnet with no NAT gateway does not fail the package. |
 | **EX-COST-01** | [azure-extractor-cost-01-opt-in-cost.md](azure-extractor-cost-01-opt-in-cost.md) | Actual cost and retail prices stay off until `-IncludeCost` or `-IncludeRetailPrices`. |
+| **EX-SI-02** | [azure-extractor-si-02-firewall-subnet-facts-parameter.md](azure-extractor-si-02-firewall-subnet-facts-parameter.md) | Declare the firewall and virtual-network subnet fact parameters on the Resource Graph association entry function. |

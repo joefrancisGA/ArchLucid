@@ -137,6 +137,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         }
 
         HydrateSubnetPlacementProperties(graphSnapshot, nodes);
+        HydrateContainerImageProperties(graphSnapshot, nodes);
 
         List<GraphEdge> edges = [];
         HashSet<string> edgeKeys = new(StringComparer.Ordinal);
@@ -376,6 +377,9 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 && (property.PropertyKey.Equals("ipConfiguration.subnet.id", StringComparison.OrdinalIgnoreCase)
                     || property.PropertyKey.StartsWith(
                         "ipConfiguration.subnet.id[",
+                        StringComparison.OrdinalIgnoreCase)
+                    || property.PropertyKey.Equals(
+                        InventoryDiagramOrphanedStatePropertyKeys.SkuName,
                         StringComparison.OrdinalIgnoreCase));
             bool isVirtualNetworkSubnetsProperty =
                 AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(resourceType)
@@ -398,6 +402,48 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 || isVirtualNetworkSubnetsProperty
                 || isPublicIpIpConfigurationProperty
                 || isFirewallSubnetProperty)
+            {
+                node.Properties[property.PropertyKey] = property.PropertyValue;
+            }
+        }
+    }
+
+    private static void HydrateContainerImageProperties(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<GraphNode> nodes)
+    {
+        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
+            .GroupBy(resource => resource.ResourceRowId)
+            .ToDictionary(group => group.Key, group => group.First());
+        Dictionary<string, GraphNode> nodesByArmId = nodes
+            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId)
+                && !string.IsNullOrWhiteSpace(armId))
+            .ToDictionary(
+                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
+                node => node,
+                StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
+        {
+            if (property.IsRedacted
+                || string.IsNullOrWhiteSpace(property.PropertyValue)
+                || !resourcesByRowId.TryGetValue(property.ResourceRowId, out AzureInventoryResourceRecord? resource)
+                || !nodesByArmId.TryGetValue(
+                    ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
+                    out GraphNode? node))
+            {
+                continue;
+            }
+
+            bool isRegistryLoginServer =
+                resource.ResourceType.Equals(
+                    "Microsoft.ContainerRegistry/registries",
+                    StringComparison.OrdinalIgnoreCase)
+                && property.PropertyKey.Equals("loginServer", StringComparison.OrdinalIgnoreCase);
+            bool isContainerImage =
+                property.PropertyKey.StartsWith("container.image[", StringComparison.OrdinalIgnoreCase);
+
+            if (isRegistryLoginServer || isContainerImage)
             {
                 node.Properties[property.PropertyKey] = property.PropertyValue;
             }

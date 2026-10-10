@@ -156,6 +156,36 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
     }
 
     [Fact]
+    public void Classify_developer_bastion_without_subnet_is_not_orphaned()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        bastion.Properties[InventoryDiagramOrphanedStatePropertyKeys.SkuName] = "Developer";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            bastion,
+            CreateGraph([bastion], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
+    public void Classify_standard_bastion_without_subnet_remains_orphaned()
+    {
+        GraphNode bastion = CreateTopologyNode("bastion-node", BastionArmId, "Microsoft.Network/bastionHosts");
+        bastion.Properties[InventoryDiagramOrphanedStatePropertyKeys.SkuName] = "Standard";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            bastion,
+            CreateGraph([bastion], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().Contain("is not in this inventory snapshot");
+    }
+
+    [Fact]
     public void Classify_restore_point_collection_with_missing_vm_is_orphaned_and_names_vm()
     {
         GraphNode restorePointCollection = CreateTopologyNode(
@@ -175,6 +205,24 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
         result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().Contain("vm-deleted");
         result.MissingRequirementMessage.Should().Contain("virtual machine");
+    }
+
+    [Fact]
+    public void Classify_restore_point_collection_without_source_says_source_was_not_recorded()
+    {
+        GraphNode restorePointCollection = CreateTopologyNode(
+            "rpc-node",
+            RestorePointCollectionArmId,
+            "Microsoft.Compute/restorePointCollections");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            restorePointCollection,
+            CreateGraph([restorePointCollection], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().Be("protected virtual machine was not recorded");
+        result.MissingRequirementMessage.Should().NotContain("no longer exists");
     }
 
     [Fact]
@@ -212,6 +260,44 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
             hasCitedDiagramEdges: false);
 
         result.State.Should().Be(InventoryDiagramConnectionState.Unconnected);
+    }
+
+    [Fact]
+    public void Classify_storage_account_without_stored_link_explains_missing_evidence()
+    {
+        GraphNode storage = CreateTopologyNode(
+            "storage-node",
+            StorageAccountArmId,
+            "Microsoft.Storage/storageAccounts");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            storage,
+            CreateGraph([storage], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Unconnected);
+        result.UnresolvedRelationshipDetails.Should().Contain("No stored storage link yet.");
+        result.UnresolvedRelationshipDetails.Should().NotContain("unused");
+        result.UnresolvedRelationshipDetails.Should().NotContain("orphaned");
+    }
+
+    [Fact]
+    public void Classify_registry_without_stored_link_explains_missing_evidence()
+    {
+        GraphNode registry = CreateTopologyNode(
+            "registry-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerRegistry/registries/acr",
+            "Microsoft.ContainerRegistry/registries");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            registry,
+            CreateGraph([registry], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Unconnected);
+        result.UnresolvedRelationshipDetails.Should().Contain("No stored registry link yet.");
+        result.UnresolvedRelationshipDetails.Should().NotContain("unused");
+        result.UnresolvedRelationshipDetails.Should().NotContain("orphaned");
     }
 
     [Fact]

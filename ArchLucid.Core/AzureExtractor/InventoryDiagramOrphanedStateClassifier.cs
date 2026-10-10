@@ -53,6 +53,22 @@ public static class InventoryDiagramOrphanedStateClassifier
             return ClassifyWorkflow(graphNode, armIdToGraphNode, evidenceCurrency);
         }
 
+        if (armResourceType.Equals(
+                "Microsoft.Storage/storageAccounts",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                ["No stored storage link yet."]);
+        }
+
+        if (armResourceType.Equals(
+                "Microsoft.ContainerRegistry/registries",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                ["No stored registry link yet."]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
@@ -393,7 +409,7 @@ public static class InventoryDiagramOrphanedStateClassifier
         if (string.IsNullOrWhiteSpace(sourceArmId))
         {
             return InventoryDiagramConnectionStateResult.Orphaned(
-                "protected virtual machine no longer exists");
+                "protected virtual machine was not recorded");
         }
 
         if (!IsArmIdResolvable(sourceArmId, armIdToGraphNode))
@@ -476,6 +492,14 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         if (string.IsNullOrWhiteSpace(subnetArmId)
+            && armResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase)
+            && IsDeveloperBastionSku(properties))
+        {
+            // Developer SKU Bastion is deployed without AzureBastionSubnet.
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(subnetArmId)
             && (armResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase)
                 || armResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)))
         {
@@ -484,6 +508,17 @@ public static class InventoryDiagramOrphanedStateClassifier
         }
 
         return null;
+    }
+
+    private static bool IsDeveloperBastionSku(IReadOnlyDictionary<string, string> properties)
+    {
+        if (!properties.TryGetValue(InventoryDiagramOrphanedStatePropertyKeys.SkuName, out string? skuName)
+            || string.IsNullOrWhiteSpace(skuName))
+        {
+            return false;
+        }
+
+        return skuName.Trim().Equals("Developer", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool HasSubnetEdge(GraphNode graphNode, GraphSnapshot graph)
