@@ -18,7 +18,11 @@ export function decodeJwtPayload(jwt: string): Record<string, unknown> | null {
     const padded = payloadSegment.replace(/-/gu, "+").replace(/_/gu, "/");
     const padLen = (4 - (padded.length % 4)) % 4;
     const base64 = padded + "=".repeat(padLen);
-    const json = atob(base64);
+    const binary = atob(base64);
+
+    // JWT payloads are UTF-8 bytes; atob() returns one Latin-1 character per byte.
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const json = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
 
     return JSON.parse(json) as Record<string, unknown>;
   } catch {
