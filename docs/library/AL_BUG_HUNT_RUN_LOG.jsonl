@@ -9297,3 +9297,4 @@
 {"at":"2026-10-10T18:51:19.3818087Z","zoneId":"agent-runtime-safety","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
 {"at":"2026-10-10T18:55:23.0303752Z","zoneId":"agent-runtime-safety","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
 {"at":"2026-10-10T18:59:22.0816790Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
+{"at":"2026-10-10T19:08:48.3360826Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (hit): `core-explanation-json` — case-insensitive property lookup stopped at the first duplicate JSON property, so an empty `reasoning` could hide a later valid `REASONING` from an LLM response. Lookup now uses the last matching property, matching common JSON deserializer behavior; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`; 47 scoped `RunExplanation` tests passed.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected safety and prompt-injection sources after the cancellation fix; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 thorough hunt (dry): `agent-runtime-safety` — re-ran the scoped 584-test filter and classified the retained candidates: sanitizer mid-loop cancellation is valid-no-repro because there is no asynchronous/reentrant boundary; streaming-buffer unboundedness is valid-no-repro because provider `maxTokens` is the reachable output bound; the inner-cancellation candidate is already proven and fixed. No additional production change.
@@ -27308,6 +27310,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-10 thorough hunt (hit): promoted `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-variant properties in model-produced JSON used the first value, allowing an empty `reasoning` or list field to hide a later usable value. The lookup now retains the last case-insensitive match; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`. The scoped `RunExplanation` filter passed 47 tests.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
 
 - **id:** core-explanation-json
@@ -27317,11 +27321,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 42
-- **bugs-found:** 29
+- **hunts:** 43
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — out-of-range numeric explanation counts cast to int.MaxValue
+- **last-bug:** 2026-10-10 — duplicate case-variant explanation property hid later valid reasoning
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
