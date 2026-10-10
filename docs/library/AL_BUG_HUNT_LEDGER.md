@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack assignment mutations, catalog CRUD and page-bundle/version reads, simulation/validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis met the hunt-ready bar and no candidate was promoted. The focused `PolicyPacksController` filter passed 80/80. No production change.
+
 2026-10-10 thorough hunt (dry): `knowledge-graph-provenance` — cheap-disproved the four picker candidates. Provenance null-list input lacked a selected-path caller; graph delta extraction is unused repo-wide; active edge inferrers emit canonical node ids; and the scoped suites produced no failure attributable to these rows. KnowledgeGraph had 362 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed→hit): `TerraformShowJsonInfrastructureDeclarationParser` aborted a reachable Terraform show JSON upload when a malformed non-object entry appeared in `root_module.resources`, before valid sibling resources could be parsed. Terraform property lookup now reuses the guarded shared JSON reader; regression `ParseAsync_ignores_non_object_root_module_resources`; scoped ContextIngestion/Canonicalization tests passed 823/823; Release compile passed with 0 warnings and 0 errors.
@@ -32488,7 +32490,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
