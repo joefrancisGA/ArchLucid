@@ -12155,6 +12155,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: scope-binding-middleware
 
+2026-10-10 seed hunt (seed-only): re-read the three selected middleware/filter files and focused security tests. No new hunt-ready row was promoted. Two existing unit expectations that API keys without workspace/project claims must reject those headers conflict with the source-documented ADR 0037 exception for tenant-bound API keys, so they were treated as valid-no-repro/stale expectations rather than a production defect. The filter ran 96 passing tests; 8 SQL-backed integration tests were blocked by the missing SQL Server test connection.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
