@@ -166,6 +166,26 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
+## RC35 Cursor repair-set handoff
+
+Use this checklist when `RC35` trails `master` after a private-beta repair batch. It is a release handoff, not permission to push directly to `RC35`.
+
+| Order | Master repair | Release-cut evidence required |
+| ---: | --- | --- |
+| 1 | #4434 — `ArmResourceIdNormalizer` import and frozen-pin warning contract | `.NET: OpenAPI v1 contract snapshot (fail-fast)` and `CI: beta-readiness wiring guards` both rerun on the new RC35 SHA |
+| 2 | `0d1e7d903d` — preserve structured 404s for missing reviews | JwtBearer dead-review checks reach `branded-not-found` |
+| 3 | #4458/#4459 — dead-review diagnostics and independent invitee journeys | JwtBearer reports `[dead-link-404]` and `[reviews-hub-timeout]` separately; TB-927 cases are not hidden by a serial failure |
+| 4 | #4461/#4483 — OpenAPI build-failure annotations and compiler-code extraction | A build failure identifies `CS####`/`MSB####` before snapshot drift is investigated |
+| 5 | #4465/#4470 — parity markers and correct readiness-helper path | `check_private_beta_ref_parity.py --base-ref origin/master --release-ref origin/RC35` passes |
+| 6 | #4476 — warning-only live ruleset drift diagnostics | Ruleset drift is recorded without masking the JwtBearer access-path result |
+
+After the repair set is present on the release cut:
+
+1. Re-run `ui-typecheck-on-push.yml`, `private-beta-access-on-push.yml`, and `openapi-snapshot-refresh.yml` on the same RC35 SHA.
+2. Confirm the release gate and the private-beta access-path result separately; do not treat a green release gate as a green JwtBearer witness.
+3. Record the run IDs and SHA in the RC evidence bundle.
+4. Keep Gate 1, G-REAL-06, G-REAL-07, and ruleset application as separate owner actions.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
