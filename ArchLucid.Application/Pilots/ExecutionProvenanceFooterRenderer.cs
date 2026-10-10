@@ -27,11 +27,11 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
             ? "| Fallback path | Real → Simulator (fallback) |\n"
             : string.Empty;
         string deployment = input.RealModeFellBackToSimulator
-            ? string.IsNullOrWhiteSpace(input.PilotAoaiDeploymentSnapshot)
-                ? "(unknown at fallback)"
+            ? IsOmitted(input.PilotAoaiDeploymentSnapshot)
+                ? "Deployment snapshot was not stored."
                 : input.PilotAoaiDeploymentSnapshot
-            : string.IsNullOrWhiteSpace(input.HostAzureOpenAiDeploymentName)
-                ? "(n/a)"
+            : IsOmitted(input.HostAzureOpenAiDeploymentName)
+                ? "Azure OpenAI deployment was not stored."
                 : input.HostAzureOpenAiDeploymentName;
 
         return $"""
@@ -49,4 +49,7 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
 
     private static string ResolveModeLabel(ExecutionProvenanceFooterInput input) =>
         StructuralExecutionModeLabels.ToDisplayLabel(input.PersistedStructuralExecutionMode);
+
+    private static bool IsOmitted(string? value) =>
+        value is null || (value.Length > 0 && string.IsNullOrWhiteSpace(value));
 }

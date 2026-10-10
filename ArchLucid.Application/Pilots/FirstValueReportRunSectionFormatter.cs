@@ -31,7 +31,7 @@ public static class FirstValueReportRunSectionFormatter
             $"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
         if (manifest is null)
         {
-            sb.AppendLine("| Committed manifest | _(not available — run may not be committed yet)_ |");
+            sb.AppendLine("| Committed manifest | Committed manifest was not stored. |");
             sb.AppendLine();
             return;
         }

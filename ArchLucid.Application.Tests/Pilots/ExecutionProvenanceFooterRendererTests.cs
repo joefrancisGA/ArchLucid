@@ -45,6 +45,24 @@ public sealed class ExecutionProvenanceFooterRendererTests
     }
 
     [SkippableFact]
+    public void BuildFooterMarkdown_WhenHostDeploymentIsMissing_labels_it_without_rewriting_empty_values()
+    {
+        ExecutionProvenanceFooterInput missingInput = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Real,
+            RealModeFellBackToSimulator: false,
+            PilotAoaiDeploymentSnapshot: null,
+            HostAgentExecutionMode: "Real",
+            HostAzureOpenAiDeploymentName: null,
+            LlmCompletionTraceCount: 0);
+
+        _sut.BuildFooterMarkdown(missingInput).Should().Contain("Azure OpenAI deployment was not stored.");
+
+        ExecutionProvenanceFooterInput emptyInput = missingInput with { HostAzureOpenAiDeploymentName = string.Empty };
+
+        _sut.BuildFooterMarkdown(emptyInput).Should().Contain("Azure OpenAI deployment (when known) | ``");
+    }
+
+    [SkippableFact]
     public void BuildFooterMarkdown_WhenFellBack_usesFallbackLabelAndSnapshotDeployment()
     {
         ExecutionProvenanceFooterInput input = new(
@@ -63,7 +81,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
     }
 
     [SkippableFact]
-    public void BuildFooterMarkdown_WhenFellBackAndNoSnapshot_showsUnknownPlaceholder()
+    public void BuildFooterMarkdown_WhenFellBackAndNoSnapshot_labels_missing_snapshot()
     {
         ExecutionProvenanceFooterInput input = new(
             PersistedStructuralExecutionMode: StructuralExecutionMode.Fallback,
@@ -75,7 +93,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
 
         string md = _sut.BuildFooterMarkdown(input);
 
-        md.Should().Contain("(unknown at fallback)");
+        md.Should().Contain("Deployment snapshot was not stored.");
     }
 
     [SkippableFact]

@@ -87,7 +87,7 @@ public static class FirstValueReportDeltasSectionFormatter
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
         return deltas.TimeToCommittedManifest is not { } wall
-            ? "_(pending — no committed manifest yet)_"
+            ? "Time to committed manifest was not stored."
             : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
     }
 

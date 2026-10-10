@@ -196,7 +196,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
         <li data-testid="audit-evidence-spine-control">
           <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Audit control</p>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {props.lineage.controlNumber ?? "—"} · {props.lineage.controlTitle ?? "Untitled control"}
+            {props.lineage.controlNumber ?? "—"} · {props.lineage.controlTitle ?? "Control title was not stored."}
           </p>
           {!buyerPolishedShell ? (
             <TechnicalIdentifierRow label="controlId" value={props.lineage.controlId} />
@@ -245,7 +245,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
               Evidence requirement · {chain.requirementName ?? "Unnamed"}
             </p>
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Type: {chain.evidenceType ?? "—"}
+              Type: {chain.evidenceType ?? "Evidence type was not stored."}
               {!buyerPolishedShell ? ` · requirementId=${chain.requirementId ?? "—"}` : null}
             </p>
             <ul className="m-0 mt-3 list-none space-y-3 p-0">
@@ -274,7 +274,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                     </Link>
                   ) : null}
                   <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    Collected {evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "—"} · collector{" "}
+                    Collected {evidence.collectedUtc ? formatIsoUtcForDisplay(evidence.collectedUtc) : "Collected time was not stored."} · collector{" "}
                     {evidence.collectorVersion ?? "—"} · selector {evidence.selectorVersion ?? "—"}
                   </p>
                   {(evidence.missingLinkKinds?.length ?? 0) > 0 ? (

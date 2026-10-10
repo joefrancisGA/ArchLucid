@@ -99,4 +99,14 @@ describe("OperatorHomeRecentReviewsTable", () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it("labels a review with no timestamps as not stored", () => {
+    render(
+      <OperatorHomeRecentReviewsTable
+        runs={[{ runId: "missing-time", projectId: "default", displayTitle: "Missing time review" }]}
+      />,
+    );
+
+    expect(screen.getByText("Updated time was not stored.")).toBeInTheDocument();
+  });
 });

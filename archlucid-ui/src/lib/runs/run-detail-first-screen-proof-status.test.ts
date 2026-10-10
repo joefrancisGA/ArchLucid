@@ -90,10 +90,10 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(summary.detail?.toLowerCase()).toContain("this review");
   });
 
-  it("returns 'Not available' for governed coverage when field is absent", () => {
+  it("labels governed coverage as not stored when field is absent", () => {
     const summary = buildRunDetailFirstScreenProofSummary(null);
 
-    expect(summary.governedCoverageLabel).toBe("Not available");
+    expect(summary.governedCoverageLabel).toBe("Governed coverage was not stored.");
   });
 
   it("returns 'Not available' when isAvailable is false", () => {
