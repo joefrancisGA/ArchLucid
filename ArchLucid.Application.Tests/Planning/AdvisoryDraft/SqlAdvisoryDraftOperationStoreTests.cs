@@ -79,7 +79,7 @@ public sealed class SqlAdvisoryDraftOperationStoreTests
             SuggestedCapabilities = ["Audit logging"],
         };
 
-        store.MarkSucceeded(operationId, result);
+        store.MarkSucceeded(DefaultScope, operationId, result);
 
         store.TryGet(operationId, DefaultScope, out AdvisoryDraftOperationRecord? record).Should().BeTrue();
         record!.Result.Should().NotBeNull();

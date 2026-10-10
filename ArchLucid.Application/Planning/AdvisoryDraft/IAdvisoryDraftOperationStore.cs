@@ -10,13 +10,13 @@ public interface IAdvisoryDraftOperationStore
 
     bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record);
 
-    void MarkRunning(string operationId);
+    void MarkRunning(ScopeContext scope, string operationId);
 
-    void UpdateProgress(string operationId, string stepLabel, int currentStep);
+    void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep);
 
-    void MarkSucceeded(string operationId, DraftArchitectureRequestResponse result);
+    void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result);
 
-    void MarkFailed(string operationId, string errorMessage);
+    void MarkFailed(ScopeContext scope, string operationId, string errorMessage);
 
-    void MarkCanceled(string operationId);
+    void MarkCanceled(ScopeContext scope, string operationId);
 }

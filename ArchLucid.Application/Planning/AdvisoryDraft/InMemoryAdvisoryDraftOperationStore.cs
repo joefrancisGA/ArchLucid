@@ -57,9 +57,9 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         return _records.TryGetValue(BuildKey(scope, parsedId), out record);
     }
 
-    public void MarkRunning(string operationId)
+    public void MarkRunning(ScopeContext scope, string operationId)
     {
-        UpdateRecord(operationId, static record =>
+        UpdateRecord(scope, operationId, static record =>
         {
             record.State = OperationState.Running;
             record.StepLabel = AdvisoryDraftOperationSteps.ReadingOverview;
@@ -68,9 +68,9 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         });
     }
 
-    public void UpdateProgress(string operationId, string stepLabel, int currentStep)
+    public void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep)
     {
-        UpdateRecord(operationId, record =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.StepLabel = stepLabel;
             record.CurrentStep = currentStep;
@@ -78,11 +78,11 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         });
     }
 
-    public void MarkSucceeded(string operationId, DraftArchitectureRequestResponse result)
+    public void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        UpdateRecord(operationId, record =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.State = OperationState.Succeeded;
             record.StepLabel = AdvisoryDraftOperationSteps.Complete;
@@ -93,9 +93,9 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         });
     }
 
-    public void MarkFailed(string operationId, string errorMessage)
+    public void MarkFailed(ScopeContext scope, string operationId, string errorMessage)
     {
-        UpdateRecord(operationId, record =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.State = OperationState.Failed;
             record.StepLabel = AdvisoryDraftOperationSteps.Failed;
@@ -105,9 +105,9 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         });
     }
 
-    public void MarkCanceled(string operationId)
+    public void MarkCanceled(ScopeContext scope, string operationId)
     {
-        UpdateRecord(operationId, record =>
+        UpdateRecord(scope, operationId, record =>
         {
             if (record.State is OperationState.Succeeded or OperationState.Failed or OperationState.Canceled)
                 return;
@@ -119,16 +119,21 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         });
     }
 
-    private void UpdateRecord(string operationId, Action<AdvisoryDraftOperationRecord> mutate)
+    private void UpdateRecord(ScopeContext scope, string operationId, Action<AdvisoryDraftOperationRecord> mutate)
     {
-        foreach (AdvisoryDraftOperationRecord record in _records.Values)
-        {
-            if (!string.Equals(OperationIdCodec.ForDraft(record.OperationId), operationId, StringComparison.Ordinal))
-                continue;
+        ArgumentNullException.ThrowIfNull(scope);
 
-            mutate(record);
+        if (!OperationIdCodec.TryParse(operationId, out OperationIdKind kind, out string payload)
+            || kind != OperationIdKind.Draft
+            || !Guid.TryParse(payload, out Guid parsedId))
+        {
             return;
         }
+
+        if (!_records.TryGetValue(BuildKey(scope, parsedId), out AdvisoryDraftOperationRecord? record))
+            return;
+
+        mutate(record);
     }
 
     internal static string BuildKey(ScopeContext scope, Guid operationId) =>

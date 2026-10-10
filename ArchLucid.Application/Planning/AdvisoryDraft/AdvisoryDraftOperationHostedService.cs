@@ -46,11 +46,11 @@ public sealed class AdvisoryDraftOperationHostedService(
 
     private async Task ProcessAsync(AdvisoryDraftOperationWorkItem item, CancellationToken stoppingToken)
     {
-        _store.MarkRunning(item.OperationId);
+        _store.MarkRunning(item.Scope, item.OperationId);
 
         if (_cancellationRegistry.IsCancelRequested(item.Scope, item.OperationId))
         {
-            _store.MarkCanceled(item.OperationId);
+            _store.MarkCanceled(item.Scope, item.OperationId);
             return;
         }
 
@@ -60,7 +60,7 @@ public sealed class AdvisoryDraftOperationHostedService(
             IArchitectureRequestDraftService draftService =
                 scope.ServiceProvider.GetRequiredService<IArchitectureRequestDraftService>();
 
-            StoreAdvisoryDraftProgress progress = new(_store, item.OperationId);
+            StoreAdvisoryDraftProgress progress = new(_store, item.Scope, item.OperationId);
 
             DraftArchitectureRequestResponse response = await draftService.DraftAsync(
                 item.Input,
@@ -69,15 +69,15 @@ public sealed class AdvisoryDraftOperationHostedService(
 
             if (_cancellationRegistry.IsCancelRequested(item.Scope, item.OperationId))
             {
-                _store.MarkCanceled(item.OperationId);
+                _store.MarkCanceled(item.Scope, item.OperationId);
                 return;
             }
 
-            _store.MarkSucceeded(item.OperationId, response);
+            _store.MarkSucceeded(item.Scope, item.OperationId, response);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            _store.MarkCanceled(item.OperationId);
+            _store.MarkCanceled(item.Scope, item.OperationId);
         }
         catch (Exception ex)
         {
@@ -86,7 +86,7 @@ public sealed class AdvisoryDraftOperationHostedService(
                 "Advisory draft operation failed for {OperationId}",
                 item.OperationId);
 
-            _store.MarkFailed(item.OperationId, ex.Message);
+            _store.MarkFailed(item.Scope, item.OperationId, ex.Message);
         }
     }
 }

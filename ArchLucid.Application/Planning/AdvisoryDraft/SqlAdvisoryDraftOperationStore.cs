@@ -61,8 +61,8 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
         return true;
     }
 
-    public void MarkRunning(string operationId) =>
-        UpdateRecord(operationId, static record =>
+    public void MarkRunning(ScopeContext scope, string operationId) =>
+        UpdateRecord(scope, operationId, static record =>
         {
             record.State = OperationState.Running;
             record.StepLabel = AdvisoryDraftOperationSteps.ReadingOverview;
@@ -70,19 +70,19 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
         });
 
-    public void UpdateProgress(string operationId, string stepLabel, int currentStep) =>
-        UpdateRecord(operationId, record =>
+    public void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep) =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.StepLabel = stepLabel;
             record.CurrentStep = currentStep;
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
         });
 
-    public void MarkSucceeded(string operationId, DraftArchitectureRequestResponse result)
+    public void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        UpdateRecord(operationId, record =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.State = OperationState.Succeeded;
             record.StepLabel = AdvisoryDraftOperationSteps.Complete;
@@ -93,8 +93,8 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
         });
     }
 
-    public void MarkFailed(string operationId, string errorMessage) =>
-        UpdateRecord(operationId, record =>
+    public void MarkFailed(ScopeContext scope, string operationId, string errorMessage) =>
+        UpdateRecord(scope, operationId, record =>
         {
             record.State = OperationState.Failed;
             record.StepLabel = AdvisoryDraftOperationSteps.Failed;
@@ -103,8 +103,8 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             record.HeartbeatUtc = record.CompletedUtc.Value;
         });
 
-    public void MarkCanceled(string operationId) =>
-        UpdateRecord(operationId, record =>
+    public void MarkCanceled(ScopeContext scope, string operationId) =>
+        UpdateRecord(scope, operationId, record =>
         {
             if (record.State is OperationState.Succeeded or OperationState.Failed or OperationState.Canceled)
             {
@@ -117,15 +117,17 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             record.HeartbeatUtc = record.CompletedUtc.Value;
         });
 
-    private void UpdateRecord(string operationId, Action<AdvisoryDraftOperationRecord> mutate)
+    private void UpdateRecord(ScopeContext scope, string operationId, Action<AdvisoryDraftOperationRecord> mutate)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         if (!TryParseDraftOperationId(operationId, out Guid parsedId))
         {
             return;
         }
 
         AdvisoryDraftOperationRow? row = _repository
-            .GetByOperationIdAsync(parsedId, CancellationToken.None)
+            .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, parsedId, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
 
@@ -134,12 +136,6 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             return;
         }
 
-        ScopeContext scope = new()
-        {
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-        };
         AdvisoryDraftOperationRecord record = MapToRecord(scope, row);
         mutate(record);
         _repository.UpdateAsync(MapToRow(record), CancellationToken.None).GetAwaiter().GetResult();
