@@ -110,4 +110,55 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(missing).not.toContain("undefined");
     expect(storedEmpty).not.toContain("Envelope description was not stored.");
   });
+
+  it("reports omitted soft envelope values while preserving stored empty values", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: {
+        confidenceLow: 0,
+        confidenceHigh: 0,
+        softAssumption: "",
+      },
+      proposedRelaxations: undefined,
+    });
+    const storedEmpty = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: {
+        confidenceLow: 0,
+        confidenceHigh: 0,
+        softAssumption: "",
+        costOfBeingWrong: "",
+      },
+      proposedRelaxations: [],
+    });
+
+    expect(missing).toContain("Cost of being wrong was not stored.");
+    expect(missing).toContain("Proposed relaxations were not stored.");
+    expect(storedEmpty).not.toContain("Cost of being wrong was not stored.");
+    expect(storedEmpty).not.toContain("Proposed relaxations were not stored.");
+  });
+
+  it("renders authority invariant keys and proposed relaxation fields honestly", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations: [{ kind: "NamedLaw", reference: "A named law", invariantKeys: undefined }],
+      proposedRelaxations: [{ invariantKey: undefined, tradeOffDescription: undefined }],
+    });
+    const storedEmpty = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Required controls cannot be satisfied.",
+      hardCitations: [{ kind: "NamedLaw", reference: "A named law", invariantKeys: [] }],
+      proposedRelaxations: [{ invariantKey: "", tradeOffDescription: "" }],
+    });
+
+    expect(missing).toContain("Citation invariant keys were not stored.");
+    expect(missing).toContain("Relaxation invariant key was not stored.");
+    expect(missing).toContain("Trade-off description was not stored.");
+    expect(storedEmpty).not.toContain("Citation invariant keys were not stored.");
+    expect(storedEmpty).not.toContain("Relaxation invariant key was not stored.");
+    expect(storedEmpty).not.toContain("Trade-off description was not stored.");
+  });
 });

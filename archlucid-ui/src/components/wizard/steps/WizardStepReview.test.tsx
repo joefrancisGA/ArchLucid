@@ -39,6 +39,7 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("Rate limits on public endpoints")).toBeInTheDocument();
     expect(screen.getByText("EU-only data")).toBeInTheDocument();
     expect(screen.getByText("policy-pack:default")).toBeInTheDocument();
+    expect(screen.getByText("1 attached")).toBeInTheDocument();
   });
 
   it("explains omitted optional scalar and empty string lists", () => {
@@ -56,10 +57,11 @@ describe("WizardStepReview", () => {
     );
 
     const priorRow = screen.getByText("Prior manifest").closest("dl");
-    expect(priorRow?.textContent).toContain(" — ");
+    expect(priorRow?.textContent).toContain("No prior manifest recorded");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("None recorded on this draft");
+    expect(advancedSection?.textContent).toContain("0 attached");
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

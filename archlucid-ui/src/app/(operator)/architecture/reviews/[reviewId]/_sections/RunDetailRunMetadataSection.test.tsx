@@ -34,5 +34,42 @@ describe("RunDetailRunMetadataSection", () => {
     );
 
     expect(screen.queryByTestId("run-detail-retry-count")).toBeNull();
+    expect(screen.getByTestId("run-detail-retry-count-not-stored")).toHaveTextContent(
+      "Retry count was not stored.",
+    );
+  });
+
+  it("distinguishes missing metadata from stored empty values", () => {
+    const { rerender } = render(
+      <RunDetailRunMetadataSection
+        run={{
+          runId: "abc",
+          projectId: "p1",
+          createdUtc: "2026-01-01T00:00:00Z",
+          description: null,
+          retryCount: 0,
+        }}
+        runDetailTraceId={null}
+      />,
+    );
+
+    expect(screen.getByText("Description was not stored.")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-retry-count-not-stored")).toBeNull();
+
+    rerender(
+      <RunDetailRunMetadataSection
+        run={{
+          runId: "abc",
+          projectId: "p1",
+          createdUtc: "2026-01-01T00:00:00Z",
+          description: "",
+          retryCount: 0,
+        }}
+        runDetailTraceId={null}
+      />,
+    );
+
+    expect(screen.queryByText("Description was not stored.")).toBeNull();
+    expect(screen.queryByTestId("run-detail-retry-count-not-stored")).toBeNull();
   });
 });

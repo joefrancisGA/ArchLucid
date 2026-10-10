@@ -217,6 +217,40 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(storedEmpty).not.toContain("Purpose was not stored.");
   });
 
+  it("reports omitted component values while preserving stored empty values", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      constraints: {},
+      topology: {
+        services: [{ serviceName: null, serviceId: null }],
+        datastores: [{ name: null, datastoreId: null }],
+      },
+      decisions: [{ decisionId: null, selectedOption: null }],
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      constraints: { preferences: [] },
+      topology: {
+        services: [{ serviceName: "", serviceId: "" }],
+        datastores: [{ name: "", datastoreId: "" }],
+      },
+      decisions: [{ decisionId: "", selectedOption: "" }],
+    });
+
+    expect(omitted).toContain("Preferences were not stored.");
+    expect(omitted).toContain("Service name was not stored.");
+    expect(omitted).toContain("Service id was not stored.");
+    expect(omitted).toContain("Datastore name was not stored.");
+    expect(omitted).toContain("Datastore id was not stored.");
+    expect(omitted).toContain("Decision id was not stored.");
+    expect(omitted).toContain("Selected option was not stored.");
+    expect(storedEmpty).not.toContain("Preferences were not stored.");
+    expect(storedEmpty).not.toContain("Service name was not stored.");
+    expect(storedEmpty).not.toContain("Service id was not stored.");
+    expect(storedEmpty).not.toContain("Datastore name was not stored.");
+    expect(storedEmpty).not.toContain("Datastore id was not stored.");
+    expect(storedEmpty).not.toContain("Decision id was not stored.");
+    expect(storedEmpty).not.toContain("Selected option was not stored.");
+  });
+
   it("reports omitted policy-at-commit counts while preserving zero", () => {
     const omitted: string[] = [];
     const zero: string[] = [];

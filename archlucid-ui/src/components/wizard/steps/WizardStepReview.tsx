@@ -161,11 +161,23 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
           <p className="m-0">{(v.policyReferences ?? []).join(", ") || "None recorded on this draft"}</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
-          <p className="m-0">{(v.topologyHints ?? []).join(", ") || "None recorded on this draft"}</p>
+          <p className="m-0">
+            {v.topologyHints === null || v.topologyHints === undefined
+              ? "Architecture hints were not stored."
+              : v.topologyHints.join(", ") || "None recorded on this draft"}
+          </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
-          <p className="m-0">{(v.securityBaselineHints ?? []).join(", ") || "None recorded on this draft"}</p>
+          <p className="m-0">
+            {v.securityBaselineHints === null || v.securityBaselineHints === undefined
+              ? "Security baseline hints were not stored."
+              : v.securityBaselineHints.join(", ") || "None recorded on this draft"}
+          </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
-          <p className="m-0">{(v.documents ?? []).filter((d) => d.name.trim()).length} attached</p>
+          <p className="m-0">
+            {v.documents === null || v.documents === undefined
+              ? "Document count was not stored."
+              : `${v.documents.filter((d) => d.name.trim()).length} attached`}
+          </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
           <p className="m-0">
             {(v.infrastructureDeclarations ?? []).filter((d) => d.name.trim()).length} declaration(s)
