@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 46
-- **bugs-found:** 39
+- **hunts:** 47
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — inventory relationships duplicated when relationship type differed only by case
+- **last-bug:** 2026-10-10 — persisted ARM property casing caused data-flow stages to fall back to graph node type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `AzureInventoryDataFlowStageResolver.Resolve` read persisted `arm.type` with an ordinal dictionary lookup, so a reachable graph snapshot whose property key casing differed fell back to `NodeType` and assigned the wrong data-flow stage; ARM type and diagram-exclusion property reads now reuse `GraphNodePropertyReader` for case-insensitive lookup; regression `Resolve_reads_arm_type_when_persisted_property_key_uses_different_casing`; focused resolver tests passed 49/49.
+
+- [x] (proven) `AzureInventoryDataFlowStageResolver.Resolve` — a persisted `Arm.Type` key was ignored and the node’s unrelated `NodeType` determined its data-flow stage — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader` for case-insensitive ARM property lookup; regression `Resolve_reads_arm_type_when_persisted_property_key_uses_different_casing`.
 
 2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphBuilder` used a case-sensitive edge dedup key, so equivalent persisted inventory relationships whose type differed only by case emitted parallel observed edges. Edge keys now use the same case-insensitive semantic comparison as downstream overlay merging; regression `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_case`; KnowledgeGraph scoped tests passed 364/367 with 3 pre-existing unrelated failures; Provenance passed 58/58; Release compile passed with 0 warnings and 0 errors.
 

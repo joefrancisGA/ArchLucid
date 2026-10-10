@@ -104,6 +104,25 @@ public sealed class AzureInventoryDataFlowStageResolverTests
     }
 
     [Fact]
+    public void Resolve_reads_arm_type_when_persisted_property_key_uses_different_casing()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "storage-account",
+            NodeType = "Microsoft.Web/sites",
+            Label = "storage-account",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Arm.Type"] = "Microsoft.Storage/storageAccounts",
+            },
+        };
+
+        AzureInventoryDataFlowStageResolver.Resolve(node)
+            .Should()
+            .Be(AzureInventoryDataFlowStageNames.Storage);
+    }
+
+    [Fact]
     public void OrderedStages_places_application_immediately_after_source()
     {
         int sourceIndex = AzureInventoryDataFlowStageNames.OrderedStages

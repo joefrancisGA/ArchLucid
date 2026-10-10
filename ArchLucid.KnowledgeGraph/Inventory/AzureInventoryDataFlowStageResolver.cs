@@ -151,7 +151,7 @@ public static class AzureInventoryDataFlowStageResolver
     private static string ReadArmType(GraphNode node)
     {
         if (node.Properties != null
-            && node.Properties.TryGetValue("arm.type", out string? armType)
+            && GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.type", out string? armType)
             && !string.IsNullOrWhiteSpace(armType))
         {
             return armType;
