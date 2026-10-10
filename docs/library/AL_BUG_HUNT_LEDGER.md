@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-auth-callback` — reread the submit-generation guard, controlled form fields, honeypot, response-status handling, and all 63 focused tests; no new reachable mechanism-backed hypothesis survived the existing coverage and prior candidate history. No production code changed.
+
 2026-10-10 seed hunt (seed-only): `ui-auth-callback` — re-read `AuthCallbackAccessPanel.tsx` and its complete 63-test component suite; the remaining input/response, honeypot, lifecycle, and accessibility lenses either match existing contracts or duplicate previously tested mechanisms. No fresh hunt-ready hypothesis was promoted and no production code changed.
 
 2026-10-10 thorough hunt (hit): `ui-governance-findings-queue` — a mixed findings/decision queue rendered decision rows with findings bulk-selection checkboxes, and `availableFindingIds` admitted decision ids to bulk disposition. Findings-only selection is now enforced in the client, table, grouped table, and row renderer; regression `does not expose decision rows to findings bulk selection`; focused queue tests passed 6/6 and UI typecheck passed.
@@ -10433,7 +10435,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 32 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
+**Hunts:** 33 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
