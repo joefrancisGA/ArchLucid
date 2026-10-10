@@ -16913,13 +16913,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 42
-- **bugs-found:** 27
+- **hunts:** 43
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — blank citation objects satisfied PilotStrict presence
+- **last-bug:** 2026-10-10 — undefined numeric finding category counted as grounded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` treated undefined numeric finding category `"99"` as a defined `AgentType`, so matching finding text was counted as grounded. The parser now requires `Enum.IsDefined`; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`; 203 scoped Evaluation tests passed.
 
 2026-10-09 seed hunt (seed→hit): findings ignored `evidenceRefs` and prompt `message` text; unresolved finding citations counted as supported and prompt-shaped messages counted as ungrounded; findings now share claim evidence-ref rules and architecture-finding message aliases; regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
 
@@ -16942,7 +16944,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the presence gate — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
-- [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepts a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal can be treated as an automatically grounded category when the rest of the finding text overlaps evidence. Reachability: agent-produced `findings[].category` JSON is parsed by the evaluation checker at the trust boundary.
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepted a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal was treated as an automatically grounded category when the rest of the finding text overlapped evidence. **Hit 2026-10-10 seed hunt:** require `Enum.IsDefined` after parsing; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` had a property and therefore satisfied the presence gate despite containing no usable citation value — **hit 2026-10-10 seed hunt:** require at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks use ordinal property-name matching while actual `AgentResult` JSON is emitted with Web/camelCase naming; a configured key with casing that differs from the wire name can produce a false reference-case or harness failure. Reachability: reference-case and harness expectations are configuration inputs paired with serialized agent output.
 - [ ] (candidate) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — an external judge response with `overallQuality` outside `[0,1]` is clamped into the valid range instead of treated as malformed; this overlaps the saturated score-validation class and needs shared parsing treatment before promotion. Reachability: keyed LLM completion response consumed by the semantic-judge parser.

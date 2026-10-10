@@ -9316,3 +9316,4 @@
 {"at":"2026-10-10T20:38:13.490Z","zoneId":"review-recurrence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs"]}
 {"at":"2026-10-10T20:43:44.7388054Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-10T20:50:08.1906814Z","zoneId":"review-recurrence","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs"]}
+{"at":"2026-10-10T20:58:48.9526661Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"],"severity":"medium","defectClass":"fail-open-validation"}
