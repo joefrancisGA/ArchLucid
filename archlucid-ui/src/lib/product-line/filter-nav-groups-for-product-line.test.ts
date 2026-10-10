@@ -152,6 +152,26 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "Connection status",
       "Manual upload",
     ]);
+    expect(rows.map((row) => row.group.caption)).toEqual([
+      undefined,
+      "What needs attention, and who owns it.",
+      "What you have and how it connects.",
+      "What to fix first, and whether it worked.",
+      "Frameworks, effective rules, and audit evidence.",
+      "Where SecureNow's evidence comes from.",
+      "Where findings and fixes are sent.",
+      undefined,
+    ]);
+    expect(
+      rows
+        .flatMap((row) => row.visibleLinks)
+        .some((link) => /review|architecture risk|draft-only|honesty|Alt\+/i.test(link.title)),
+    ).toBe(false);
+    expect(
+      rows
+        .flatMap((row) => row.visibleLinks)
+        .find((link) => link.href === "/security/remediation-factory")?.title,
+    ).toBe("Rank fixes by risk reduced and group them into waves.");
 
     const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
 
