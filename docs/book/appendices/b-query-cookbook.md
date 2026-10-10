@@ -11,6 +11,8 @@ This appendix collects the queries the book uses, plus the ones the chapters des
 
 Every recipe here is **read-only**. With one exception called out in B.6, the collector identity from Chapter 3 can run them all: Reader at the scope you collect, plus the four Microsoft Graph application permissions (`Application.Read.All`, `GroupMember.Read.All`, `User.Read.All`, `RoleManagement.Read.Directory`). Where a recipe needs more, it says so, and the missing permission is a gap to record, not a reason to widen the collector quietly.
 
+Hop labels (H1–H9) and path labels (P1–P6) are the IDs from Chapter 7's evidence pack (section 7.3).
+
 ---
 
 ## B.1 Rules that apply to every recipe
@@ -352,7 +354,7 @@ resources
 
 ### Resources with a private endpoint and an open public endpoint
 
-From Chapter 5, section 5.2. It's the first step of that chapter's lab:
+From Chapter 5, section 5.3. It's the first step of that chapter's lab:
 
 ```kusto
 resources
