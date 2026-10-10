@@ -35247,6 +35247,8 @@ ABQ-09 churn hotspot.
 
 2026-10-10 seed hunt (seed-only): re-read the selected component after the trailing-slash title fix; no new reachable boundary beyond the retained findings-pagination and audit-row candidates was identified, so no repro or production change was warranted.
 
+2026-10-10 seed hunt (seed-only): re-read the selected `ResourceHubClient.tsx` and focused tests; no new reachable boundary or falsifiable candidate emerged beyond the retained rows, so no repro or production change was warranted.
+
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained row-key candidates, added architecture-finding pagination routing and trailing-resource-title candidates; 49 scoped ResourceHubClient tests passed.
