@@ -55,7 +55,7 @@ Rules:
    for a conclusion.
 ```
 
-Rule 6 differs from Chapter 7's wording in one way. Instead of a fixed sentence, the exit is a field. That makes "did the model use the exit?" a property you can assert in a test (Chapter 8's `mustUseExit`), rather than a string you have to match.
+Rule 6 makes the exit a field rather than a sentence (Chapter 7, section 7.4). That makes "did the model use the exit?" a property you can assert in a test (Chapter 8's `mustUseExit`), rather than a string you have to match.
 
 ### The user message
 
@@ -487,8 +487,7 @@ Change any part, including the base system message every template shares, and th
 
 ## Author notes (remove before submission)
 
-- **From the chapters, matching their text:** rules 1–5 and 7 of the base system message; the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 7 or 8, change them here.
-- **Changed from Chapter 7:** rule 6 uses a `status` field instead of a fixed sentence. Either update Chapter 7, section 7.4, to match, or note the difference there. Chapter 8's `mustUseExit` golden-test property reads more naturally against the field.
+- **From the chapters, matching their text:** the base system message (rules 1–6 from Chapter 7, section 7.4, which adopted the `status` exit on 2026-10-10; rule 7 from Chapter 8, section 8.5); the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 7 or 8, change them here.
 - **New here, not yet run against a live deployment:** the strict output schemas in C.1, C.5, and C.7; the audience blocks in C.2; the gap, change, remediation, tool-selection, probable-flow, and adversarial prompts; `probable_flow_problems`. Run each against the lab packs from Chapters 7 and 8 and record pass rates before submission.
 - Confirm that Azure OpenAI structured outputs accept `$defs` and `$ref` in the C.5 schema in the API version the book cites, and that strict mode still requires every property in `required`. If `$ref` isn't supported, inline the step schema three times.
 - `probable_flow_problems` was exercised against Appendix A's Function App code: it accepts the real `ARCHIVE_ACCOUNT` line (13) and rejects a fabricated line, an out-of-range line, a missing file, an unknown store, and the wrong store for the setting.
