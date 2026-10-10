@@ -3,7 +3,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { comparisonReplayCostBlockedReason } from "@/lib/compare/comparison-replay-cost-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type ComparisonReplayCostEstimateResponse = components["schemas"]["ComparisonReplayCostEstimateResponse"];
 
@@ -35,7 +35,7 @@ export async function fetchArchitectureComparisonReplayCostEstimate(
   const suffix = qp.toString().length > 0 ? `?${qp}` : "";
 
   try {
-    return await apiGet<ComparisonReplayCostEstimateResponse>(
+    return await apiGetSealedManifestAware<ComparisonReplayCostEstimateResponse>(
       `/v1/architecture/comparisons/${encodeURIComponent(id)}/replay/cost-estimate${suffix}`,
     );
   } catch (error: unknown) {

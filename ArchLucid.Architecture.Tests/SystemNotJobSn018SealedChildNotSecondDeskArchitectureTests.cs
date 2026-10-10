@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn018SealedChildNotSecondDeskArchitectureTests
     [Fact]
     public void Sn018_module_names_desk_sealed_child_resolvers()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn018SealedChildNotSecondDeskArchitectureTests
     [Fact]
     public void Sn018_nested_chrome_exposes_back_to_architecture_desk()
     {
-        string chrome = File.ReadAllText(
+        string chrome = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -47,7 +47,7 @@ public sealed class SystemNotJobSn018SealedChildNotSecondDeskArchitectureTests
     [Fact]
     public void Sn018_vitest_ratchet_names_nested_sealed_child_and_back_label()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

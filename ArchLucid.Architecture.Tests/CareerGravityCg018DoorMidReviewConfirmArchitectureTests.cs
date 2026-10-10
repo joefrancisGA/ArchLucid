@@ -16,7 +16,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
     [Fact]
     public void Cg018_chooser_confirms_in_flight_door_change_and_does_not_cancel()
     {
-        string chooser = File.ReadAllText(
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -24,7 +24,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
                 "components",
                 "workspace-mode",
                 "WorkingCareerRehearsalChooser.tsx"));
-        string confirmHelper = File.ReadAllText(
+        string confirmHelper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -32,7 +32,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
                 "lib",
                 "governance",
                 "working-career-rehearsal-door-mid-review-confirm.ts"));
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -54,7 +54,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
     [Fact]
     public void Cg018_confirm_does_not_mutate_execute_posture_stamp()
     {
-        string helper = File.ReadAllText(
+        string helper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -62,7 +62,7 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
                 "lib",
                 "governance",
                 "working-career-rehearsal-door-mid-review-confirm.ts"));
-        string chooser = File.ReadAllText(
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -81,8 +81,8 @@ public sealed class CareerGravityCg018DoorMidReviewConfirmArchitectureTests
     [Fact]
     public void Cg018_does_not_flip_host_execute_mode_default()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string chooser = File.ReadAllText(
+        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

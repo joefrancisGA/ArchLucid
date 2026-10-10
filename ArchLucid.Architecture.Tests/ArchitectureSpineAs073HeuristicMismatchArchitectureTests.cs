@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs073HeuristicMismatchArchitectureTests
     [Fact]
     public void As073_livelihood_exhibit_asserts_unsupported_without_checklist_demotion()
     {
-        string source = File.ReadAllText(Path.Combine(RepoRoot, DecisioningTestRelativePath));
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DecisioningTestRelativePath));
 
         source.Should().Contain("AS-073");
         source.Should().Contain("AS-100");

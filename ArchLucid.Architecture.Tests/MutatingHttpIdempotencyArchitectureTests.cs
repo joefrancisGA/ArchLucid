@@ -26,7 +26,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
         string root = FindRepoRoot();
         string filterPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority", "IdempotencyFilterAttribute.cs");
         File.Exists(filterPath).Should().BeTrue();
-        string filterText = File.ReadAllText(filterPath);
+        string filterText = ArchitectureSourceProbe.ReadPathWithPartials(filterPath);
 
         filterText.Should().Contain("IIdempotencyRecordRepository");
         filterText.Should().Contain("Idempotency-Key");
@@ -40,7 +40,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
 
         string runsPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority", "RunsController.cs");
         File.Exists(runsPath).Should().BeTrue();
-        string runsText = File.ReadAllText(runsPath);
+        string runsText = ArchitectureSourceProbe.ReadPathWithPartials(runsPath);
         runsText.Should().Contain("[IdempotencyFilter]");
 
         string queryDir = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority");
@@ -78,7 +78,7 @@ public sealed class MutatingHttpIdempotencyArchitectureTests
             "Modules",
             "CoordinatorArtifactsCompositionModule.Coordinator.cs");
         File.Exists(compositionPath).Should().BeTrue();
-        string compositionText = File.ReadAllText(compositionPath);
+        string compositionText = ArchitectureSourceProbe.ReadPathWithPartials(compositionPath);
         compositionText.Should().Contain("IIdempotencyRecordRepository");
     }
 }

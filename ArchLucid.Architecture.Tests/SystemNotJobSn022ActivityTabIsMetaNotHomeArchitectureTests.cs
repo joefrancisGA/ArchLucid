@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn022ActivityTabIsMetaNotHomeArchitectureTests
     [Fact]
     public void Sn022_module_names_working_default_tab_resolver()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -30,7 +30,7 @@ public sealed class SystemNotJobSn022ActivityTabIsMetaNotHomeArchitectureTests
     [Fact]
     public void Sn022_visible_tabs_wires_working_default_resolver()
     {
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "resolve-review-detail-visible-tabs.ts"));
 
         resolver.Should().Contain("resolveSystemNotJobWorkingReviewDetailDefaultTab");
@@ -39,7 +39,7 @@ public sealed class SystemNotJobSn022ActivityTabIsMetaNotHomeArchitectureTests
     [Fact]
     public void Sn022_vitest_ratchet_names_working_overview_default_and_guided_activity()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

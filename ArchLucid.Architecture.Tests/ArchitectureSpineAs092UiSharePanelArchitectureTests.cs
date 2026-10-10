@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-092");
         source.Should().Contain("useLivelihoodDocumentGuards");
@@ -43,7 +43,7 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("wires livelihood document guards when the grant form is dirty");
         source.Should().Contain("requires confirm restrict before saving restrict-to-shares");
@@ -63,7 +63,7 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("ListArchitectureShares");
         source.Should().Contain("PutArchitectureShare");

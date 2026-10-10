@@ -5,6 +5,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowQuestionDispositions;
 

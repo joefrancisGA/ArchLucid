@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs079CannotScreenshotSimulatorReadyArchitec
     [Fact]
     public void As079_door_module_suppresses_ready_on_rehearsal_working_door()
     {
-        string doorModule = File.ReadAllText(Path.Combine(RepoRoot, DoorModuleRelativePath));
+        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DoorModuleRelativePath));
 
         doorModule.Should().Contain("shouldSuppressReadyToFinalizeForWorkingRehearsalDoor");
         doorModule.Should().Contain("AS-079");
@@ -30,7 +30,7 @@ public sealed class ArchitectureSpineAs079CannotScreenshotSimulatorReadyArchitec
     [Fact]
     public void As079_finalize_blocked_honesty_wires_rehearsal_door_helper()
     {
-        string honesty = File.ReadAllText(Path.Combine(RepoRoot, FinalizeBlockedHonestyRelativePath));
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, FinalizeBlockedHonestyRelativePath));
 
         honesty.Should().Contain("shouldSuppressReadyToFinalizeForWorkingRehearsalDoor");
         honesty.Should().Contain("effectiveWorkingCareerRehearsalDoor");
@@ -39,7 +39,7 @@ public sealed class ArchitectureSpineAs079CannotScreenshotSimulatorReadyArchitec
     [Fact]
     public void As079_progress_tracker_uses_career_honesty_helper_not_pre_commit_only()
     {
-        string tracker = File.ReadAllText(Path.Combine(RepoRoot, ProgressTrackerRelativePath));
+        string tracker = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ProgressTrackerRelativePath));
 
         tracker.Should().Contain("shouldSuppressReadyToFinalizeForCareerHonesty");
         tracker.Should().Contain("useEffectiveWorkingCareerRehearsalDoor");

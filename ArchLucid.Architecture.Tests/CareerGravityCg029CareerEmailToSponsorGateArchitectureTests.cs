@@ -14,13 +14,13 @@ public sealed class CareerGravityCg029CareerEmailToSponsorGateArchitectureTests
     [Fact]
     public void Cg029_ui_banner_wires_door_stamp_and_rehearsal_email_gate()
     {
-        string hook = File.ReadAllText(
+        string hook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "use-email-run-to-sponsor-banner.ts"));
-        string gate = File.ReadAllText(
+        string gate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "email-run-to-sponsor-rehearsal-gate.ts"));
-        string banner = File.ReadAllText(
+        string banner = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorBanner.tsx"));
-        string actions = File.ReadAllText(
+        string actions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
         hook.Should().Contain("resolveSimulatorRehearsalBannerOnArtifactForExport");
@@ -35,9 +35,9 @@ public sealed class CareerGravityCg029CareerEmailToSponsorGateArchitectureTests
     [Fact]
     public void Cg029_docs_record_email_to_sponsor_rehearsal_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
-        string outbound = File.ReadAllText(
+        string outbound = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "CAREER_GRAVITY_OUTBOUND_INVENTORY.md"));
 
         docs.Should().Contain("CG-029");

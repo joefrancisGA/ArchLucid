@@ -26,7 +26,7 @@ public sealed class CancellationForwardingArchitectureTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Application", "Runs", "Orchestration", "ArchitectureRunExecuteOrchestrator.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("ExecuteRunAsync(string runId, CancellationToken cancellationToken");
         text.Should().Contain("ExecuteSelectiveRunAsync(");
@@ -40,7 +40,7 @@ public sealed class CancellationForwardingArchitectureTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Api", "Controllers", "Authority", "IdempotencyFilterAttribute.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("context.HttpContext.RequestAborted");
         text.Should().Contain("TryGetAsync(scope.TenantId, idempotencyKey, context.HttpContext.RequestAborted");
@@ -53,7 +53,7 @@ public sealed class CancellationForwardingArchitectureTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Application", "Budgeting", "LlmTenantWalletService.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("GetWalletAsync(Guid tenantId, CancellationToken cancellationToken");
         text.Should().Contain(".ConfigureAwait(false)");

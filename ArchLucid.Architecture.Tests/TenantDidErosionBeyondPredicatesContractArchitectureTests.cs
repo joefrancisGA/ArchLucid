@@ -16,7 +16,7 @@ public sealed class TenantDidErosionBeyondPredicatesContractArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1232");
         text.Should().Contain("erosion");
         text.Should().Contain("ARCH006");
@@ -33,11 +33,11 @@ public sealed class TenantDidErosionBeyondPredicatesContractArchitectureTests
         File.Exists(packetPath).Should().BeTrue();
         File.Exists(aliasPath).Should().BeTrue();
 
-        string packet = File.ReadAllText(packetPath);
+        string packet = ArchitectureSourceProbe.ReadPathWithPartials(packetPath);
         packet.Should().Contain("tenant-did-erosion-beyond-predicates-m-214");
         packet.Should().Contain("TB-1232");
 
-        File.ReadAllText(aliasPath).Should().Contain("M-214");
+        ArchitectureSourceProbe.ReadPathWithPartials(aliasPath).Should().Contain("M-214");
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public sealed class TenantDidErosionBeyondPredicatesContractArchitectureTests
         File.Exists(adrPath).Should().BeTrue();
         File.Exists(searchFilterPath).Should().BeTrue();
 
-        File.ReadAllText(didPath).Should().Contain("ARCH006");
+        ArchitectureSourceProbe.ReadPathWithPartials(didPath).Should().Contain("ARCH006");
     }
 
     private static string FindRepoRoot()

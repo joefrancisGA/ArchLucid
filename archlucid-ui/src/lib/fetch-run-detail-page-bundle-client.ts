@@ -1,6 +1,6 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { apiGet } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { runDetailPageBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
@@ -53,7 +53,7 @@ async function fetchRunDetailCriticalPageBundleSealedManifestAware<T>(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<T> {
   try {
-    return await apiGet<T>(path, options);
+    return await apiGetSealedManifestAware<T>(path, options);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
 
@@ -81,7 +81,7 @@ export async function fetchRunDetailTimelinesBundle(
   }
 
   try {
-    return await apiGet<RunDetailTimelinesBundle>(
+    return await apiGetSealedManifestAware<RunDetailTimelinesBundle>(
       `/v1/authority/reviews/${encodeURIComponent(runId)}/timelines-bundle`,
       options,
     );
@@ -106,7 +106,7 @@ export async function fetchRunDetailWorkspaceContextBundle(
   }
 
   try {
-    return await apiGet<RunDetailWorkspaceContextBundle>(
+    return await apiGetSealedManifestAware<RunDetailWorkspaceContextBundle>(
       `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
       options,
     );

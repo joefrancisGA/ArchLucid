@@ -75,7 +75,7 @@ public sealed class TenantsAdminController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 

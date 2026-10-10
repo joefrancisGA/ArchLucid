@@ -30,6 +30,13 @@ public interface IArchitectureShareAccessGate
         Guid architectureId,
         CancellationToken cancellationToken = default);
 
+    Task<IActionResult?> EnsureArchitectureAdminAllowedAsync(
+        ControllerBase controller,
+        ClaimsPrincipal user,
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default);
+
     Task<IActionResult?> EnsureRunReadAllowedAsync(
         ControllerBase controller,
         ClaimsPrincipal user,

@@ -2,7 +2,9 @@ using System.Text.Json;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 using Moq;
@@ -21,8 +23,9 @@ public sealed class AzureGraphEquivalenceBaselineTests
     {
         AzureGraphEquivalenceCase fixture = AzureGraphEquivalenceFixtures.All().Single(candidate => candidate.Name == name);
         GraphSnapshot graph = await ResolveAsync(fixture);
+        string baselineName = name == "private-link-property" ? "private-link-4396.json" : "master-3c0c4fd9.json";
         using Stream stream = typeof(AzureGraphEquivalenceBaselineTests).Assembly.GetManifestResourceStream(
-            "ArchLucid.Application.Tests.InfraEvidence.GraphEquivalence.master-3c0c4fd9.json")!;
+            "ArchLucid.Application.Tests.InfraEvidence.GraphEquivalence." + baselineName)!;
         using JsonDocument baseline = await JsonDocument.ParseAsync(stream);
         JsonElement expected = baseline.RootElement.GetProperty("cases").GetProperty(name);
         JsonSerializer.Serialize(AzureGraphSemanticCapture.Capture(graph)).Should().Be(JsonSerializer.Serialize(expected),
@@ -33,6 +36,16 @@ public sealed class AzureGraphEquivalenceBaselineTests
             && graph.Nodes.Any(node => node.NodeId == edge.FromNodeId && SameArmId(node.SourceId, fixture.FromArmId))
             && graph.Nodes.Any(node => node.NodeId == edge.ToNodeId && SameArmId(node.SourceId, fixture.ToArmId)));
         edgeExists.Should().Be(fixture.ExpectEdge);
+        if (name == "private-link-property")
+        {
+            GraphEdge target = graph.Edges.Should().ContainSingle().Subject;
+            target.EdgeType.Should().Be(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+            target.ProvenanceKind.Should().Be(nameof(ProvenanceKind.DeterministicInference));
+            target.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryPrivateEndpoint);
+            target.Properties["evidence.propertyKey"].Should().Be("privateLinkServiceId");
+            target.Properties["evidence.resourceRowId"].Should().Be("00000000-0000-0000-0000-000000000004");
+            target.Properties["evidence.targetArmId"].Should().Be(ArmResourceIdNormalizer.Normalize(fixture.ToArmId));
+        }
         if (fixture.PlaceholderArmId is not null)
         {
             graph.Nodes.Single(node => SameArmId(node.SourceId, fixture.PlaceholderArmId))

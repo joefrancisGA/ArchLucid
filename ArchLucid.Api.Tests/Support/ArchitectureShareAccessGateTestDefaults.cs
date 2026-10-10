@@ -35,6 +35,15 @@ internal static class ArchitectureShareAccessGateTestDefaults
             .ReturnsAsync((IActionResult?)null);
 
         gate
+            .Setup(service => service.EnsureArchitectureAdminAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+
+        gate
             .Setup(service => service.EvaluateArchitectureAsync(
                 It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<ScopeContext>(),

@@ -83,5 +83,5 @@ public sealed record ExecDigestCareerHonestySummary(
     string? RehearsalSubjectPrefix,
     string? RehearsalBodyDisclaimer)
 {
-    public static ExecDigestCareerHonestySummary None { get; } = new(null, null);
+    public static readonly ExecDigestCareerHonestySummary None = new(null, null);
 }

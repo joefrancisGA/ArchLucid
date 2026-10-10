@@ -6,6 +6,7 @@ import {
   shouldSuppressReadyToFinalizeForSimulatorRehearsal,
   SIMULATOR_REHEARSAL_CAREER_BLOCK_REASON,
 } from "@/lib/governance/simulator-career-honesty";
+import { shouldLabelWorkingIntentAsRehearsal } from "@/lib/governance/working-career-rehearsal-gate";
 import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
 import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
@@ -23,9 +24,22 @@ export type RunPipelineFinalizeBlockedHonestyInput = {
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
+  readonly workingCareerRehearsalIntent?: WorkingCareerRehearsalDoorId | null;
 };
 
 function shouldSuppressRehearsalDoorReadyLabel(input: RunPipelineFinalizeBlockedHonestyInput): boolean {
+  if (
+    shouldLabelWorkingIntentAsRehearsal({
+      workingDesk: input.workingDesk,
+      intent: (input.workingCareerRehearsalIntent ?? input.effectiveWorkingCareerRehearsalDoor ?? "career") as
+        | "career"
+        | "rehearsal",
+      structuralExecutionMode: input.structuralExecutionMode,
+    })
+  ) {
+    return true;
+  }
+
   return shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(input);
 }
 

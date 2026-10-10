@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn004ArchitectureTabOneWriterArchitectureTests
     [Fact]
     public void Sn004_one_writer_module_suppresses_created_origin_edit_source()
     {
-        string oneWriter = File.ReadAllText(
+        string oneWriter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-draft-spawn-one-writer.ts"));
 
         oneWriter.Should().Contain("ARCHITECTURE_TAB_SPAWN_ONE_WRITER_SNAPSHOT_HELPER");
@@ -25,11 +25,11 @@ public sealed class SystemNotJobSn004ArchitectureTabOneWriterArchitectureTests
     [Fact]
     public void Sn004_inventory_and_vitest_close_parallel_live_edit_baseline()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-dual-editor-inventory.ts"));
-        string vitest = File.ReadAllText(
+        string vitest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-spawn-one-writer.test.ts"));
-        string evidence = File.ReadAllText(
+        string evidence = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

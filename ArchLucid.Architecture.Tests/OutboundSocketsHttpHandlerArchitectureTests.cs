@@ -34,7 +34,7 @@ public sealed class OutboundSocketsHttpHandlerArchitectureTests
         {
             foreach (string path in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
             {
-                string text = File.ReadAllText(path);
+                string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
                 MatchCollection matches = AddHttpClientRegex.Matches(text);
 
                 if (matches.Count == 0)

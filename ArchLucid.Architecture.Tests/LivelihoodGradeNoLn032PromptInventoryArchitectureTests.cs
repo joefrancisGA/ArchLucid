@@ -20,7 +20,7 @@ public sealed class LivelihoodGradeNoLn032PromptInventoryArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("LN-032");
         source.Should().Contain("livelihood-grade-no-00-index.md");

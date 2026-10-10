@@ -3,7 +3,6 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;

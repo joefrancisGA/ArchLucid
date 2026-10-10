@@ -18,7 +18,7 @@ public sealed class ArchitectureSynthesisKernelArchitectureTests
         string path = Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs");
         File.Exists(path).Should().BeTrue(path);
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().NotContain("IArchitectureRunExecuteOrchestrator");
         source.Should().NotContain("IAuthorityRunOrchestrator");

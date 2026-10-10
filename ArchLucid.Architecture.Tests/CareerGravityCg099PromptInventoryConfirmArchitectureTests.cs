@@ -23,7 +23,7 @@ public sealed class CareerGravityCg099PromptInventoryConfirmArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("CG-099");
         source.Should().Contain("career-gravity-00-index.md");
@@ -33,7 +33,7 @@ public sealed class CareerGravityCg099PromptInventoryConfirmArchitectureTests
     [Fact]
     public void Cg099_composer_prompts_reference_inventory_ratchet()
     {
-        string prompts = File.ReadAllText(
+        string prompts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "CAREER_GRAVITY_COMPOSER_PROMPTS.md"));
 
         prompts.Should().Contain("career-gravity-prompt-inventory.test.ts");

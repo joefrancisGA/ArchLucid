@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs079RehearsalCannotScreenshotReadyArchitec
     [Fact]
     public void As079_finalize_honesty_suppresses_ready_for_rehearsal_intent()
     {
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -24,7 +24,7 @@ public sealed class ArchitectureSpineAs079RehearsalCannotScreenshotReadyArchitec
         honesty.Should().Contain("shouldSuppressReadyToFinalizeForWorkingRehearsalDoor");
         honesty.Should().Contain("effectiveWorkingCareerRehearsalDoor");
 
-        string vitest = File.ReadAllText(
+        string vitest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -40,7 +40,7 @@ public sealed class ArchitectureSpineAs079RehearsalCannotScreenshotReadyArchitec
     [Fact]
     public void As079_run_status_badge_wires_working_rehearsal_intent()
     {
-        string badge = File.ReadAllText(
+        string badge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunStatusBadge.tsx"));
 
         badge.Should().Contain("useEffectiveWorkingCareerRehearsalDoor");

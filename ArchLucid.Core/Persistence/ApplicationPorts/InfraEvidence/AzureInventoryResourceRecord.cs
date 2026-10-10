@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.InfraEvidence;
+namespace ArchLucid.Core.InfraEvidence;
 
 public sealed class AzureInventoryResourceRecord
 {

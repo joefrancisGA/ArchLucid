@@ -61,7 +61,17 @@ public sealed class ArchitectureShareService(
         ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
 
         if (!ArchitectureShareActorValidation.TryValidateUserActorOid(request.ActorOid, out string targetActorOid, out string? actorValidationReason))
+        {
+            if (string.Equals(
+                    actorValidationReason,
+                    ArchitectureShareActorValidation.GroupShareRejectedMessage,
+                    StringComparison.Ordinal))
+            {
+                return ArchitectureShareMutationResult.ScimGroupNotSupported();
+            }
+
             return ArchitectureShareMutationResult.ValidationFailed(actorValidationReason!);
+        }
 
         if (!Contracts.Architecture.ArchitectureShareRoles.IsKnownRole(request.Role))
             return ArchitectureShareMutationResult.ValidationFailed("Role must be View, Decide, or Admin.");

@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Findings.ProseAssumption;
 /// <summary>Contradiction findings plus grounded assumption register rows (DX-61).</summary>
 public sealed class ProseAssumptionContradictionOutcome
 {
-    public static ProseAssumptionContradictionOutcome Empty { get; } = new([], []);
+    public static readonly ProseAssumptionContradictionOutcome Empty = new([], []);
 
     public ProseAssumptionContradictionOutcome(
         IReadOnlyList<Finding> findings,

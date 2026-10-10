@@ -9,6 +9,7 @@ using ArchLucid.Persistence.Interfaces;
 using FluentAssertions;
 
 using Moq;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.Architecture;
 

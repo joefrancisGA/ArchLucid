@@ -28,7 +28,7 @@ public sealed class ScimSurfaceArchitectureGuardTests
 
         foreach (string path in Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories))
         {
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
             text.Should().NotContain("[AllowAnonymous]", $"Remove anonymous access from {path}.");
         }
     }
@@ -39,7 +39,7 @@ public sealed class ScimSurfaceArchitectureGuardTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Api", "Auth", "Services", "AuthServiceCollectionExtensions.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("ScimBearerAuthenticationHandler");
         text.Should().Contain("ScimBearerDefaults.AuthenticationScheme");
     }
@@ -50,7 +50,7 @@ public sealed class ScimSurfaceArchitectureGuardTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, "ArchLucid.Api", "Middleware", "ScopeIdentityBindingMiddleware.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("ScimBearerDefaults.AuthenticationScheme");
         text.Should().Contain("AuthenticateAsync");
         text.Should().Contain("/scim");

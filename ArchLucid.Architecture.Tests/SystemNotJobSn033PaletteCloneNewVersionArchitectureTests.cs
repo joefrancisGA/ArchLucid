@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn033PaletteCloneNewVersionArchitectureTests
     [Fact]
     public void Sn033_palette_module_names_visibility_resolver_and_handler_metadata()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-palette-clone-new-version.ts"));
 
         module.Should().Contain("resolveSystemNotJobPaletteCloneNewVersionVisible");
@@ -26,9 +26,9 @@ public sealed class SystemNotJobSn033PaletteCloneNewVersionArchitectureTests
     [Fact]
     public void Sn033_handler_actions_wire_palette_clone_visibility_resolver()
     {
-        string handlers = File.ReadAllText(
+        string handlers = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "command-palette-handler-actions.ts"));
-        string bridge = File.ReadAllText(
+        string bridge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -45,7 +45,7 @@ public sealed class SystemNotJobSn033PaletteCloneNewVersionArchitectureTests
     [Fact]
     public void Sn033_vitest_ratchet_names_hidden_when_not_spawn_locked()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-palette-clone-new-version.test.ts"));
 
         test.Should().Contain("SN-033");

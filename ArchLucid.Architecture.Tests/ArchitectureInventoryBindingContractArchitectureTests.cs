@@ -19,7 +19,7 @@ public sealed class ArchitectureInventoryBindingContractArchitectureTests
         string path = Path.Combine(RepoRoot, ContractRelativePath);
         File.Exists(path).Should().BeTrue();
 
-        string contract = File.ReadAllText(path);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         contract.Should().Contain("ArchitectureInventoryBinding");
         contract.Should().Contain("AzureInventorySnapshot");
@@ -35,7 +35,7 @@ public sealed class ArchitectureInventoryBindingContractArchitectureTests
     public void As046_contract_forbids_second_arm_collector_fork()
     {
         string path = Path.Combine(RepoRoot, ContractRelativePath);
-        string contract = File.ReadAllText(path);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         contract.Should().Contain("Get-ArchLucidAzurePackage.ps1");
         contract.Should().Contain("HostedAzureExtractorClient");
@@ -47,7 +47,7 @@ public sealed class ArchitectureInventoryBindingContractArchitectureTests
     public void As046_contract_keeps_three_finding_streams_distinct()
     {
         string path = Path.Combine(RepoRoot, ContractRelativePath);
-        string contract = File.ReadAllText(path);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         contract.Should().Contain("FindingsSnapshot");
         contract.Should().Contain("OperationalSecurityFinding");

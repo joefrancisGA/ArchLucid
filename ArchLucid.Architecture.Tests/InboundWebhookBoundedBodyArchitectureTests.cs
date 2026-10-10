@@ -31,7 +31,7 @@ public sealed class InboundWebhookBoundedBodyArchitectureTests
         string root = FindRepoRoot();
         string path = Path.Combine(root, relativePath.Replace('/', Path.DirectorySeparatorChar));
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("InboundWebhookBoundedBodyReader");
         text.Should().Contain("InboundWebhookBodyLimits.DefaultMaxUtf8Bytes");
@@ -57,8 +57,8 @@ public sealed class InboundWebhookBoundedBodyArchitectureTests
             "Itsm",
             "ItsmInboundWebhookSyncService.cs");
 
-        string limits = File.ReadAllText(limitsPath);
-        string itsm = File.ReadAllText(itsmPath);
+        string limits = ArchitectureSourceProbe.ReadPathWithPartials(limitsPath);
+        string itsm = ArchitectureSourceProbe.ReadPathWithPartials(itsmPath);
 
         limits.Should().Contain("DefaultMaxUtf8Bytes = 65536");
 

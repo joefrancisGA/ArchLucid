@@ -11,7 +11,7 @@ public sealed class LivelihoodGradeNoLn001Adr0093ArchitectureTests
     [Fact]
     public void Ln001_adr_0093_forbids_uncited_hard_on_working_career()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0093-false-hard-citation-working-career.md"));
 
         adr.Should().Contain("## Trade-offs");
@@ -24,9 +24,9 @@ public sealed class LivelihoodGradeNoLn001Adr0093ArchitectureTests
     [Fact]
     public void Ln001_guard_inventory_and_vitest_exist()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "livelihood-grade-no-adr-inventory.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "livelihood-grade-no-adr-guard.test.ts"));
 
         inventory.Should().Contain("LIVELIHOOD_GRADE_NO_ADR_0093_RELATIVE_PATH");

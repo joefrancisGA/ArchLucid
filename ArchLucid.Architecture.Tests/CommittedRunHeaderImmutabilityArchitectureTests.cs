@@ -37,7 +37,7 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
             "Migrations",
             "390_Runs_ExecutePostureStamp.sql");
 
-        string migrationText = File.ReadAllText(migrationPath);
+        string migrationText = ArchitectureSourceProbe.ReadPathWithPartials(migrationPath);
         HashSet<string> migrationColumns = Migration250ColumnRegex
             .Matches(migrationText)
             .Select(static m => m.Groups["name"].Value)
@@ -61,7 +61,7 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
             "Rules",
             "SqlCommittedRunHeaderImmutabilityRules.cs");
 
-        string probeText = File.ReadAllText(probePath);
+        string probeText = ArchitectureSourceProbe.ReadPathWithPartials(probePath);
         probeText.Should().Contain(nameof(CommittedRunHeaderAnchorRegistry.TriggerName));
         probeText.Should().Contain("SqlDatabaseImmutabilityProbeHelpers.TriggerExists");
     }
@@ -75,7 +75,7 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
             "Startup",
             "ArchLucidPersistenceStartup.cs");
 
-        string startupText = File.ReadAllText(startupPath);
+        string startupText = ArchitectureSourceProbe.ReadPathWithPartials(startupPath);
         startupText.Should().Contain("TryValidateCommittedRunHeaderImmutabilityIfRequired");
         startupText.Should().Contain("ValidateOrThrow");
     }

@@ -58,7 +58,7 @@ public sealed class CommittedRunHeaderFkRepointProbeRegistryArchitectureTests
     [Fact]
     public void Data_consistency_matrix_documents_header_repoint_detection()
     {
-        string matrix = File.ReadAllText(ResolveDataConsistencyMatrixPath());
+        string matrix = ArchitectureSourceProbe.ReadPathWithPartials(ResolveDataConsistencyMatrixPath());
 
         matrix.Should().Contain(nameof(CommittedRunHeaderFkRepointRegistry));
         matrix.Should().Contain("archlucid_data_consistency_header_repoints_detected_total");

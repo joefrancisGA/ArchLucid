@@ -42,7 +42,7 @@ public sealed class SealedEvidenceImmutabilityArchitectureTests
             "Migrations",
             "247_CommitSealedEvidenceImmutability.sql");
 
-        string migrationText = File.ReadAllText(migrationPath);
+        string migrationText = ArchitectureSourceProbe.ReadPathWithPartials(migrationPath);
         HashSet<string> migrationTables = Migration247TableNameRegex
             .Matches(migrationText)
             .Select(static m => "dbo." + m.Groups["name"].Value)
@@ -73,7 +73,7 @@ public sealed class SealedEvidenceImmutabilityArchitectureTests
             "Rules",
             "SqlSealedEvidenceImmutabilityRules.cs");
 
-        string probeText = File.ReadAllText(probePath);
+        string probeText = ArchitectureSourceProbe.ReadPathWithPartials(probePath);
         probeText.Should().Contain(nameof(SealedEvidenceTableRegistry.SealedTableNames));
         probeText.Should().Contain("SqlDatabaseImmutabilityProbeHelpers.CollectMissingDenyPermissions");
     }
@@ -105,7 +105,7 @@ public sealed class SealedEvidenceImmutabilityArchitectureTests
             "Repositories",
             "AgentEvidencePackageRepository.cs");
 
-        string repoText = File.ReadAllText(repoPath);
+        string repoText = ArchitectureSourceProbe.ReadPathWithPartials(repoPath);
         repoText.Should().NotContain("DELETE FROM AgentEvidencePackages", because: "packages are insert-only post-commit");
     }
 

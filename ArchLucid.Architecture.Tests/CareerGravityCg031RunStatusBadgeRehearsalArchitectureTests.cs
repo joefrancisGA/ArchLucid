@@ -14,11 +14,11 @@ public sealed class CareerGravityCg031RunStatusBadgeRehearsalArchitectureTests
     [Fact]
     public void Cg031_badge_wires_stamp_door_and_career_honesty_overlay()
     {
-        string badge = File.ReadAllText(
+        string badge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunStatusBadge.tsx"));
-        string presentation = File.ReadAllText(
+        string presentation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-pipeline-status-presentation.ts"));
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-status-badge-career-honesty.ts"));
 
         badge.Should().Contain("useEffectiveWorkingCareerRehearsalDoor");
@@ -32,7 +32,7 @@ public sealed class CareerGravityCg031RunStatusBadgeRehearsalArchitectureTests
     [Fact]
     public void Cg031_docs_record_run_status_badge_rehearsal_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-031");

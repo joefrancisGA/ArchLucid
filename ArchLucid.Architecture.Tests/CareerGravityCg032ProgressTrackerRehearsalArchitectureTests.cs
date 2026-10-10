@@ -14,11 +14,11 @@ public sealed class CareerGravityCg032ProgressTrackerRehearsalArchitectureTests
     [Fact]
     public void Cg032_progress_tracker_wires_career_honesty_terminal_and_step_labels()
     {
-        string hook = File.ReadAllText(
+        string hook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "use-run-progress-tracker.ts"));
-        string stages = File.ReadAllText(
+        string stages = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunProgressTrackerStagesView.tsx"));
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-progress-tracker-career-honesty.ts"));
 
         hook.Should().Contain("resolveRunProgressTrackerCareerHonesty");
@@ -31,7 +31,7 @@ public sealed class CareerGravityCg032ProgressTrackerRehearsalArchitectureTests
     [Fact]
     public void Cg032_docs_record_progress_tracker_rehearsal_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-032");

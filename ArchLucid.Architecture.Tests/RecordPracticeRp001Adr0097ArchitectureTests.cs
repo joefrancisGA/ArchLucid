@@ -14,9 +14,9 @@ public sealed class RecordPracticeRp001Adr0097ArchitectureTests
     [Fact]
     public void Rp001_adr_0097_is_accepted_and_central_copy_is_record_practice()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0097-record-and-practice-user-facing-labels.md"));
-        string doorCopy = File.ReadAllText(
+        string doorCopy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -36,9 +36,9 @@ public sealed class RecordPracticeRp001Adr0097ArchitectureTests
     [Fact]
     public void Rp001_guard_inventory_and_vitest_exist()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "record-practice-adr-inventory.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "record-practice-adr-guard.test.ts"));
 
         inventory.Should().Contain("RECORD_PRACTICE_ADR_0097_RELATIVE_PATH");

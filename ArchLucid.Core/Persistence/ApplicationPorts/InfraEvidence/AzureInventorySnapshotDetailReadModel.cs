@@ -1,6 +1,6 @@
-namespace ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.InfraEvidence;
 
-using ArchLucid.Core.InfraEvidence;
+namespace ArchLucid.Core.InfraEvidence;
 
 /// <summary>Normalized snapshot rows loaded for diffing or advisory Terraform generation.</summary>
 public sealed class AzureInventorySnapshotDetailReadModel

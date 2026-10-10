@@ -14,7 +14,7 @@ public sealed class CareerGravityCg094IntegrationDlqNotCareerArchitectureTests
     [Fact]
     public void Cg094_dlq_page_wires_career_honesty_strip()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -22,7 +22,7 @@ public sealed class CareerGravityCg094IntegrationDlqNotCareerArchitectureTests
                 "lib",
                 "internal",
                 "integration-events-dlq-career-honesty.ts"));
-        string pageClient = File.ReadAllText(
+        string pageClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,7 +43,7 @@ public sealed class CareerGravityCg094IntegrationDlqNotCareerArchitectureTests
     [Fact]
     public void Cg094_docs_record_dlq_ops_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-094");

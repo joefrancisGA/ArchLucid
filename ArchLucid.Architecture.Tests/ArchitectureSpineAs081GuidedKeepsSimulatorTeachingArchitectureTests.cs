@@ -29,7 +29,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_chooser_is_working_only_not_guided_teaching()
     {
-        string chooser = File.ReadAllText(Path.Combine(RepoRoot, ChooserRelativePath));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ChooserRelativePath));
 
         chooser.Should().Contain("isWorkingWorkspaceMode");
         chooser.Should().Contain("Hidden on Guided seats");
@@ -39,7 +39,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_operator_modes_doc_states_guided_excludes_career_rehearsal_chooser()
     {
-        string modesDoc = File.ReadAllText(Path.Combine(RepoRoot, OperatorExperienceModesDocRelativePath));
+        string modesDoc = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, OperatorExperienceModesDocRelativePath));
 
         modesDoc.Should().Contain("Guided");
         modesDoc.Should().Contain("No Career / Rehearsal chooser");
@@ -49,7 +49,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_guided_teaching_inventory_excludes_career_rehearsal_chooser()
     {
-        string inventory = File.ReadAllText(Path.Combine(RepoRoot, GuidedTeachingInventoryRelativePath));
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, GuidedTeachingInventoryRelativePath));
 
         inventory.Should().NotContain("\"working-career-rehearsal-chooser\"");
         inventory.Should().NotContain("\"career-rehearsal-chooser\"");
@@ -60,7 +60,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_operator_experience_modes_doc_documents_career_rehearsal_split()
     {
-        string doc = File.ReadAllText(Path.Combine(RepoRoot, OperatorExperienceModesDocRelativePath));
+        string doc = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, OperatorExperienceModesDocRelativePath));
 
         doc.Should().Contain("Career");
         doc.Should().Contain("Rehearsal");
@@ -71,7 +71,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_simulator_honesty_tests_keep_guided_teaching_unblocked()
     {
-        string simulatorHonestyTest = File.ReadAllText(Path.Combine(RepoRoot, SimulatorHonestyTestRelativePath));
+        string simulatorHonestyTest = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, SimulatorHonestyTestRelativePath));
 
         simulatorHonestyTest.Should().Contain("does not block guided simulator paths");
         simulatorHonestyTest.Should().Contain("workingDesk: false");
@@ -80,7 +80,7 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     [Fact]
     public void As081_vitest_matrix_requires_guided_without_career_door()
     {
-        string vitest = File.ReadAllText(Path.Combine(RepoRoot, WorkingCareerRehearsalChromeTestRelativePath));
+        string vitest = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, WorkingCareerRehearsalChromeTestRelativePath));
 
         vitest.Should().Contain("AS-081 Guided mode must not require Working Career/Rehearsal chooser");
         vitest.Should().Contain("workspaceMode: \"guided\"");

@@ -24,7 +24,7 @@ public sealed class TenantScopedTableDdlTests
     [Fact]
     public void ArchLucid_sql_Runs_create_table_includes_TenantId_WorkspaceId_ProjectId_and_ScopeProjectId_columns()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         string header = ExtractCreateTableHeader(sql, "Runs");
 
         header.Should().MatchRegex(@"(?<!\w)TenantId(?!\w)", because: "Runs is tenant-scoped");
@@ -36,7 +36,7 @@ public sealed class TenantScopedTableDdlTests
     [Fact]
     public void ArchLucid_sql_GoldenManifests_create_table_includes_ManifestPayloadBlobUri_for_large_payload_pointers()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         string header = ExtractCreateTableHeader(sql, "GoldenManifests");
 
         header.Should().MatchRegex(
@@ -51,7 +51,7 @@ public sealed class TenantScopedTableDdlTests
     [Fact]
     public void ArchLucid_sql_AgentExecutionTraces_create_table_has_no_denormalized_tenant_scope_columns()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         string header = ExtractCreateTableHeader(sql, "AgentExecutionTraces");
 
         header.Should().NotMatchRegex(@"(?<!\w)TenantId(?!\w)", because: "trace rows are scoped via RunId → Runs");
@@ -61,7 +61,7 @@ public sealed class TenantScopedTableDdlTests
     [Fact]
     public void ArchLucid_sql_ScimUsers_create_table_includes_TenantId()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         string header = ExtractCreateTableHeader(sql, "ScimUsers");
 
         header.Should().MatchRegex(@"(?<!\w)TenantId(?!\w)");
@@ -73,7 +73,7 @@ public sealed class TenantScopedTableDdlTests
         string tableName,
         string projectScopeColumnName)
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         string header = ExtractCreateTableHeader(sql, tableName);
 
         header.Should().MatchRegex(@"(?<!\w)TenantId(?!\w)");

@@ -13,5 +13,5 @@ public sealed record FinalizeQualityScorecardCounts(
     int UnresolvedHighSeverityDispositionCount,
     int MissingRequiredCapabilityCount)
 {
-    public static FinalizeQualityScorecardCounts Empty { get; } = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    public static readonly FinalizeQualityScorecardCounts Empty = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }

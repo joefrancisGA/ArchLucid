@@ -15,7 +15,7 @@ public sealed class CareerGravityCg030ReadyToFinalizeLabelSuppressionArchitectur
     [Fact]
     public void Cg030_checklist_panel_uses_full_career_honesty_helper()
     {
-        string panel = File.ReadAllText(
+        string panel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "PreFinalizeChecklistPanel.tsx"));
 
         panel.Should().Contain("shouldSuppressReadyToFinalizeForCareerHonesty");
@@ -26,9 +26,9 @@ public sealed class CareerGravityCg030ReadyToFinalizeLabelSuppressionArchitectur
     [Fact]
     public void Cg030_honesty_strip_surfaces_simulator_career_ready_suppression()
     {
-        string strip = File.ReadAllText(
+        string strip = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "RunDetailPreFinalizeGateHonestyStrip.tsx"));
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "simulator-career-honesty.ts"));
 
         strip.Should().Contain("shouldSuppressReadyToFinalizeForSimulatorRehearsal");
@@ -39,7 +39,7 @@ public sealed class CareerGravityCg030ReadyToFinalizeLabelSuppressionArchitectur
     [Fact]
     public void Cg030_docs_record_ready_label_suppression_leftover()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-030");

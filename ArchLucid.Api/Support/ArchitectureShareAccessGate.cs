@@ -55,11 +55,7 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.ArchitectureFound || !access.CanRead)
-        {
-            return controller.NotFoundProblem(
-                $"Architecture '{architectureId:D}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound(controller, architectureId);
 
         return null;
     }
@@ -75,11 +71,23 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.ArchitectureFound || !access.CanDecide)
-        {
-            return controller.NotFoundProblem(
-                $"Architecture '{architectureId:D}' was not found.",
-                ProblemTypes.ResourceNotFound);
-        }
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound(controller, architectureId);
+
+        return null;
+    }
+
+    public async Task<IActionResult?> EnsureArchitectureAdminAllowedAsync(
+        ControllerBase controller,
+        ClaimsPrincipal user,
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default)
+    {
+        ArchitectureShareAccessEvaluation access =
+            await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
+
+        if (!access.ArchitectureFound || !access.CanAdmin)
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound(controller, architectureId);
 
         return null;
     }
@@ -105,9 +113,7 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.CanRead)
-        {
-            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
-        }
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
 
         return null;
     }
@@ -133,9 +139,7 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.CanDecide)
-        {
-            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
-        }
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
 
         return null;
     }

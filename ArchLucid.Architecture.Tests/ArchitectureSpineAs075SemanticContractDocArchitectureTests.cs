@@ -24,7 +24,7 @@ public sealed class ArchitectureSpineAs075SemanticContractDocArchitectureTests
     [Fact]
     public void As075_contract_summarizes_enum_scorer_warn_hold_simulator_and_density()
     {
-        string contract = File.ReadAllText(Path.Combine(RepoRoot, ContractRelativePath));
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ContractRelativePath));
 
         contract.Should().Contain("Supported");
         contract.Should().Contain("Unchecked");
@@ -47,7 +47,7 @@ public sealed class ArchitectureSpineAs075SemanticContractDocArchitectureTests
     [Fact]
     public void As075_adr_0085_links_to_contract_doc()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md");
         adr.Should().Contain("AS-075");
@@ -56,7 +56,7 @@ public sealed class ArchitectureSpineAs075SemanticContractDocArchitectureTests
     [Fact]
     public void As075_contract_links_tb1228_lane_contract_and_adr_0085()
     {
-        string contract = File.ReadAllText(Path.Combine(RepoRoot, ContractRelativePath));
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ContractRelativePath));
 
         contract.Should().Contain("FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md");
         contract.Should().Contain("0085-semantic-support-band-working-career-not-commit-gate.md");

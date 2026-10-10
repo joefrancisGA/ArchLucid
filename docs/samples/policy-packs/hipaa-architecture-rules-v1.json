@@ -224,9 +224,9 @@
     {
       "id": "hipaa-011",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 11",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 11. Thematic mapping only \u2014 not certification.",
-      "severity": "High",
-      "priority": "P1",
+      "description": "Architecture manifest and Azure extractor evidence should support: ephi storage public network access disabled. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -238,16 +238,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Technical safeguards"
+          "theme": "ePHI storage public network access disabled"
         }
       ]
     },
     {
       "id": "hipaa-012",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 12",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 12. Thematic mapping only \u2014 not certification.",
-      "severity": "High",
-      "priority": "P1",
+      "description": "Architecture manifest and Azure extractor evidence should support: ephi encryption at rest. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -259,16 +259,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Audit controls"
+          "theme": "ePHI encryption at rest"
         }
       ]
     },
     {
       "id": "hipaa-013",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 13",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 13. Thematic mapping only \u2014 not certification.",
-      "severity": "High",
-      "priority": "P1",
+      "description": "Architecture manifest and Azure extractor evidence should support: unique user identification. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -280,16 +280,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Administrative safeguards"
+          "theme": "Unique user identification"
         }
       ]
     },
     {
       "id": "hipaa-014",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 14",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 14. Thematic mapping only \u2014 not certification.",
-      "severity": "High",
-      "priority": "P1",
+      "description": "Architecture manifest and Azure extractor evidence should support: emergency access procedure. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -301,16 +301,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Technical safeguards"
+          "theme": "Emergency access procedure"
         }
       ]
     },
     {
       "id": "hipaa-015",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 15",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 15. Thematic mapping only \u2014 not certification.",
-      "severity": "High",
-      "priority": "P1",
+      "description": "Architecture manifest and Azure extractor evidence should support: automatic logoff. Thematic mapping only \u2014 not certification.",
+      "severity": "Medium",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -322,16 +322,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Audit controls"
+          "theme": "Automatic logoff"
         }
       ]
     },
     {
       "id": "hipaa-016",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 16",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 16. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: audit controls. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -343,16 +343,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Administrative safeguards"
+          "theme": "Audit controls"
         }
       ]
     },
     {
       "id": "hipaa-017",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 17",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 17. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: integrity controls. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -364,16 +364,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Technical safeguards"
+          "theme": "Integrity controls"
         }
       ]
     },
     {
       "id": "hipaa-018",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 18",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 18. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: person or entity authentication. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -385,16 +385,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Audit controls"
+          "theme": "Person or entity authentication"
         }
       ]
     },
     {
       "id": "hipaa-019",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 19",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 19. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: transmission security. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -406,16 +406,16 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Administrative safeguards"
+          "theme": "Transmission security"
         }
       ]
     },
     {
       "id": "hipaa-020",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 20",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 20. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: workforce security. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
-      "priority": "P1",
+      "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
       "evidenceHints": [
         "governance.PolicyConstraints",
@@ -427,14 +427,14 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Technical safeguards"
+          "theme": "Workforce security"
         }
       ]
     },
     {
       "id": "hipaa-021",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 21",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 21. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: information access management. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
@@ -448,14 +448,14 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Audit controls"
+          "theme": "Information access management"
         }
       ]
     },
     {
       "id": "hipaa-022",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 22",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 22. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: security incident procedures. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
@@ -469,14 +469,14 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Administrative safeguards"
+          "theme": "Security incident procedures"
         }
       ]
     },
     {
       "id": "hipaa-023",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 23",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 23. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: contingency plan. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
@@ -490,14 +490,14 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Technical safeguards"
+          "theme": "Contingency plan"
         }
       ]
     },
     {
       "id": "hipaa-024",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 24",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 24. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: evaluation. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
@@ -511,14 +511,14 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Audit controls"
+          "theme": "Evaluation"
         }
       ]
     },
     {
       "id": "hipaa-025",
       "title": "HIPAA / HITECH Safeguards \u2014 control theme 25",
-      "description": "Architecture manifest and Azure extractor evidence should support: hipaa / hitech safeguards \u2014 control theme 25. Thematic mapping only \u2014 not certification.",
+      "description": "Architecture manifest and Azure extractor evidence should support: tls minimum for ephi endpoints. Thematic mapping only \u2014 not certification.",
       "severity": "Medium",
       "priority": "P2",
       "remediationGuidance": "Document expectations in governance.PolicyConstraints and governance.RequiredControls; align services[].Tags and datastores[] with reviewer narrative in metadata.ChangeDescription.",
@@ -532,7 +532,7 @@
       "frameworkMappings": [
         {
           "framework": "HIPAA Security Rule",
-          "theme": "Administrative safeguards"
+          "theme": "TLS minimum for ePHI endpoints"
         }
       ]
     }

@@ -99,9 +99,9 @@ public sealed partial class ComparisonController(
             ManifestCompareLoadOutcome.PinFingerprintMismatch => MapComparisonSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
-            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapComparisonSealedManifestConflict(
-                new ConflictException(
-                    "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
+            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
+                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                ProblemTypes.CommittedArtifactInventoryMismatch),
             ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapComparisonSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
