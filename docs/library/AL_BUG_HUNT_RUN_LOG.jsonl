@@ -9122,3 +9122,4 @@
 {"at":"2026-10-10T03:14:52.719Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs","ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
 {"at":"2026-10-10T03:20:42.259Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-10T03:27:13.215Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at":"2026-10-10T03:30:22.724Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
