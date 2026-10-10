@@ -198,7 +198,7 @@ public sealed class EmailOtpRequestFlow(
             {
                 // The challenge was persisted before delivery, so cancellation or provider failure must not leave
                 // a code usable when the requester may never have received it.
-                await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, CancellationToken.None)
+                await _challenges.DeleteActiveChallengeAsync(challengeId, CancellationToken.None)
                     .ConfigureAwait(false);
             }
             catch
@@ -211,7 +211,7 @@ public sealed class EmailOtpRequestFlow(
 
         if (!sent)
         {
-            await _challenges.DeleteActiveChallengesForEmailAsync(normalizedEmail, CancellationToken.None)
+            await _challenges.DeleteActiveChallengeAsync(challengeId, CancellationToken.None)
                 .ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordEmailOtpDeliveryFailed();

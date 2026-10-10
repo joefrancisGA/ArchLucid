@@ -91,7 +91,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
       data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
       aria-label={row.recordKind === "finding" ? `Finding: ${row.title}` : undefined}
     >
-      {hasBulkSelect ? (
+      {hasBulkSelect && row.recordKind === "finding" ? (
         <EnterpriseTableCell className="w-8">
           <input
             type="checkbox"
