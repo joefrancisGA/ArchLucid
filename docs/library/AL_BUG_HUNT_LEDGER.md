@@ -9566,6 +9566,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed-only): re-read recommendation actionability, trade-off attachment, and declared-priority handling; the exact Alternatives/ProposedChange filter passed 45/45. A priority-order candidate was not promoted because `ClosedLoopReasoningRequest.DeclaredPriorities` is reachable but no selected contract or production caller defines list order as precedence; no production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): repeated the selected engine/trade-off review after the Unicode boundary fix; no new hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45; retained the existing five bounded candidates and made no production code change.
 
 2026-10-10 seed hunt (seed-only): re-read recommendation actionability, trade-off attachment, Unicode priority matching, and stable recommendation identity; no new hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45; seeded five bounded candidates and made no production code change.
@@ -9668,6 +9670,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` made trade-off identity non-deterministic across rebuilds of the same finding set; **hit 2026-10-10 seed hunt:** derive the ID from the ordered dimension pair and proposed decision via `ArchitectureRecommendationStableId`; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`.
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — ASCII-only boundaries treated `Security` inside a reachable Unicode word as a standalone priority — **hit 2026-10-10 seed hunt:** use Unicode-aware `\b` matching; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — when reachable `DeclaredPriorities` contains both competing dimensions, the builder ignores their list order and balances instead of honoring the first item; the request exposes the list, but selected contracts and callers do not establish ordering as precedence.
 - [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — duplicate specialist findings with the same `FindingId` may emit duplicate stable `RecommendationId` values; reachable input is the specialist-finding collection, but source-level uniqueness is not established here.
 - [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — a null item from a deserialized specialist-finding array may abort all recommendation generation instead of skipping the malformed item; reachable JSON-array origin is outside these two selected files and needs caller confirmation.
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — blank or duplicate declared priorities are copied into every recommendation dependency list; reachable input is the review's declared-priority list, but the exported dependency semantics are not established here.
@@ -9705,7 +9708,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 56
+- **hunts:** 57
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
