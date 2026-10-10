@@ -120,7 +120,7 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             {trail.asserted.map((entry) => (
               <li key={entry.key}>
                 {entry.key === null || entry.key === undefined
-                  ? "Assertion key was not stored."
+                  ? `Assertion key was not stored. Value: ${entry.value}`
                   : `${entry.key}: ${entry.value}`}
                 {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
                   ? ` — ${entry.responderLabel}`
