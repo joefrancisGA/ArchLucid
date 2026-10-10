@@ -75,10 +75,10 @@ export function PolicyAtCommitScopeSummary(
         data-testid={`${testIdPrefix}-counts`}
       >
         Policy at commit · {packAssignments.length} pack assignment(s) ·{" "}
-        {snapshot.complianceRuleKeyCount === null
+        {snapshot.complianceRuleKeyCount === null || snapshot.complianceRuleKeyCount === undefined
           ? "Compliance rule key count was not stored."
           : `${snapshot.complianceRuleKeyCount} compliance rule key(s)`}
-        {snapshot.conflictCount === null
+        {snapshot.conflictCount === null || snapshot.conflictCount === undefined
           ? " · Merge conflict count was not stored."
           : snapshot.conflictCount > 0
             ? ` · ${snapshot.conflictCount} merge conflict(s)`
