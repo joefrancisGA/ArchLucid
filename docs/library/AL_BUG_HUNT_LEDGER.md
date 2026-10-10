@@ -32345,15 +32345,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-07 — platform-default pack republish surfaced HTTP 500
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+2026-10-10 seed hunt (seed-only): re-read the selected policy-pack controller mutations, scope-aware reads, simulation validation, and focused tests; the demote-conflict fall-through candidate was invalid because the selected facade path does not emit a reachable conflict outcome, despite a mock-only repro returning 204. No production change; 80 scoped `PolicyPacksController` tests passed.
 
 2026-10-06 seed hunt (seed-only): re-read assign/archive/enable/org-required, CRUD publish/delete, catalog promote/demote, simulate bulk/single, validate, and effective read paths; cheap-disproof closed validate `ValidationFailed` leak (`Validate_returns_bad_request_when_content_is_not_deserializable_and_tenant_missing` never calls facade); no failing repro; seeded five `(candidate)` rows; 79 scoped `PolicyPacksController` tests passed.
 
