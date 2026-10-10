@@ -121,7 +121,7 @@ Reading a subject is only half the job. The other half is outside Azure: who can
 
 By default, workflows triggered by pull requests from forks don't receive an OIDC token, so the `pull_request` row is usually limited to branches in the repository itself. Check whether anyone has changed that default. Entra's flexible federated credentials, still in preview, match subjects with a `claimsMatchingExpression` instead of an exact string. Read the expression the way you'd read a firewall rule: work out the widest set of subjects it accepts.
 
-> **As of 2026-10:** GitHub subject formats change. Repositories created after July 15, 2026 use immutable subjects that include owner and repository IDs (`repo:owner@id/repo@id:…`), so a federated credential written for the old format won't match them. Re-check the formats and the flexible credential syntax before you rely on them.
+> **As of 2026-10:** GitHub subject formats change. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`), so a federated credential written for the old format won't match them. Re-check the formats and the flexible credential syntax before you rely on them.
 
 ### Owners and credential management
 
