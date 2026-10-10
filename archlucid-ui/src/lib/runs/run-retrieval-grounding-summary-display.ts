@@ -17,7 +17,7 @@ export function formatRetrievalGroundingRatioPercent(
     return "Not recorded";
   }
 
-  const pct = numeric > 0 && numeric <= 1 ? Math.round(numeric * 100) : Math.round(numeric);
+  const pct = value > 0 && value <= 1 ? Math.round(value * 100) : Math.round(value);
 
   return `${pct}%`;
 }

@@ -15,7 +15,6 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
