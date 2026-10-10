@@ -9340,7 +9340,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
-2026-10-09 seed hunt (seed-only): repeated the selected recommendation engine/trade-off builder review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
+2026-10-10 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the selected Alternatives/ProposedChange tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded three bounded `(candidate)` rows for trade-off identity stability, null finding entries, and critical-severity normalization. The exact focused filter passed 45/45 with the known unrelated `ARCH002` warning.
 
 2026-10-09 seed hunt (seed→hit): promoted trade-off `ResolutionRationale` when no declared priority selects either competing dimension; regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`.
 
@@ -9428,6 +9428,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` makes trade-off identity non-deterministic across rebuilds of the same finding set; reachable on every `BuildRecommendations` call and may break diff/telemetry keyed by stable trade-off ids (needs consumer citation before hunt-ready promotion).
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
+- [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — a null element in the reachable specialist-finding collection throws while building all recommendations instead of preserving other actionable findings; verify whether the review pipeline can emit null collection entries before promoting.
+- [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — a reachable `Critical` severity with surrounding whitespace may fail the human-approval check if `ArchitectureRecommendationSeverityLabel.IsCritical` does not normalize the same way as effort estimation; verify the severity producer and helper contract before promoting.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — repeated actionable findings for the same dimension pair may append duplicate trade-offs to one recommendation if the builder is invoked more than once for a shared finding set; verify the orchestration call count and consumer expectations before promoting.
 
 2026-09-27 seed hunt (seed→hit): reseeded architecture-recommendation; proved `no-cost` declared priorities still preferred Cost in Security/Cost trade-offs while `Low-Cost` remains a valid Cost preference; generalized negated dimension detection via `no-` / `non-` prefixes for all trade-off dimension tokens; regressions `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost` and `BuildRecommendations_prefers_cost_first_when_priority_mentions_low_cost_design`; 27 scoped Alternatives/ProposedChange/TradeOff tests passed.
 
@@ -9456,8 +9459,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 48
-- **last-hunt:** 2026-10-09
+- **hunts:** 49
+- **last-hunt:** 2026-10-10
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — trade-off rationale claimed priorities resolved a pair none of them selected

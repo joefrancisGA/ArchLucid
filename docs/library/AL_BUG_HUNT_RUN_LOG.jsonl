@@ -9119,3 +9119,4 @@
 {"at":"2026-10-10T02:55:50.2597590Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-10T03:02:26.2278217Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-10T03:09:12.942Z","zoneId":"ui-claim-discipline-policy","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/claim-discipline-policy.ts"]}
+{"at":"2026-10-10T03:14:52.719Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs","ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
