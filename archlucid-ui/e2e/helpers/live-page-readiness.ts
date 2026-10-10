@@ -266,6 +266,38 @@ export async function expectLiveReviewsHubListReady(
   await expectNoGenericErrorBoundary(page);
 }
 
+/** Verifies the branded recovery surface for a missing review and reports competing shells. */
+export async function expectLiveBrandedNotFoundRecovery(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 60_000;
+
+  let attempt = 0;
+
+  await expect(async () => {
+    if (attempt > 0) {
+      await page.reload({ waitUntil: "domcontentloaded" });
+    }
+    attempt += 1;
+
+    await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => undefined);
+    await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 10_000 });
+  }).toPass({ timeout: timeoutMs, intervals: [1_000, 3_000, 5_000] }).catch(async (error: unknown) => {
+    const genericFailureVisible = await page.getByTestId("run-detail-load-failure").isVisible().catch(() => false);
+    const genericErrorVisible = await page.getByText(/Something went wrong/i).isVisible().catch(() => false);
+    const diagnostics = [
+      genericFailureVisible ? "run-detail-load-failure" : null,
+      genericErrorVisible ? "generic-error-shell" : null,
+    ].filter((marker): marker is string => marker !== null);
+    const suffix = diagnostics.length > 0 ? ` Visible competing shells: ${diagnostics.join(", ")}.` : "";
+
+    throw new Error(`Expected branded-not-found recovery for a missing review.${suffix}`, { cause: error });
+  });
+
+  await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: timeoutMs });
+}
+
 /** Waits for the invitee landing guide to render its meaningful first-review surface. */
 export async function expectLiveFirstReviewGuideReady(
   page: Page,
