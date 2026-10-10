@@ -19381,6 +19381,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): re-read the picker-selected retired `archlucid-core` ledger section; the raw `bugs-found`/`hunts` invariant violation remains accounting metadata, with no source-level candidate or production change warranted.
 
+2026-10-10 seed hunt (seed-only): re-read the picker-selected retired `archlucid-core` ledger section; its raw `bugs-found`/`hunts` invariant violation remains accounting metadata, with no source-level candidate or production change warranted.
+
 2026-10-10 seed hunt (seed-only): the picker still exposed only this ledger path for the retired mega-zone; no source-level candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter was attempted but stopped at the existing ARCH002 `DateTime.Now` analyzer baseline.
 
 2026-10-08 seed hunt (seed→hit): promoted and proved Site Recovery replication rows kept `initialRecoveryFabricLocation` instead of current `recoveryFabricLocation`; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`; 1/1 scoped sanitizer tests passed.
