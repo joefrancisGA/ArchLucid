@@ -298,6 +298,39 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
             "No declared priority selected Reliability or Cost, so the competing findings stay balanced.");
     }
 
+    [Fact]
+    public void BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings()
+    {
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        ArchitectureRecommendationEngine sut = new();
+
+        string firstTradeOffId = sut.BuildRecommendations(
+                new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+                [securityFinding, costFinding],
+                ["Security"])
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Single()
+            .TradeOffId;
+        string secondTradeOffId = sut.BuildRecommendations(
+                new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+                [securityFinding, costFinding],
+                ["Security"])
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Single()
+            .TradeOffId;
+
+        secondTradeOffId.Should().Be(firstTradeOffId);
+    }
+
     private static SpecialistReviewFinding CreateFailFinding(
         string findingId,
         QualityDimension dimension,

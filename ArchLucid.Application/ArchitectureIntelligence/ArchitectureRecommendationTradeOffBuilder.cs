@@ -97,7 +97,10 @@ internal static class ArchitectureRecommendationTradeOffBuilder
 
         target.TradeOffs.Add(new TradeOffObject
         {
-            TradeOffId = Guid.NewGuid().ToString("N"),
+            TradeOffId = ArchitectureRecommendationStableId.FromTradeOff(
+                firstDimension,
+                secondDimension,
+                proposedDecision),
             ProposedDecision = proposedDecision,
             Benefit = benefit,
             CostOrRisk = costOrRisk,

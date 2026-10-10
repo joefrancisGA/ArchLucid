@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `architecture-recommendation` — `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` generated a random `TradeOffId` on every recommendation rebuild, so identical specialist findings produced unstable trade-off identities for downstream diffs and telemetry. Trade-off IDs now derive from the ordered dimension pair and proposed decision; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`; scoped Alternatives/ProposedChange tests passed 45/45. The Application compile check timed out twice without compiler errors.
+
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read run-completion orchestration, Azure platform scope filters, batch embedding and stale-chunk cleanup, and the existing indexing failure regressions; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained the existing bounded candidates and made no production change.
@@ -9388,6 +9390,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed→hit): promoted trade-off identity stability; `TradeOffId` now derives from the ordered dimension pair and proposed decision instead of a random GUID; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`; exact Alternatives/ProposedChange filter passed 45/45. Application compile check timed out twice without compiler errors.
+
 2026-10-10 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the selected Alternatives/ProposedChange tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded three bounded `(candidate)` rows for trade-off identity stability, null finding entries, and critical-severity normalization. The exact focused filter passed 45/45 with the known unrelated `ARCH002` warning.
 
 2026-10-09 seed hunt (seed→hit): promoted trade-off `ResolutionRationale` when no declared priority selects either competing dimension; regression `BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension`.
@@ -9474,7 +9478,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
 
-- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` makes trade-off identity non-deterministic across rebuilds of the same finding set; reachable on every `BuildRecommendations` call and may break diff/telemetry keyed by stable trade-off ids (needs consumer citation before hunt-ready promotion).
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` made trade-off identity non-deterministic across rebuilds of the same finding set; **hit 2026-10-10 seed hunt:** derive the ID from the ordered dimension pair and proposed decision via `ArchitectureRecommendationStableId`; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`.
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
 - [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — a null element in the reachable specialist-finding collection throws while building all recommendations instead of preserving other actionable findings; verify whether the review pipeline can emit null collection entries before promoting.
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — a reachable `Critical` severity with surrounding whitespace may fail the human-approval check if `ArchitectureRecommendationSeverityLabel.IsCritical` does not normalize the same way as effort estimation; verify the severity producer and helper contract before promoting.
@@ -9507,11 +9511,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 49
+- **hunts:** 50
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-09 — trade-off rationale claimed priorities resolved a pair none of them selected
+- **last-bug:** 2026-10-10 — trade-off IDs changed across identical recommendation rebuilds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
