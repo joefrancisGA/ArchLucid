@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateBatchTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "ba-1", label: "batch", sourceId: "azurerm_batch.main"));
+            ComputeNode(nodeId: "ba-1", label: "batch", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-batch")));
 

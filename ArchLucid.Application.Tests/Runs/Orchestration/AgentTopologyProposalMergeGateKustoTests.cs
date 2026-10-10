@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateKustoTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "ku-1", label: "kusto", sourceId: "azurerm_kusto.main"));
+            ComputeNode(nodeId: "ku-1", label: "kusto", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-kusto")));
 

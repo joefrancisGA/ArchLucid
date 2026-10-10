@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateMdeTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "md-1", label: "mde", sourceId: "azurerm_mde.main"));
+            ComputeNode(nodeId: "md-1", label: "mde", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mde")));
 

@@ -17,14 +17,14 @@ public sealed class ArchitectureSpineAs087ArchitectureSharesDdlArchitectureTests
         migrationText.Should().Contain("RestrictToShares");
         migrationText.Should().Contain("DF_Architectures_RestrictToShares DEFAULT (0)");
         migrationText.Should().Contain("CREATE TABLE dbo.ArchitectureShares");
-        migrationText.Should().Contain("ActorOid");
+        migrationText.Should().Contain("UserId");
         migrationText.Should().Contain("Role");
         migrationText.Should().Contain("GrantedBy");
         migrationText.Should().Contain("GrantedUtc");
         migrationText.Should().Contain("RowVersion");
         migrationText.Should().Contain("FK_ArchitectureShares_Architectures");
         migrationText.Should().Contain("CK_ArchitectureShares_Role");
-        migrationText.Should().Contain("IX_ArchitectureShares_ActorOid");
+        migrationText.Should().Contain("IX_ArchitectureShares_Tenant_User_Architecture");
         migrationText.Should().NotContain("ROW LEVEL SECURITY", "ADR 0037 tenant catalog — no SQL RLS (AS-087)");
         migrationText.Should().NotContain("CREATE SECURITY POLICY", "ADR 0037 tenant catalog — no SQL RLS (AS-087)");
     }
@@ -46,6 +46,8 @@ public sealed class ArchitectureSpineAs087ArchitectureSharesDdlArchitectureTests
         ddl.Should().Contain("RestrictToShares");
         ddl.Should().Contain("DF_Architectures_RestrictToShares DEFAULT (0)");
         ddl.Should().Contain("CREATE TABLE dbo.ArchitectureShares");
+        ddl.Should().Contain("ActorOid");
+        ddl.Should().Contain("IX_ArchitectureShares_ActorOid");
     }
 
     [Fact]

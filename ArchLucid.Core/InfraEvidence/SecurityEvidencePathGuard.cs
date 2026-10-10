@@ -49,7 +49,8 @@ public static class SecurityEvidencePathGuard
             if (ProvenanceKindRules.ForbidsConfirmedConfidence(hop.ProvenanceKind)
                 && hop.HopConfidenceBand == PathConfidenceBand.Confirmed)
             {
-                throw new InvalidOperationException("LLM-inferred hops cannot use Confirmed confidence.");
+                throw new InvalidOperationException(
+                    "AiInference hops cannot use Confirmed confidence.");
             }
         }
 

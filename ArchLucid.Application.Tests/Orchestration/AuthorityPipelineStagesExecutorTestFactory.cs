@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics;
 
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
@@ -338,7 +339,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 stagePersistence,
                 audit.Object,
                 Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
-                Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService>(),
+                CreatePassThroughClosedLoopScoreSync(),
                 SealedManifestHashTestSupport.CreateManifestHashService(),
                 apPipeline.Object,
                 NullLogger<AuthorityPipelineDecisioningStage>.Instance),
@@ -410,10 +411,25 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
             .Setup(repository => repository.GetByRunIdAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
             .ReturnsAsync([]);
 
         return agentResults.Object;
+    }
+
+    private static ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService CreatePassThroughClosedLoopScoreSync()
+    {
+        Mock<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService> scoreSync = new();
+        scoreSync
+            .Setup(service => service.SyncScoreSignals(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>()))
+            .Returns(new ArchLucid.Application.ArchitectureIntelligence.ClosedLoopStrengtheningScoreSyncResult());
+
+        return scoreSync.Object;
     }
 
     private static IBoundArchitectureInventoryGraphOverlayApplicator CreatePassThroughInventoryGraphOverlayApplicator()

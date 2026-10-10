@@ -188,7 +188,7 @@ public sealed class FirstValueReportPdfBuilderTests
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
             FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyManifestHash(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
             Mock.Of<IRunRepository>(),

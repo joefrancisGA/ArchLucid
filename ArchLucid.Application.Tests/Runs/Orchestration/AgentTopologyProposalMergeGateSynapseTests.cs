@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateSynapseTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "sy-1", label: "syn", sourceId: "azurerm_synapse.main"));
+            ComputeNode(nodeId: "sy-1", label: "syn", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-syn")));
 
