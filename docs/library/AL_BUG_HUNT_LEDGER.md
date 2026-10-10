@@ -4,6 +4,8 @@
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `InMemoryContextSnapshotRepository.GetLatestAsync` filtered snapshots only by project id, so a tenant could receive another tenant's latest snapshot when project ids overlapped. Latest reads now apply the current saved scope metadata when a scoped provider is configured; regression `GetLatestAsync_does_not_return_snapshot_saved_by_different_tenant_for_same_project`; scoped ContextIngestion/Canonicalization tests passed 814/814.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `InfrastructureDeclarationBatchPathIndex.TryResolve` consulted a basename alias before the parent-relative path, so an ARM linked template such as `prod/linked.json` could resolve to `shared/linked.json` when both existed in one upload. Parent-relative resolution now precedes basename fallback; regression `ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist`; scoped ContextIngestion/Canonicalization tests passed 815/815.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27401,6 +27403,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): duplicate in-batch ARM linked-template filenames now resolve through the parent-relative path before basename fallback; 815 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `InfrastructureDeclarationBatchPathIndex.TryResolve` — a relative ARM template link resolved the last registered basename alias instead of the matching file beside the parent declaration when duplicate filenames existed — **hit 2026-10-10 seed hunt:** exact paths and parent-relative paths now resolve before basename fallback; regression `ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist`.
 
 2026-10-10 seed hunt (seed→hit): latest snapshot reads now enforce the current tenant/workspace/project scope metadata; 814 scoped ContextIngestion/Canonicalization tests passed.
 

@@ -597,6 +597,73 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist()
+    {
+        InfrastructureDeclarationReference parent = new()
+        {
+            Name = "prod/main.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-parent-relative",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Resources/deployments",
+                            "name": "linked-deploy",
+                            "properties": {
+                              "templateLink": {
+                                "uri": "linked.json"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference expectedLinked = new()
+        {
+            Name = "prod/linked.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-expected-linked",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "prod-docs"
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        InfrastructureDeclarationReference duplicateLinked = new()
+        {
+            Name = "shared/linked.json",
+            Format = "arm-json",
+            DeclarationId = "decl-arm-duplicate-linked",
+            Content = """
+                      {
+                        "resources": [
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "shared-docs"
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        Dictionary<string, InfrastructureDeclarationReference> batchByPath =
+            InfrastructureDeclarationBatchPathIndex.Build([parent, expectedLinked, duplicateLinked]);
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(parent, batchByPath, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "prod-docs");
+    }
+
+    [Fact]
     public async Task ParseAsync_DeploymentTemplateLinkMissingFromBatch_SkipsSilently()
     {
         InfrastructureDeclarationReference parent = new()

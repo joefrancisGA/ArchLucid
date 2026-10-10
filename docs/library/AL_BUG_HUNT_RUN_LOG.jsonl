@@ -9169,3 +9169,4 @@
 {"at":"2026-10-10T06:36:22.7148454Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
 {"at":"2026-10-10T06:45:50.5332362Z","zoneId":"api-policy-packs","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs"]}
 {"at":"2026-10-10T06:58:28.2317531Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
+{"at":"2026-10-10T07:05:03.5696441Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}

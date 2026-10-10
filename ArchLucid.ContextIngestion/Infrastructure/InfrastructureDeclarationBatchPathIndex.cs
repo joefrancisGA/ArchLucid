@@ -41,30 +41,28 @@ internal static class InfrastructureDeclarationBatchPathIndex
 
         string trimmedPath = relativePath.Trim().Trim('\'', '"');
 
-        if (TryLookup(batchByPath, trimmedPath, out declaration))
-        {
-            return true;
-        }
-
-        string fileName = Path.GetFileName(trimmedPath.Replace('/', Path.DirectorySeparatorChar));
-
-        if (TryLookup(batchByPath, fileName, out declaration))
+        if (HasDirectorySegment(trimmedPath)
+            && TryLookupExact(batchByPath, trimmedPath, out declaration))
         {
             return true;
         }
 
         if (string.IsNullOrWhiteSpace(parentDeclarationName))
-        {
-            return false;
-        }
+            return TryLookup(batchByPath, Path.GetFileName(trimmedPath.Replace('/', Path.DirectorySeparatorChar)), out declaration);
 
         string parentDirectory = Path.GetDirectoryName(parentDeclarationName.Replace('/', Path.DirectorySeparatorChar)) ?? string.Empty;
         string combined = string.IsNullOrWhiteSpace(parentDirectory)
             ? trimmedPath.Replace('/', Path.DirectorySeparatorChar)
             : Path.Combine(parentDirectory, trimmedPath.Replace('/', Path.DirectorySeparatorChar)).Replace('\\', '/');
 
-        return TryLookup(batchByPath, combined, out declaration)
-            || TryLookup(batchByPath, Path.GetFileName(combined), out declaration);
+        if (TryLookupExact(batchByPath, combined, out declaration))
+        {
+            return true;
+        }
+
+        string fileNameFallback = Path.GetFileName(trimmedPath.Replace('/', Path.DirectorySeparatorChar));
+
+        return TryLookup(batchByPath, fileNameFallback, out declaration);
     }
 
     internal static string NormalizeLookupKey(string declarationName)
@@ -122,5 +120,24 @@ internal static class InfrastructureDeclarationBatchPathIndex
         string fileName = Path.GetFileName(normalized);
 
         return batchByPath.TryGetValue(fileName, out declaration!);
+    }
+
+    private static bool TryLookupExact(
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference> batchByPath,
+        string path,
+        out InfrastructureDeclarationReference declaration)
+    {
+        declaration = null!;
+
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        return batchByPath.TryGetValue(NormalizeLookupKey(path), out declaration!);
+    }
+
+    private static bool HasDirectorySegment(string path)
+    {
+        return path.Contains('/', StringComparison.Ordinal)
+               || path.Contains('\\', StringComparison.Ordinal);
     }
 }
