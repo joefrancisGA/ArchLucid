@@ -42,10 +42,12 @@ public sealed class AgentOutputEvaluationHarness(
             failures.Add(
                 $"Semantic score {semantic.OverallSemanticScore:F3} below minimum {expected.MinimumSemanticScore:F3}.");
 
-        if (expected.MinimumFindingCount > 0 && actual.Findings.Count < expected.MinimumFindingCount)
+        int validFindingCount = actual.Findings.Count(static finding => finding is not null);
+
+        if (expected.MinimumFindingCount > 0 && validFindingCount < expected.MinimumFindingCount)
 
             failures.Add(
-                $"Finding count {actual.Findings.Count} below minimum {expected.MinimumFindingCount}.");
+                $"Finding count {validFindingCount} below minimum {expected.MinimumFindingCount}.");
 
         if (expected.RequiredJsonKeys.Count > 0)
 
@@ -76,10 +78,13 @@ public sealed class AgentOutputEvaluationHarness(
                 failures.Add("Could not parse serialized AgentResult for required JSON keys.");
             }
 
+        // Agent output is an untrusted JSON boundary; malformed null findings must become
+        // a failed harness result rather than aborting evaluation.
         HashSet<string> findingCategories = actual.Findings
-            .Select(f => f.Category.Trim())
-            .Where(s => s.Length > 0)
-            .Select(s => s.ToUpperInvariant())
+            .Where(static finding => finding is not null)
+            .Select(static finding => finding!.Category?.Trim())
+            .Where(static category => !string.IsNullOrEmpty(category))
+            .Select(static category => category!.ToUpperInvariant())
             .ToHashSet();
 
         int categoryHits = 0;

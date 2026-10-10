@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `AgentOutputEvaluationHarness` counted JSON `findings: [null]` toward the minimum finding count, then dereferenced the null entry while normalizing categories, so malformed reachable agent output could either throw or pass harness evaluation. The harness now counts only non-null findings and skips null/category-null entries; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`; 198 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
+
 2026-10-10 thorough hunt (dry): `quick-scan-distributed-concurrency` — cheap-disproved the two in-memory cancellation candidates: synchronous admit/promotion completes before cancellation can be observed, and downstream cancellation plus orchestrator cleanup prevents a leaked permit. The unknown SQL outcome-code candidate was invalid because no reachable selected-path procedure outcome exists outside the current contract. The scoped `QuickScanDistributedConcurrency` filter passed 42/42. No production change.
 
 2026-10-10 seed hunt (seed-only): `quick-scan-distributed-concurrency` — reread the service, SQL store, in-memory store, lease lifecycle tests, and concurrency tests; no fresh hypothesis met the same-run failing-repro bar. The scoped `QuickScanDistributedConcurrency` filter passed 42/42. Seeded bounded candidates for cancellation during in-memory direct admission, cancellation during in-memory promotion, and unknown SQL outcome-code mapping.
@@ -16791,8 +16793,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 34
-- **bugs-found:** 21
+- **hunts:** 35
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — confidence enrichment skipped real-only finding citation coverage
@@ -16806,7 +16808,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
 
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
-- [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding can throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — locus: `AgentOutputEvaluationHarness.cs` ~79–83; input: serialized `AgentResult` containing a null finding element.
+- [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null evidence-reference items is counted toward the PilotStrict minimum without validating each reference — locus: `AgentOutputTraceCitationGate.cs` ~31–42; input: parsed result with `evidenceRefs: [null]`.
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range is silently clamped to 0 or 1 rather than treated as malformed judge output — locus: `AgentOutputFaithfulnessEvaluator.cs` ~174–191; input: completion response with `faithfulnessScore: 2.0` or `-1.0`.
 
