@@ -18949,6 +18949,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five follow-on candidates: authorize URL construction is parser-gated, malformed callback descriptions are intentionally tolerant, oversized provider details have no demonstrated wrong outcome, Web Crypto absence is an environment prerequisite, and incomplete PKCE storage has no reachable production caller. No failing repro or fix was established. The focused OIDC suite passed 71/71.
 
+2026-10-10 seed hunt (seed-only): re-read OIDC configuration, discovery URL construction, PKCE storage, and session cleanup boundaries. No new row met the full hunt-ready bar; seeded five bounded candidates for configuration URL validation, redirect URI shape, stale PKCE lifetime, missing browser storage, and callback state reuse. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
@@ -19116,6 +19118,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unknown provider descriptions are included without a length bound — **cheap-disproof 2026-10-10 thorough hunt:** callback text is rendered as escaped UI text and the provider-controlled detail has no demonstrated durable or security-sensitive wrong outcome in this zone.
 - [x] (invalid) `createPkcePair` — the fixed 32-byte verifier path depends on browser Web Crypto availability — **cheap-disproof 2026-10-10 thorough hunt:** unsupported browser capability is an environment prerequisite, not a reachable input or incorrect OIDC state transition in these helpers.
 - [x] (invalid) `storePkceState` — exported storage accepts empty state, verifier, or nonce values — **cheap-disproof 2026-10-10 thorough hunt:** production redirect callers supply generated non-empty values; no reachable caller in the selected files writes incomplete PKCE state.
+
+- [ ] (candidate) `getOidcAuthority` / `discoveryUrlForAuthority` — a deployment authority with an unusual but parseable URL shape may normalize to a discovery origin/path different from the configured issuer.
+- [ ] (candidate) `getOidcRedirectUri` — a fixed public configuration redirect URI is forwarded without URL-shape validation, so a reachable deployment typo may produce a callback URL the IdP rejects.
+- [ ] (candidate) `readPkceStateForFlow` — PKCE state has no local age bound, so a browser tab restored after a long suspension may consume stale verifier material during a later callback.
+- [ ] (candidate) `readSessionKey` — a session-storage implementation returning whitespace-only values is treated as present for PKCE and return-path state, so malformed persisted state may reach callback handling.
+- [ ] (candidate) `consumePkceState` — matching state is consumed from either flow without an explicit provider/authority binding in this helper, so a cross-provider callback with a reused state could select the wrong verifier.
 
 ---
 
