@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): repeated the Contracts architecture-model reread, including diagram node kinds/provenance and infrastructure comparison constants; no new contract-only wrong outcome met the promotion bar. The scoped Contracts suite passed 520/520. Seeded one bounded candidate for arbitrary diagram node-kind values; no production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
@@ -27355,6 +27357,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-10 seed hunt (seed-only): repeated the Contracts architecture-model reread, including diagram node kinds/provenance and infrastructure comparison constants; no new contract-only wrong outcome met the promotion bar. The scoped Contracts suite passed 520/520. Seeded one bounded candidate for arbitrary diagram node-kind values; no production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
@@ -27369,7 +27373,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -27394,6 +27398,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - (candidate) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — mapping-save JSON can omit or set `"diagramNodeId": null` while supplying a normalized label and cloud-resource id; if null means “missing” rather than an intentional clear, the save path can create or overwrite a mapping that cannot be addressed by diagram node id. Reachability: API mapping-save payload for the recently added infrastructure-diagram comparison workflow.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
+- (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
 - (candidate) `DiagramInfrastructureCorrespondenceRow.MatchKind` — reconciliation output accepts arbitrary strings such as `"Exact "` or `"Unexpected"` despite publishing a finite match-kind vocabulary; exact-value UI mapping can render a valid correspondence as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `SecureNowQuestionDispositionResponse.AuditEntries` — a response JSON payload can explicitly set `"auditEntries": null`, replacing the initialized list; a client that renders audit history without null normalization can fail on an otherwise valid disposition response. Reachability: API response payload for the SecureNow disposition detail route.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
