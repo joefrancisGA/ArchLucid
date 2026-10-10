@@ -12165,6 +12165,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): repeated the selected source/test review after the prior reseed. No candidate met the full hunt-ready bar and no hypothesis was promoted; the existing five bounded candidates remain the only seeded rows. The focused run reproduced the known 96-pass, 2 stale ADR 0037 expectation, and 8 missing-SQL integration-test baseline.
 
+2026-10-10 seed hunt (seed-only): repeated the unchanged scope-binding review and retained the same five bounded candidates. No candidate met the full hunt-ready bar and no hypothesis was promoted; no production code or regression test changed.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
