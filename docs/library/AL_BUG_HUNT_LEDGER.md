@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `core-explanation-json` — promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
+
 2026-10-10 seed hunt (seed-only): `ui-oidc` — re-read BFF synchronization, refresh, discovery, token persistence, and JWT hint boundaries; no new row met the full hunt-ready bar for promotion. Seeded five bounded `(candidate)` rows. The focused OIDC suite passed 71/71.
 
 2026-10-10 seed hunt (seed→hit): `ui-oidc` — promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
@@ -26920,6 +26922,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
+
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
 - **status:** open
@@ -26927,11 +26931,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 40
-- **bugs-found:** 28
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — negative string aggregate counts bypassed the nonnegative guard
+- **hunts:** 41
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — out-of-range numeric explanation counts cast to int.MaxValue
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -27003,6 +27007,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — schema-defined numeric `confidence` accepted JSON booleans through the shared coercion reader, so `true` became confidence `1.0` instead of unknown; structured confidence now rejects boolean tokens while aggregate compatibility fields retain boolean coercion; regression `TryNormalizeStructuredJson_ignores_boolean_confidence`. [class:boolean-coercion]
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — malformed persisted or LLM aggregate JSON threw `JsonException` instead of degrading to an absent confidence signal; the aggregate parser now returns `null` for malformed JSON; regression `FromAggregateJson_returns_null_for_malformed_json`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryParseWholeNumberString` — negative string-encoded decision, unresolved-issue, and compliance-gap counts passed the direct `int.TryParse` branch despite the nonnegative count contract; the shared reader now rejects negative parsed integers; regression `FromAggregateJson_ignores_negative_string_encoded_whole_number_counts`.
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — out-of-range numeric whole-number counts (`1e20`) passed the finite/integer checks and cast to `int.MaxValue`, allowing malformed explanation counts through; **hit 2026-10-10 seed hunt:** require `numeric <= int.MaxValue` before conversion; regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`.
 - [x] (invalid) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-insensitive aggregate properties use the first occurrence, so conflicting duplicate `citations` or `faithfulnessSupportRatio` fields from an LLM payload may produce a different disposition than the final JSON value — **cheap-disproof 2026-10-09 thorough hunt:** the scoped producer/schema files define no duplicate-key contract or required last-value semantics; no reachable wrong outcome is established.
 - [x] (valid-no-repro) `StructuredExplanationParser.TryReadNonEmptyTextToken` — negative numeric `evidenceRefs` are normalized into provenance strings even though numeric citation/count fields reject negative values — **cheap-disproof 2026-10-09 thorough hunt:** structured evidence references remain opaque strings, and no reachable downstream path in the zone interprets `-1` as valid provenance or produces user-visible evidence; no failing repro.
 
