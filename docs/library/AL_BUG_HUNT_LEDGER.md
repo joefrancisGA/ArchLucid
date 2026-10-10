@@ -5025,7 +5025,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **hunts:** 94
 - **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — Terraform instance key blocked resource-address relationship resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15423,6 +15423,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-10 seed hunt (seed-only): re-read the selected content-safety guards and prompt-injection sanitizers; all existing delimiter, cancellation, truncation, and fail-open boundaries were covered by 584 scoped tests, with no new hunt-ready row promoted. Seeded three reachable follow-on candidates.
+
 2026-10-09 thorough hunt (hit): prompt identifiers escaped TB-949 markers before control-character removal, so a client-supplied `RequestId` containing a deleted control inside `CUSTOMER_CONTENT_END` closed the architecture quarantine early; escape now follows the strip for identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
 
 2026-10-06 seed hunt (seed→hit): `ContentSafetyEnabledButUnconfiguredGuard` honored cooperative cancellation before misconfiguration throw; 582 scoped agent-runtime-safety tests passed.
@@ -16299,8 +16301,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 61
-- **last-hunt:** 2026-10-09
+- **hunts:** 62
+- **last-hunt:** 2026-10-10
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-09 — request id control character reassembled customer-content end marker
@@ -16324,6 +16326,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — cancellation is checked only before iterating potentially large evidence collections — locus: policy/service/pattern/note loops; input: a reachable large evidence package from an agent run with cancellation requested during sanitization; wrong outcome: prompt preparation continues after cancellation instead of stopping promptly.
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` with a caller token that is not yet canceled is converted into fail-open/fail-closed content-safety output — locus: generic exception catch after `invokeInner`; input: Azure client timeout/cancellation from an inner request while the outer request token remains active; wrong outcome: a canceled safety scan is reported as an allow or SDK block instead of propagating cancellation.
+- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffering has no explicit output-size bound before the final safety scan — locus: `StringBuilder completionJson` and `bufferedChunks`; input: a reachable provider stream that emits the configured maximum-token response or more chunks; wrong outcome: unbounded memory growth before output safety can reject the response.
 
 - [x] (proven) `AgentEvidenceUntrustedInputSanitizer.SanitizePromptIdentifier` — client-supplied `RequestId` with a deleted control character inside `CUSTOMER_CONTENT_END` (`\u0001`, `\u007F`, `\u0085`) reassembled the delimiter after marker escape and closed the architecture quarantine before `Evidence Package` — **hit 2026-10-09 thorough hunt:** `EscapeEmbeddedMarkers` ran before `StripControlChars`; `EscapeCustomerMarkersAfterControlStrip` strips first, then escapes, for prompt identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`.
 
