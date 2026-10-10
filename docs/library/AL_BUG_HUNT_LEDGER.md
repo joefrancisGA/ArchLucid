@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 47
-- **bugs-found:** 40
+- **hunts:** 48
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — persisted ARM property casing caused data-flow stages to fall back to graph node type
+- **last-bug:** 2026-10-10 — persisted external-source marker casing caused ADF nodes to fall back to graph node type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `AzureInventoryDataFlowStageResolver.Resolve` read the persisted `arm.externalSource` marker with an ordinal dictionary lookup, so a reachable graph snapshot whose marker key casing differed fell through to the ordinary node type instead of classifying an ADF linked-service node as a source; external-source marker lookup now reuses `GraphNodePropertyReader`; regression `Resolve_reads_external_source_marker_when_persisted_property_key_uses_different_casing`; focused resolver tests passed 50/50.
+
+- [x] (proven) `AzureInventoryDataFlowStageResolver.Resolve` — a persisted `Arm.ExternalSource` marker was ignored and the node’s unrelated `NodeType` determined its stage — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader` for case-insensitive external-source marker lookup; regression `Resolve_reads_external_source_marker_when_persisted_property_key_uses_different_casing`.
 
 2026-10-10 seed hunt (seed→hit): `AzureInventoryDataFlowStageResolver.Resolve` read persisted `arm.type` with an ordinal dictionary lookup, so a reachable graph snapshot whose property key casing differed fell back to `NodeType` and assigned the wrong data-flow stage; ARM type and diagram-exclusion property reads now reuse `GraphNodePropertyReader` for case-insensitive lookup; regression `Resolve_reads_arm_type_when_persisted_property_key_uses_different_casing`; focused resolver tests passed 49/49.
 

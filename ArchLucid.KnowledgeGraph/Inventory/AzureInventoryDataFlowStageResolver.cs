@@ -120,7 +120,8 @@ public static class AzureInventoryDataFlowStageResolver
 
         if (AzureInventoryAdfExternalSourceNodeFactory.IsExternalSourceNodeId(node.NodeId)
             || (node.Properties != null
-                && node.Properties.TryGetValue(
+                && GraphNodePropertyReader.TryGetPropertyValue(
+                    node.Properties,
                     AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyKey,
                     out string? externalFlag)
                 && string.Equals(

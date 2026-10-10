@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph.Inventory;
+using AzureInventoryAdfExternalSourceNodeFactory =
+    ArchLucid.Core.AzureExtractor.AzureInventoryAdfExternalSourceNodeFactory;
 
 using FluentAssertions;
 
@@ -120,6 +122,25 @@ public sealed class AzureInventoryDataFlowStageResolverTests
         AzureInventoryDataFlowStageResolver.Resolve(node)
             .Should()
             .Be(AzureInventoryDataFlowStageNames.Storage);
+    }
+
+    [Fact]
+    public void Resolve_reads_external_source_marker_when_persisted_property_key_uses_different_casing()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "inventory-resource",
+            NodeType = "Microsoft.Web/sites",
+            Label = "external-source",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Arm.ExternalSource"] = AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyValue,
+            },
+        };
+
+        AzureInventoryDataFlowStageResolver.Resolve(node)
+            .Should()
+            .Be(AzureInventoryDataFlowStageNames.Source);
     }
 
     [Fact]
