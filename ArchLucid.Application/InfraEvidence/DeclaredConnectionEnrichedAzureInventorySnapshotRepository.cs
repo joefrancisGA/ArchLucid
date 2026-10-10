@@ -37,6 +37,25 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         AzureInventorySnapshotDetailReadModel? snapshot =
             await inner.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
 
+        return await EnrichAsync(scope, snapshotId, snapshot, cancellationToken);
+    }
+
+    public async Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await inner.TryGetCanonicalSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        return await EnrichAsync(scope, snapshotId, snapshot, cancellationToken);
+    }
+
+    private async Task<AzureInventorySnapshotDetailReadModel?> EnrichAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        AzureInventorySnapshotDetailReadModel? snapshot,
+        CancellationToken cancellationToken)
+    {
         if (snapshot is null)
         {
             return null;
