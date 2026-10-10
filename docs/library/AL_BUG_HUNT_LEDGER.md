@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `ui-infra-resource-hub` — all five picker candidates named governance-findings queue hooks and loci outside the selected `ResourceHubClient.tsx` path, so they were invalid for this zone and no failing repro was warranted. The selected UI directory run passed 59/64 tests; its five failures were unrelated explorer/shortcut expectations and did not establish any picked hypothesis.
+
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — confidence enrichment dropped each persisted result's `TaskStructuralExecutionMode` before reusing the shared quality evaluator, so real traces skipped the real-only finding-citation coverage floor and could be marked schema-passed. Confidence evaluation now propagates the mode through the run context and both enrichers; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`; 197 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — PilotStrict accepted a reachable reference-trace JSON payload whose non-empty `citations` array contained only `null` or blank entries, so malformed citation presence could bypass the citation gate. Citation presence now requires a non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 196 scoped Evaluation tests passed.
@@ -35122,10 +35124,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -35194,11 +35196,11 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — a URL-supplied `bulkFindings` set is accepted without intersecting the active queue’s loaded finding IDs, so a crafted or stale selection can carry IDs from another review scope into bulk disposition — locus: `selectedFindingIds` initialization and `onSelectionChange`; input: `/governance/findings?bulkFindings=` containing an ID absent from the current rows.
-- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — switching between tenant and assigned-to-me modes while the same `bulkFindings` query value remains can retain selection state without a mode-specific validation pass — locus: URL synchronization effect keyed only by `urlBulkFindingsRaw`; input: client navigation between queue modes with a reused bulk-selection query.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — the first-finding triage target is derived from `displayedRows` after density filtering, so enabling working-mode low-density hiding can make a visible queue’s “first finding” action skip the earliest loaded finding — locus: `resolveFirstFindingTriageTarget(displayedRows, ...)`; input: a queue containing a low-signal first row and a higher-signal later row with `hideGenericLowDensity=1`.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — sponsor handoff remains derived only from `scopedRunId`, so an architecture-scoped queue with no review scope may render a handoff destination that lacks the active architecture context — locus: `resolveGovernanceFindingsSponsorHandoffHref(scopedRunId)`; input: an architecture-scoped findings URL with `architectureId=` and no `runId=`.
-- [ ] (candidate) `useGovernanceFindingsQueueFacets` — clearing facet filters writes storage and performs navigation from the render-time search params, so a concurrent URL update can restore a removed job-view or natural-language facet after clear — locus: `clearFacetFilters`’s chained helper calls; input: clear-filters activation while App Router changes the queue URL.
+- [x] (invalid) `useGovernanceFindingsQueueBulkActions` — a URL-supplied `bulkFindings` set is accepted without intersecting the active queue’s loaded finding IDs — **invalid 2026-10-10 thorough hunt:** the locus is in the governance findings queue hook, outside the selected `ResourceHubClient.tsx` path.
+- [x] (invalid) `useGovernanceFindingsQueueBulkActions` — switching queue modes can retain a URL selection without mode validation — **invalid 2026-10-10 thorough hunt:** the locus is in the governance findings queue hook, outside the selected `ResourceHubClient.tsx` path.
+- [x] (invalid) `useGovernanceFindingsQueueSynopsis` — density filtering can alter the first-finding triage target — **invalid 2026-10-10 thorough hunt:** the locus is in the governance findings queue synopsis hook, outside the selected `ResourceHubClient.tsx` path.
+- [x] (invalid) `useGovernanceFindingsQueueSynopsis` — sponsor handoff can omit architecture context — **invalid 2026-10-10 thorough hunt:** the locus is in the governance findings queue synopsis hook, outside the selected `ResourceHubClient.tsx` path.
+- [x] (invalid) `useGovernanceFindingsQueueFacets` — concurrent URL changes can restore cleared facets — **invalid 2026-10-10 thorough hunt:** the locus is in the governance findings queue facets hook, outside the selected `ResourceHubClient.tsx` path.
 
 - [x] (proven) `sanitizeResourceHubQueryForTab` / `ResourceHubClient.setActiveTab` — tab bar switch drops `runId` while hub cross-links preserve review scope — **hit 2026-09-07 hunt #1189 (seed→hit):** `sanitizeResourceHubQueryForTab` deleted `runId` for drift/findings/terraform/audit tabs before `resourceHubFilterHrefFromSearch`, so clicking the tab bar lost review scope that sibling quick links kept; fixed by only stripping item-scoped params (finding/diff/instance/correspondence); regressions in `infra-evidence-hub-tab-query.test.ts` and `ResourceHubClient.test.tsx`
 - [x] (proven) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset — **hit 2026-09-07 hunt #1281:** stale detection used `hasAnyAuditParam && workbenchLinkAuditContext == null`, but `workbenchLinkAuditContext` merges URL + hub payload via `resolveInfrastructureAskAuditContext`, so a partial URL triple (e.g. only `assessmentId`) with full hub lineage hid the stale banner while still rendering the audit scope bar; fixed by URL-only `hasStaleInfraEvidenceAuditUrlParams` + gating the scope bar on `parseInfraEvidenceWorkbenchAuditScopeFromSearch`; regressions in `infra-evidence-workbench-hub-scope.test.ts` and `ResourceHubClient.test.tsx`
