@@ -32476,7 +32476,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
@@ -32485,6 +32485,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+2026-10-10 seed hunt (seed-only): reread policy-pack assignment mutations, catalog CRUD, effective/page-bundle/version reads, simulation and validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The focused `PolicyPacksController` filter passed 80/80. No production change.
 
 2026-10-10 seed hunt (seed-only): re-read the selected policy-pack controller mutations, scope-aware reads, simulation validation, and focused tests; the demote-conflict fall-through candidate was invalid because the selected facade path does not emit a reachable conflict outcome, despite a mock-only repro returning 204. No production change; 80 scoped `PolicyPacksController` tests passed.
 
