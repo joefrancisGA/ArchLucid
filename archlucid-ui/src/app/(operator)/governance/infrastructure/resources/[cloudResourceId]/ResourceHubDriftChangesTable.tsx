@@ -104,7 +104,7 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
                 href={buildChangeWorkbenchHref(change)}
                 data-testid={`${testIdPrefix}-change-${change.changeId}`}
               >
-                {change.property ?? change.changeType}
+                {change.property ?? "Property name was not stored."}
               </Link>
             </EnterpriseTableCell>
             {showChangeType ? (
@@ -120,15 +120,15 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
                 {change.riskClassification != null ? (
                   <SeverityTag severity={change.riskClassification} />
                 ) : (
-                  "—"
+                  "Risk classification was not stored."
                 )}
               </EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "Previous value was not stored."}</EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "Updated value was not stored."}</EnterpriseTableCell>
             ) : null}
             <EnterpriseTableCell>
               <Button asChild size="sm" variant="outline">

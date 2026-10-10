@@ -324,7 +324,7 @@ internal static class InventoryDiagramDataFlowTraversalHopApplier
             return string.Join(" · ", evidenceLabels.Distinct(StringComparer.OrdinalIgnoreCase));
         }
 
-        return "Traversal hop";
+        return "Hop evidence was not stored.";
     }
 
     private static InventoryDiagramDataFlowTraversalHopEvidence? ResolveEdgeEvidence(GraphEdge edge)

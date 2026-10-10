@@ -32,7 +32,7 @@ export function formatInfraEvidenceSubscriptionLabel(
 
   const id = subscriptionId?.trim() ?? "";
 
-  if (id.length > 0 && !isUuidLike(id)) {
+  if (id.length > 0) {
     return id;
   }
 

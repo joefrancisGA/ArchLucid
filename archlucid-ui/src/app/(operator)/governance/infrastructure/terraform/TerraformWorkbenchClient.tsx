@@ -699,15 +699,15 @@ export function TerraformWorkbenchClient() {
             <dl className="mt-3 grid gap-2 text-sm">
               <div>
                 <dt className="font-medium">Terraform address</dt>
-                <dd className="font-mono text-xs">{hub.terraformAddress ?? "Not mapped"}</dd>
+                <dd className="font-mono text-xs">{hub.terraformAddress ?? "Terraform address was not stored."}</dd>
               </div>
               <div>
                 <dt className="font-medium">Generation method</dt>
-                <dd>{hub.terraformGenerationMethod ?? "—"}</dd>
+                <dd>{hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}</dd>
               </div>
               <div>
                 <dt className="font-medium">Snapshot</dt>
-                <dd className="font-mono text-xs">{resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "—"}</dd>
+                <dd className="font-mono text-xs">{resolvedSnapshotId.length > 0 ? resolvedSnapshotId : "Inventory snapshot id was not stored."}</dd>
               </div>
             </dl>
             {advisorySnippet != null ? (

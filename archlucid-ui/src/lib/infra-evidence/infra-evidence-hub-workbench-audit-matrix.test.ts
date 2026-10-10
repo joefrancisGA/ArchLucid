@@ -131,6 +131,18 @@ describe("build-advisory-terraform-resource-snippet", () => {
     expect(buildAdvisoryTerraformResourceSnippet(hub)).toContain('resource "azurerm_public_ip" "gateway"');
   });
 
+  it("labels an omitted Terraform generation method explicitly", () => {
+    const hub = {
+      terraformAddress: "azurerm_public_ip.gateway",
+      terraformGenerationMethod: null,
+      externalResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+    } as CloudResourceEvidenceHubResponse;
+
+    expect(buildAdvisoryTerraformResourceSnippet(hub)).toContain(
+      "# generation_method = Terraform generation method was not stored.",
+    );
+  });
+
   it("returns null when terraform address is missing", () => {
     const hub = {
       terraformAddress: null,

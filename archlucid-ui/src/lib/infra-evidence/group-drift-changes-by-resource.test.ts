@@ -90,6 +90,16 @@ describe("group-drift-changes-by-resource", () => {
     expect(findDriftResourceChangeGroupByChangeId(groups, "change-2")?.groupKey).toContain("cloud:");
   });
 
+  it("labels a missing representative property explicitly", () => {
+    const group = buildDriftResourceChangeGroup("cloud:resource", [
+      buildChange("change-1", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm", {
+        property: null,
+      }),
+    ]);
+
+    expect(summarizeDriftResourceGroupProperties(group)).toBe("Property name was not stored.");
+  });
+
   it("sorts grouped rows by representative resource name", () => {
     const groups = groupDriftChangesByResource([
       buildChange("change-b", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-zeta", {

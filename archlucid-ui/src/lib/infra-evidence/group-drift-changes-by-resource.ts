@@ -157,7 +157,7 @@ export function summarizeDriftResourceGroupProperties(
   group: InfraEvidenceDriftResourceChangeGroup,
 ): string {
   if (group.changes.length <= 1) {
-    return group.representativeChange.property ?? "—";
+    return group.representativeChange.property ?? "Property name was not stored.";
   }
 
   const uniqueProperties = new Set(

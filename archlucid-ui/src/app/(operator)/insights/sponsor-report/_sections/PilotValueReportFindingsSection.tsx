@@ -41,14 +41,14 @@ function formatCreatedReviewDate(iso: string | null): string {
 }
 
 function formatReviewDate(iso: string | null): string {
-  if (iso === null || iso.length === 0) {
-    return "Not available";
+  if (iso === null || iso.trim().length === 0) {
+    return "Finalized time was not stored.";
   }
 
   const date = new Date(iso);
 
   if (Number.isNaN(date.getTime())) {
-    return "Not available";
+    return iso;
   }
 
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);

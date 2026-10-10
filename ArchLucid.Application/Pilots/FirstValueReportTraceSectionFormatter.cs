@@ -83,9 +83,9 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Manifest version | `{chain.ManifestVersion ?? "(none)"}` |");
         sb.AppendLine($"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
-        sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId)}` |");
-        sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId)}` |");
-        sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId)}` |");
+        sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
+        sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
+        sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
         sb.AppendLine($"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
         sb.AppendLine($"| Related graph nodes | {chain.RelatedGraphNodeIds.Count} |");
         sb.AppendLine($"| Agent execution traces | {chain.AgentExecutionTraceIds.Count} |");
