@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `core-explanation-json` — reread scalar coercion, structured list/reasoning normalization, and citation/count regressions after the master merge; no new reachable mechanism met the hunt-ready bar. The scoped `RunExplanation` suite passed 47/47; no production code changed.
+
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — repeated the scalar text-token, property-name, and structured list/reasoning review; no distinct reachable wrong outcome was found. The scoped filter again failed at unrelated `ARCH002` before tests executed; no production code changed.
 
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — reread property lookup, scalar coercion, structured list/reasoning extraction, and confidence callout tests; no fresh reachability-backed candidate emerged. The exact `RunExplanation` test filter again stopped at unrelated `ARCH002` before tests ran; no production code changed.
@@ -8656,7 +8658,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 14
 - **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-09-13
