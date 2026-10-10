@@ -7,6 +7,7 @@ import {
   isUsableGoldenManifestExportJson,
 } from "./export-markdown";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 
 describe("isUsableGoldenManifestExportJson", () => {
   it("rejects placeholders and empty objects", () => {
@@ -101,6 +102,54 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**TLS**");
     expect(md).toContain("### Architecture decisions");
     expect(md).toContain("Private endpoints");
+  });
+
+  it("uses explicit stored-value omission copy in manifest and policy exports", () => {
+    const manifestMarkdown = formatGoldenManifestMarkdown({
+      metadata: { manifestVersion: "7" },
+      effectiveGovernanceAtCommit: {
+        hasEffectivePolicy: true,
+        packAssignments: [],
+        coverageAssignments: [
+          {
+            policyPackId: "pack-a",
+            coverageType: null,
+            selectionState: null,
+            qualityDimension: null,
+          },
+        ],
+      },
+    });
+
+    expect(manifestMarkdown).toContain("# Change description was not stored.");
+    expect(manifestMarkdown).toContain("**Review record version:** 7");
+    expect(manifestMarkdown).toContain("Policy pack version was not stored.");
+    expect(manifestMarkdown).toContain("Coverage type was not stored.");
+    expect(manifestMarkdown).toContain("Selection state was not stored.");
+    expect(manifestMarkdown).toContain("Quality dimension was not stored.");
+
+    const lines: string[] = [];
+    pushPolicyAtCommitMarkdownLines(
+      {
+        effectiveGovernanceAtCommit: {
+          hasEffectivePolicy: true,
+          packAssignments: [],
+          coverageAssignments: [
+            {
+              policyPackId: "pack-a",
+              policyPackVersion: "",
+              coverageType: "Unknown",
+              selectionState: "",
+              qualityDimension: "",
+            },
+          ],
+        },
+      },
+      lines,
+    );
+
+    expect(lines.join("\n")).toContain("Coverage `pack-a` ·  · Unknown");
+    expect(lines.join("\n")).not.toContain("v —");
   });
 
   it("includes feasibility verdict section with soft envelope on manifest exports", () => {

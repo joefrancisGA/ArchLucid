@@ -64,6 +64,48 @@ describe("compare-effective-governance-diff", () => {
     expect(snapshot.complianceRuleKeys).toEqual(["sec-base-010"]);
   });
 
+  it("preserves stored empty governance strings and explains omitted values", () => {
+    const snapshot = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: {
+        packAssignments: [{ policyPackId: "pack-a", policyPackVersion: "" }],
+        coverageAssignments: [
+          {
+            policyPackId: "pack-a",
+            policyPackVersion: "",
+            coverageType: "Unknown",
+            selectionState: "",
+            qualityDimension: "",
+          },
+        ],
+        hasEffectivePolicy: true,
+      },
+    });
+
+    expect(snapshot.atCommit?.packAssignments[0]?.policyPackVersion).toBe("");
+    expect(snapshot.atCommit?.coverageAssignments[0]).toMatchObject({
+      policyPackVersion: "",
+      coverageType: "Unknown",
+      selectionState: "",
+      qualityDimension: "",
+    });
+
+    const omitted = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: {
+        packAssignments: [{ policyPackId: "pack-a" }],
+        coverageAssignments: [{ policyPackId: "pack-a" }],
+        hasEffectivePolicy: true,
+      },
+    });
+
+    expect(omitted.atCommit?.packAssignments[0]?.policyPackVersion).toBe("Policy pack version was not stored.");
+    expect(omitted.atCommit?.coverageAssignments[0]).toMatchObject({
+      policyPackVersion: "Policy pack version was not stored.",
+      coverageType: "Coverage type was not stored.",
+      selectionState: "Selection state was not stored.",
+      qualityDimension: "Quality dimension was not stored.",
+    });
+  });
+
   it("prefers policy-at-commit keys over current effective in diff view", () => {
     const effective: EffectivePolicyPackSet = {
       tenantId: "tenant-1",

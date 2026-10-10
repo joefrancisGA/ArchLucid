@@ -318,7 +318,9 @@ export function RunExplanationSection({
   const complianceGapCountForStats = presentRunExplanationHeadlineCount(summary.complianceGapCount);
 
   const expl = explanationBody(summary);
+  const themesMissing = summary.themeSummaries === null || summary.themeSummaries === undefined;
   const themeSummaries = summary.themeSummaries ?? [];
+  const explanationMissing = summary.explanation === null || summary.explanation === undefined;
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
   const riskPostureLabel = summary.riskPosture?.trim() || "Risk posture was not stored.";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
@@ -516,33 +518,49 @@ export function RunExplanationSection({
         <h3 id="doc-explanation-themes" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Themes
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {themeSummaries.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
+        {themesMissing ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Themes were not stored.</p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {themeSummaries.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mb-4">
         <h3 id="doc-explanation-drivers" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Key drivers
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {(expl.keyDrivers ?? []).map((d) => (
-            <li key={d}>{d}</li>
-          ))}
-        </ul>
+        {explanationMissing || expl.keyDrivers === null || expl.keyDrivers === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Key drivers were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.keyDrivers.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mb-4">
         <h3 id="doc-explanation-risks" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Risk implications
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {(expl.riskImplications ?? []).map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
+        {explanationMissing || expl.riskImplications === null || expl.riskImplications === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Risk implications were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.riskImplications.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {prov ? (

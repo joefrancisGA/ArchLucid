@@ -5,6 +5,10 @@ import type {
   CompareEffectiveCoverageAssignmentAtCommitRow,
   CompareEffectiveGovernanceAtCommitSnapshot,
 } from "@/lib/compare-effective-governance-diff";
+import {
+  formatPolicyPackVersion,
+  POLICY_PACK_VERSION_NOT_STORED,
+} from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import {
@@ -20,7 +24,12 @@ export type PolicyAtCommitScopeSummaryProps = {
 };
 
 function formatCoverageRow(row: CompareEffectiveCoverageAssignmentAtCommitRow): string {
-  const packLabel = policyPackBuyerLabel(row.policyPackId, row.policyPackVersion);
+  const packLabel =
+    row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
+      ? `${policyPackBuyerLabel(row.policyPackId, "")} · ${POLICY_PACK_VERSION_NOT_STORED}`
+      : `${policyPackBuyerLabel(row.policyPackId, "")}${
+          row.policyPackVersion.length > 0 ? ` ${formatPolicyPackVersion(row.policyPackVersion)}` : ""
+        }`;
   const parts = [
     packLabel,
     row.qualityDimension,
@@ -108,7 +117,11 @@ export function PolicyAtCommitScopeSummary(
                 <Link className={cn(OPERATOR_LINK.inline, "font-mono", OPERATOR_TYPOGRAPHY.micro)} href={packHref}>
                   {row.policyPackId}
                 </Link>{" "}
-                · v{row.policyPackVersion} · {row.scopeLevel}
+                ·{" "}
+                {row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
+                  ? POLICY_PACK_VERSION_NOT_STORED
+                  : formatPolicyPackVersion(row.policyPackVersion)}{" "}
+                · {row.scopeLevel}
               </li>
             );
           })}

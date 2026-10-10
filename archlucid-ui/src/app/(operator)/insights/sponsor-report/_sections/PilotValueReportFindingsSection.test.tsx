@@ -54,5 +54,9 @@ describe("PilotValueReportFindingsSection", () => {
     expect(screen.getByText("Outcome was not stored")).toBeInTheDocument();
     expect(screen.getByText("Highest severity was not stored")).toBeInTheDocument();
     expect(screen.getByText("Open actions were not stored")).toBeInTheDocument();
+    expect(screen.getByText("Exceptions or waivers were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Recommendations accepted were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Remediation assignments were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Findings remediated were not stored.")).toBeInTheDocument();
   });
 });
