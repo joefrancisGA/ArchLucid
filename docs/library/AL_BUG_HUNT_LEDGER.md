@@ -18825,6 +18825,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-10 seed hunt (seed→hit): `RetrievalIndexingService` removed prior vectors for an empty-content document before validating the batch-wide chunk cap. A later oversized document then threw `MaxChunksPerIndexOperation` after partially mutating the batch, leaving the earlier document unsearchable. Empty-document deletion and catalog updates now occur after cap validation and successful embedding/upsert work. Regression `IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`; 356 scoped retrieval/indexing tests passed. Seeded four follow-up candidates.
+
 2026-10-09 seed hunt (seed-only): re-read retrieval indexing, scope validation, and Azure Search scope-filter boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused retrieval/indexing test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 2026-10-04 seed hunt #53 (seed→hit): reseeded retrieval; proved shrink reindex removed the whole document then re-upserted, so a failed shrink re-upsert left the document with zero searchable chunks after the batch upsert had already written new ordinals; fixed by deleting only stale `{documentId}-chunk-N` ids via `IVectorIndex.RemoveChunkIdsAsync` after the batch upsert; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`; 354 scoped retrieval/indexing tests passed.
@@ -18855,17 +18857,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 55
-- **last-hunt:** 2026-10-09
-- **bugs-found:** 24
+- **hunts:** 56
+- **last-hunt:** 2026-10-10
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-09 — provenance reindex skipped because content hash was only the run id
+- **last-bug:** 2026-10-10 — empty-document reindex deleted prior vectors before a later batch hit the chunk cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): proved `RetrievalDocumentBuilder.BuildForProvenance` hashed only the run id, so `IndexDocumentsAsync` skipped a changed provenance graph on a later index of the same run; hash now includes the serialized graph; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`; 355 scoped retrieval/indexing tests passed.
 
 - [x] (proven) `RetrievalDocumentBuilder.BuildForProvenance` content hash ignores graph bytes — same run id, changed provenance graph — **hit 2026-10-09 seed hunt:** unchanged-document skip kept the first graph searchable; hash now covers serialized graph content; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`.
+- [x] (proven) `RetrievalIndexingService` deletes prior vectors for an empty document before batch chunk-cap validation — **hit 2026-10-10 seed hunt:** an oversized later document threw after the empty reindex had already removed earlier vectors; defer empty-document deletion and catalog mutation until cap validation and embedding/upsert work complete; regression `IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`.
+- [ ] (candidate) `RetrievalDocumentBuilder.BuildForManifest` generates a new random decision id when a manifest decision has no id, so repeated indexing of the same manifest may create unbounded decision document ids.
+- [ ] (candidate) `RetrievalQueryService.ResolveQueryPlanAsync` mutates `AllowedPolicyPackRulePackIds` while resolving platform corpora, so a reused query object may retain assignment state across calls with changed scope.
+- [ ] (candidate) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope, so an empty assigned policy-pack set may still expose non-policy platform documents where callers expect no platform results.
+- [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
 
 2026-10-03 seed hunt (seed-only): repeated the selected retrieval indexing, scope validation, Azure Search filtering, and in-memory catalog review; no new reachable mechanism-backed candidate emerged; 351 focused tests passed.
 
