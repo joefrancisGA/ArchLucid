@@ -153,7 +153,15 @@ export default function GovernanceFindingsQueueClient({
     tenantLastRefreshedAt,
     tenantRefreshing,
   } = queueMode;
-  const bulkActions = useGovernanceFindingsQueueBulkActions({ refresh, mode });
+  const availableFindingIds = useMemo(
+    () => new Set(rows.map((row) => row.findingId)),
+    [rows],
+  );
+  const bulkActions = useGovernanceFindingsQueueBulkActions({
+    refresh,
+    mode,
+    availableFindingIds,
+  });
   const scopedFindingLifecycleCompareHref = resolveScopedFindingLifecycleCompareHref(
     scopedRunId,
     scopedRunContextQuery.data?.priorCommittedRunId,

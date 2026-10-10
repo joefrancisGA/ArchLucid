@@ -34633,21 +34633,23 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 33
-- **bugs-found:** 25
+- **hunts:** 34
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-04 — resource-group disclosure survived group-by off and architecture scope change
+- **last-bug:** 2026-10-10 — stale bulk-selection URL IDs reached the disposition surface
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ABQ-09 churn hotspot.
 
+2026-10-10 thorough hunt (hit): `useGovernanceFindingsQueueBulkActions` restored every URL-supplied `bulkFindings` id without checking the loaded queue, and `GovernanceFindingsBulkActions` submitted those ids directly. A stale selection from another review scope could therefore remain actionable when the queue rows had changed. The hook now intersects URL selections with the active queue's loaded finding ids; regression `drops URL selections that are absent from the active queue`; the focused hook regression passed and UI typecheck passed.
+
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
 
-- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — URL-supplied `bulkFindings` is restored without intersecting the currently loaded queue rows, so a stale selection from another review scope may reach bulk disposition; input: a queue URL retaining `bulkFindings=<id absent from the current risk register>`.
+- [x] (proven) `useGovernanceFindingsQueueBulkActions` — URL-supplied `bulkFindings` was restored without intersecting the currently loaded queue rows, so a stale selection from another review scope reached bulk disposition — **hit 2026-10-10 thorough hunt:** `GovernanceFindingsBulkActions` submits the hook's selected IDs directly; the hook now filters URL selections against the queue's loaded finding IDs and revalidates when the loaded set changes; regression `drops URL selections that are absent from the active queue`.
 - [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — switching between tenant and assigned-to-me routes while `bulkFindings` remains in the URL may preserve selection without a mode-specific validation pass; input: client navigation between `/governance/findings` and `/governance/findings/assigned-to-me` with the same bulk-selection query.
 - [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` is derived after density filtering, so working-mode low-density hiding may skip the earliest loaded finding in the first-finding action; input: a queue with a low-signal first row and a later high-signal row while `hideGeneric=1`.
 - [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — sponsor handoff is derived from `scopedRunId` alone, so an architecture-scoped queue without `runId` may lose the active architecture context in the handoff URL; input: `/governance/findings?architectureId=<reachable-architecture-id>` with no `runId`.
