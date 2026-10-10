@@ -219,6 +219,10 @@ function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
   const remappedHref = SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
 
   if (remappedHref === undefined) {
+    if (link.href === SECURENOW_INFRASTRUCTURE_DRIFT_PATH) {
+      return { ...link, label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL };
+    }
+
     return link;
   }
 
