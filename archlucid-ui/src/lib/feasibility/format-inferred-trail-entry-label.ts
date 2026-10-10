@@ -33,7 +33,7 @@ export function formatInferredTrailEntryLabel(
   findingTrustById?: ReadonlyMap<string, FindingTrustPresentationInput>,
 ): string {
   if (entry.key === null || entry.key === undefined) {
-    return "Inferred trail key was not stored.";
+    return `Inferred trail key was not stored. Value: ${entry.value} (confidence ${entry.confidence})`;
   }
 
   const key = entry.key.trim();
