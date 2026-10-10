@@ -6097,15 +6097,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: storage-vs-data-category
 
 - **id:** storage-vs-data-category
-- **status:** exhausted
+- **status:** open
 - **impact:** medium
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-01
+- **last-hunt:** 2026-10-10
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6149,6 +6149,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 seed hunt #1479 (seed-only): reseeded storage-vs-data-category after exhaustion threshold; cheap-disproof closed Cost controls dedupe and brief-grounding datastore scope candidates; zone marked exhausted; 32 scoped Application tests passed.
 
 2026-10-01 seed hunt (seed-only): reopened by post-commit churn; re-read the two orchestration sources and found no new reachable category/alias candidate; 31 scoped post-processor/consistency-gate tests passed; zone remains exhausted.
+
+2026-10-10 seed hunt (seed-only): reopened after post-commit churn; reread the post-processor and consistency-gate null handling, endpoint claim/alias unions, relationship deferral, and brief-grounding paths. The null-element candidates still lack a confirmed production caller, and no distinct reachable category/alias wrong outcome survived the hunt-ready bar. The scoped post-processor/consistency-gate suite passed 31/31; no production change.
 
 2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
 
