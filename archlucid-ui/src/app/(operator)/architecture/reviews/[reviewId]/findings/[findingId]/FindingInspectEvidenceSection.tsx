@@ -53,7 +53,7 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
     return artifact.replace(/-/g, " ");
   }
 
-  return "Cited evidence";
+  return "Evidence excerpt was not stored.";
 }
 
 function evidenceLinkLabel(row: FindingInspectEvidence, fallbackLabel: string): string {

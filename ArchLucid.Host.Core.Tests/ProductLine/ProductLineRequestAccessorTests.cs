@@ -9,6 +9,8 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Tests.ProductLine;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ProductLineRequestAccessorTests
 {
     [Fact]

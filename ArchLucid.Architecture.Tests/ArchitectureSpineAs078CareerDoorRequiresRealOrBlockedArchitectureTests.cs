@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs078CareerDoorRequiresRealOrBlockedArchite
     [Fact]
     public void As078_gate_blocks_career_on_simulator_host_and_resolves_effective_rehearsal()
     {
-        string gateModule = File.ReadAllText(Path.Combine(RepoRoot, GateModuleRelativePath));
+        string gateModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, GateModuleRelativePath));
 
         gateModule.Should().Contain("resolveWorkingCareerDoorGate");
         gateModule.Should().Contain("resolveEffectiveWorkingCareerRehearsalDoor");
@@ -33,7 +33,7 @@ public sealed class ArchitectureSpineAs078CareerDoorRequiresRealOrBlockedArchite
     [Fact]
     public void As078_chooser_wires_gate_and_blocked_dialog()
     {
-        string chooser = File.ReadAllText(Path.Combine(RepoRoot, ChooserRelativePath));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ChooserRelativePath));
 
         chooser.Should().Contain("useWorkingCareerDoorGate");
         chooser.Should().Contain("WorkingCareerDoorBlockedDialog");
@@ -45,7 +45,7 @@ public sealed class ArchitectureSpineAs078CareerDoorRequiresRealOrBlockedArchite
     [Fact]
     public void As078_blocked_dialog_offers_rehearsal_and_platform_settings_ctas()
     {
-        string dialog = File.ReadAllText(Path.Combine(RepoRoot, BlockedDialogRelativePath));
+        string dialog = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, BlockedDialogRelativePath));
 
         dialog.Should().Contain("WORKING_CAREER_DOOR_SWITCH_TO_REHEARSAL_ACTION");
         dialog.Should().Contain("WORKING_CAREER_DOOR_OPEN_PLATFORM_SETTINGS_ACTION");

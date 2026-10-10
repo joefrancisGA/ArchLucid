@@ -14,16 +14,16 @@ public sealed class CareerGravityCg098ChangelogInAppNotRequiredArchitectureTests
     [Fact]
     public void Cg098_records_changelog_as_not_shipped_residual()
     {
-        string residuals = File.ReadAllText(
+        string residuals = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "lib",
                 "career-gravity-out-of-wave-residuals.ts"));
-        string doc = File.ReadAllText(
+        string doc = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "CAREER_GRAVITY_OUT_OF_WAVE_RESIDUALS.md"));
-        string prompts = File.ReadAllText(
+        string prompts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "CAREER_GRAVITY_COMPOSER_PROMPTS.md"));
 
         residuals.Should().Contain("CG-098");

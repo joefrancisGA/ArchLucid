@@ -4,11 +4,13 @@ using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.User;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
@@ -41,7 +43,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         detail.Run.StructuralExecutionMode = StructuralExecutionMode.Simulator;
 
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         PilotRunDeltas computed = new()
@@ -64,10 +66,10 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
         FirstValueReportBuilder builder = CreateSut(query.Object, deltas.Object);
-        string? markdown = await builder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await builder.BuildMarkdownAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
-        markdown.Should().Contain("r1");
+        markdown.Should().Contain("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007");
         markdown.Should().Contain("v2");
         markdown.Should().Contain("ROI and cost source classification");
         markdown.Should().Contain("BenchmarkAssumption");
@@ -109,7 +111,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain = new FindingEvidenceChainResponse
             {
-                RunId = "r1",
+                RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007",
                 FindingId = "top-finding-id",
                 ManifestVersion = "v2",
                 FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
@@ -120,7 +122,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         ArchitectureRunDetail? capturedDetail = null;
 
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
@@ -132,7 +134,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             query.Object,
             deltas.Object,
             sponsorSafeBaselines: true);
-        string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await markdownBuilder.BuildMarkdownAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain("Simulator");
@@ -176,27 +178,27 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             scorecard,
             deltas.Object,
             markdownBuilder,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyManifestHash(),
             scope.Object,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
-            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyConfiguration(),
             site.Object);
-        byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
+        byte[]? pdf = await pdfBuilder.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
         pdf!.Length.Should().BeGreaterThan(32);
         pdf.AsSpan(0, 4).ToArray().Should().Equal([(byte)'%', (byte)'P', (byte)'D', (byte)'F']);
 
         capturedDetail.Should().NotBeNull();
-        capturedDetail!.Run.RunId.Should().Be("r1");
+        capturedDetail!.Run.RunId.Should().Be("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007");
         capturedDetail.Run.StructuralExecutionMode.Should().Be(StructuralExecutionMode.Simulator);
 
         deltas.Verify(
-            d => d.ComputeAsync(It.Is<ArchitectureRunDetail>(x => x.Run.RunId == "r1"), It.IsAny<CancellationToken>()),
+            d => d.ComputeAsync(It.Is<ArchitectureRunDetail>(x => x.Run.RunId == "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007"), It.IsAny<CancellationToken>()),
             Times.Exactly(3));
     }
 
@@ -207,7 +209,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
         detail.Run.StructuralExecutionMode = StructuralExecutionMode.Simulator;
 
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         PilotRunDeltas computed = new()
@@ -241,7 +243,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             null);
 
         FirstValueReportBuilder builder = CreateSut(query.Object, deltas.Object, holdRawMetrics);
-        string? markdown = await builder.BuildMarkdownAsync("r1", "http://localhost:5000");
+        string? markdown = await builder.BuildMarkdownAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007", "http://localhost:5000");
 
         markdown.Should().NotBeNullOrWhiteSpace();
         markdown.Should().Contain("| ROI claim gate | **HOLD**");
@@ -334,7 +336,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "r1",
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007",
             SystemName = "test-system",
             Metadata = new ManifestMetadata
             {
@@ -345,12 +347,13 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
 
         ArchitectureRun run = new()
         {
-            RunId = "r1",
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0007",
             RequestId = "req1",
             Status = ArchitectureRunStatus.Committed,
             CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
             CurrentManifestVersion = "v2",
             StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
         };
 
         return new ArchitectureRunDetail
@@ -421,6 +424,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
                 {
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:DeploymentName"] = sponsorSafeBaselines ? "gpt-test" : null,
+                    [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "true",
                 })
             .Build();
 
@@ -458,10 +462,10 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyManifestHash(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);

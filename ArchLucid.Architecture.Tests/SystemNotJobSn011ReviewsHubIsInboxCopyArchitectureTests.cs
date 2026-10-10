@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn011ReviewsHubIsInboxCopyArchitectureTests
     [Fact]
     public void Sn011_inbox_copy_module_names_inbox_caption_and_alt_r()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-reviews-hub-inbox-copy.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_WORKING_REVIEWS_HUB_INBOX_CAPTION");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn011ReviewsHubIsInboxCopyArchitectureTests
     [Fact]
     public void Sn011_reviews_hub_page_header_wires_working_inbox_caption()
     {
-        string header = File.ReadAllText(
+        string header = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -45,7 +45,7 @@ public sealed class SystemNotJobSn011ReviewsHubIsInboxCopyArchitectureTests
     [Fact]
     public void Sn011_vitest_ratchet_names_inbox_and_adr_0079()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-reviews-hub-inbox-copy.test.ts"));
 
         test.Should().Contain("SN-011");

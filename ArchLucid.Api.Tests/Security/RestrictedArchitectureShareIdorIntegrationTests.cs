@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests.Security;
 
-/// <summary>AS-091: same-tenant workspace reader without share cannot read restricted architecture surfaces.</summary>
+/// <summary>AS-091 / AS-095: same-tenant workspace reader without share cannot read restricted architecture surfaces (404, not 403).</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
@@ -82,9 +82,9 @@ public sealed class RestrictedArchitectureShareIdorIntegrationTests(RestrictedAr
 
         using HttpResponseMessage response = await send(client);
 
-        response.StatusCode.Should().BeOneOf(
-            [HttpStatusCode.NotFound, HttpStatusCode.Forbidden],
-            because: $"{routeFamily} must not resolve for same-tenant principals without architecture share.");
+        response.StatusCode.Should().Be(
+            HttpStatusCode.NotFound,
+            because: $"{routeFamily} must return 404 (AS-095), not 403, for same-tenant principals without architecture share.");
 
         string body = await response.Content.ReadAsStringAsync();
         body.Should().NotContain(RestrictedArchitectureShareIdorSeedFixture.SecretDisplayName);

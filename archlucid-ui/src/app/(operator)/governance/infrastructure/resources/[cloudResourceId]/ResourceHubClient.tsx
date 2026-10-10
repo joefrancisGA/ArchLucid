@@ -1457,12 +1457,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <CollapsibleSection
                     title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
                     sectionTestId="infra-resource-hub-terraform-address-disclosure"
-                    summaryLine={hub.terraformAddress ?? "Not mapped"}
+                    summaryLine={hub.terraformAddress ?? "Terraform address was not stored."}
                     open={infraResourceHubTechnicalKey === "terraformAddress"}
                     onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
                   >
                     <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {hub.terraformAddress ?? "Not mapped"}
+                      {hub.terraformAddress ?? "Terraform address was not stored."}
                     </p>
                   </CollapsibleSection>
                 ) : (
@@ -1471,7 +1471,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     The advisory address used to identify this resource in Terraform.
                   </dd>
-                    <dd className="font-mono text-xs">{hub.terraformAddress ?? "Not mapped"}</dd>
+                    <dd className="font-mono text-xs">{hub.terraformAddress ?? "Terraform address was not stored."}</dd>
                   </div>
                 )}
                 <div>
@@ -1479,7 +1479,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                     How this Terraform mapping was produced from captured evidence.
                   </dd>
-                  <dd>{hub.terraformGenerationMethod ?? "—"}</dd>
+                  <dd>{hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}</dd>
                 </div>
               </dl>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">

@@ -15,13 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion231_ask_fail_closed_on_sealed_manifest_pin_inventory()
     {
-        string preparer = File.ReadAllText(
+        string preparer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskContextPreparer.cs"));
-        string askService = File.ReadAllText(
+        string askService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Ask", "AskGroundedRunSealedManifestGuard.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.cs"));
 
         preparer.Should().Contain("AskGroundedRunSealedManifestGuard");
@@ -34,13 +34,13 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion232_advisory_scan_fail_closed_on_sealed_manifest_hash()
     {
-        string scheduleCore = File.ReadAllText(
+        string scheduleCore = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Advisory",
                 "AdvisoryScanRunner.ScheduleCore.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Advisory", "AdvisoryScanSealedManifestGuard.cs"));
 
         scheduleCore.Should().Contain("AdvisoryScanSealedManifestGuard");
@@ -50,11 +50,11 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion233_one_pager_run_summary_docx_fail_closed_on_sealed_receipt()
     {
-        string sponsorPdf = File.ReadAllText(
+        string sponsorPdf = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "SponsorOnePagerPdfBuilder.cs"));
-        string runSummary = File.ReadAllText(
+        string runSummary = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "RunSummaryOnePagerExportService.cs"));
-        string docx = File.ReadAllText(
+        string docx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
 
         sponsorPdf.Should().Contain("EnsureSealedExportReceiptVerifiedOrThrowAsync");
@@ -65,9 +65,9 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion234_traceability_bundle_fail_closed_on_sealed_receipt()
     {
-        string builder = File.ReadAllText(
+        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Traceability", "TraceabilityBundleBuilder.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -81,7 +81,7 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion235_ui_downloads_reject_json_problem_bodies()
     {
-        string reports = File.ReadAllText(
+        string reports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -89,7 +89,7 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
                 "lib",
                 "api",
                 "downloads-blob-trigger-reports.ts"));
-        string scopedProxy = File.ReadAllText(
+        string scopedProxy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -108,7 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion236_risk_exception_create_renew_fail_closed_on_sealed_hash()
     {
-        string riskExceptions = File.ReadAllText(
+        string riskExceptions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -124,7 +124,7 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion237_itsm_outbound_fail_closed_on_sealed_hash_and_inventory()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -132,7 +132,7 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
                 "Itsm",
                 "Outbound",
                 "ItsmOutboundIssueCreationService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -149,19 +149,19 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion238_incremental_re_review_coordinators_use_pin_gate()
     {
-        string clarification = File.ReadAllText(
+        string clarification = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "ArchitectureIntelligence",
                 "ClarificationAnswerReReviewCoordinator.cs"));
-        string recommendation = File.ReadAllText(
+        string recommendation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "ArchitectureIntelligence",
                 "RecommendationImproveLoopCoordinator.cs"));
-        string evidenceAdded = File.ReadAllText(
+        string evidenceAdded = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -176,14 +176,14 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion239_run_explain_and_finding_ask_fail_closed_on_sealed_hash()
     {
-        string explain = File.ReadAllText(
+        string explain = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "ExplanationController.RunExplain.cs"));
-        string findingAsk = File.ReadAllText(
+        string findingAsk = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -198,13 +198,13 @@ public sealed class ArchitectureReviewRobustnessWave24ArchitectureTests
     [Fact]
     public void Suggestion240_export_get_diff_replay_fail_closed_on_sealed_hash_and_lineage()
     {
-        string facade = File.ReadAllText(
+        string facade = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportQueryFacade.cs"));
-        string replay = File.ReadAllText(
+        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "ExportReplayService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportSealedManifestHashGuard.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
 
         facade.Should().Contain("RunExportSealedManifestHashGuard");

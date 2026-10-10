@@ -11,5 +11,5 @@ namespace ArchLucid.Application.Configuration;
 public sealed record InsightDensityTenantFlagOverride(bool IsOverridden, bool Value)
 {
     /// <summary>No tenant value stored — inherit the execution-mode default.</summary>
-    public static InsightDensityTenantFlagOverride Absent { get; } = new(IsOverridden: false, Value: false);
+    public static readonly InsightDensityTenantFlagOverride Absent = new(IsOverridden: false, Value: false);
 }

@@ -110,7 +110,8 @@ export function CompareResultsPanelVerdictChrome({
   } = viewModel;
   const legacyCompareBlockedReason = compareRunPairBlockedReason(legacyFailure);
   const goldenCompareBlockedReason = compareRunPairBlockedReason(goldenFailure);
-  const aiCompareBlockedReason = compareExplainMutationBlockedReason(aiFailure);
+  const aiCompareBlockedReason =
+    compareRunPairBlockedReason(aiFailure) ?? compareExplainMutationBlockedReason(aiFailure);
 
   return (
     <>

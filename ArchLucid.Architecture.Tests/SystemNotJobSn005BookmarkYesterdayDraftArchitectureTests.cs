@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn005BookmarkYesterdayDraftArchitectureTests
     [Fact]
     public void Sn005_working_back_href_declares_spawn_locked_draft_back_helpers()
     {
-        string workingBackHref = File.ReadAllText(
+        string workingBackHref = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "working-back-href.ts"));
 
         workingBackHref.Should().Contain("resolveSpawnLockedDraftBackLocator");
@@ -25,9 +25,9 @@ public sealed class SystemNotJobSn005BookmarkYesterdayDraftArchitectureTests
     [Fact]
     public void Sn005_handoff_and_workspace_wire_spawn_lock_back_honesty()
     {
-        string handoffPanel = File.ReadAllText(
+        string handoffPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "architecture", "ArchitectureDraftHandoffPanel.tsx"));
-        string vitest = File.ReadAllText(
+        string vitest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-spawn-lock-draft-back.test.ts"));
 
         handoffPanel.Should().Contain("architecture-draft-spawn-lock-back-honesty");

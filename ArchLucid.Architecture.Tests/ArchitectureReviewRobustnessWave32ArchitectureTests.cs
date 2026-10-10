@@ -15,31 +15,31 @@ public sealed class ArchitectureReviewRobustnessWave32ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_escalation_scanner_publisher_job_wiring()
     {
-        string scanner = File.ReadAllText(
+        string scanner = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Governance",
                 "ComplianceDriftEscalationScanner.cs"));
-        string publishing = File.ReadAllText(
+        string publishing = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Governance",
                 "ComplianceDriftIntegrationEventPublishing.cs"));
-        string hosted = File.ReadAllText(
+        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Core",
                 "Hosted",
                 "ComplianceDriftEscalationHostedService.cs"));
-        string job = File.ReadAllText(
+        string job = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Core",
                 "Jobs",
                 "ComplianceDriftEscalationArchLucidJob.cs"));
-        string composition = File.ReadAllText(
+        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -60,9 +60,9 @@ public sealed class ArchitectureReviewRobustnessWave32ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_escalation_leader_lease_and_job_slug()
     {
-        string leaseNames = File.ReadAllText(
+        string leaseNames = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Hosted", "HostElectionLeaseNames.cs"));
-        string jobNames = File.ReadAllText(
+        string jobNames = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Jobs", "ArchLucidJobNames.cs"));
 
         leaseNames.Should().Contain("ComplianceDriftEscalationPolling");

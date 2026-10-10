@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 

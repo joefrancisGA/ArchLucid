@@ -172,7 +172,7 @@ public sealed class TenantHomepageSettingsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         bool isIdenticalRetry = before.IsConfigured && before.SelectedRunId == body.SelectedRunId.Value;

@@ -53,7 +53,7 @@ public sealed partial class ReviewsDemoController(OperatorDemoReviewService oper
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 }

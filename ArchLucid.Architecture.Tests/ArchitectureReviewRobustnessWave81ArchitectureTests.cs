@@ -15,91 +15,91 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
     [Fact]
     public void Suggestion957_963_finding_audit_precommit_and_infra_audit_openapi_409()
     {
-        string findingAssignment = File.ReadAllText(
+        string findingAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingRemediationAssignmentController.cs"));
-        string findingAssignmentGuard = File.ReadAllText(
+        string findingAssignmentGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingRemediationAssignmentController.SealedManifestGuard.cs"));
-        string auditExport = File.ReadAllText(
+        string auditExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Admin",
                 "AuditController.Export.Download.cs"));
-        string auditCsv = File.ReadAllText(
+        string auditCsv = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Admin",
                 "AuditController.Export.Csv.cs"));
-        string auditGuard = File.ReadAllText(
+        string auditGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Admin",
                 "AuditController.SealedManifestGuard.cs"));
-        string preCommit = File.ReadAllText(
+        string preCommit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernancePreCommitSimulationController.cs"));
-        string preCommitGuard = File.ReadAllText(
+        string preCommitGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernancePreCommitSimulationController.SealedManifestGuard.cs"));
-        string infraAsk = File.ReadAllText(
+        string infraAsk = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "InfraEvidenceAskController.cs"));
-        string infraAskGuard = File.ReadAllText(
+        string infraAskGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "InfraEvidenceAskController.SealedManifestGuard.cs"));
-        string auditLineage = File.ReadAllText(
+        string auditLineage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "AuditEvidenceLineageController.cs"));
-        string auditLineageGuard = File.ReadAllText(
+        string auditLineageGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "AuditEvidenceLineageController.SealedManifestGuard.cs"));
-        string auditPackage = File.ReadAllText(
+        string auditPackage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "InfraEvidence",
                 "AuditEvidencePackageController.cs"));
-        string auditPackageGuard = File.ReadAllText(
+        string auditPackageGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -125,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
     [Fact]
     public void Suggestion964_967_audit_package_board_pack_and_findings_csv_blocked_reason_wiring()
     {
-        string packageBlocked = File.ReadAllText(
+        string packageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -133,7 +133,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "lib",
                 "governance",
                 "audit-evidence-package-blocked-reason.ts"));
-        string packageApi = File.ReadAllText(
+        string packageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -141,7 +141,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "lib",
                 "governance",
                 "audit-evidence-package-api.ts"));
-        string lineageClient = File.ReadAllText(
+        string lineageClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -156,7 +156,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "controls",
                 "[controlId]",
                 "AuditEvidenceControlLineageClient.tsx"));
-        string boardPackApi = File.ReadAllText(
+        string boardPackApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -164,7 +164,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "lib",
                 "api",
                 "sponsor-roi-board-pack-api.ts"));
-        string findingsCsvBlocked = File.ReadAllText(
+        string findingsCsvBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -172,7 +172,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "lib",
                 "findings",
                 "run-findings-csv-export-blocked-reason.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
 
         packageBlocked.Should().Contain("auditEvidencePackageBlockedReason");
@@ -186,7 +186,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
     [Fact]
     public void Suggestion968_sponsor_roi_summary_blocked_reason_wiring()
     {
-        string summaryBlocked = File.ReadAllText(
+        string summaryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -194,7 +194,7 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
                 "lib",
                 "roi",
                 "sponsor-roi-summary-blocked-reason.ts"));
-        string summarySection = File.ReadAllText(
+        string summarySection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

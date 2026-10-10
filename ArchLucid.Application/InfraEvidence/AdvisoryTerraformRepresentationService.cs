@@ -6,6 +6,7 @@ using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence;
 

@@ -14,18 +14,18 @@ public sealed class CareerGravityCg037DigestAsCareerArchitectureTests
     [Fact]
     public void Cg037_exec_digest_wires_career_honesty_presenter()
     {
-        string presenter = File.ReadAllText(
+        string presenter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestCareerHonestyPresenter.cs"));
-        string composer = File.ReadAllText(
+        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestComposer.cs"));
-        string dispatcher = File.ReadAllText(
+        string dispatcher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Notifications",
                 "Email",
                 "ExecDigestEmailDispatcher.cs"));
-        string sponsorPanel = File.ReadAllText(
+        string sponsorPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -47,7 +47,7 @@ public sealed class CareerGravityCg037DigestAsCareerArchitectureTests
     [Fact]
     public void Cg037_docs_record_digest_rehearsal_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-037");

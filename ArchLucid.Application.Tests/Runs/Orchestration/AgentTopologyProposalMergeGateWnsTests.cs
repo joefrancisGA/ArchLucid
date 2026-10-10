@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateWnsTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "wn-1", label: "wns", sourceId: "azurerm_wns.main"));
+            ComputeNode(nodeId: "wn-1", label: "wns", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-wns")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

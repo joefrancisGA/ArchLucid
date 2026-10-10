@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-098");
         source.Should().Contain("second tenant");
@@ -48,8 +48,8 @@ public sealed class ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTe
             "help",
             "help-topic-view-resolver-operate.tsx");
 
-        File.ReadAllText(loader).Should().Contain("architecture-sharing");
-        File.ReadAllText(resolver).Should().Contain("HelpArchitectureShareRestrictGuideView");
+        ArchitectureSourceProbe.ReadPathWithPartials(loader).Should().Contain("architecture-sharing");
+        ArchitectureSourceProbe.ReadPathWithPartials(resolver).Should().Contain("HelpArchitectureShareRestrictGuideView");
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-098");
         source.Should().Contain("ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTests");

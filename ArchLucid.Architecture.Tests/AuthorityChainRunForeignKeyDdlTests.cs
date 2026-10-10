@@ -17,7 +17,7 @@ public sealed class AuthorityChainRunForeignKeyDdlTests
     [Fact]
     public void ArchLucid_sql_contains_RunId_foreign_keys_for_authority_headers()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
 
         foreach (string name in new[] { "FK_ContextSnapshots_Runs_RunId", "FK_GraphSnapshots_Runs_RunId", "FK_FindingsSnapshots_Runs_RunId", "FK_GoldenManifests_Runs_RunId" })
         {

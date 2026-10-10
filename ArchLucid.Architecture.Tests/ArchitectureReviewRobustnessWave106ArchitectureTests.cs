@@ -15,21 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
     [Fact]
     public void Suggestion1257_1258_graph_review_and_temporal_snapshot_sealed_manifest_mappers()
     {
-        string reviewGraph = File.ReadAllText(
+        string reviewGraph = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "GraphController.ReviewGraph.cs"));
-        string snapshot = File.ReadAllText(
+        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "GraphController.Snapshot.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -45,35 +45,35 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
     [Fact]
     public void Suggestion1259_1263_run_query_explanation_and_coverage_sealed_manifest_mappers()
     {
-        string runDetail = File.ReadAllText(
+        string runDetail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunQueryController.Detail.cs"));
-        string provenance = File.ReadAllText(
+        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunQueryController.Provenance.cs"));
-        string runExplain = File.ReadAllText(
+        string runExplain = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "ExplanationController.RunExplain.cs"));
-        string findingExplain = File.ReadAllText(
+        string findingExplain = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "ExplanationController.FindingExplain.cs"));
-        string runCoverage = File.ReadAllText(
+        string runCoverage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -91,9 +91,9 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
     [Fact]
     public void Suggestion1264_1268_advisory_clarification_attestation_disposition_and_archive_blocked_reason_wiring()
     {
-        string advisoryApi = File.ReadAllText(
+        string advisoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory-api.ts"));
-        string advisoryBlocked = File.ReadAllText(
+        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -101,7 +101,7 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "advisory",
                 "advisory-recommendation-apply-mutation-blocked-reason.ts"));
-        string clarificationApi = File.ReadAllText(
+        string clarificationApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -109,7 +109,7 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "api",
                 "knowledge-model-clarification-api.ts"));
-        string clarificationBlocked = File.ReadAllText(
+        string clarificationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "runs",
                 "clarification-answers-mutation-blocked-reason.ts"));
-        string attestationApi = File.ReadAllText(
+        string attestationApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -125,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "api",
                 "governance-stickiness-api-exceptions-schedules.ts"));
-        string attestationBlocked = File.ReadAllText(
+        string attestationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -133,9 +133,9 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "governance",
                 "realized-value-attestation-mutation-blocked-reason.ts"));
-        string dispositionApi = File.ReadAllText(
+        string dispositionApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string dispositionBlocked = File.ReadAllText(
+        string dispositionBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -143,9 +143,9 @@ public sealed class ArchitectureReviewRobustnessWave106ArchitectureTests
                 "lib",
                 "runs",
                 "run-operator-governance-disposition-mutation-blocked-reason.ts"));
-        string archiveApi = File.ReadAllText(
+        string archiveApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "policy-packs-api-assign.ts"));
-        string archiveBlocked = File.ReadAllText(
+        string archiveBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

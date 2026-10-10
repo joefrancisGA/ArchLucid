@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateXafTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "xa-1", label: "xaf", sourceId: "azurerm_xaf.main"));
+            ComputeNode(nodeId: "xa-1", label: "xaf", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-xaf")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

@@ -1,6 +1,8 @@
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_TITLE = "Architecture sharing" as const;
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_HELPER =
-  "Restrict-to-shares hides this package from workspace members who are not on the share list. Sharing stays inside this tenant." as const;
+  "Restrict-to-shares hides this package from workspace members who are not on the share list. Sharing stays inside this tenant. SCIM groups are not supported." as const;
+export const ARCHITECTURE_IDENTITY_DESK_SHARE_USERS_ONLY_HELPER =
+  "Architecture shares target users only. SCIM groups are not supported in this wave." as const;
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_LOADING_LABEL = "Loading share settings…" as const;
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_ERROR_LABEL = "Could not load share settings." as const;
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_RETRY_LABEL = "Retry" as const;

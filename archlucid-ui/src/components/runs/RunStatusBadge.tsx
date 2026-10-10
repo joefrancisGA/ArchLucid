@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { useWorkingCareerRehearsalIntent } from "@/components/governance/WorkingCareerRehearsalIntentProvider";
 import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -31,6 +32,9 @@ export function RunStatusBadge({ run, className, finalizeHonesty }: RunStatusBad
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const workingDesk = useProductionDeskChrome();
   const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
+  const workingCareerRehearsalIntent = run.workingCareerRehearsalDoor;
+  void workingCareerRehearsalIntent;
+  void useWorkingCareerRehearsalIntent;
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const presentation = resolveRunPipelineStatusPresentation({
     run,

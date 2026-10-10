@@ -104,6 +104,11 @@ const HelpArchitectureSharingGuideView = dynamic(() =>
     (module) => module.HelpArchitectureSharingGuideView,
   ),
 );
+const HelpArchitectureShareRestrictGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureShareRestrictGuideView").then(
+    (module) => module.HelpArchitectureShareRestrictGuideView,
+  ),
+);
 const HelpCareerRehearsalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpCareerRehearsalGuideView").then(
     (module) => module.HelpCareerRehearsalGuideView,
@@ -481,7 +486,7 @@ export function tryResolveOperateHelpTopicView(
     return <HelpCareerRehearsalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "architecture-sharing") {
-    return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+    return <HelpArchitectureShareRestrictGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "security-evidence-paths") {
     return <HelpSecurityEvidencePathsGuideView entry={loaded.entry} markdown={loaded.markdown} />;

@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion513_515_audit_export_and_finding_explainability()
     {
-        string auditExportHook = File.ReadAllText(
+        string auditExportHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -26,11 +26,11 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "audit",
                 "_sections",
                 "use-audit-page-export.ts"));
-        string findingExplainDialog = File.ReadAllText(
+        string findingExplainDialog = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingExplainabilityDialog.tsx"));
-        string findingExplainBlockedReason = File.ReadAllText(
+        string findingExplainBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "finding-explain-blocked-reason.ts"));
-        string findingExplainability = File.ReadAllText(
+        string findingExplainability = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
 
         auditExportHook.Should().Contain("auditExportBlockedReason");
@@ -45,9 +45,9 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion516_517_openapi_409_declarations()
     {
-        string signedReviewRecord = File.ReadAllText(
+        string signedReviewRecord = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string artifactExports = File.ReadAllText(
+        string artifactExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
 
         signedReviewRecord.Should().Contain("GetRunGoldenManifest");
@@ -61,17 +61,17 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion518_521_export_409_and_anchor_consolidation()
     {
-        string auditEvidencePackage = File.ReadAllText(
+        string auditEvidencePackage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "audit-evidence-package-api.ts"));
-        string pilotsCollateral = File.ReadAllText(
+        string pilotsCollateral = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "pilots-collateral-download-api.ts"));
-        string emailRunToSponsor = File.ReadAllText(
+        string emailRunToSponsor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
-        string shareReviewPackage = File.ReadAllText(
+        string shareReviewPackage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ShareReviewPackageButton.tsx"));
-        string compareRuns = File.ReadAllText(
+        string compareRuns = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string sponsorRoi = File.ReadAllText(
+        string sponsorRoi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -97,9 +97,9 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion522_524_artifact_preview_and_bundle_downloads()
     {
-        string artifactPreview = File.ReadAllText(
+        string artifactPreview = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-artifacts.ts"));
-        string infraAskBlockedReason = File.ReadAllText(
+        string infraAskBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -107,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "lib",
                 "infra-evidence",
                 "infra-evidence-ask-blocked-reason.ts"));
-        string infraAskClient = File.ReadAllText(
+        string infraAskClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -118,11 +118,11 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "infrastructure",
                 "ask",
                 "InfrastructureAskClient.tsx"));
-        string artifactBundleTrigger = File.ReadAllText(
+        string artifactBundleTrigger = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-artifact-bundle.ts"));
-        string manifestBuyerBundle = File.ReadAllText(
+        string manifestBuyerBundle = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestBuyerBundleDownloadSection.tsx"));
-        string runDetailArtifacts = File.ReadAllText(
+        string runDetailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -134,7 +134,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailArtifactsExportsSection.tsx"));
-        string runDetailActions = File.ReadAllText(
+        string runDetailActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

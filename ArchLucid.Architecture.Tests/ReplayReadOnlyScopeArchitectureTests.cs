@@ -63,7 +63,7 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
         string commitStagePath = Path.Combine(root, "ArchLucid.Application", "Replay", "ReplayRunCommitStage.cs");
         File.Exists(commitStagePath).Should().BeTrue("ReplayRunCommitStage must exist under ArchLucid.Application/Replay.");
 
-        string source = File.ReadAllText(commitStagePath);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(commitStagePath);
         // Collapse whitespace so multiline PersistCommittedChainAsync calls still match.
         string compact = System.Text.RegularExpressions.Regex.Replace(source, @"\s+", " ");
 

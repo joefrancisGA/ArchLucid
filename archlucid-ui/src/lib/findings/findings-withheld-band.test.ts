@@ -74,6 +74,23 @@ describe("findings-withheld-band (DR-02)", () => {
     expect(buildWithheldFindingDeepLink("run-1", rows[0]!)).toContain("reviewTab=findings");
   });
 
+  it("labels a missing origin engine explicitly", () => {
+    const rows = resolveFindingsWithheldRows({
+      run: { runId: "run-1" },
+      findingsSnapshot: {
+        withheldFindings: [
+          {
+            withheldFindingId: "missing-engine",
+            reason: "prose-only-emission",
+            title: "Missing engine",
+          },
+        ],
+      },
+    } as never);
+
+    expect(rows[0]?.originEngineType).toBe("Origin engine was not stored.");
+  });
+
   it("parses compliance tag prose quarantine rows", () => {
     const rows = resolveFindingsWithheldRows({
       run: { runId: "run-1" },

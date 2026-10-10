@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn021RunIdNotInWorkingPrimaryChromeArchitectureT
     [Fact]
     public void Sn021_module_names_working_primary_list_title_resolver()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -30,7 +30,7 @@ public sealed class SystemNotJobSn021RunIdNotInWorkingPrimaryChromeArchitectureT
     [Fact]
     public void Sn021_disambiguator_suppresses_run_id_suffix_in_working_mode()
     {
-        string disambiguator = File.ReadAllText(
+        string disambiguator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "operator", "run-home-list-disambiguator.ts"));
 
         disambiguator.Should().Contain("workingMode");
@@ -40,7 +40,7 @@ public sealed class SystemNotJobSn021RunIdNotInWorkingPrimaryChromeArchitectureT
     [Fact]
     public void Sn021_vitest_ratchet_names_working_hub_inventory_and_guided_fallback()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

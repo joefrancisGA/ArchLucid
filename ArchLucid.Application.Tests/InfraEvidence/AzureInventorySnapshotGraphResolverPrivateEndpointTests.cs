@@ -156,8 +156,125 @@ public sealed class AzureInventorySnapshotGraphResolverPrivateEndpointTests
             && edge.FromNodeId.Contains("kv-a", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Theory]
+    [InlineData("privateLinkServiceId")]
+    [InlineData("privateLinkServiceId[0]")]
+    [InlineData("PRIVATELINKSERVICEID[12]")]
+    public async Task Property_only_target_retains_placeholder_typed_edge_and_evidence(string key)
+    {
+        Guid rowId = Guid.NewGuid();
+        const string peId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a";
+        const string targetId = "/subscriptions/remote/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a";
+        AzureInventoryResourceRecord owner = new()
+        {
+            ResourceRowId = rowId, AzureResourceId = peId, ResourceType = "Microsoft.Network/privateEndpoints",
+            SourceEvidenceReference = "inventory/resources.json#pe-a",
+        };
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot([owner],
+            [new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = key, PropertyValue = targetId }], []);
+        var graph = (await ResolveAsync(snapshot)).Graph!;
+        var target = graph.Nodes.Single(node => string.Equals(node.SourceId, targetId, StringComparison.OrdinalIgnoreCase));
+        target.Properties["inventory.collectionStatus"].Should().Be("referenced-not-collected");
+        var edge = graph.Edges.Single(candidate => candidate.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+        edge.ToNodeId.Should().Be(target.NodeId);
+        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryPrivateEndpoint);
+        edge.ProvenanceKind.Should().Be(nameof(ProvenanceKind.DeterministicInference));
+        edge.Properties["evidence.propertyKey"].Should().Be(key);
+        edge.Properties["evidence.resourceRowId"].Should().Be(rowId.ToString("D"));
+        edge.Properties["evidence.targetArmId"].Should().Be(ArmResourceIdNormalizer.Normalize(targetId));
+        edge.Properties["evidence.sourceReference"].Should().Be(owner.SourceEvidenceReference);
+        graph.Edges.Should().NotContain(candidate => candidate.InferenceSource == GraphEdgeInferenceSources.InventoryPropertyArmId);
+        var ast = new DiagramAstFromGraphCompiler().Compile(graph, DiagramMode.FullSubscription);
+        ast.Nodes.Should().Contain(node => node.Label.Contains("Referenced; details not collected", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Redacted_private_link_property_emits_no_edge_or_placeholder(bool collected)
+    {
+        Guid rowId = Guid.NewGuid();
+        const string peId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a";
+        const string targetId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a";
+        var owner = CreateResource(rowId, peId, "Microsoft.Network/privateEndpoints");
+        var resources = collected
+            ? new[] { owner, CreateResource(Guid.NewGuid(), targetId, "Microsoft.Storage/storageAccounts") }
+            : new[] { owner };
+        var snapshot = CreateSnapshot(resources,
+            [new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = "privateLinkServiceId", PropertyValue = targetId, IsRedacted = true }], []);
+        var graph = (await ResolveAsync(snapshot)).Graph!;
+        graph.Nodes.Should().NotContain(node => node.Properties.ContainsKey("inventory.collectionStatus"));
+        graph.Edges.Should().NotContain(edge => edge.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget || edge.InferenceSource == GraphEdgeInferenceSources.InventoryPropertyArmId);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Hidden_private_link_target_respects_visibility(bool collected)
+    {
+        Guid rowId = Guid.NewGuid();
+        const string peId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a";
+        const string targetId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-a";
+        var owner = CreateResource(rowId, peId, "Microsoft.Network/privateEndpoints");
+        var resources = collected
+            ? new[] { owner, CreateResource(Guid.NewGuid(), targetId, "Microsoft.ManagedIdentity/userAssignedIdentities") }
+            : new[] { owner };
+        var snapshot = CreateSnapshot(resources,
+            [new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = "privateLinkServiceId", PropertyValue = targetId }], []);
+        var graph = (await ResolveAsync(snapshot)).Graph!;
+        graph.Nodes.Should().NotContain(node => string.Equals(node.SourceId, targetId, StringComparison.OrdinalIgnoreCase));
+        graph.Edges.Should().NotContain(edge => edge.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+        var inclusive = (await ResolveAsync(snapshot, includeHidden: true)).Graph!;
+        inclusive.Nodes.Should().ContainSingle(node => string.Equals(node.SourceId, targetId, StringComparison.OrdinalIgnoreCase));
+        inclusive.Edges.Should().ContainSingle(edge => edge.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+    }
+
+    [Fact]
+    public async Task Duplicate_properties_enrich_existing_explicit_edge_without_changing_provenance()
+    {
+        Guid rowId = Guid.NewGuid();
+        const string peId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a";
+        const string targetId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a";
+        var snapshot = CreateSnapshot([CreateResource(rowId, peId, "Microsoft.Network/privateEndpoints")],
+            [
+                new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = "privateLinkServiceId", PropertyValue = targetId },
+                new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = "privateLinkServiceId[0]", PropertyValue = targetId.ToUpperInvariant() + "/" },
+            ],
+            [new AzureInventoryResourceRelationshipReadModel
+            {
+                FromAzureResourceId = peId, ToAzureResourceId = targetId,
+                RelationshipType = AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
+                ProvenanceKind = ProvenanceKind.ObservedFact, InferenceSource = "captured-association",
+            }]);
+        var graph = (await ResolveAsync(snapshot)).Graph!;
+        graph.Edges.Should().ContainSingle();
+        var edge = graph.Edges.Single();
+        edge.Properties["evidence.propertyKey"].Should().Be("privateLinkServiceId");
+        edge.InferenceSource.Should().Be("captured-association");
+        edge.ProvenanceKind.Should().Be(nameof(ProvenanceKind.ObservedFact));
+    }
+
+    [Theory]
+    [InlineData("privateLinkServiceIdNotes", "ignored")]
+    [InlineData("privateLinkServiceId[]", "ignored")]
+    [InlineData("privateLinkServiceId", "not-an-arm-id")]
+    public async Task Non_typed_or_invalid_property_does_not_create_placeholder(string key, string value)
+    {
+        Guid rowId = Guid.NewGuid();
+        const string peId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a";
+        string targetId = value == "ignored"
+            ? "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a"
+            : value;
+        var snapshot = CreateSnapshot([CreateResource(rowId, peId, "Microsoft.Network/privateEndpoints")],
+            [new AzureInventoryResourcePropertyReadModel { ResourceRowId = rowId, PropertyKey = key, PropertyValue = targetId }], []);
+        var graph = (await ResolveAsync(snapshot)).Graph!;
+        graph.Nodes.Should().NotContain(node => node.Properties.ContainsKey("inventory.collectionStatus"));
+        graph.Edges.Should().NotContain(edge => edge.EdgeType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+    }
+
     private static async Task<AzureInventorySnapshotGraphResolveResult> ResolveAsync(
-        AzureInventorySnapshotDetailReadModel snapshot)
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool includeHidden = false)
     {
         Mock<IAzureInventorySnapshotRepository> repository = new();
         repository
@@ -177,6 +294,7 @@ public sealed class AzureInventorySnapshotGraphResolverPrivateEndpointTests
                 ProjectId = Guid.NewGuid(),
             },
             SnapshotId,
+            includeNeverShowArmTypes: includeHidden,
             cancellationToken: CancellationToken.None);
     }
 

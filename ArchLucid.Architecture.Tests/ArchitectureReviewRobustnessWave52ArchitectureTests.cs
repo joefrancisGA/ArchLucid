@@ -15,22 +15,22 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
     [Fact]
     public void Suggestion609_614_run_findings_ai_provenance_advisory_comparisons_and_forensics_openapi_409()
     {
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string aiRun = File.ReadAllText(
+        string aiRun = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "ArchitectureIntelligence",
                 "ArchitectureIntelligenceController.Run.cs"));
-        string provenance = File.ReadAllText(
+        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceController.cs"));
-        string advisory = File.ReadAllText(
+        string advisory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string comparisons = File.ReadAllText(
+        string comparisons = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.History.cs"));
-        string forensics = File.ReadAllText(
+        string forensics = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -64,23 +64,23 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
     [Fact]
     public void Suggestion615_618_sealed_manifest_aware_reads_and_blocked_reason_helpers()
     {
-        string architectureRequestList = File.ReadAllText(
+        string architectureRequestList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string architectureRequestBlocked = File.ReadAllText(
+        string architectureRequestBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "architecture-request-blocked-reason.ts"));
-        string learningEvolution = File.ReadAllText(
+        string learningEvolution = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "learning-evolution-api.ts"));
-        string advisoryApi = File.ReadAllText(
+        string advisoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory-api.ts"));
-        string advisoryBlocked = File.ReadAllText(
+        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory", "advisory-run-read-blocked-reason.ts"));
-        string graphApi = File.ReadAllText(
+        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string provenanceBlocked = File.ReadAllText(
+        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph", "provenance-graph-alias-blocked-reason.ts"));
-        string closedLoopApi = File.ReadAllText(
+        string closedLoopApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-intelligence-api-closed-loop.ts"));
-        string aiRunModelBlocked = File.ReadAllText(
+        string aiRunModelBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -88,9 +88,9 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-intelligence-run-model-blocked-reason.ts"));
-        string findingProvenance = File.ReadAllText(
+        string findingProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "finding-provenance.ts"));
-        string findingProvenanceBlocked = File.ReadAllText(
+        string findingProvenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-provenance-blocked-reason.ts"));
 
         architectureRequestList.Should().Contain("getArchitectureRequest");
@@ -116,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
     [Fact]
     public void Suggestion619_compare_picked_summary_fail_closed_ux()
     {
-        string compareFormFetch = File.ReadAllText(
+        string compareFormFetch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -127,7 +127,7 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-form-fetch.ts"));
-        string comparePickers = File.ReadAllText(
+        string comparePickers = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -138,7 +138,7 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareRunPickersSection.tsx"));
-        string compareForm = File.ReadAllText(
+        string compareForm = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -161,9 +161,9 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
     [Fact]
     public void Suggestion620_sponsor_collateral_programmatic_actions_test_parity()
     {
-        string sponsorBannerTest = File.ReadAllText(
+        string sponsorBannerTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorBanner.test.tsx"));
-        string sponsorExportActions = File.ReadAllText(
+        string sponsorExportActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "EmailRunToSponsorExportActions.tsx"));
 
         sponsorBannerTest.Should().Contain("programmatic secondary export actions");

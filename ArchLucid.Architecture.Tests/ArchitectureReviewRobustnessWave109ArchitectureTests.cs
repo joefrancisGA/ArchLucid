@@ -15,14 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave109ArchitectureTests
     [Fact]
     public void Suggestion1293_1296_coverage_ack_mutations_and_explanation_sealed_manifest_mappers()
     {
-        string coverageAck = File.ReadAllText(
+        string coverageAck = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunCoverageController.Acknowledgement.cs"));
-        string explainCompare = File.ReadAllText(
+        string explainCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -37,11 +37,11 @@ public sealed class ArchitectureReviewRobustnessWave109ArchitectureTests
     [Fact]
     public void Suggestion1297_1299_run_query_provenance_detail_and_findings_sealed_manifest_mappers()
     {
-        string provenance = File.ReadAllText(
+        string provenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
-        string detail = File.ReadAllText(
+        string detail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Detail.cs"));
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
 
         provenance.Should().Contain("MapProductRunQuerySealedManifestConflict");
@@ -52,9 +52,9 @@ public sealed class ArchitectureReviewRobustnessWave109ArchitectureTests
     [Fact]
     public void Suggestion1300_1304_coverage_timeline_graph_page_and_acknowledgement_blocked_reason_wiring()
     {
-        string coverageApi = File.ReadAllText(
+        string coverageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-coverage-api.ts"));
-        string coverageBlocked = File.ReadAllText(
+        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -62,9 +62,9 @@ public sealed class ArchitectureReviewRobustnessWave109ArchitectureTests
                 "lib",
                 "runs",
                 "run-coverage-acknowledgement-mutation-blocked-reason.ts"));
-        string runsListApi = File.ReadAllText(
+        string runsListApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string pipelineBlocked = File.ReadAllText(
+        string pipelineBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -72,9 +72,9 @@ public sealed class ArchitectureReviewRobustnessWave109ArchitectureTests
                 "lib",
                 "runs",
                 "run-pipeline-timeline-blocked-reason.ts"));
-        string graphApi = File.ReadAllText(
+        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string graphBlocked = File.ReadAllText(
+        string graphBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

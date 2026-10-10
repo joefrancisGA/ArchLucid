@@ -44,16 +44,16 @@ public sealed partial class ArtifactExportController
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
         {
-            return MapArtifactExportSealedManifestConflict(
-                new ConflictException(
-                    $"Decision receipt for run '{runId}' failed sealed-hash verification."));
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' failed sealed-hash verification.",
+                ProblemTypes.DecisionReceiptSealedHashMismatch);
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
-            return MapArtifactExportSealedManifestConflict(
-                new ConflictException(
-                    $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export."));
+            return this.ConflictProblem(
+                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
+                ProblemTypes.DecisionReceiptSealedIncomplete);
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.CareerArtifactBlocked)

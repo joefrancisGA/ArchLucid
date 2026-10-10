@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn030InFlightReviewOnDeskArchitectureTests
     [Fact]
     public void Sn030_module_names_child_review_resolver_and_background_wait_copy()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-in-flight-review-on-desk.ts"));
 
         module.Should().Contain("resolveSystemNotJobDeskChildReviewHref");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn030InFlightReviewOnDeskArchitectureTests
     [Fact]
     public void Sn030_reviews_table_uses_in_flight_resolver_for_child_rows()
     {
-        string reviewsTable = File.ReadAllText(
+        string reviewsTable = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,7 +43,7 @@ public sealed class SystemNotJobSn030InFlightReviewOnDeskArchitectureTests
     [Fact]
     public void Sn030_in_flight_section_uses_desk_row_builder()
     {
-        string inFlightSection = File.ReadAllText(
+        string inFlightSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -58,7 +58,7 @@ public sealed class SystemNotJobSn030InFlightReviewOnDeskArchitectureTests
     [Fact]
     public void Sn030_vitest_ratchet_names_activity_link_and_background_wait()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

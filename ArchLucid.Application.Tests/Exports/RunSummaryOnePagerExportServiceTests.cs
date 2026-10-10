@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Manifest;
@@ -279,7 +280,9 @@ public sealed class RunSummaryOnePagerExportServiceTests
             {
                 RunId = runId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = manifest,
             HasBrokenManifestReference = false,

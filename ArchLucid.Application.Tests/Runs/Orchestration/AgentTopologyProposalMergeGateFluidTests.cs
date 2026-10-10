@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateFluidTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "fl-1", label: "fluid", sourceId: "azurerm_fluid.main"));
+            ComputeNode(nodeId: "fl-1", label: "fluid", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-fluid")));
 

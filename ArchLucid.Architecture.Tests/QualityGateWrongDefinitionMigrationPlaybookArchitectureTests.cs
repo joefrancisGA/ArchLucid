@@ -16,7 +16,7 @@ public sealed class QualityGateWrongDefinitionMigrationPlaybookArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-974");
         text.Should().Contain("QualityGateSupersedingEvaluation");
         text.Should().Contain("Tenant.QualityGateDefinitionDeprecated");
@@ -30,7 +30,7 @@ public sealed class QualityGateWrongDefinitionMigrationPlaybookArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("QualityGateWrongDefinitionClass");
         text.Should().Contain("OriginalRecordedOutcome");
     }

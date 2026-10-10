@@ -15,11 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion221_rerun_execute_fail_closed_on_sealed_manifest_pin_inventory()
     {
-        string command = File.ReadAllText(
+        string command = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ArchitectureRunCommandService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ReRunExecuteSealedManifestPinGuard.cs"));
-        string registrar = File.ReadAllText(
+        string registrar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -36,7 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion222_evidence_graph_materialize_fail_closed_on_inventory_bound_pins()
     {
-        string materializer = File.ReadAllText(
+        string materializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -44,7 +44,7 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
                 "Orchestration",
                 "Pipeline",
                 "EvidenceGraphMaterializer.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -60,9 +60,9 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion223_policy_pack_simulate_fail_closed_on_sealed_manifest_hash()
     {
-        string dryRun = File.ReadAllText(
+        string dryRun = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "PolicyPackGovernanceDryRunService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -76,14 +76,14 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion224_itsm_inbound_fail_closed_on_sealed_manifest_hash()
     {
-        string pipeline = File.ReadAllText(
+        string pipeline = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Integrations",
                 "Itsm",
                 "ItsmInboundWebhookProcessPipeline.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -98,13 +98,13 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion225_featured_sample_fail_closed_on_sealed_manifest_hash()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "OperatorHome",
                 "FeaturedCompletedSampleService.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -118,20 +118,20 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion226_draft_start_review_fail_closed_on_stale_updated_utc()
     {
-        string submit = File.ReadAllText(
+        string submit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Drafts",
                 "DraftAdmissionService.SubmitAndHeal.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Architecture",
                 "DraftRequestsController.Lifecycle.AdmitSubmit.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -146,7 +146,7 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion227_sponsor_proof_pack_zip_fail_closed_on_sealed_receipt()
     {
-        string builder = File.ReadAllText(
+        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "BuyerProofPackBuilder.cs"));
 
         builder.Should().Contain("EnsureSealedExportReceiptVerifiedOrThrowAsync");
@@ -155,9 +155,9 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion228_graph_snapshot_compare_fail_closed_on_pin_inventory()
     {
-        string snapshot = File.ReadAllText(
+        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "GraphController.Snapshot.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -171,7 +171,7 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion229_board_pack_pdf_download_rejects_json_problem_bodies()
     {
-        string download = File.ReadAllText(
+        string download = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -187,9 +187,9 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
     [Fact]
     public void Suggestion230_finding_inspect_fail_closed_on_inventory_bound_evidence()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingInspectController.cs"));
-        string stage = File.ReadAllText(
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -197,7 +197,7 @@ public sealed class ArchitectureReviewRobustnessWave23ArchitectureTests
                 "Query",
                 "Stages",
                 "RunFindingsInspectStage.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

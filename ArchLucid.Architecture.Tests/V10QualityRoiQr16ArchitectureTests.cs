@@ -14,17 +14,17 @@ public sealed class V10QualityRoiQr16ArchitectureTests
     [Fact]
     public void Qr016_openapi_snapshot_contract_and_v10_ratchet_exist()
     {
-        string snapshot = File.ReadAllText(
+        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api.Tests",
                 "Contracts",
                 "openapi-v1.contract.snapshot.json"));
-        string contractTests = File.ReadAllText(
+        string contractTests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "OpenApiContractSnapshotTests.cs"));
-        string regenScript = File.ReadAllText(
+        string regenScript = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "scripts", "ci", "update_openapi_contract_snapshot.sh"));
-        string ratchet = File.ReadAllText(
+        string ratchet = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "v10-quality-roi-qr16-ratchet.test.ts"));
 
         snapshot.Should().Contain("/v1/architectures/{architectureId}/inventory-binding");

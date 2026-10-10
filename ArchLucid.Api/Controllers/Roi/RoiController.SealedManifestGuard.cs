@@ -38,6 +38,10 @@ public sealed partial class RoiController
         return null;
     }
 
+    private Task<IActionResult?> EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(
+        CancellationToken cancellationToken) =>
+        EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
     /// <summary>
     ///     Maps ROI read/export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
     /// </summary>

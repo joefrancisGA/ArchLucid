@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.OutputCaching;
 
 namespace ArchLucid.Api.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class PolicyPacksControllerOutputCacheTests
 {
     [Fact]

@@ -15,11 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion477_478_audit_evidence_lineage_and_package_409_ux()
     {
-        string lineageApi = File.ReadAllText(
+        string lineageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "audit-evidence-lineage-api.ts"));
-        string packageApi = File.ReadAllText(
+        string packageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "audit-evidence-package-api.ts"));
-        string lineageClient = File.ReadAllText(
+        string lineageClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -44,24 +44,24 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion479_485_openapi_409_declarations()
     {
-        string governancePreview = File.ReadAllText(
+        string governancePreview = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.cs"));
-        string docxExport = File.ReadAllText(
+        string docxExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
-        string consultingDocx = File.ReadAllText(
+        string consultingDocx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "AnalysisReportsController.ConsultingDocx.Download.cs"));
-        string pilotsBoardPack = File.ReadAllText(
+        string pilotsBoardPack = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsBoardPackController.cs"));
-        string roiController = File.ReadAllText(
+        string roiController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string preCommit = File.ReadAllText(
+        string preCommit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -82,7 +82,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion486_487_decision_receipt_and_trust_evidence_fail_closed()
     {
-        string stampStrip = File.ReadAllText(
+        string stampStrip = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -94,7 +94,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailReviewPackageDecisionReceiptStrip.tsx"));
-        string feasibilitySection = File.ReadAllText(
+        string feasibilitySection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,7 +106,7 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailFeasibilityVerdictSection.tsx"));
-        string proofChain = File.ReadAllText(
+        string proofChain = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunTrustEvidenceProofChain.tsx"));
 
         stampStrip.Should().Contain("manifestVersion={props.manifestVersion}");
@@ -118,13 +118,13 @@ public sealed class ArchitectureReviewRobustnessWave41ArchitectureTests
     [Fact]
     public void Suggestion488_before_after_and_board_pack_roi_409_honesty()
     {
-        string beforeAfter = File.ReadAllText(
+        string beforeAfter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "BeforeAfterDeltaPanel.tsx"));
-        string boardPackApi = File.ReadAllText(
+        string boardPackApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "sponsor-roi-board-pack-api.ts"));
-        string downloads = File.ReadAllText(
+        string downloads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-reports.ts"));
-        string exportConflict = File.ReadAllText(
+        string exportConflict = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-sealed-manifest-conflict.ts"));
 
         beforeAfter.Should().Contain("roiSourceFreshnessDisposition");

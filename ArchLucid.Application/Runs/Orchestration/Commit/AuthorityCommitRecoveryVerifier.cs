@@ -18,7 +18,13 @@ public static class AuthorityCommitRecoveryVerifier
         ArgumentNullException.ThrowIfNull(header);
         ArgumentException.ThrowIfNullOrWhiteSpace(runIdLabel);
 
-        if (run.GoldenManifestId.HasValue && run.Status != ArchitectureRunStatus.Committed)
+        // TB-310 / CI #2560: the authority pipeline may pre-seal GoldenManifestId while
+        // status is still ReadyForCommit. That is the first-finalize path (reuse +
+        // sp_FinalizeManifest), not a torn commit. Only non-commit-capable statuses
+        // with a golden id are unrecoverable.
+        if (run.GoldenManifestId.HasValue
+            && run.Status is not ArchitectureRunStatus.Committed
+            && run.Status is not ArchitectureRunStatus.ReadyForCommit)
         {
             throw new ConflictException(
                 $"Commit recovery blocked for run '{runIdLabel}': golden manifest id is set but run status is {run.Status}.");
@@ -48,6 +54,18 @@ public static class AuthorityCommitRecoveryVerifier
             throw new ConflictException(
                 $"Commit recovery blocked for run '{runIdLabel}': run header and architecture run golden manifest ids diverge.");
         }
+    }
+
+    /// <summary>
+    ///     Sealed inventory/hash recovery applies only after commit has already flipped
+    ///     status to <see cref="ArchitectureRunStatus.Committed"/>. ReadyForCommit with a
+    ///     pre-sealed golden id still needs first finalize, not sealed-inventory replay.
+    /// </summary>
+    public static bool ShouldVerifySealedInventory(ArchitectureRun run)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+
+        return run.GoldenManifestId.HasValue && run.Status is ArchitectureRunStatus.Committed;
     }
 
     /// <summary>Wave-14 suggestion 139 / wave-15 suggestion 143: verify sealed inventory rows match persisted snapshot pointers and recomputed hashes.</summary>

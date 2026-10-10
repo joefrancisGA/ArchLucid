@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateLacTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "lc-1", label: "lac", sourceId: "azurerm_lac.main"));
+            ComputeNode(nodeId: "lc-1", label: "lac", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-lac")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

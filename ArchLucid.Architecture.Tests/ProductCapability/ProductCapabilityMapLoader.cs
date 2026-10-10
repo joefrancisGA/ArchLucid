@@ -19,7 +19,7 @@ internal static class ProductCapabilityMapLoader
         if (!File.Exists(path))
             throw new FileNotFoundException("Product capability map is missing.", path);
 
-        string json = File.ReadAllText(path);
+        string json = ArchitectureSourceProbe.ReadPathWithPartials(path);
         ProductCapabilityMapDocument? document = JsonSerializer.Deserialize<ProductCapabilityMapDocument>(json, SerializerOptions);
 
         if (document is null)

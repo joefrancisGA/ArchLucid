@@ -15,7 +15,7 @@ public sealed class LivelihoodGradeNoLn039SupportTriageArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("LN-039");
         source.Should().Contain("uncited hard");

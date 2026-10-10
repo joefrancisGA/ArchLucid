@@ -45,7 +45,7 @@ function renderPanel(): ReturnType<typeof render> {
   );
 }
 
-describe("ArchitectureIdentityDeskSharePanel", () => {
+describe("ArchitectureIdentityDeskSharePanel AS-092 livelihood guards and opt-in confirmation (TB-2005)", () => {
   beforeEach(() => {
     useWorkspaceModeMock.mockReturnValue({ isWorkingMode: true });
     useArchitectureSharesQueryMock.mockReturnValue({

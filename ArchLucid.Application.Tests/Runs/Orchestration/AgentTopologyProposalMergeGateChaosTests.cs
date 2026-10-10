@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateChaosTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "ch-1", label: "chaos", sourceId: "azurerm_chaos.main"));
+            ComputeNode(nodeId: "ch-1", label: "chaos", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-chaos")));
 

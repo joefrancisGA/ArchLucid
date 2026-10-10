@@ -15,8 +15,14 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
     public static void AddMissingTargetEdges(
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        IReadOnlySet<string> collectedArmIds,
+        IReadOnlySet<string> hiddenArmIds,
+        bool includeNeverShowArmTypes,
+        bool retainIdentityDiagramArmTypes)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
@@ -48,11 +54,20 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
                 continue;
             }
 
-            foreach (string targetArmId in EnumeratePrivateLinkServiceIds(properties))
+            foreach (AzureInventoryResourcePropertyReadModel property in properties
+                         .Where(property => !property.IsRedacted && IsPrivateLinkPropertyKey(property.PropertyKey))
+                         .OrderBy(property => property.PropertyKey, StringComparer.Ordinal))
             {
-                foreach (string toNodeId in AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
+                string targetArmId = ArmResourceIdNormalizer.Normalize(property.PropertyValue);
+                foreach (string toNodeId in AzureInventoryReferencedEndpointNodeFactory.ResolveVisibleTargetNodeIds(
+                             targetArmId,
                              nodeIdByArmId,
-                             targetArmId))
+                             nodes,
+                             seenNodeIds,
+                             collectedArmIds,
+                             hiddenArmIds,
+                             includeNeverShowArmTypes,
+                             retainIdentityDiagramArmTypes))
                 {
                     if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
                     {
@@ -65,13 +80,16 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
                         fromNodeId,
                         toNodeId,
                         AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget,
-                        GraphEdgeInferenceSources.InventoryPrivateEndpoint);
+                        GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                        resource,
+                        property.PropertyKey,
+                        targetArmId);
                 }
             }
         }
     }
 
-    private static bool IsPrivateEndpointResource(AzureInventoryResourceRecord resource)
+    internal static bool IsPrivateEndpointResource(AzureInventoryResourceRecord resource)
     {
         string resourceType = resource.ResourceType ?? string.Empty;
         string azureResourceId = resource.AzureResourceId ?? string.Empty;
@@ -80,33 +98,19 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
             || azureResourceId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IEnumerable<string> EnumeratePrivateLinkServiceIds(
-        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties)
+    internal static bool IsPrivateLinkPropertyKey(string? key)
     {
-        HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        const string prefix = "privateLinkServiceId";
+        if (string.Equals(key, prefix, StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(property.PropertyKey)
-                || string.IsNullOrWhiteSpace(property.PropertyValue))
-            {
-                continue;
-            }
-
-            if (!property.PropertyKey.StartsWith("privateLinkServiceId", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string normalized = ArmResourceIdNormalizer.Normalize(property.PropertyValue);
-
-            if (!string.IsNullOrWhiteSpace(normalized))
-            {
-                ids.Add(normalized);
-            }
+            return true;
         }
 
-        return ids;
+        return key is not null
+            && key.StartsWith(prefix + "[", StringComparison.OrdinalIgnoreCase)
+            && key.EndsWith(']')
+            && key.Length > prefix.Length + 2
+            && key.AsSpan(prefix.Length + 1, key.Length - prefix.Length - 2).IndexOfAnyExceptInRange('0', '9') < 0;
     }
 
     private static void TryAddEdge(
@@ -115,24 +119,40 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
         string fromNodeId,
         string toNodeId,
         string edgeType,
-        string inferenceSource)
+        string inferenceSource,
+        AzureInventoryResourceRecord owner,
+        string propertyKey,
+        string targetArmId)
     {
         string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
 
-        if (!edgeKeys.Add(edgeKey))
+        GraphEdge? edge = edges.FirstOrDefault(candidate => candidate.FromNodeId == fromNodeId
+            && candidate.ToNodeId == toNodeId && candidate.EdgeType == edgeType);
+        if (edge is null && edgeKeys.Add(edgeKey))
         {
-            return;
+            edge = new GraphEdge
+            {
+                EdgeId = $"edge-{edgeKey}",
+                FromNodeId = fromNodeId,
+                ToNodeId = toNodeId,
+                EdgeType = edgeType,
+                Label = edgeType,
+                Weight = 1.0d,
+                InferenceSource = inferenceSource,
+                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
+            };
+            edges.Add(edge);
         }
 
-        edges.Add(new GraphEdge
+        if (edge is not null)
         {
-            EdgeId = $"edge-{edgeKey}",
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = edgeType,
-            Label = edgeType,
-            Weight = 1.0d,
-            InferenceSource = inferenceSource,
-        });
+            edge.Properties.TryAdd("evidence.propertyKey", propertyKey);
+            edge.Properties.TryAdd("evidence.resourceRowId", owner.ResourceRowId.ToString("D"));
+            edge.Properties.TryAdd("evidence.targetArmId", targetArmId);
+            if (!string.IsNullOrWhiteSpace(owner.SourceEvidenceReference))
+            {
+                edge.Properties.TryAdd("evidence.sourceReference", owner.SourceEvidenceReference);
+            }
+        }
     }
 }

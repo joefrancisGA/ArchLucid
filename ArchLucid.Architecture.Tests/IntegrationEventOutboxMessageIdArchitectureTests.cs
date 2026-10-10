@@ -45,7 +45,7 @@ public sealed class IntegrationEventOutboxMessageIdArchitectureTests
         {
             string path = Path.Combine(root, relativePath.Replace('/', Path.DirectorySeparatorChar));
             File.Exists(path).Should().BeTrue($"expected producer anchor file {relativePath}");
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
             text.Should().Contain(marker, $"producer {relativePath} must keep stable MessageId construction ({marker})");
         }
     }

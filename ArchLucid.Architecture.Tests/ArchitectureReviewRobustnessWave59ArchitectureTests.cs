@@ -15,11 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
     [Fact]
     public void Suggestion693_694_architecture_identity_list_and_get_openapi_409()
     {
-        string architecturesController = File.ReadAllText(
+        string architecturesController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
-        string architecturesGuard = File.ReadAllText(
+        string architecturesGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.SealedManifestGuard.cs"));
-        string identityGuard = File.ReadAllText(
+        string identityGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureIdentitySealedManifestReadGuard.cs"));
 
         architecturesController.Should().Contain("ListArchitectures");
@@ -34,19 +34,19 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
     [Fact]
     public void Suggestion695_698_compare_search_drift_and_attestation_sealed_clients()
     {
-        string exportCompareApi = File.ReadAllText(
+        string exportCompareApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-record-compare-api.ts"));
-        string exportCompareHook = File.ReadAllText(
+        string exportCompareHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-record-compare-query.ts"));
-        string comparisonRecordApi = File.ReadAllText(
+        string comparisonRecordApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-record-api.ts"));
-        string comparisonSearchHook = File.ReadAllText(
+        string comparisonSearchHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-comparison-search-query.ts"));
-        string driftApi = File.ReadAllText(
+        string driftApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-drift-api.ts"));
-        string attestationApi = File.ReadAllText(
+        string attestationApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-exceptions-schedules.ts"));
-        string attestationHook = File.ReadAllText(
+        string attestationHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-realized-value-attestation-query.ts"));
 
         exportCompareApi.Should().Contain("compareExportRecords");
@@ -64,23 +64,23 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
     [Fact]
     public void Suggestion699_703_register_posture_identity_and_dashboard_fail_closed()
     {
-        string registerBlocked = File.ReadAllText(
+        string registerBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "governance-stickiness-register-blocked-reason.ts"));
-        string reviewsHook = File.ReadAllText(
+        string reviewsHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-reviews-awaiting-action-query.ts"));
-        string decisionsHook = File.ReadAllText(
+        string decisionsHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-decisions-needed-summary-query.ts"));
-        string postureHook = File.ReadAllText(
+        string postureHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-posture-query.ts"));
-        string postureBlocked = File.ReadAllText(
+        string postureBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "governance-posture-blocked-reason.ts"));
-        string identityApi = File.ReadAllText(
+        string identityApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-identity-api.ts"));
-        string identityHook = File.ReadAllText(
+        string identityHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-identity-query.ts"));
-        string identityDesk = File.ReadAllText(
+        string identityDesk = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "architecture", "ArchitectureIdentityDesk.tsx"));
-        string dashboardHook = File.ReadAllText(
+        string dashboardHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-dashboard-query.ts"));
 
         registerBlocked.Should().Contain("reviewsAwaitingActionBlockedReason");
@@ -98,13 +98,13 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
     [Fact]
     public void Suggestion702_704_end_to_end_export_and_approval_rationale_clients()
     {
-        string endToEndExport = File.ReadAllText(
+        string endToEndExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-end-to-end-compare-export.ts"));
-        string rationaleHook = File.ReadAllText(
+        string rationaleHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-approval-rationale-query.ts"));
-        string approvalsApi = File.ReadAllText(
+        string approvalsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-approvals.ts"));
-        string queryKeys = File.ReadAllText(
+        string queryKeys = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "query", "operator-query-keys.ts"));
 
         endToEndExport.Should().Contain("downloadEndToEndCompareExport");

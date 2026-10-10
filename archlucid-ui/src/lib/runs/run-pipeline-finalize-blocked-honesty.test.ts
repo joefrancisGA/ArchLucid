@@ -70,6 +70,7 @@ describe("shouldSuppressReadyToFinalizeForCareerHonesty (FC-70)", () => {
     expect(
       shouldSuppressReadyToFinalizeForCareerHonesty({
         workingDesk: true,
+        workingCareerRehearsalIntent: "rehearsal",
         effectiveWorkingCareerRehearsalDoor: "rehearsal",
         structuralExecutionMode: StructuralExecutionModeWire.Real,
         transparencyTrail: {

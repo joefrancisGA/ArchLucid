@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Contracts.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class FirstSessionPurposeValuesTests
 {
     [Fact]

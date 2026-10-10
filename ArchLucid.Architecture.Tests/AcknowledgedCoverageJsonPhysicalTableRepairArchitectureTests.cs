@@ -76,7 +76,7 @@ public sealed class AcknowledgedCoverageJsonPhysicalTableRepairArchitectureTests
         string path = Path.Combine(parts);
         File.Exists(path).Should().BeTrue($"expected SQL at {path}");
 
-        return File.ReadAllText(path);
+        return ArchitectureSourceProbe.ReadPathWithPartials(path);
     }
 
     private static string FindRepoRoot()

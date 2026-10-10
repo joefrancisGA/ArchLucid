@@ -82,7 +82,7 @@ public sealed partial class ArchitectureDiagramVisionIngestController(
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not configured", StringComparison.OrdinalIgnoreCase))
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
         catch (ConflictException ex)
         {
@@ -90,7 +90,7 @@ public sealed partial class ArchitectureDiagramVisionIngestController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 }

@@ -14,7 +14,7 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_authority_run_completed_payload_stamps_career_posture()
     {
-        string finalizer = File.ReadAllText(
+        string finalizer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "AuthorityCommittedPipelineFinalizer.cs"));
 
         finalizer.Should().Contain("IntegrationEventCareerHonestyPresenter.Resolve");
@@ -25,9 +25,9 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_manifest_finalized_payload_stamps_career_posture()
     {
-        string sql = File.ReadAllText(
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestFinalizationService.Sql.cs"));
-        string legacy = File.ReadAllText(
+        string legacy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestFinalizationService.Legacy.cs"));
 
         sql.Should().Contain("IntegrationEventCareerHonestyPresenter.Resolve");
@@ -37,9 +37,9 @@ public sealed class CareerGravityCg093WebhookPayloadDoorArchitectureTests
     [Fact]
     public void Cg093_schema_registry_requires_mode_on_complete_events()
     {
-        string authoritySchema = File.ReadAllText(
+        string authoritySchema = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "schemas", "integration-events", "authority-run-completed.v1.schema.json"));
-        string manifestSchema = File.ReadAllText(
+        string manifestSchema = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "schemas", "integration-events", "manifest-finalized.v1.schema.json"));
 
         authoritySchema.Should().Contain("structuralExecutionMode");

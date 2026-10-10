@@ -15,15 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion621_626_export_history_request_authority_provenance_governance_and_findings_openapi_409()
     {
-        string exports = File.ReadAllText(
+        string exports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string architectureRequest = File.ReadAllText(
+        string architectureRequest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.ArchitectureRequests.cs"));
-        string authorityProvenance = File.ReadAllText(
+        string authorityProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceQueryController.cs"));
-        string governance = File.ReadAllText(
+        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.PromotionsActivations.cs"));
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
 
         exports.Should().Contain("GetRunExportHistory");
@@ -53,15 +53,15 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion627_628_pre_finalize_and_governance_stickiness_sealed_reads()
     {
-        string preFinalizeApi = File.ReadAllText(
+        string preFinalizeApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "pre-finalize-checklist.ts"));
-        string preFinalizeBlocked = File.ReadAllText(
+        string preFinalizeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "pre-finalize-checklist-blocked-reason.ts"));
-        string preFinalizePanel = File.ReadAllText(
+        string preFinalizePanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "PreFinalizeChecklistPanel.tsx"));
-        string stickinessRegisters = File.ReadAllText(
+        string stickinessRegisters = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string stickinessBlocked = File.ReadAllText(
+        string stickinessBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -83,17 +83,17 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion629_631_blocked_reason_hooks_for_request_advisory_and_intelligence_run_model()
     {
-        string architectureRequestHook = File.ReadAllText(
+        string architectureRequestHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-request-query.ts"));
-        string advisoryHook = File.ReadAllText(
+        string advisoryHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-advisory-recommendations-query.ts"));
-        string intelligenceHook = File.ReadAllText(
+        string intelligenceHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-intelligence-run-model-query.ts"));
-        string architectureRequestBlocked = File.ReadAllText(
+        string architectureRequestBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "architecture-request-blocked-reason.ts"));
-        string advisoryBlocked = File.ReadAllText(
+        string advisoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "advisory", "advisory-run-read-blocked-reason.ts"));
-        string intelligenceBlocked = File.ReadAllText(
+        string intelligenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -114,15 +114,15 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion632_finding_provenance_export_history_and_authority_provenance_alias_clients()
     {
-        string findingHook = File.ReadAllText(
+        string findingHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-finding-provenance-query.ts"));
-        string exportHistoryApi = File.ReadAllText(
+        string exportHistoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "run-export-history-api.ts"));
-        string exportHistoryBlocked = File.ReadAllText(
+        string exportHistoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "exports", "run-export-history-blocked-reason.ts"));
-        string authorityProvenanceApi = File.ReadAllText(
+        string authorityProvenanceApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "authority-provenance-query-api.ts"));
-        string authorityProvenanceBlocked = File.ReadAllText(
+        string authorityProvenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph", "authority-provenance-alias-blocked-reason.ts"));
 
         findingHook.Should().Contain("findingProvenanceBlockedReason");

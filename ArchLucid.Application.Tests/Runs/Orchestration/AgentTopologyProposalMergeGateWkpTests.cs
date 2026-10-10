@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateWkpTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "wk-1", label: "wkp", sourceId: "azurerm_wkp.main"));
+            ComputeNode(nodeId: "wk-1", label: "wkp", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-wkp")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

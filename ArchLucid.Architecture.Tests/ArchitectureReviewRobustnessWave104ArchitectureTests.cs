@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
     [Fact]
     public void Suggestion1233_1234_workspace_prior_compare_lifecycle_incomplete_blocked_reason_mappers()
     {
-        string workspaceContext = File.ReadAllText(
+        string workspaceContext = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -31,49 +31,49 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
     [Fact]
     public void Suggestion1235_1239_recommendation_learning_saved_views_and_insight_signal_sealed_manifest_mappers()
     {
-        string recLearningMutate = File.ReadAllText(
+        string recLearningMutate = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "RecommendationLearningController.Mutate.cs"));
-        string recLearningOps = File.ReadAllText(
+        string recLearningOps = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "RecommendationLearningController.Ops.cs"));
-        string recLearningGuard = File.ReadAllText(
+        string recLearningGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Advisory",
                 "RecommendationLearningController.SealedManifestGuard.cs"));
-        string savedViews = File.ReadAllText(
+        string savedViews = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Operator",
                 "OperatorSavedViewsController.cs"));
-        string savedViewsGuard = File.ReadAllText(
+        string savedViewsGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Operator",
                 "OperatorSavedViewsController.SealedManifestGuard.cs"));
-        string insightSignal = File.ReadAllText(
+        string insightSignal = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingInsightSignalController.cs"));
-        string insightSignalGuard = File.ReadAllText(
+        string insightSignalGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -93,9 +93,9 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
     [Fact]
     public void Suggestion1240_1244_holistic_ask_insight_recommendation_learning_and_saved_view_blocked_reason_wiring()
     {
-        string holisticApi = File.ReadAllText(
+        string holisticApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "holistic-critic-api.ts"));
-        string holisticBlocked = File.ReadAllText(
+        string holisticBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -103,13 +103,13 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
                 "lib",
                 "explain",
                 "holistic-critic-blocked-reason.ts"));
-        string findingAskApi = File.ReadAllText(
+        string findingAskApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "finding-ask-api.ts"));
-        string findingAskBlocked = File.ReadAllText(
+        string findingAskBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-ask-blocked-reason.ts"));
-        string insightSignalApi = File.ReadAllText(
+        string insightSignalApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "finding-insight-signal-api.ts"));
-        string insightSignalBlocked = File.ReadAllText(
+        string insightSignalBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
                 "lib",
                 "findings",
                 "finding-insight-signal-mutation-blocked-reason.ts"));
-        string recLearningOpsApi = File.ReadAllText(
+        string recLearningOpsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -125,9 +125,9 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
                 "lib",
                 "api",
                 "recommendation-learning-operational-api.ts"));
-        string recLearningReplayApi = File.ReadAllText(
+        string recLearningReplayApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "recommendation-replay-api.ts"));
-        string recLearningBlocked = File.ReadAllText(
+        string recLearningBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -135,9 +135,9 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
                 "lib",
                 "internal",
                 "recommendation-learning-mutation-blocked-reason.ts"));
-        string savedViewsApi = File.ReadAllText(
+        string savedViewsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "operator-saved-views.ts"));
-        string savedViewsBlocked = File.ReadAllText(
+        string savedViewsBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

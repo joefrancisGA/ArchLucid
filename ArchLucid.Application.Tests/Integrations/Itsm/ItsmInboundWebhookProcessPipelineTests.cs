@@ -4,6 +4,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit; using ArchLucid.Core.Configuration; using ArchLucid.Core.Integrations.Itsm; using ArchLucid.Persistence.Integrations;
 using FluentAssertions; using Microsoft.Extensions.Logging.Abstractions; using Microsoft.Extensions.Options; using Moq;
 namespace ArchLucid.Application.Tests.Integrations.Itsm;
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ItsmInboundWebhookProcessPipelineTests {
   [Fact] public async Task Jira_invalid_issue_key_format_returns_rejected_audit() {
     var pipeline = CreatePipeline(new Mock<IItsmFindingCorrelationRepository>().Object);

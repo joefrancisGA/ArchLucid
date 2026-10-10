@@ -15,9 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
     [Fact]
     public void Suggestion537_538_artifact_descriptor_and_run_manifest_openapi_409()
     {
-        string artifactExports = File.ReadAllText(
+        string artifactExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
-        string authorityReads = File.ReadAllText(
+        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
 
         artifactExports.Should().Contain("GetArtifactDescriptor");
@@ -30,7 +30,7 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
     [Fact]
     public void Suggestion539_541_compare_and_manifest_json_409_ux()
     {
-        string provenanceBand = File.ReadAllText(
+        string provenanceBand = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -41,11 +41,11 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareProvenanceDeltaBand.tsx"));
-        string manifestDiff = File.ReadAllText(
+        string manifestDiff = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "compare", "CompareRawManifestDiffSection.tsx"));
-        string manifestJsonFetch = File.ReadAllText(
+        string manifestJsonFetch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "manifest-json-fetch.ts"));
-        string compareBlockedReason = File.ReadAllText(
+        string compareBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "compare-manifest-diff-blocked-reason.ts"));
 
         provenanceBand.Should().Contain("compareRunPairBlockedReason");
@@ -57,9 +57,9 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
     [Fact]
     public void Suggestion542_544_governance_posture_and_roi_fetch_fail_closed()
     {
-        string postureRegisters = File.ReadAllText(
+        string postureRegisters = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string postureOverview = File.ReadAllText(
+        string postureOverview = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -68,11 +68,11 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
                 "governance",
                 "posture",
                 "ArchitecturePosturePillarOverview.tsx"));
-        string sponsorRoiClient = File.ReadAllText(
+        string sponsorRoiClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-sponsor-roi-summary-client.ts"));
-        string crossTenantClient = File.ReadAllText(
+        string crossTenantClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-cross-tenant-portfolio-client.ts"));
-        string roiController = File.ReadAllText(
+        string roiController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
 
         postureRegisters.Should().Contain("apiGetSealedManifestAware");
@@ -86,15 +86,15 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
     [Fact]
     public void Suggestion545_548_programmatic_downloads_and_server_markdown_export()
     {
-        string runPackage = File.ReadAllText(
+        string runPackage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-run-package.ts"));
-        string runExport = File.ReadAllText(
+        string runExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-run-export.ts"));
-        string artifactSingle = File.ReadAllText(
+        string artifactSingle = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-artifact-single.ts"));
-        string decisionReceipt = File.ReadAllText(
+        string decisionReceipt = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-decision-receipt.ts"));
-        string runDetailExports = File.ReadAllText(
+        string runDetailExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -106,11 +106,11 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailArtifactsExportsSection.tsx"));
-        string artifactTable = File.ReadAllText(
+        string artifactTable = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ArtifactListTable.tsx"));
-        string decisionButton = File.ReadAllText(
+        string decisionButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "draft-intake", "DecisionReceiptExportButton.tsx"));
-        string exportMenu = File.ReadAllText(
+        string exportMenu = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GoldenManifestExportMenu.tsx"));
 
         runPackage.Should().Contain("downloadRunPackageExport");

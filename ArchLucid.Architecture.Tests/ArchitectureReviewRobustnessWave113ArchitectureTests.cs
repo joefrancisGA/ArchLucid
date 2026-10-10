@@ -15,9 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
     [Fact]
     public void Suggestion1341_1343_technology_ledger_read_patch_and_guard_sealed_manifest_mappers()
     {
-        string ledger = File.ReadAllText(
+        string ledger = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "TechnologyLedgerController.cs"));
-        string ledgerGuard = File.ReadAllText(
+        string ledgerGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -34,14 +34,14 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
     [Fact]
     public void Suggestion1344_1346_clarification_questions_read_apply_and_guard_sealed_manifest_mappers()
     {
-        string clarification = File.ReadAllText(
+        string clarification = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ReviewClarificationQuestionsController.cs"));
-        string clarificationGuard = File.ReadAllText(
+        string clarificationGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -58,9 +58,9 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
     [Fact]
     public void Suggestion1347_1352_technology_ledger_and_clarification_blocked_reason_wiring()
     {
-        string ledgerApi = File.ReadAllText(
+        string ledgerApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "technology-ledger.ts"));
-        string ledgerReadBlocked = File.ReadAllText(
+        string ledgerReadBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -68,7 +68,7 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
                 "lib",
                 "runs",
                 "technology-ledger-blocked-reason.ts"));
-        string ledgerMutationBlocked = File.ReadAllText(
+        string ledgerMutationBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -76,9 +76,9 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
                 "lib",
                 "runs",
                 "technology-ledger-mutation-blocked-reason.ts"));
-        string clarificationQuestionsApi = File.ReadAllText(
+        string clarificationQuestionsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "review-clarification-questions-api.ts"));
-        string clarificationQuestionsBlocked = File.ReadAllText(
+        string clarificationQuestionsBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -86,9 +86,9 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
                 "lib",
                 "runs",
                 "review-clarification-questions-blocked-reason.ts"));
-        string clarificationAnswersApi = File.ReadAllText(
+        string clarificationAnswersApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "knowledge-model-clarification-api.ts"));
-        string clarificationAnswersBlocked = File.ReadAllText(
+        string clarificationAnswersBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -96,7 +96,7 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
                 "lib",
                 "runs",
                 "clarification-answers-mutation-blocked-reason.ts"));
-        string technologyBaselinePanel = File.ReadAllText(
+        string technologyBaselinePanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -105,9 +105,9 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
                 "reviews",
                 "technology-baseline",
                 "TechnologyBaselinePanel.tsx"));
-        string clarificationHook = File.ReadAllText(
+        string clarificationHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-review-clarification-questions.ts"));
-        string clarificationPanel = File.ReadAllText(
+        string clarificationPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -310,7 +310,7 @@ internal static class AzureInventorySnapshotExternalSourceHostConsolidator
 
     private sealed class HostRollupKeyComparer : IEqualityComparer<HostRollupKey>
     {
-        public static HostRollupKeyComparer Instance { get; } = new();
+        public static readonly HostRollupKeyComparer Instance = new();
 
         public bool Equals(HostRollupKey? x, HostRollupKey? y)
         {

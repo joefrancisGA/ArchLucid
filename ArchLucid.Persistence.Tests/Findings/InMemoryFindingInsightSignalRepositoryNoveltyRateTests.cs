@@ -10,6 +10,8 @@ using Moq;
 
 namespace ArchLucid.Persistence.Tests.Findings;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class InMemoryFindingInsightSignalRepositoryNoveltyRateTests
 {
     [Fact]

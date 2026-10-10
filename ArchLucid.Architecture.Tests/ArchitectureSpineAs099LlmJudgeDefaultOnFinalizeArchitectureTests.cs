@@ -15,7 +15,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_options_default_enable_llm_judge_on_finalize_true_emit_stays_false()
     {
-        string optionsSource = File.ReadAllText(
+        string optionsSource = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "FindingSemanticSupportBandOptions.cs"));
 
         optionsSource.Should().Contain("EnableLlmJudgeOnFinalize");
@@ -28,7 +28,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_real_composition_registers_premium_semantic_support_judge()
     {
-        string composition = File.ReadAllText(
+        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -44,7 +44,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_commit_and_readiness_call_finalize_judge_before_unsupported_hold()
     {
-        string integrity = File.ReadAllText(
+        string integrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -61,7 +61,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         judgeIndex.Should().BeGreaterThan(0);
         holdIndex.Should().BeGreaterThan(judgeIndex);
 
-        string readiness = File.ReadAllText(
+        string readiness = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -75,7 +75,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_host_still_registers_noop_for_emit_default()
     {
-        string composition = File.ReadAllText(
+        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -91,7 +91,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         string adrPath = Path.Combine(RepoRoot, AdrRelativePath);
         File.Exists(adrPath).Should().BeTrue();
 
-        string adr = File.ReadAllText(adrPath);
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(adrPath);
         adr.Should().Contain("## Trade-offs");
         adr.Should().Contain("## Constraints");
         adr.Should().Contain("## Expected impact");
@@ -102,7 +102,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
         adr.Should().Contain("**Status:** Accepted");
         adr.Should().NotContain("G-REAL-06 live packets");
 
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
         readme.Should().Contain("0099-semantic-support-llm-judge-default-on-finalize.md");
         readme.Should().Contain("0098-working-instrument-after-spawn-is-desk.md");
         readme.Should().Contain("**Status: Accepted** 2026-09-13");
@@ -111,7 +111,7 @@ public sealed class ArchitectureSpineAs099LlmJudgeDefaultOnFinalizeArchitectureT
     [Fact]
     public void As099_authority_commit_registers_finalize_judge()
     {
-        string registrar = File.ReadAllText(
+        string registrar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",

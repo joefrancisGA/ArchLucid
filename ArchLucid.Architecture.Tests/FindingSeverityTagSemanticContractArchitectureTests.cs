@@ -18,7 +18,7 @@ public sealed class FindingSeverityTagSemanticContractArchitectureTests
         string path = Path.Combine(RepoRoot, "docs", "library", "FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json");
         File.Exists(path).Should().BeTrue();
 
-        using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path));
+        using JsonDocument doc = JsonDocument.Parse(ArchitectureSourceProbe.ReadPathWithPartials(path));
         JsonElement mappings = doc.RootElement.GetProperty("mappings");
         mappings.GetArrayLength().Should().Be(4);
 
@@ -33,13 +33,13 @@ public sealed class FindingSeverityTagSemanticContractArchitectureTests
     public void Tb328_backend_enum_values_match_contract()
     {
         string enumPath = Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "FindingSeverity.cs");
-        string enumText = File.ReadAllText(enumPath);
+        string enumText = ArchitectureSourceProbe.ReadPathWithPartials(enumPath);
 
         MatchCollection matches = Regex.Matches(enumText, @"^\s*(Info|Warning|Error|Critical)\s*=\s*(\d+)\s*,?\s*$", RegexOptions.Multiline);
         matches.Count.Should().Be(4);
 
         string contractPath = Path.Combine(RepoRoot, "docs", "library", "FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json");
-        using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(contractPath));
+        using JsonDocument doc = JsonDocument.Parse(ArchitectureSourceProbe.ReadPathWithPartials(contractPath));
 
         foreach (JsonElement mapping in doc.RootElement.GetProperty("mappings").EnumerateArray())
         {
@@ -74,7 +74,7 @@ public sealed class FindingSeverityTagSemanticContractArchitectureTests
 
         File.Exists(modulePath).Should().BeTrue();
         File.Exists(testPath).Should().BeTrue();
-        File.ReadAllText(modulePath).Should().Contain("listFindingSeverityContractMismatches");
+        ArchitectureSourceProbe.ReadPathWithPartials(modulePath).Should().Contain("listFindingSeverityContractMismatches");
     }
 
     private static string FindRepoRoot()

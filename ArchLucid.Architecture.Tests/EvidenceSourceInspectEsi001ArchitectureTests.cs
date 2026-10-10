@@ -14,14 +14,14 @@ public sealed class EvidenceSourceInspectEsi001ArchitectureTests
     [Fact]
     public void Esi001_catalog_controller_and_ui_cells_exist()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ReviewStoredEvidenceFilesController.cs"));
-        string cells = File.ReadAllText(
+        string cells = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -29,7 +29,7 @@ public sealed class EvidenceSourceInspectEsi001ArchitectureTests
                 "components",
                 "runs",
                 "StoredEvidenceFileCells.tsx"));
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "evidence-source-inspect-inventory.ts"));
 
         controller.Should().Contain("ReviewStoredEvidenceFilesController");

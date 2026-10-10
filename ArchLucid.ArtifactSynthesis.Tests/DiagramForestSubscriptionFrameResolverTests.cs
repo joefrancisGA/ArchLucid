@@ -5,6 +5,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class DiagramForestSubscriptionFrameResolverTests
 {
     public static TheoryData<DiagramMode> AllDiagramModes { get; } = new(Enum.GetValues<DiagramMode>());

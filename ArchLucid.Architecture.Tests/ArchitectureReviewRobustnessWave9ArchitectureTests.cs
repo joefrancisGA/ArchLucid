@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion81_list_complete_requires_committed_golden_manifest()
     {
-        string listResolver = File.ReadAllText(
+        string listResolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Runs", "AuthorityRunLifecyclePhaseListResolver.cs"));
 
         listResolver.Should().Contain("IsCommittedWithGoldenManifest");
@@ -36,14 +36,14 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
             .Should()
             .BeFalse();
 
-        string registrar = File.ReadAllText(
+        string registrar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
                 "Startup",
                 "Modules",
                 "RunLifecycleOrchestrationCompositionRegistrar.ExportsGovernance.cs"));
-        string reviewExports = File.ReadAllText(
+        string reviewExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",
@@ -59,12 +59,12 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion83_sponsor_exports_use_lifecycle_guard()
     {
-        string sponsorPacket = File.ReadAllText(
+        string sponsorPacket = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "SponsorReviewPacketBuilder.cs"));
 
         sponsorPacket.Should().Contain("AuthorityLifecycleCompareExportGuard");
 
-        string buyerProof = File.ReadAllText(
+        string buyerProof = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "BuyerProofPackBuilder.cs"));
 
         buyerProof.Should().Contain("AuthorityLifecycleCompareExportGuard");
@@ -73,7 +73,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion84_multi_cloud_collection_utc_pinned_at_create()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
 
         pinService.Should().Contain("TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Aws");
@@ -83,7 +83,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion85_roi_freshness_prefers_pinned_evidence_json()
     {
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Roi", "RoiCostEvidenceCollectionResolver.cs"));
 
         resolver.Should().Contain("ResolvePinsFromHeader");
@@ -102,13 +102,13 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
             .Should()
             .BeTrue();
 
-        string fingerprint = File.ReadAllText(
+        string fingerprint = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Manifest", "GoldenManifestFingerprint.cs"));
 
         fingerprint.Should().Contain("GoldenManifestCreateTimePinCommitment");
         fingerprint.Should().Contain("createTimePolicyPackPins");
 
-        string cli = File.ReadAllText(
+        string cli = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Runs.FingerprintSeed.cs"));
 
         cli.Should().Contain("RunHeaderCreateTimePinCommitmentFactory.TryFromPinJson");
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion87_create_time_kappa_header_pin()
     {
-        string migration = File.ReadAllText(
+        string migration = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
@@ -135,7 +135,7 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion88_policy_pack_json_byte_integrity()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
         pinService.Should().Contain("SHA256.HashData(Encoding.UTF8.GetBytes(header.PinnedPolicyPackIdsJson))");
@@ -144,12 +144,12 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion89_empty_pin_json_normalized()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
 
         pinService.Should().NotContain("if (ordered.Length == 0)");
 
-        string deserializer = File.ReadAllText(
+        string deserializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunHeaderPinDeserializer.cs"));
 
         deserializer.Should().Contain("if (parsed is not null)");
@@ -158,12 +158,12 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
     [Fact]
     public void Suggestion90_focused_pilot_restore_on_replay_and_async_resume()
     {
-        string replay = File.ReadAllText(
+        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         replay.Should().Contain("BeginRestoredScope");
 
-        string asyncResume = File.ReadAllText(
+        string asyncResume = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

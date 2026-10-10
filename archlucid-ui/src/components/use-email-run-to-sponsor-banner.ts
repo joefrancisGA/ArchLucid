@@ -8,7 +8,7 @@ import { useTenantBaselineRoiQuery } from "@/hooks/use-tenant-baseline-roi-query
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/sponsor-value-report-mutation-blocked-reason";
 import { sponsorPackSentMutationBlockedReason } from "@/lib/pilots/sponsor-pack-sent-mutation-blocked-reason";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";

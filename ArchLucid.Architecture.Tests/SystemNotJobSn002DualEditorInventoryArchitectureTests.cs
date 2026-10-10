@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn002DualEditorInventoryArchitectureTests
     [Fact]
     public void Sn002_inventory_doc_names_ia_007_leftover_and_field_table()
     {
-        string markdown = File.ReadAllText(
+        string markdown = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_DUAL_EDITOR_INVENTORY.md"));
 
         markdown.Should().Contain("IA-007 leftover");
@@ -27,9 +27,9 @@ public sealed class SystemNotJobSn002DualEditorInventoryArchitectureTests
     [Fact]
     public void Sn002_inventory_module_lists_rows_and_alternate_writer()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-dual-editor-inventory.ts"));
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-dual-editor-inventory.test.ts"));
 
         inventory.Should().Contain("SYSTEM_NOT_JOB_DUAL_EDITOR_ROWS");

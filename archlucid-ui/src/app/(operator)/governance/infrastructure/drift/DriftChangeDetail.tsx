@@ -38,11 +38,11 @@ function DriftChangePropertyDetail(props: {
       <dl className="mt-3 grid gap-2 text-sm">
         <div>
           <dt className="font-medium">Old value</dt>
-          <dd className="font-mono text-xs">{props.change.oldValue ?? "—"}</dd>
+          <dd className="font-mono text-xs">{props.change.oldValue ?? "Previous value was not stored."}</dd>
         </div>
         <div>
           <dt className="font-medium">New value</dt>
-          <dd className="font-mono text-xs">{props.change.newValue ?? "—"}</dd>
+          <dd className="font-mono text-xs">{props.change.newValue ?? "Updated value was not stored."}</dd>
         </div>
         <div>
           <dt className="font-medium">Evidence</dt>
@@ -52,7 +52,7 @@ function DriftChangePropertyDetail(props: {
                 {props.change.evidenceReference}
               </Link>
             ) : (
-              props.change.evidenceReference ?? "—"
+              props.change.evidenceReference ?? "Evidence reference was not stored."
             )}
           </dd>
         </div>
@@ -136,14 +136,14 @@ export function DriftChangeDetail(props: {
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 Previous is the baseline snapshot value.
               </dd>
-              <dd className="font-mono text-xs">{primaryChange.oldValue ?? "—"}</dd>
+              <dd className="font-mono text-xs">{primaryChange.oldValue ?? "Previous value was not stored."}</dd>
             </div>
             <div>
               <dt className="font-medium">New value</dt>
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 New is the later snapshot value.
               </dd>
-              <dd className="font-mono text-xs">{primaryChange.newValue ?? "—"}</dd>
+              <dd className="font-mono text-xs">{primaryChange.newValue ?? "Updated value was not stored."}</dd>
             </div>
             <div>
               <dt className="font-medium">Evidence</dt>
@@ -153,7 +153,7 @@ export function DriftChangeDetail(props: {
                     {primaryChange.evidenceReference}
                   </Link>
                 ) : (
-                  primaryChange.evidenceReference ?? "—"
+                  primaryChange.evidenceReference ?? "Evidence reference was not stored."
                 )}
               </dd>
             </div>

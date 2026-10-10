@@ -15,9 +15,9 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_service_stamps_posture_after_sealed_hash()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
-        string stamper = File.ReadAllText(
+        string stamper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptCareerPostureStamper.cs"));
 
         service.Should().Contain("DecisionReceiptCareerPostureStamper.ApplyCommittedRunPosture");
@@ -29,7 +29,7 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_contract_requires_posture_fields()
     {
-        string contract = File.ReadAllText(
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Exports", "DecisionReceiptDocument.cs"));
 
         contract.Should().Contain("StructuralExecutionMode");
@@ -40,9 +40,9 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_ts_helper_includes_career_posture_on_committed_run()
     {
-        string exportHelper = File.ReadAllText(
+        string exportHelper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "decision-receipt-export.ts"));
-        string postureHelper = File.ReadAllText(
+        string postureHelper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "decision-receipt-career-posture.ts"));
 
         exportHelper.Should().Contain("resolveDecisionReceiptCareerPosture");
@@ -53,7 +53,7 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_docs_record_decision_receipt_career_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-025");

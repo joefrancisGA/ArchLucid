@@ -127,4 +127,14 @@ describe("finding-policy-evidence-citations", () => {
       }),
     ).toBe("Subnet allows public ingress on port 443");
   });
+
+  it("labels missing evidence excerpt explicitly", () => {
+    expect(
+      findingInspectEvidenceCitationLabel({
+        artifactId: null,
+        lineRange: null,
+        excerpt: null,
+      }),
+    ).toBe("Evidence excerpt was not stored.");
+  });
 });

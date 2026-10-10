@@ -14,7 +14,7 @@ public sealed class MutatingIdempotencyContractArchitectureTests
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "MutatingEndpointIdempotencyContractIntegrationTests.cs");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("CreateRun_same_idempotency_key_replays_without_duplicate_run_rows");
         text.Should().Contain("CommitRun_same_idempotency_key_replays_without_new_manifest_version");
         text.Should().Contain("Governance_approval_submit_same_idempotency_key_replays_without_duplicate_request_id");
@@ -25,7 +25,7 @@ public sealed class MutatingIdempotencyContractArchitectureTests
     {
         string path = Path.Combine(RepoRoot, "scripts", "ci", "fixtures", "mutating_route_idempotency_baseline.json");
         File.Exists(path).Should().BeTrue();
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("POST /v1/architecture/request");
         text.Should().Contain("POST /v1/architecture/review/{runId}/finalize");
         text.Should().Contain("POST /v1/governance/approval-requests");
@@ -35,7 +35,7 @@ public sealed class MutatingIdempotencyContractArchitectureTests
     public void Risk_exception_create_is_operator_documented_safe_retry_not_explicit_idempotency_key()
     {
         string path = Path.Combine(RepoRoot, "scripts", "ci", "fixtures", "mutating_route_idempotency_baseline.json");
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("\"POST /v1/governance/risk-exceptions\": \"operator-documented-safe-retry\"");
         text.Should().Contain("\"POST /v1/governance/findings/{findingId}/dispositions\": \"explicit-idempotency-key\"");

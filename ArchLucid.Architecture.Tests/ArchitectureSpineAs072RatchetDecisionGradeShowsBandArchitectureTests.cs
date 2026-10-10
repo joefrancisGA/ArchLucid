@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_ui_desk_guard_module_exists_and_lists_guarded_paths()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "semantic-support-band-desk-inventory.ts"));
 
         inventory.Should().Contain("SEMANTIC_SUPPORT_BAND_DESK_GUARDED_PATHS");
@@ -23,7 +23,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_ui_desk_guard_test_scans_guarded_surfaces()
     {
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "semantic-support-band-desk-guard.test.ts"));
 
         guardTest.Should().Contain("AS-072");
@@ -33,7 +33,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_inventory_lists_guarded_source_roots()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -54,7 +54,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_guard_requires_as061_band_markers()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -72,7 +72,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_vitest_guard_blocks_unchip_decision_grade_list_rows()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -88,7 +88,7 @@ public sealed class ArchitectureSpineAs072RatchetDecisionGradeShowsBandArchitect
     [Fact]
     public void As072_chip_helper_defaults_decision_grade_to_not_scored()
     {
-        string chip = File.ReadAllText(
+        string chip = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

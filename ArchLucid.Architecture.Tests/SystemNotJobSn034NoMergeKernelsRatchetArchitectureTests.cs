@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn034NoMergeKernelsRatchetArchitectureTests
     [Fact]
     public void Sn034_ratchet_module_names_acceptance_line_and_kernel_inventory()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-no-merge-kernels-ratchet.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_NO_MERGE_KERNELS_ACCEPTANCE_LINE");
@@ -27,7 +27,7 @@ public sealed class SystemNotJobSn034NoMergeKernelsRatchetArchitectureTests
     [Fact]
     public void Sn034_master_sql_keeps_draft_requests_and_runs_separate()
     {
-        string sql = File.ReadAllText(
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
 
         sql.Should().Contain("CREATE TABLE dbo.DraftRequests");
@@ -39,7 +39,7 @@ public sealed class SystemNotJobSn034NoMergeKernelsRatchetArchitectureTests
     [Fact]
     public void Sn034_compare_service_stays_run_based_not_draft_based()
     {
-        string compareService = File.ReadAllText(
+        string compareService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Persistence",
@@ -56,14 +56,14 @@ public sealed class SystemNotJobSn034NoMergeKernelsRatchetArchitectureTests
     [Fact]
     public void Sn034_vitest_ratchet_names_acceptance_line_adr_0068_and_compare_api_run_ids()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "lib",
                 "system-not-job-no-merge-kernels-ratchet.test.ts"));
-        string adr0068 = File.ReadAllText(
+        string adr0068 = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "docs",

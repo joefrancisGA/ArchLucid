@@ -15,21 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
     [Fact]
     public void Suggestion573_577_page_bundles_run_detail_graph_and_registers_openapi_409()
     {
-        string criticalBundle = File.ReadAllText(
+        string criticalBundle = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.Critical.cs"));
-        string workspaceBundle = File.ReadAllText(
+        string workspaceBundle = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.WorkspaceContext.cs"));
-        string sealedGuard = File.ReadAllText(
+        string sealedGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.SealedManifestGuard.cs"));
-        string authorityReads = File.ReadAllText(
+        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string runDetailQuery = File.ReadAllText(
+        string runDetailQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.RunDetail.cs"));
-        string reviewGraph = File.ReadAllText(
+        string reviewGraph = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "GraphController.ReviewGraph.cs"));
-        string registersController = File.ReadAllText(
+        string registersController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Registers.cs"));
-        string registersGuard = File.ReadAllText(
+        string registersGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "Stickiness", "GovernanceStickinessFacade.RegistersSealedManifestGuard.cs"));
 
         criticalBundle.Should().Contain("GetCriticalPageBundle");
@@ -57,21 +57,21 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
     [Fact]
     public void Suggestion578_581_sealed_manifest_aware_reads_and_blocked_reason_helpers()
     {
-        string pageBundleClient = File.ReadAllText(
+        string pageBundleClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-run-detail-page-bundle-client.ts"));
-        string pageBundleBlockedReason = File.ReadAllText(
+        string pageBundleBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-detail-page-bundle-blocked-reason.ts"));
-        string runDetailArtifacts = File.ReadAllText(
+        string runDetailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string runDetailList = File.ReadAllText(
+        string runDetailList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string graphApi = File.ReadAllText(
+        string graphApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
-        string graphBlockedReason = File.ReadAllText(
+        string graphBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph", "evidence-graph-blocked-reason.ts"));
-        string registersApi = File.ReadAllText(
+        string registersApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-registers.ts"));
-        string registersBlockedReason = File.ReadAllText(
+        string registersBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "governance-registers-blocked-reason.ts"));
 
         pageBundleClient.Should().Contain("apiGetSealedManifestAware");
@@ -92,7 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
     [Fact]
     public void Suggestion582_workspace_context_and_page_bundle_fail_closed_ux()
     {
-        string deferredModel = File.ReadAllText(
+        string deferredModel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -104,7 +104,7 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-deferred-model.ts"));
-        string fetchErrorView = File.ReadAllText(
+        string fetchErrorView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -116,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailPageFetchErrorView.tsx"));
-        string graphError = File.ReadAllText(
+        string graphError = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -127,9 +127,9 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
                 "evidence-graph",
                 "_sections",
                 "GraphBuyerEvidenceTrailError.tsx"));
-        string findingsFetch = File.ReadAllText(
+        string findingsFetch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "governance", "findings", "governance-findings-query-fetch.ts"));
-        string decisionRegisterQuery = File.ReadAllText(
+        string decisionRegisterQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-architecture-decision-register-query.ts"));
 
         deferredModel.Should().Contain("workspaceContextBundleBlockedReason");
@@ -142,7 +142,7 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
     [Fact]
     public void Suggestion583_584_programmatic_download_consolidation()
     {
-        string artifactsExports = File.ReadAllText(
+        string artifactsExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -154,17 +154,17 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailArtifactsExportsSection.tsx"));
-        string decisionButton = File.ReadAllText(
+        string decisionButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "draft-intake", "DecisionReceiptExportButton.tsx"));
-        string aiReadinessCard = File.ReadAllText(
+        string aiReadinessCard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailAiReadinessGateCard.tsx"));
-        string retrievalSummaryCard = File.ReadAllText(
+        string retrievalSummaryCard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunRetrievalGroundingSummaryCard.tsx"));
-        string architectureRequestDownload = File.ReadAllText(
+        string architectureRequestDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-architecture-request.ts"));
-        string draftReceiptDownload = File.ReadAllText(
+        string draftReceiptDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-draft-decision-receipt.ts"));
-        string retrievalJsonDownload = File.ReadAllText(
+        string retrievalJsonDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-retrieval-grounding-json.ts"));
 
         artifactsExports.Should().Contain("downloadArchitectureRequestJson");

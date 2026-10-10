@@ -15,14 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1209_1211_compare_explain_and_policy_pack_sealed_manifest_conflict_mappers()
     {
-        string explanationCompare = File.ReadAllText(
+        string explanationCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "ExplanationController.CompareHolistic.cs"));
-        string policyAssignment = File.ReadAllText(
+        string policyAssignment = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -37,14 +37,14 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1212_1215_demo_viewer_compare_sealed_manifest_conflict_mappers()
     {
-        string demoCompare = File.ReadAllText(
+        string demoCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Demo",
                 "DemoViewerController.Compare.cs"));
-        string demoGuard = File.ReadAllText(
+        string demoGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -59,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1216_1220_draft_intake_and_recurrence_blocked_reason_wiring()
     {
-        string draftBlocked = File.ReadAllText(
+        string draftBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -67,13 +67,13 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-draft-blocked-reason.ts"));
-        string draftCrudApi = File.ReadAllText(
+        string draftCrudApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-crud.ts"));
-        string draftQuestionsApi = File.ReadAllText(
+        string draftQuestionsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-questions.ts"));
-        string draftLifecycleApi = File.ReadAllText(
+        string draftLifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "draft-intake-api-lifecycle.ts"));
-        string recurrenceBlocked = File.ReadAllText(
+        string recurrenceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -81,7 +81,7 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
                 "lib",
                 "governance",
                 "recurrence-schedule-mutation-blocked-reason.ts"));
-        string stickinessApi = File.ReadAllText(
+        string stickinessApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -28,7 +28,7 @@ public sealed class FindingVerificationGoldenManifestImmutabilityArchitectureTes
             string absolutePath = Path.Combine(RepoRoot, relativePath);
             File.Exists(absolutePath).Should().BeTrue($"expected guarded source at {relativePath}");
 
-            string text = File.ReadAllText(absolutePath);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(absolutePath);
 
             text.Should().NotContain(
                 "UPDATE dbo.GoldenManifests",

@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateBinTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "bi-1", label: "bin", sourceId: "azurerm_bin.main"));
+            ComputeNode(nodeId: "bi-1", label: "bin", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-bin")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

@@ -19,7 +19,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
             .Should()
             .BeTrue();
 
-        string kernel = File.ReadAllText(
+        string kernel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
 
         kernel.Should().Contain("EnsureArchitectureIdentityAsync");
@@ -47,7 +47,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion13_draft_spawn_pins_architecture_version()
     {
-        string draftResponse = File.ReadAllText(
+        string draftResponse = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Drafts", "DraftRequestResponse.cs"));
 
         draftResponse.Should().Contain("SpawnedArchitectureVersionId");
@@ -64,7 +64,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
 
         orchestrator.Should().Contain("FindingAnalysisContextGraphStamp.Stamp");
 
-        string mergeStage = File.ReadAllText(
+        string mergeStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsMergeAndGateStage.cs"));
 
         mergeStage.Should().Contain("PolicyPackCategoryCoverageValidator");
@@ -73,12 +73,12 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion15_post_commit_v2_appendix_enqueue_removed()
     {
-        string enqueuer = File.ReadAllText(
+        string enqueuer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "PostCommitProjectionEnqueuer.cs"));
 
         enqueuer.Should().NotContain("PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization");
 
-        string idempotencyHandler = File.ReadAllText(
+        string idempotencyHandler = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -124,7 +124,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion19_graph_reuse_requires_observation_fingerprint()
     {
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "Graph", "GraphSnapshotCommittedReuseResolver.cs"));
 
         resolver.Should().Contain("IsObservationallyEqual");

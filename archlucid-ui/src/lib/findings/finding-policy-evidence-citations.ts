@@ -68,7 +68,7 @@ export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence)
     return artifact.replace(/-/g, " ");
   }
 
-  return "Cited evidence";
+  return "Evidence excerpt was not stored.";
 }
 
 export function findingInspectHref(runId: string, findingId: string): string {

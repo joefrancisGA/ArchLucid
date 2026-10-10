@@ -1,0 +1,80 @@
+{
+  "baselineCommit": "09cdbc98e8b6b6bef6890ff2bea4ea9fa7cf5ed8",
+  "reason": "PR #4396: use a single typed private-endpoint target edge with deterministic provenance and property evidence; suppress the duplicate generic CONNECTS_TO edge.",
+  "cases": {
+    "private-link-property": {
+      "nodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "NodeType": "TopologyResource",
+          "Label": "pe-a",
+          "Category": "network",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Network/privateEndpoints"
+          }
+        },
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "NodeType": "TopologyResource",
+          "Label": "storage-a",
+          "Category": "storage",
+          "SourceType": "azure-inventory-snapshot",
+          "properties": {
+            "arm.id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/storage-a",
+            "arm.resourceGroup": "rg",
+            "arm.subscriptionId": "sub",
+            "arm.type": "Microsoft.Storage/storageAccounts"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe-a",
+          "to": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "EdgeType": "privateEndpointTarget",
+          "Label": "privateEndpointTarget",
+          "ProvenanceKind": "DeterministicInference",
+          "InferenceSource": "inventory-private-endpoint",
+          "Weight": 1,
+          "DeclaredConnectionId": null,
+          "properties": {
+            "evidence.propertyKey": "privateLinkServiceId",
+            "evidence.resourceRowId": "00000000-0000-0000-0000-000000000004",
+            "evidence.targetArmId": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+            "inventory.indirectRelationship.evidenceCurrency": "Current",
+            "inventory.indirectRelationship.evidenceSource": "inventory-private-endpoint"
+          }
+        }
+      ],
+      "diagramGroups": [
+        {
+          "identity": "/Subscription sub",
+          "parent": "",
+          "Label": "Subscription sub"
+        },
+        {
+          "identity": "/Subscription sub/RG rg",
+          "parent": "/Subscription sub",
+          "Label": "RG rg"
+        }
+      ],
+      "diagramNodes": [
+        {
+          "identity": "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/storage-a",
+          "group": "/Subscription sub/RG rg",
+          "Label": "storage-a",
+          "NodeType": "TopologyResource",
+          "ArmResourceType": "Microsoft.Storage/storageAccounts",
+          "HasPrivateEndpointAccess": true,
+          "state": "Unconnected",
+          "ConnectionStateMessage": null
+        }
+      ],
+      "diagramEdges": []
+    }
+  }
+}

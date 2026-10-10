@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateYhmTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "yh-1", label: "yhm", sourceId: "azurerm_yhm.main"));
+            ComputeNode(nodeId: "yh-1", label: "yhm", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-yhm")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

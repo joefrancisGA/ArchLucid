@@ -4,7 +4,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { submitAdminInviteFromUsersUi, gotoLiveAdminUsersInvitePage } from "./helpers/live-invite-form-submit";
+import {
+  expectLiveAdminInvitationRevoked,
+  gotoLiveAdminUsersInvitePage,
+  submitAdminInviteFromUsersUi,
+} from "./helpers/live-invite-form-submit";
 import {
   createScimAdminToken,
   primePrivateBetaBrowserSessionIfJwtMode,
@@ -54,8 +58,7 @@ test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, ()
     await expect(revokeDialog).toBeVisible({ timeout: 15_000 });
     await revokeDialog.getByRole("button", { name: "Revoke invitation" }).click();
 
-    await expect(pendingRow).toContainText("Revoked", { timeout: 60_000 });
-    await expect(pendingRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+    await expectLiveAdminInvitationRevoked(page, inviteEmail);
   });
 
   test("duplicate pending invite from UI does not create a second row", async ({ page }) => {

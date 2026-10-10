@@ -50,5 +50,5 @@ public readonly record struct HeldCheckSecondPassDelta(
     IReadOnlyList<string> UnblockedEngineTypes,
     int NewDecisionGradeCount)
 {
-    public static HeldCheckSecondPassDelta Empty { get; } = new([], 0);
+    public static readonly HeldCheckSecondPassDelta Empty = new([], 0);
 }

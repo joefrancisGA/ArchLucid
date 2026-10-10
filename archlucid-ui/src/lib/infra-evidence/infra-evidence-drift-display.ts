@@ -38,6 +38,7 @@ const CHANGE_TYPE_LABELS: Readonly<Record<string, string>> = {
   SkuChanged: "SKU changed",
   DependencyChanged: "Dependency changed",
   PolicyAssignmentChanged: "Policy assignment changed",
+  ChangeTypeNotStored: "Change type was not stored.",
   Unknown: "Unknown",
   ResourceUnchanged: "Unchanged",
   Modified: "Modified",
@@ -68,6 +69,10 @@ export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string;
 
 export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number | null | undefined): string {
   if (typeof changeType === "number" && Number.isInteger(changeType)) {
+    if (changeType === 19) {
+      return "Unknown";
+    }
+
     const indexed = CHANGE_TYPE_INDEX_TO_KEY[changeType];
 
     if (indexed != null) {
@@ -78,7 +83,7 @@ export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number 
   const trimmed = String(changeType ?? "").trim();
 
   if (trimmed.length === 0) {
-    return "Unknown";
+    return "ChangeTypeNotStored";
   }
 
   if (CHANGE_TYPE_LABELS[trimmed] != null) {
