@@ -231,8 +231,10 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     {
         List<RetrievalDocument> documents = [];
 
-        foreach (var finding in findings)
+        for (int findingIndex = 0; findingIndex < findings.Count; findingIndex++)
         {
+            Finding finding = findings[findingIndex];
+
             if (finding.IsMuted)
                 continue;
 
@@ -242,8 +244,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             if (string.IsNullOrWhiteSpace(message))
                 continue;
 
+            // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{runId:N}-{findingIndex}"
                 : finding.FindingId.Trim();
 
             string content = $"[{finding.Category}] {finding.Severity}: {message}";

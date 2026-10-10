@@ -126,6 +126,47 @@ public sealed class RetrievalDocumentBuilderTests
     }
 
     [Fact]
+    public void BuildForFindings_missing_finding_id_is_stable_across_rebuilds()
+    {
+        Guid runId = Guid.NewGuid();
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = null!,
+                Category = "Security",
+                Severity = FindingSeverity.Error,
+                Rationale = "Use private endpoints.",
+            },
+        ];
+
+        RetrievalDocumentBuilder sut = new();
+
+        string firstDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+        string secondDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        secondDocumentId.Should().Be(firstDocumentId);
+    }
+
+    [Fact]
     public void BuildForFindings_skips_muted_and_empty_messages()
     {
         Guid tenantId = Guid.NewGuid();
