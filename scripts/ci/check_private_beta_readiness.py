@@ -53,6 +53,7 @@ def _check_required_files(root: Path) -> list[str]:
         "scripts/ci/check_private_beta_access_coverage.py",
         "scripts/ci/check_private_beta_openapi_provisioning_routes.py",
         "scripts/ci/check_private_beta_evidence_consistency.py",
+        "scripts/ci/check_private_beta_frozen_branch_pin.py",
     ) + REQUIRED_SPECS
 
     return [
@@ -89,6 +90,9 @@ def _check_workflow(root: Path) -> list[str]:
 
     if "check_private_beta_openapi_provisioning_routes.py" not in content:
         issues.append("private-beta workflow must include provisioning OpenAPI route wiring")
+
+    if "check_private_beta_frozen_branch_pin.py" not in content:
+        issues.append("private-beta workflow must include frozen-branch pin freshness diagnostics")
 
     return issues
 
