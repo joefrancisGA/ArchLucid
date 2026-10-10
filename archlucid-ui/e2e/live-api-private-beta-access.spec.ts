@@ -36,13 +36,13 @@ import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-s
 import {
   expectLiveBrandedNotFoundRecovery,
   expectLiveFirstReviewGuideReady,
+  expectLiveReviewsHubHeading,
   expectLiveReviewsHubListReady,
 } from "./helpers/live-page-readiness";
 import {
   assertLiveSeatOperatorScopeChrome,
   waitAndDismissFirstSessionPurposeChooser,
 } from "./helpers/live-seat-scope-assertions";
-import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
@@ -416,9 +416,7 @@ test.describe(
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
     await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubHeading(page);
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
@@ -550,9 +548,7 @@ test.describe(
 
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
     await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubHeading(page);
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
