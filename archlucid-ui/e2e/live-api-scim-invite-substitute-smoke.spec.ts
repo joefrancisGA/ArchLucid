@@ -2,7 +2,7 @@
  * SCIM-as-invite-substitute smoke (TB-797 wave 2+4): page load, vocabulary rail,
  * and admin token issue → list → revoke lifecycle under JwtBearer.
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIResponse } from "@playwright/test";
 
 import { clickControlThatOpensDialog } from "./helpers/dismiss-blocking-modal-overlays";
 import {
@@ -16,6 +16,10 @@ import { requireLiveScimAdminPreflight } from "./helpers/live-scim-admin-preflig
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 import { SCIM_CREATE_DIALOG_CONFIRM, SCIM_REVOKE_DIALOG_CONFIRM } from "@/lib/scim-provisioning-page-copy";
 
+function expectSupportCorrelationId(response: APIResponse, context: string): void {
+  expect(response.headers()["x-correlation-id"], `${context} should carry X-Correlation-ID`).toBeTruthy();
+}
+
 test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] }, () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run SCIM invite-substitute smoke.");
 
@@ -27,6 +31,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     const response = await request.get(`${liveApiBase}/scim/v2/Users`);
 
     expect([401, 403]).toContain(response.status());
+    expectSupportCorrelationId(response, "unauthenticated SCIM response");
   });
 
   test("SCIM bearer cannot select a different tenant with x-tenant-id", async ({ request }) => {
@@ -40,6 +45,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     });
 
     expect(response.status()).toBe(403);
+    expectSupportCorrelationId(response, "cross-tenant SCIM response");
   });
 
   test("SCIM provisioning page loads vocabulary rail linking to Identity providers", async ({ page }) => {
