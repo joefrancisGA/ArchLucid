@@ -34167,9 +34167,11 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 59 · **Bugs found:** 31 · **Consecutive dry hunts:** 1
+**Hunts:** 60 · **Bugs found:** 31 · **Consecutive dry hunts:** 1
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
+
+2026-10-10 seed hunt (seed-only): `ui-review-intake-wizards` — reread the route’s intake, wizard-mode, synopsis, and path-switcher files; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows under the canonical hypothesis block. The focused `reviews/new` scope ran 225 tests: 154 passed and 71 failed on existing wizard/path-switcher/deferred-import baseline failures.
 
 2026-10-09 seed hunt (seed→hit): `useNewRunWizardPendingEvidence` launched automatic quick-start inventory evidence upload without a rejection handler. A reachable network exception from the upload client left the review created but the hook stuck in `"uploading"` and produced an unhandled rejection. Upload exceptions now become a failed evidence state with a safe error message, cleared progress, and retryable pending-file state; regression `records automatic inventory upload exceptions as failed evidence uploads` failed first with `"uploading"`. The focused pending-evidence suite passed 7/7; the full `reviews/new` scope retained 71 pre-existing baseline failures.
 
@@ -34327,7 +34329,15 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
+2026-10-10 seed hunt (seed-only): reread the route’s intake, wizard-mode, synopsis, and path-switcher files; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused `reviews/new` scope ran 225 tests: 154 passed and 71 failed on existing wizard/path-switcher/deferred-import baseline failures.
+
 ### Hypotheses
+
+- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — restoring a saved guided-intake draft can apply persisted view state before current `path`/`intakeStep` URL state finishes synchronizing, so browser navigation can show a stale panel with current draft values — locus: session restore and view/step synchronization; input: restore a saved draft while navigating between guided-intake steps.
+- [ ] (candidate) `useNewRunWizardPendingEvidence` — a pending evidence retry can reuse the prior detected inventory platform while a replacement file is still being classified, so a second upload can be sent to the wrong platform endpoint — locus: pending-file/platform detection state and auto-upload effect; input: replace a pending inventory ZIP during in-flight platform detection.
+- [ ] (candidate) `useNewRunWizardQueryPrefill` — accelerator, preset, and policy-pack deeplinks can apply in an order that preserves the wrong policy references after a step or mode URL transition — locus: guarded prefill effects and reset/reapply sequence; input: deep link with `accelerator`, `preset`, `policyPackId`, and `step` together.
+- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — switching from guided intake to templates can preserve an intake query key that changes the next wizard’s initial mode after the visible path is canonicalized — locus: path-switch query deletion set; input: switch paths with `rerun`, `baseline`, or another intake-only query key present.
+- [ ] (candidate) `useFirstPilotIntakeSubmit` — a post-create session-storage cleanup failure can report quick-start as failed after the review exists, leaving the created review without its navigation target — locus: cleanup awaited in the successful-submit branch; input: successful create with denied or quota-exhausted session storage.
 
 - [x] (proven) `useGuidedIntakeBriefForm` — starter `preset=` overwrote `template=` / `example=` brief fields — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`.
 - [x] (proven) `useGuidedIntakeDraftCreate` — source-architecture `getDraftRequest` rejection escaped the effect, leaving the wizard without an error state and producing an unhandled rejection — **hit 2026-10-09 seed hunt:** map source-load failures through `architectureDraftBlockedReason` and set `submitError`; regression `reports a source-architecture load failure instead of leaving an unhandled rejection`.
