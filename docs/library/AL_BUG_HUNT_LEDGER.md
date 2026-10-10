@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — reread the trace quality evaluator, confidence pipeline, reference-case evaluator, faithfulness components, and embedding scorer. The selected code exposed a fresh candidate where confidence enrichment does not forward the host `AgentExecutionOptions.Mode` into the quality evaluator when persisted task mode is absent; this was not promoted without a same-run failing repro. The scoped Evaluation filter passed 200/200. No production change.
+
 2026-10-10 seed hunt (seed→hit): `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` counted null and blank entries toward the PilotStrict evidence-reference floor, so a reachable agent payload with `evidenceRefs: [null]` could pass the configured minimum. The gate now counts only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`; 200 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
 
 2026-10-10 seed hunt (seed→hit): `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` clamped an out-of-range judge score such as `2.0` to `1.0`, so malformed external LLM output could be accepted as perfect faithfulness. The parser now rejects scores outside `[0,1]`; regression `TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range`; 199 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
@@ -11605,7 +11607,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-08
@@ -16812,6 +16814,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
 
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
+- [ ] (candidate) `AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync` / `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — confidence enrichment omits the host `AgentExecutionOptions.Mode` when persisted task mode is absent, so a real trace can skip real-only finding-citation coverage — locus: confidence path forwards `taskStructuralExecutionMode` but not `hostAgentExecutionMode`; input: a real execution with a legacy `AgentResult` whose task mode is null and an uncited finding; reachability: recorder and confidence enrichment both process persisted agent results, while host mode is configured as `Real`.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null or blank evidence-reference items was counted toward the PilotStrict minimum without validating each reference — **hit 2026-10-10 seed hunt:** count only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`.
 - [x] (proven) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range was silently clamped to 0 or 1 rather than treated as malformed judge output — **hit 2026-10-10 seed hunt:** reject scores outside `[0,1]` instead of clamping; regression `TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range`.
