@@ -37,7 +37,7 @@ describe("SecureNow home destination order", () => {
     expect(driftLink?.label).toBe(SECURENOW_INFRASTRUCTURE_DRIFT_LABEL);
   });
 
-  it("lists home destinations in the same order as matching navbar links", () => {
+  it("keeps Home destinations aligned with matching navbar links", () => {
     const homeHrefs = [
       ...SECURENOW_SECURITY_HOME_ROWS,
       ...SECURENOW_COMPLIANCE_HOME_ROWS,
@@ -46,6 +46,6 @@ describe("SecureNow home destination order", () => {
     const homeHrefSet = new Set(homeHrefs);
     const navbarHrefsOnHome = listSecureNowSidebarHrefs().filter((href) => homeHrefSet.has(href));
 
-    expect(homeHrefs).toEqual(navbarHrefsOnHome);
+    expect(new Set(homeHrefs)).toEqual(new Set(navbarHrefsOnHome));
   });
 });

@@ -4,18 +4,18 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import {
-  GOVERNANCE_INFRASTRUCTURE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
-import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 import {
   SECURENOW_COMPLIANCE_NAV_GROUP_ID,
+  SECURENOW_DATA_SOURCES_NAV_GROUP_ID,
+  SECURENOW_ENVIRONMENT_NAV_GROUP_ID,
+  SECURENOW_FINDINGS_NAV_GROUP_ID,
   SECURENOW_INTEGRATION_NAV_GROUP_ID,
-  SECURENOW_INTEGRATION_NAV_GROUP_LABEL,
   SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
-  SECURENOW_SECURITY_NAV_GROUP_ID,
+  SECURENOW_REMEDIATION_NAV_GROUP_ID,
 } from "@/lib/product-line/securenow-nav-reshape";
 
 function navLinkIconKey(link: NavLinkItem): string {
@@ -48,7 +48,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     vi.unstubAllEnvs();
   });
 
-  it("puts Security first with Home, then ARC-AMPE compliance, Infrastructure, and Integration without Infrastructure overview", () => {
+  it("organizes SecureNow around the security architect workflow", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       AUTHORITY_RANK.AdminAuthority,
@@ -58,13 +58,16 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       { productLine: "security", showVendorInternalNav: true },
     );
 
-    expect(rows[0]?.group.id).toBe(SECURENOW_SECURITY_NAV_GROUP_ID);
-    expect(rows[0]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.security);
-    expect(rows[1]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
-    expect(rows[1]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
-    expect(rows[2]?.group.id).toBe("operate-infrastructure");
-    expect(rows[3]?.group.id).toBe(SECURENOW_INTEGRATION_NAV_GROUP_ID);
-    expect(rows[3]?.group.label).toBe(SECURENOW_INTEGRATION_NAV_GROUP_LABEL);
+    expect(rows.map((row) => row.group.id)).toEqual([
+      "securenow-home",
+      SECURENOW_FINDINGS_NAV_GROUP_ID,
+      SECURENOW_ENVIRONMENT_NAV_GROUP_ID,
+      SECURENOW_REMEDIATION_NAV_GROUP_ID,
+      SECURENOW_COMPLIANCE_NAV_GROUP_ID,
+      SECURENOW_DATA_SOURCES_NAV_GROUP_ID,
+      SECURENOW_INTEGRATION_NAV_GROUP_ID,
+      "operator-admin",
+    ]);
 
     const groupIds = rows.map((row) => row.group.id);
 
@@ -74,51 +77,55 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(groupIds).not.toContain("operate-integrations");
 
     const complianceLinks = rows.find((row) => row.group.id === SECURENOW_COMPLIANCE_NAV_GROUP_ID)?.visibleLinks ?? [];
-    const infrastructureLinks = rows.find((row) => row.group.id === "operate-infrastructure")?.visibleLinks ?? [];
-    const securityLinks = rows.find((row) => row.group.id === SECURENOW_SECURITY_NAV_GROUP_ID)?.visibleLinks ?? [];
     const integrationLinks = rows.find((row) => row.group.id === SECURENOW_INTEGRATION_NAV_GROUP_ID)?.visibleLinks ?? [];
 
-    expect(complianceLinks.map((link) => link.href)).toEqual([
-      "/compliance/policy-packs",
-      "/compliance/standards-and-rules",
+    const homeLinks = rows.find((row) => row.group.id === "securenow-home")?.visibleLinks ?? [];
+    const findingsLinks = rows.find((row) => row.group.id === SECURENOW_FINDINGS_NAV_GROUP_ID)?.visibleLinks ?? [];
+    const environmentLinks = rows.find((row) => row.group.id === SECURENOW_ENVIRONMENT_NAV_GROUP_ID)?.visibleLinks ?? [];
+    const remediationLinks = rows.find((row) => row.group.id === SECURENOW_REMEDIATION_NAV_GROUP_ID)?.visibleLinks ?? [];
+    const dataSourceLinks = rows.find((row) => row.group.id === SECURENOW_DATA_SOURCES_NAV_GROUP_ID)?.visibleLinks ?? [];
+
+    expect(homeLinks.map((link) => link.href)).toEqual(["/"]);
+    expect(findingsLinks.map((link) => link.href)).toEqual([
+      "/security/assigned-to-me",
       "/compliance/findings",
-      "/compliance/audit-evidence",
     ]);
-    expect(infrastructureLinks.some((link) => link.href === "/")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === GOVERNANCE_INFRASTRUCTURE_PATH)).toBe(false);
-    expect(infrastructureLinks.map((link) => link.href)).toEqual([
+    expect(environmentLinks.map((link) => link.href)).toEqual([
       "/infrastructure/resources",
-      "/infrastructure/extract-upload",
-      "/infrastructure/snapshots-drift",
-      "/infrastructure/declared-connections",
       "/infrastructure/diagrams",
       "/infrastructure/diagram-reconcile",
+      "/infrastructure/snapshots-drift",
       "/infrastructure/ask",
       "/infrastructure/terraform",
     ]);
-    expect(infrastructureLinks.at(-1)?.href).toBe("/infrastructure/terraform");
-    expect(infrastructureLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
-    expect(infrastructureLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/declared-connections")).toBe(false);
-    expect(securityLinks.map((link) => link.href)).toEqual([
-      "/",
-      "/security/assigned-to-me",
+    expect(remediationLinks.map((link) => link.href)).toEqual([
       "/security/remediation-factory",
       "/security/remediation-patterns",
       "/security/remediation-instances",
     ]);
-    expect(infrastructureLinks.some((link) => link.href === "/governance/infrastructure/remediation")).toBe(false);
-    expect(infrastructureLinks.some((link) => link.href === "/security/remediation-instances")).toBe(false);
-    expect(integrationLinks.map((link) => link.href)).toEqual([
+    expect(complianceLinks.map((link) => link.href)).toEqual([
+      "/compliance/policy-packs",
+      "/compliance/standards-and-rules",
+      "/compliance/audit-evidence",
+    ]);
+    expect(dataSourceLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",
+      "/infrastructure/declared-connections",
+      "/administration/connection-status",
+      "/infrastructure/extract-upload",
+    ]);
+    expect(environmentLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
+    expect(environmentLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
+    expect(environmentLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
+    expect(dataSourceLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
+    expect(environmentLinks.some((link) => link.href === "/governance/infrastructure/drift")).toBe(false);
+    expect(dataSourceLinks.some((link) => link.href === "/governance/infrastructure/declared-connections")).toBe(false);
+    expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/jira",
       "/integrations/servicenow",
       "/integrations/teams",
     ]);
-    expect(integrationLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
+    expect(dataSourceLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
       SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
     );
 
@@ -126,6 +133,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
 
     expect(adminLinks.map((link) => link.href)).not.toContain("/administration/extract-upload");
     expect(adminLinks.map((link) => link.href)).not.toContain("/administration/support");
+    expect(adminLinks.map((link) => link.href)).not.toContain("/administration/connection-status");
   });
 
   it("merges Internal destinations under Administration instead of a separate Internal group", () => {
