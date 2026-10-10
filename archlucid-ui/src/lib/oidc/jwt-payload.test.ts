@@ -16,6 +16,14 @@ describe("decodeJwtPayload", () => {
     expect(decoded).toEqual(payload);
   });
 
+  it("decodes UTF-8 display names without mojibake", () => {
+    const payload = { sub: "u1", name: "Zoë 建築家" };
+    const b64 = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+    const jwt = `x.${b64}.y`;
+
+    expect(decodeJwtPayload(jwt)).toEqual(payload);
+  });
+
   it("returns null for invalid input", () => {
     expect(decodeJwtPayload("not-a-jwt")).toBeNull();
     expect(decodeJwtPayload("")).toBeNull();
