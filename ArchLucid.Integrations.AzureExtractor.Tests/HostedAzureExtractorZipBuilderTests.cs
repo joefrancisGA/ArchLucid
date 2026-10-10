@@ -11,6 +11,55 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class HostedAzureExtractorZipBuilderTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void BuildZip_preserves_hidden_resources_properties_and_exact_association_endpoints(bool managementGroupScope)
+    {
+        const string prefix = "/subscriptions/sub/resourceGroups/rg/providers/";
+        const string nicId = prefix + "Microsoft.Network/networkInterfaces/pe-nic";
+        const string peId = prefix + "Microsoft.Network/privateEndpoints/pe1";
+        IReadOnlyList<HostedAzureArmResourceRecord> resources =
+        [
+            new("Microsoft.Network/privateEndpoints", peId, "pe1", "eastus", null, null,
+                new Dictionary<string, object?> { ["networkInterfaces"] = nicId }),
+            new("Microsoft.Network/networkInterfaces", nicId, "pe-nic", "eastus", null, null,
+                new Dictionary<string, object?> { ["provisioningState"] = "Succeeded" }),
+            new("Microsoft.ManagedIdentity/userAssignedIdentities", prefix + "Microsoft.ManagedIdentity/userAssignedIdentities/mi1", "mi1", "eastus", null, null,
+                new Dictionary<string, object?> { ["principalId"] = "principal-1" }),
+            new("Microsoft.Network/privateDnsZones/virtualNetworkLinks", prefix + "Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1", "link1", "eastus", null, null,
+                new Dictionary<string, object?> { ["registrationEnabled"] = false }),
+            new("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", prefix + "Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1", "peer1", "eastus", null, null,
+                new Dictionary<string, object?> { ["peeringState"] = "Connected" }),
+        ];
+        byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
+            managementGroupScope ? null : "sub",
+            resources,
+            includeCostRequested: false,
+            DateTimeOffset.Parse("2026-05-21T12:00:00Z"),
+            networkAssociations: [new(peId, nicId, "peToNic")],
+            managementGroupId: managementGroupScope ? "corp" : null);
+
+        using MemoryStream stream = new(zipBytes);
+        AzureExtractorPackageInventoryReadResult inventory = AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+        Assert.True(inventory.Succeeded);
+        Assert.Equal(resources.Count, inventory.Resources.Count);
+        foreach (HostedAzureArmResourceRecord resource in resources)
+        {
+            Assert.Contains(inventory.Resources, row => row.AzureResourceId == resource.ResourceId);
+        }
+
+        Assert.Equal("Succeeded", Assert.Single(inventory.Resources, row => row.AzureResourceId == nicId).Properties["provisioningState"]);
+        JsonElement association = Assert.Single(inventory.NetworkAssociations);
+        Assert.Equal(peId, association.GetProperty("fromResourceId").GetString());
+        Assert.Equal(nicId, association.GetProperty("toResourceId").GetString());
+        stream.Position = 0;
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
+        using JsonDocument manifest = JsonDocument.Parse(manifestStream);
+        Assert.Equal(resources.Count, manifest.RootElement.GetProperty("resourceCount").GetInt32());
+    }
+
     [Fact]
     public void BuildZip_contains_manifest_resources_and_policy_compliance_entries()
     {

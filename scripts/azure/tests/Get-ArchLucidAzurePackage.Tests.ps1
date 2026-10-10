@@ -64,6 +64,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {
         [object[]]$fixtureResources =
             @(Get-Content -LiteralPath $script:armFixturePath -Raw -Encoding Utf8 | ConvertFrom-Json)
+        $fixtureResources += @(Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fixtures/arm-hidden-resources.sample.json') -Raw -Encoding Utf8 | ConvertFrom-Json)
 
         [object[]]$mockAzResources =
             @( $fixtureResources | ForEach-Object { New-ArchLucidMockAzResource $_ } )
@@ -163,7 +164,20 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
 
-                $resources.Count | Should -Be 2
+                $resources.Count | Should -Be 7
+                foreach ($fixtureResource in $fixtureResources)
+                {
+                    @($resources | Where-Object { $_.resourceId -eq $fixtureResource.resourceId }).Count | Should -Be 1
+                }
+                [object]$identity = $resources | Where-Object { $_.resourceType -eq 'Microsoft.ManagedIdentity/userAssignedIdentities' }
+                $identity.properties.provisioningState | Should -Be 'Succeeded'
+                ($identity.properties | ConvertTo-Json -Depth 12) | Should -Not -Match 'fixture-secret'
+                [object[]]$preservedAssociations = @(Get-Content -LiteralPath (Join-Path $staging 'network-associations.json') -Raw -Encoding Utf8 | ConvertFrom-Json)
+                @($preservedAssociations | Where-Object {
+                    $_.associationType -eq 'peToNic' -and
+                    $_.fromResourceId -eq '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/privateEndpoints/pe1' -and
+                    $_.toResourceId -eq '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                }).Count | Should -Be 1
 
                 [string]$roleAssignmentsPath = Join-Path $staging 'role-assignments.json'
                 [string]$networkAssociationsPath = Join-Path $staging 'network-associations.json'
