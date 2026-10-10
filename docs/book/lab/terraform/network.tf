@@ -275,10 +275,12 @@ resource "azurerm_private_endpoint" "custdata_blob" {
   }
 }
 
-resource "random_password" "dev_vm" {
-  length           = 24
-  special          = true
-  override_special = "!#%*-_=+"
+# Key-only sign-in. Nothing outputs the private key; Chapter 5 reaches the VM through Run Command.
+resource "tls_private_key" "dev_vm" {
+  count = local.network_count
+
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
 resource "azurerm_network_interface" "dev_vm" {
@@ -304,9 +306,13 @@ resource "azurerm_linux_virtual_machine" "dev_vm" {
   location                        = azurerm_resource_group.dev.location
   size                            = "Standard_B1s"
   admin_username                  = "labadmin"
-  admin_password                  = random_password.dev_vm.result
-  disable_password_authentication = false
+  disable_password_authentication = true
   network_interface_ids           = [azurerm_network_interface.dev_vm[0].id]
+
+  admin_ssh_key {
+    username   = "labadmin"
+    public_key = tls_private_key.dev_vm[0].public_key_openssh
+  }
 
   os_disk {
     caching              = "ReadWrite"
