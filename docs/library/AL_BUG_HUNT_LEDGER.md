@@ -19109,6 +19109,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `refreshBffSessionCookie` — a finite `expires_at_ms` inside the one-minute acceptance skew is accepted as the new client expiry — **cheap-disproof 2026-10-10 thorough hunt:** the skew is an explicit boundary to avoid immediate refresh churn, and the existing refresh path re-evaluates expiry on the next request; no durable stale-session outcome was reproduced.
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — supplemental provider scopes are read directly from public configuration — **cheap-disproof 2026-10-10 thorough hunt:** the value is deployment configuration, the Google flow requests its provider-specific default when unset, and no in-zone attacker input can mutate the scope before redirect.
 
+- [ ] (candidate) `buildAuthorizeUrl` — direct callers can supply a non-HTTP authorization endpoint even though normal discovery parsing validates schemes, so an in-zone bypass of the parser could construct a browser navigation to an unsupported URL.
+- [ ] (candidate) `decodeOAuthErrorDescription` — malformed percent-encoding falls back to a partially decoded string, so a reachable provider error may surface a misleading callback message rather than a stable decoded description.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — unknown provider descriptions are included without a length bound, so a reachable oversized OAuth error could create an unusable callback error surface.
+- [ ] (candidate) `createPkcePair` — the fixed 32-byte verifier path depends on browser Web Crypto availability, so a reachable constrained browser context may fail sign-in before a controlled configuration error is shown.
+- [ ] (candidate) `storePkceState` — exported storage accepts empty state, verifier, or nonce values, so a reachable caller could leave a callback with incomplete PKCE material that is consumed as if pending.
+
 ---
 
 ## Zone: archlucid-core
