@@ -52,4 +52,31 @@ public sealed class SponsorRoiBoardPackMarkdownBuilderTests
         markdown.Should().Contain(SendableExportCoverComposer.SponsorRoiNonSummingHeadlineLine);
         markdown.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
+
+    [Fact]
+    public void Build_labels_missing_system_savings_and_commit_time_as_not_stored()
+    {
+        SponsorRoiSummaryResponse summary = new()
+        {
+            Systems =
+            [
+                new SystemLatestRunRoi
+                {
+                    SystemName = "Payments",
+                    RunId = "run-1",
+                    CommittedUtc = null,
+                    EstimatedUsdSavings = null,
+                }
+            ]
+        };
+
+        string markdown = SponsorRoiBoardPackMarkdownBuilder.Build(
+            "Acme Corp",
+            DateTime.UtcNow,
+            summary,
+            null);
+
+        markdown.Should().Contain("Committed time was not stored.");
+        markdown.Should().Contain("Estimated savings was not stored.");
+    }
 }

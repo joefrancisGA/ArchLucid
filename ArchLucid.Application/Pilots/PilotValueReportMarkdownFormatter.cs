@@ -98,7 +98,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
     private static string FormatAvgSeconds(double? seconds)
     {
         if (seconds is null)
-            return "—";
+            return "Average pipeline completion was not stored.";
 
         double s = seconds.Value;
 

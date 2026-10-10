@@ -70,10 +70,32 @@ describe("architecture-work-item-model", () => {
       siteOrigin: "https://app.archlucid.test",
     });
 
-    expect(preview.priority).toBe("Medium");
+    expect(preview.priority).toBe("Priority was not stored.");
     expect(preview.findingsIncluded[0]?.severityLabel).toBe("Severity was not stored");
     expect(pickNativeCreateFindingId([missingSeverity, finding({ findingId: "f-low", severityValue: 0 })])).toBe(
       "f-low",
     );
+  });
+
+  it("preserves a stored empty owner and labels a missing owner", () => {
+    const missingOwner = buildArchitectureWorkItemPreview({
+      runId: "run-1",
+      architectureName: "Payments platform",
+      architectureOverview: "Overview",
+      ownerLabel: null,
+      findings: [],
+      siteOrigin: "https://app.archlucid.test",
+    });
+    const emptyOwner = buildArchitectureWorkItemPreview({
+      runId: "run-1",
+      architectureName: "Payments platform",
+      architectureOverview: "Overview",
+      ownerLabel: "",
+      findings: [],
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(missingOwner.owner).toBe("Work item owner was not stored.");
+    expect(emptyOwner.owner).toBe("");
   });
 });

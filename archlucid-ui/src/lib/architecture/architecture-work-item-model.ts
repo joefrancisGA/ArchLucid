@@ -42,7 +42,7 @@ function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): 
     .filter((severity): severity is number => severity !== null);
 
   if (knownSeverities.length === 0) {
-    return "Medium";
+    return "Priority was not stored.";
   }
 
   const highest = Math.max(...knownSeverities);
@@ -87,7 +87,10 @@ export function buildArchitectureWorkItemPreview(
     title: `Implement architecture — ${input.architectureName.trim() || "ArchLucid review"}`,
     description,
     priority: deriveArchitecturePriority(input.findings),
-    owner: input.ownerLabel?.trim() || "Unassigned",
+    owner:
+      input.ownerLabel === null || (input.ownerLabel.length > 0 && input.ownerLabel.trim().length === 0)
+        ? "Work item owner was not stored."
+        : input.ownerLabel.trim(),
     findingsIncluded: mapFindingLines(input.findings),
     sourceArchitectureLink: architectureReviewUrl(input.siteOrigin, input.runId),
   };

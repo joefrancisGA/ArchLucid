@@ -25,7 +25,7 @@ public static partial class RunToolInvocationForensicsBuilder
     private static string TruncatePreview(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
-            return "—";
+            return "User prompt was not stored.";
 
         string trimmed = raw.Trim().ReplaceLineEndings(" ");
 
