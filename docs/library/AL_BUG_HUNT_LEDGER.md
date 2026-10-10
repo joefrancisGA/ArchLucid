@@ -29413,13 +29413,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1048
+- **hunts:** 1049
 - **bugs-found:** 428
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread SVG sanitization, draw.io expansion/XML parsing, VSDX package path and XML guards, structured diagram JSON validation, pixel-stub detection, and diagram model validation; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 825/825. No production change.
 
 2026-10-10 seed hunt (seed-only): reread appsettings/JSON/CloudFormation/Kubernetes parsers, canonical property caps and redaction, resource identity fingerprints, and fallback error handling; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 825/825. No production change.
 
