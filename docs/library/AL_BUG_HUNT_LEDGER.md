@@ -6,6 +6,8 @@
 
 2026-10-09 thorough hunt (dry): `ui-governance-findings-queue` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
+2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread queue synopsis, mode, facet, and bulk-action orchestration; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The exact queue suite ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread `GovernanceFindingsQueueClient.tsx` and its focused Vitest inventory; no fresh row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `api-key-auth` — reread the API-key handler, admin rotation service/controller, and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused API test run was blocked before execution by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -34459,7 +34461,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -34676,7 +34678,15 @@ ABQ-09 churn hotspot.
 
 ABQ-09 churn hotspot.
 
+2026-10-09 seed hunt (seed-only): reread queue synopsis, mode, facet, and bulk-action orchestration; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The exact queue suite ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
+
 ### Hypotheses
+
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — a URL-supplied `bulkFindings` set is accepted without intersecting the active queue’s loaded finding IDs, so a crafted or stale selection can carry IDs from another review scope into bulk disposition — locus: `selectedFindingIds` initialization and `onSelectionChange`; input: `/governance/findings?bulkFindings=` containing an ID absent from the current rows.
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — switching between tenant and assigned-to-me modes while the same `bulkFindings` query value remains can retain selection state without a mode-specific validation pass — locus: URL synchronization effect keyed only by `urlBulkFindingsRaw`; input: client navigation between queue modes with a reused bulk-selection query.
+- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — the first-finding triage target is derived from `displayedRows` after density filtering, so enabling working-mode low-density hiding can make a visible queue’s “first finding” action skip the earliest loaded finding — locus: `resolveFirstFindingTriageTarget(displayedRows, ...)`; input: a queue containing a low-signal first row and a higher-signal later row with `hideGenericLowDensity=1`.
+- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — sponsor handoff remains derived only from `scopedRunId`, so an architecture-scoped queue with no review scope may render a handoff destination that lacks the active architecture context — locus: `resolveGovernanceFindingsSponsorHandoffHref(scopedRunId)`; input: an architecture-scoped findings URL with `architectureId=` and no `runId=`.
+- [ ] (candidate) `useGovernanceFindingsQueueFacets` — clearing facet filters writes storage and performs navigation from the render-time search params, so a concurrent URL update can restore a removed job-view or natural-language facet after clear — locus: `clearFacetFilters`’s chained helper calls; input: clear-filters activation while App Router changes the queue URL.
 
 - [x] (proven) `sanitizeResourceHubQueryForTab` / `ResourceHubClient.setActiveTab` — tab bar switch drops `runId` while hub cross-links preserve review scope — **hit 2026-09-07 hunt #1189 (seed→hit):** `sanitizeResourceHubQueryForTab` deleted `runId` for drift/findings/terraform/audit tabs before `resourceHubFilterHrefFromSearch`, so clicking the tab bar lost review scope that sibling quick links kept; fixed by only stripping item-scoped params (finding/diff/instance/correspondence); regressions in `infra-evidence-hub-tab-query.test.ts` and `ResourceHubClient.test.tsx`
 - [x] (proven) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset — **hit 2026-09-07 hunt #1281:** stale detection used `hasAnyAuditParam && workbenchLinkAuditContext == null`, but `workbenchLinkAuditContext` merges URL + hub payload via `resolveInfrastructureAskAuditContext`, so a partial URL triple (e.g. only `assessmentId`) with full hub lineage hid the stale banner while still rendering the audit scope bar; fixed by URL-only `hasStaleInfraEvidenceAuditUrlParams` + gating the scope bar on `parseInfraEvidenceWorkbenchAuditScopeFromSearch`; regressions in `infra-evidence-workbench-hub-scope.test.ts` and `ResourceHubClient.test.tsx`
