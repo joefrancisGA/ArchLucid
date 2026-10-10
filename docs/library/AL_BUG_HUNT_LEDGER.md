@@ -6049,7 +6049,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EvidenceRefsMatch` — malformed refs without `:` tail fall back to case-insensitive whole-string equality — **cheap-disproof 2026-10-07 seed hunt #54:** intentional delimiter fallback; regression `Resolve_skips_when_malformed_topology_refs_match_via_case_insensitive_string_fallback`.
 - [x] (valid-no-repro) `SharesProviderFamilyGate` — concrete provider candidate against `CloudProvider.None` chosen inserts exploration rows — **cheap-disproof 2026-10-07 seed hunt #54:** intentional cross-provider exploration; regression `Resolve_inserts_assumed_on_provider_conflict`.
 
-2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for ordinal sub-key casing, substantive/ungrounded name dedupe, Future status dedupe, and middle-dot display separators; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
+2026-10-06 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; seeded five follow-on `(candidate)` rows below; regressions for ordinal subkey casing, substantive versus ungrounded name dedupe, Future status dedupe, and middle-dot display separators; 99 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
 2026-10-06 seed hunt (seed-only): re-read merge policy partials; no hunt-ready promotion; five open `(candidate)` rows unchanged; 95 scoped TechnologyLedger tests passed (`RunAnalyzers=false`).
 
@@ -24080,7 +24080,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
-2026-10-07 thorough hunt (hit): proved exclamation/asterisk token parity, breach/contradicting conflict falsifiability, and `prohibited from` negation parity; 1718 scoped tests passed.
+2026-10-07 thorough hunt (hit): proved exclamation/asterisk marker parity, breach versus contradicting conflict falsifiability, and `prohibited from` negation parity; 1718 scoped tests passed.
 
 2026-10-07 seed hunt (seed→hit): proved hash-delimited resource token duplication parity; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
