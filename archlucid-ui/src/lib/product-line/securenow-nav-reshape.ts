@@ -50,6 +50,7 @@ import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
 import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-groups-for-product-line";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { applySecureNowNavLabel } from "@/lib/product-line/securenow-nav-labels";
 
 export const SECURENOW_HOME_NAV_GROUP_ID = "securenow-home" as const;
 export const SECURENOW_FINDINGS_NAV_GROUP_ID = "securenow-findings" as const;
@@ -252,9 +253,9 @@ function buildSecureNowNavGroup(
       label,
       surface: sourceGroup.surface,
       caption,
-      links: [...links],
+      links: links.map(applySecureNowNavLabel),
     },
-    visibleLinks: [...links],
+    visibleLinks: links.map(applySecureNowNavLabel),
   };
 }
 
