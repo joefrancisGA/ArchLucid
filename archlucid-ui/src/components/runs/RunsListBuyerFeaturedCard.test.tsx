@@ -40,4 +40,14 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByText(/Complete/i)).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /signed manifest/i })).not.toBeInTheDocument();
   });
+
+  it("does not derive a decision date from review creation time", () => {
+    render(
+      <RunsListBuyerFeaturedCard
+        run={{ ...sampleRun, runId: "run-without-demo-card-metadata" }}
+      />,
+    );
+
+    expect(screen.getByText("Decision date was not stored.")).toBeInTheDocument();
+  });
 });

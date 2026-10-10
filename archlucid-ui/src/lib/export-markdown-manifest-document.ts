@@ -52,10 +52,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   const ruleSetId = normalizeInlineText(m.ruleSetId);
   const ruleSetVersion = normalizeInlineText(m.ruleSetVersion);
   const manifestHash = normalizeInlineText(m.manifestHash);
-  const changeDescription = meta ? normalizeInlineText(meta.changeDescription) : null;
+  const changeDescription = meta && typeof meta.changeDescription === "string" ? meta.changeDescription : null;
   const manifestVersion = meta ? normalizeInlineText(meta.manifestVersion) : null;
 
-  const titleBase = changeDescription ?? manifestVersion ?? "Architecture review record";
+  const titleBase = changeDescription ?? "Change description was not stored.";
 
   lines.push(`# ${titleBase}`);
   lines.push("");

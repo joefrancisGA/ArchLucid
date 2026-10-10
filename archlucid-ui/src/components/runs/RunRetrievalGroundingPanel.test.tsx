@@ -54,6 +54,7 @@ describe("RunRetrievalGroundingPanel", () => {
             {
               ...payload().rows[0]!,
               agentName: null,
+              corpusKind: null,
               tokensIn: null,
               tokensOut: 0,
               graphRagNeighborsAdded: 0,
@@ -67,9 +68,21 @@ describe("RunRetrievalGroundingPanel", () => {
     );
 
     expect(screen.getByText("Agent name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Corpus kind was not stored.")).toBeInTheDocument();
     expect(screen.getByText(/Input token count was not stored\./)).toBeInTheDocument();
     expect(screen.getByText(/0 out/)).toBeInTheDocument();
     expect(screen.getByText("0 nbr")).toBeInTheDocument();
+  });
+
+  it("preserves a stored empty corpus kind", () => {
+    render(
+      <RunRetrievalGroundingPanel
+        payload={payload({ rows: [{ ...payload().rows[0]!, corpusKind: "" }] })}
+        failure={null}
+      />,
+    );
+
+    expect(screen.queryByText("Corpus kind was not stored.")).not.toBeInTheDocument();
   });
 
   it("renders omission copy when all graph-RAG details are missing", () => {

@@ -218,7 +218,6 @@ describe("RunExplanationSection", () => {
 
   it("renders without throwing when explanation is missing from API payload", () => {
     const partial = {
-      themeSummaries: ["Theme one"],
       overallAssessment: "Assessment from manifest rollup.",
       riskPosture: "Low",
       findingCount: 1,
@@ -231,6 +230,27 @@ describe("RunExplanationSection", () => {
 
     expect(screen.getByText("Assessment from manifest rollup.")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: /risk posture low/i })).toBeInTheDocument();
+    expect(screen.getByText("Themes were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Key drivers were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Risk implications were not stored.")).toBeInTheDocument();
+  });
+
+  it("keeps stored empty explanation arrays as empty lists", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({
+          themeSummaries: [],
+          explanation: { keyDrivers: [], riskImplications: [] },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.queryByText("Themes were not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Key drivers were not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Risk implications were not stored.")).not.toBeInTheDocument();
   });
 
   it("reveals provenance in details", () => {

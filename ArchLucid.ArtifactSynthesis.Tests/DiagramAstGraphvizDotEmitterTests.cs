@@ -150,6 +150,30 @@ public sealed class DiagramAstGraphvizDotEmitterTests
     }
 
     [Fact]
+    public void Emit_distinguishes_missing_group_label_from_stored_blank_label()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "group-labels",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "missing-node", Label = "missing-node", NodeType = "vnet", SubgraphId = "missing" },
+                new DiagramNode { NodeId = "blank-node", Label = "blank-node", NodeType = "vnet", SubgraphId = "blank" },
+            ],
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = "missing", Label = null, OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "blank", Label = " ", OrderKey = 1 },
+            ],
+        };
+
+        string dot = emitter.Emit(ast);
+
+        dot.Should().Contain("Group label was not stored");
+        dot.Should().Contain("label=\" \"");
+    }
+
+    [Fact]
     public void Emit_declared_edge_uses_dashed_style()
     {
         DiagramAst ast = new()

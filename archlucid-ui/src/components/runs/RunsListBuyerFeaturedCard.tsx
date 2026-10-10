@@ -64,7 +64,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Decision date
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.decisionDate ?? new Date(run.createdUtc).toLocaleDateString()}
+                {meta?.decisionDate ?? "Decision date was not stored."}
               </dd>
             </div>
             <div>
