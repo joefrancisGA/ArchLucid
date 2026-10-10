@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm.tsx` payload shaping, submit locking, response/error handling, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — repeated the selected SignupForm review; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — repeated the selected SignupForm review after the prior seed pass; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
@@ -5302,7 +5304,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
-**Hunts:** 47 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+**Hunts:** 58 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
