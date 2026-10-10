@@ -25283,6 +25283,8 @@ Split from retired `archlucid-core` (ABQ-08).
 
 2026-10-10 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused `Costing` tests; no new hunt-ready pricing, parser, normalization, or cancellation boundary was identified.
 
+2026-10-10 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused `Costing` tests; no new reachable pricing, parser, normalization, or cancellation boundary was identified.
+
 2026-10-10 seed hunt (seed→hit): live pricing cancellation was swallowed and returned illustrative fallback; rethrow `OperationCanceledException` in the Azure Retail client and monthly estimator; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; 426 scoped Costing tests passed.
 
 2026-10-09 seed hunt (seed→hit): proved a JSON null datastore or inventory element threw in `ManifestInfrastructureCostNodes` and dropped the sibling cost node; 11 scoped costing tests passed.
