@@ -7157,7 +7157,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-07
@@ -29820,6 +29820,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread graph service truncation, JSON/MessagePack serialization, temporal graph response mapping, WAF trade-off indexing, declaration identity resolution, quality-attribute parsing, and inference-edge deduplication; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed-only): reread graph projection/delta extraction, MessagePack serialization, snapshot repository scope behavior, provenance completeness/algorithms, revision hashing, and declaration path materialization; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
