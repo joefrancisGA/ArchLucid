@@ -17,4 +17,9 @@ describe("load-run-detail-page-model first paint (TB-2022)", () => {
     expect(loaderSource).not.toContain('getRunDetail,');
     expect(loaderSource).not.toContain("getBuyerRunDetailSummary");
   });
+
+  it("SSR buyer deliverables for pinned SQL demo workspace runs (release-gate smokes)", () => {
+    expect(loaderSource).toContain("isPinnedDemoWorkspaceRunId(runId)");
+    expect(loaderSource).toContain('resolveProductionEvalChromeForServer("guided")');
+  });
 });

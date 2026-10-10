@@ -173,6 +173,61 @@ public sealed class RunExportLineageVerifierTests
     }
 
     [Fact]
+    public async Task VerifyAsync_match_when_latest_manifest_generated_row_has_empty_data_json()
+    {
+        Guid runId = Guid.NewGuid();
+        ManifestDocument manifest = CreateManifest();
+        string anchorHash = new ManifestHashService().ComputeHash(manifest);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = manifest
+            });
+
+        Mock<IAuditRepository> auditRepo = new();
+        auditRepo
+            .Setup(r => r.GetFilteredAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ManifestGenerated,
+                    RunId = runId,
+                    OccurredUtc = new DateTime(2026, 6, 2, 0, 0, 0, DateTimeKind.Utc),
+                    DataJson = "{}",
+                },
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ManifestGenerated,
+                    RunId = runId,
+                    OccurredUtc = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
+                    DataJson = JsonSerializer.Serialize(
+                        new { manifestHash = anchorHash, ruleSetId = manifest.RuleSetId },
+                        AuditJsonSerializationOptions.Instance)
+                }
+            ]);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        RunExportLineageVerifier sut = CreateSut(authority.Object, auditRepo.Object, audit.Object);
+
+        RunExportLineageVerificationResult result = (await sut.VerifyAsync(Scope, runId, CancellationToken.None))!;
+
+        result.Status.Should().Be(RunExportLineageVerificationStatus.Match);
+        result.CommittedHash.Should().Be(anchorHash);
+    }
+
+    [Fact]
     public async Task VerifyAsync_not_attested_when_no_manifest_generated_anchor()
     {
         Guid runId = Guid.NewGuid();

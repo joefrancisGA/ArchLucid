@@ -99,6 +99,9 @@ public sealed class DapperPolicyPackRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack lookup by PolicyPackId within the active tenant catalog.")]
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

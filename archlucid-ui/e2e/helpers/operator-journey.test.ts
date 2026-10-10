@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  findingJobViewChipListsRows,
   reviewDetailErrorShellMessage,
   reviewDetailReadinessState,
   shouldReloadReviewDetailAfterErrorShell,
@@ -16,6 +17,12 @@ describe("review detail readiness diagnostics", () => {
   it("allows one reload before failing closed on the error shell", () => {
     expect(shouldReloadReviewDetailAfterErrorShell(0)).toBe(true);
     expect(shouldReloadReviewDetailAfterErrorShell(1)).toBe(false);
+  });
+
+  it("treats a zero job-view count as an empty findings list", () => {
+    expect(findingJobViewChipListsRows("Needs my decision (0)")).toBe(false);
+    expect(findingJobViewChipListsRows("Coverage gaps (6)")).toBe(true);
+    expect(findingJobViewChipListsRows("Needs governance (10)")).toBe(true);
   });
 
   it("identifies which readiness signal is still missing", () => {

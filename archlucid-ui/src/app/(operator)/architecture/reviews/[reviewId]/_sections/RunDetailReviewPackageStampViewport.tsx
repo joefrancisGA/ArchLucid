@@ -84,11 +84,7 @@ export function RunDetailReviewPackageStampViewport(
     findings: props.quickDecisionFindings ?? [],
   });
 
-  if (props.hasGoldenManifest) {
-    if (feasibilityVerdict === null) {
-      return null;
-    }
-
+  if (props.hasGoldenManifest && feasibilityVerdict !== null) {
     return (
       <div className="space-y-3" data-testid="run-detail-review-package-stamp-viewport">
         {firstReviewSpineSummary !== null ? (

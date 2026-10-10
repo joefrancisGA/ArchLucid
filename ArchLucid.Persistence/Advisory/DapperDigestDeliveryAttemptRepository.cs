@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -62,6 +63,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Delivery attempt history listed by DigestId within the active tenant catalog.")]
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
         ScopeContext scope,
         Guid digestId,
@@ -149,6 +153,9 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Delivery attempt history listed by SubscriptionId within the active tenant catalog.")]
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListBySubscriptionAsync(
         ScopeContext scope,
         Guid subscriptionId,

@@ -50,7 +50,7 @@
 
 ### G-REAL-08 RC attach (Cursor formats; owner regenerates)
 
-On cut **`RC34`** (`f37771635f` and later), attach a **current** G5 artifact — the 2026-06-25 file is stale.
+On cut **`RC35`** (`f37771635f` and later), attach a **current** G5 artifact — the 2026-06-25 file is stale.
 
 1. Owner: `pwsh ./scripts/Invoke-RealLlmEvidenceGate.ps1` with approved Real credentials (Cursor cannot mint live AOAI).
 2. Copy `real-llm-evidence-gate.json` and `.md` into `artifacts/release-readiness/` for this cut.

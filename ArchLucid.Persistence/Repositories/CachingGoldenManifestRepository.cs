@@ -102,6 +102,16 @@ public sealed class CachingGoldenManifestRepository(
         return superseded;
     }
 
+    /// <inheritdoc />
+    public async Task UpdateSealedHasherBoundSliceAsync(
+        ScopeContext scope,
+        ManifestDocument manifest,
+        CancellationToken cancellationToken)
+    {
+        await _inner.UpdateSealedHasherBoundSliceAsync(scope, manifest, cancellationToken);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, manifest.ManifestId, cancellationToken);
+    }
+
     private static ScopeContext AmbientScope(ManifestDocument manifest)
     {
         return new ScopeContext { TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId };

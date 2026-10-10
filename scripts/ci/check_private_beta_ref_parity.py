@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare private-beta contracts between a base ref and the RC34 release ref."""
+"""Compare private-beta contracts between a base ref and the RC35 release ref."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ WORKFLOW_PATH = ".github/workflows/private-beta-access-on-push.yml"
 SPEC_PATH = "archlucid-ui/e2e/live-api-private-beta-access.spec.ts"
 HELPER_PATH = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
 REQUIRED_MARKERS = (
-    "branches: [main, master, RC34]",
+    "branches: [main, master, RC35]",
     "LIVE_E2E_PRIVATE_BETA_ACCESS",
     "live-api-private-beta-access.spec.ts",
 )
@@ -64,7 +64,7 @@ def compare_refs(base_ref: str, release_ref: str) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-ref", default="origin/master")
-    parser.add_argument("--release-ref", default="origin/RC34")
+    parser.add_argument("--release-ref", default="origin/RC35")
     args = parser.parse_args()
     issues = compare_refs(args.base_ref, args.release_ref)
 

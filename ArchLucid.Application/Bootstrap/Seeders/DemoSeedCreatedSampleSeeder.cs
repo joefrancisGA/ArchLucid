@@ -38,7 +38,7 @@ public sealed class DemoSeedCreatedSampleSeeder : IDemoSeedScenarioSeeder
 
         if (await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingCreatedSampleRun)
         {
-            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingCreatedSampleRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, scope, existingCreatedSampleRun, cancellationToken);
 
             return;
         }

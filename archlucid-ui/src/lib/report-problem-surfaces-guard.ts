@@ -73,6 +73,10 @@ export const REPORT_PROBLEM_SURFACE_WIRING_RULES: readonly ReportProblemSurfaceW
     requiredMarkers: ["session-expired-sign-in-failure", "FatalPageReportProblemSupportRow"],
   },
   {
+    surfaceId: "session-expired-idle-timeout",
+    requiredMarkers: ["session-expired-idle-timeout", "FatalPageReportProblemSupportRow"],
+  },
+  {
     surfaceId: "access-denied-wrong-tenant",
     requiredMarkers: ["access-denied-wrong-tenant", "FatalPageReportProblemSupportRow"],
     additionalSourceRoots: ["components/operator/OperatorAccessDeniedPageClient.tsx"],

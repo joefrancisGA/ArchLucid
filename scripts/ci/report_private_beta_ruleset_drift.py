@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 _SCHEMA = "archlucid.private-beta-ruleset-drift.v1"
-_REQUIRED_BRANCH = "refs/heads/RC34"
+_REQUIRED_BRANCH = "refs/heads/RC35"
 
 
 def _contexts(payload: dict[str, Any]) -> set[str]:
@@ -63,7 +63,7 @@ def compare_rulesets(repository: dict[str, Any], live: dict[str, Any]) -> dict[s
     ]
 
     if _REQUIRED_BRANCH in repository_branches and _REQUIRED_BRANCH not in live_branches:
-        issues.append("live ruleset does not include the RC34 release-cut branch")
+        issues.append("live ruleset does not include the RC35 release-cut branch")
 
     return {
         "schema": _SCHEMA,

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -61,6 +62,9 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Execution history listed by schedule id within the active tenant catalog connection.")]
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         ScopeContext scope,
         Guid scheduleId,

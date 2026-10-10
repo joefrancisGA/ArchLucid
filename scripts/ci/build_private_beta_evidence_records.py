@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build RC34 beta evidence records from beta-critical run IDs."""
+"""Build RC35 beta evidence records from beta-critical run IDs."""
 
 from __future__ import annotations
 

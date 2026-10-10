@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -58,6 +59,9 @@ public sealed partial class SqlBillingLedger
                 cancellationToken: cancellationToken));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Billing subscription state history listed by tenant within the active tenant catalog.")]
     public async Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(
         Guid tenantId,
         int maxRows,

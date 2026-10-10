@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.Governance;
-
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -10,6 +10,9 @@ namespace ArchLucid.Persistence.Pilots;
 
 public sealed partial class DapperPilotReportCardMetricsReader
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Pilot metrics SQL composed from shared scope filter fragments; parameters bind tenant triple.")]
     /// <inheritdoc/>
     public async Task<PilotReportCardScopeMetrics> ReadAsync(Guid tenantId, Guid workspaceId, Guid scopeProjectId,
         CancellationToken cancellationToken)

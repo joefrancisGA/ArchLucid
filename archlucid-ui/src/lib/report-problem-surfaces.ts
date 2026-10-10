@@ -105,6 +105,13 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     description: "Session-expired route when OIDC/JwtBearer sign-in cannot proceed (AuthErrorPanel path).",
   },
   {
+    id: "session-expired-idle-timeout",
+    kind: "auth-session-break",
+    routePattern: "/auth/session-expired",
+    componentPath: "app/(operator)/auth/session-expired/SessionExpiredClient.tsx",
+    description: "Session-expired idle-timeout recovery (SessionExpiredView happy path).",
+  },
+  {
     id: "access-denied-wrong-tenant",
     kind: "auth-session-break",
     routePattern: "/403",

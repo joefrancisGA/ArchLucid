@@ -57,7 +57,7 @@ public sealed class DemoSeedNorthwindTourSeeder : IDemoSeedScenarioSeeder
 
         if (await _deps.RunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is RunRecord existingTourRun)
         {
-            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingTourRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, scope, existingTourRun, cancellationToken);
 
             return;
         }
