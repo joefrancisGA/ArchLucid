@@ -9208,3 +9208,4 @@
 {"at":"2026-10-10T10:11:49.6095118Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T10:14:59.7093601Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T10:20:08.6699096Z","zoneId":"storage-vs-data-category","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs","ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs"]}
+{"at":"2026-10-10T10:24:22.7428300Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
