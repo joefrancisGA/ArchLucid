@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `core-tenancy-commercial` — the five picker candidates were reviewed against the scoped Identity/Billing/Budgeting source. Numeric Marketplace `planId` coercion is an explicit supported shape with no wrong tier outcome; duplicate claim mappings are warned and resolve deterministically to the first entry; non-ASCII email-domain labels are rejected by the ASCII label validator; and the remaining plan-id negation and billing-row claims lacked partner/onboarding reachability evidence. No hunt-ready row remained and no failing repro was established. Relevant Core tests passed 96/96; the picker filter also passed 4/4 with analyzers disabled after the baseline ARCH002 error.
+
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates: non-2xx BFF sync remains intentional best-effort behavior; session hints have no durable wrong outcome without a reachable caller; BFF refresh emits integer epoch values; RP logout URLs are discovery-derived and HTTP(S)-validated; and non-object JWT payloads produce no display hint. No failing repro was established and no fix was shipped. The focused OIDC suite passed 71/71.
 
 2026-10-10 seed hunt (seed→hit): `core-explanation-json` — promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
@@ -24691,6 +24693,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-tenancy-commercial
 
+2026-10-10 thorough hunt (dry): reviewed all five candidates against the scoped Identity/Billing/Budgeting source; closed numeric Marketplace `planId` coercion as supported with no wrong tier outcome, duplicate claim mappings as warned deterministic first-entry behavior, and non-ASCII email-domain acceptance as invalid because the ASCII validator rejects it. The remaining plan-id negation and sales-led billing-row rows lacked the partner/onboarding reachability evidence required for hunt-ready status; no failing repro was established. Relevant Core tests passed 96/96; the picker filter passed 4/4 with analyzers disabled after the baseline ARCH002 error.
+
 2026-10-09 thorough hunt (hit): hourly OTP email batch SQL counted completed and expired challenges; client-IP SQL and in-memory counts already ignored them; regression `Batch_email_count_ignores_completed_and_expired_challenges`; 10 scoped OTP repository tests passed.
 
 - **id:** core-tenancy-commercial
@@ -24700,10 +24704,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — hourly OTP email SQL counted completed and expired challenges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -24742,10 +24746,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `absent-enterprise-*` / `removed-enterprise-*` / `cleared-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** extend `IsEnterpriseNegationToken` with `absent`, `removed`, and `cleared`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `stripped-enterprise-*` / `missing-enterprise-*` / `denied-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-10-05 seed hunt (seed→hit):** add tokens to consolidated `EnterpriseNegationExactTokens`; regression in `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs` plus `TierStorageCodeFromPlanId_still_maps_enterprise_when_stripe_token_precedes_enterprise` (exact-token set must not use careless `strip*` stems)
 - [ ] (candidate) `MarketplacePlanIdMapper.PlanIdContainsEnterpriseTierToken` — delimiter-bounded `enterprise` may still match when a negation adverb appears only two tokens before `enterprise` (e.g. `not-for-enterprise-*` from Marketplace `ChangePlan` `planId` strings); needs partner plan-id citation before hunt-ready.
-- [ ] (candidate) `MarketplaceChangePlanReader.TryGetPlanId` — numeric JSON `planId` values coerce through `TryReadWholeNumberLongToken` and may feed `TierStorageCodeFromPlanId` as digit-only tokens without tier semantics; reachable from Marketplace webhook payloads that emit numeric plan identifiers.
+- [x] (valid-no-repro) `MarketplaceChangePlanReader.TryGetPlanId` — numeric JSON `planId` values coerce through `TryReadWholeNumberLongToken` and may feed `TierStorageCodeFromPlanId` as digit-only tokens without tier semantics — **cheap-disproof 2026-10-10 thorough hunt:** numeric `planId` is an explicit supported parser shape, digit-only values correctly map to the Standard fallback, and no Marketplace contract in these files assigns tier semantics to numeric identifiers; relevant parser and tier tests passed.
 - [ ] (candidate) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — sales-led Standard tenants without a billing row infer Team from `seatsUsed`/`workspacesUsed` only and may under-label Professional when live usage is still within Team caps but purchased packaging is Professional; needs billing-row absence path proof from tenant onboarding flows.
-- [ ] (candidate) `IdentityClaimRoleMappingValidator.Evaluate` — duplicate `IdpValue` mappings emit Warn results but runtime SAML/OIDC role mapping may still apply only the first entry silently; reachable from admin-uploaded claim-mapping documents with repeated IdP group values.
-- [ ] (candidate) `AuthEmailDomainNormalizer.TryNormalize` — internationalized domain labels are lowercased with invariant culture only and may accept non-ASCII labels that DNS verification cannot resolve consistently; reachable from tenant sign-in domain registry proposals pasted with IDN hostnames.
+- [x] (valid-no-repro) `IdentityClaimRoleMappingValidator.Evaluate` — duplicate `IdpValue` mappings emit Warn results but runtime SAML/OIDC role mapping may still apply only the first entry silently — **cheap-disproof 2026-10-10 thorough hunt:** the validator explicitly emits a duplicate warning and the runtime resolver deterministically selects the first case-insensitive mapping; no silent or incorrect role outcome was reproduced.
+- [x] (invalid) `AuthEmailDomainNormalizer.TryNormalize` — internationalized domain labels are lowercased with invariant culture only and may accept non-ASCII labels that DNS verification cannot resolve consistently — **cheap-disproof 2026-10-10 thorough hunt:** `DomainLabelPattern` permits only ASCII letters, digits, and hyphens, so non-ASCII labels are rejected rather than accepted; normalizer tests passed.
 
 2026-09-09 seed hunt #1385 (hit): reseeded Identity/Billing/Budgeting after dry #1321; proved Enterprise LLM plan shortcut bleed and exclude/excluding/except marketplace negation gaps; seeded minus/less negation and Professional-label shortcut pairing candidates; 44 scoped CommercialTenant-related unit tests passed.
 

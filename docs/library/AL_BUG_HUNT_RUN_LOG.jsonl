@@ -9094,3 +9094,4 @@
 {"at":"2026-10-10T00:55:17.6167592Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-10T01:02:24.3738960Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-10T01:06:47.8384795Z","zoneId":"ui-oidc","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-10T01:11:45.9134005Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/","ArchLucid.Core/Billing/","ArchLucid.Core/Budgeting/"]}
