@@ -34633,10 +34633,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-04 — resource-group disclosure survived group-by off and architecture scope change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -34646,6 +34646,12 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — URL-supplied `bulkFindings` is restored without intersecting the currently loaded queue rows, so a stale selection from another review scope may reach bulk disposition; input: a queue URL retaining `bulkFindings=<id absent from the current risk register>`.
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — switching between tenant and assigned-to-me routes while `bulkFindings` remains in the URL may preserve selection without a mode-specific validation pass; input: client navigation between `/governance/findings` and `/governance/findings/assigned-to-me` with the same bulk-selection query.
+- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` is derived after density filtering, so working-mode low-density hiding may skip the earliest loaded finding in the first-finding action; input: a queue with a low-signal first row and a later high-signal row while `hideGeneric=1`.
+- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — sponsor handoff is derived from `scopedRunId` alone, so an architecture-scoped queue without `runId` may lose the active architecture context in the handoff URL; input: `/governance/findings?architectureId=<reachable-architecture-id>` with no `runId`.
+- [ ] (candidate) `useGovernanceFindingsQueueFacets.clearFacetFilters` — chained URL replacement can rebuild from a render-time query while App Router changes the queue URL, potentially restoring a removed job view or natural-language facet; input: clearing facets during a concurrent URL transition with `findingJobView` and NL facet parameters present.
 
 - [x] (invalid) `GovernanceFindingsQueueClient` / `useOperatorScopeRecord` — **cheap-disproof 2026-10-09 thorough hunt:** `readOperatorScopeFromStorage` caches the parsed snapshot by raw storage value, so the selected route does not supply the proposed fresh-object snapshot mechanism.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — **cheap-disproof 2026-10-09 thorough hunt:** the workspace-label baseline fails under the existing empty-storage test setup, but the synchronous render reads the same cached scope reader and no storage transition reproduced a label mismatch reachable from the route.
