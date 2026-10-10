@@ -35221,6 +35221,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-10 thorough hunt (dry): cheap-disproved the approval-provenance candidate because the selected client has no reachable provenance source, and the malformed saved-view candidate because `applyFindingsSavedViewFilters` normalizes non-object filters to safe defaults. The blank finding-id candidate lacks an established API contract and did not meet the failing-repro bar; the focused client file ran 22 tests with 11 existing external-store/update-depth and workspace-label baseline failures. No production change.
+
 2026-10-10 seed hunt (seed-only): reread `GovernanceFindingsQueueClient`, the queue synopsis/results path, visibility URL handling, and the focused client tests; no new hunt-ready row met the reachability and wrong-outcome bar. The exact client file ran 22 tests with 11 existing external-store/update-depth and workspace-label baseline failures; seeded bounded candidates for approval provenance wiring, saved-view payload validation, and blank finding identifiers, with no production or regression change.
 
 - **id:** ui-governance-findings-queue
@@ -35229,9 +35231,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — decision rows reached findings bulk disposition
 - **related-pd-tb:** none
@@ -35251,8 +35253,8 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner; the selected client has no provenance source wiring to establish the caller contract.
-- [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering; the saved-view API payload contract and failure behavior need confirmation.
+- [x] (invalid) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner — **cheap-disproof 2026-10-10 thorough hunt:** no approval provenance source or caller exists in the selected client boundary; the null value is the conservative absent-record state.
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering — **cheap-disproof 2026-10-10 thorough hunt:** `applyFindingsSavedViewFilters` accepts non-object input as `{}` and supplies safe defaults; no throw or wrong queue state is reachable.
 - [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — a reachable risk-register finding with a blank `findingId` may enter bulk-selection state and be submitted as an empty disposition id; the API row contract and bulk endpoint validation need confirmation.
 
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` / `useGovernanceFindingsQueueBulkActions` — the URL-selection boundary uses all loaded queue rows rather than currently displayed rows, so a filtered-out finding can remain selected and reach bulk disposition — **cheap-disproof 2026-10-10 thorough hunt:** selection intentionally persists across display filters while the active loaded-id boundary prevents stale/out-of-scope rows.
