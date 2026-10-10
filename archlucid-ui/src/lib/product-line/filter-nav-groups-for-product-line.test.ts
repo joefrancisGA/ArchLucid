@@ -125,7 +125,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/integrations/servicenow",
       "/integrations/teams",
     ]);
-    expect(integrationLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
+    expect(dataSourceLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
       SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
     );
 

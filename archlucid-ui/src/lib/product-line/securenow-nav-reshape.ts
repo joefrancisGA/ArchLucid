@@ -195,7 +195,8 @@ function remapSecureNowComplianceNavLink(link: NavLinkItem): NavLinkItem {
   return {
     ...link,
     href: remappedHref,
-    ...(link.href === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH
+    ...(link.href === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH ||
+    link.href === SECURENOW_INFRASTRUCTURE_DRIFT_PATH
       ? { label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL }
       : {}),
   };
