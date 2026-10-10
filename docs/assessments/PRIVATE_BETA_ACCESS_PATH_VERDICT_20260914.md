@@ -6,6 +6,19 @@
 
 **Auth mode focus:** JwtBearer (CI mint + session injection). Full Entra OIDC browser redirect not witnessed in this pass.
 
+## RC34 refresh — 2026-10-10
+
+The access-path verdict above is a historical snapshot. The latest visible
+RC34 cut is `e59cffa423`. Its private-beta JwtBearer run
+`37664956985`, UI typecheck run `37664956969`, and RC release-gate run
+`37664957016` completed successfully. The earlier private-beta failure
+`37661271231` failed on invitation-validation HTTP 429 and is superseded by
+the green retry/backoff fix.
+
+This refresh updates the CI witness only. It does not convert Gate 1 into a
+PASS: no staging first-review artifact was observed, and G-REAL-06 remains
+owner work.
+
 ---
 
 ## Six proofs

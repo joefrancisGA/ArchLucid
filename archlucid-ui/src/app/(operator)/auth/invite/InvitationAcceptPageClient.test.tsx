@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InvitationAcceptPageClient } from "@/app/(operator)/auth/invite/InvitationAcceptPageClient";
+import { ApiRequestError } from "@/lib/api-request-error";
 import {
   AUTH_INVITE_PUBLIC_EXIT_LABEL,
   AUTH_INVITE_REQUEST_ACCESS_LABEL,
@@ -308,5 +309,28 @@ describe("InvitationAcceptPageClient (TB-1476)", () => {
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/");
+  });
+
+  it("treats an upstream 503 during validation as a recoverable API outage", async () => {
+    mockToken("invite-token");
+    validateInvitationToken.mockRejectedValue(
+      new ApiRequestError("Invitation validation service unavailable", {
+        problem: null,
+        correlationId: "corr-invite-validation-503",
+        httpStatus: 503,
+      }),
+    );
+
+    render(<InvitationAcceptPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("invitation-invalid-alert")).toHaveTextContent(
+        AUTH_INVITE_VALIDATION_FAILED_MESSAGE,
+      );
+    });
+
+    expectRecoveryControls();
+    expect(screen.getByTestId("invitation-recovery-retry")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
   });
 });
