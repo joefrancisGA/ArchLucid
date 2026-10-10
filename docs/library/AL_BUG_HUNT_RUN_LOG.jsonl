@@ -9159,3 +9159,4 @@
 {"at":"2026-10-10T06:03:33.8387165Z","zoneId":"architecture-recommendation","outcome":"hit","huntPaths":["ArchLucid.Application/ArchitectureIntelligence/"]}
 {"at":"2026-10-10T06:09:33.1789709Z","zoneId":"architecture-recommendation","outcome":"seed-only","huntPaths":["ArchLucid.Application/ArchitectureIntelligence/"]}
 {"at":"2026-10-10T06:13:51.6720864Z","zoneId":"architecture-recommendation","outcome":"seed-only","huntPaths":["ArchLucid.Application/ArchitectureIntelligence/"]}
+{"at":"2026-10-10T06:17:48.2713598Z","zoneId":"ui-form-validation","outcome":"seed-only","huntPaths":["archlucid-ui/src/components/marketing/SignupForm.tsx"]}
