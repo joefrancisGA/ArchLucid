@@ -118,6 +118,23 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(screen.getByText("Not used on decision rows")).toBeInTheDocument();
   });
 
+  it("preserves zero age and explains when age was not stored", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), agingDays: 0 }, { ...sampleRow(1), agingDays: null }]}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    const table = screen.getByRole("table", { name: "Findings" });
+    const rows = within(table).getAllByRole("row");
+    const zeroAgeCells = within(rows[1]).getAllByRole("cell");
+    const missingAgeCells = within(rows[2]).getAllByRole("cell");
+
+    expect(zeroAgeCells[5]?.textContent).toBe("0d");
+    expect(missingAgeCells[5]?.textContent).toBe("Aging days were not stored.");
+  });
+
   it("does not expose decision rows to findings bulk selection", () => {
     render(
       <GovernanceFindingsQueueDesktopTable

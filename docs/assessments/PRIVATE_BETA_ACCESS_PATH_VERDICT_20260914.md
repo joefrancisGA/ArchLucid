@@ -6,9 +6,16 @@
 
 **Auth mode focus:** JwtBearer (CI mint + session injection). Full Entra OIDC browser redirect not witnessed in this pass.
 
-## RC34 refresh — 2026-10-10
+## RC35 refresh — 2026-10-10
 
-The access-path verdict above is a historical snapshot. The latest visible
+The access-path verdict above is a historical snapshot. The new private-beta
+release cut is **`RC35`** at `c059d8a2e2` (master merged with `origin/RC34`,
+trunk-preferred conflict resolution). Re-run private-beta and push-corset
+witnesses on `RC35` before treating CI as current.
+
+## RC34 refresh — 2026-10-10 (superseded by RC35)
+
+The access-path verdict above is a historical snapshot. The prior visible
 RC34 cut is `e59cffa423`. Its private-beta JwtBearer run
 `37664956985`, UI typecheck run `37664956969`, and RC release-gate run
 `37664957016` completed successfully. The earlier private-beta failure

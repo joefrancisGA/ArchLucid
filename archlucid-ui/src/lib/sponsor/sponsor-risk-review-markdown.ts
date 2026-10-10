@@ -77,6 +77,8 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${summary.unresolvedIssueCount} unresolved review issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
+      : summary.unresolvedIssueCount === null || summary.unresolvedIssueCount === undefined
+        ? "Unresolved issue count was not stored."
       : null,
     typeof summary.complianceGapCount === "number" &&
     Number.isFinite(summary.complianceGapCount) &&
@@ -84,6 +86,8 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${Math.trunc(summary.complianceGapCount)} compliance gap${
           Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
         } in the aggregate assessment.`
+      : summary.complianceGapCount === null || summary.complianceGapCount === undefined
+        ? "Compliance gap count was not stored."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 

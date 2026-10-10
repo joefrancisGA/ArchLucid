@@ -88,6 +88,9 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<CancellationToken>()))
             .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
             {
+                ctx.Run.EngineProvenanceJson.Should().NotBeNullOrWhiteSpace(
+                    "engine provenance must already be on the run before stages persist GoldenManifestId");
+
                 ctx.ContextSnapshot = new ContextSnapshot
                 {
                     SnapshotId = contextSnapshotId,
@@ -187,7 +190,8 @@ public sealed class AuthorityRunOrchestratorTests
         ContextIngestionRequest request = new()
         {
             ProjectId = "proj-orchestrator-test",
-            Description = "d"
+            Description = "d",
+            EffectiveModelAliasId = AgentModelAliasIds.StandardGeneral
         };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
@@ -291,6 +295,9 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<CancellationToken>()))
             .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
             {
+                ctx.Run.EngineProvenanceJson.Should().NotBeNullOrWhiteSpace(
+                    "engine provenance must already be on the run before stages persist GoldenManifestId");
+
                 ctx.ContextSnapshot = new ContextSnapshot
                 {
                     SnapshotId = contextSnapshotId,
@@ -392,7 +399,8 @@ public sealed class AuthorityRunOrchestratorTests
         ContextIngestionRequest request = new()
         {
             ProjectId = "proj-orchestrator-outbox",
-            Description = "d"
+            Description = "d",
+            EffectiveModelAliasId = AgentModelAliasIds.StandardGeneral
         };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
@@ -723,6 +731,9 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<CancellationToken>()))
             .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
             {
+                ctx.Run.EngineProvenanceJson.Should().NotBeNullOrWhiteSpace(
+                    "engine provenance must already be on the run before stages persist GoldenManifestId");
+
                 ctx.ContextSnapshot = new ContextSnapshot
                 {
                     SnapshotId = contextSnapshotId,
@@ -820,7 +831,8 @@ public sealed class AuthorityRunOrchestratorTests
         {
             RunId = runIdGuid,
             ProjectId = "resume-proj",
-            Description = "d"
+            Description = "d",
+            EffectiveModelAliasId = AgentModelAliasIds.StandardGeneral
         };
 
         RunRecord result = await sut.CompleteQueuedAuthorityPipelineAsync(request, CancellationToken.None);
@@ -1248,9 +1260,23 @@ public sealed class AuthorityRunOrchestratorTests
 
         public bool TryGet(string aliasId, out AgentModelAliasRegistryEntry? entry)
         {
-            entry = null;
+            if (!string.Equals(aliasId, AgentModelAliasIds.StandardGeneral, StringComparison.OrdinalIgnoreCase))
+            {
+                entry = null;
 
-            return false;
+                return false;
+            }
+
+            entry = new AgentModelAliasRegistryEntry
+            {
+                AliasId = AgentModelAliasIds.StandardGeneral,
+                ProviderConnectionKind = "azure-openai",
+                DeploymentName = "test-deployment",
+                CapabilityTags = [],
+                ApprovedTaskTypes = [],
+            };
+
+            return true;
         }
 
         public string ResolveAliasIdForTier(LlmModelTier tier) => AgentModelAliasIds.StandardGeneral;

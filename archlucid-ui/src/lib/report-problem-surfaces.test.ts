@@ -22,6 +22,7 @@ describe("report-problem-surfaces (TB-782)", () => {
   it("lists initial high-stakes surfaces with component paths", () => {
     expect(REPORT_PROBLEM_V1_SURFACES.length).toBeGreaterThanOrEqual(10);
     expect(findReportProblemSurfaceById("session-expired-sign-in-failure")).toBeDefined();
+    expect(findReportProblemSurfaceById("session-expired-idle-timeout")).toBeDefined();
     expect(findReportProblemSurfaceById("auth-signin-cannot-proceed")).toBeDefined();
     expect(findReportProblemSurfaceById("auth-invitation-accept-validation-failure")).toBeDefined();
     expect(findReportProblemSurfaceById("access-denied-wrong-tenant")).toBeDefined();
@@ -103,6 +104,7 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(callbackSurfaces).toContain("auth-callback-cannot-complete");
     expect(bootstrapSurfaces).toContain("auth-bootstrap-cannot-complete");
     expect(sessionExpiredSurfaces).toContain("session-expired-sign-in-failure");
+    expect(sessionExpiredSurfaces).toContain("session-expired-idle-timeout");
     expect(accessDeniedSurfaces).toContain("access-denied-wrong-tenant");
     expect(accessDeniedSurfaces).toContain("auth-jwt-insufficient-scope");
     expect(accessDeniedSurfaces).toContain("operator-role-gate-session-break");

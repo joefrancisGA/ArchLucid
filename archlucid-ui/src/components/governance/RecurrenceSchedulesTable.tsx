@@ -251,7 +251,7 @@ export function RecurrenceSchedulesTable(props: RecurrenceSchedulesTableProps): 
                 />
                 {!failureCountKnown ? (
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-                    Failure count not returned
+                    Failure count not recorded
                   </p>
                 ) : null}
               </EnterpriseTableCell>

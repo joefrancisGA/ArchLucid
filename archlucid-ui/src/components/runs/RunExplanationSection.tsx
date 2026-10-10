@@ -318,7 +318,9 @@ export function RunExplanationSection({
   const complianceGapCountForStats = presentRunExplanationHeadlineCount(summary.complianceGapCount);
 
   const expl = explanationBody(summary);
+  const themesMissing = summary.themeSummaries === null || summary.themeSummaries === undefined;
   const themeSummaries = summary.themeSummaries ?? [];
+  const explanationMissing = summary.explanation === null || summary.explanation === undefined;
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
   const riskPostureLabel = summary.riskPosture?.trim() || "Risk posture was not stored.";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
@@ -399,7 +401,18 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {summary.faithfulnessWarning && !deterministicFallback ? (
+      {!deterministicFallback &&
+      (summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined) ? (
+        <p
+          role="status"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 leading-relaxed text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
+          Faithfulness warning was not stored.
+        </p>
+      ) : !deterministicFallback && summary.faithfulnessWarning ? (
         <p
           role="status"
           className={cn(
@@ -455,7 +468,11 @@ export function RunExplanationSection({
         </div>
       )}
 
-      {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
+      {summary.findingTraceConfidences === null || summary.findingTraceConfidences === undefined ? (
+        <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Finding traces were not stored.
+        </p>
+      ) : summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
           <h3 id="doc-explanation-traces" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Finding trace confidence
@@ -480,9 +497,12 @@ export function RunExplanationSection({
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
                   : ""}
-                {row.missingTraceFields !== null &&
-                row.missingTraceFields !== undefined &&
-                row.missingTraceFields.length > 0 ? (
+                {row.missingTraceFields === null || row.missingTraceFields === undefined ? (
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    {" "}
+                    — Missing trace fields were not stored.
+                  </span>
+                ) : row.missingTraceFields.length > 0 ? (
                   <span className="text-neutral-500 dark:text-neutral-400">
                     {" "}
                     — missing: {row.missingTraceFields.join(", ")}
@@ -516,33 +536,68 @@ export function RunExplanationSection({
         <h3 id="doc-explanation-themes" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Themes
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {themeSummaries.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
+        {themesMissing ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Themes were not stored.</p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {themeSummaries.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Compliance implications
+        </h3>
+        {explanationMissing ||
+        expl.complianceImplications === null ||
+        expl.complianceImplications === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Compliance implications were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.complianceImplications.map((implication) => (
+              <li key={implication}>{implication}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mb-4">
         <h3 id="doc-explanation-drivers" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Key drivers
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {(expl.keyDrivers ?? []).map((d) => (
-            <li key={d}>{d}</li>
-          ))}
-        </ul>
+        {explanationMissing || expl.keyDrivers === null || expl.keyDrivers === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Key drivers were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.keyDrivers.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="mb-4">
         <h3 id="doc-explanation-risks" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Risk implications
         </h3>
-        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          {(expl.riskImplications ?? []).map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
+        {explanationMissing || expl.riskImplications === null || expl.riskImplications === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Risk implications were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.riskImplications.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {prov ? (
@@ -564,11 +619,11 @@ export function RunExplanationSection({
             <dt>Model ID</dt>
             <dd className="m-0">{prov.modelId}</dd>
             <dt>Prompt template</dt>
-            <dd className="m-0">{prov.promptTemplateId ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptTemplateId ?? "Prompt template was not stored."}</dd>
             <dt>Prompt version</dt>
-            <dd className="m-0">{prov.promptTemplateVersion ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptTemplateVersion ?? "Prompt version was not stored."}</dd>
             <dt>Content hash</dt>
-            <dd className="m-0">{prov.promptContentHash ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptContentHash ?? "Content hash was not stored."}</dd>
           </dl>
         </details>
       ) : null}

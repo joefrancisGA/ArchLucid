@@ -124,25 +124,12 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
         string propertyKey,
         string targetArmId)
     {
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
         GraphEdge? edge = edges.FirstOrDefault(candidate => candidate.FromNodeId == fromNodeId
             && candidate.ToNodeId == toNodeId && candidate.EdgeType == edgeType);
-        if (edge is null && edgeKeys.Add(edgeKey))
-        {
-            edge = new GraphEdge
-            {
-                EdgeId = $"edge-{edgeKey}",
-                FromNodeId = fromNodeId,
-                ToNodeId = toNodeId,
-                EdgeType = edgeType,
-                Label = edgeType,
-                Weight = 1.0d,
-                InferenceSource = inferenceSource,
-                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
-            };
-            edges.Add(edge);
-        }
+        edge ??= AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+            edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource,
+            provenanceKind: ProvenanceKind.DeterministicInference.ToString(),
+            promoteStrongerProvenance: false);
 
         if (edge is not null)
         {

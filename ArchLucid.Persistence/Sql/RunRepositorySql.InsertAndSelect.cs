@@ -114,6 +114,7 @@ internal static partial class RunRepositorySql
                                      LegacyRunStatus = @LegacyRunStatus,
                                      CompletedUtc = @CompletedUtc,
                                      CurrentManifestVersion = @CurrentManifestVersion,
+                                     OtelTraceId = @OtelTraceId,
                                      IsDemoWelcomeRun = @IsDemoWelcomeRun,
                                      IsPublicShowcase = @IsPublicShowcase,
                                      IsSample = @IsSample,

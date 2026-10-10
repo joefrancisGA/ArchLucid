@@ -1,11 +1,11 @@
-> **Scope:** Chapter 7 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 7 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 7 — Where LLMs help
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 8,000 words. Facts about Azure AI services, model features, and pricing must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure AI services and model features were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -21,12 +21,12 @@ It read well. Almost every sentence in it was wrong in a way that mattered:
 
 - "Our investigation found that attackers *could*" drifted, by the second sentence, to "customer data *has been exposed*". Nothing showed exposure. Chapter 2's hop 8 said there were no read logs to show anything either way.
 - "85% likelihood" came from nowhere. Nothing calibrated produced it.
-- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. Chapter 4's lab showed that narrowing one identity's role closed all six paths.
+- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. Chapter 4's lab showed that all six paths converge on one deployment identity, so a few targeted changes close most of them.
 - "Privileged help-desk accounts" turned one user with one directory role into a category.
 
 The analyst's second attempt used the approach in this chapter. They gave the model a small, structured evidence pack generated from the snapshot, with the six paths as cited hop tables. They required a citation on every sentence and ran the result through a short validator. It took a few minutes longer to set up the first time. The output:
 
-> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six pass through one deployment identity, `payments-deploy` [H4]. Its broad role on the payments resource group lets it reach both stores [H5, H7, H9]. We have no evidence about whether any path has been used, because read logging is not enabled on either store [G1, G2]. Narrowing that one identity's role to what deployments need would close all six paths [C1].
+> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six pass through one deployment identity, `payments-deploy` [H4]. Its broad role on the payments resource group lets it reach both stores [H5, H7, H9]. We have no evidence about whether any path has been used, because read logging is not enabled on either store [G1, G2]. Narrowing that identity's role to what deployments need would close the three paths to `custdata` [C1].
 
 That paragraph is shorter, less dramatic, and defensible line by line. It also contains a decision the board could actually make.
 
@@ -126,7 +126,7 @@ The evidence pack is a small JSON document generated from your derivation step. 
     { "id": "G2", "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined." }
   ],
   "cutPoints": [
-    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P6.", "closes": ["P1", "P2", "P3", "P4", "P5", "P6"] }
+    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.", "closes": ["P1", "P2", "P3"] }
   ]
 }
 ```
@@ -170,11 +170,13 @@ Rules:
 4. Never state or imply that access has occurred. If the pack has a gap about
    observing access, say plainly that use cannot be determined.
 5. Do not include numbers, percentages, or estimates that are not in the pack.
-6. If the pack does not contain enough to answer, say "The evidence pack does not
-   contain enough information to answer this" and stop.
+6. If the pack does not contain enough to answer, set "status" to
+   "insufficient_evidence", return no sentences, and stop.
 ```
 
 Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (Chapter 8).
+
+The exit is a field in the output rather than a sentence for the model to write. Matching a fixed sentence is fragile: a model that paraphrases it ("The pack doesn't include that") has used the exit, but a string match says it hasn't. A field is either set or not. Your code can then produce a consistent message for the reader, and a test can assert whether the exit was taken.
 
 ### Structured output
 
@@ -182,6 +184,7 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 
 ```json
 {
+  "status": "answered",
   "sentences": [
     { "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.", "cites": ["P1", "P2", "P3", "P4", "P5", "P6"] },
     { "text": "All six pass through one deployment identity, payments-deploy.", "cites": ["H4"] }
@@ -189,9 +192,11 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 }
 ```
 
-Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text.
+`status` is either `answered` or `insufficient_evidence`. An exit looks like `{"status": "insufficient_evidence", "sentences": []}`. A draft that sets the exit and still returns sentences has broken rule 6, and the validator treats it as a failure.
 
-> **As of 2026-10:** Verify which Azure OpenAI models and API versions support schema-constrained ("structured") outputs.
+Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. A schema can also limit `status` to its two values, so the exit can't be misspelled. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text. Appendix C, section C.1, gives the full schema.
+
+> **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list. The list changes as models are added and retired, so check it before you pick a deployment.
 
 ### Settings
 
@@ -211,6 +216,7 @@ Checks worth running on every draft:
 4. **No numbers that aren't in the pack.** This catches invented percentages, timelines, and counts.
 5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in a cited claim. This catches invented roles and resources.
 6. **Inference language is preserved.** A sentence citing only deterministic inferences shouldn't use "is" or "has" for the inferred capability. This is hard to check exactly; a simple heuristic catches the common slips.
+7. **The exit is clean.** A draft with `status` set to `insufficient_evidence` returns no sentences.
 
 A minimal validator in Python:
 
@@ -242,6 +248,9 @@ def validate(draft: dict, pack: dict) -> list[str]:
     pack_text = " ".join(item.get("claim", "") for item in items.values())
     pack_numbers = set(NUMBER_PATTERN.findall(pack_text)) | {str(len(pack.get("paths", [])))}
     problems: list[str] = []
+
+    if draft.get("status") == "insufficient_evidence" and draft.get("sentences"):
+        problems.append("Draft sets status insufficient_evidence but still returns sentences.")
 
     for index, sentence in enumerate(draft.get("sentences", []), start=1):
         text = sentence.get("text", "")
@@ -292,7 +301,7 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Executive or board** — consequence, decision, cost of the decision, honesty about what isn't known:
 
-> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six run through a single deployment identity [H4], so one change closes all of them [C1]. We cannot tell whether any path has been used, because read logging is not enabled on either store [G1, G2].
+> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six run through a single deployment identity [H4]. Narrowing its role closes the three paths to live customer data, and the three to the archive remain while the pipeline deploys the reconciliation app [C1]. We cannot tell whether any path has been used, because read logging is not enabled on either store [G1, G2].
 
 **Security architect** — structure, convergence, assumptions, where the evidence is weakest:
 
@@ -300,7 +309,7 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Engineer on the payments team** — what to change and in what order:
 
-> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
+> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
 
 **Auditor** — evidence chain and time:
 
@@ -342,7 +351,7 @@ A few rules keep this safe:
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
-> **As of 2026-10:** Verify the current `azurerm` provider attribute name for disabling shared key access, and any related settings such as default-to-Entra-ID-authentication options.
+In the current `azurerm` provider the property is `shared_access_key_enabled`. A related setting, `default_to_oauth_authentication`, makes the portal use Entra ID by default; it doesn't block keys, so a draft that sets only that one hasn't made the change.
 
 ---
 
@@ -402,7 +411,7 @@ Most current model services, including Azure OpenAI, support this "tool calling"
 
 There are two broad options for teams working in Azure, and many organizations use both.
 
-**Azure OpenAI, through Azure AI Foundry.** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
+**Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry).** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
 - **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data.
 - **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11).
@@ -412,7 +421,9 @@ There are two broad options for teams working in Azure, and many organizations u
 
 **Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
 
-> **As of 2026-10:** Verify current product names (Security Copilot was earlier branded Copilot for Security), Azure OpenAI data-handling and abuse-monitoring terms, private endpoint support, structured output and tool-calling support by model, and regional availability.
+Microsoft renamed Copilot for Security to Security Copilot in 2024, so older material uses the earlier name. On data handling, Azure OpenAI doesn't use prompts or completions to train models. Abuse monitoring applies by default, and modified abuse monitoring, which stops prompts being stored for review, is a Limited Access program you apply for.
+
+> **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often. Check the current Azure OpenAI documentation for the region you deploy in.
 
 Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures. Chapter 11 covers governing it.
 
@@ -449,7 +460,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 1. Remove gaps G1 and G2 from the pack. Does the board summary still say that use can't be determined? (It shouldn't be able to, and the validator can't catch the omission. This is a pack-construction failure, which is why gaps must always be included.)
 2. Add an AI-inferred hop ("`custarchive` likely contains payment card data (AI-inferred)") and check whether the output preserves "likely" and the AI label.
-3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model uses the rule 6 exit rather than inventing a figure.
+3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model sets `status` to `insufficient_evidence` (the rule 6 exit) rather than inventing a figure.
 4. Paste the opening story's board summary into the validator and confirm every problem is reported.
 
 **Step 6 — Measure.** Time how long it takes you to review and approve the four outputs, and compare it with how long writing one of them by hand would take.
@@ -484,10 +495,8 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 ## Author notes (remove before submission)
 
-- Verify: Azure OpenAI structured output support by model and API version; tool/function calling support; data retention, training use, and abuse-monitoring terms and exemption process; private endpoint support; model version pinning and retirement policy.
-- Verify: Microsoft Security Copilot current name, positioning, and integrations.
-- Verify: `azurerm_storage_account` attribute `shared_access_key_enabled` and related Entra-default settings in the current provider version.
-- The validator is intentionally simple; test it against the opening story and the lab outputs before publication, and make sure the name regex doesn't flag ordinary hyphenated English words in practice.
+- Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
+- The validator is intentionally simple. It passes the opening story and offline fixtures; still check against live lab outputs that the name regex doesn't flag ordinary hyphenated English words.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

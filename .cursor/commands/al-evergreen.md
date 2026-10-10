@@ -21,7 +21,7 @@ Model: launched runs use `cursor-grok-4.6-high` (allowlisted in `.cursor/rules/M
 | Edit `.gitleaks.toml` | A finding is fixed by changing the fixture, never by allowlisting it |
 | Change workflow `if:`, `needs:`, `continue-on-error:`, required checks, or rulesets | Gates may not be bypassed to go green |
 | Bump a `timeout-minutes` by more than **+5** per cycle, or remove one | Same rule as `/al-loopci` |
-| Touch `RC34` or any release branch | Release cuts are owner-driven |
+| Touch `RC35` or any release branch | Release cuts are owner-driven |
 | Push to `master` directly | Trunk is protected by rulesets; deliver via PR |
 | Merge, enable auto-merge, or approve your own PR | The owner merges Evergreen PRs |
 | `git add -A`, `git push --force`, amend pushed commits | `.cursor/rules/Agent-Working-Tree-Safety.mdc` |

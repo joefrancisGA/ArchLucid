@@ -200,24 +200,10 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
             return;
         }
 
-        string edgeType = GraphEdgeTypes.PeersWith;
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
-        if (!edgeKeys.Add(edgeKey))
-        {
-            return;
-        }
-
-        edges.Add(new GraphEdge
-        {
-            EdgeId = $"edge-{edgeKey}",
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = edgeType,
-            Label = edgeType,
-            Weight = 1.0d,
-            InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
-        });
+        AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+            edges, edgeKeys, fromNodeId, toNodeId,
+            GraphEdgeTypes.PeersWith, GraphEdgeInferenceSources.InventoryVnetPeering,
+            promoteStrongerProvenance: false, preserveNullProvenance: true);
     }
 
     private static string? EnsureNode(

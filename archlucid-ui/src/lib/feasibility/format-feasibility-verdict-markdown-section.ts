@@ -27,12 +27,18 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
     for (const citation of citations) {
       const reference = (citation.reference ?? "").trim();
       const kind = (citation.kind ?? "").trim();
-      const invariantKeys = citation.invariantKeys ?? [];
+      const invariantKeys = citation.invariantKeys;
       const suffix =
-        invariantKeys.length > 0 ? ` (${invariantKeys.join(", ")})` : "";
+        invariantKeys !== null && invariantKeys !== undefined && invariantKeys.length > 0
+          ? ` (${invariantKeys.join(", ")})`
+          : "";
 
       if (reference.length > 0) {
         lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
+      }
+
+      if (invariantKeys === null || invariantKeys === undefined) {
+        lines.push("- Citation invariant keys were not stored.");
       }
     }
 
@@ -53,7 +59,7 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
   const envelope = verdict.softEnvelope;
 
   if (envelope === null || envelope === undefined) {
-    return [];
+    return ["Operating envelope was not stored.", ""];
   }
 
   const lines: string[] = [];
@@ -61,11 +67,52 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
   lines.push(SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD);
   lines.push("");
   lines.push(`- **Confidence band:** ${envelope.confidenceLow}–${envelope.confidenceHigh}`);
-  lines.push(`- **Envelope:** ${envelope.envelopeDescription}`);
-  lines.push(`- **Soft assumption:** ${envelope.softAssumption}`);
+  lines.push(
+    `- **Envelope:** ${
+      envelope.envelopeDescription === null || envelope.envelopeDescription === undefined
+        ? "Envelope description was not stored."
+        : envelope.envelopeDescription
+    }`,
+  );
+  lines.push(
+    `- **Soft assumption:** ${
+      envelope.softAssumption === null || envelope.softAssumption === undefined
+        ? "Soft assumption was not stored."
+        : envelope.softAssumption
+    }`,
+  );
 
-  if ((envelope.costOfBeingWrong ?? "").trim().length > 0) {
+  if (envelope.costOfBeingWrong === null || envelope.costOfBeingWrong === undefined) {
+    lines.push("- Cost of being wrong was not stored.");
+  } else if (envelope.costOfBeingWrong.trim().length > 0) {
     lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);
+  }
+
+  lines.push("");
+
+  return lines;
+}
+
+function formatProposedRelaxationLines(verdict: ManifestFeasibilityVerdict): string[] {
+  const proposedRelaxations = verdict.proposedRelaxations;
+
+  if (proposedRelaxations === null || proposedRelaxations === undefined) {
+    return ["### Proposed relaxations", "", "Proposed relaxations were not stored.", ""];
+  }
+
+  const lines: string[] = ["### Proposed relaxations", ""];
+
+  for (const relaxation of proposedRelaxations) {
+    const invariantKey =
+      relaxation.invariantKey === null || relaxation.invariantKey === undefined
+        ? "Relaxation invariant key was not stored."
+        : relaxation.invariantKey;
+    const tradeOffDescription =
+      relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
+        ? "Trade-off description was not stored."
+        : relaxation.tradeOffDescription;
+
+    lines.push(`- **${invariantKey}**: ${tradeOffDescription}`);
   }
 
   lines.push("");
@@ -116,6 +163,8 @@ export function formatFeasibilityVerdictMarkdownSection(
     );
     lines.push("");
   }
+
+  lines.push(...formatProposedRelaxationLines(verdict));
 
   return lines.join("\n");
 }

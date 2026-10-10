@@ -45,7 +45,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
     liveDoor,
     enginesSucceeded = null,
   } = props;
-  const { currentPrincipal } = useOperatorNavAuthority();
+  const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const [busy, setBusy] = useState(false);
   const [roleHintVisible, setRoleHintVisible] = useState(false);
   const [blockedReason, setBlockedReason] = useState<string | null>(null);
@@ -135,7 +135,11 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
     return null;
   }
 
-  if (!exportRoleOk && currentPrincipal.primaryAppRole === "Reader") {
+  if (
+    !isAuthorityLoading &&
+    !exportRoleOk &&
+    currentPrincipal.primaryAppRole === "Reader"
+  ) {
     return null;
   }
 

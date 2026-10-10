@@ -298,6 +298,171 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].pimEligibilityKind | Should -Be 'standing'
     }
 
+    It 'skips managed identity child resource types without reading principalId' {
+        function global:Invoke-AzRestMethod {
+            throw 'The child resource should not be queried'
+        }
+
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id1/federatedIdentityCredentials/cred1'
+                properties = @{}
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 0
+    }
+
+    It 'uses inventory identity properties without an identity GET' {
+        $global:securityInventoryTestPaths = [System.Collections.Generic.List[string]]::new()
+
+        function global:Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            [void]$global:securityInventoryTestPaths.Add($Path)
+            return [PSCustomObject]@{
+                Content = (@{
+                    value = @(
+                        @{
+                            name = 'cred1'
+                            properties = @{
+                                issuer = 'https://issuer.example'
+                                subject = 'system:serviceaccount:default:sa'
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.ManagedIdentity/userAssignedIdentities'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id1'
+                properties = @{
+                    principalId = '11111111-1111-1111-1111-111111111111'
+                    clientId = '22222222-2222-2222-2222-222222222222'
+                }
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 1
+        $rows[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
+        @($global:securityInventoryTestPaths | Where-Object { $_ -like '*?api-version=2023-01-31' -and $_ -notlike '*/federatedIdentityCredentials?*' }).Count | Should -Be 0
+    }
+
+    It 'hydrates missing identity properties before collecting federated credentials' {
+        $global:securityInventoryTestPaths = [System.Collections.Generic.List[string]]::new()
+
+        function global:Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            [void]$global:securityInventoryTestPaths.Add($Path)
+
+            if ($Path -like '*/federatedIdentityCredentials?*')
+            {
+                return [PSCustomObject]@{
+                    Content = (@{
+                        value = @(
+                            @{
+                                name = 'cred1'
+                                properties = @{
+                                    issuer = 'https://issuer.example'
+                                    subject = 'system:serviceaccount:default:sa'
+                                }
+                            }
+                        )
+                    } | ConvertTo-Json -Depth 8)
+                }
+            }
+
+            return [PSCustomObject]@{
+                Content = (@{
+                    properties = @{
+                        principalId = '33333333-3333-3333-3333-333333333333'
+                        clientId = '44444444-4444-4444-4444-444444444444'
+                    }
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.ManagedIdentity/userAssignedIdentities'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id1'
+                properties = @{}
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 1
+        $rows[0].principalId | Should -Be '33333333-3333-3333-3333-333333333333'
+        $global:securityInventoryTestPaths[0] | Should -Match '\?api-version=2023-01-31$'
+        $global:securityInventoryTestPaths[1] | Should -Match '/federatedIdentityCredentials\?api-version=2023-01-31$'
+    }
+
+    It 'continues after a federated credential request fails for one identity' {
+        function global:Invoke-AzRestMethod {
+            param(
+                [string] $Method,
+                [string] $Path
+            )
+
+            if ($Path -like '*/id1/federatedIdentityCredentials?*')
+            {
+                throw 'credential list unavailable'
+            }
+
+            return [PSCustomObject]@{
+                Content = (@{
+                    value = @(
+                        @{
+                            name = 'cred2'
+                            properties = @{
+                                issuer = 'https://issuer.example'
+                                subject = 'system:serviceaccount:default:sa'
+                            }
+                        }
+                    )
+                } | ConvertTo-Json -Depth 8)
+            }
+        }
+
+        $inventory = @(
+            [ordered]@{
+                resourceType = 'Microsoft.ManagedIdentity/userAssignedIdentities'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id1'
+                properties = @{
+                    principalId = '11111111-1111-1111-1111-111111111111'
+                }
+            },
+            [ordered]@{
+                resourceType = 'Microsoft.ManagedIdentity/userAssignedIdentities'
+                resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id2'
+                properties = @{
+                    principalId = '22222222-2222-2222-2222-222222222222'
+                }
+            }
+        )
+
+        [object[]]$rows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources $inventory)
+
+        $rows.Count | Should -Be 1
+        $rows[0].principalId | Should -Be '22222222-2222-2222-2222-222222222222'
+    }
+
     It 'skips nsg allow rule derivation when securityRules is absent from inventory properties' {
         $inventory = @(
             [ordered]@{

@@ -37,4 +37,30 @@ describe("formatTransparencyTrailMarkdownSection", () => {
     expect(markdown).toContain("Working document — not sealed");
     expect(markdown).toContain("- openQuestions: Who owns retention policy?");
   });
+
+  it("reports missing asserted metadata while preserving stored empty strings", () => {
+    const missing = formatTransparencyTrailMarkdownSection({
+      asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+      inferred: [],
+      skipped: [],
+    });
+    const storedEmpty = formatTransparencyTrailMarkdownSection({
+      asserted: [
+        {
+          key: "businessOutcome",
+          value: "Reduce triage time",
+          responderLabel: "",
+          questionId: "",
+          recordedUtc: "",
+        },
+      ],
+      inferred: [],
+      skipped: [],
+    });
+
+    expect(missing).toContain("Responder was not stored.");
+    expect(missing).toContain("Question id was not stored.");
+    expect(missing).toContain("Answer recorded time was not stored.");
+    expect(storedEmpty).not.toContain("was not stored.");
+  });
 });

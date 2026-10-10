@@ -2,6 +2,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -27,6 +28,9 @@ public sealed class DapperPolicyPackVersionRepository(
     : IPolicyPackVersionRepository
 {
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on PolicyPacks by PolicyPackId before version insert.")]
     public async Task CreateAsync(
         PolicyPackVersion version,
         CancellationToken ct,
@@ -140,6 +144,9 @@ public sealed class DapperPolicyPackVersionRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on PolicyPacks by PolicyPackId during published version upsert.")]
     public async Task<(PolicyPackVersion Version, string? PreviousContentJson)> UpsertPublishedVersionAsync(
         Guid policyPackId,
         string version,

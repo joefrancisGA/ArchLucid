@@ -114,7 +114,9 @@ export function buildMadrMarkdownFromRun(
       narrativePieces.push(truncatePlain(exp.detailedNarrative, NARRATIVE_CAP));
     }
 
-    if (exp.structuredReasoning !== null && exp.structuredReasoning.trim().length > 0) {
+    if (exp.structuredReasoning === null) {
+      narrativePieces.push("Structured reasoning was not stored.");
+    } else if (exp.structuredReasoning.trim().length > 0) {
       narrativePieces.push(`_Structured model reasoning:_ ${truncatePlain(exp.structuredReasoning, EXCERPT_CAP)}`);
     }
   }
@@ -192,7 +194,9 @@ export function buildMadrMarkdownFromRun(
       consequencesSections.push(`### Compliance / governance\n\n${bulletBlock(exp.complianceImplications)}`);
     }
 
-    if (exp.alternativesConsidered !== null && exp.alternativesConsidered.length > 0) {
+    if (exp.alternativesConsidered === null) {
+      consequencesSections.push("Alternatives considered were not stored.");
+    } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
   }
@@ -215,8 +219,12 @@ export function buildMadrMarkdownFromRun(
     caveatLines.push(`Faithfulness / quality note: ${exp.faithfulnessWarning}`);
   }
 
-  if (exp !== null && exp.caveats !== null && exp.caveats.length > 0) {
-    caveatLines.push(...exp.caveats);
+  if (exp !== null) {
+    if (exp.caveats === null) {
+      caveatLines.push("Caveats were not stored.");
+    } else if (exp.caveats.length > 0) {
+      caveatLines.push(...exp.caveats);
+    }
   }
 
   const provenance =

@@ -138,12 +138,18 @@ export function RunDetailManifestSummarySection(
                           { missingLabel: "not-returned" },
                         )}{" "}
                         pack assignment(s) ·{" "}
-                        {finiteIntegerCountDisplay(
-                          manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
-                          { missingLabel: "not-returned" },
-                        )}{" "}
-                        compliance rule key(s)
-                        {typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          ? "Compliance rule key count was not stored."
+                          : finiteIntegerCountDisplay(
+                              manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
+                              { missingLabel: "not-returned" },
+                            )}{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          ? null
+                          : "compliance rule key(s)"}
+                        {manifestSummary.effectiveGovernanceAtCommit.conflictCount === null
+                          ? " · Merge conflict count was not stored."
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
                         && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
                         && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
@@ -188,7 +194,7 @@ export function RunDetailManifestSummarySection(
                   </p>
                   {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
                   || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (
-                    <p className="m-0">Policy references: Not returned</p>
+                    <p className="m-0">Policy references: Policy references were not stored.</p>
                   ) : manifestSummary.reviewStandardsAtCommit.policyReferences.length > 0 ? (
                     <p className="m-0">
                       Policy references: {manifestSummary.reviewStandardsAtCommit.policyReferences.join(", ")}
@@ -196,7 +202,7 @@ export function RunDetailManifestSummarySection(
                   ) : null}
                   {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === undefined
                   || manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === null ? (
-                    <p className="m-0">Reviewed dimensions: Not returned</p>
+                    <p className="m-0">Reviewed dimensions: Reviewed dimensions were not stored.</p>
                   ) : manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions.length > 0 ? (
                     <p className="m-0">
                       Reviewed dimensions:{" "}

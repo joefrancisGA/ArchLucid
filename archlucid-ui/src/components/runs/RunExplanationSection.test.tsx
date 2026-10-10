@@ -206,6 +206,25 @@ describe("RunExplanationSection", () => {
     );
   });
 
+  it("reports a missing faithfulness warning but hides stored empty text", () => {
+    const { rerender } = render(
+      <RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />,
+    );
+
+    expect(screen.getByText("Faithfulness warning was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ faithfulnessWarning: "" })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.queryByText("Faithfulness warning was not stored.")).not.toBeInTheDocument();
+  });
+
   it("omits model confidence block when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 
@@ -218,7 +237,6 @@ describe("RunExplanationSection", () => {
 
   it("renders without throwing when explanation is missing from API payload", () => {
     const partial = {
-      themeSummaries: ["Theme one"],
       overallAssessment: "Assessment from manifest rollup.",
       riskPosture: "Low",
       findingCount: 1,
@@ -231,6 +249,84 @@ describe("RunExplanationSection", () => {
 
     expect(screen.getByText("Assessment from manifest rollup.")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: /risk posture low/i })).toBeInTheDocument();
+    expect(screen.getByText("Themes were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Key drivers were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Risk implications were not stored.")).toBeInTheDocument();
+  });
+
+  it("keeps stored empty explanation arrays as empty lists", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({
+          themeSummaries: [],
+          explanation: { keyDrivers: [], riskImplications: [] },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.queryByText("Themes were not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Key drivers were not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Risk implications were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders missing compliance implications and stored implication values", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({ explanation: { complianceImplications: null as never } })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Compliance implications were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ explanation: { complianceImplications: ["DPA alignment"] } })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("DPA alignment")).toBeInTheDocument();
+    expect(screen.queryByText("Compliance implications were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("reports missing finding traces and missing trace fields", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({ findingTraceConfidences: null })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Finding traces were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({
+          findingTraceConfidences: [
+            {
+              findingId: "f1",
+              traceConfidenceLabel: "Low",
+              missingTraceFields: null,
+            } as never,
+          ],
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText(/Missing trace fields were not stored\./)).toBeInTheDocument();
   });
 
   it("reveals provenance in details", () => {
@@ -245,5 +341,55 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("tpl-1")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByText("abc")).toBeInTheDocument();
+  });
+
+  it("distinguishes missing provenance values from stored empty strings", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: {
+              agentType: "unit-agent",
+              modelId: "gpt-test",
+              promptTemplateId: null,
+              promptTemplateVersion: undefined,
+              promptContentHash: null,
+            },
+          },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    const missingValues = document.querySelectorAll("#doc-explanation-provenance dd");
+    expect(missingValues[2]).toHaveTextContent("Prompt template was not stored.");
+    expect(missingValues[3]).toHaveTextContent("Prompt version was not stored.");
+    expect(missingValues[4]).toHaveTextContent("Content hash was not stored.");
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: {
+              agentType: "unit-agent",
+              modelId: "gpt-test",
+              promptTemplateId: "",
+              promptTemplateVersion: "",
+              promptContentHash: "",
+            },
+          },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    const storedValues = document.querySelectorAll("#doc-explanation-provenance dd");
+    expect(storedValues[2]?.textContent).toBe("");
+    expect(storedValues[3]?.textContent).toBe("");
+    expect(storedValues[4]?.textContent).toBe("");
   });
 });

@@ -2,6 +2,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -29,6 +30,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
     private static readonly string VisibleToAzureResourceIdPredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("toResource.AzureResourceId");
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime subscription filter SQL; AzureInventoryResources scope via ScopeContext parameters.")]
     public async Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
         ScopeContext scope,
         int page,

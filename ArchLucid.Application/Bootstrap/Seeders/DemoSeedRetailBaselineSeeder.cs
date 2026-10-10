@@ -115,7 +115,7 @@ public sealed class DemoSeedRetailBaselineSeeder: IDemoSeedScenarioSeeder
 
         if (await _deps.RunRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is RunRecord existingRun)
         {
-            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, scope, existingRun, cancellationToken);
             await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
 
             return;

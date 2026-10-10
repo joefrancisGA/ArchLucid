@@ -80,7 +80,7 @@ class TestLaunchTargetResolver(unittest.TestCase):
     def test_other_branches_are_out_of_scope(self) -> None:
         resolver = LaunchTargetResolver()
 
-        self.assertIsNone(resolver.resolve("RC34"))
+        self.assertIsNone(resolver.resolve("RC35"))
         self.assertIsNone(resolver.resolve("cursor/understand-use-wave-at-dc80"))
         self.assertIsNone(resolver.resolve("not-dependabot/x"))
         self.assertIsNone(resolver.resolve(""))
@@ -137,7 +137,7 @@ class TestLaunchPolicy(unittest.TestCase):
         self.assertEqual(decision.reason, "no failed jobs in the run")
 
     def test_skips_out_of_scope_branch(self) -> None:
-        decision = self._decide(_digest(branch="RC34"))
+        decision = self._decide(_digest(branch="RC35"))
 
         self.assertFalse(decision.launch)
         self.assertIn("outside Evergreen scope", decision.reason)

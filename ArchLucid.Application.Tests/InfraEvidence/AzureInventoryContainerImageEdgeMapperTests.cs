@@ -1,5 +1,6 @@
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 

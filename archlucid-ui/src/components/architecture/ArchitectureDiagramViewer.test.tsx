@@ -272,6 +272,61 @@ describe('ArchitectureDiagramViewer', () => {
     );
   });
 
+  it('reports missing questionable actions while preserving stored empty actions', async () => {
+    const forestLayoutSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">' +
+      '  <g class="node" id="node-vm" transform="translate(10,10)"><title>avd01-nprod-0</title><rect class="node-card-questionable" width="80" height="30"/></g>' +
+      '</svg>';
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Not registered',
+            questionableAction: null,
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-vm')!);
+    expect(await screen.findByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Recommended action: Recommended action was not stored.',
+    );
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Not registered',
+            questionableAction: '',
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    expect(screen.getByTestId('infra-diagrams-questionable-panel')).not.toHaveTextContent(
+      'Recommended action was not stored.',
+    );
+  });
+
   it('dims unrelated forest ink without changing the camera viewBox', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

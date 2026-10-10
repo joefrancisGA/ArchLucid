@@ -72,6 +72,9 @@ internal static class RunRecordParameters
     /// <remarks>
     ///     Carries <see cref="RunRecord.RowVersion" /> for the optimistic-concurrency predicate; a null stamp means the
     ///     caller never read the row, so a missing update is a "not found" rather than a conflict.
+    ///     Also carries <see cref="RunRecord.OtelTraceId" />. That value is assigned after insert, once the run activity
+    ///     exists. The artifacts stage then stores <see cref="RunRecord.GoldenManifestId" />. A later update is rejected
+    ///     by the committed-header guard unless the trace id was already persisted on this statement.
     /// </remarks>
     public static object Update(RunRecord run)
     {
@@ -99,6 +102,7 @@ internal static class RunRecordParameters
             run.LegacyRunStatus,
             run.CompletedUtc,
             run.CurrentManifestVersion,
+            run.OtelTraceId,
             run.IsDemoWelcomeRun,
             run.IsPublicShowcase,
             run.IsSample,

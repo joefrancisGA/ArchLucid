@@ -33,12 +33,16 @@ import {
 } from "./helpers/live-private-beta-access";
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
-import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
+import {
+  expectLiveBrandedNotFoundRecovery,
+  expectLiveFirstReviewGuideReady,
+  expectLiveReviewsHubHeading,
+  expectLiveReviewsHubListReady,
+} from "./helpers/live-page-readiness";
 import {
   assertLiveSeatOperatorScopeChrome,
   waitAndDismissFirstSessionPurposeChooser,
 } from "./helpers/live-seat-scope-assertions";
-import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   createRun,
   enrichArchitectureRequestBody,
@@ -305,12 +309,13 @@ test.describe(
         await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
       }
 
-      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
+      await expectLiveBrandedNotFoundRecovery(page);
     });
 
   test.describe("browser journeys", () => {
-    test.describe.configure({ mode: "serial" });
+    // Keep independent invitee journeys running after a Reviews-hub failure so one
+    // diagnostic timeout cannot hide the remaining private-beta access coverage.
+    test.describe.configure({ mode: "parallel" });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
@@ -411,9 +416,7 @@ test.describe(
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
     await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubHeading(page);
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
@@ -511,6 +514,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     await stubEmptyArchitectureDraftListRoute(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -544,9 +548,7 @@ test.describe(
 
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
     await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubHeading(page);
     await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
@@ -589,6 +591,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);
@@ -635,6 +638,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);

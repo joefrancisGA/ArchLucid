@@ -30,6 +30,15 @@ describe("live-api-private-beta-access loader smoke", () => {
     expect(spec).toContain("test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs())");
   });
 
+  it("release-gate spine assertions scope repeated honesty-chip test ids", () => {
+    const spec = readFileSync(join(process.cwd(), "e2e/demo-workspace-a.smoke.spec.ts"), "utf8");
+
+    expect(spec).toContain("const spineBand = page.getByTestId(\"run-detail-first-review-spine-band\")");
+    expect(spec).toContain(
+      "spineBand.getByTestId(\"policy-pack-influence-honesty-chip\")",
+    );
+  });
+
   it("private-beta create-run HTTP timeout exceeds inline pipeline budget", async () => {
     const previousPrivateBeta = process.env.LIVE_E2E_PRIVATE_BETA_ACCESS;
     const previousCi = process.env.CI;

@@ -1,11 +1,11 @@
-> **Scope:** Chapter 8 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 8 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 8 — Where LLMs hurt
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 7,000 words. Facts about Azure AI services, Entra defaults, and security tooling must be re-verified against current documentation before submission. The injection examples are for a lab tenant you own.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 7,000 words. Facts about Azure AI services, Entra defaults, and security tooling were checked against current documentation in October 2026; dated "As of" notes mark the ones to re-check before submission. The injection examples are for a lab tenant you own.*
 
 ---
 
@@ -145,7 +145,9 @@ Security pipelines read a lot of text that other people wrote. The pattern to lo
 
 The last two rows deserve attention. A request to a public storage endpoint with a user-agent string containing instructions puts attacker text into your logs without any Azure permission at all. If a pipeline summarizes those logs with a model, the attacker is writing part of the prompt.
 
-> **As of 2026-10:** Verify the Entra default for whether users can register applications, and which built-in roles include tag write.
+The first rows are wider than they look. By default, every member user in an Entra tenant can register applications, and so can name them. Tag write is included in Contributor as well as in Tag Contributor, so everyone who can change a resource can also label it.
+
+> **As of 2026-10:** Tenants often change the app registration default. Check yours (**Users can register applications** in Entra user settings) rather than assuming either value.
 
 ### What injection is for
 
@@ -235,9 +237,7 @@ def instruction_like(value: str) -> list[str]:
     return [p for p in INSTRUCTION_PATTERNS if re.search(p, value or "", re.IGNORECASE)]
 ```
 
-A list like this will never catch everything, and an attacker who knows it can phrase around it. That's fine. Its job is to catch the careless attempts and to turn "someone renamed an app to talk to our tooling" into an observed fact with an owner. Microsoft also offers detection for prompt attacks in Azure AI Content Safety, which you can run on untrusted text before it reaches a model. Treat any detector as a layer, not a guarantee.
-
-> **As of 2026-10:** Verify the current name and capabilities of prompt-attack detection in Azure AI Content Safety ("Prompt Shields") and whether it covers document-style (indirect) attacks.
+A list like this will never catch everything, and an attacker who knows it can phrase around it. That's fine. Its job is to catch the careless attempts and to turn "someone renamed an app to talk to our tooling" into an observed fact with an owner. Microsoft also offers detection for prompt attacks in Azure AI Content Safety, called Prompt Shields, which you can run on untrusted text before it reaches a model. It checks documents as well as user prompts, which is the case here: an app name in an evidence pack is a document-style (indirect) attack, not something a user typed. Treat any detector as a layer, not a guarantee.
 
 With these layers, the opening story plays out differently. The display name never enters a claim. It sits in `untrustedText`, labeled. If the model repeats "SEC-1142" anyway, the copy check rejects the draft. If the model leaves out the path, the coverage check rejects the draft. And the derivation step reports the display name itself as a finding: an app registration whose name contains instructions addressed to an AI.
 
@@ -580,12 +580,10 @@ Re-collect, rebuild the pack, and generate the board summary. Run it three times
 ## Author notes (remove before submission)
 
 - The opening story, SEC-1142, and the review timeline are fictional. Check that the scenario is plausible under current Entra defaults: application owners can change an app registration's display name; display-name length limits allow the injected text.
-- Verify: Entra default for "users can register applications"; built-in roles that include `Microsoft.Resources/tags/write`; whether user display names are self-editable by default.
-- Verify: OWASP Top 10 for LLM Applications entry numbering for prompt injection in the current edition.
-- Verify: Azure AI Content Safety prompt-attack detection ("Prompt Shields"), its coverage of indirect (document) attacks, and its current product placement.
-- Verify: the built-in role name Storage Account Key Operator Service Role, and the statement that Storage Account Contributor has no blob data actions.
+- Verified 2026-10-10 (revision pass 1): the app registration default; tag write in Contributor and Tag Contributor; Prompt Shields covers document attacks; OWASP LLM01 is prompt injection in the 2025 edition; Storage Account Key Operator Service Role exists; Storage Account Contributor has no data actions; code samples execute cleanly.
+- Still to do: exercise `untrusted_copy_problems`, `coverage_problems`, `instruction_like`, and the metamorphic harness against the Chapter 7 pack.
+- Still to verify: whether user display names are self-editable by default.
 - Find and cite one or two published studies on the calibration of verbalized model confidence, or soften the sentence in section 8.3.
-- Test the code samples (`untrusted_copy_problems`, `coverage_problems`, `instruction_like`, metamorphic harness) against the Chapter 7 pack before publication.
 - Responsible-disclosure framing for the injection lab: keep to owned tenants and synthetic data; consider asking Microsoft whether to mention Content Safety by name.
 - Consider a figure showing the layered defenses around the grounding pipeline.
 - Add the Chapter 8 fact checks to GTM **M-306** when it is picked up.

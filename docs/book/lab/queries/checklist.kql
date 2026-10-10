@@ -1,0 +1,38 @@
+// Chapter 1 Step 1: a list view of the lab, one row per finding, sorted by severity.
+// Covers what Resource Graph can see. The guest account comes from Microsoft Graph, and missing
+// diagnostic settings from your posture tool.
+// The RDP check reads only destinationPortRange, which matches the lab's single-port rule. Real NSGs also
+// use destinationPortRanges and port ranges; Appendix B section B.7 has the fuller pattern.
+resources
+| where type =~ 'microsoft.storage/storageaccounts'
+| where isnull(properties.allowSharedKeyAccess) or tobool(properties.allowSharedKeyAccess)
+| project finding = 'Storage account allows shared key access', severityRank = 1, id, name, resourceGroup
+| union (
+    resources
+    | where type =~ 'microsoft.network/networksecuritygroups'
+    | mv-expand rule = properties.securityRules
+    | where tostring(rule.properties.direction) =~ 'Inbound'
+        and tostring(rule.properties.access) =~ 'Allow'
+        and tostring(rule.properties.destinationPortRange) == '3389'
+    | project finding = 'NSG allows RDP inbound', severityRank = 1, id, name, resourceGroup
+)
+| union (
+    resources
+    | where type =~ 'microsoft.storage/storageaccounts'
+    | where tobool(properties.allowBlobPublicAccess)
+    | project finding = 'Storage account allows anonymous blob access', severityRank = 2, id, name, resourceGroup
+)
+| union (
+    resources
+    | where type =~ 'microsoft.keyvault/vaults'
+    | where isnull(properties.enablePurgeProtection) or not(tobool(properties.enablePurgeProtection))
+    | project finding = 'Key vault without purge protection', severityRank = 2, id, name, resourceGroup
+)
+| union (
+    resources
+    | where isnull(tags) or tostring(tags) == '{}'
+    | project finding = 'Resource has no tags', severityRank = 3, id, name, resourceGroup
+)
+| extend severity = case(severityRank == 1, 'High', severityRank == 2, 'Medium', 'Low')
+| order by severityRank asc, finding asc, name asc
+| project severity, finding, name, resourceGroup, id

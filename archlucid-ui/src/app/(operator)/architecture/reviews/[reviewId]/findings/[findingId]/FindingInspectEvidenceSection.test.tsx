@@ -133,4 +133,32 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.queryByTestId("finding-inspect-policy-rule-callout")).toBeNull();
     expect(screen.getByRole("heading", { name: "Evidence citations" })).toBeTruthy();
   });
+
+  it("reports missing technical citation values but hides stored empty strings", () => {
+    const { rerender } = render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[{ artifactId: null, lineRange: null, excerpt: "node-x" }]}
+      />,
+    );
+
+    expect(screen.getByText("Line range was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence artifact id was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[{ artifactId: "", lineRange: "", excerpt: "node-x" }]}
+      />,
+    );
+
+    expect(screen.queryByText("Line range was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Evidence artifact id was not stored.")).not.toBeInTheDocument();
+  });
 });

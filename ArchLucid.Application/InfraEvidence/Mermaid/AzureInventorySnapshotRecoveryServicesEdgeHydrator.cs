@@ -87,24 +87,15 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
                     ? AzureInventoryRecoveryServices.ReplicateEdgeLabel
                     : AzureInventoryRecoveryServices.BackupEdgeLabel;
 
-                string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.Protects}";
+                GraphEdge? edge = AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                    edges, edgeKeys, fromNodeId, toNodeId, GraphEdgeTypes.Protects, inferenceSource,
+                    label: label, provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                    promoteStrongerProvenance: false, allowSelfEdges: true);
 
-                if (!edgeKeys.Add(edgeKey))
+                if (edge is null)
                 {
                     continue;
                 }
-
-                GraphEdge edge = new()
-                {
-                    EdgeId = $"edge-{edgeKey}",
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
-                    EdgeType = GraphEdgeTypes.Protects,
-                    Label = label,
-                    Weight = 1.0d,
-                    InferenceSource = inferenceSource,
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-                };
 
                 if (!string.IsNullOrWhiteSpace(item.TargetRegion))
                 {
@@ -116,8 +107,6 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
                     edge.Properties[AzureInventoryRecoveryServices.EdgeTargetResourceIdPropertyKey] =
                         ArmResourceIdNormalizer.Normalize(item.TargetResourceId);
                 }
-
-                edges.Add(edge);
             }
         }
     }

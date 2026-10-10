@@ -53,4 +53,23 @@ describe("ArchitectureStructuredSectionView", () => {
     expect(combinedHtml).not.toContain("text-[0.7rem]");
     expect(combinedHtml).not.toContain("bg-teal-50");
   });
+
+  it("distinguishes missing entity detail from stored empty detail", () => {
+    render(
+      <ArchitectureStructuredSectionView
+        section={{
+          ...assertedSection,
+          entities: [
+            { label: "Missing", detail: null, provenance: "asserted" },
+            { label: "Empty", detail: "", provenance: "asserted" },
+          ],
+        }}
+        defaultOpen
+        correctionHref={null}
+      />,
+    );
+
+    expect(screen.getByText("Detail was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Empty")).toBeInTheDocument();
+  });
 });

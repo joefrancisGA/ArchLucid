@@ -254,7 +254,11 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {row.agentName?.trim() || "Agent name was not stored."}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell className="whitespace-nowrap">{row.corpusKind?.trim() || "-"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="whitespace-nowrap">
+                    {row.corpusKind === null || row.corpusKind === undefined
+                      ? "Corpus kind was not stored."
+                      : row.corpusKind}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("max-w-[14rem] break-all font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                     {row.retrievedChunkIds.length > 0 ? row.retrievedChunkIds.join(", ") : "-"}
                   </EnterpriseTableCell>

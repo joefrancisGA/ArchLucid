@@ -23,6 +23,14 @@ const PATH_KIND_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function formatSecurityEvidencePathKindLabel(kind: string | null | undefined): string {
+  if (kind === null || kind === undefined) {
+    return "Path kind was not stored.";
+  }
+
+  if (kind === "") {
+    return "";
+  }
+
   const trimmed = kind?.trim() ?? "";
 
   if (trimmed.length === 0) {

@@ -405,21 +405,6 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
         return options.Object;
     }
 
-    private static IAgentResultRepository CreateEmptyAgentResultRepository()
-    {
-        Mock<IAgentResultRepository> agentResults = new();
-        agentResults
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.IsAny<ScopeContext>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection>(),
-                It.IsAny<IDbTransaction>()))
-            .ReturnsAsync([]);
-
-        return agentResults.Object;
-    }
-
     private static ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService CreatePassThroughClosedLoopScoreSync()
     {
         Mock<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService> scoreSync = new();

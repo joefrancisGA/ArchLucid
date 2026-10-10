@@ -4,6 +4,12 @@ import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/
 export const COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER =
   "Current policy pack assignments and compliance rules show what's in effect today — not the rules frozen when each review was finalized. When a review saved its rules at commit time, those rows appear separately below.";
 
+export const POLICY_PACK_VERSION_NOT_STORED = "Policy pack version was not stored.";
+
+export function formatPolicyPackVersion(version: string): string {
+  return version.length === 0 ? "" : `v${version}`;
+}
+
 export type CompareEffectivePackAssignmentAtCommitRow = {
   readonly policyPackId: string;
   readonly policyPackVersion: string;
@@ -15,16 +21,16 @@ export type CompareEffectiveCoverageAssignmentAtCommitRow = {
   readonly policyPackVersion: string;
   readonly coverageType: string;
   readonly selectionState: string;
-  readonly qualityDimension: string | null;
+  readonly qualityDimension: string;
   readonly exclusionReason: string | null;
 };
 
 export type CompareEffectiveGovernanceAtCommitSnapshot = {
   readonly generatedUtc: string | null;
   readonly ruleSetHash: string | null;
-  readonly complianceRuleKeyCount: number;
+  readonly complianceRuleKeyCount: number | null;
   readonly complianceRuleKeys: readonly string[];
-  readonly conflictCount: number;
+  readonly conflictCount: number | null;
   readonly packAssignments: readonly CompareEffectivePackAssignmentAtCommitRow[];
   readonly coverageAssignments: readonly CompareEffectiveCoverageAssignmentAtCommitRow[];
   readonly hasEffectivePolicy: boolean;
@@ -134,10 +140,12 @@ function parseAtCommitCoverageAssignments(value: unknown): CompareEffectiveCover
 
     rows.push({
       policyPackId,
-      policyPackVersion: readTrimmedString(item.policyPackVersion) ?? " — ",
-      coverageType: readTrimmedString(item.coverageType) ?? "Unknown",
-      selectionState: readTrimmedString(item.selectionState) ?? "Unknown",
-      qualityDimension: readTrimmedString(item.qualityDimension),
+      policyPackVersion:
+        typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
+      coverageType: typeof item.coverageType === "string" ? item.coverageType : "Coverage type was not stored.",
+      selectionState: typeof item.selectionState === "string" ? item.selectionState : "Selection state was not stored.",
+      qualityDimension:
+        typeof item.qualityDimension === "string" ? item.qualityDimension : "Quality dimension was not stored.",
       exclusionReason: readTrimmedString(item.exclusionReason),
     });
   }
@@ -165,7 +173,8 @@ function parseAtCommitPackAssignments(value: unknown): CompareEffectivePackAssig
 
     rows.push({
       policyPackId,
-      policyPackVersion: readTrimmedString(item.policyPackVersion) ?? " — ",
+      policyPackVersion:
+        typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
       scopeLevel: readTrimmedString(item.scopeLevel) ?? "Project",
     });
   }
@@ -179,14 +188,16 @@ function parseEffectiveGovernanceAtCommit(value: unknown): CompareEffectiveGover
   }
 
   const complianceRuleKeys = readStringArray(value.complianceRuleKeys);
-  const complianceRuleKeyCount = readFiniteNumber(value.complianceRuleKeyCount) ?? complianceRuleKeys.length;
+  const storedComplianceRuleKeyCount = readFiniteNumber(value.complianceRuleKeyCount);
+  const complianceRuleKeyCount =
+    storedComplianceRuleKeyCount ?? (Array.isArray(value.complianceRuleKeys) ? complianceRuleKeys.length : null);
 
   return {
     generatedUtc: readTrimmedString(value.generatedUtc),
     ruleSetHash: readTrimmedString(value.ruleSetHash),
     complianceRuleKeyCount,
     complianceRuleKeys,
-    conflictCount: readFiniteNumber(value.conflictCount) ?? 0,
+    conflictCount: readFiniteNumber(value.conflictCount),
     packAssignments: parseAtCommitPackAssignments(value.packAssignments),
     coverageAssignments: parseAtCommitCoverageAssignments(value.coverageAssignments),
     hasEffectivePolicy: readBoolean(value.hasEffectivePolicy),
