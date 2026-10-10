@@ -20,20 +20,13 @@ internal static class AzureInventoryArmEndpointNodeResolver
             return false;
         }
 
-        if (nodeIdByArmId.TryGetValue(armId, out string? exactNodeId)
-            && !string.IsNullOrWhiteSpace(exactNodeId))
+        // Exact resource first, followed by its ancestors from nearest to farthest.
+        foreach (string candidate in ArmResourceIdNormalizer.EnumerateAncestorResourceIds(armId).Prepend(armId))
         {
-            nodeId = exactNodeId;
-
-            return true;
-        }
-
-        foreach (string ancestor in ArmResourceIdNormalizer.EnumerateAncestorResourceIds(armId))
-        {
-            if (nodeIdByArmId.TryGetValue(ancestor, out string? ancestorNodeId)
-                && !string.IsNullOrWhiteSpace(ancestorNodeId))
+            if (nodeIdByArmId.TryGetValue(candidate, out string? candidateNodeId)
+                && !string.IsNullOrWhiteSpace(candidateNodeId))
             {
-                nodeId = ancestorNodeId;
+                nodeId = candidateNodeId;
 
                 return true;
             }
