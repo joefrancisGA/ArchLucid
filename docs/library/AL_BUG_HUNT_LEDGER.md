@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — revalidated the registration response body fallbacks, duplicate-submit guards, readiness messaging, and schema constraints against reachable UI inputs; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `InMemoryContextSnapshotRepository.GetLatestAsync` filtered snapshots only by project id, so a tenant could receive another tenant's latest snapshot when project ids overlapped. Latest reads now apply the current saved scope metadata when a scoped provider is configured; regression `GetLatestAsync_does_not_return_snapshot_saved_by_different_tenant_for_same_project`; scoped ContextIngestion/Canonicalization tests passed 814/814.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27399,6 +27401,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): latest snapshot reads now enforce the current tenant/workspace/project scope metadata; 814 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `InMemoryContextSnapshotRepository.GetLatestAsync` — project-id-only selection returned a snapshot saved under another tenant when both tenants used the same project id — **hit 2026-10-10 seed hunt:** filter latest candidates through the current scope provider's saved `ReadScopeTriple`; regression `GetLatestAsync_does_not_return_snapshot_saved_by_different_tenant_for_same_project`.
 
 2026-10-06 seed hunt (seed→hit): dotenv `export KEY=value` left `export` in `SettingName` / proposal `Name`; fixed prefix strip; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`; seeded five follow-on candidates; 808 scoped tests passed.
 
