@@ -3,6 +3,16 @@ variable "subscription_id" {
   type        = string
 }
 
+variable "acknowledge_deliberately_vulnerable" {
+  description = "Set to true to confirm this is a dedicated lab tenant and subscription. The lab exposes customer-data storage publicly with shared keys enabled, among other deliberate weaknesses."
+  type        = bool
+
+  validation {
+    condition     = var.acknowledge_deliberately_vulnerable
+    error_message = "This lab is deliberately vulnerable. Set acknowledge_deliberately_vulnerable = true only in a tenant and subscription you use for nothing else (Appendix A.1)."
+  }
+}
+
 variable "location" {
   description = "Azure region for every lab resource."
   type        = string

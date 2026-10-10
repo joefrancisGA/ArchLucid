@@ -5,7 +5,7 @@
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md) · **Terraform:** [`../lab/terraform`](../lab/terraform) · **Queries:** [`../lab/queries`](../lab/queries)
 
-> *Draft status: first draft. The module passes `terraform validate` and `terraform fmt -check` against azurerm 4.81, azuread 3.10, and random 3.9. It has not yet been applied in a live tenant; see the author notes.*
+> *Draft status: first draft. The module passes `terraform validate` and `terraform fmt -check` against azurerm 4.81, azuread 3.10, random 3.9, and tls 4.4. It has not yet been applied in a live tenant; see the author notes.*
 
 Every chapter's lab runs against the same small estate: Contoso's payments platform, with the six paths from Chapter 4 built in on purpose, a network with the mistakes from Chapter 5, and enough ordinary hygiene noise to make Chapter 1's point. This appendix describes what the lab builds, how to deploy it, and how each chapter changes it.
 
@@ -51,11 +51,11 @@ The book calls the lab subscription `sub-payments-prod`. Terraform doesn't renam
 | `custdata` | Storage account, container `customers` | Shared key enabled; public network access enabled from all networks; private endpoint in the payments spoke; no diagnostic setting; tag `owner = payments` | 1–10 |
 | `custarchive` | Storage account, container `settlements` | Shared key enabled; no diagnostic setting | 4, 6, 7, 9, 10 |
 | `pay-reconcile` | Linux Function App on a Basic plan | Runs as `mi-pay-reconcile`; app setting `ARCHIVE_ACCOUNT`; virtual network integration in the payments spoke | 4–6, 9, 10 |
-| payments API | Linux web app on the same plan | Runs as `mi-payments-api`; app setting `CUSTOMER_ACCOUNT`; virtual network integration in the payments spoke | 6 |
+| payments API | Linux web app on the same plan, in `rg-payments-runtime` | Runs as `mi-payments-api`; app setting `CUSTOMER_ACCOUNT`; virtual network integration in the payments spoke | 6 |
 | `mi-pay-reconcile` | User-assigned managed identity | Storage Blob Data Reader on `custarchive` (account scope) | 4, 6, 9, 10 |
-| `mi-payments-api` | User-assigned managed identity | Storage Blob Data Contributor on `custdata` | 6 |
+| `mi-payments-api` | User-assigned managed identity, in `rg-payments-runtime` | Storage Blob Data Contributor on `custdata` | 6 |
 
-The Functions host needs a storage account of its own. The lab puts it in `rg-payments-runtime`, so `rg-payments-prod` holds exactly what the chapters describe. It isn't a path target.
+`rg-payments-runtime` holds what `payments-deploy`'s Contributor role must not reach: the Functions host's own storage account, the payments API, and the API's identity. The App Service plan stays in `rg-payments-prod`, because changing a plan doesn't deploy code to the apps on it.
 
 ### Entra objects
 
@@ -83,7 +83,7 @@ With the baseline deployed, Chapter 4's search finds exactly six paths. They're 
 | P5 | `dev-lead` | add credential → … → `mi-pay-reconcile` | Read `custarchive` |
 | P6 | `helpdesk-07` | add credential → … → `mi-pay-reconcile` | Read `custarchive` |
 
-The payments API's identity can also read `custdata`, through its data role. That's the confirmed flow from Chapter 6, not one of the six paths, because no entry point leads to it.
+The payments API's identity can also read `custdata`, through its data role. That's the confirmed flow from Chapter 6, not one of the six paths, because no entry point leads to it. That holds only because the API and its identity sit outside `rg-payments-prod`. Move them into it, and Contributor there can deploy code to the API, attach the identity to `pay-reconcile`, or add a federated credential to the identity. The search would then correctly find three more paths to `custdata`, one from each entry point.
 
 ### The network (when `deploy_network` is true)
 
@@ -141,7 +141,13 @@ The identity that runs Terraform becomes an owner of `payments-deploy`, playing 
 
 ## A.5 Deploy
 
-From `docs/book/lab/terraform`:
+From `docs/book/lab/terraform`, first create `terraform.tfvars` with one line:
+
+```hcl
+acknowledge_deliberately_vulnerable = true
+```
+
+The module refuses to plan without it. It's the written version of section A.1: set it only in a tenant and subscription you use for nothing else. Every later `plan`, `apply`, and `destroy` in this appendix reads it from that file.
 
 ```text
 terraform init
@@ -354,7 +360,7 @@ Deleting the Entra objects removes them to the deleted items list for 30 days. T
 
 ## Author notes (remove before submission)
 
-- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 4.81.0, azuread 3.10.0, random 3.9.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
+- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 4.81.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
 - Untested against a live tenant: `queries/checklist.kql`; the Function App code in section A.5; whether `azuread_application_owner.payments_deploy_platform` conflicts with an owner the API adds automatically for the caller; the resource count quoted in A.5.
 - Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 4.x, and add the exact HCL to A.7.
 - Add a rough monthly cost table once a live deployment has run for a week.

@@ -54,10 +54,12 @@ resource "azurerm_user_assigned_identity" "mi_pay_reconcile" {
   location            = azurerm_resource_group.payments_prod.location
 }
 
+# Kept out of rg-payments-prod: Contributor there could attach this identity to pay-reconcile or add a
+# federated credential to it, which would add three paths to custdata that the book doesn't count.
 resource "azurerm_user_assigned_identity" "mi_payments_api" {
   name                = "mi-payments-api"
-  resource_group_name = azurerm_resource_group.payments_prod.name
-  location            = azurerm_resource_group.payments_prod.location
+  resource_group_name = azurerm_resource_group.payments_runtime.name
+  location            = azurerm_resource_group.payments_runtime.location
 }
 
 # Basic tier is the cheapest plan that supports virtual network integration, which Chapter 5 needs.
@@ -106,11 +108,13 @@ resource "azurerm_linux_function_app" "pay_reconcile" {
   }
 }
 
-# The payments API from Chapter 6: the one confirmed writer to custdata.
+# The payments API from Chapter 6: the one confirmed writer to custdata. It lives outside payments-deploy's
+# Contributor scope for the same reason as its identity; the plan can stay in rg-payments-prod because
+# changing a plan doesn't deploy code to the apps on it.
 resource "azurerm_linux_web_app" "payments_api" {
   name                      = "payments-api-${local.suffix}"
-  resource_group_name       = azurerm_resource_group.payments_prod.name
-  location                  = azurerm_resource_group.payments_prod.location
+  resource_group_name       = azurerm_resource_group.payments_runtime.name
+  location                  = azurerm_resource_group.payments_runtime.location
   service_plan_id           = azurerm_service_plan.payments.id
   virtual_network_subnet_id = var.deploy_network ? azurerm_subnet.payments_app[0].id : null
 

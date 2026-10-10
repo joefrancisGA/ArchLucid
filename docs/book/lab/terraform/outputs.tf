@@ -36,7 +36,6 @@ output "user_passwords" {
     dev-lead    = random_password.user["dev-lead"].result
     helpdesk-07 = random_password.user["helpdesk-07"].result
     analyst-04  = random_password.user["analyst-04"].result
-    dev-vm      = random_password.dev_vm.result
   }
   sensitive = true
 }
