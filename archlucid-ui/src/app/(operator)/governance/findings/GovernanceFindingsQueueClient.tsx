@@ -154,7 +154,7 @@ export default function GovernanceFindingsQueueClient({
     tenantRefreshing,
   } = queueMode;
   const availableFindingIds = useMemo(
-    () => new Set(rows.map((row) => row.findingId)),
+    () => new Set(rows.filter((row) => row.recordKind === "finding").map((row) => row.findingId)),
     [rows],
   );
   const bulkActions = useGovernanceFindingsQueueBulkActions({

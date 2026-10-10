@@ -128,6 +128,10 @@ export function GovernanceFindingsQueueDesktopTable(
 
     return sortGovernanceAssignedToMeQueueRows(rows, assignedToMeSortKey, assignedToMeSortAsc);
   }, [assignedToMeSortAsc, assignedToMeSortKey, queueMode, rows]);
+  const selectableDisplayRows = useMemo(
+    () => displayRows.filter((row) => row.recordKind === "finding"),
+    [displayRows],
+  );
   const resourceGroups = useMemo(
     () => (groupByResource ? groupGovernanceFindingQueueRows(displayRows) : []),
     [displayRows, groupByResource],
@@ -156,10 +160,13 @@ export function GovernanceFindingsQueueDesktopTable(
     }
   }, [groupByResource, openResourceGroupKey, resourceGroupKeys, setOpenResourceGroupKey]);
 
-  const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
+  const hasBulkSelect =
+    selectedFindingIds !== undefined &&
+    onSelectionChange !== undefined &&
+    selectableDisplayRows.length > 0;
   const allSelected =
-    hasBulkSelect && displayRows.length > 0 && displayRows.every((r) => selectedFindingIds.has(r.findingId));
-  const someSelected = hasBulkSelect && displayRows.some((r) => selectedFindingIds.has(r.findingId));
+    hasBulkSelect && selectableDisplayRows.every((row) => selectedFindingIds.has(row.findingId));
+  const someSelected = hasBulkSelect && selectableDisplayRows.some((row) => selectedFindingIds.has(row.findingId));
   const useVirtualization = !groupByResource && shouldVirtualizeGovernanceFindingsQueue(displayRows.length);
 
   const keyboardNav = useEnterpriseTableKeyboardNav({
@@ -237,9 +244,14 @@ export function GovernanceFindingsQueueDesktopTable(
       return;
     }
 
-    const scopeIds = new Set(scopeRows.map((row) => row.findingId));
+    const scopeFindingRows = scopeRows.filter((row) => row.recordKind === "finding");
+    const scopeIds = new Set(scopeFindingRows.map((row) => row.findingId));
+    if (scopeFindingRows.length === 0) {
+      return;
+    }
+
     const allScopeSelected =
-      scopeRows.length > 0 && scopeRows.every((row) => selectedFindingIds.has(row.findingId));
+      scopeFindingRows.every((row) => selectedFindingIds.has(row.findingId));
 
     if (allScopeSelected) {
       const next = new Set(selectedFindingIds);
@@ -329,11 +341,13 @@ export function GovernanceFindingsQueueDesktopTable(
       {groupByResource ? (
         <div className="space-y-3" data-testid="governance-findings-resource-groups">
           {resourceGroups.map((group) => {
+            const groupFindingRows = group.rows.filter((row) => row.recordKind === "finding");
+            const groupHasBulkSelect = hasBulkSelect && groupFindingRows.length > 0;
             const groupAllSelected =
-              hasBulkSelect &&
-              group.rows.length > 0 &&
-              group.rows.every((row) => selectedFindingIds.has(row.findingId));
-            const groupSomeSelected = hasBulkSelect && group.rows.some((row) => selectedFindingIds.has(row.findingId));
+              groupHasBulkSelect &&
+              groupFindingRows.every((row) => selectedFindingIds.has(row.findingId));
+            const groupSomeSelected =
+              groupHasBulkSelect && groupFindingRows.some((row) => selectedFindingIds.has(row.findingId));
             const recordLabel = group.rows.length === 1 ? "record" : "records";
 
             return (
@@ -350,7 +364,7 @@ export function GovernanceFindingsQueueDesktopTable(
                   <GovernanceFindingsQueueTableHead
                     buyerPolishedShell={buyerPolishedShell}
                     queueMode={queueMode}
-                    hasBulkSelect={hasBulkSelect}
+                    hasBulkSelect={groupHasBulkSelect}
                     allSelected={groupAllSelected}
                     someSelected={groupSomeSelected}
                     onToggleAll={() => {
@@ -361,7 +375,7 @@ export function GovernanceFindingsQueueDesktopTable(
                     rows={group.rows}
                     buyerPolishedShell={buyerPolishedShell}
                     queueMode={queueMode}
-                    hasBulkSelect={hasBulkSelect}
+                    hasBulkSelect={groupHasBulkSelect}
                     selectedFindingIds={selectedFindingIds}
                     onToggleRow={toggleRow}
                   />
