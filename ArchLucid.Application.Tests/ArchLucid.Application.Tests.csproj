@@ -95,6 +95,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="InfraEvidence\GraphEquivalence\master-3c0c4fd9.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="TestResults\" />
   </ItemGroup>
 

@@ -57,14 +57,15 @@ public sealed class AdminApiKeySettingsController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        await LogRotationAuditAsync(
-            AuditEventTypes.AdminApiKeyRotationMaterialIssued,
-            new
-            {
-                slot = response.Slot,
-                deploymentAction = response.DeploymentAction,
-                configPath = response.ConfigPath
-            },
+        await _auditService.LogAsync(
+            CreateRotationAuditEvent(
+                AuditEventTypes.AdminApiKeyRotationMaterialIssued,
+                new
+                {
+                    slot = response.Slot,
+                    deploymentAction = response.DeploymentAction,
+                    configPath = response.ConfigPath
+                }),
             cancellationToken).ConfigureAwait(false);
 
         return Ok(response);
@@ -88,38 +89,43 @@ public sealed class AdminApiKeySettingsController(
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
 
-        await LogRotationAuditAsync(
-            AuditEventTypes.ApiKeyRotated,
-            new
-            {
-                keyId = keyId,
-                slot = response.Slot,
-                deploymentAction = response.DeploymentAction,
-                configPath = response.ConfigPath
-            },
+        await _auditService.LogAsync(
+            CreateRotationAuditEvent(
+                AuditEventTypes.ApiKeyRotated,
+                new
+                {
+                    keyId = keyId,
+                    slot = response.Slot,
+                    deploymentAction = response.DeploymentAction,
+                    configPath = response.ConfigPath
+                }),
             cancellationToken).ConfigureAwait(false);
 
         return Ok(response);
     }
 
-    private async Task LogRotationAuditAsync(string eventType, object data, CancellationToken cancellationToken)
+    private AuditEvent CreateRotationAuditEvent(string eventType, object data)
     {
+        if (string.IsNullOrWhiteSpace(eventType))
+            throw new ArgumentException("Audit event type is required.", nameof(eventType));
+
+        if (data is null)
+            throw new ArgumentNullException(nameof(data));
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actor = User.Identity?.Name ?? "admin";
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = eventType,
-                // API key principals carry a name and no NameIdentifier. AuditService would store ActorUserId as "unknown".
-                ExplicitActor = true,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(data)
-            },
-            cancellationToken).ConfigureAwait(false);
+        return new AuditEvent
+        {
+            EventType = eventType,
+            // API key principals carry a name and no NameIdentifier. AuditService would store ActorUserId as "unknown".
+            ExplicitActor = true,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = JsonSerializer.Serialize(data)
+        };
     }
 }

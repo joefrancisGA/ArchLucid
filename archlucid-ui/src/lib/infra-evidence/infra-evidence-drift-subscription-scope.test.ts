@@ -79,7 +79,7 @@ describe("infra-evidence-drift-subscription-scope", () => {
       "sub-prod",
     );
     expect(resolveInfraEvidenceSnapshotSubscriptionLabel(snapshot({ subscriptionName: null, subscriptionId: null }))).toBe(
-      "Unknown subscription",
+      "Subscription was not stored.",
     );
   });
 });
