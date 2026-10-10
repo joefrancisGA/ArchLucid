@@ -6,7 +6,6 @@ import type { NavLinkItem } from "@/lib/nav-config.types";
 import {
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import {
   SECURENOW_COMPLIANCE_NAV_GROUP_ID,
@@ -114,7 +113,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/administration/connection-status",
       "/infrastructure/extract-upload",
     ]);
-    expect(environmentLinks.some((link) => link.label === OPERATOR_NAV_LINK_LABELS.infrastructureAsk)).toBe(true);
+    expect(environmentLinks.some((link) => link.label === "Ask about your environment")).toBe(true);
     expect(environmentLinks.some((link) => link.href === SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH)).toBe(true);
     expect(environmentLinks.some((link) => link.href === "/governance/infrastructure/diagrams")).toBe(false);
     expect(dataSourceLinks.some((link) => link.href === "/governance/infrastructure/extract-upload")).toBe(false);
