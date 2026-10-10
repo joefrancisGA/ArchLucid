@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 44
-- **bugs-found:** 37
+- **hunts:** 45
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — context membership inferer emitted self-loop on case-variant ContextSnapshot node type
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — inventory relationship endpoint was dropped when its ARM id differed only by trailing slash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphBuilder` normalized ARM resource IDs for deduplication but indexed resources and relationships inconsistently, so a persisted resource ID with a trailing slash caused its equivalent relationship endpoint to be skipped. Resource indexes and relationship lookups now use `ArmResourceIdNormalizer.Normalize`; regression `BuildOverlay_matches_relationship_endpoints_when_arm_id_differs_only_by_case`; focused regression passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — a reachable persisted inventory resource ID with a trailing slash did not match the equivalent relationship endpoint without the slash, dropping an observed graph edge — **hit 2026-10-10 seed hunt:** normalize both resource index keys and relationship endpoint lookups; regression `BuildOverlay_matches_relationship_endpoints_when_arm_id_differs_only_by_case`.
 
 2026-10-05 seed hunt (seed→hit): promoted `ContextMembershipEdgeInferenceRule` case-sensitive `ContextSnapshot` exclusion; a persisted context node whose `NodeType` differed only by case was treated as a normal member and received a self-loop `Contains` edge from the context root; fixed with `OrdinalIgnoreCase` exclusion; regression `InferEdges_context_membership_rule_excludes_context_snapshot_node_when_node_type_differs_only_by_case`. Seeded `ProvenanceBuilder` null `GraphSnapshot.Nodes`/`Edges`, `ArchitectureKnowledgeModelGraphDeltaExtractor` ordinal node-id diff noise, and `GraphEdgeInferenceHelpers.Deduplicate` whitespace endpoint keys as `(candidate)` rows. 362 KnowledgeGraph tests passed with 3 pre-existing failures; 58 Provenance tests passed.
 
