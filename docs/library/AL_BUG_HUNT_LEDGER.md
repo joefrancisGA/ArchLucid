@@ -29413,7 +29413,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1052
+- **hunts:** 1053
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -29421,7 +29421,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-10 seed hunt (seed-only): reread JSON, appsettings, CloudFormation, Kubernetes, Bicep, Terraform-show-JSON, YAML/Kustomize, connector orchestration, actor metadata canonicalization, and diagram parsing paths; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 826/826. Retained the three bounded candidates above; no production change.
+2026-10-10 seed hunt (seed-only): reread JSON, appsettings, CloudFormation, Kubernetes YAML document splitting, connector parser ordering, structured diagram routing, actor metadata canonicalization, and error boundaries; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 826/826. Retained the three bounded candidates above; no production change.
 
 - [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` — a syntactically valid `ActorsJson` array containing a malformed actor value falls back to the original array, so reordering valid actor entries can change scope metadata; locus: actor deserialization fallback; input: persisted or request-supplied actor JSON with one non-object array member.
 - [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a multi-document CloudFormation YAML upload may deserialize only one document or skip the template after a later document; locus: single-document YAML deserialization; input: reachable CloudFormation YAML upload containing `---` documents.
