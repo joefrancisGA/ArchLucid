@@ -219,7 +219,9 @@ public sealed class AgentEvaluationConfidencePipeline(
                 .GroupBy(static result => result.TaskId, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     static group => group.Key,
-                    static group => group.First().TaskStructuralExecutionMode,
+                    static group => AgentResultLatestForTaskSelector
+                        .Select(group.ToList(), group.Key)
+                        ?.TaskStructuralExecutionMode,
                     StringComparer.OrdinalIgnoreCase);
 
         return new AgentEvaluationConfidenceRunContext
