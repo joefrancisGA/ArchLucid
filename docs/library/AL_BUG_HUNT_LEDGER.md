@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): regression: `TopologyProposalRelationshipEdgeMapper` again failed to resolve a root Terraform address when the only inventoried graph node used a module-qualified count instance (`module.wrapper.azurerm_app_service.main[0]`). The prior resource-address fallback was absent from the current mapper, so `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index` failed with an empty edge list. The mapper now indexes a root address only when exactly one indexed instance exists, while preserving exact instance resolution and refusing ambiguous multiple-instance roots. The focused edge-mapper and graph-merge suite passed 990/990; the scoped Release compile timed out without compiler errors.
+
 2026-10-10 thorough hunt (dry): `agent-runtime-safety` — cheap-disproved both nullable-collection candidates as unreachable at the selected production boundary: `SanitizeTagMap` has no selected runtime caller receiving nullable Azure tag values, and `AgentEvidencePackage` is assembled in-process rather than deserialized from the proposed JSON shape. The focused picker filter passed 584 tests. No production change.
 
 2026-10-10 thorough hunt (dry): `securenow-question-queue` — the retained `SqlSecureNowQuestionDispositionRepository.UpsertAsync` concurrency candidate remains plausible because its SQL `MERGE` has no explicit serialization hint, but no SQL Server was reachable for a failing concurrent repro. The scoped Application test build was blocked by pre-existing duplicate `CreateEmptyAgentResultRepository`; no production change.
@@ -5068,11 +5070,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 94
-- **bugs-found:** 71
+- **hunts:** 95
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-09 — Terraform instance key blocked resource-address relationship resolution
+- **last-bug:** 2026-10-10 — regression: unique indexed Terraform instance did not resolve from its root address
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
