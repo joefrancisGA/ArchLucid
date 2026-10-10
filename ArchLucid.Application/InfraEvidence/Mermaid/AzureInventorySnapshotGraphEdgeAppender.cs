@@ -7,7 +7,8 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 /// <summary>Constructs and dedupes snapshot edges while preserving each caller's evidence policy.</summary>
 internal static class AzureInventorySnapshotGraphEdgeAppender
 {
-    public static void TryAdd(
+    /// <returns>The inserted or replacement edge, or null when the collection is unchanged.</returns>
+    public static GraphEdge? TryAdd(
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         string fromNodeId,
@@ -26,10 +27,10 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             || string.IsNullOrWhiteSpace(toNodeId)
             || string.IsNullOrWhiteSpace(edgeType))
         {
-            return;
+            return null;
         }
 
-        Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
+        return Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
             declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance,
             preserveNullProvenance: preserveNullProvenance);
     }
@@ -55,7 +56,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             promoteStrongerProvenance: false);
     }
 
-    private static void Append(
+    private static GraphEdge? Append(
         List<GraphEdge> edges,
         HashSet<string> edgeKeys,
         string fromNodeId,
@@ -70,7 +71,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
     {
         if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
         {
-            return;
+            return null;
         }
 
         string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
@@ -80,7 +81,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         {
             if (!promoteStrongerProvenance)
             {
-                return;
+                return null;
             }
 
             existingIndex = edges.FindIndex(edge =>
@@ -91,7 +92,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             if (existingIndex < 0
                 || ProvenanceRank(provenanceKind) <= ProvenanceRank(edges[existingIndex].ProvenanceKind))
             {
-                return;
+                return null;
             }
         }
 
@@ -121,6 +122,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         {
             edges.Add(edge);
         }
+
+        return edge;
     }
 
     private static int ProvenanceRank(string? provenanceKind)
