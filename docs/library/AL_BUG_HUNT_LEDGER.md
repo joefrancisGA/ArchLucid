@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection reread; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection source review after the prior seed-only run; no new reachable wrong outcome met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected safety and prompt-injection sources after the cancellation fix and candidate closure; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
@@ -15453,6 +15455,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): repeated the selected Safety and PromptInjection reread; no new hunt-ready row was found, and the exact picker filter passed 584 tests. No production or regression code changed.
 
+2026-10-10 seed hunt (seed-only): repeated the selected Safety and PromptInjection reread; no new hunt-ready row was found, and the exact picker filter passed 584 tests. No production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): re-read the selected Safety and PromptInjection files; no new hunt-ready row was found after the cancellation fix and candidate classifications. The exact picker filter passed 584 tests, with no production or regression code change.
 
 2026-10-10 thorough hunt (dry): re-ran the exact picker filter with 584 passing tests; retained candidate rows are now classified as two valid-no-repro boundaries and one previously proven cancellation fix, with no new failing repro or production change.
@@ -16337,7 +16341,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 67
+- **hunts:** 68
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
