@@ -68,7 +68,13 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
         : envelope.envelopeDescription
     }`,
   );
-  lines.push(`- **Soft assumption:** ${envelope.softAssumption}`);
+  lines.push(
+    `- **Soft assumption:** ${
+      envelope.softAssumption === null || envelope.softAssumption === undefined
+        ? "Soft assumption was not stored."
+        : envelope.softAssumption
+    }`,
+  );
 
   if ((envelope.costOfBeingWrong ?? "").trim().length > 0) {
     lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);
