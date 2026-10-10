@@ -29,11 +29,16 @@ IPV6 = re.compile(
 EMAIL = re.compile(r"\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
 TENANT_DOMAIN = re.compile(r"\b[a-z0-9-]+\.onmicrosoft\.com\b", re.IGNORECASE)
 
-# A named service endpoint ("acct.blob.core.windows.net") identifies a real resource.
-# "privatelink" is the generic private DNS zone label, not a resource name.
+# A named service endpoint ("acct.blob.core.windows.net") identifies a real resource, and so does its
+# private-endpoint form ("acct.privatelink.blob.core.windows.net"). The bare private DNS zone
+# ("privatelink.blob.core.windows.net") names no resource, so it is exempt.
+# vaultcore.azure.net is Key Vault's private-endpoint suffix (privatelink.vaultcore.azure.net).
+SERVICE_SUFFIX = (
+    r"(?:(?:blob|file|queue|table|dfs)\.core\.windows\.net"
+    r"|vault(?:core)?\.azure\.net|azurewebsites\.net|database\.windows\.net)"
+)
 SERVICE_ENDPOINT = re.compile(
-    r"\b(?!privatelink\.(?:blob|file|queue|table|dfs)\.core\.windows\.net\b)[a-z0-9-]+\.(?:privatelink\.)?(?:blob|file|queue|table|dfs)\.core\.windows\.net\b"
-    r"|\b[a-z0-9-]+\.(?:vault\.azure\.net|azurewebsites\.net|database\.windows\.net)\b",
+    rf"\b(?!privatelink\.{SERVICE_SUFFIX}\b)[a-z0-9-]+\.(?:privatelink\.)?{SERVICE_SUFFIX}\b",
     re.IGNORECASE,
 )
 BACKLOG_ID = re.compile(r"\b(?:SN|TB|FR)-\d+\b")
