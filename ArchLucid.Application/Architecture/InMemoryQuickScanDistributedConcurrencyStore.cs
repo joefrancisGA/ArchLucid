@@ -14,6 +14,8 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
 
     private readonly Dictionary<Guid, QueueRow> _queue = new();
 
+    private long _nextQueueSequence;
+
     /// <inheritdoc />
     public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
         QuickScanConcurrencyAdmitRequest request,
@@ -57,6 +59,7 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
             {
                 QueueEntryId = request.QueueEntryId,
                 RequestKey = request.RequestKey,
+                EnqueueSequence = ++_nextQueueSequence,
                 EnqueuedUtc = request.UtcNow,
                 QueueExpiresUtc = queueExpiresUtc,
                 Status = QueueRowStatus.Waiting,
@@ -93,7 +96,7 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
 
             bool earlierEntryWaiting = _queue.Values.Any(entry =>
                 entry.Status == QueueRowStatus.Waiting
-                && entry.EnqueuedUtc < row.EnqueuedUtc);
+                && entry.EnqueueSequence < row.EnqueueSequence);
             if (earlierEntryWaiting)
             {
                 return Task.FromResult(QuickScanConcurrencyPromoteResult.NotYet());
@@ -229,6 +232,8 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
         public required Guid QueueEntryId { get; init; }
 
         public required string RequestKey { get; init; }
+
+        public required long EnqueueSequence { get; init; }
 
         public required DateTimeOffset EnqueuedUtc { get; init; }
 
