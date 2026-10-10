@@ -9224,3 +9224,4 @@
 {"at":"2026-10-10T11:34:09.5052002Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"]}
 {"at":"2026-10-10T11:46:37.9162528Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"]}
 {"at":"2026-10-10T14:09:38.6043705Z","zoneId":"ui-infra-resource-hub","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
+{"at":"2026-10-10T14:15:16.8630415Z","zoneId":"quick-scan-distributed-concurrency","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs","ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs","ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs"]}

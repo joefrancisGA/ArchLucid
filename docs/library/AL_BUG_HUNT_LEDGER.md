@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `quick-scan-distributed-concurrency` — reread the service, SQL store, in-memory store, lease lifecycle tests, and concurrency tests; no fresh hypothesis met the same-run failing-repro bar. The scoped `QuickScanDistributedConcurrency` filter passed 42/42. Seeded bounded candidates for cancellation during in-memory direct admission, cancellation during in-memory promotion, and unknown SQL outcome-code mapping.
+
 2026-10-10 thorough hunt (dry): `ui-infra-resource-hub` — all five picker candidates named governance-findings queue hooks and loci outside the selected `ResourceHubClient.tsx` path, so they were invalid for this zone and no failing repro was warranted. The selected UI directory run passed 59/64 tests; its five failures were unrelated explorer/shortcut expectations and did not establish any picked hypothesis.
 
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — confidence enrichment dropped each persisted result's `TaskStructuralExecutionMode` before reusing the shared quality evaluator, so real traces skipped the real-only finding-citation coverage floor and could be marked schema-passed. Confidence evaluation now propagates the mode through the run context and both enrichers; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`; 197 scoped Evaluation tests passed.
@@ -33970,10 +33972,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — later queued request overtook an earlier Quick Scan waiter
 
 2026-09-27 seed hunt #26 (seed→hit): reseeded post-promote permit window; proved kill-switch during slow `TryPromoteAsync` still returned `Permit` after SQL/in-memory promotion; fixed with post-promote operational/safety re-check, lease release, and queue cleanup (extends #25 admit rollback); regression `WaitForAdmissionAsync_rejects_when_safety_disabled_during_slow_try_promote`; updated queue-wait kill-switch tests to expect post-promote rejection; 40 scoped QuickScanDistributedConcurrency tests passed.
@@ -34063,6 +34065,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync` — captures `LeaseDurationSeconds` once at loop start so mid-scan options shrink cannot shorten renewal TTL — **cheap-disproof 2026-09-26 seed hunt #6959:** in-flight distributed lease honors duration captured at permit time; promote path re-reads `MaxConcurrentAnonymousScans` each poll (#1542); renewal interval clamped at loop start (#1406).
 
 ### Hypotheses
+
+- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore.TryAdmitAsync` — a caller cancellation arriving before the synchronous direct-lease insertion is ignored, so a canceled anonymous request can still consume a lease — locus: direct-lease branch before `Task.FromResult`; input: an HTTP/request cancellation token canceled while the in-memory admit call is executing; reachability: `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` forwards the caller token to the simulator/test store.
+- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` — a caller cancellation arriving during synchronous promotion is ignored, so a canceled queued waiter can still acquire a lease — locus: promotion branch before `Task.FromResult`; input: a queued Quick Scan request whose cancellation token is canceled during `TryPromoteAsync`; reachability: the service forwards the caller token on each promote poll.
+- [ ] (candidate) `DapperQuickScanDistributedConcurrencyStore.TryAdmitAsync` / `TryPromoteAsync` — an unknown stored-procedure outcome code is silently mapped to `Busy`/`NotYet` instead of surfacing a store-contract failure, potentially turning a deployment contract drift into misleading capacity rejection — locus: outcome switch defaults; input: a reachable SQL procedure returning a future non-enum outcome byte; reachability: the store consumes output codes from the deployed `dbo.usp_QuickScanConcurrency_TryAdmit` and `TryPromote` procedures.
 
 - [x] (proven) `InMemoryQuickScanDistributedConcurrencyStore.TryPromoteAsync` / `usp_QuickScanConcurrency_TryPromote` — a later queued Quick Scan request can acquire the freed slot before an earlier waiter because promotion checks only the requested row and active-lease count; **hit 2026-10-03 seed hunt:** concurrent public requests enqueue at distinct times, then the later entry is promoted first; require no earlier unexpired waiting entry before promotion in both implementations; regression `InMemoryStore_does_not_promote_a_later_queue_entry_ahead_of_an_earlier_entry`.
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
