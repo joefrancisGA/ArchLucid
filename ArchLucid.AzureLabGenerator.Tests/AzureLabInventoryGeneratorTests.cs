@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArchLucid.AzureLabGenerator.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class AzureLabInventoryGeneratorTests
 {
     [Fact]

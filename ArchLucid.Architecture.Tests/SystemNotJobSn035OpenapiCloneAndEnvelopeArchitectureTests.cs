@@ -40,8 +40,16 @@ public sealed class SystemNotJobSn035OpenapiCloneAndEnvelopeArchitectureTests
     [Fact]
     public void Sn035_clone_snapshot_controller_has_no_request_body_door_or_invariant_fields()
     {
-        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.CloneSnapshot.cs");
-        string branchController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.Branch.cs");
+        string controller = ArchitectureSourceProbe.ReadFile(
+            "ArchLucid.Api",
+            "Controllers",
+            "Architecture",
+            "DraftRequestsController.Lifecycle.CloneSnapshot.cs");
+        string branchController = ArchitectureSourceProbe.ReadFile(
+            "ArchLucid.Api",
+            "Controllers",
+            "Architecture",
+            "DraftRequestsController.Lifecycle.Branch.cs");
 
         controller.Should().Contain("CloneDraftSnapshot");
         controller.Should().NotContain("[FromBody]");

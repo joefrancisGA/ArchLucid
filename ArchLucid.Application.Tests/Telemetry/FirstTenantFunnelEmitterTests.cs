@@ -20,6 +20,7 @@ namespace ArchLucid.Application.Tests.Telemetry;
 ///     <c>FirstTenantFunnelOptions.PerTenantEmission</c> is <c>false</c> per pending question 40 and
 ///     <c>docs/security/PRIVACY_NOTE.md</c> Â§3.A.
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class FirstTenantFunnelEmitterTests
 {
     private const string FunnelCounterName = "archlucid_first_tenant_funnel_events_total";

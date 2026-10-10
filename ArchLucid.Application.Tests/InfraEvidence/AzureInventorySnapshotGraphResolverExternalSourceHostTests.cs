@@ -12,6 +12,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
 public sealed class AzureInventorySnapshotGraphResolverExternalSourceHostTests
 {
     private static readonly Guid SnapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

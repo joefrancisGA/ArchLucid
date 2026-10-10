@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.Findings;
 
+[Trait("Category", "Unit")]
 public sealed class HeldCheckMeasurementFloorPresenterTests
 {
     [Fact]

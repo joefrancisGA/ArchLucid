@@ -32,10 +32,19 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
                 "archlucid-ui",
                 "src",
                 "components",
-                "governance",
+                "workspace-mode",
                 "WorkingCareerRehearsalChooser.tsx"));
+        string testId = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "lib",
+                "governance",
+                "working-career-rehearsal-chooser-keyboard.ts"));
 
-        chooser.Should().Contain("working-career-rehearsal-chooser");
+        chooser.Should().Contain("WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID");
+        testId.Should().Contain("working-career-rehearsal-chooser");
     }
 
     private static string FindRepoRoot()

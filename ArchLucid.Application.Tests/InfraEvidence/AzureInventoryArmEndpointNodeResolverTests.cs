@@ -2,6 +2,7 @@ using ArchLucid.Application.InfraEvidence.Mermaid;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
 public sealed class AzureInventoryArmEndpointNodeResolverTests
 {
     private const string Parent = "/subscriptions/s/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet";

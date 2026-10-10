@@ -109,6 +109,10 @@ public sealed partial class TenantAuthDomainAdminController
                     cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);

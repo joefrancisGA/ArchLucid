@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Architecture.Execute;

@@ -154,7 +154,7 @@ public sealed class ArchitectureReviewRobustnessWave51ArchitectureTests
         manifestCompareDownload.Should().Contain("downloadManifestCompareExport");
         manifestCompareDownload.Should().Contain("getManifestCompareExportDownloadUrl");
         compareDiffStack.Should().Contain("downloadManifestCompareExport");
-        sponsorBannerHook.Should().NotContain("first-value-report");
+        sponsorBannerHook.Should().Contain("firstValueReportMutationBlockedReason");
         sponsorExportActions.Should().Contain("downloadPilotFirstValueReportMarkdown");
         downloadUrls.Should().Contain("getTraceabilityBundleDownloadUrl");
         downloadUrls.Should().Contain("/v1/runs/");

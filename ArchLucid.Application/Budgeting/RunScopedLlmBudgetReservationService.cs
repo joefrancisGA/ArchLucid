@@ -194,6 +194,7 @@ public sealed class RunScopedLlmBudgetReservationService(
         return _reservationStore.ReleaseAsync(reservationId, cancellationToken);
     }
 
+    [InformationalAudit]
     private async Task TryAuditSpendReceiptAsync(
         Guid tenantId,
         string runId,

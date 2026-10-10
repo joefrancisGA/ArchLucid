@@ -38,18 +38,8 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
         string retrievalBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-retrieval-grounding-blocked-reason.ts"));
-        string retrievalSection = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "archlucid-ui",
-                "src",
-                "app",
-                "(operator)",
-                "architecture",
-                "reviews",
-                "[reviewId]",
-                "_sections",
-                "RunDetailRetrievalGroundingSection.tsx"));
+        string retrievalQuery = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-retrieval-grounding-query.ts"));
         string forensicsBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-agent-forensics-blocked-reason.ts"));
         string forensicsSection = File.ReadAllText(
@@ -61,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
         runDetailArtifacts.Should().Contain("getRunAgentEvaluation");
         ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailArtifacts);
         retrievalBlockedReason.Should().Contain("runRetrievalGroundingBlockedReason");
-        retrievalSection.Should().Contain("runRetrievalGroundingBlockedReason");
+        retrievalQuery.Should().Contain("runRetrievalGroundingBlockedReason");
         forensicsBlockedReason.Should().Contain("runAgentForensicsBlockedReason");
         forensicsSection.Should().Contain("runAgentForensicsBlockedReason");
     }

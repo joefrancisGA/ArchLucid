@@ -30,6 +30,10 @@ public sealed partial class TenantAuthDomainAdminController
                 .BeginVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -67,6 +71,10 @@ public sealed partial class TenantAuthDomainAdminController
             record = await _adminService
                 .CheckVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

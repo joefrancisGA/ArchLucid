@@ -111,7 +111,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "_sections",
                 "ManifestDetailDeliverablesCard.tsx"));
 
-        compareChrome.Should().Contain("compareRunPairBlockedReason(aiFailure)");
+        compareChrome.Should().Contain("compareRunPairBlockedReason(legacyFailure)");
         deferredModel.Should().Contain("priorCommittedRunComparisonBlockedReason");
         sponsorPack.Should().Contain("roiSourceFreshnessDisposition");
         infraConflict.Should().Contain("infraEvidenceSealedManifestConflictMessage");

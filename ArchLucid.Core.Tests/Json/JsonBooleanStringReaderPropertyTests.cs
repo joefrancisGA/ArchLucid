@@ -7,6 +7,7 @@ using FsCheck.Xunit;
 
 namespace ArchLucid.Core.Tests.Json;
 
+[Trait("Category", "Unit")]
 public sealed class JsonBooleanStringReaderPropertyTests
 {
     private static readonly (string Input, bool Expected)[] Synonyms =

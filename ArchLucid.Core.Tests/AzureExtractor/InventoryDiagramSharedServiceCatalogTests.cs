@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.AzureExtractor;
 
+[Trait("Category", "Unit")]
 public sealed class InventoryDiagramSharedServiceCatalogTests
 {
     [Fact]

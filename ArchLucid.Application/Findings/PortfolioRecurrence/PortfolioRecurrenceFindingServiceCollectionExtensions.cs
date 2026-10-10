@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.Findings.PortfolioRecurrence;
 
-public static class PortfolioRecurrenceFindingServiceCollectionExtensions
+internal static class PortfolioRecurrenceFindingServiceCollectionExtensions
 {
     public static IServiceCollection AddPortfolioRecurrenceFindingEngine(this IServiceCollection services)
     {

@@ -71,20 +71,3 @@ public sealed class ArchitectureReviewRobustnessWave37ArchitectureTests
         remediationController.Should().Contain("ConflictProblem");
     }
 }
-
-internal static class Wave37ArchitectureTestExtensions
-{
-    public static int CountOccurrences(this string source, string value)
-    {
-        int count = 0;
-        int index = 0;
-
-        while ((index = source.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
-        {
-            count++;
-            index += value.Length;
-        }
-
-        return count;
-    }
-}

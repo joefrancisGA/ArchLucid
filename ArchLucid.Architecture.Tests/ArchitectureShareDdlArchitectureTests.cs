@@ -14,16 +14,18 @@ public sealed class ArchitectureShareDdlArchitectureTests
     {
         string migrationText = ReadPersistenceSql("Migrations", "380_ArchitectureShares.sql");
 
+        string actorOidMigrationText = ReadPersistenceSql("Migrations", "401_ArchitectureShares_ActorOid.sql");
+
         migrationText.Should().Contain("RestrictToShares");
         migrationText.Should().Contain("DF_Architectures_RestrictToShares DEFAULT (0)");
         migrationText.Should().Contain("CREATE TABLE dbo.ArchitectureShares");
-        migrationText.Should().Contain("ActorOid");
         migrationText.Should().Contain("GrantedBy");
         migrationText.Should().Contain("GrantedUtc");
         migrationText.Should().Contain("RowVersion");
         migrationText.Should().Contain("FK_ArchitectureShares_Architectures");
         migrationText.Should().Contain("CK_ArchitectureShares_Role");
-        migrationText.Should().Contain("IX_ArchitectureShares_ActorOid");
+        actorOidMigrationText.Should().Contain("ActorOid");
+        actorOidMigrationText.Should().Contain("IX_ArchitectureShares_ActorOid");
         migrationText.Should().NotContain("ROW LEVEL SECURITY", "ADR 0037 tenant catalog — no SQL RLS (AS-097)");
         migrationText.Should().NotContain("CREATE SECURITY POLICY", "ADR 0037 tenant catalog — no SQL RLS (AS-097)");
     }

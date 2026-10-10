@@ -62,6 +62,12 @@ public sealed class NoMutableStaticFieldArchitectureTests
                         || line.Contains(" static partial ", StringComparison.Ordinal))
                         continue;
 
+                    // Get-only auto-property sentinels (Absent/Empty/None) are immutable, not replica-unsafe fields.
+
+                    if (line.Contains("{ get; }", StringComparison.Ordinal)
+                        && !line.Contains("set", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     violations.Add($"{Path.GetRelativePath(root, path)}: {line}");
                 }
             }

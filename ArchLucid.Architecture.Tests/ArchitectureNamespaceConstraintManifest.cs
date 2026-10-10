@@ -47,7 +47,15 @@ internal static class ArchitectureNamespaceConstraintManifest
             ["KnowledgeGraph must not depend on Persistence"] = new(
                 "ArchLucid.KnowledgeGraph",
                 ["ArchLucid.Persistence"],
-                "KnowledgeGraph stays in the domain/application seam without SQL/Dapper types."),
+                "KnowledgeGraph stays in the domain/application seam without SQL/Dapper types.")
+            {
+                // Core inventory read models live in the Persistence.InfraEvidence *namespace* (ApplicationPorts in Core).
+                ExcludedTypeNames =
+                [
+                    "ArchitectureInventoryObservedFactGraphBuilder",
+                    "AzureInventoryIdentityDiagramVisibility",
+                ],
+            },
 
             ["ContextIngestion must not depend on Persistence"] = new(
                 "ArchLucid.ContextIngestion",

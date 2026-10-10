@@ -37,7 +37,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Ui_scorecard_wires_working_desk_degraded_block_via_buyer_polished_inverse()
     {
-        string governance = File.ReadAllText(
+        string doThisNext = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -48,10 +48,10 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
                 "reviews",
                 "[reviewId]",
                 "_sections",
-                "run-detail-page-presentation-governance.ts"));
+                "RunDetailReviewPackageDoThisNextResolved.tsx"));
 
-        governance.Should().Contain("blockDegradedFindingCoverageOnWorking: model.buyerPolishedArtifactTable !== true");
-        governance.Should().Contain("degradedFindingCoverage: model.resolvedDetail.degradedFindingCoverage === true");
+        doThisNext.Should().Contain("blockDegradedFindingCoverageOnWorking: props.buyerPolishedArtifactTable !== true");
+        doThisNext.Should().Contain("degradedFindingCoverage: props.degradedFindingCoverage");
     }
 
     private static string FindRepoRoot()

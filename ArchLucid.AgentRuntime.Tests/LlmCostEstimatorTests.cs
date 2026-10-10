@@ -21,6 +21,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 ///     TB-024: reasoning-token billing paths (explicit rate, output-rate fallback, per-deployment override, persisted
 ///     override fallback, OTel <c>archlucid_llm_cost_usd_total</c> alignment).
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class LlmCostEstimatorTests
 {
     [SkippableFact]

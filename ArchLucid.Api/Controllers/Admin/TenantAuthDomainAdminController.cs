@@ -120,6 +120,10 @@ public sealed partial class TenantAuthDomainAdminController(
             record = await _adminService.RemoveDomainAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
@@ -149,91 +153,4 @@ public sealed partial class TenantAuthDomainAdminController(
             Domain = record,
             DnsVerificationInstruction = adminService.BuildDnsVerificationInstruction(record)
         };
-}
-
-public sealed class TenantAuthDomainProposeRequest
-{
-    public string Domain
-    {
-        get;
-        init;
-    } = string.Empty;
-}
-
-public sealed class TenantAuthDomainRoutingTestRequest
-{
-    public string TestEmail
-    {
-        get;
-        init;
-    } = string.Empty;
-}
-
-public sealed class TenantAuthDomainEnforcementRequest
-{
-    public AuthDomainEnforcementMode EnforcementMode
-    {
-        get;
-        init;
-    }
-
-    public bool AllowEmailOtpRecovery
-    {
-        get;
-        init;
-    }
-}
-
-public sealed class TenantAuthDomainEnableEnforcementRequest
-{
-    public bool ConfirmTested
-    {
-        get;
-        init;
-    }
-}
-
-public sealed class TenantAuthDomainRecoveryAdminRequest
-{
-    public string Email
-    {
-        get;
-        init;
-    } = string.Empty;
-}
-
-public sealed class TenantAuthDomainAdminResponse
-{
-    public TenantSignInEmailDomainRecord Domain
-    {
-        get;
-        init;
-    } = null!;
-
-    public string DnsVerificationInstruction
-    {
-        get;
-        init;
-    } = string.Empty;
-}
-
-public sealed class AuthSignInRoutingPreviewResponse
-{
-    public bool AllowEmailCode
-    {
-        get;
-        init;
-    }
-
-    public bool SsoRequired
-    {
-        get;
-        init;
-    }
-
-    public string? Message
-    {
-        get;
-        init;
-    }
 }

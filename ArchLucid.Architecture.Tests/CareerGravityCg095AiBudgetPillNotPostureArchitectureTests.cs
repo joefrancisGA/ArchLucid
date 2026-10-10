@@ -28,7 +28,7 @@ public sealed class CareerGravityCg095AiBudgetPillNotPostureArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
 
         copy.Should().Contain("LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_BODY");
-        copy.Should().Contain("not the Career or Rehearsal door");
+        copy.Should().Contain("not the Record or Practice review type");
         copy.Should().Contain("at cap");
         copy.Should().NotContain("— paused");
         pill.Should().Contain("llm-budget-status-pill-career-honesty");

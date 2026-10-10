@@ -875,7 +875,7 @@ public sealed class RunsControllerTests
         InMemoryAdvisoryDraftOperationStore store = new();
         AdvisoryDraftOperationRecord record = store.CreatePending(Scope).Record;
         string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
-        store.MarkFailed(opaqueOperationId, "LLM timeout");
+        store.MarkFailed(Scope, opaqueOperationId, "LLM timeout");
 
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
         intakeFacade

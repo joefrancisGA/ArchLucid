@@ -68,7 +68,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ShareReviewPackageButton.tsx"));
         string compareRuns = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string sponsorRoi = File.ReadAllText(
+        string sponsorRoiSection = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -79,6 +79,16 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorRoiSummarySection.tsx"));
+        string sponsorRoiBoardPack = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "sponsor-roi-board-pack-api.ts"));
+        string sponsorRoiCsv = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "lib",
+                "api",
+                "downloads-blob-trigger-sponsor-roi-csv-export.ts"));
 
         auditEvidencePackage.Should().Contain("triggerBrowserBlobDownload");
         pilotsCollateral.Should().Contain("downloadScopedProxyFileGet");
@@ -87,8 +97,12 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
         emailRunToSponsor.Should().Contain("downloadPilotFirstValueReportMarkdown");
         shareReviewPackage.Should().Contain("triggerBrowserBlobDownload");
         compareRuns.Should().Contain("formatExportSealedManifestAwareApiError");
-        sponsorRoi.Should().Contain("formatExportSealedManifestAwareApiError");
-        sponsorRoi.Should().Contain("triggerBrowserBlobDownload");
+        sponsorRoiSection.Should().Contain("downloadSponsorRoiBoardPack");
+        sponsorRoiSection.Should().Contain("downloadSponsorRoiCsvExport");
+        sponsorRoiBoardPack.Should().Contain("formatExportSealedManifestAwareApiError");
+        sponsorRoiBoardPack.Should().Contain("triggerBrowserBlobDownload");
+        sponsorRoiCsv.Should().Contain("formatExportSealedManifestAwareApiError");
+        sponsorRoiCsv.Should().Contain("triggerBrowserBlobDownload");
     }
 
     [Fact]
