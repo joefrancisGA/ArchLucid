@@ -5,9 +5,14 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PRODUCT_LINE_LABELS } from "@/lib/product-line/product-line-copy";
 import { PRODUCT_LINE_IDS } from "@/lib/product-line/product-line-id";
+import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
 
 export function ProductLineSwitchBar(): React.JSX.Element {
   const { productLine, setProductLine } = useProductLine();
+
+  if (isSecureNowUhgEdition()) {
+    return <></>;
+  }
 
   return (
     <div className="flex flex-col gap-2" data-testid="product-line-switch-bar">

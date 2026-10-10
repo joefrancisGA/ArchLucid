@@ -1,6 +1,7 @@
 import { DEFAULT_PRODUCT_LINE_ID, isProductLineId, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { PRODUCT_LINE_ENV_NAME } from "@/lib/product-line/product-line-copy";
 import { readProductLineCookie } from "@/lib/product-line/product-line-storage";
+import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
 
 /** Build-time default from `NEXT_PUBLIC_ARCHLUCID_PRODUCT`. Missing or invalid → Architecture. */
 export function resolveProductLineIdFromEnv(): ProductLineId {
@@ -18,6 +19,10 @@ export function resolveProductLineIdFromEnv(): ProductLineId {
  * Safe on the server — cookie read no-ops when `document` is missing.
  */
 export function resolveProductLineId(): ProductLineId {
+  if (isSecureNowUhgEdition()) {
+    return "security";
+  }
+
   const cookieProduct = readProductLineCookie();
 
   if (cookieProduct !== null) {
