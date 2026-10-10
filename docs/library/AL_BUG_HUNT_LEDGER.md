@@ -27418,6 +27418,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `SecurityBaselineSensitivityScopeExpander.Expand` — duplicate topology object ids in pre-dedup connector output caused `ToDictionary` to throw before `CanonicalDeduplicator` ran — **hit 2026-10-10 seed hunt:** group duplicate ids and retain the first sensitivity entry; covered by the scoped canonicalization suite.
 
+2026-10-10 seed hunt (seed-only): re-read context-ingestion request orchestration, canonicalization, document parsing, and infrastructure JSON serialization; no distinct fresh row met the full reachability and wrong-outcome bar. No production change.
+
+- [ ] (candidate) `CanonicalTfJsonSerializer.WriteValue` — arrays are sorted by serialized value before canonical storage, which may change the semantic order of reachable ARM/Terraform security-rule arrays; **seed 2026-10-10:** requires a source-backed consumer whose behavior depends on array order.
+- [ ] (candidate) `TopologyHintsPayloadNormalizer.NormalizeAsync` — null topology-hint elements call `Trim()` and may abort normalization; **seed 2026-10-10:** reachability is currently established only for non-API `ContextIngestionRequest` callers, so this remains a candidate pending a real request path.
+
 2026-10-10 seed hunt (seed→hit): duplicate topology hints now produce set-stable scope metadata; 819 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (proven) `ContextIngestionService.ApplyScopeMetadata` — duplicate canonical topology hints produced repeated `SourceHashes` values despite connector normalization treating hints as a set — **hit 2026-10-10 seed hunt:** distinct canonical hints before ordering; regression `IngestAsync_DuplicateTopologyHints_ProduceStableScopeMetadata`.
