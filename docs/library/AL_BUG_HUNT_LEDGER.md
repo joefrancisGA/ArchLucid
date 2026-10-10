@@ -10493,7 +10493,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 34
+- **hunts:** 33
 - **last-hunt:** 2026-10-06
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
