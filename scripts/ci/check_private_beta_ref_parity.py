@@ -17,7 +17,13 @@ REQUIRED_MARKERS = (
     "live-api-private-beta-access.spec.ts",
 )
 REQUIRED_SPEC_MARKERS = ("TB-927", "JwtBearer", "getRunDetailsWithTransientRetries")
-REQUIRED_HELPER_MARKERS = ("LIVE_JWT_TOKEN", "private-beta", "resolveLiveJwtMode")
+REQUIRED_HELPER_MARKERS = (
+    "LIVE_JWT_TOKEN",
+    "private-beta",
+    "resolveLiveJwtMode",
+    "[dead-link-404]",
+    "[reviews-hub-timeout]",
+)
 
 
 def _show_ref(ref: str, path: str) -> str:
