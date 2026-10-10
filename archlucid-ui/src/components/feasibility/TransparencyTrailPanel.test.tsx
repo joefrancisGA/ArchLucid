@@ -68,4 +68,28 @@ describe("TransparencyTrailPanel", () => {
     expect(panel.tagName).toBe("DETAILS");
     expect(panel).not.toHaveAttribute("open");
   });
+
+  it("shows missing asserted metadata and preserves stored empty strings", () => {
+    const { rerender } = render(
+      <TransparencyTrailPanel
+        trail={{ asserted: [{ key: "outcome", value: "Ship" }], inferred: [], skipped: [] }}
+      />,
+    );
+
+    expect(screen.getByText(/Responder was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/Question id was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText(/Answer recorded time was not stored\./)).toBeInTheDocument();
+
+    rerender(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: "outcome", value: "Ship", responderLabel: "", questionId: "", recordedUtc: "" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    expect(screen.queryByText(/was not stored\./)).not.toBeInTheDocument();
+  });
 });

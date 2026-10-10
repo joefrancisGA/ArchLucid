@@ -401,7 +401,18 @@ export function RunExplanationSection({
         </p>
       ) : null}
 
-      {summary.faithfulnessWarning && !deterministicFallback ? (
+      {!deterministicFallback &&
+      (summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined) ? (
+        <p
+          role="status"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 leading-relaxed text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
+          Faithfulness warning was not stored.
+        </p>
+      ) : !deterministicFallback && summary.faithfulnessWarning ? (
         <p
           role="status"
           className={cn(
@@ -457,7 +468,11 @@ export function RunExplanationSection({
         </div>
       )}
 
-      {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
+      {summary.findingTraceConfidences === null || summary.findingTraceConfidences === undefined ? (
+        <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Finding traces were not stored.
+        </p>
+      ) : summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
           <h3 id="doc-explanation-traces" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Finding trace confidence
@@ -482,9 +497,12 @@ export function RunExplanationSection({
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
                   : ""}
-                {row.missingTraceFields !== null &&
-                row.missingTraceFields !== undefined &&
-                row.missingTraceFields.length > 0 ? (
+                {row.missingTraceFields === null || row.missingTraceFields === undefined ? (
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    {" "}
+                    — Missing trace fields were not stored.
+                  </span>
+                ) : row.missingTraceFields.length > 0 ? (
                   <span className="text-neutral-500 dark:text-neutral-400">
                     {" "}
                     — missing: {row.missingTraceFields.join(", ")}
@@ -524,6 +542,25 @@ export function RunExplanationSection({
           <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
             {themeSummaries.map((t) => (
               <li key={t}>{t}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <h3 className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          Compliance implications
+        </h3>
+        {explanationMissing ||
+        expl.complianceImplications === null ||
+        expl.complianceImplications === undefined ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Compliance implications were not stored.
+          </p>
+        ) : (
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+            {expl.complianceImplications.map((implication) => (
+              <li key={implication}>{implication}</li>
             ))}
           </ul>
         )}

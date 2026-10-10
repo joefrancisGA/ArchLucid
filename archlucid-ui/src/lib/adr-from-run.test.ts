@@ -104,6 +104,70 @@ describe("adr-from-run", () => {
     expect(md).toContain("Driver A");
   });
 
+  it("distinguishes missing ADR explanation values from stored empty values", () => {
+    const missing = buildMadrMarkdownFromRun({
+      runId: "missing",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: [],
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        structuredReasoning: null,
+        alternativesConsidered: null,
+        caveats: null,
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: false,
+      },
+      findings: [],
+    });
+    const storedEmpty = buildMadrMarkdownFromRun({
+      runId: "empty",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: [],
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        structuredReasoning: "",
+        alternativesConsidered: [],
+        caveats: [],
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: false,
+      },
+      findings: [],
+    });
+
+    expect(missing).toContain("Structured reasoning was not stored.");
+    expect(missing).toContain("Alternatives considered were not stored.");
+    expect(missing).toContain("Caveats were not stored.");
+    expect(storedEmpty).not.toContain("Structured reasoning was not stored.");
+    expect(storedEmpty).not.toContain("Alternatives considered were not stored.");
+    expect(storedEmpty).not.toContain("Caveats were not stored.");
+  });
+
   it("buildMadrMarkdownFromRun includes semantic support band per finding (AS-071)", () => {
     const input: AdrGeneratorRunInput = {
       runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",

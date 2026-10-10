@@ -30,6 +30,8 @@ function formatRequirementItems(items: unknown, heading: string, lines: string[]
 
     if (text) {
       lines.push(`  - ${text}`);
+    } else if (raw.requirementText === null || raw.requirementText === undefined) {
+      lines.push("  - Requirement text was not stored.");
     }
   }
 
@@ -123,6 +125,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     lines.push("");
     pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
     pushBulletLines(lines, constraints.preferences, undefined);
+    lines.push("");
+  } else {
+    lines.push("Constraints were not stored.");
     lines.push("");
   }
 
@@ -333,6 +338,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     }
 
     pushBulletLines(lines, security.gaps, undefined);
+  } else {
+    lines.push("Security model was not stored.");
   }
 
   pushBulletLines(lines, m.warnings, undefined);

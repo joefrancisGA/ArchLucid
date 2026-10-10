@@ -122,9 +122,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Approved by</dt>
-          {matchedConnection != null ? (
-            <dd className="m-0">Approver was not included on the loaded connection</dd>
-          ) : null}
+          <dd className="m-0">
+            {matchedConnection == null
+              ? "Approver was not stored."
+              : "Approver was not included on the loaded connection"}
+          </dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Expires</dt>

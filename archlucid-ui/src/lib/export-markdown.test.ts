@@ -152,6 +152,31 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(lines.join("\n")).not.toContain("v —");
   });
 
+  it("distinguishes missing manifest fields from stored empty collections and strings", () => {
+    const missing = formatGoldenManifestMarkdown({
+      requirements: {
+        covered: [{ requirementName: "Retention", requirementText: null, coverageStatus: "Covered" }],
+      },
+      constraints: null,
+      security: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      requirements: {
+        covered: [{ requirementName: "Retention", requirementText: "", coverageStatus: "Covered" }],
+      },
+      constraints: { mandatoryConstraints: [], preferences: [] },
+      security: { controls: [], gaps: [] },
+    });
+
+    expect(missing).toContain("Retention");
+    expect(missing).toContain("Requirement text was not stored.");
+    expect(missing).toContain("Constraints were not stored.");
+    expect(missing).toContain("Security model was not stored.");
+    expect(storedEmpty).not.toContain("Requirement text was not stored.");
+    expect(storedEmpty).toContain("_No mandatory constraints._");
+    expect(storedEmpty).not.toContain("Security model was not stored.");
+  });
+
   it("includes feasibility verdict section with soft envelope on manifest exports", () => {
     const doc = {
       manifestId: "m1",
