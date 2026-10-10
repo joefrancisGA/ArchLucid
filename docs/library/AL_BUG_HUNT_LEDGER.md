@@ -16927,7 +16927,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed→hit): confidence enrichment selected the first persisted structural execution mode for duplicate task results while calibrated confidence used the latest result, so a retried Real task could be evaluated with Simulator metadata. Structural-mode lookup now reuses latest-result selection; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`; 205 scoped Evaluation tests passed.
 
-2026-10-10 seed hunt (seed→hit): `AgentOutputReferenceCaseCatalog` permanently cached an empty case list when reference evaluation was initially disabled, so enabling the reachable configuration later never loaded the configured JSON cases. The cache now reloads when enabled/path options change; regression `Cases_reload_when_reference_evaluation_is_enabled_after_an_initial_disabled_read`.
+2026-10-10 seed hunt (seed→hit): `AgentOutputReferenceCaseCatalog` permanently cached an empty case list when reference evaluation was initially disabled, so enabling the reachable configuration later never loaded the configured JSON cases. The cache now reloads when enabled/path options change; regression `Cases_reload_when_reference_evaluation_is_enabled_after_an_initial_disabled_read`; 206 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed-only): reread embedding faithfulness, trace faithfulness, reference-case evaluation, confidence enrichment, and their focused tests after the retry-selection fix. No fresh candidate met the same-run promotion bar without duplicating saturated null/score classes. Seeded two bounded follow-up candidates; 204 scoped Evaluation tests passed. No production change.
 
