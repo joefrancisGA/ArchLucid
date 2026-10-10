@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 45
-- **bugs-found:** 38
+- **hunts:** 46
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — inventory relationship endpoint was dropped when its ARM id differed only by trailing slash
+- **last-bug:** 2026-10-10 — inventory relationships duplicated when relationship type differed only by case
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphBuilder` used a case-sensitive edge dedup key, so equivalent persisted inventory relationships whose type differed only by case emitted parallel observed edges. Edge keys now use the same case-insensitive semantic comparison as downstream overlay merging; regression `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_case`; focused regression passed.
+
+- [x] (proven) `ArchitectureInventoryObservedFactGraphBuilder.BuildOverlay` — persisted relationship type casing variants for the same normalized endpoints emitted duplicate observed edges — **hit 2026-10-10 seed hunt:** use `StringComparer.OrdinalIgnoreCase` for edge-key deduplication; regression `BuildOverlay_deduplicates_relationships_when_relationship_type_differs_only_by_case`.
 
 2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphBuilder` normalized ARM resource IDs for deduplication but indexed resources and relationships inconsistently, so a persisted resource ID with a trailing slash caused its equivalent relationship endpoint to be skipped. Resource indexes and relationship lookups now use `ArmResourceIdNormalizer.Normalize`; regression `BuildOverlay_matches_relationship_endpoints_when_arm_id_differs_only_by_case`; KnowledgeGraph scoped tests passed 363/366 with 3 pre-existing unrelated failures; Provenance passed 58/58; Release compile passed with 0 warnings and 0 errors.
 
