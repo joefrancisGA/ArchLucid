@@ -29413,13 +29413,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1043
-- **bugs-found:** 426
+- **hunts:** 1044
+- **bugs-found:** 427
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `SimpleTerraformResourceBlockParser.ExtractBlocks` matched `resource "..."` text inside reachable `#`/`//`/block comments, emitting a phantom resource and truncating the real preceding block body. Header matching now scans a comment-masked view that preserves offsets and quoted values; regression `ParseAsync_ResourceHeaderInsideComment_DoesNotTruncatePreviousResource`; pre-fix repro failed, scoped ContextIngestion/Canonicalization tests passed 824/824, and Release compile passed with 0 warnings and 0 errors.
+
+- [x] (proven) `SimpleTerraformResourceBlockParser.ExtractBlocks` — a reachable commented Terraform resource header was parsed as a real resource and truncated the preceding resource body — **hit 2026-10-10 seed hunt:** match headers against a comment-masked source while preserving original offsets; regression `ParseAsync_ResourceHeaderInsideComment_DoesNotTruncatePreviousResource`.
 
 2026-09-13 seed hunt #2386 (seed→hit): reseeded context-ingestion with `-Hint context ingestion K8s snake_case`; proved snake_case `enable_service_links` pod spec projection gap; regression `ParseAsync_snake_case_enable_service_links_projects_enable_service_links_exposure`.
 
