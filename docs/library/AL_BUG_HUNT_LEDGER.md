@@ -9570,6 +9570,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): re-read stable trade-off identity, null finding handling, critical-severity normalization, and duplicate trade-off orchestration; no fresh hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45 and no production code changed.
 
+2026-10-10 seed hunt (seed-only): reread recommendation actionability, stable IDs, trade-off attachment, declared-priority boundaries, and focused alternatives/proposed-change tests; no fresh row met the reachability and wrong-outcome bar beyond the existing bounded candidates. No production code changed.
+
 2026-10-10 seed hunt (seed→hit): promoted trade-off identity stability; `TradeOffId` now derives from the ordered dimension pair and proposed decision instead of a random GUID; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`; exact Alternatives/ProposedChange filter passed 45/45. Application compile check timed out twice without compiler errors.
 
 2026-10-10 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the selected Alternatives/ProposedChange tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded three bounded `(candidate)` rows for trade-off identity stability, null finding entries, and critical-severity normalization. The exact focused filter passed 45/45 with the known unrelated `ARCH002` warning.
@@ -9697,7 +9699,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 55
+- **hunts:** 56
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
