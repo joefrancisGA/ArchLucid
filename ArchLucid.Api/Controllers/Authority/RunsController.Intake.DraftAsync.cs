@@ -32,6 +32,7 @@ public sealed partial class RunsController
         CancellationToken cancellationToken)
     {
         IActionResult? validation = ValidateDraftFreeText(input?.FreeTextDescription, "FreeTextDescription");
+
         if (validation is not null)
             return validation;
 

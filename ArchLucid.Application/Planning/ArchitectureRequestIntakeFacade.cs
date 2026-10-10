@@ -99,6 +99,7 @@ public sealed class ArchitectureRequestIntakeFacade(
     private async Task<ArchitectureRequestIntakeParseResult> ValidateParsedRequestAsync(ArchitectureRequest parsed, CancellationToken cancellationToken)
     {
         FluentValidation.Results.ValidationResult validationResult = await _architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
+
         if (validationResult.IsValid) return new ArchitectureRequestIntakeParseResult { Outcome = ArchitectureRequestIntakeOutcome.Success, Request = parsed };
         return new ArchitectureRequestIntakeParseResult { Outcome = ArchitectureRequestIntakeOutcome.ValidationFailed, ValidationErrors = validationResult.Errors.Select(static e => e.ErrorMessage).ToList() };
     }
