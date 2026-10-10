@@ -9566,6 +9566,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed-only): reread `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` plus the focused Alternatives/ProposedChange tests; no new hunt-ready row met the reachability and wrong-outcome bar. Existing bounded candidates remain open for caller/contract evidence; the exact filter passed 45/45 and no production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): re-read recommendation actionability, trade-off attachment, and declared-priority handling; the exact Alternatives/ProposedChange filter passed 45/45. A priority-order candidate was not promoted because `ClosedLoopReasoningRequest.DeclaredPriorities` is reachable but no selected contract or production caller defines list order as precedence; no production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected engine/trade-off review after the Unicode boundary fix; no new hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45; retained the existing five bounded candidates and made no production code change.
@@ -9708,7 +9710,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 57
+- **hunts:** 58
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
