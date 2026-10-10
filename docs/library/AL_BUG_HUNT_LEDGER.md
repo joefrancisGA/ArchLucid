@@ -8,6 +8,8 @@
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `ArmJsonInfrastructureDeclarationParser` called `JsonElement.TryGetProperty` on non-object entries in a reachable `resources` array, so one malformed entry threw `InvalidOperationException` and discarded valid sibling resources. Non-object elements are now skipped; regression `ParseAsync_IgnoresNonObjectResourceEntries`; scoped ContextIngestion/Canonicalization tests passed 816/816.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `CanonicalInfrastructurePropertyBag.ShouldRedactKey` normalized underscores but not hyphens, so a reachable `access-key` property bypassed the `access_key` sensitive fragment and retained its secret value. Sensitive-key normalization now removes both separators; regression `TryAddTfProperty_redacts_hyphenated_sensitive_keys`; scoped ContextIngestion/Canonicalization tests passed 817/817.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27405,6 +27407,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): sensitive-key normalization now treats hyphenated and underscored spellings equivalently for redaction; 817 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `CanonicalInfrastructurePropertyBag.ShouldRedactKey` — hyphenated keys such as `access-key` bypassed the normalized `access_key` sensitive fragment and retained secret values — **hit 2026-10-10 seed hunt:** normalize hyphens alongside underscores; regression `TryAddTfProperty_redacts_hyphenated_sensitive_keys`.
 
 2026-10-10 seed hunt (seed→hit): ARM JSON resource arrays now skip non-object entries without aborting valid sibling resources; 816 scoped ContextIngestion/Canonicalization tests passed.
 
