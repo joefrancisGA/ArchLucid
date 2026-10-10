@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion356_remediation_instance_create_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
-        string guard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceSealedManifestHashGuard.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceSealedManifestHashGuard.cs");
 
         service.Should().Contain("RemediationInstanceSealedManifestHashGuard");
         service.Should().Contain("CreateFromMatchAsync");
@@ -38,13 +26,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion357_remediation_preflight_and_approve_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("RunPreflightAsync");
         service.Should().Contain("ApproveAsync");
@@ -54,13 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion358_remediation_assign_and_execute_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("AssignWaveAsync");
         service.Should().Contain("ExecuteAsync");
@@ -70,13 +46,7 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion359_remediation_verify_and_close_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs");
 
         service.Should().Contain("VerifyAsync");
         service.Should().Contain("CloseAsync");
@@ -181,18 +151,8 @@ public sealed class ArchitectureReviewRobustnessWave31ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_outbox_metadata_when_run_scoped()
     {
-        string outboxGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Integration",
-                "IntegrationEventOutboxManifestHashGuard.cs"));
-        string publishing = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "ComplianceDriftIntegrationEventPublishing.cs"));
+        string outboxGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Integration/IntegrationEventOutboxManifestHashGuard.cs");
+        string publishing = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/ComplianceDriftIntegrationEventPublishing.cs");
 
         outboxGuard.Should().Contain("IntegrationEventTypes.ComplianceDriftEscalatedV1");
         publishing.Should().Contain("TryResolveVerifiedManifestHashOrNullAsync");

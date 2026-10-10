@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs057QuoteOverlapScorerArchitectureTests
 
         File.Exists(scorerPath).Should().BeTrue();
 
-        string scorer = File.ReadAllText(scorerPath);
+        string scorer = ArchitectureSourceProbe.ReadPathWithPartials(scorerPath);
 
         scorer.Should().Contain("FindingSemanticSupportBandScorer");
         scorer.Should().Contain("ExplanationFaithfulnessTokenExtractor");
@@ -38,7 +38,7 @@ public sealed class ArchitectureSpineAs057QuoteOverlapScorerArchitectureTests
             "Findings",
             "FindingSemanticSupportBand.cs");
 
-        string enumSource = File.ReadAllText(enumPath);
+        string enumSource = ArchitectureSourceProbe.ReadPathWithPartials(enumPath);
 
         enumSource.Should().Contain("Supported");
         enumSource.Should().Contain("Unchecked");

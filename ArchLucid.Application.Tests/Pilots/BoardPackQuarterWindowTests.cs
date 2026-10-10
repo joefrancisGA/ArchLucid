@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
@@ -55,5 +57,21 @@ public sealed class BoardPackQuarterWindowTests
         weekEndUtc.Should().Be(weekStartUtc.AddDays(7));
         weekStartUtc.Should().BeOnOrAfter(quarterStart.UtcDateTime);
         weekEndUtc.Should().BeOnOrBefore(quarterEnd.UtcDateTime.AddDays(7));
+    }
+
+    [Theory]
+    [InlineData("2026-03-25T00:00:00Z", "2026-04-01T00:00:00Z")]
+    [InlineData("2026-03-23T00:00:00Z", "2026-03-27T00:00:00Z")]
+    public void DigestWeekInsideQuarter_keeps_digest_week_inside_requested_window(string startIso, string endIso)
+    {
+        DateTimeOffset windowStart = DateTimeOffset.Parse(startIso, CultureInfo.InvariantCulture);
+        DateTimeOffset windowEnd = DateTimeOffset.Parse(endIso, CultureInfo.InvariantCulture);
+
+        (DateTime weekStartUtc, DateTime weekEndUtc) =
+            BoardPackQuarterWindow.DigestWeekInsideQuarter(windowStart, windowEnd);
+
+        weekStartUtc.Should().BeOnOrAfter(windowStart.UtcDateTime);
+        weekEndUtc.Should().BeOnOrBefore(windowEnd.UtcDateTime);
+        weekEndUtc.Should().BeAfter(weekStartUtc);
     }
 }

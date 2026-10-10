@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -80,5 +82,41 @@ public sealed class AgentResultPostExecutionEnricherTests
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task EnrichAsync_withholds_prose_findings_when_deserialized_withheld_findings_is_null()
+    {
+        const string json =
+            """
+            {
+              "taskId": "task-1",
+              "runId": "run-1",
+              "agentType": "Compliance",
+              "findings": [
+                {
+                  "classification": "DecisionGradeFinding",
+                  "message": "Prose only"
+                }
+              ],
+              "withheldFindings": null
+            }
+            """;
+
+        AgentResult? result = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+        result.Should().NotBeNull();
+
+        CompositeAgentResultPostExecutionEnricher sut = new([new AgentArchitectureFindingEmissionEnricher()]);
+
+        await sut.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req-1", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [result!],
+            CancellationToken.None);
+
+        result!.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
     }
 }

@@ -516,6 +516,23 @@ public sealed class TopologyProposalRelationshipEndpointIndexTests
     }
 
     [Fact]
+    public void BuildDeclaredEndpointCanonicalMap_keeps_first_service_name_mapping_when_duplicate_service_names_have_different_ids()
+    {
+        List<ManifestService> services =
+        [
+            new() { ServiceName = "api", ServiceId = "svc-first" },
+            new() { ServiceName = "api", ServiceId = "svc-second" },
+        ];
+
+        Dictionary<string, string> canonical =
+            TopologyProposalRelationshipEndpointIndex.BuildDeclaredEndpointCanonicalMap(services, []);
+
+        canonical["api"].Should().Be("svc-first");
+        canonical["svc-first"].Should().Be("svc-first");
+        canonical["svc-second"].Should().Be("svc-second");
+    }
+
+    [Fact]
     public void AddDeclaredManifestDatastoreEndpointAliases_registers_name_id_and_synthetic_keys()
     {
         Dictionary<string, string> aliases = new(StringComparer.OrdinalIgnoreCase);

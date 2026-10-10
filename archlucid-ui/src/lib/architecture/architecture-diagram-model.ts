@@ -1,3 +1,4 @@
+import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import type { ArchitectureContentProvenance, ArchitectureStructuredEntity, ArchitectureStructuredParseResult } from "@/lib/architecture/architecture-structured-content-types";
 import type {
   ArchitectureDiagramEdge,
@@ -274,14 +275,8 @@ export function buildArchitectureDiagramModel(
   addEntityNodes(byKey.get("systems-and-services")?.entities ?? [], "system", nodes, usedIds);
   addEntityNodes(byKey.get("external-integrations")?.entities ?? [], "external", nodes, usedIds);
 
-  const trimmedName = architectureName.trim();
-
-  if (trimmedName.length > 0 && trimmedName.toLowerCase() !== "untitled architecture") {
-    const alreadyPresent = nodes.some((node) => node.label.toLowerCase() === trimmedName.toLowerCase());
-
-    if (!alreadyPresent) {
-      nodes.push(createNode(trimmedName, "system", "asserted", usedIds, nodes.length));
-    }
+  if (architectureNameAddsDiagramNode(architectureName, nodes.map((node) => node.label))) {
+    nodes.push(createNode(architectureName.trim(), "system", "asserted", usedIds, nodes.length));
   }
 
   addFlowEdges(parseResult, nodes, edges);

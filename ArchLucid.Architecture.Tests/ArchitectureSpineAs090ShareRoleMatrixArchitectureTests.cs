@@ -17,7 +17,7 @@ public sealed class ArchitectureSpineAs090ShareRoleMatrixArchitectureTests
         string path = Path.Combine(RepoRoot, ContractRelativePath);
         File.Exists(path).Should().BeTrue();
 
-        string contract = File.ReadAllText(path);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         contract.Should().Contain("Architecture share ACL contract");
         contract.Should().Contain("View");
@@ -43,7 +43,7 @@ public sealed class ArchitectureSpineAs090ShareRoleMatrixArchitectureTests
 
         File.Exists(evaluatorPath).Should().BeTrue();
 
-        string source = File.ReadAllText(evaluatorPath);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(evaluatorPath);
 
         source.Should().Contain("ArchitectureShareAccessEvaluator");
         source.Should().Contain("hasExecuteAuthority");

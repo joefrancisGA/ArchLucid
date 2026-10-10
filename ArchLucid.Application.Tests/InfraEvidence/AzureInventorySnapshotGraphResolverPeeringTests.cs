@@ -227,6 +227,101 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     }
 
     [Fact]
+    public async Task TryResolveGraphAsync_copies_developer_bastion_sku_and_does_not_orphan_it()
+    {
+        Guid bastionRow = Guid.Parse("77777777-1111-4000-8000-000000000001");
+        const string bastionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/bastionHosts/vnet-aep-hi-test-wus-001-bastion";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = bastionRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = bastionId,
+                        ResourceType = "Microsoft.Network/bastionHosts",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = bastionRow,
+                        PropertyKey = InventoryDiagramOrphanedStatePropertyKeys.SkuName,
+                        PropertyValue = "Developer",
+                    },
+                ],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode bastion = result.Graph!.Nodes.Single(node => node.Properties["arm.id"] == bastionId);
+        bastion.Properties[InventoryDiagramOrphanedStatePropertyKeys.SkuName].Should().Be("Developer");
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(bastion, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryResolveGraphAsync_copies_restore_point_collection_source_and_resolves_vm()
+    {
+        Guid restorePointCollectionRow = Guid.Parse("88888888-1111-4000-8000-000000000001");
+        Guid virtualMachineRow = Guid.Parse("88888888-1111-4000-8000-000000000002");
+        const string restorePointCollectionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/restorePointCollections/rpc1";
+        const string virtualMachineId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        AzureInventorySnapshotGraphResolveResult result = await ResolveAsync(
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = restorePointCollectionRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = restorePointCollectionId,
+                        ResourceType = "Microsoft.Compute/restorePointCollections",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                    new AzureInventoryResourceRecord
+                    {
+                        ResourceRowId = virtualMachineRow,
+                        SnapshotId = SnapshotId,
+                        TenantId = TenantId,
+                        AzureResourceId = virtualMachineId,
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                        ResourceGroup = "rg",
+                        SubscriptionId = "sub",
+                    },
+                ],
+                [
+                    new AzureInventoryResourcePropertyReadModel
+                    {
+                        ResourceRowId = restorePointCollectionRow,
+                        PropertyKey = "source.id",
+                        PropertyValue = virtualMachineId,
+                    },
+                ],
+                []));
+
+        result.Succeeded.Should().BeTrue();
+        GraphNode restorePointCollection = result.Graph!.Nodes.Single(
+            node => node.Properties["arm.id"] == restorePointCollectionId);
+        restorePointCollection.Properties[
+            InventoryDiagramParentAttachmentPropertyKeys.RestorePointSourceArmId].Should().Be(virtualMachineId);
+        InventoryDiagramConnectionStateResult classification =
+            InventoryDiagramOrphanedStateClassifier.Classify(restorePointCollection, result.Graph, false);
+        classification.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
+        classification.MissingRequirementMessage.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryResolveGraphAsync_copies_firewall_ip_configurations_onto_the_graph()
     {
         Guid firewallRow = Guid.Parse("66666666-1111-4000-8000-000000000001");
@@ -467,7 +562,7 @@ public sealed class AzureInventorySnapshotGraphResolverPeeringTests
     {
         Mock<IAzureInventorySnapshotRepository> repository = new();
         repository
-            .Setup(candidate => candidate.TryGetSnapshotDetailAsync(
+            .Setup(candidate => candidate.TryGetCanonicalSnapshotDetailAsync(
                 It.IsAny<ScopeContext>(),
                 SnapshotId,
                 It.IsAny<CancellationToken>()))

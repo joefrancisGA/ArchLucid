@@ -51,6 +51,8 @@ public sealed partial class ScimUserService
                 cancellationToken);
         }
 
+        await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, null, userName, cancellationToken);
+
         bool seatReserved = false;
 
         try
@@ -96,6 +98,7 @@ public sealed partial class ScimUserService
             throw new ScimNotFoundException("User not found.");
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
+        await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
 
         bool wasActive = existing.Active;
 
@@ -162,6 +165,23 @@ public sealed partial class ScimUserService
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
     }
 
+    private async Task EnsureUserNameNotUsedByAnotherLiveUserAsync(
+        Guid tenantId,
+        Guid? exceptUserId,
+        string userName,
+        CancellationToken cancellationToken)
+    {
+        ScimUserRecord? other = await _users.GetByUserNameAsync(tenantId, userName, cancellationToken);
+
+        if (other is null)
+            return;
+
+        if (exceptUserId is not null && other.Id == exceptUserId.Value)
+            return;
+
+        throw new ScimConflictException($"User with userName '{userName}' already exists.");
+    }
+
     private async Task<ScimUserRecord> ReactivateRemovedUserAsync(
         Guid tenantId,
         Guid id,
@@ -171,6 +191,8 @@ public sealed partial class ScimUserService
         bool active,
         CancellationToken cancellationToken)
     {
+        await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
+
         bool seatReserved = false;
 
         try

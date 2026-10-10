@@ -148,9 +148,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
           },
           {
             hopOrdinal: 2,
-            fromNodeLabel: "App gateway",
-            toNodeLabel: "Key vault",
-            edgeType: "RoleAssignment",
+            fromNodeLabel: "Hop source was not stored.",
+            toNodeLabel: "Hop destination was not stored.",
+            edgeType: "Relationship type was not stored",
             provenanceKind: "DerivedFact",
             hopConfidenceBand: "Possible",
             inferenceSource: "tag:owner",
@@ -192,8 +192,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
         routing: [
           {
             role: "TechnicalOwner",
-            principalId: "owner-1",
-            displayName: "Platform team",
+            principalId: null,
+            displayName: null,
             provenanceKind: "DerivedFact",
             sourceReference: "tag:technicalOwner",
           },
@@ -232,11 +232,28 @@ describe("SecurityEvidencePathInspectPanel", () => {
       isError: false,
     } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
 
-    renderPanel("finding-1");
+    renderPanel("finding-1", {
+      selectedFinding: {
+        findingId: "finding-1",
+        totalScore: 0.5,
+        explanationSummary: "Sample",
+        breakdownJson: "[]",
+        rankOrder: null,
+        controlId: null,
+        patternKey: null,
+      },
+    });
 
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_RANK_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-rank")).toHaveTextContent("Rank 2");
+    expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
+      "Rank was not stored",
+    );
+    expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
+      "Control was not stored",
+    );
+    expect(screen.getByTestId("security-evidence-path-routing")).toHaveTextContent("Owner was not stored");
     expect(screen.getByTestId("security-evidence-path-rank-dimension-blastRadius")).toHaveTextContent(
       "Shared control blast radius elevated.",
     );
@@ -246,6 +263,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
     expect(screen.getByText("This hop limits how strong the path evidence can be.")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
+    expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Relationship type was not stored").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[1]).toHaveTextContent("Derived fact");
     expect(screen.getAllByText("Possible").length).toBeGreaterThan(0);

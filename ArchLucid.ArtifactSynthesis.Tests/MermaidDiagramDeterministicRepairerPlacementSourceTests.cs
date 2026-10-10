@@ -12,6 +12,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
 {
     [Theory]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Warn when the private-beta frozen smoke pin is not on the current RC34 line."""
+"""Warn when the private-beta frozen smoke pin is not on the current RC35 line."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 PIN_RELATIVE_PATH = Path("scripts/ci/private_beta_frozen_branch.sha")
-RC34_REF = "origin/RC34"
+RC35_REF = "origin/RC35"
 
 
 def repository_root() -> Path:
@@ -77,26 +77,20 @@ def main() -> int:
 
         return 0
 
-    if not git_ref_exists(root, RC34_REF):
-        print(f"::notice::{RC34_REF} is unavailable; frozen-branch freshness was not checked")
+    if not git_ref_exists(root, RC35_REF):
+        print(f"::notice::{RC35_REF} is unavailable; frozen-branch freshness was not checked")
 
         return 0
 
-    current_rc34_sha = git_ref_sha(root, RC34_REF)
-    current_label = current_rc34_sha or RC34_REF
-
-    if not is_ancestor(root, pinned_sha, RC34_REF):
+    if not is_ancestor(root, pinned_sha, RC35_REF):
         print(
-            f"::warning::private-beta frozen pin {pinned_sha} is not an ancestor of {current_label}; "
+            f"::warning::private-beta frozen pin {pinned_sha} is not an ancestor of {RC35_REF}; "
             "refresh only after the current frozen smoke finishes",
         )
 
         return 0
 
-    print(
-        f"Frozen private-beta pin {pinned_sha} is an ancestor of {current_label} "
-        f"({RC34_REF}).",
-    )
+    print(f"Frozen private-beta pin {pinned_sha} is an ancestor of {RC35_REF}.")
 
     return 0
 

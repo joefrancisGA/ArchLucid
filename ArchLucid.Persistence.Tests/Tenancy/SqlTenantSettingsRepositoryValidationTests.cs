@@ -54,11 +54,83 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void EnsureSettingValueLength_accepts_exact_limit_after_surrounding_whitespace_trim()
+    {
+        string exactLimit = new('v', TenantSettingsSchemaLimits.SettingValueMaxLength);
+        string padded = "  " + exactLimit + "  ";
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(padded);
+
+        act.Should().NotThrow();
+        padded.Trim().Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_counts_interior_whitespace_toward_trimmed_length_budget()
+    {
+        string core = new('a', TenantSettingsSchemaLimits.SettingValueMaxLength - 1);
+        string withInteriorNewline = core + "\n" + "x";
+
+        withInteriorNewline.Trim().Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength + 1);
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(withInteriorNewline);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_accepts_compact_json_without_interior_whitespace_at_budget()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 13)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Should().NotContain("\n");
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(json);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void EnsureSettingValueLength_rejects_whitespace_only_value()
     {
         Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");
 
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void TryGetCoreAsync_maps_whitespace_only_setting_value_scalar_to_null()
+    {
+        // Mirrors SqlTenantSettingsRepository.TryGetCoreAsync post-query normalization for legacy SQL rows.
+        static string? NormalizeReadScalar(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+        NormalizeReadScalar(null).Should().BeNull();
+        NormalizeReadScalar(string.Empty).Should().BeNull();
+        NormalizeReadScalar("   ").Should().BeNull();
+        NormalizeReadScalar("  enabled  ").Should().Be("enabled");
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_accepts_supplementary_plane_characters_at_nvarchar_code_unit_limit()
+    {
+        string value = string.Concat(Enumerable.Repeat("😀", 256));
+
+        value.Length.Should().Be(TenantSettingsSchemaLimits.SettingValueMaxLength);
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(value);
+
+        act.Should().NotThrow();
     }
 
     [Fact]

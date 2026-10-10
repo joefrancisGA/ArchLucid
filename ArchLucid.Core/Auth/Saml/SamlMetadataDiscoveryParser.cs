@@ -21,7 +21,7 @@ public static class SamlMetadataDiscoveryParser
         "memberOf"
     ];
 
-    public static SamlMetadataDiscoveryResult Parse(string xml)
+    public static SamlMetadataDiscoveryResult Parse(string xml, TimeProvider? timeProvider = null)
     {
         if (string.IsNullOrWhiteSpace(xml))
             throw new ArgumentException("SAML metadata XML is required.", nameof(xml));
@@ -32,12 +32,14 @@ public static class SamlMetadataDiscoveryParser
         if (root is null)
             throw new InvalidOperationException("SAML metadata document has no root element.");
 
-        string? issuer = root.Attribute("entityID")?.Value?.Trim();
+        XElement entity = ResolveSingleEntityDescriptor(root);
+        string? issuer = entity.Attribute("entityID")?.Value?.Trim();
 
         if (string.IsNullOrWhiteSpace(issuer))
             throw new InvalidOperationException("SAML metadata is missing entityID (issuer).");
 
-        List<string> thumbprints = ExtractSigningCertificateThumbprints(root);
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
+        List<string> thumbprints = ExtractSigningCertificateThumbprints(entity, clock);
 
         return new SamlMetadataDiscoveryResult
         {
@@ -47,50 +49,113 @@ public static class SamlMetadataDiscoveryParser
         };
     }
 
-    private static List<string> ExtractSigningCertificateThumbprints(XElement root)
+    private static List<string> ExtractSigningCertificateThumbprints(XElement entity, TimeProvider timeProvider)
     {
+        ArgumentNullException.ThrowIfNull(entity);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+
         List<string> thumbprints = [];
 
-        IEnumerable<XElement> keyDescriptors = root.Descendants(SamlMetadataNs + "KeyDescriptor")
-            .Where(static e =>
-            {
-                XAttribute? use = e.Attribute("use");
-
-                return use is null
-                       || string.Equals(use.Value, "signing", StringComparison.OrdinalIgnoreCase);
-            });
-
-        foreach (XElement keyDescriptor in keyDescriptors)
+        foreach (XElement idpDescriptor in entity.Descendants(SamlMetadataNs + "IDPSSODescriptor"))
         {
-            foreach (XElement certElement in keyDescriptor.Descendants(DsNs + "X509Certificate"))
-            {
-                string? base64 = certElement.Value?.Trim();
 
-                if (string.IsNullOrWhiteSpace(base64))
+            foreach (XElement keyDescriptor in idpDescriptor.Elements(SamlMetadataNs + "KeyDescriptor"))
+            {
+
+                if (!IsSigningKeyDescriptor(keyDescriptor))
                     continue;
 
-                try
+                foreach (XElement certElement in keyDescriptor.Descendants(DsNs + "X509Certificate"))
                 {
-                    byte[] raw = Convert.FromBase64String(CompressBase64Whitespace(base64));
-                    using X509Certificate2 certificate = X509CertificateLoader.LoadCertificate(raw);
+                    string? thumbprint = TryReadCurrentSigningThumbprint(certElement, timeProvider);
 
-                    string thumbprint = certificate.Thumbprint ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(thumbprint)
+                        || thumbprints.Contains(thumbprint, StringComparer.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
 
-                    if (!string.IsNullOrWhiteSpace(thumbprint) && !thumbprints.Contains(thumbprint, StringComparer.OrdinalIgnoreCase))
-                        thumbprints.Add(thumbprint.ToUpperInvariant());
-                }
-                catch (FormatException)
-                {
-                    // Skip malformed cert nodes — other certs may still be valid.
-                }
-                catch (CryptographicException)
-                {
-                    // Skip malformed cert nodes — other certs may still be valid.
+                    thumbprints.Add(thumbprint.ToUpperInvariant());
                 }
             }
         }
 
         return thumbprints;
+    }
+
+    private static bool IsSigningKeyDescriptor(XElement keyDescriptor)
+    {
+        XAttribute? use = keyDescriptor.Attribute("use");
+
+        return use is null
+               || string.Equals(use.Value, "signing", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TryReadCurrentSigningThumbprint(XElement certElement, TimeProvider timeProvider)
+    {
+        ArgumentNullException.ThrowIfNull(certElement);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+
+        string? base64 = certElement.Value?.Trim();
+
+        if (string.IsNullOrWhiteSpace(base64))
+            return null;
+
+        try
+        {
+            byte[] raw = Convert.FromBase64String(CompressBase64Whitespace(base64));
+            using X509Certificate2 certificate = X509CertificateLoader.LoadCertificate(raw);
+
+            if (!IsCurrentlyValid(certificate, timeProvider))
+                return null;
+
+            string thumbprint = certificate.Thumbprint ?? string.Empty;
+
+            return string.IsNullOrWhiteSpace(thumbprint) ? null : thumbprint;
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
+        catch (CryptographicException)
+        {
+            return null;
+        }
+    }
+
+    private static bool IsCurrentlyValid(X509Certificate2 certificate, TimeProvider timeProvider)
+    {
+        ArgumentNullException.ThrowIfNull(certificate);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+
+        // Host SAML binding keeps a signing cert only when X509Certificate2.IsValidLocalTime is true.
+        // X509 NotBefore/NotAfter are local wall-clock; convert to UTC like SamlSpConfigurationDiagnostics so ARCH002 is satisfied without shifting the window.
+        DateTimeOffset nowUtc = timeProvider.GetUtcNow();
+        DateTimeOffset notBeforeUtc = new(certificate.NotBefore.ToUniversalTime(), TimeSpan.Zero);
+        DateTimeOffset notAfterUtc = new(certificate.NotAfter.ToUniversalTime(), TimeSpan.Zero);
+
+        return notBeforeUtc <= nowUtc && notAfterUtc >= nowUtc;
+    }
+
+    private static XElement ResolveSingleEntityDescriptor(XElement root)
+    {
+        XName entityName = SamlMetadataNs + "EntityDescriptor";
+
+        if (root.Name == entityName)
+            return root;
+
+        // SAML metadata's document element is EntityDescriptor or EntitiesDescriptor.
+        // A one-IdP export still puts entityID on the nested EntityDescriptor.
+        List<XElement> entities = root.Descendants(entityName).ToList();
+
+        if (entities.Count == 1)
+            return entities[0];
+
+        if (entities.Count == 0)
+            throw new InvalidOperationException("SAML metadata is missing entityID (issuer).");
+
+        throw new InvalidOperationException(
+            "SAML metadata contains more than one EntityDescriptor; publish a single-entity metadata document.");
     }
 
     private static string CompressBase64Whitespace(string value) =>

@@ -137,7 +137,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*AiInference*Confirmed*");
+            .WithMessage("*LLM-inferred*Confirmed*");
     }
 
     private static async Task<Guid> InsertSnapshotAsync(SqlConnectionFactory factory, Guid tenantId)

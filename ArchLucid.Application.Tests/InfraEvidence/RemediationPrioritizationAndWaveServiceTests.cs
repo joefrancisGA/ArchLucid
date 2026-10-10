@@ -596,6 +596,12 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult<AzureInventorySnapshotRecord?>(null);
 
+        public Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
         public Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
             ScopeContext scope,
             Guid snapshotId,

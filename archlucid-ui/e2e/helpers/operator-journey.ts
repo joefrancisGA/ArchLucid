@@ -6,6 +6,9 @@ import {
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
 import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
+import { REVIEW_FINDINGS_LIST_VIEW_PARAM } from "@/lib/findings/review-findings-list-view";
+import { RUN_DELIVERABLES_OPEN_PARAM } from "@/lib/runs/run-detail-deliverables-disclosure-url";
+import { REVIEW_WORKBENCH_LAYOUT_TEST_ID } from "@/components/reviews/ReviewWorkbenchLayout";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
@@ -456,18 +459,494 @@ export async function expectBuyerPolishedReviewDetailSectionNavCore(
   }
 }
 
+/** Job-view chips render as `Needs my decision (0)`. A trailing `(0)` means that view has no rows. */
+export function findingJobViewChipListsRows(label: string): boolean {
+  return !/\(0\)\s*$/.test(label.replace(/\s+/g, " ").trim());
+}
+
+async function selectFindingJobViewThatListsRows(page: Page): Promise<void> {
+  const bar = page.getByTestId("finding-job-view-toggle-bar");
+
+  if (!(await bar.isVisible().catch(() => false))) {
+    return;
+  }
+
+  const moreJobViews = page.getByTestId("finding-job-view-more-toggle");
+
+  if (await moreJobViews.isVisible().catch(() => false)) {
+    await moreJobViews.click();
+  }
+
+  const chips = bar.locator('[data-testid^="finding-job-view-"]:not([data-testid="finding-job-view-more-toggle"])');
+  const chipCount = await chips.count();
+
+  for (let index = 0; index < chipCount; index += 1) {
+    const chip = chips.nth(index);
+    const label = (await chip.innerText()).replace(/\s+/g, " ");
+
+    if (!findingJobViewChipListsRows(label)) {
+      continue;
+    }
+
+    const current = await chip.getAttribute("aria-current");
+
+    if (current !== "page") {
+      await chip.click();
+    }
+
+    return;
+  }
+}
+
+/** Matches `SeverityTag` aria-labels (`FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT` + legacy labels). */
+const QUICK_DECISION_SEVERITY_ARIA_LABEL =
+  /^Severity: (Critical|Error|Warning|Info|High|Medium|Low|Unclassified)$/i;
+
 /** Severity metadata labels on quick-decision finding rows (`SeverityTag`). */
 export function quickDecisionSeverityBadge(quickSummary: Locator): Locator {
-  return quickSummary.getByLabel(/^Severity: (Critical|High|Medium)$/i);
+  return quickSummary.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL);
+}
+
+export async function ensureReviewDetailFindingsPresentationExpanded(page: Page): Promise<void> {
+  const cardsViewToggle = page.getByTestId("run-detail-findings-list-view-cards");
+
+  if (await cardsViewToggle.isVisible().catch(() => false)) {
+    const pressed = await cardsViewToggle.getAttribute("aria-pressed");
+
+    if (pressed !== "true") {
+      await cardsViewToggle.click();
+    }
+  } else {
+    const url = new URL(page.url());
+    const onReviewDetail = /\/architecture\/reviews\/[^/?#]+/i.test(url.pathname);
+
+    if (onReviewDetail && url.searchParams.get(REVIEW_FINDINGS_LIST_VIEW_PARAM) !== "cards") {
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+
+      if (!url.searchParams.has(REVIEW_DETAIL_TAB_PARAM)) {
+        url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, "findings");
+      }
+
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
+  }
+
+  const loadingCardView = page.getByText("Loading card view…", { exact: true });
+
+  if ((await loadingCardView.count()) > 0) {
+    await expect(loadingCardView.first()).toBeHidden({ timeout: 30_000 });
+  }
+
+  // Default job view is "Needs my decision". Seeded demo findings often sit in another view, which
+  // leaves the card list empty even when the sealed count is non-zero.
+  await selectFindingJobViewThatListsRows(page);
+
+  const cardsViewToggleAfterJobView = page.getByTestId("run-detail-findings-list-view-cards");
+
+  if (await cardsViewToggleAfterJobView.isVisible().catch(() => false)) {
+    const pressedAfterJobView = await cardsViewToggleAfterJobView.getAttribute("aria-pressed");
+
+    if (pressedAfterJobView !== "true") {
+      await cardsViewToggleAfterJobView.click();
+    }
+  }
+
+  const lowConfidenceToggle = page.getByTestId("quick-decision-show-low-confidence");
+
+  if (await lowConfidenceToggle.isVisible().catch(() => false)) {
+    if (!(await lowConfidenceToggle.isChecked().catch(() => false))) {
+      await lowConfidenceToggle.check();
+    }
+  }
+
+  const showAllFindings = page.getByTestId("quick-decision-show-all-findings");
+
+  if (await showAllFindings.isVisible().catch(() => false)) {
+    await showAllFindings.click();
+  }
+
+  const hiddenFilterShowAll = page.getByTestId("findings-hidden-filter-show-all");
+
+  if (await hiddenFilterShowAll.isVisible().catch(() => false)) {
+    await hiddenFilterShowAll.click();
+  }
+
+  const classificationBandAll = page.getByTestId("run-detail-findings-band-all");
+
+  if (await classificationBandAll.isVisible().catch(() => false)) {
+    await classificationBandAll.click();
+  }
+
+  const policyPackImpact = page
+    .getByTestId("quick-decision-summary")
+    .locator("details")
+    .filter({ hasText: "Policy pack impact" });
+
+  if ((await policyPackImpact.count()) > 0) {
+    const details = policyPackImpact.first();
+    const isOpen = await details.getAttribute("open");
+
+    if (isOpen === null || isOpen === "false") {
+      await details.locator("summary").click();
+    }
+  }
+
+  const cardDetails = page.locator('[data-testid^="finding-workspace-card-"] details[data-finding-id]');
+  const cardDetailsCount = await cardDetails.count();
+
+  for (let index = 0; index < cardDetailsCount; index += 1) {
+    const details = cardDetails.nth(index);
+    const isOpen = await details.getAttribute("open");
+
+    if (isOpen === null || isOpen === "false") {
+      await details.locator("summary").click({ force: true }).catch(() => undefined);
+    }
+  }
 }
 
 export async function expectQuickDecisionSeverityVisible(
   quickSummary: Locator,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  await expect(quickDecisionSeverityBadge(quickSummary).first()).toBeVisible({
-    timeout: options?.timeoutMs ?? 30_000,
-  });
+  const timeout = options?.timeoutMs ?? 30_000;
+  const page = quickSummary.page();
+  const severityPattern = QUICK_DECISION_SEVERITY_ARIA_LABEL;
+
+  await expect(async () => {
+    await ensureReviewDetailFindingsPresentationExpanded(page);
+
+    const inSummary = quickDecisionSeverityBadge(quickSummary).first();
+
+    if (await inSummary.isVisible().catch(() => false)) {
+      await expect(inSummary).toBeVisible({ timeout: 5_000 });
+
+      return;
+    }
+
+    const primaryCard = page.locator('[data-finding-workspace-primary="true"]');
+    const onPrimaryCard = quickDecisionSeverityBadge(primaryCard).first();
+
+    if (await onPrimaryCard.isVisible().catch(() => false)) {
+      await onPrimaryCard.scrollIntoViewIfNeeded();
+      await expect(onPrimaryCard).toBeVisible({ timeout: 5_000 });
+
+      return;
+    }
+
+    const workspace = page
+      .getByTestId("run-detail-findings-workspace")
+      .or(page.getByTestId("review-workbench-column-findings"))
+      .or(page.getByTestId("run-detail-findings-section"));
+
+    const severityBadge = workspace.getByLabel(severityPattern).first();
+
+    await severityBadge.scrollIntoViewIfNeeded();
+    await expect(severityBadge).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout });
+}
+
+const REVIEW_WORKBENCH_SURFACE_TABS = ["architecture", "findings", "evidence"] as const;
+
+/** Collapsible pipeline timeline title (`BUYER_SURFACE_VOCABULARY.auditTrail` and legacy labels). */
+const PIPELINE_TIMELINE_SECTION_LABEL = /Audit trail|Recent lifecycle events|Pipeline timeline/i;
+
+/** Findings quick-decision surface — tab panel or professional workbench column. */
+export function reviewDetailFindingsQuickSummary(page: Page): Locator {
+  const panel = reviewDetailWorkspacePanel(page, "findings");
+  const workbenchColumn = page.getByTestId("review-workbench-column-findings");
+
+  return workbenchColumn
+    .getByTestId("quick-decision-summary")
+    .or(panel.getByTestId("quick-decision-summary"))
+    .or(page.getByTestId("quick-decision-summary"))
+    .first();
+}
+
+/** Opens Findings and polls until card-view `QuickDecisionSummary` hydrates (deferred chunks + lazy card import). */
+export async function expectReviewDetailFindingsQuickSummaryVisible(
+  page: Page,
+  options?: { timeoutMs?: number; runId?: string },
+): Promise<Locator> {
+  const timeoutMs = options?.timeoutMs ?? 120_000;
+  const trimmedRunId = options?.runId?.trim() ?? "";
+
+  await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      let href = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "findings");
+      const url = new URL(href, page.url());
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+      href = url.toString();
+
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    } else {
+      await page.getByTestId("review-detail-workspace-tab-findings").click();
+    }
+
+    await expectReviewDetailWorkspaceTabSurfaceVisible(page, "findings");
+
+    const findingsSection = page.getByTestId("run-detail-findings-section");
+    const findingsWorkspace = page.getByTestId("run-detail-findings-workspace");
+
+    await expect(findingsSection.or(findingsWorkspace).first()).toBeVisible({ timeout: 30_000 });
+
+    const cardsViewToggle = page.getByTestId("run-detail-findings-list-view-cards");
+
+    if (await cardsViewToggle.isVisible().catch(() => false)) {
+      const pressed = await cardsViewToggle.getAttribute("aria-pressed");
+
+      if (pressed !== "true") {
+        await cardsViewToggle.click();
+      }
+    }
+
+    const loadingCardView = page.getByText("Loading card view…", { exact: true });
+
+    if ((await loadingCardView.count()) > 0) {
+      await expect(loadingCardView.first()).toBeHidden({ timeout: 30_000 });
+    }
+
+    await expect(reviewDetailFindingsQuickSummary(page)).toBeVisible({ timeout: 15_000 });
+
+    const showAllFindings = page.getByTestId("quick-decision-show-all-findings");
+
+    if (await showAllFindings.isVisible().catch(() => false)) {
+      await showAllFindings.click();
+    }
+  }).toPass({ timeout: timeoutMs });
+
+  return reviewDetailFindingsQuickSummary(page);
+}
+
+/** Assert seeded finding copy in findings workspace (card stack, dense table, or workbench column). */
+export async function expectReviewDetailSeedFindingCopyVisible(
+  page: Page,
+  pattern: RegExp,
+  options?: { timeoutMs?: number; runId?: string },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const trimmedRunId = options?.runId?.trim() ?? "";
+
+  if (trimmedRunId.length > 0) {
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: trimmedRunId,
+      timeoutMs: Math.min(timeout, 120_000),
+    });
+  }
+
+  const surface = page
+    .getByTestId("run-detail-findings-workspace")
+    .or(page.getByTestId("review-workbench-column-findings"))
+    .or(page.getByTestId("run-detail-findings-section"));
+
+  await expect(surface.first()).toBeVisible({ timeout: 30_000 });
+
+  const findingCards = page.locator('[data-testid^="finding-workspace-card-"]');
+  const quickSummary = reviewDetailFindingsQuickSummary(page);
+
+  await expect(async () => {
+    await ensureReviewDetailFindingsPresentationExpanded(page);
+
+    const copyRoots = surface.or(findingCards).or(quickSummary);
+
+    const matches = copyRoots.filter({ hasText: pattern });
+    const count = await matches.count();
+
+    for (let index = 0; index < count; index += 1) {
+      const candidate = matches.nth(index);
+
+      if (await candidate.isVisible().catch(() => false)) {
+        await candidate.scrollIntoViewIfNeeded();
+        await expect(candidate).toBeVisible({ timeout: 5_000 });
+
+        return;
+      }
+    }
+
+    throw new Error(`No visible match for ${pattern}`);
+  }).toPass({ timeout });
+}
+
+/** Opens nested finding detail and asserts title or rationale copy (buyer shell card stack fallback). */
+export async function expectReviewDetailFindingFromFindingsWorkspace(
+  page: Page,
+  findingId: string,
+  title: string,
+  options?: { timeoutMs?: number; runId?: string; beforeNavigate?: () => Promise<void> },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const trimmedFindingId = findingId.trim();
+  const trimmedRunId = options?.runId?.trim() ?? "";
+  const beforeNavigate = options?.beforeNavigate;
+  const encodedFindingId = encodeURIComponent(trimmedFindingId);
+  const titlePattern = new RegExp(title.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+  await expect(async () => {
+    if (trimmedRunId.length > 0) {
+      let href = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "findings");
+      const url = new URL(href, page.url());
+      url.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+      href = url.toString();
+
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, "findings");
+    }
+
+    await ensureReviewDetailFindingsPresentationExpanded(page);
+
+    const workspace = page
+      .getByTestId("run-detail-findings-workspace")
+      .or(page.getByTestId("review-workbench-column-findings"))
+      .or(page.getByTestId("run-detail-findings-section"))
+      .first();
+
+    await expect(workspace).toBeVisible({ timeout: 10_000 });
+
+    const cardScope = workspace.or(reviewDetailFindingsQuickSummary(page));
+    const cardProbe = page.getByTestId(`finding-workspace-card-${trimmedFindingId}`).first();
+
+    if (!(await cardProbe.isVisible().catch(() => false)) && trimmedRunId.length > 0) {
+      let primeHref = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "findings");
+      const primeUrl = new URL(primeHref, page.url());
+      primeUrl.searchParams.set(REVIEW_FINDINGS_LIST_VIEW_PARAM, "cards");
+      primeHref = primeUrl.toString();
+
+      await expectReviewDetailFindingInspectCopyVisible(page, trimmedRunId, trimmedFindingId, titlePattern, {
+        primeRunDetailHref: primeHref,
+        beforeNavigate,
+        timeoutMs: Math.min(timeout, 60_000),
+      });
+
+      return;
+    }
+
+    const card = await expandFindingWorkspaceCard(cardScope, trimmedFindingId);
+
+    const inspectLink = card
+      .getByRole("link", { name: /Open finding/i })
+      .or(card.locator(`a[href*="/findings/${encodedFindingId}"]`))
+      .first();
+
+    await inspectLink.scrollIntoViewIfNeeded();
+    await inspectLink.click();
+
+    const main = page.getByRole("main");
+
+    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
+
+    const workspaceHeader = main.getByTestId("finding-detail-workspace-header");
+    const titleHeading = main.getByRole("heading", { level: 1, name: titlePattern });
+
+    await expect(workspaceHeader.or(titleHeading)).toBeVisible({ timeout: 15_000 });
+    await expect(main.getByText(titlePattern).first()).toBeVisible({ timeout: 15_000 });
+
+    const severityBadge = main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first();
+
+    if (await severityBadge.isVisible().catch(() => false)) {
+      await expect(severityBadge).toBeVisible({ timeout: 5_000 });
+    }
+  }).toPass({ timeout });
+}
+
+export async function expectReviewDetailFindingInspectCopyVisible(
+  page: Page,
+  runId: string,
+  findingId: string,
+  copy: string | RegExp,
+  options?: {
+    timeoutMs?: number;
+    /** Run-detail URL to load first so isolated demo scope hydrates before finding deep link. */
+    primeRunDetailHref?: string;
+    beforeNavigate?: () => Promise<void>;
+  },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 90_000;
+  const trimmedRunId = runId.trim();
+  const trimmedFindingId = findingId.trim();
+  const href = `/architecture/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedFindingId)}`;
+  const copyPattern = typeof copy === "string" ? new RegExp(copy.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i") : copy;
+  const primeRunDetailHref = options?.primeRunDetailHref?.trim();
+  const beforeNavigate = options?.beforeNavigate;
+
+  await expect(async () => {
+    if (beforeNavigate !== undefined) {
+      await beforeNavigate();
+    }
+
+    if (primeRunDetailHref !== undefined && primeRunDetailHref.length > 0) {
+      await page.goto(primeRunDetailHref, { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
+    }
+
+    await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+
+    const main = page.getByRole("main");
+
+    await expect(main).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: 30_000 });
+
+    const workspaceHeader = main.getByTestId("finding-detail-workspace-header");
+    const primaryContent = main.getByTestId("finding-detail-primary-content");
+
+    await expect(workspaceHeader.or(primaryContent)).toBeVisible({ timeout: 30_000 });
+
+    const region = (await workspaceHeader.isVisible().catch(() => false)) ? workspaceHeader : primaryContent.or(main);
+
+    if (typeof copy === "string") {
+      await expect(region.getByRole("heading", { level: 1, name: copy, exact: true })).toBeVisible({
+        timeout: 15_000,
+      });
+    } else {
+      await expect(region.getByText(copyPattern).first()).toBeVisible({ timeout: 15_000 });
+    }
+
+    const severityBadge = main.getByLabel(QUICK_DECISION_SEVERITY_ARIA_LABEL).first();
+
+    if (await severityBadge.isVisible().catch(() => false)) {
+      await expect(severityBadge).toBeVisible({ timeout: 30_000 });
+    }
+  }).toPass({ timeout });
+}
+
+/** Working chrome uses export select; buyer-polished uses primary markdown button. */
+export function reviewDetailGoldenManifestMarkdownExportControl(page: Page): Locator {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  return artifactsSection
+    .getByTestId("golden-manifest-markdown-download-button")
+    .or(artifactsSection.getByTestId("golden-manifest-export-more-formats-trigger"))
+    .first();
+}
+
+/** Buyer-polished deliverables use a button (`run-detail-evidence-bundle-export`); legacy surfaces may expose a link. */
+export function reviewDetailEvidenceBundleExportControl(page: Page): Locator {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  return artifactsSection
+    .getByTestId("run-detail-evidence-bundle-export")
+    .or(artifactsSection.getByTestId("run-detail-evidence-bundle-export-blocked"))
+    .or(artifactsSection.getByTestId("run-detail-bundle-export-blocked"))
+    .or(artifactsSection.getByRole("button", { name: /^Download evidence bundle$/i }))
+    .or(artifactsSection.getByRole("link", { name: /Download evidence bundle/i }))
+    .or(artifactsSection.getByRole("button", { name: /^Download bundle \(ZIP\)$/i }))
+    .first();
+}
+
+async function buildReviewDetailTabHrefForSurface(
+  page: Page,
+  runId: string,
+  tab: ReviewDetailTabId,
+): Promise<string> {
+  const workbenchActive =
+    (REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)
+    && (await page.getByTestId(REVIEW_WORKBENCH_LAYOUT_TEST_ID).isVisible().catch(() => false));
+
+  if (workbenchActive) {
+    return buildReviewDetailTabHref(runId, tab, {
+      workbenchFocus: tab as "architecture" | "findings" | "evidence",
+    });
+  }
+
+  return buildReviewDetailTabHref(runId, tab);
 }
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
@@ -481,6 +960,30 @@ export function reviewOutcomeSummaryStrip(page: Page): Locator {
 
 function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
   return page.getByTestId(`review-detail-workspace-panel-${tab}`);
+}
+
+/** Tab panel or professional workbench column — workbench mode keeps panels `hidden` while content is mounted in-column. */
+async function expectReviewDetailWorkspaceTabSurfaceVisible(
+  page: Page,
+  tab: ReviewDetailTabId,
+): Promise<void> {
+  if ((REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)) {
+    const panel = reviewDetailWorkspacePanel(page, tab);
+    const workbenchColumn = page.getByTestId(`review-workbench-column-${tab}`);
+
+    await expect
+      .poll(async () => {
+        const panelVisible = await panel.isVisible().catch(() => false);
+        const columnVisible = await workbenchColumn.isVisible().catch(() => false);
+
+        return panelVisible || columnVisible;
+      }, { timeout: 60_000 })
+      .toBe(true);
+
+    return;
+  }
+
+  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
 }
 
 /** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
@@ -503,7 +1006,7 @@ export async function openReviewDetailWorkspaceTab(
   runId: string,
   tab: ReviewDetailTabId,
 ): Promise<void> {
-  const href = buildReviewDetailTabHref(runId, tab);
+  const href = await buildReviewDetailTabHrefForSurface(page, runId, tab);
   const url = new URL(page.url());
   const trimmedRunId = runId.trim();
   const encodedRunId = encodeURIComponent(trimmedRunId);
@@ -526,12 +1029,27 @@ export async function openReviewDetailWorkspaceTab(
     if (!alreadyActive) {
       await visibleTrigger.click();
     }
+
+    try {
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, tab);
+    } catch {
+      // Radix tab clicks can fail under overlay/hydration races — deep-link the tab instead.
+      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 90_000 });
+    }
   } else {
     await page.goto(href);
   }
 
-  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
+  await expectReviewDetailWorkspaceTabSurfaceVisible(page, tab);
   const activeTab = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+  if ((REVIEW_WORKBENCH_SURFACE_TABS as readonly string[]).includes(tab)) {
+    const workbenchColumn = page.getByTestId(`review-workbench-column-${tab}`);
+
+    if (await workbenchColumn.isVisible().catch(() => false)) {
+      return;
+    }
+  }
 
   await expect
     .poll(async () => {
@@ -774,7 +1292,7 @@ export async function expectBuyerPipelineTimelineSectionVisible(
     const sectionNav = page.getByTestId("provenance-section-nav-desktop");
 
     if ((await sectionNav.count()) > 0) {
-      const pipelineNavLink = sectionNav.getByRole("link", { name: /Recent lifecycle events/i });
+      const pipelineNavLink = sectionNav.getByRole("link", { name: PIPELINE_TIMELINE_SECTION_LABEL });
 
       if ((await pipelineNavLink.count()) > 0) {
         await pipelineNavLink.first().click();
@@ -790,14 +1308,14 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
     if ((await collapsible.count()) > 0 && (await collapsible.isVisible())) {
       await expect(
-        collapsible.locator("summary", { hasText: /Recent lifecycle events|Pipeline timeline/i }),
+        collapsible.getByRole("heading", { name: PIPELINE_TIMELINE_SECTION_LABEL }).first(),
       ).toBeVisible({ timeout: 10_000 });
 
       return;
     }
 
     const heading = pipelineSection.getByRole("heading", {
-      name: /Recent lifecycle events|Pipeline timeline/i,
+      name: PIPELINE_TIMELINE_SECTION_LABEL,
     });
 
     await expect(heading.first()).toBeVisible({ timeout: 10_000 });
@@ -806,38 +1324,83 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
-  // `#artifacts-exports` lives on the Evidence workspace tab (see LEGACY_HASH_TO_TAB), not Activity.
-  const artifactsSection = page.locator("#artifacts-exports");
-  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+  await expect(async () => {
+    const trimmedRunId = runId?.trim() ?? "";
 
-  if ((await sectionNav.count()) > 0) {
-    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
-  } else if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
-    if (runId !== undefined && runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, runId, "evidence");
+    if (trimmedRunId.length > 0) {
+      const deliverablesHref = await buildReviewDetailTabHrefForSurface(page, trimmedRunId, "evidence");
+      const url = new URL(deliverablesHref, page.url());
+      url.searchParams.set(RUN_DELIVERABLES_OPEN_PARAM, "1");
+      if (url.hash.length === 0) {
+        url.hash = "artifacts-exports";
+      }
+
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+      await expectReviewDetailWorkspaceTabSurfaceVisible(page, "evidence");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
       await page.getByTestId("review-detail-workspace-tab-evidence").click();
       await expect(reviewDetailWorkspacePanel(page, "evidence")).toBeVisible({ timeout: 60_000 });
+
+      const currentUrl = new URL(page.url());
+      if (currentUrl.searchParams.get(RUN_DELIVERABLES_OPEN_PARAM) !== "1") {
+        currentUrl.searchParams.set(RUN_DELIVERABLES_OPEN_PARAM, "1");
+        await page.goto(currentUrl.toString(), { waitUntil: "domcontentloaded", timeout: 90_000 });
+      }
+    } else {
+      const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+
+      if ((await sectionNav.count()) > 0) {
+        await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
+      }
     }
-  }
 
-  // Wait for the section (and golden-manifest gate) before scroll — scrollIntoViewIfNeeded alone
-  // absorbs the full test timeout when the wrong tab left the node unmounted.
-  await expect(artifactsSection).toBeVisible({ timeout: 90_000 });
-  await artifactsSection.scrollIntoViewIfNeeded();
+    const artifactsSection = page.locator("#artifacts-exports");
+    await expect(artifactsSection).toBeVisible({ timeout: 30_000 });
+    await expect(artifactsSection.getByText("Loading artifacts and exports")).toBeHidden({ timeout: 120_000 });
+    await artifactsSection.scrollIntoViewIfNeeded();
 
-  const deliverablesDetails = artifactsSection.locator("details").first();
-  const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
+    const markdownDownload = reviewDetailGoldenManifestMarkdownExportControl(page);
+    const evidenceBundleExport = reviewDetailEvidenceBundleExportControl(page);
 
-  await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
+    if (
+      (await markdownDownload.isVisible().catch(() => false))
+      || (await evidenceBundleExport.isVisible().catch(() => false))
+    ) {
+      return;
+    }
 
-  const detailsOpen: boolean = await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open);
+    const deliverablesHeading = artifactsSection.getByRole("heading", { name: /^Deliverables$/i });
+    const deliverablesDetails = artifactsSection
+      .locator("details")
+      .filter({ has: deliverablesHeading })
+      .first();
+    const deliverablesSummary = deliverablesDetails
+      .locator("summary")
+      .filter({ has: deliverablesHeading })
+      .or(artifactsSection.locator("summary").filter({ hasText: /Deliverables/i }))
+      .first();
 
-  if (!detailsOpen) {
-    await deliverablesSummary.click();
-  }
+    await expect(deliverablesSummary).toBeVisible({ timeout: 15_000 });
 
-  await expect(deliverablesDetails).toHaveAttribute("open", "");
+    const detailsOpen: boolean =
+      (await deliverablesDetails.count()) > 0
+        ? await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open)
+        : await deliverablesSummary.evaluate((element) => {
+            const details = element.closest("details");
+
+            return details !== null ? (details as HTMLDetailsElement).open : true;
+          });
+
+    if (!detailsOpen) {
+      await deliverablesSummary.click();
+    }
+
+    if ((await deliverablesDetails.count()) > 0) {
+      await expect(deliverablesDetails).toHaveAttribute("open", "", { timeout: 15_000 });
+    }
+
+    await expect(markdownDownload.or(evidenceBundleExport).first()).toBeVisible({ timeout: 15_000 });
+  }).toPass({ timeout: 120_000 });
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */

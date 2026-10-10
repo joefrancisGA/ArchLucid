@@ -120,12 +120,12 @@ export function resolveRunDecisionExplainabilityFromDetail(
           const record = row as Record<string, unknown>;
 
           return {
-            pipeline: readString(record.pipeline) ?? "authority",
+            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
             decisionId: readString(record.decisionId) ?? "unknown",
             category: readString(record.category) ?? "Category not returned",
-            title: readString(record.title) ?? "Untitled decision",
+            title: readString(record.title) ?? "Decision title was not stored.",
             selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
-            rationale: readString(record.rationale) ?? "",
+            rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
             confidence: readFiniteNumber(record.confidence),
             confidenceSource: readString(record.confidenceSource),
             buyerConfidenceSource: readString(record.buyerConfidenceSource),
@@ -150,11 +150,11 @@ export function resolveRunDecisionExplainabilityFromDetail(
           }
 
           return {
-            pipeline: readString(record.pipeline) ?? "coordinator_v2",
+            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
             decisionId: readString(record.decisionId) ?? "unknown",
-            topic: readString(record.topic) ?? "Decision",
+            topic: readString(record.topic) ?? "Decision topic was not stored.",
             selectedOptionId: readString(record.selectedOptionId),
-            rationale: readString(record.rationale) ?? "",
+            rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
             confidence,
             supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
             opposingEvaluationIds: readStringArray(record.opposingEvaluationIds),
@@ -181,8 +181,8 @@ export function resolveRunDecisionExplainabilityFromDetail(
           return {
             engineType,
             category,
-            exceptionType: readString(record.exceptionType) ?? "Unknown",
-            errorMessage: readString(record.errorMessage) ?? "",
+            exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
+            errorMessage: readString(record.errorMessage) ?? "Error message was not stored.",
             durationMs: readFiniteNumber(record.durationMs),
             occurredUtc: readString(record.occurredUtc),
           };

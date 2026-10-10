@@ -21,6 +21,26 @@ async function gotoAdminUsersTabAndWaitForMe(page: Page): Promise<void> {
   await waitAndDismissFirstSessionPurposeChooser(page);
 }
 
+/**
+ * Revoked invitations leave the pending table and sit behind "Show resolved invitations".
+ * Wait for either the Revoked status on the row or the resolved toggle, then assert Revoked.
+ */
+export async function expectLiveAdminInvitationRevoked(page: Page, inviteEmail: string): Promise<void> {
+  const invitationRow = page.locator("tr", { hasText: inviteEmail });
+  const showResolved = page.getByTestId("settings-roles-toggle-resolved-invitations");
+
+  await expect(showResolved.or(invitationRow.getByText("Revoked"))).toBeVisible({ timeout: 60_000 });
+
+  const revokedAlreadyVisible = await invitationRow.getByText("Revoked").isVisible().catch(() => false);
+
+  if (!revokedAlreadyVisible) {
+    await showResolved.click();
+  }
+
+  await expect(invitationRow).toContainText("Revoked", { timeout: 60_000 });
+  await expect(invitationRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+}
+
 /** JwtBearer admin users hub with default tenant scope and settled `/me` before assertions. */
 export async function gotoLiveAdminUsersInvitePage(page: Page): Promise<void> {
   await primePrivateBetaBrowserSessionIfJwtMode(page);

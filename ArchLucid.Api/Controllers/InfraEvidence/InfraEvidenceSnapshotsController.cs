@@ -16,6 +16,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Api.Controllers.InfraEvidence;
 

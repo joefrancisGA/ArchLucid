@@ -107,4 +107,263 @@ describe("useNewRunWizardQueryPrefill", () => {
       expect(setValue).toHaveBeenCalledTimes(2);
     });
   });
+
+  it("applies zero-config demo prefill while wizard mode is still quick", async () => {
+    const persistWizardMode = vi.fn();
+    const onPendingEvidenceFileChange = vi.fn();
+    const showToast = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          zeroConfigDemo: true,
+          zeroConfigSelection: { platform: "aws", tier: "tier1" },
+        },
+        stepIndex: 0,
+        wizardMode: "quick",
+        reset: vi.fn(),
+        setValue: vi.fn(),
+        goToStep: vi.fn(),
+        persistWizardMode,
+        onPendingEvidenceFileChange,
+        showToast,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(persistWizardMode).toHaveBeenCalledWith("full");
+      expect(onPendingEvidenceFileChange).toHaveBeenCalled();
+    });
+  });
+
+  it("prefills policyReferences from deeplink policyPackId without client-side catalog validation", async () => {
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          deeplinkPolicyPackId: "retired-pack-typo",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["retired-pack-typo"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+  });
+
+  it("applies policy pack deeplink prefill only once when packId changes without remounting", async () => {
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ packId }: { packId: string }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            deeplinkPolicyPackId: packId,
+          },
+          stepIndex: 0,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { packId: "pack-a" } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["pack-a"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ packId: "pack-b" });
+
+    await waitFor(() => {
+      expect(setValue).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not apply specialty cloud query on mount when only packId and cloud are present", async () => {
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          deeplinkPolicyPackId: "aws-baseline-pack",
+          reviewIntakeCloudProvider: "Aws",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("policyReferences", ["aws-baseline-pack"], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    expect(setValue).not.toHaveBeenCalledWith(
+      "cloudProvider",
+      "Aws",
+      expect.anything(),
+    );
+  });
+
+  it("does not re-apply specialty cloud when example template prefill already ran in the same session", async () => {
+    const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ cloud }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            exampleTemplate,
+            reviewIntakeCloudProvider: cloud,
+          },
+          stepIndex: 2,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { cloud: "Aws" as const } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("cloudProvider", "Aws", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ cloud: "Gcp" });
+
+    await waitFor(() => {
+      expect(setValue).not.toHaveBeenCalled();
+    });
+  });
+
+  it("applies specialty cloud with example template prefill at step 2", async () => {
+    const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const setValue = vi.fn();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams(null),
+          exampleTemplate,
+          reviewIntakeCloudProvider: "Aws",
+        },
+        stepIndex: 2,
+        wizardMode: "full",
+        reset: vi.fn(),
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("cloudProvider", "Aws", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+  });
+
+  it("applies accelerator prefill and skips preset when both query params are present", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams("ai-llm-workload"),
+          presetDeeplinkPresetId: "greenfield",
+          presetDeeplinkToken: "greenfield",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset,
+        setValue: vi.fn(),
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("retains policy-pack prefill when an accelerator reset runs on the same mount", async () => {
+    const values = { policyReferences: [] as string[] };
+    const reset = vi.fn((nextValues: WizardFormValues) => {
+      values.policyReferences = nextValues.policyReferences;
+    });
+    const setValue = vi.fn((field: keyof WizardFormValues, value: unknown) => {
+      if (field === "policyReferences") {
+        values.policyReferences = value as string[];
+      }
+    });
+
+    renderHook(() =>
+      useNewRunWizardQueryPrefill({
+        params: {
+          ...buildParams("ai-llm-workload"),
+          deeplinkPolicyPackId: "cis-azure-baseline",
+        },
+        stepIndex: 0,
+        wizardMode: "full",
+        reset,
+        setValue,
+        goToStep: vi.fn(),
+        persistWizardMode: vi.fn(),
+        onPendingEvidenceFileChange: vi.fn(),
+        showToast: vi.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledTimes(1);
+    });
+
+    expect(values.policyReferences).toEqual(["cis-azure-baseline"]);
+  });
 });

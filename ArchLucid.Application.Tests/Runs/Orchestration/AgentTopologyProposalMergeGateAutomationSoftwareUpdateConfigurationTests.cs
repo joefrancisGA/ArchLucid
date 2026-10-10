@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateAutomationSoftwareUpdateConfig
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "suc-1", label: "patching", sourceId: "azurerm_automation_software_update_configuration.patching"));
+            ComputeNode(nodeId: "suc-1", label: "patching", sourceId: "azurerm_storage_account.patching"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-patching")));
 

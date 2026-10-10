@@ -66,8 +66,8 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
     snapshotId: trimmedSnapshotId,
     capturedLabel,
     ageLabel,
-    statusKind: stale ? "needs-attention" : "ready",
-    statusLabel: stale ? "Stale snapshot" : "Current snapshot",
+    statusKind: stale || !hasCaptureTime ? "needs-attention" : "ready",
+    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Freshness unknown",
   };
 }
 
@@ -90,7 +90,7 @@ function formatSnapshotScopeSegment(
   const capturedSuffix =
     snapshotCapturedUtc != null && snapshotCapturedUtc.trim().length > 0
       ? ` (captured ${freshness.capturedLabel})`
-      : "";
+      : " (captured time was not stored)";
 
   return `snapshot ${trimmedSnapshotId}${capturedSuffix}`;
 }

@@ -18,6 +18,7 @@ type GuidedIntakePriorRunPrefillTarget = {
   readonly freeTextIntent: string;
   readonly businessOutcome: string;
   readonly systemName: string;
+  readonly scopeBullets: readonly ScopeUnderstandingBullet[];
   readonly actorSet: ActorSet;
 };
 
@@ -46,7 +47,7 @@ function applyPriorPackagePrefill(
     target.setActorSet(prefill.actorSet);
   }
 
-  if (prefill.scopeBullets.length > 0) {
+  if (target.scopeBullets.length === 0 && prefill.scopeBullets.length > 0) {
     target.setScopeBullets([...prefill.scopeBullets]);
     target.setScopeGateOpen(prefill.scopeGateOpen);
   }
@@ -64,6 +65,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     enabled = true,
     freeTextIntent,
     priorRunId,
+    scopeBullets,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
@@ -78,6 +80,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     actorSet,
     businessOutcome,
     freeTextIntent,
+    scopeBullets,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
@@ -92,6 +95,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
     actorSet,
     businessOutcome,
     freeTextIntent,
+    scopeBullets,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
@@ -116,6 +120,8 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
 
       appliedRef.current = true;
       applyPriorPackagePrefill(targetRef.current, prefill);
+    }).catch(() => {
+      // A failed optional rerun prefill must not become an unhandled rejection or block manual intake.
     });
 
     return () => {

@@ -9,7 +9,11 @@ import { HelpSecurityTrustGuideView } from "@/app/(operator)/help/_sections/Help
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
 import { buildSecurityTrustTocGroups } from "@/lib/security-trust-help-presentation";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
-import { SECURITY_TRUST_HELP_CLAIM_DISCIPLINE } from "@/lib/security-trust-help-evidence-copy";
+import {
+  SECURITY_TRUST_HELP_CLAIM_DISCIPLINE,
+  SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING,
+  SECURITY_TRUST_HELP_CLAIM_HEADING_ID,
+} from "@/lib/security-trust-help-evidence-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
@@ -70,6 +74,18 @@ describe("HelpSecurityTrustGuideView security and trust", () => {
     expect(screen.queryByText(/Cache-Control:/i)).toBeNull();
     expect(screen.queryByText(/If-None-Match/i)).toBeNull();
     expect((document.body.textContent ?? "")).not.toMatch(/\bV1\b/);
+  });
+
+  it("anchors claim discipline heading id for security-trust TOC scroll targets", () => {
+    if (loaded === null) {
+      throw new Error("Expected security-trust documentation to load.");
+    }
+
+    render(<HelpSecurityTrustGuideView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: SECURITY_TRUST_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveAttribute("id", SECURITY_TRUST_HELP_CLAIM_HEADING_ID);
   });
 
   it("renders orientation strip, evidence-pack primary action, and coherent pen-test disclosure", () => {

@@ -1,4 +1,8 @@
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+
 using ArchLucid.Core.Auth.Saml;
+using ArchLucid.Core.Time;
 
 using FluentAssertions;
 
@@ -57,5 +61,112 @@ public sealed class SamlMetadataDiscoveryParserTests
         Action act = () => SamlMetadataDiscoveryParser.Parse(xml);
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*entityID*");
+    }
+
+    [Fact]
+    public void Parse_single_entity_inside_entities_descriptor_returns_that_issuer()
+    {
+        const string xml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/metadata">
+                <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" />
+              </EntityDescriptor>
+            </EntitiesDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml);
+
+        result.IssuerUri.Should().Be("https://idp.example/metadata");
+    }
+
+    [Fact]
+    public void Parse_multiple_entity_descriptors_throws()
+    {
+        const string xml = """
+            <EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+              <EntityDescriptor entityID="https://idp.example/one" />
+              <EntityDescriptor entityID="https://idp.example/two" />
+            </EntitiesDescriptor>
+            """;
+
+        Action act = () => SamlMetadataDiscoveryParser.Parse(xml);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*more than one EntityDescriptor*");
+    }
+
+    [Fact]
+    public void Parse_signing_thumbprints_are_current_idp_certificates_only()
+    {
+        // The wizard labels these thumbprints as the IdP signing certificates. The host binder
+        // only trusts IDPSSODescriptor signing certs that are valid now.
+        using X509Certificate2 spSigning = CreateCertificate(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
+        using X509Certificate2 expiredIdp = CreateCertificate(DateTimeOffset.UtcNow.AddYears(-2), DateTimeOffset.UtcNow.AddDays(-1));
+        using X509Certificate2 currentIdp = CreateCertificate(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
+        string xml = $"""
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                              entityID="https://idp.example/metadata">
+              <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(spSigning.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </SPSSODescriptor>
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(expiredIdp.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(currentIdp.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </IDPSSODescriptor>
+            </EntityDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml);
+
+        result.SigningCertificateThumbprints.Should().Equal(currentIdp.Thumbprint);
+    }
+
+    [Fact]
+    public void Parse_excludes_certs_outside_injected_clock_window()
+    {
+        DateTimeOffset frozenUtc = new(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
+        using X509Certificate2 notYetValid = CreateCertificate(frozenUtc.AddDays(1), frozenUtc.AddDays(30));
+        using X509Certificate2 expired = CreateCertificate(frozenUtc.AddYears(-2), frozenUtc.AddDays(-1));
+        using X509Certificate2 current = CreateCertificate(frozenUtc.AddDays(-1), frozenUtc.AddDays(30));
+        DelegateTimeProvider clock = new(() => frozenUtc);
+        string xml = $"""
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                              entityID="https://idp.example/metadata">
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(notYetValid.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(expired.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(current.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </IDPSSODescriptor>
+            </EntityDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml, clock);
+
+        result.SigningCertificateThumbprints.Should().Equal(current.Thumbprint);
+    }
+
+    private static X509Certificate2 CreateCertificate(DateTimeOffset notBefore, DateTimeOffset notAfter)
+    {
+        using RSA rsa = RSA.Create(2048);
+        CertificateRequest certificateRequest = new(
+            "CN=idp.example",
+            rsa,
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+
+        return certificateRequest.CreateSelfSigned(notBefore, notAfter);
     }
 }

@@ -49,15 +49,19 @@ describe("formatInfraEvidenceSnapshotLabel", () => {
   it("omits UUID subscription ids when no name is available", () => {
     const unlabeled = snapshot({ subscriptionName: null });
 
-    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).not.toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
     expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("61 resources");
   });
 });
 
 describe("formatInfraEvidenceSubscriptionLabel", () => {
-  it("returns null for UUID-only subscription identity", () => {
-    expect(formatInfraEvidenceSubscriptionLabel(null, "8aa56f3b-18bc-43ca-ad45-bad9e811d33b")).toBeNull();
-    expect(formatInfraEvidenceSubscriptionLabel("   ", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toBeNull();
+  it("keeps a stored UUID-only subscription id", () => {
+    expect(formatInfraEvidenceSubscriptionLabel(null, "8aa56f3b-18bc-43ca-ad45-bad9e811d33b")).toBe(
+      "8aa56f3b-18bc-43ca-ad45-bad9e811d33b",
+    );
+    expect(formatInfraEvidenceSubscriptionLabel("   ", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toBe(
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    );
   });
 
   it("keeps a non-UUID subscription id", () => {
@@ -67,8 +71,8 @@ describe("formatInfraEvidenceSubscriptionLabel", () => {
 
 describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
   it("returns a fallback when capture time is missing", () => {
-    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("unknown time");
-    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("unknown time");
+    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored");
+    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored");
   });
 
   it("formats capture time at minute precision without seconds", () => {

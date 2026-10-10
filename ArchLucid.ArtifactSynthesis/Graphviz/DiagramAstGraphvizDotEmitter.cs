@@ -25,6 +25,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
         HashSet<string> resourceGroupClusteredNodeIds =
             DiagramResourceGroupGraphvizClusterPlanner.ResolveClusteredNodeIds(resourceGroupClusters);
+        HashSet<string> allocatedClusterIds = new(StringComparer.Ordinal);
 
         builder.AppendLine($"digraph {resolvedOptions.DigraphName} {{");
         builder.AppendLine($"    graph [layout={resolvedOptions.LayoutEngine}, overlap=false, sep=\"+36,28\", K=1.8, pack=true, packmode=graph, splines=true, outputorder=edgesfirst];");
@@ -50,7 +51,12 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
-            EmitResourceGroupCluster(builder, cluster, emitSubscriptionCluster ? 2 : 1, ast);
+            EmitResourceGroupCluster(
+                builder,
+                cluster,
+                emitSubscriptionCluster ? 2 : 1,
+                ast,
+                allocatedClusterIds);
         }
 
         if (emitSubscriptionCluster)
@@ -64,7 +70,12 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         }
         else
         {
-            EmitNestedGraph(ast, builder, renderableSubgraphs, resourceGroupClusteredNodeIds);
+            EmitNestedGraph(
+                ast,
+                builder,
+                renderableSubgraphs,
+                resourceGroupClusteredNodeIds,
+                allocatedClusterIds);
         }
 
         EmitVisibleEdges(
@@ -104,7 +115,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         DiagramAst ast,
         StringBuilder builder,
         IReadOnlyList<DiagramSubgraph> renderableSubgraphs,
-        HashSet<string> excludedNodeIds)
+        HashSet<string> excludedNodeIds,
+        HashSet<string> allocatedClusterIds)
     {
         HashSet<string> renderedSubgraphs = new(StringComparer.Ordinal);
         Dictionary<string, DiagramSubgraph> subgraphById = renderableSubgraphs.ToDictionary(
@@ -131,7 +143,15 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                      .OrderBy(subgraph => subgraph.OrderKey)
                      .ThenBy(subgraph => subgraph.SubgraphId, StringComparer.Ordinal))
         {
-            EmitSubgraphTree(ast, builder, rootSubgraph, subgraphById, renderedSubgraphs, excludedNodeIds, indent: 1);
+            EmitSubgraphTree(
+                ast,
+                builder,
+                rootSubgraph,
+                subgraphById,
+                renderedSubgraphs,
+                excludedNodeIds,
+                allocatedClusterIds,
+                indent: 1);
         }
     }
 
@@ -142,6 +162,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         Dictionary<string, DiagramSubgraph> subgraphById,
         HashSet<string> renderedSubgraphs,
         HashSet<string> excludedNodeIds,
+        HashSet<string> allocatedClusterIds,
         int indent)
     {
         if (!renderedSubgraphs.Add(subgraph.SubgraphId))
@@ -155,7 +176,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         }
 
         string indentText = new(' ', indent * 4);
-        string clusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(subgraph.SubgraphId);
+        string clusterId = AllocateClusterId(subgraph.SubgraphId, allocatedClusterIds);
         string clusterLabel = string.IsNullOrWhiteSpace(subgraph.Label)
             ? "\" \""
             : GraphvizIdEscaper.QuoteLabel(subgraph.Label);
@@ -181,7 +202,15 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.SubgraphId, StringComparer.Ordinal))
         {
-            EmitSubgraphTree(ast, builder, child, subgraphById, renderedSubgraphs, excludedNodeIds, indent + 1);
+            EmitSubgraphTree(
+                ast,
+                builder,
+                child,
+                subgraphById,
+                renderedSubgraphs,
+                excludedNodeIds,
+                allocatedClusterIds,
+                indent + 1);
         }
 
         builder.AppendLine($"{indentText}}}");
@@ -218,7 +247,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         StringBuilder builder,
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
         int indent,
-        DiagramAst ast)
+        DiagramAst ast,
+        HashSet<string> allocatedClusterIds)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(cluster);
@@ -226,7 +256,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         ArgumentNullException.ThrowIfNull(cluster.Nodes);
 
         string indentText = new(' ', indent * 4);
-        string clusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(cluster.ClusterId);
+        string clusterId = AllocateClusterId(cluster.ClusterId, allocatedClusterIds);
         string clusterLabel = GraphvizIdEscaper.QuoteLabel(cluster.GroupName);
 
         builder.AppendLine($"{indentText}subgraph {clusterId} {{");
@@ -246,7 +276,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         foreach (DiagramResourceGroupGraphvizClusterPlanner.VnetClusterPlan vnetCluster in vnetClusters)
         {
-            string nestedClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(vnetCluster.ClusterId);
+            string nestedClusterId = AllocateClusterId(vnetCluster.ClusterId, allocatedClusterIds);
             builder.AppendLine($"{indentText}    subgraph {nestedClusterId} {{");
             builder.AppendLine($"{indentText}        label={GraphvizIdEscaper.QuoteLabel(vnetCluster.Label)};");
             builder.AppendLine($"{indentText}        style=\"rounded\";");
@@ -258,7 +288,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             foreach (DiagramResourceGroupGraphvizClusterPlanner.SubnetClusterPlan subnetCluster
                      in vnetCluster.SubnetClusters)
             {
-                string subnetClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(subnetCluster.ClusterId);
+                string subnetClusterId = AllocateClusterId(subnetCluster.ClusterId, allocatedClusterIds);
                 builder.AppendLine($"{indentText}        subgraph {subnetClusterId} {{");
                 builder.AppendLine($"{indentText}            label={GraphvizIdEscaper.QuoteLabel(subnetCluster.Label)};");
                 builder.AppendLine($"{indentText}            style=\"rounded\";");
@@ -307,6 +337,20 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         string graphvizId = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(node.NodeId));
         string label = DiagramGraphvizHtmlNodeLabel.Format(node);
         builder.AppendLine($"{indentText}{graphvizId} [label={label}];");
+    }
+
+    private static string AllocateClusterId(string rawClusterId, HashSet<string> allocatedClusterIds)
+    {
+        string baseClusterId = "cluster_" + GraphvizIdEscaper.SanitizeClusterId(rawClusterId);
+        string clusterId = baseClusterId;
+        int suffix = 2;
+
+        while (!allocatedClusterIds.Add(clusterId))
+        {
+            clusterId = $"{baseClusterId}_{suffix++}";
+        }
+
+        return clusterId;
     }
 
     private static void EmitVisibleEdges(DiagramAst ast, StringBuilder builder, bool includeCrossGroupFanOut)

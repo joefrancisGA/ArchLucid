@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.ContextIngestion.Models;
 
 using Microsoft.Extensions.Logging;
@@ -55,13 +57,32 @@ public sealed class DotenvInfrastructureDeclarationParser(
             }
 
             string key = rawLine[..separatorIndex].Trim();
-            string value = rawLine[(separatorIndex + 1)..].Trim();
 
-            if (value.Length >= 2
-                && ((value.StartsWith('"') && value.EndsWith('"'))
-                    || (value.StartsWith('\'') && value.EndsWith('\''))))
+            if (key.StartsWith("export ", StringComparison.OrdinalIgnoreCase))
+            {
+                key = key["export ".Length..].Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
+            string value = StripUnquotedInlineComment(rawLine[(separatorIndex + 1)..].Trim());
+
+            bool isDoubleQuoted = value.Length >= 2
+                                  && value.StartsWith('"')
+                                  && value.EndsWith('"');
+            bool isSingleQuoted = value.Length >= 2
+                                  && value.StartsWith('\'')
+                                  && value.EndsWith('\'');
+
+            if (isDoubleQuoted || isSingleQuoted)
             {
                 value = value[1..^1];
+
+                if (isDoubleQuoted)
+                    value = UnescapeDoubleQuotedValue(value);
             }
 
             UploadedConfigProposedEdgeEmitter.EmitFromStringValue(
@@ -73,5 +94,115 @@ public sealed class DotenvInfrastructureDeclarationParser(
         }
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    /// <summary>
+    ///     Shell dotenv comments begin at an unquoted <c>#</c> that is preceded by whitespace.
+    ///     A hash inside a URL fragment or a quoted value stays in the setting.
+    /// </summary>
+    private static string StripUnquotedInlineComment(string value)
+    {
+        bool inSingleQuotes = false;
+        bool inDoubleQuotes = false;
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            // Escaped quotes are literal dotenv content and must not change the quote state.
+            if ((current == '"' || current == '\'') && IsEscaped(value, index))
+                continue;
+
+            if (current == '"' && !inSingleQuotes)
+            {
+                inDoubleQuotes = !inDoubleQuotes;
+
+                continue;
+            }
+
+            if (current == '\'' && !inDoubleQuotes)
+            {
+                inSingleQuotes = !inSingleQuotes;
+
+                continue;
+            }
+
+            if (inSingleQuotes || inDoubleQuotes || current != '#')
+                continue;
+
+            if (index > 0 && !char.IsWhiteSpace(value[index - 1]))
+                continue;
+
+            int commentStart = index == 0 ? 0 : index - 1;
+
+            return value[..commentStart].TrimEnd();
+        }
+
+        return value;
+    }
+
+    private static bool IsEscaped(string value, int index)
+    {
+        int backslashCount = 0;
+
+        for (int precedingIndex = index - 1;
+             precedingIndex >= 0 && value[precedingIndex] == '\\';
+             precedingIndex--)
+        {
+            backslashCount++;
+        }
+
+        return backslashCount % 2 == 1;
+    }
+
+    private static string UnescapeDoubleQuotedValue(string value)
+    {
+        if (!value.Contains('\\'))
+            return value;
+
+        StringBuilder unescaped = new(value.Length);
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char current = value[index];
+
+            if (current != '\\' || index == value.Length - 1)
+            {
+                unescaped.Append(current);
+
+                continue;
+            }
+
+            char escaped = value[++index];
+
+            switch (escaped)
+            {
+                case 'n':
+                    unescaped.Append('\n');
+
+                    break;
+                case 'r':
+                    unescaped.Append('\r');
+
+                    break;
+                case 't':
+                    unescaped.Append('\t');
+
+                    break;
+                case '"':
+                case '\\':
+                case '$':
+                    unescaped.Append(escaped);
+
+                    break;
+                default:
+                    unescaped.Append('\\');
+                    unescaped.Append(escaped);
+
+                    break;
+            }
+        }
+
+        return unescaped.ToString();
     }
 }

@@ -32,8 +32,12 @@ public sealed partial class ScimUserService
         string? manualFromPatch = TryReadOptionalTrimmed(next, ManualResolvedRoleFlatPath, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, JsonElement> core = ToCoreNextMap(next);
         bool nextActive = ReadActive(core, existing.Active);
+        // Remove drops the key. Required attributes must not fall back to the stored value.
+        RejectRemovedRequiredAttribute(current, core, "userName");
+        RejectRemovedRequiredAttribute(current, core, "externalId");
         string externalId = ReadPatchRequiredString(core, "externalId", existing.ExternalId);
         string userName = ReadPatchRequiredString(core, "userName", existing.UserName);
+
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
 
         if (!core.ContainsKey("displayName") && current.ContainsKey("displayName"))
@@ -42,6 +46,7 @@ public sealed partial class ScimUserService
             displayName = ResolvePatchDisplayName(displayNameElement, displayName);
 
         await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
+        await EnsureUserNameNotUsedByAnotherLiveUserAsync(tenantId, id, userName, cancellationToken);
 
         bool wasActive = existing.Active;
 
@@ -149,6 +154,19 @@ public sealed partial class ScimUserService
                 : throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean."),
             _ => throw new ScimUserResourceParseException("invalidValue", "'active' must be a boolean.")
         };
+    }
+
+    private static void RejectRemovedRequiredAttribute(
+        IReadOnlyDictionary<string, JsonElement> before,
+        IReadOnlyDictionary<string, JsonElement> after,
+        string key)
+    {
+        if (!before.ContainsKey(key) || after.ContainsKey(key))
+        {
+            return;
+        }
+
+        throw new ScimUserResourceParseException("mutability", $"'{key}' cannot be removed.");
     }
 
     private static string ReadPatchRequiredString(IReadOnlyDictionary<string, JsonElement> next, string key, string fallback)

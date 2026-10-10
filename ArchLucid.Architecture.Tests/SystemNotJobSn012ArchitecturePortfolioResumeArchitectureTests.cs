@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn012ArchitecturePortfolioResumeArchitectureTest
     [Fact]
     public void Sn012_portfolio_resume_module_names_nested_resolver()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-portfolio-resume-href.ts"));
 
         module.Should().Contain("resolveSystemNotJobWorkingResumeReviewHref");
@@ -25,7 +25,7 @@ public sealed class SystemNotJobSn012ArchitecturePortfolioResumeArchitectureTest
     [Fact]
     public void Sn012_runs_list_continue_last_viewed_row_uses_resume_resolver()
     {
-        string row = File.ReadAllText(
+        string row = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,12 +43,12 @@ public sealed class SystemNotJobSn012ArchitecturePortfolioResumeArchitectureTest
     [Fact]
     public void Sn012_vitest_ratchet_names_nested_resume_and_peer_parser()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-portfolio-resume-href.test.ts"));
 
         test.Should().Contain("SN-012");
-        test.Should().Contain("nests Working resume review href");
-        test.Should().Contain("parses run id from nested and peer");
+        test.Should().Contain("lands Working resume on the architecture desk when architecture id is known");
+        test.Should().Contain("parses run id from nested and peer review hrefs");
     }
 
     private static string FindRepoRoot()

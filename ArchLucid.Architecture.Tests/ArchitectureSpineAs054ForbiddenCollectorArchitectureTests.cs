@@ -42,7 +42,7 @@ public sealed class ArchitectureSpineAs054ForbiddenCollectorArchitectureTests
     public void As054_contract_lists_forbidden_second_collector_type_names()
     {
         string path = Path.Combine(RepoRoot, ContractRelativePath);
-        string contract = File.ReadAllText(path);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         contract.Should().Contain("AS-054");
         contract.Should().Contain("Forbidden type names");

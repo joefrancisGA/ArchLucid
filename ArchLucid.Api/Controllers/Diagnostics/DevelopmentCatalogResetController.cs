@@ -91,7 +91,7 @@ public sealed class DevelopmentCatalogResetController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

@@ -20,7 +20,7 @@ export function GovernanceAssignedToMeFindingsNavBadge() {
 
   const count = countQuery.data;
 
-  if (count <= 0) {
+  if (count === null || count <= 0) {
     return null;
   }
 

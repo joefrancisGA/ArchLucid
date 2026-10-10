@@ -15,10 +15,8 @@ public sealed class CareerGravityCg022CareerBlocksSponsorPdfArchitectureTests
     [Fact]
     public void Cg022_map_for_export_is_door_stamp_aware_not_mode_assumed_banner()
     {
-        string mapper = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "CareerArtifactCompletenessInputMapper.cs"));
-        string loader = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "CareerExportCoverageHonestyMaterialLoader.cs"));
+        string mapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs");
+        string loader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerExportCoverageHonestyMaterialLoader.cs");
 
         mapper.Should().Contain("ResolveSimulatorRehearsalBannerOnArtifactForExport");
         mapper.Should().Contain("WorkingCareerRehearsalDoor: input.WorkingCareerRehearsalDoor");
@@ -29,10 +27,8 @@ public sealed class CareerGravityCg022CareerBlocksSponsorPdfArchitectureTests
     [Fact]
     public void Cg022_sponsor_pdf_gate_reads_career_artifact_block_from_first_value_report()
     {
-        string gate = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "SponsorFirstValuePdfGate.cs"));
-        string builder = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "FirstValueReportBuilder.cs"));
+        string gate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/SponsorFirstValuePdfGate.cs");
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/FirstValueReportBuilder.cs");
 
         gate.Should().Contain("CareerArtifactBlockedReason");
         builder.Should().Contain("CareerArtifactExportCompletenessGate.ResolveBlock");

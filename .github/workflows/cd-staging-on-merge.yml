@@ -1,11 +1,11 @@
 # Optional: deploy to the GitHub **staging** environment after a **green** CI run on main/master,
-# or manually deploy an owner-approved immutable commit SHA from RC34.
+# or manually deploy an owner-approved immutable commit SHA from RC35.
 # Enable by setting repository variable `AUTO_DEPLOY_STAGING_MERGE` to `true`.
 # Configure the **staging** environment with the same secrets as manual CD (ACR, Container Apps, etc.).
 # Optional **CONTAINER_APP_WORKER_NAME**: same image as API (`archlucid-api:<tag>`); Terraform sets `dotnet ArchLucid.Worker.dll` as the container command.
 #
 # Trigger: `workflow_run` on workflow named **CI** (see `.github/workflows/ci.yml` `name: CI`),
-# plus explicit `workflow_dispatch` with a commit SHA for the RC34 release-cut path.
+# plus explicit `workflow_dispatch` with a commit SHA for the RC35 release-cut path.
 # Only runs when CI `conclusion` is success, event was **push** or **workflow_dispatch**, head branch is main or master,
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       target_sha:
-        description: "Owner-approved immutable commit SHA to deploy to staging (use the RC34 head SHA)."
+        description: "Owner-approved immutable commit SHA to deploy to staging (use the RC35 head SHA)."
         required: true
         type: string
 

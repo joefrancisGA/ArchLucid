@@ -42,4 +42,46 @@ public sealed class AzureInventoryLogicAppConnectionExtractorTests
             row.ConnectionName == "office365"
             && row.ConnectionResourceId == connectionId);
     }
+
+    [Fact]
+    public void ExtractFromWorkflow_collects_allowed_action_resource_ids_without_secrets()
+    {
+        const string workflowId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Logic/workflows/notify";
+        const string factoryId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf1";
+        string json = $$"""
+            {
+              "properties": {
+                "definition": {
+                  "actions": {
+                    "RunFactory": {
+                      "inputs": {
+                        "uri": "{{factoryId}}"
+                      },
+                      "secret": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/secret"
+                    },
+                    "Expression": {
+                      "inputs": {
+                        "uri": "@parameters('factoryId')"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        IReadOnlyList<AzureInventoryLogicAppConnectionRow> rows =
+            AzureInventoryLogicAppConnectionExtractor.ExtractFromWorkflow(
+                workflowId,
+                "notify",
+                document.RootElement);
+
+        rows.Should().ContainSingle(row =>
+            row.ConnectionName == "RunFactory"
+            && row.ConnectionResourceId == factoryId);
+    }
 }

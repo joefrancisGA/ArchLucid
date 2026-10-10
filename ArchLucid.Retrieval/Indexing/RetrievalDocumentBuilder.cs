@@ -44,13 +44,16 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             }
         ];
 
-        foreach (var decision in manifest.Decisions)
+        for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
+            ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
+
             if (string.IsNullOrWhiteSpace(decision.Title))
                 continue;
 
+            // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -188,6 +191,12 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     {
         string summary = JsonSerializer.Serialize(graph, JsonOptions);
 
+        // The outbox may index the same run again after artifacts or findings change.
+        // Hash the graph bytes so an unchanged graph still skips, and a changed graph reindexes.
+        string contentHash = Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes($"{runId:N}|provenance|{summary}")));
+
         return
         [
             new RetrievalDocument
@@ -202,7 +211,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 SourceId = runId.ToString(),
                 Title = $"Provenance for Run {runId}",
                 Content = summary,
-                ContentHash = runId.ToString("N"),
+                ContentHash = contentHash,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                 DecisionId = null,
                 FindingId = null
@@ -222,8 +231,10 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     {
         List<RetrievalDocument> documents = [];
 
-        foreach (var finding in findings)
+        for (int findingIndex = 0; findingIndex < findings.Count; findingIndex++)
         {
+            Finding finding = findings[findingIndex];
+
             if (finding.IsMuted)
                 continue;
 
@@ -233,8 +244,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             if (string.IsNullOrWhiteSpace(message))
                 continue;
 
+            // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{runId:N}-{findingIndex}"
                 : finding.FindingId.Trim();
 
             string content = $"[{finding.Category}] {finding.Severity}: {message}";

@@ -133,7 +133,7 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
-    public async Task BuildForRunAsync_MissingFeasibilityVerdict_ReturnsSealedReceiptIncomplete()
+    public async Task BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNotFound()
     {
         SetupCommittedRunDetail();
         SetupVerifiedCommittedManifest(CreateFeasibleVerdict(), out _);
@@ -156,7 +156,7 @@ public sealed class DecisionReceiptServiceTests
 
         DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
 
-        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete);
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.NotFound);
         buildResult.Receipt.Should().BeNull();
     }
 

@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs056SemanticSupportAdrArchitectureTests
         string adrPath = Path.Combine(RepoRoot, AdrRelativePath);
         File.Exists(adrPath).Should().BeTrue();
 
-        string adr = File.ReadAllText(adrPath);
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(adrPath);
 
         adr.Should().Contain("**Status:** Proposed");
         adr.Should().Contain("Supported");
@@ -37,7 +37,7 @@ public sealed class ArchitectureSpineAs056SemanticSupportAdrArchitectureTests
     [Fact]
     public void As056_adr_0085_does_not_claim_semantic_legal_truth_or_rag_commit_gate()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().MatchRegex("not.*legal truth", "ADR must disclaim semantic = legal truth");
         adr.Should().MatchRegex("not.*commit gate", "ADR must disclaim RAG/LLM faithfulness as default commit gate");
@@ -51,7 +51,7 @@ public sealed class ArchitectureSpineAs056SemanticSupportAdrArchitectureTests
     [Fact]
     public void As056_readme_lists_adr_0085_row()
     {
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, ReadmeRelativePath));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ReadmeRelativePath));
 
         readme.Should().Contain("0085-semantic-support-band-working-career-not-commit-gate.md");
         readme.Should().Contain("AS-056");

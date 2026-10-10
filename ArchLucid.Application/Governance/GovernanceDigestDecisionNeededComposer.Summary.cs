@@ -2,8 +2,6 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
-
 namespace ArchLucid.Application.Governance;
 
 public sealed partial class GovernanceDigestDecisionNeededComposer
@@ -26,7 +24,13 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRepository.GetPendingAsync(50, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
-            _riskRegisterService.GetRegisterAsync(tenantId, workspaceId, projectId, 100, options: null, cancellationToken);
+            _riskRegisterService.GetRegisterAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                DecisionsNeededRiskRegisterPageSize,
+                options: null,
+                cancellationToken);
         Task<IReadOnlyList<FindingReviewEventRecord>> recentTask =
             _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
         Task<IReadOnlyList<RiskExceptionRecord>> activeWaiversTask =
@@ -49,13 +53,9 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
         int unownedHighCount = register.Entries
             .Count(static e => string.IsNullOrWhiteSpace(e.OwnerUserId) && IsHighSeverity(e.Severity));
 
-        int needsEvidenceCount = recent
-            .Where(e => e.Disposition == Disposition.NeedsEvidence)
-            .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
-            .Count();
+        int needsEvidenceCount = GovernanceDigestOpenDispositionSelector.SelectNeedsEvidence(recent).Count;
 
-        int deferredDueCount = recent
-            .Count(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now);
+        int deferredDueCount = GovernanceDigestOpenDispositionSelector.SelectDeferredDue(recent, now).Count;
 
         int waiversExpiringCount = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
             activeWaivers,

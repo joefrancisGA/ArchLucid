@@ -152,10 +152,49 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_false_for_negative_schema_version()
+    {
+        const string json = """
+            {"schemaVersion":-1,"failureClass":"PipelineDeadLetter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_truncated_pipeline_dead_letter_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLette"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_for_all_lowercase_pipeline_dead_letter_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"pipelinedeadletter"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace()
     {
         const string json = "\uFEFF{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
 
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_classifies_pipeline_dead_letter_after_leading_unicode_whitespace_before_open_brace()
+    {
+        const string json = "\u2003{\"schemaVersion\":1,\"failureClass\":\"PipelineDeadLetter\"}";
+
+        // Leading-brace gate uses TrimStart (ASCII whitespace only); writers emit trimmed object JSON (#1203).
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
 
@@ -167,6 +206,36 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
             """;
 
         // AgentExecutionFailureSummaryJson.Serialize and pipeline writers persist object-shaped summaries only.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_boolean_false_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":false}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_whitespace_only_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"   "}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_numeric_failure_class_token()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":1}
+            """;
+
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
 
@@ -201,6 +270,26 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
 
         // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_null_failure_class_literal()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":null}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_pipeline_dead_lettered_typo_suffix_failure_class()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLettered"}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
 
     [Fact]

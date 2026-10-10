@@ -142,6 +142,136 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_persists_container_registry_login_server()
+    {
+        const string json = """
+            {
+              "loginServer": "acraephidevwus001.azurecr.io",
+              "adminUserEnabled": false
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.ContainerRegistry/registries",
+            document.RootElement,
+            []);
+
+        Assert.Equal("acraephidevwus001.azurecr.io", properties["loginServer"]);
+        Assert.DoesNotContain(properties.Keys, key => key.Contains("password", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Expand_persists_container_and_init_container_images()
+    {
+        const string json = """
+            {
+              "template": {
+                "containers": [
+                  {
+                    "image": "acraephidevwus001.azurecr.io/app-one:1"
+                  },
+                  {
+                    "image": "acraephidevwus001.azurecr.io/app-two:2"
+                  }
+                ],
+                "initContainers": [
+                  {
+                    "image": "acraephidevwus001.azurecr.io/init:3"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "SECRET",
+                    "value": "do-not-store"
+                  }
+                ]
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.App/containerApps",
+            document.RootElement,
+            []);
+
+        Assert.Equal("acraephidevwus001.azurecr.io/app-one:1", properties["container.image[0]"]);
+        Assert.Equal("acraephidevwus001.azurecr.io/app-two:2", properties["container.image[1]"]);
+        Assert.Equal("acraephidevwus001.azurecr.io/init:3", properties["container.image[2]"]);
+        Assert.DoesNotContain(
+            properties.Values,
+            value => value?.ToString()?.Contains("do-not-store", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public void Expand_persists_only_docker_web_app_images()
+    {
+        const string dockerJson = """
+            {
+              "siteConfig": {
+                "linuxFxVersion": "DOCKER|acraephidevwus001.azurecr.io/app:1"
+              }
+            }
+            """;
+        const string runtimeJson = """
+            {
+              "siteConfig": {
+                "linuxFxVersion": "DOTNET|8.0"
+              }
+            }
+            """;
+
+        using JsonDocument dockerDocument = JsonDocument.Parse(dockerJson);
+        using JsonDocument runtimeDocument = JsonDocument.Parse(runtimeJson);
+        Dictionary<string, object?> dockerProperties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Web/sites",
+            dockerDocument.RootElement,
+            []);
+        Dictionary<string, object?> runtimeProperties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Web/sites",
+            runtimeDocument.RootElement,
+            []);
+
+        Assert.Equal("acraephidevwus001.azurecr.io/app:1", dockerProperties["container.image[0]"]);
+        Assert.DoesNotContain("container.image[0]", runtimeProperties.Keys);
+    }
+
+    [Fact]
+    public void Expand_persists_restore_point_collection_source_id()
+    {
+        const string sourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        string json = $$"""
+            {
+              "source": {
+                "id": "{{sourceId}}"
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/restorePointCollections",
+            document.RootElement,
+            []);
+
+        Assert.Equal(sourceId, properties["source.id"]);
+    }
+
+    [Fact]
+    public void Expand_does_not_invent_restore_point_collection_source_id()
+    {
+        using JsonDocument document = JsonDocument.Parse("{}");
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/restorePointCollections",
+            document.RootElement,
+            []);
+
+        Assert.DoesNotContain("source.id", properties.Keys);
+    }
+
+    [Fact]
     public void Expand_persists_standard_logic_app_site_connection_parameters()
     {
         const string json = """

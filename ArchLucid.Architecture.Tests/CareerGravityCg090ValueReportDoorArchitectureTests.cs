@@ -14,9 +14,9 @@ public sealed class CareerGravityCg090ValueReportDoorArchitectureTests
     [Fact]
     public void Cg090_value_report_wires_route_career_honesty_strip()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "insights", "value-report-career-honesty.ts"));
-        string pageView = File.ReadAllText(
+        string pageView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -38,7 +38,7 @@ public sealed class CareerGravityCg090ValueReportDoorArchitectureTests
     [Fact]
     public void Cg090_docs_record_value_report_rehearsal_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-090");

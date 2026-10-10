@@ -33,9 +33,9 @@ archlucid pilot ship-gate-evidence \
   --ui-base-url https://<staging-ui-host>
 ```
 
-## Pinned RC34 dispatch recipe
+## Pinned RC35 dispatch recipe
 
-For the RC34 cut, use the owner-approved immutable commit `e59cffa423` (replace
+For the RC35 cut, use the owner-approved immutable commit `c059d8a2e2` (replace
 it only after the release owner records a newer approved SHA). Run the staging
 deployment workflow with that SHA, then run the evidence command against the
 completed committed run:
@@ -43,7 +43,7 @@ completed committed run:
 ```bash
 gh workflow run "CD staging on merge" \
   --ref master \
-  -f target_sha=e59cffa423
+  -f target_sha=c059d8a2e2
 
 archlucid pilot ship-gate-evidence \
   --run-id <committed-run-guid> \

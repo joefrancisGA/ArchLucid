@@ -14,12 +14,14 @@ export type FindingTrustLabelName =
   | "MissingCitation"
   | "DeterministicFallback"
   | "DeterministicRule";
+export type FindingTrustPresentationLabel = FindingTrustLabelName | "NotStored";
 
 export type FindingProvenanceOrigin =
   | "Deterministic rule"
   | "Deterministic fallback"
   | "AI-generated"
   | "Simulated";
+export type FindingProvenanceOriginDisplay = FindingProvenanceOrigin | "Trust label was not stored";
 
 export type FindingProvenanceGrounding =
   | "Evidence-backed"
@@ -29,11 +31,11 @@ export type FindingProvenanceGrounding =
   | "Not applicable";
 
 export type FindingProvenanceDisplay = {
-  readonly origin: FindingProvenanceOrigin;
+  readonly origin: FindingProvenanceOriginDisplay;
   readonly grounding: FindingProvenanceGrounding;
 };
 
-export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOrigin, string> = {
+export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOriginDisplay, string> = {
   "Deterministic rule":
     "A deterministic policy rule fired; the rationale comes from the rule definition, not a model.",
   "Deterministic fallback":
@@ -42,6 +44,8 @@ export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOri
     "A language model produced this finding; check the grounding label and linked evidence before signing off.",
   Simulated:
     "Produced by the deterministic simulator, not a live model — do not cite as real-model evidence.",
+  "Trust label was not stored":
+    "The finding did not include a stored trust label.",
 };
 
 const TRUST_LABEL_NAMES: ReadonlySet<string> = new Set<string>([
@@ -122,18 +126,12 @@ export type DeriveFindingTrustLabelInput = {
 };
 
 export type DeriveFindingTrustLabelResult = {
-  readonly label: FindingTrustLabelName;
-  readonly source: "wire" | "inferred";
+  readonly label: FindingTrustPresentationLabel;
+  readonly source: "wire" | "inferred" | "not-stored";
 };
 
-/**
- * Prefer an explicit trust label from the wire; otherwise infer from fields already on
- * finding rows (policy rule id, evidence count, confidence, run mode).
- *
- * Inference exists only for API responses predating wire `trustLabel` enrichment — remove
- * once all serving paths populate authoritative labels (run detail, inspect, exports).
- */
-export function deriveFindingTrustLabelName(input: DeriveFindingTrustLabelInput): FindingTrustLabelName {
+/** Prefer an explicit trust label from the wire; otherwise preserve the absence as stored-state copy. */
+export function deriveFindingTrustLabelName(input: DeriveFindingTrustLabelInput): FindingTrustPresentationLabel {
   return deriveFindingTrustLabel(input).label;
 }
 
@@ -144,36 +142,17 @@ export function deriveFindingTrustLabel(input: DeriveFindingTrustLabelInput): De
     return { label: explicit, source: "wire" };
   }
 
-  if (input.isSimulatorRun === true) {
-    return { label: "SimulatorDerived", source: "inferred" };
-  }
-
-  const policyRuleId = (input.policyRuleId ?? "").trim();
-
-  if (policyRuleId.length > 0) {
-    return { label: "DeterministicRule", source: "inferred" };
-  }
-
-  const evidenceCount = input.evidenceRefCount ?? 0;
-  const confidence = (input.confidenceLevel ?? "").trim();
-
-  if (evidenceCount <= 0) {
-    if (confidence === "Low") {
-      return { label: "Heuristic", source: "inferred" };
-    }
-
-    return { label: "MissingCitation", source: "inferred" };
-  }
-
-  if (confidence === "Low") {
-    return { label: "Estimated", source: "inferred" };
-  }
-
-  return { label: "EvidenceBacked", source: "inferred" };
+  return { label: "NotStored", source: "not-stored" };
 }
 
 export function resolveFindingProvenance(input: DeriveFindingTrustLabelInput): FindingProvenanceDisplay {
-  return mapFindingTrustLabelToProvenance(deriveFindingTrustLabelName(input));
+  const label = deriveFindingTrustLabel(input).label;
+
+  if (label === "NotStored") {
+    return { origin: "Trust label was not stored", grounding: "Not applicable" };
+  }
+
+  return mapFindingTrustLabelToProvenance(label);
 }
 
 export type FindingProvenanceAggregateCounts = {

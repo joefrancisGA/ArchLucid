@@ -19,7 +19,7 @@ public sealed class ArchitectureSpineAs091RestrictedShareIdorArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-091");
         source.Should().Contain("GetArchitecture_WhenUnshared_Returns404_Not200");
@@ -39,7 +39,7 @@ public sealed class ArchitectureSpineAs091RestrictedShareIdorArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("Unshared_user_cannot_get_restricted_architecture_sql");
         source.Should().Contain("Unshared_user_cannot_list_restricted_architecture_title_sql");
@@ -55,7 +55,7 @@ public sealed class ArchitectureSpineAs091RestrictedShareIdorArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("EnsureArchitectureReadAllowedAsync");
         source.Should().Contain("EnsureRunReadAllowedAsync");

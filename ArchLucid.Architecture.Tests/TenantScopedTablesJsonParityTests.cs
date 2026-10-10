@@ -13,8 +13,8 @@ public sealed class TenantScopedTablesJsonParityTests
     [Fact]
     public void Tenant_scoped_tables_json_matches_classification_matrix_buckets()
     {
-        string matrixText = File.ReadAllText(GetRepoPath("docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md"));
-        string jsonText = File.ReadAllText(GetRepoPath("scripts/ci/data/tenant_scoped_tables.v1.json"));
+        string matrixText = ArchitectureSourceProbe.ReadPathWithPartials(GetRepoPath("docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md"));
+        string jsonText = ArchitectureSourceProbe.ReadPathWithPartials(GetRepoPath("scripts/ci/data/tenant_scoped_tables.v1.json"));
 
         IReadOnlySet<string> expectedTriple = ParseBucket(matrixText, "scope-triple-on-row");
         IReadOnlySet<string> expectedTenant = ParseBucket(matrixText, "tenant-id-on-row");

@@ -116,7 +116,7 @@ export function RunDetailManifestSummarySection(
             </dd>
             <dt className={definitionLabelClass}>Seal scope</dt>
             <dd className={cn("m-0", definitionValueClass)}>
-              The seal describes this finalized review package; it does not seal later workspace decisions.
+              The seal describes this finalized architecture package; it does not seal later workspace decisions.
             </dd>
             <dt className={definitionLabelClass}>{evaluationStandardsLabel}</dt>
             <dd className={cn("m-0", definitionValueClass)}>
@@ -181,7 +181,7 @@ export function RunDetailManifestSummarySection(
                     These standards were recorded when the review was finalized.
                   </p>
                   <p className="m-0">
-                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "None"}
+                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "Cloud target was not stored."}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled
                       ? " · Focused review scope"
                       : null}

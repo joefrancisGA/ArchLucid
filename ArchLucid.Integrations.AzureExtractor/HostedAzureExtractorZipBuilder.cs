@@ -109,14 +109,8 @@ public static class HostedAzureExtractorZipBuilder
                 };
         }
 
-        HashSet<string> privateLinkOnlyNicArmIds =
-            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
-
+        // Serialize complete collected inventory; diagrams choose their own visible projection.
         object[] resourceRows = resources
-            .Where(r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
-                r.ResourceType,
-                r.ResourceId,
-                privateLinkOnlyNicArmIds))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,

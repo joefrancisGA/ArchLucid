@@ -47,5 +47,5 @@ public sealed class InsightDensityTenantFlagOverrides
     } = InsightDensityTenantFlagOverride.Absent;
 
     /// <summary>No tenant scope, or a tenant that has stored nothing — every flag inherits the mode default.</summary>
-    public static InsightDensityTenantFlagOverrides None { get; } = new();
+    public static readonly InsightDensityTenantFlagOverrides None = new();
 }

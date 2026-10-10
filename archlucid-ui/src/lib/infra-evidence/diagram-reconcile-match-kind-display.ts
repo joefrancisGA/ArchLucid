@@ -42,7 +42,7 @@ export function formatDiagramReconcileEdgeGapKindLabel(gapKind: string): string 
   const normalized = gapKind.trim();
 
   if (normalized.length === 0) {
-    return "Gap not classified";
+    return "Gap kind was not stored.";
   }
 
   switch (normalized) {

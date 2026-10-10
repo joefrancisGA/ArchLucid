@@ -142,6 +142,8 @@ internal static partial class RunExplanationAggregateJsonReader
             if (element.TryGetDouble(out double numeric)
                 && double.IsFinite(numeric)
                 && numeric >= 0
+                // Bound the conversion because an out-of-range double-to-int cast saturates instead of failing.
+                && numeric <= int.MaxValue
                 && numeric == Math.Floor(numeric))
             {
                 value = (int)numeric;

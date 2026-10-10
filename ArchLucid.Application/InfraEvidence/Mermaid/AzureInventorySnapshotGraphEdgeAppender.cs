@@ -32,36 +32,23 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         }
 
         string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
+        int existingIndex = -1;
 
         if (!edgeKeys.Add(edgeKey))
         {
-            int existingIndex = edges.FindIndex(edge =>
+            existingIndex = edges.FindIndex(edge =>
                 string.Equals(edge.FromNodeId, fromNodeId, StringComparison.Ordinal)
                 && string.Equals(edge.ToNodeId, toNodeId, StringComparison.Ordinal)
                 && string.Equals(edge.EdgeType, edgeType, StringComparison.Ordinal));
 
-            if (existingIndex >= 0
-                && ProvenanceRank(provenanceKind) > ProvenanceRank(edges[existingIndex].ProvenanceKind))
+            if (existingIndex < 0
+                || ProvenanceRank(provenanceKind) <= ProvenanceRank(edges[existingIndex].ProvenanceKind))
             {
-                edges[existingIndex] = new GraphEdge
-                {
-                    EdgeId = $"edge-{edgeKey}",
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
-                    EdgeType = edgeType,
-                    Label = string.IsNullOrWhiteSpace(label) ? edgeType : label,
-                    Weight = 1.0d,
-                    InferenceSource = inferenceSource,
-                    ProvenanceKind = string.IsNullOrWhiteSpace(provenanceKind)
-                        ? ProvenanceKind.ObservedFact.ToString()
-                        : provenanceKind,
-                };
+                return;
             }
-
-            return;
         }
 
-        edges.Add(new GraphEdge
+        GraphEdge edge = new()
         {
             EdgeId = $"edge-{edgeKey}",
             FromNodeId = fromNodeId,
@@ -73,7 +60,16 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             ProvenanceKind = string.IsNullOrWhiteSpace(provenanceKind)
                 ? ProvenanceKind.ObservedFact.ToString()
                 : provenanceKind,
-        });
+        };
+
+        if (existingIndex >= 0)
+        {
+            edges[existingIndex] = edge;
+        }
+        else
+        {
+            edges.Add(edge);
+        }
     }
 
     private static int ProvenanceRank(string? provenanceKind)

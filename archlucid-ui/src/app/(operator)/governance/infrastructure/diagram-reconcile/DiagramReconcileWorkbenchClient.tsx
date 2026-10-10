@@ -199,6 +199,14 @@ function normalizeDiagramLabelForMapping(label: string): string {
   return namePart.toLowerCase();
 }
 
+export function formatDiagramReconcileAssociationType(value: string | null): string {
+  return value?.trim() || "Association type was not stored.";
+}
+
+export function formatDiagramReconcileAzureResourceId(value: string | null): string {
+  return value ?? "Azure resource id was not stored.";
+}
+
 function buildDiagramReconcileCorrespondenceAskHref(
   pathname: string,
   currentSearch: string,
@@ -1164,7 +1172,7 @@ export function DiagramReconcileWorkbenchClient() {
         const item = buildDiagramReconcileOperationalFindingRequestItem(row, runId.trim(), selectedSnapshotId.trim());
         const result = await ingestOperationalSecurityFindings({ items: [item] });
         const ingestItem = result.items?.[0];
-        const outcome = ingestItem?.outcome ?? "Unknown";
+        const outcome = ingestItem?.outcome ?? "Ingest outcome was not stored.";
         const findingId = ingestItem?.findingId?.trim() ?? "";
 
         if (findingId.length > 0) {
@@ -1904,7 +1912,9 @@ export function DiagramReconcileWorkbenchClient() {
                       ) : null}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
-                      <span className="break-all font-mono text-xs">{row.azureResourceId ?? "—"}</span>
+                      <span className="break-all font-mono text-xs">
+                        {formatDiagramReconcileAzureResourceId(row.azureResourceId)}
+                      </span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{explanation}</EnterpriseTableCell>
                     <EnterpriseTableCell>
@@ -2069,9 +2079,9 @@ export function DiagramReconcileWorkbenchClient() {
                       data-testid={`infra-diagram-reconcile-edge-gap-${gap.edgeGapId}`}
                     >
                       <EnterpriseTableCell>
-                        {gap.fromCloudResourceId ?? "—"} → {gap.toCloudResourceId ?? "—"}
+                        {gap.fromCloudResourceId ?? "From resource id was not stored."} → {gap.toCloudResourceId ?? "To resource id was not stored."}
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell>{gap.associationType ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>{formatDiagramReconcileAssociationType(gap.associationType)}</EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <StatusTag
                           kind="needs-attention"

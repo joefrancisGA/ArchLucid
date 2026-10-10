@@ -106,6 +106,128 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing()
+    {
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new AgentExecutionReferenceEvaluationOptions { Enabled = true });
+
+        const string parsedJson = """
+                                  {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[null]}
+                                  """;
+
+        FixedCatalog catalog = new(
+        [
+            new AgentOutputReferenceCaseDefinition
+            {
+                CaseId = "null-finding",
+                AgentType = AgentType.Topology,
+                ExpectedFindingCategories = ["Security"],
+            },
+        ]);
+        Mock<IAgentOutputSemanticEvaluator> semantic = new();
+        semantic
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentType>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentOutputSemanticScore
+            {
+                TraceId = "tr1",
+                AgentType = AgentType.Topology,
+                OverallSemanticScore = 1.0,
+            });
+        Mock<IAgentOutputEvaluationResultRepository> results = new();
+        results
+            .Setup(r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        AgentOutputReferenceCaseRunEvaluator sut = new(
+            options.Object,
+            catalog,
+            new AgentOutputEvaluator(),
+            semantic.Object,
+            results.Object,
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "tr1",
+            RunId = "run-1",
+            TaskId = "t1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        Func<Task> act = () => sut.EvaluateTraceAsync(trace, "run-1", CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+        results.Verify(
+            r => r.AppendAsync(
+                It.Is<AgentOutputEvaluationResultRecord>(row =>
+                    row.CaseId == "null-finding"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum()
+    {
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new AgentExecutionReferenceEvaluationOptions { Enabled = true });
+
+        const string parsedJson = """
+                                  {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[null]}
+                                  """;
+
+        FixedCatalog catalog = new(
+        [
+            new AgentOutputReferenceCaseDefinition
+            {
+                CaseId = "null-finding-minimum",
+                AgentType = AgentType.Topology,
+                MinimumFindingCount = 1,
+            },
+        ]);
+        Mock<IAgentOutputSemanticEvaluator> semantic = new();
+        semantic
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentType>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentOutputSemanticScore
+            {
+                TraceId = "tr1",
+                AgentType = AgentType.Topology,
+                OverallSemanticScore = 1.0,
+            });
+
+        AgentOutputReferenceCaseRunEvaluator sut = new(
+            options.Object,
+            catalog,
+            new AgentOutputEvaluator(),
+            semantic.Object,
+            Mock.Of<IAgentOutputEvaluationResultRepository>(),
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "tr1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        bool passing = await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None);
+
+        passing.Should().BeFalse();
+    }
+
     [SkippableFact]
     public async Task ComputeAnyPassingReferenceCase_returns_false_when_composite_semantic_below_minimum()
     {

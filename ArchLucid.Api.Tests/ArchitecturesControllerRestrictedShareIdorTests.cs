@@ -149,6 +149,7 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         ArchitectureIdentityListPage response = ok.Value.Should().BeOfType<ArchitectureIdentityListPage>().Subject;
         response.Items.Should().BeEmpty();
+        response.TotalCount.Should().Be(0);
         response.Items.Should().NotContain(item => item.DisplayName == SecretDisplayName);
     }
 

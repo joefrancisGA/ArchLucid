@@ -87,16 +87,13 @@ public sealed class ArchitectureReviewRobustnessWave40ArchitectureTests
     [Fact]
     public void Suggestion475_476_reference_evidence_admin_export_guards_and_openapi_409()
     {
-        string exportService = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "ReferenceEvidenceAdminExportService.cs"));
-        string controller = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "ReferenceEvidenceAdminController.cs"));
-        string factory = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "ReferenceEvidenceAdminZipResultFactory.cs"));
+        string exportService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/ReferenceEvidenceAdminExportService.cs");
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/ReferenceEvidenceAdminController.cs");
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/ReferenceEvidenceAdminZipResultFactory.cs");
 
         exportService.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
         exportService.Should().Contain("RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync");
         controller.Should().Contain("Status409Conflict");
-        factory.Should().Contain("ConflictProblem");
+        factory.Should().Contain("MapReferenceEvidenceAdminSealedManifestConflict");
     }
 }

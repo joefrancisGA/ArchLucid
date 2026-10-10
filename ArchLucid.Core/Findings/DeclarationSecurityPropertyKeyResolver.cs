@@ -11,6 +11,7 @@ public static class DeclarationSecurityPropertyKeyResolver
             [DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess] =
             [
                 "tf.public_network_access",
+                "tf.public_network_access_enabled",
                 "tf.publicnetworkaccess",
                 "publicNetworkAccess",
             ],

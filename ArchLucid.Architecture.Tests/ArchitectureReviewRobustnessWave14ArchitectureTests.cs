@@ -15,13 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion131_decision_receipt_fail_closed_on_missing_hash()
     {
-        string composer = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptComposer.cs"));
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptComposer.cs");
 
         composer.Should().Contain("Committed-run decision receipts require a manifest hash binding");
 
-        string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestDecisionReceiptExportBinder.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestDecisionReceiptExportBinder.cs");
 
         service.Should().Contain("EnsureSealedManifestHashMatchesOrThrow");
     }
@@ -38,12 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
             .Should()
             .BeTrue();
 
-        string validator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "FindingEvidenceReferentialIntegrityValidator.cs"));
+        string validator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/FindingEvidenceReferentialIntegrityValidator.cs");
 
         validator.Should().Contain("FindingPinnedEvidencePackageReferenceResolver");
     }
@@ -61,13 +54,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
             .Should()
             .BeTrue();
 
-        string capturer = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "ManifestCommittedArtifactInventoryCapturer.cs"));
+        string capturer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestCommittedArtifactInventoryCapturer.cs");
 
         capturer.Should().Contain("HashUtf8");
     }
@@ -75,8 +62,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion134_hasher_b_binds_committed_artifact_inventory()
     {
-        string fingerprint = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Manifest", "GoldenManifestFingerprint.cs"));
+        string fingerprint = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Manifest/GoldenManifestFingerprint.cs");
 
         fingerprint.Should().Contain("committedArtifactInventory");
         fingerprint.Should().Contain("CommittedArtifactInventoryFingerprintRow");
@@ -85,12 +71,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion135_openapi_documents_receipt_and_compare_fingerprints()
     {
-        string openApi = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "OpenApi",
-                "PublicHttpContractSchemasOpenApiDocumentTransformer.cs"));
+        string openApi = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/OpenApi/PublicHttpContractSchemasOpenApiDocumentTransformer.cs");
 
         openApi.Should().Contain("ApplyDecisionReceiptDocument");
         openApi.Should().Contain("ApplyComparisonResult");
@@ -100,12 +81,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion136_execute_and_quality_gate_emit_lifecycle_transitions()
     {
-        string writer = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Common",
-                "BaselineMutationAuditArchitectureDurableWriter.cs"));
+        string writer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Common/BaselineMutationAuditArchitectureDurableWriter.cs");
 
         writer.Should().Contain("execute-started");
         writer.Should().Contain("quality-gate-rejected");
@@ -115,8 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion137_replay_factory_requires_source_header()
     {
-        string factory = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayAuthorityRunRecordFactory.cs"));
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ReplayAuthorityRunRecordFactory.cs");
 
         factory.Should().Contain("source run header is required");
     }
@@ -124,13 +99,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion138_incomplete_execute_asserts_scope()
     {
-        string handler = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "IncompleteAuthorityPipelineExecuteHandler.cs"));
+        string handler = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/IncompleteAuthorityPipelineExecuteHandler.cs");
 
         handler.Should().Contain("ReplayRunScopeAssertionGuard.EnsureCallerScopeMatchesSourceOrThrow");
     }
@@ -138,14 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion139_recovery_verifier_checks_inventory()
     {
-        string verifier = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Commit",
-                "AuthorityCommitRecoveryVerifier.cs"));
+        string verifier = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitRecoveryVerifier.cs");
 
         verifier.Should().Contain("EnsureInventoryConsistentOrThrow");
     }
@@ -153,8 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave14ArchitectureTests
     [Fact]
     public void Suggestion140_manifest_compare_requires_pin_fingerprints()
     {
-        string compare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
+        string compare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/CompareRunsApplicationFacade.cs");
 
         compare.Should().Contain("EnsureCreateTimePinFingerprintsMatchOrThrow");
         compare.Should().Contain("RunComparePinFingerprintGuard");

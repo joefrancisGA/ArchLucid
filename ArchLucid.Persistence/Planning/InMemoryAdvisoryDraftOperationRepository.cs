@@ -40,17 +40,6 @@ public sealed class InMemoryAdvisoryDraftOperationRepository : IAdvisoryDraftOpe
     }
 
     /// <inheritdoc />
-    public Task<AdvisoryDraftOperationRow?> GetByOperationIdAsync(
-        Guid operationId,
-        CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        AdvisoryDraftOperationRow? match = _rows.Values.FirstOrDefault(row => row.OperationId == operationId);
-        return Task.FromResult(match);
-    }
-
-    /// <inheritdoc />
     public Task UpdateAsync(
         AdvisoryDraftOperationRow row,
         CancellationToken cancellationToken)

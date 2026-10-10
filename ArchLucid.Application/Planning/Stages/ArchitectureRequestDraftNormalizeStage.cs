@@ -24,7 +24,8 @@ public sealed class ArchitectureRequestDraftNormalizeStage(
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(extraction);
 
-        progress?.ReportStep(AdvisoryDraftOperationSteps.PostProcessing, 3, AdvisoryDraftOperationSteps.TotalSteps);
+        if (progress is not null)
+            await progress.ReportStepAsync(AdvisoryDraftOperationSteps.PostProcessing, 3, AdvisoryDraftOperationSteps.TotalSteps);
 
         Task<string[]> filteredConstraintsTask = _semanticUniquePass.FilterDuplicatesAsync(
             ArchitectureRequestDraftListKind.Constraints,
@@ -51,7 +52,8 @@ public sealed class ArchitectureRequestDraftNormalizeStage(
         IReadOnlyList<EvidenceContradictedBriefAssumption> evidenceContradictedAssumptions =
             await contradictionsTask;
 
-        progress?.ReportStep(AdvisoryDraftOperationSteps.Completing, 4, AdvisoryDraftOperationSteps.TotalSteps);
+        if (progress is not null)
+            await progress.ReportStepAsync(AdvisoryDraftOperationSteps.Completing, 4, AdvisoryDraftOperationSteps.TotalSteps);
 
         return new DraftArchitectureRequestResponse
         {

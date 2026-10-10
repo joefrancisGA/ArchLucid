@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateAgicTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "ag-1", label: "agic", sourceId: "azurerm_kubernetes_cluster_ingress.main"));
+            ComputeNode(nodeId: "ag-1", label: "agic", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-agic")));
 

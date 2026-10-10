@@ -125,6 +125,43 @@ public sealed class ItsmTenantConnectorCredentialResolverTests
     }
 
     [Fact]
+    public async Task TryResolveInboundWebhookSecretAsync_returns_null_for_jira_when_only_service_now_tenant_inbound_secret_exists()
+    {
+        InMemoryTenantItsmConnectorConnectionRepository repository = new();
+        await repository.UpsertAsync(
+            TenantId,
+            TenantItsmConnectorProvider.ServiceNow,
+            new TenantItsmConnectorConnectionUpsertCommand
+            {
+                InstanceBaseUrl = "https://tenant.service-now.com",
+                InboundWebhookKeyVaultSecretName = "kv-sn-inbound",
+            },
+            CancellationToken.None);
+
+        DictionarySecretProvider secrets = new();
+        secrets.Set("kv-sn-inbound", "snow-inbound-secret");
+
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> inboundMonitor = new();
+        inboundMonitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions
+        {
+            AllowDeploymentWideWebhookSecrets = false,
+        });
+
+        ItsmTenantConnectorCredentialResolver sut = new(
+            repository,
+            secrets,
+            Mock.Of<IOptionsMonitor<IntegrationsItsmOutboundOptions>>(),
+            inboundMonitor.Object);
+
+        string? resolved = await sut.TryResolveInboundWebhookSecretAsync(
+            TenantId,
+            TenantItsmConnectorProvider.Jira,
+            CancellationToken.None);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryResolveOutboundAsync_resolves_deployment_oauth_jira_when_tenant_row_missing()
     {
         IntegrationsItsmOutboundOptions deployment = new()

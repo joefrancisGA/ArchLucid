@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArchLucid.Core.Tests.Findings;
 
+[Trait("Category", "Unit")]
 public sealed class EngineInsightNoveltyRateAggregationTests
 {
     [Fact]

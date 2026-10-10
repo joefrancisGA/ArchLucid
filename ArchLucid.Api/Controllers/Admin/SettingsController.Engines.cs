@@ -66,7 +66,7 @@ public sealed partial class SettingsController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

@@ -30,8 +30,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingExplainabilityDialog.tsx"));
         string findingExplainBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "finding-explain-blocked-reason.ts"));
-        string findingExplainability = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
+        string findingExplainability = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
 
         auditExportHook.Should().Contain("auditExportBlockedReason");
         auditExportHook.Should().Contain("resolveAuditPageExportCareerContext");
@@ -45,10 +44,8 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion516_517_openapi_409_declarations()
     {
-        string signedReviewRecord = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string artifactExports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
+        string signedReviewRecord = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string artifactExports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.RunArtifacts.cs");
 
         signedReviewRecord.Should().Contain("GetRunGoldenManifest");
         signedReviewRecord.Should().Contain("Status409Conflict");
@@ -71,7 +68,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ShareReviewPackageButton.tsx"));
         string compareRuns = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string sponsorRoi = File.ReadAllText(
+        string sponsorRoiSection = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -82,6 +79,16 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorRoiSummarySection.tsx"));
+        string sponsorRoiBoardPack = File.ReadAllText(
+            Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "sponsor-roi-board-pack-api.ts"));
+        string sponsorRoiCsv = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "lib",
+                "api",
+                "downloads-blob-trigger-sponsor-roi-csv-export.ts"));
 
         auditEvidencePackage.Should().Contain("triggerBrowserBlobDownload");
         pilotsCollateral.Should().Contain("downloadScopedProxyFileGet");
@@ -90,8 +97,12 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
         emailRunToSponsor.Should().Contain("downloadPilotFirstValueReportMarkdown");
         shareReviewPackage.Should().Contain("triggerBrowserBlobDownload");
         compareRuns.Should().Contain("formatExportSealedManifestAwareApiError");
-        sponsorRoi.Should().Contain("formatExportSealedManifestAwareApiError");
-        sponsorRoi.Should().Contain("triggerBrowserBlobDownload");
+        sponsorRoiSection.Should().Contain("downloadSponsorRoiBoardPack");
+        sponsorRoiSection.Should().Contain("downloadSponsorRoiCsvExport");
+        sponsorRoiBoardPack.Should().Contain("formatExportSealedManifestAwareApiError");
+        sponsorRoiBoardPack.Should().Contain("triggerBrowserBlobDownload");
+        sponsorRoiCsv.Should().Contain("formatExportSealedManifestAwareApiError");
+        sponsorRoiCsv.Should().Contain("triggerBrowserBlobDownload");
     }
 
     [Fact]

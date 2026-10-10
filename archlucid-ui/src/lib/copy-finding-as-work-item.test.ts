@@ -108,6 +108,19 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(parsed.semanticSupportBandScorerVersion).toBe("as057-v1");
   });
 
+  it("does not invent semantic support values when the wire fields are absent", () => {
+    const text = buildInspectFindingWorkItemBody("json", {
+      ...inspectInput,
+      classification: null,
+      semanticSupportBand: null,
+      semanticSupportBandScorerVersion: null,
+    });
+
+    expect(text).not.toContain("DecisionGradeFinding");
+    expect(text).not.toContain("NotScored");
+    expect(text).not.toContain("as057-v1");
+  });
+
   it("includes Working coverage honesty after severity in markdown exports (FD-07)", () => {
     const withHonesty = {
       ...inspectInput,

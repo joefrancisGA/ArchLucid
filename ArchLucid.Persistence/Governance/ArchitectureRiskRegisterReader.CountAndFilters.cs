@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -8,6 +9,9 @@ namespace ArchLucid.Persistence.Governance;
 
 public sealed partial class ArchitectureRiskRegisterReader
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime-composed filter SQL; FindingsSnapshots scope bound via @TenantId/@WorkspaceId parameters.")]
     public async Task<int> CountAsync(
         Guid tenantId,
         Guid workspaceId,

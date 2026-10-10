@@ -910,9 +910,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
+                    // Subscription check keeps the cross-tenant message. Path check stops
+                    // a same-subscription cursor that leaves Microsoft.Security/secureScores.
                     HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(
                         candidateNextLink,
                         trimmedSubscriptionId);
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        $"subscriptions/{trimmedSubscriptionId}/providers/Microsoft.Security/secureScores");
                     nextLink = candidateNextLink;
                 }
             }

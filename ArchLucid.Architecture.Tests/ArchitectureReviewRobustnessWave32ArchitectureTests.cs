@@ -15,37 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave32ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_escalation_scanner_publisher_job_wiring()
     {
-        string scanner = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "ComplianceDriftEscalationScanner.cs"));
-        string publishing = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "ComplianceDriftIntegrationEventPublishing.cs"));
-        string hosted = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Core",
-                "Hosted",
-                "ComplianceDriftEscalationHostedService.cs"));
-        string job = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Core",
-                "Jobs",
-                "ComplianceDriftEscalationArchLucidJob.cs"));
-        string composition = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Composition",
-                "Startup",
-                "Modules",
-                "ComplianceDriftEscalationCompositionModule.cs"));
+        string scanner = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/ComplianceDriftEscalationScanner.cs");
+        string publishing = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/ComplianceDriftIntegrationEventPublishing.cs");
+        string hosted = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Hosted/ComplianceDriftEscalationHostedService.cs");
+        string job = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Jobs/ComplianceDriftEscalationArchLucidJob.cs");
+        string composition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/Modules/ComplianceDriftEscalationCompositionModule.cs");
 
         scanner.Should().Contain("ComplianceDriftIntegrationEventPublishing.TryPublishEscalatedAsync");
         scanner.Should().Contain("ComplianceDriftEscalationMetricKeys");
@@ -60,10 +34,8 @@ public sealed class ArchitectureReviewRobustnessWave32ArchitectureTests
     [Fact]
     public void Suggestion378_compliance_drift_escalation_leader_lease_and_job_slug()
     {
-        string leaseNames = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Hosted", "HostElectionLeaseNames.cs"));
-        string jobNames = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Jobs", "ArchLucidJobNames.cs"));
+        string leaseNames = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Hosted/HostElectionLeaseNames.cs");
+        string jobNames = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Jobs/ArchLucidJobNames.cs");
 
         leaseNames.Should().Contain("ComplianceDriftEscalationPolling");
         jobNames.Should().Contain("ComplianceDriftEscalation");

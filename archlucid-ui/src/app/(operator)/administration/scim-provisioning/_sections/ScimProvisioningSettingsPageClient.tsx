@@ -561,33 +561,29 @@ export function ScimProvisioningSettingsPageClient() {
         )}
       </div>
 
-      {!buyerPolishedShell ? (
-        <>
-          <ScimProvisioningCreateConfirmDialog
-            open={pendingCreate}
-            busy={issuing}
-            onCancel={() => {
-              setPendingCreate(false);
-            }}
-            onConfirm={() => {
-              void createToken();
-            }}
-          />
+      <ScimProvisioningCreateConfirmDialog
+        open={pendingCreate}
+        busy={issuing}
+        onCancel={() => {
+          setPendingCreate(false);
+        }}
+        onConfirm={() => {
+          void createToken();
+        }}
+      />
 
-          <ScimProvisioningRevokeConfirmDialog
-            open={pendingRevoke !== null}
-            busy={revokingId !== null}
-            onCancel={() => {
-              setPendingRevoke(null);
-            }}
-            onConfirm={() => {
-              if (pendingRevoke !== null) {
-                void revokeToken(pendingRevoke.id);
-              }
-            }}
-          />
-        </>
-      ) : null}
+      <ScimProvisioningRevokeConfirmDialog
+        open={pendingRevoke !== null}
+        busy={revokingId !== null}
+        onCancel={() => {
+          setPendingRevoke(null);
+        }}
+        onConfirm={() => {
+          if (pendingRevoke !== null) {
+            void revokeToken(pendingRevoke.id);
+          }
+        }}
+      />
     </OperatorPageContainer>
   );
 }

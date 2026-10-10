@@ -16,7 +16,7 @@ public sealed class TenantIsolationDefenseInDepthArchitectureTests
         string path = Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0037-tenant-isolation-without-rls-defense-in-depth.md");
         File.Exists(path).Should().BeTrue("ADR 0037 must exist");
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("**Status:** Accepted");
         text.Should().Contain("does not use SQL Row-Level Security");
     }
@@ -32,7 +32,7 @@ public sealed class TenantIsolationDefenseInDepthArchitectureTests
     public void ArchLucid_sql_contains_no_rls_objects()
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql");
-        string sql = File.ReadAllText(path);
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         // ADR 0037: RLS was removed; the consolidated schema must never re-introduce it.
         sql.Should().NotContainAny(
@@ -52,7 +52,7 @@ public sealed class TenantIsolationDefenseInDepthArchitectureTests
             "Rules",
             "ProductionSafetyRules.cs");
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("CollectSingleCatalogDisallowedInProductionLike");
         text.Should().Contain("SystemWithPerTenantCatalogs");
     }

@@ -125,6 +125,7 @@ public sealed class TenantHomepageSettingsController(
         if (scopeProblem is not null)
             return scopeProblem;
 
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
         string actorUserId = _actorContext.GetActorId();
         string actorUserName = User?.Identity?.Name ?? actorUserId;
         FeaturedCompletedSampleSnapshot snapshot;
@@ -141,6 +142,7 @@ public sealed class TenantHomepageSettingsController(
                     new AuditEvent
                     {
                         EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
+                        ExplicitActor = true,
                         ActorUserId = actorUserId,
                         ActorUserName = actorUserName,
                         TenantId = scope.TenantId,
@@ -170,7 +172,7 @@ public sealed class TenantHomepageSettingsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         bool isIdenticalRetry = before.IsConfigured && before.SelectedRunId == body.SelectedRunId.Value;
@@ -181,6 +183,7 @@ public sealed class TenantHomepageSettingsController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TenantHomepageSettingsUpdated,
+                    ExplicitActor = true,
                     ActorUserId = actorUserId,
                     ActorUserName = actorUserName,
                     TenantId = scope.TenantId,

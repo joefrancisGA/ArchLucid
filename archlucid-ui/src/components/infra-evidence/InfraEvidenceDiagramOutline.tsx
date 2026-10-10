@@ -60,7 +60,7 @@ import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-conn
 const OUTLINE_NODES_OPEN_STORAGE_KEY = "infra-diagrams-outline-nodes-open";
 const OUTLINE_EDGES_OPEN_STORAGE_KEY = "infra-diagrams-outline-edges-open";
 
-type ConnectionStateKey = "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown";
+type ConnectionStateKey = "Connected" | "Used" | "Orphaned" | "Unconnected" | "Unknown" | "NotStored";
 
 function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): string {
   switch (state) {
@@ -76,12 +76,19 @@ function resolveOutlineConnectionStateSectionLabel(state: ConnectionStateKey): s
     case "Unconnected":
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION;
 
+    case "NotStored":
+      return "Connection state was not stored.";
+
     default:
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
   }
 }
 
 function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
+  if (node.connectionState == null) {
+    return "No connection state detail was stored.";
+  }
+
   const details = node.unresolvedRelationshipDetails ?? [];
 
   if (details.length > 0) {
@@ -94,7 +101,11 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   if (questionableReason.length > 0) {
     return questionableAction.length > 0
       ? `${questionableReason} Recommended action: ${questionableAction}`
-      : questionableReason;
+      : `${questionableReason} Recommended action was not stored.`;
+  }
+
+  if (questionableAction.length > 0) {
+    return `${questionableAction} Question reason was not stored.`;
   }
 
   const separatorIndex = node.label.indexOf(" · ");
@@ -199,6 +210,7 @@ function downloadDiagramOutlineJson(
 ): void {
   const payload = {
     exportKind: `ArchLucid.InfraEvidenceDiagram.${kind}.v1`,
+    note: "These rows are the diagram outline. Edges may be observed, declared, probable, or inferred. A property that is absent was not stored.",
     [kind]: rows,
   };
 
@@ -460,26 +472,28 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
     [connectedNodeIds, outline.nodes],
   );
   const stateRows = useMemo(() => {
-    const stateByNodeId = new Map<string, InfraEvidenceMermaidOutlineNode["connectionState"]>();
+    const stateByNodeId = new Map<string, ConnectionStateKey>();
 
     for (const node of outline.nodes) {
-      stateByNodeId.set(node.id, node.connectionState);
-    }
-
-    for (const node of allConnectedNodes) {
-      if (stateByNodeId.get(node.id) == null) {
-        stateByNodeId.set(node.id, "Connected");
-      }
+      stateByNodeId.set(node.id, node.connectionState ?? "NotStored");
     }
 
     for (const node of allUnconnectedNodes) {
       if (stateByNodeId.get(node.id) == null) {
-        stateByNodeId.set(node.id, "Unknown");
+        stateByNodeId.set(node.id, "NotStored");
+      }
+    }
+
+    for (const node of allConnectedNodes) {
+      if (node.connectionState === null) {
+        stateByNodeId.set(node.id, "NotStored");
+      } else if (node.connectionState === undefined) {
+        stateByNodeId.set(node.id, "NotStored");
       }
     }
 
     const rows = new Map<string, readonly InfraEvidenceMermaidOutlineNode[]>();
-    for (const state of ["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const) {
+    for (const state of ["Connected", "Used", "Orphaned", "Unconnected", "Unknown", "NotStored"] as const) {
       rows.set(
         state,
         sortInfraEvidenceDiagramOutlineNodes(
@@ -560,7 +574,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       <div className="flex flex-col gap-4 p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Download the structured evidence behind this diagram.
+            Download the nodes and edges for this diagram. The file includes observed, declared, probable, and inferred rows. An absent property was not stored.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -618,7 +632,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       : `ArchLucid has questions about ${unknownNodes.length} resources.`}
                   </p>
                 ) : null}
-                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown"] as const).map((state) => {
+                {(["Connected", "Used", "Orphaned", "Unconnected", "Unknown", "NotStored"] as const).map((state) => {
                   const nodes = stateRows.get(state) ?? [];
 
                   if (nodes.length === 0) {
@@ -631,7 +645,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     nodes={nodes}
                     sectionLabel={resolveOutlineConnectionStateSectionLabel(state)}
                     sectionTestId={`infra-diagrams-${state.toLowerCase()}-nodes-list`}
-                    showProblem={state === "Orphaned" || state === "Unknown"}
+                    showProblem={state === "Orphaned" || state === "Unknown" || state === "NotStored"}
                     nodeSortKey={nodeSortKey}
                     nodeSortDir={nodeSortDir}
                     onSort={handleNodeSort}

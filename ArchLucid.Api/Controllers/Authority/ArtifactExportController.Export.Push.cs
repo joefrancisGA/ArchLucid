@@ -135,6 +135,11 @@ public sealed partial class ArtifactExportController
         if (sealedHashProblem is not null)
             return sealedHashProblem;
 
+        IActionResult? careerBlockedResult = await ResolveRunExportCareerPostureBlockedResultAsync(runId, scope, ct);
+
+        if (careerBlockedResult is not null)
+            return careerBlockedResult;
+
         ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
 
         try
@@ -172,7 +177,7 @@ public sealed partial class ArtifactExportController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
 }

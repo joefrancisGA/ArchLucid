@@ -42,12 +42,7 @@ public sealed class SystemNotJobSn031VitestSpawnLockNotWritableArchitectureTests
     [Fact]
     public void Sn031_application_test_blocks_patch_on_run_spawned_status()
     {
-        string applicationTest = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application.Tests",
-                "Drafts",
-                "DraftRequestSpawnLockPatchBlockedTests.cs"));
+        string applicationTest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Drafts/DraftRequestSpawnLockPatchBlockedTests.cs");
 
         applicationTest.Should().Contain("SN-031");
         applicationTest.Should().Contain("DraftRequestStatus.RunSpawned");

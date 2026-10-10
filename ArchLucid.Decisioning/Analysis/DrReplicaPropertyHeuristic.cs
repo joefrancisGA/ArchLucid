@@ -81,10 +81,16 @@ public static class DrReplicaPropertyHeuristic
     {
         string normalized = value.Trim();
 
+        // account_replication_type contains "replica", so a single-region SKU would otherwise
+        // satisfy an RPO check. LRS and ZRS (including Standard_ and Premium_ prefixes) do not.
+        if (StorageRedundancySku.IsSingleRegion(normalized))
+        {
+            return true;
+        }
+
         return string.Equals(normalized, "false", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "disabled", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "none", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(normalized, "lrs", StringComparison.OrdinalIgnoreCase)
             || string.Equals(normalized, "0", StringComparison.OrdinalIgnoreCase);
     }
 }

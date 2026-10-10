@@ -22,6 +22,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 import { HelpTopicCatchallResidualView } from "@/app/(operator)/help/_sections/HelpTopicCatchallResidualView";
 import {
   HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE,
+  HELP_TOPIC_CATCHALL_CLAIM_HEADING_ID,
   HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE,
   HELP_TOPIC_CATCHALL_SOURCES,
 } from "@/lib/help/help-topic-catchall-evidence-copy";
@@ -107,6 +108,8 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "What this guide does not cover" })).not.toBeInTheDocument();
+    expect(document.getElementById(HELP_TOPIC_CATCHALL_CLAIM_HEADING_ID)).toBeNull();
 
     expectWhereToGoNextFollowUpLinks(within(sourcesSection), HELP_TOPIC_CATCHALL_SOURCES, "/");
 

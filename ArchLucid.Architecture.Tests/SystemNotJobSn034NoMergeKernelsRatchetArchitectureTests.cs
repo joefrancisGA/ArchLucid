@@ -39,13 +39,7 @@ public sealed class SystemNotJobSn034NoMergeKernelsRatchetArchitectureTests
     [Fact]
     public void Sn034_compare_service_stays_run_based_not_draft_based()
     {
-        string compareService = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Persistence",
-                "Coordination",
-                "Compare",
-                "AuthorityCompareService.cs"));
+        string compareService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Persistence/Coordination/Compare/AuthorityCompareService.cs");
 
         compareService.Should().Contain("CompareRunsAsync");
         compareService.Should().Contain("leftRunId");

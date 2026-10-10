@@ -32,6 +32,17 @@ public sealed class CanonicalInfrastructurePropertyBagTests
     }
 
     [Fact]
+    public void TryAddTfProperty_redacts_hyphenated_sensitive_keys()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfProperty(properties, "access-key", "topsecret")
+            .Should().BeTrue();
+
+        properties["tf.access-key"].Should().Be("[REDACTED]");
+    }
+
+    [Fact]
     public void TryAddTfProperty_truncates_long_values()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);

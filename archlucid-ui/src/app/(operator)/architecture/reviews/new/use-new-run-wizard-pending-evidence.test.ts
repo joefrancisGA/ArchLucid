@@ -172,4 +172,87 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     expect(uploadWizardPendingInventoryEvidence).not.toHaveBeenCalled();
     expect(result.current.evidenceUploadState).toBe("success");
   });
+
+  it("auto-uploads after platform detection when a quick-start run id already exists", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockResolvedValue({ ok: true });
+
+    const file = buildAwsInventoryZipFile();
+
+    const { result, rerender } = renderHook(
+      ({ runId }) =>
+        useNewRunWizardPendingEvidence({
+          runId,
+          autoUploadOnCreate: true,
+          onInventoryFileSelected: vi.fn(),
+        }),
+      { initialProps: { runId: "run-quick-existing" as string | null } },
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(file);
+    });
+
+    await waitFor(() => {
+      expect(uploadWizardPendingInventoryEvidence).toHaveBeenCalledWith(
+        "run-quick-existing",
+        "aws",
+        file,
+        expect.objectContaining({ onUploadProgress: expect.any(Function) }),
+      );
+    });
+
+    rerender({ runId: "run-quick-existing" });
+  });
+
+  it("records automatic inventory upload exceptions as failed evidence uploads", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockRejectedValue(new Error("network unavailable"));
+
+    const file = buildAwsInventoryZipFile();
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-quick-existing",
+        autoUploadOnCreate: true,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(file);
+    });
+
+    await waitFor(() => {
+      expect(result.current.evidenceUploadState).toBe("failed");
+    });
+
+    expect(result.current.evidenceUploadProgressPercent).toBeNull();
+    expect(result.current.evidenceUploadError).toEqual({
+      message: "network unavailable",
+      problem: null,
+      correlationId: null,
+    });
+  });
+
+  it("retains pending inventory selection in hook state for post-submit upload retries", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+
+    const file = buildAwsInventoryZipFile();
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: null,
+        autoUploadOnCreate: false,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(file);
+    });
+
+    await waitFor(() => {
+      expect(result.current.pendingEvidenceFile).toBe(file);
+    });
+  });
 });

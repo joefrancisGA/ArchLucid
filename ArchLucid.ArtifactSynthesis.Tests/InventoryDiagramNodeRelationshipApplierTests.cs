@@ -221,7 +221,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
         owner.NsgInboundRuleChips.Should().HaveCount(4);
-        owner.NsgInboundRuleChips.Should().Contain(chip => chip.Text == "+2");
+        owner.NsgInboundRuleChips.Should().Contain(chip => chip.Text == "2 more inbound rules");
         owner.NsgInboundRuleChips.Should().Contain(chip =>
             chip.Text == "in 3389/TCP · Internet" && chip.IsRisky);
 

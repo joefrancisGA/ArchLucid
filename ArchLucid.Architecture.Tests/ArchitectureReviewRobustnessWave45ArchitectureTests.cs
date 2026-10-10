@@ -28,8 +28,8 @@ public sealed class ArchitectureReviewRobustnessWave45ArchitectureTests
 
         sealedManifestAwareGet.Should().Contain("formatExportSealedManifestAwareApiError");
         signedReviewBlockedReason.Should().Contain("signedReviewRecordBlockedReason");
-        runManifestRead.Should().Contain("apiGetSealedManifestAware");
-        artifactReads.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runManifestRead);
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(artifactReads);
         downloadManifest.Should().Contain("signedReviewRecordBlockedReason");
     }
 
@@ -56,8 +56,7 @@ public sealed class ArchitectureReviewRobustnessWave45ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-sponsor-dashboard-bundle-client.ts"));
         string sponsorDashboardContext = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "sponsor", "SponsorDashboardDataContext.tsx"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
 
         manifestMarkdownExport.Should().Contain("downloadManifestMarkdownExport");
         downloadsTrigger.Should().Contain("downloadManifestMarkdownExport");
@@ -70,10 +69,8 @@ public sealed class ArchitectureReviewRobustnessWave45ArchitectureTests
     [Fact]
     public void Suggestion531_536_learning_reports_and_roi_openapi_409()
     {
-        string learningPlanning = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "LearningController.PlanningReport.cs"));
-        string productLearning = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "ProductLearningController.Triage.cs"));
+        string learningPlanning = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/LearningController.PlanningReport.cs");
+        string productLearning = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/ProductLearningController.Triage.cs");
         string planningExport = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "planning", "PlanningExportReadinessNote.tsx"));
         string productLearningView = File.ReadAllText(
@@ -89,8 +86,7 @@ public sealed class ArchitectureReviewRobustnessWave45ArchitectureTests
                 "ProductLearningPageView.tsx"));
         string infraHubApi = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "infra-evidence", "infra-evidence-hub-api.ts"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
 
         learningPlanning.Should().Contain("GetPlanningReport");
         learningPlanning.Should().Contain("Status409Conflict");

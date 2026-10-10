@@ -14,7 +14,7 @@ public sealed class ArchitectureSpineAs076Adr0086AcceptedArchitectureTests
     [Fact]
     public void As076_adr_0086_working_doors_is_accepted()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "docs",
@@ -29,7 +29,7 @@ public sealed class ArchitectureSpineAs076Adr0086AcceptedArchitectureTests
     [Fact]
     public void As076_vitest_guard_inventory_exists()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture-spine-adr-inventory.ts"));
 
         inventory.Should().Contain("ARCHITECTURE_SPINE_ADR_0086_RELATIVE_PATH");

@@ -213,4 +213,29 @@ public sealed class JsonInfrastructureDeclarationParserTests
         result[0].Name.Should().Be("hub-vnet");
         result[0].ObjectType.Should().Be("TopologyResource");
     }
+
+    [Fact]
+    public async Task ParseAsync_ignoresNonObjectResourceEntries()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "resources.json",
+            Format = "json",
+            DeclarationId = "decl-json-malformed-resource",
+            Content = """
+                      [
+                        "malformed-resource-entry",
+                        {
+                          "type": "storage",
+                          "name": "orders"
+                        }
+                      ]
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("orders");
+    }
 }

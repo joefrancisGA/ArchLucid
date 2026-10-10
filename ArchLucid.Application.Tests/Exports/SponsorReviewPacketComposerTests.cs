@@ -202,4 +202,41 @@ public sealed class SponsorReviewPacketComposerTests
         markdown.Should().Contain("Policy pack: azure-waf @ 2024.1");
         markdown.Should().Contain("## Measurement floor");
     }
+
+    [Fact]
+    public void ComposeMarkdown_uses_omission_copy_for_missing_manifest_summary_values()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = string.Empty },
+            Manifest = new GoldenManifest
+            {
+                RunId = "manifest-1",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                // Empty version (not ManifestMetadata's default "v1") so the composer emits omission copy without CS8625.
+                Metadata = new ManifestMetadata { ManifestVersion = string.Empty },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow);
+
+        markdown.Should().Contain("Manifest version was not stored.");
+        markdown.Should().Contain("Review ID was not stored.");
+        markdown.Should().Contain("- **Status:** Created");
+    }
 }

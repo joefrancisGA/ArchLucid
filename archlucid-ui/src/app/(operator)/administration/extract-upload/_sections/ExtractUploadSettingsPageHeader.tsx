@@ -101,7 +101,10 @@ export function ExtractUploadSettingsPageHeader(
             <ExtractUploadSettingsBreadcrumb />
             {props.extractorScriptVersion !== null ? (
               <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
-                {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}: v{props.extractorScriptVersion}
+                <strong>
+                  {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}:
+                </strong>{" "}
+                v{props.extractorScriptVersion}
               </span>
             ) : null}
           </div>

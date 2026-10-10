@@ -86,6 +86,10 @@ export function SessionExpiredClient() {
         returnUrl={rawReturnUrl}
         sessionClearedAt={sessionClearedAt}
       />
+      <FatalPageReportProblemSupportRow
+        surfaceId="session-expired-idle-timeout"
+        routePath="/auth/session-expired"
+      />
       <PostAuthBootstrapExitActions />
     </>,
   );

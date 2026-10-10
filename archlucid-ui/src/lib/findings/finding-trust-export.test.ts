@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { findingTrustExportJsonFields, formatFindingTrustExportLine } from "./finding-trust-export";
 
 describe("formatFindingTrustExportLine", () => {
-  it("derives canonical label when wire trustLabel is absent", () => {
+  it("preserves missing wire labels in export lines", () => {
     expect(formatFindingTrustExportLine({ policyRuleId: "rule-1", evidenceRefCount: 0 })).toBe(
-      "DeterministicRule",
+      "Trust label was not stored.",
     );
-    expect(formatFindingTrustExportLine({ evidenceRefCount: 0 })).toBe("MissingCitation");
+    expect(formatFindingTrustExportLine({ evidenceRefCount: 0 })).toBe("Trust label was not stored.");
   });
 
   it("formats label with optional reason", () => {
@@ -22,9 +22,9 @@ describe("formatFindingTrustExportLine", () => {
 });
 
 describe("findingTrustExportJsonFields", () => {
-  it("derives json fields when wire label is absent", () => {
+  it("preserves missing wire labels in json fields", () => {
     expect(findingTrustExportJsonFields({ policyRuleId: "rule-1", evidenceRefCount: 0 })).toEqual({
-      trustLabel: "DeterministicRule",
+      trustLabel: "Trust label was not stored.",
     });
   });
 

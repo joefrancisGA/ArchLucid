@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-092");
         source.Should().Contain("useLivelihoodDocumentGuards");
@@ -43,12 +43,12 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
-        source.Should().Contain("AS-092");
-        source.Should().Contain("livelihood guards");
-        source.Should().Contain("opt-in confirmation");
-        source.Should().Contain("TB-2005");
+        source.Should().Contain("wires livelihood document guards when the grant form is dirty");
+        source.Should().Contain("requires confirm restrict before saving restrict-to-shares");
+        source.Should().Contain("useLivelihoodDocumentGuardsMock");
+        source.Should().Contain("architecture-identity-desk-share-restrict-hint");
     }
 
     [Fact]
@@ -63,12 +63,12 @@ public sealed class ArchitectureSpineAs092UiSharePanelArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
-        source.Should().Contain("ListShares");
-        source.Should().Contain("UpsertShare");
-        source.Should().Contain("DeleteShare");
-        source.Should().Contain("EnsureArchitectureShareAdminAllowedAsync");
+        source.Should().Contain("ListArchitectureShares");
+        source.Should().Contain("PutArchitectureShare");
+        source.Should().Contain("RevokeArchitectureShare");
+        source.Should().Contain("EnsureArchitectureIdentityMutationSealedManifestAllowedAsync");
     }
 
     private static string FindRepoRoot()

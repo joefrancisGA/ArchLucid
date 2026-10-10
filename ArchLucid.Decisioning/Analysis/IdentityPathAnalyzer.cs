@@ -69,11 +69,6 @@ public static class IdentityPathAnalyzer
         {
             (string nodeId, int hopCount, List<string> pathNodeIds, string? activeRoleName) = queue.Dequeue();
 
-            if (hopCount >= MaxHopCount)
-            {
-                continue;
-            }
-
             if (!nodesById.TryGetValue(nodeId, out GraphNode? currentNode))
             {
                 continue;
@@ -104,6 +99,12 @@ public static class IdentityPathAnalyzer
                     roleOnPath,
                     hopCount,
                     pathNodeIds.ToList()));
+            }
+
+            // The node at MaxHopCount is still in range. Stop before enqueueing hop MaxHopCount + 1.
+            if (hopCount >= MaxHopCount)
+            {
+                continue;
             }
 
             if (!adjacency.TryGetValue(nodeId, out List<string>? neighbors))

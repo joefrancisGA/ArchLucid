@@ -44,7 +44,7 @@ describe("architectureDraftDisplayName", () => {
     ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
   });
 
-  it("falls back to Untitled architecture when intent is empty", () => {
+  it("reports a missing system name when intent is empty", () => {
     expect(architectureDraftDisplayName(undefined, "   ")).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 });

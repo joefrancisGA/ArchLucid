@@ -16,6 +16,8 @@ public interface IScimUserRepository
 
     Task<ScimUserRecord?> GetByExternalIdAsync(Guid tenantId, string externalId, CancellationToken cancellationToken);
 
+    Task<ScimUserRecord?> GetByUserNameAsync(Guid tenantId, string userName, CancellationToken cancellationToken);
+
     Task<ScimUserRecord> InsertAsync(
         Guid tenantId,
         string externalId,

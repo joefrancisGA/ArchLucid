@@ -275,7 +275,7 @@ public sealed class GovernanceMutationCorrectionService(
         if (approval is null)
             throw new KeyNotFoundException($"Approval request '{approvalRequestId}' was not found.");
 
-        if (!string.Equals(approval.RunId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        if (approval.RunId is null || !GovernanceRunIdNormalizer.AreEquivalent(approval.RunId, normalizedRunId))
             throw new KeyNotFoundException($"Approval request '{approvalRequestId}' was not found.");
 
         if (mutationKind is GovernanceMutationCorrectionKinds.QuickApprove
@@ -296,7 +296,10 @@ public sealed class GovernanceMutationCorrectionService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernancePromotionRecord> promotions =
-            await _promotionRepo.GetByRunIdAsync(normalizedRunId, cancellationToken);
+            await ListByEquivalentRunIdAsync(
+                normalizedRunId,
+                (runId, ct) => _promotionRepo.GetByRunIdAsync(runId, ct),
+                cancellationToken);
 
         bool found = promotions.Any(p =>
             string.Equals(p.PromotionRecordId, promotionRecordId, StringComparison.OrdinalIgnoreCase));
@@ -307,13 +310,15 @@ public sealed class GovernanceMutationCorrectionService(
 
     private static string ValidateArchitectureReviewFinalizeSubject(string subjectId, string normalizedRunId)
     {
-        if (!string.Equals(subjectId.Trim(), normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        string trimmedSubjectId = subjectId.Trim();
+
+        if (!GovernanceRunIdNormalizer.AreEquivalent(trimmedSubjectId, normalizedRunId))
         {
             throw new KeyNotFoundException(
                 $"Architecture review finalize correction subject '{subjectId}' does not match run '{normalizedRunId}'.");
         }
 
-        return normalizedRunId;
+        return trimmedSubjectId;
     }
 
     private async Task ValidateActivationSubjectAsync(
@@ -322,7 +327,10 @@ public sealed class GovernanceMutationCorrectionService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernanceEnvironmentActivation> activations =
-            await _activationRepo.GetByRunIdAsync(normalizedRunId, cancellationToken);
+            await ListByEquivalentRunIdAsync(
+                normalizedRunId,
+                (runId, ct) => _activationRepo.GetByRunIdAsync(runId, ct),
+                cancellationToken);
 
         GovernanceEnvironmentActivation? activation = activations.FirstOrDefault(a =>
             string.Equals(a.ActivationId, activationId, StringComparison.OrdinalIgnoreCase));
@@ -335,5 +343,34 @@ public sealed class GovernanceMutationCorrectionService(
             throw new ConflictException(
                 "Corrections can only be recorded for the active environment activation.");
         }
+    }
+
+    /// <summary>
+    ///     In-memory governance stores match run ids with ordinal string equality. SQL already accepts
+    ///     dashed and canonical-N forms. A second read uses the other form so a correction body can
+    ///     name the same run the workflow persisted from <c>ArchitectureRun.RunId</c>.
+    /// </summary>
+    private static async Task<IReadOnlyList<T>> ListByEquivalentRunIdAsync<T>(
+        string normalizedRunId,
+        Func<string, CancellationToken, Task<IReadOnlyList<T>>> readAsync,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<T> rows = await readAsync(normalizedRunId, cancellationToken);
+
+        if (rows.Count > 0 || !Guid.TryParse(normalizedRunId, out Guid runGuid))
+        {
+            return rows;
+        }
+
+        string alternateRunId = normalizedRunId.Contains('-')
+            ? runGuid.ToString("N")
+            : runGuid.ToString("D");
+
+        if (string.Equals(alternateRunId, normalizedRunId, StringComparison.OrdinalIgnoreCase))
+        {
+            return rows;
+        }
+
+        return await readAsync(alternateRunId, cancellationToken);
     }
 }

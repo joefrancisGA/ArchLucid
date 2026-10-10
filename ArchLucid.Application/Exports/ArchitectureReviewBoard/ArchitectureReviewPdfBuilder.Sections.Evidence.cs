@@ -27,7 +27,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportEvidenceItem item in items)
         {
-            string headline = string.IsNullOrWhiteSpace(item.Title) ? "(Untitled evidence)" : item.Title.Trim();
+            string headline = string.IsNullOrWhiteSpace(item.Title) ? "Evidence title was not stored." : item.Title.Trim();
 
             column.Item().PaddingVertical(2).Text(headline).FontSize(9);
 
@@ -65,7 +65,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
             if (string.IsNullOrWhiteSpace(line.Label))
                 continue;
 
-            rows.Add((line.Label.Trim(), string.IsNullOrWhiteSpace(line.Value) ? "—" : line.Value.Trim()));
+            rows.Add((line.Label.Trim(), string.IsNullOrWhiteSpace(line.Value) ? "Value was not stored" : line.Value.Trim()));
         }
 
         if (rows.Count == 0)

@@ -417,7 +417,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.6"
+$scriptVersion = "0.4.7"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -455,11 +455,7 @@ try
 
     # Companion rows (network associations) may still be derived from never-show attachment types before they are omitted from resources.json.
     $inventoryForAssociationDerivation = @($resources)
-    $resources = @($resources) | Where-Object { -not (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_.resourceType) }
-    [string[]]$privateLinkOnlyNicArmIds = @(Get-ArchLucidAzurePrivateLinkOnlyNicArmIds -InventoryResources @($inventoryForAssociationDerivation))
-    $resources = @($resources) | Where-Object {
-        -not (Test-ArchLucidAzureInventoryNeverShowResource -Resource $_ -PrivateLinkOnlyNicArmIds $privateLinkOnlyNicArmIds)
-    }
+    # Preserve collected evidence; visibility filtering belongs to diagram projections.
 
     $manifest = [ordered]@{
         schemaVersion = $schemaVersion
@@ -698,6 +694,8 @@ try
         }
 
         [System.Collections.ArrayList]$publicIpIpConfigurationFacts = [System.Collections.ArrayList]::new()
+        [System.Collections.ArrayList]$firewallSubnetFacts = [System.Collections.ArrayList]::new()
+        [System.Collections.ArrayList]$virtualNetworkSubnetFacts = [System.Collections.ArrayList]::new()
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
@@ -706,7 +704,9 @@ try
                 [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                     -SubscriptionId $subId `
                     -ResourceGroupScope $ResourceGroupScope `
-                    -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
+                    -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
+                    -FirewallSubnetFacts $firewallSubnetFacts `
+                    -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
 
                 foreach ($argRow in @($argRows))
                 {
@@ -719,7 +719,9 @@ try
             [object[]]$argRows = @(Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph `
                 -SubscriptionId $SubscriptionId `
                 -ResourceGroupScope $ResourceGroupScope `
-                -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts)
+                -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
+                -FirewallSubnetFacts $firewallSubnetFacts `
+                -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
 
             foreach ($argRow in @($argRows))
             {
@@ -769,10 +771,14 @@ try
             -ManagementGroupId $ManagementGroupId)
         [object[]]$adfLinkedServiceRows = @(Get-ArchLucidAzureAdfLinkedServiceCompanionRows -InventoryResources @($resources))
         [object[]]$adfDatasetRows = @(Get-ArchLucidAzureAdfDatasetCompanionRows -InventoryResources @($resources))
-        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows -InventoryResources @($resources))
+        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows `
+            -InventoryResources @($resources) `
+            -DatasetRows @($adfDatasetRows))
+        [object[]]$adfPipelineFlowRows = @(Get-ArchLucidAzureAdfPipelineFlowCompanionRows `
+            -InventoryResources @($resources) `
+            -DataflowRows @($adfDataflowRows))
         [object[]]$adfTriggerRows = @(Get-ArchLucidAzureAdfTriggerCompanionRows -InventoryResources @($resources))
         [object[]]$adfIntegrationRuntimeRows = @(Get-ArchLucidAzureAdfIntegrationRuntimeCompanionRows -InventoryResources @($resources))
-        [object[]]$adfDataflowRows = @(Get-ArchLucidAzureAdfDataflowCompanionRows -InventoryResources @($resources))
         [object[]]$eventGridSubscriptionRows = @(Get-ArchLucidAzureEventGridSubscriptionCompanionRows -InventoryResources @($resources) -SubscriptionId $SubscriptionId)
         [object[]]$logicAppConnectionRows = @(Get-ArchLucidAzureLogicAppConnectionCompanionRows -InventoryResources @($resources))
         [object[]]$messagingAssociationRows = @(Get-ArchLucidAzureMessagingAssociationCompanionRows -InventoryResources @($resources))
@@ -799,6 +805,10 @@ try
         Add-ArchLucidBastionSubnetPropertiesFromAssociations `
             -Resources @($resources) `
             -NetworkAssociations @($networkAssociationRows)
+        Add-ArchLucidFirewallSubnetPropertiesFromFacts `
+            -Resources @($resources) `
+            -FirewallSubnetFacts @($firewallSubnetFacts) `
+            -VirtualNetworkSubnetFacts @($virtualNetworkSubnetFacts)
         Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts `
             -Resources @($resources) `
             -PublicIpIpConfigurationFacts @($publicIpIpConfigurationFacts)

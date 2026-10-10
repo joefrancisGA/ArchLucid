@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGatePolicyRemediationTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "pr-1", label: "remediate", sourceId: "azurerm_policy_remediation.remediate"));
+            ComputeNode(nodeId: "pr-1", label: "remediate", sourceId: "azurerm_storage_account.remediate"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-remediate")));
 

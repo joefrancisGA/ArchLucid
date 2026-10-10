@@ -65,6 +65,29 @@ public sealed class IdentityPathAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_includes_regulated_datastore_exactly_at_hop_cap()
+    {
+        // DX-06 bounds the blast-radius walk to 8 hops. The cap is inclusive: the datastore
+        // on the eighth edge is still in range. The trust-boundary walk uses that same bound.
+        GraphSnapshot graph = BuildContributorChain(IdentityPathAnalyzer.MaxHopCount);
+
+        IReadOnlyList<IdentityBlastRadiusPath> paths = IdentityPathAnalyzer.Analyze(graph);
+
+        IdentityBlastRadiusPath path = paths.Should().ContainSingle().Subject;
+        path.DatastoreLabel.Should().Be("kv-pay-prod");
+        path.RoleName.Should().Be("Contributor");
+        path.HopCount.Should().Be(IdentityPathAnalyzer.MaxHopCount);
+    }
+
+    [Fact]
+    public void Analyze_excludes_regulated_datastore_past_hop_cap()
+    {
+        GraphSnapshot graph = BuildContributorChain(IdentityPathAnalyzer.MaxHopCount + 1);
+
+        IdentityPathAnalyzer.Analyze(graph).Should().BeEmpty();
+    }
+
+    [Fact]
     public void Analyze_null_graph_nodes_does_not_throw()
     {
         GraphSnapshot graph = new() { Nodes = null!, Edges = null! };
@@ -102,6 +125,54 @@ public sealed class IdentityPathAnalyzerTests
         {
             Nodes = [actor, roleAssignment, keyVault],
             Edges = edges,
+        };
+    }
+
+    private static GraphSnapshot BuildContributorChain(int datastoreHopCount)
+    {
+        List<GraphNode> nodes = [];
+        List<GraphEdge> edges = [];
+        GraphNode actor = BuildMachineActor("actor-checkout", "checkout-func");
+        nodes.Add(actor);
+        string previousId = actor.NodeId;
+
+        for (int hop = 1; hop <= datastoreHopCount; hop++)
+        {
+            GraphNode node = hop == datastoreHopCount
+                ? BuildKeyVault("kv-pay-prod", "kv-pay-prod")
+                : hop == 1
+                    ? BuildContributorRole("role-contrib")
+                    : new GraphNode
+                    {
+                        NodeId = $"hop-{hop}",
+                        NodeType = GraphNodeTypes.TopologyResource,
+                        Label = $"link-{hop}",
+                    };
+
+            nodes.Add(node);
+            edges.Add(BuildEdge(previousId, node.NodeId));
+            previousId = node.NodeId;
+        }
+
+        return new GraphSnapshot
+        {
+            Nodes = nodes,
+            Edges = edges,
+        };
+    }
+
+    private static GraphNode BuildContributorRole(string nodeId)
+    {
+        return new GraphNode
+        {
+            NodeId = nodeId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "checkout-contributor-kv",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_role_assignment",
+                ["roleName"] = "Contributor",
+            },
         };
     }
 

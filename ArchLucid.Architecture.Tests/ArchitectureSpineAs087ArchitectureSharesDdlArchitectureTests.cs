@@ -46,6 +46,8 @@ public sealed class ArchitectureSpineAs087ArchitectureSharesDdlArchitectureTests
         ddl.Should().Contain("RestrictToShares");
         ddl.Should().Contain("DF_Architectures_RestrictToShares DEFAULT (0)");
         ddl.Should().Contain("CREATE TABLE dbo.ArchitectureShares");
+        ddl.Should().Contain("ActorOid");
+        ddl.Should().Contain("IX_ArchitectureShares_ActorOid");
     }
 
     [Fact]
@@ -66,7 +68,7 @@ public sealed class ArchitectureSpineAs087ArchitectureSharesDdlArchitectureTests
         string path = Path.Combine(parts);
         File.Exists(path).Should().BeTrue($"expected SQL at {path}");
 
-        return File.ReadAllText(path);
+        return ArchitectureSourceProbe.ReadPathWithPartials(path);
     }
 
     private static string FindRepoRoot()

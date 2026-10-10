@@ -27,7 +27,7 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportDecisionRow row in rows)
         {
-            string title = string.IsNullOrWhiteSpace(row.Title) ? "(Untitled decision)" : row.Title.Trim();
+            string title = string.IsNullOrWhiteSpace(row.Title) ? "Decision title was not stored." : row.Title.Trim();
 
             column.Item().PaddingVertical(2).Text(title).FontSize(9);
 
@@ -61,7 +61,9 @@ public sealed partial class ArchitectureReviewPdfBuilder
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
             string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
-            string summaryText = string.IsNullOrWhiteSpace(risk.Summary) ? "(No summary)" : risk.Summary.Trim();
+            string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
+                ? "Risk summary was not stored."
+                : risk.Summary.Trim();
 
             column.Item().PaddingVertical(2).Text($"{severity}: {summaryText}").FontSize(9);
 
@@ -91,9 +93,12 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
-            string pack =
-                string.IsNullOrWhiteSpace(row.PolicyPackNameOrId) ? "(Policy pack)" : row.PolicyPackNameOrId.Trim();
-            string outcome = string.IsNullOrWhiteSpace(row.Outcome) ? "Outcome n/a" : row.Outcome.Trim();
+            string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
+                ? "Policy pack was not stored."
+                : row.PolicyPackNameOrId.Trim();
+            string outcome = string.IsNullOrWhiteSpace(row.Outcome)
+                ? "Policy outcome was not stored."
+                : row.Outcome.Trim();
 
             column.Item().PaddingVertical(2).Text($"{pack} — {outcome}").FontSize(9);
 

@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateBlueprintDefinitionTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "bp-1", label: "baseline", sourceId: "azurerm_blueprint_definition.baseline"));
+            ComputeNode(nodeId: "bp-1", label: "baseline", sourceId: "azurerm_storage_account.baseline"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-baseline")));
 

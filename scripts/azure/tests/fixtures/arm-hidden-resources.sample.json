@@ -1,0 +1,71 @@
+[
+  {
+    "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi1",
+    "name": "mi1",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded",
+      "clientSecret": "fixture-secret"
+    }
+  },
+  {
+    "resourceType": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1",
+    "name": "link1",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded"
+    }
+  },
+  {
+    "resourceType": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1",
+    "name": "peer1",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded"
+    }
+  },
+  {
+    "resourceType": "Microsoft.Network/privateEndpoints",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/privateEndpoints/pe1",
+    "name": "pe1",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded",
+      "networkInterfaces": [
+        {
+          "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/networkInterfaces/pe-nic"
+        }
+      ],
+      "privateLinkServiceConnections": [],
+      "subnet": {
+        "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default"
+      },
+      "manualPrivateLinkServiceConnections": []
+    }
+  },
+  {
+    "resourceType": "Microsoft.Network/networkInterfaces",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/networkInterfaces/pe-nic",
+    "name": "pe-nic",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded",
+      "privateEndpoint": {
+        "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/privateEndpoints/pe1"
+      }
+    }
+  }
+]

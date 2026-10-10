@@ -143,6 +143,73 @@ internal static class SealedExportReceiptTestSupport
         return manifest;
     }
 
+    internal static IManifestHashService CreateManifestHashService() =>
+        new ArchLucid.Decisioning.Services.ManifestHashService();
+
+    internal static IAuthorityQueryService CreateAuthorityQueryServiceForAnyExportRun(
+        IManifestHashService? manifestHashService = null)
+    {
+        IManifestHashService hashes = manifestHashService ?? CreateManifestHashService();
+        Mock<IAuthorityQueryService> authority = new();
+
+        authority
+            .Setup(s => s.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid requestedRunId, CancellationToken _) =>
+                BuildSealedExportDetail(requestedRunId, hashes, includeCoverage: false));
+
+        authority
+            .Setup(s => s.GetRunDetailForExportAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid requestedRunId, CancellationToken _) =>
+                BuildSealedExportDetail(requestedRunId, hashes, includeCoverage: true));
+
+        return authority.Object;
+    }
+
+    private static RunDetailDto BuildSealedExportDetail(
+        Guid runId,
+        IManifestHashService manifestHashService,
+        bool includeCoverage)
+    {
+        FeasibilityVerdict verdict = CreateExportFeasibilityVerdict();
+        ManifestDocument manifest = new()
+        {
+            ManifestId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            RunId = runId,
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            RuleSetId = "default",
+            RuleSetVersion = "1",
+            RuleSetHash = "hash",
+            Metadata = new ManifestMetadata { Version = "v1" },
+            FeasibilityVerdict = verdict,
+        };
+
+        string hashBeforeReceipt = ManifestDecisionReceiptExportBinder.ComputeHashBeforeReceipt(manifest, manifestHashService);
+        DecisionReceiptDocument sealedReceipt = DecisionReceiptComposer.BuildForRun(
+            runId,
+            verdict,
+            hashBeforeReceipt,
+            "v1");
+        manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
+
+        return new RunDetailDto
+        {
+            Run = new RunRecord { RunId = runId },
+            GoldenManifest = manifest,
+            FindingCoverageSummary = includeCoverage
+                ? new RunFindingCoverageSummary { EnginesSucceeded = 50 }
+                : null,
+        };
+    }
+
     internal static void ConfigureSampleRunExportDetail(
         Mock<IAuthorityQueryService> authority,
         Guid runId,

@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateGpuTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "gp-1", label: "gpu", sourceId: "azurerm_gpu.main"));
+            ComputeNode(nodeId: "gp-1", label: "gpu", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-gpu")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

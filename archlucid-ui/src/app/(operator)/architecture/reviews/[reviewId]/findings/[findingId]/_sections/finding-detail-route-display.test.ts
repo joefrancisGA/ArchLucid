@@ -9,6 +9,7 @@ import {
   buyerFindingNextStepCopy,
   deriveFindingDecisionSummary,
   findingRecommendedActionParagraph,
+  fallbackImpactedScope,
   formatFindingRemediationDueLabel,
   mitigationPosture,
   resolveFindingNextReviewLabel,
@@ -82,6 +83,12 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(resolveFindingRiskOwnerLabel(emptyPayload(), "generic-finding")).toBe("Risk owner was not stored");
     expect(resolveFindingNextReviewLabel(emptyPayload(), "generic-finding")).toBe(
       "No remediation due date recorded",
+    );
+  });
+
+  it("does not invent an impacted area for an ordinary finding", () => {
+    expect(fallbackImpactedScope(emptyPayload(), "generic-finding")).toBe(
+      "Impacted area was not stored.",
     );
   });
 });

@@ -15,24 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave56ArchitectureTests
     [Fact]
     public void Suggestion657_662_export_dashboard_agent_compare_and_replay_openapi_409()
     {
-        string runsExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsExportController.cs"));
-        string runsExportGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsExportController.SealedManifestGuard.cs"));
-        string architectureExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArchitectureExportController.cs"));
-        string architectureExportGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArchitectureExportController.SealedManifestGuard.cs"));
-        string governanceInsights = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.Insights.cs"));
-        string governanceGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.SealedManifestGuard.cs"));
-        string runComparisonAgents = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunComparisonController.Agents.cs"));
-        string runComparisonGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunComparisonController.SealedManifestGuard.cs"));
-        string comparisonsReplay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
+        string runsExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.cs");
+        string runsExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.SealedManifestGuard.cs");
+        string architectureExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs");
+        string architectureExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.SealedManifestGuard.cs");
+        string governanceInsights = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
+        string runComparisonAgents = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.Agents.cs");
+        string runComparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs");
+        string comparisonsReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
 
         runsExport.Should().Contain("Export");
         runsExport.Should().Contain("EnsureSealedManifestReadAllowedAsync");
@@ -57,15 +48,8 @@ public sealed class ArchitectureReviewRobustnessWave56ArchitectureTests
     [Fact]
     public void Suggestion667_finding_dispositions_list_openapi_409()
     {
-        string dispositions = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Dispositions.cs"));
-        string dispositionFacade = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Findings.Dispositions.cs"));
+        string dispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs");
+        string dispositionFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs");
 
         dispositions.Should().Contain("ListDispositions");
         dispositions.Should().Contain("Status409Conflict");
@@ -96,16 +80,16 @@ public sealed class ArchitectureReviewRobustnessWave56ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "comparison-record-blocked-reason.ts"));
 
         exportRecordApi.Should().Contain("getExportRecord");
-        exportRecordApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportRecordApi);
         exportRecordHook.Should().Contain("exportRecordBlockedReason");
         exportRecordBlocked.Should().Contain("exportRecordBlockedReason");
         runComparisonHistoryApi.Should().Contain("getRunComparisonHistory");
-        runComparisonHistoryApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runComparisonHistoryApi);
         runComparisonHistoryHook.Should().Contain("runComparisonHistoryBlockedReason");
         runComparisonHistoryBlocked.Should().Contain("runComparisonHistoryBlockedReason");
         comparisonRecordApi.Should().Contain("getComparisonRecord");
         comparisonRecordApi.Should().Contain("getComparisonSummary");
-        comparisonRecordApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(comparisonRecordApi);
         comparisonRecordHook.Should().Contain("comparisonRecordBlockedReason");
         comparisonRecordBlocked.Should().Contain("comparisonRecordBlockedReason");
     }
@@ -124,11 +108,11 @@ public sealed class ArchitectureReviewRobustnessWave56ArchitectureTests
 
         dashboardApi.Should().Contain("getGovernanceDashboard");
         dashboardApi.Should().Contain("getComplianceDriftTrend");
-        dashboardApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(dashboardApi);
         dashboardBlocked.Should().Contain("governanceDashboardBlockedReason");
         dashboardBlocked.Should().Contain("complianceDriftTrendBlockedReason");
         dispositionsApi.Should().Contain("listFindingDispositions");
-        dispositionsApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(dispositionsApi);
         dispositionsBlocked.Should().Contain("findingDispositionsBlockedReason");
     }
 }

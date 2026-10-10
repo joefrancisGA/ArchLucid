@@ -76,6 +76,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string HostnameInferredTarget = "hostnameInferredTarget";
 
+    public const string ContainerImage = "containerImage";
+
     public const string OperatorConfirmedConnection = "operatorConfirmedConnection";
 
     public const string ServiceConnectorLink = "serviceConnectorLink";
@@ -164,6 +166,7 @@ public static class AzureInventoryRelationshipAssociationTypes
         Inferred(SqlDatabasePrincipal, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "MAY_ACCESS", "inventory-sql-database-principal", ProvenanceKind.DerivedFact),
         Inferred(AppToKeyVaultRef, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.KeyVault, "CONNECTS_TO", "inventory-app-key-vault-ref", ProvenanceKind.DerivedFact),
         Inferred(HostnameInferredTarget, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-hostname-inferred-target", ProvenanceKind.DeterministicInference),
+        Observed(ContainerImage, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-container-image"),
         Inferred(OperatorConfirmedConnection, AzureInventoryRelationshipArmKind.Compute, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-operator-confirmed-connection", ProvenanceKind.HumanAssertion),
         Observed(ServiceConnectorLink, AzureInventoryRelationshipArmKind.AppService, AzureInventoryRelationshipArmKind.ServiceConnectorTarget, "CONNECTS_TO", "inventory-service-connector-link"),
         Observed(SynapseLinkedService, AzureInventoryRelationshipArmKind.SynapseWorkspace, AzureInventoryRelationshipArmKind.LinkedServiceTarget, "CONNECTS_TO", "inventory-synapse-linked-service"),

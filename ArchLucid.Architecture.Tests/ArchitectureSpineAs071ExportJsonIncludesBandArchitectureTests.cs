@@ -75,12 +75,7 @@ public sealed class ArchitectureSpineAs071ExportJsonIncludesBandArchitectureTest
     [Fact]
     public void As071_career_export_composer_includes_semantic_support_markdown_formatter()
     {
-        string composer = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Exports",
-                "CareerExportCoverageHonestyComposer.cs"));
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerExportCoverageHonestyComposer.cs");
 
         composer.Should().Contain("CareerExportSemanticSupportBandMarkdownFormatter");
     }

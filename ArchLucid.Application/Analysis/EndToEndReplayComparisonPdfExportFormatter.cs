@@ -137,8 +137,8 @@ public static class EndToEndReplayComparisonPdfExportFormatter
             column.Item().PaddingTop(3).Text(delta.AgentType.ToString()).Bold();
             column.Item().Text($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             column.Item().Text($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            column.Item().Text($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            column.Item().Text($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            column.Item().Text($"Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
+            column.Item().Text($"Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
             AppendDiffSection(column, "Added Claims", delta.AddedClaims);
             AppendDiffSection(column, "Removed Claims", delta.RemovedClaims);
             AppendDiffSection(column, "Added Findings", delta.AddedFindings);

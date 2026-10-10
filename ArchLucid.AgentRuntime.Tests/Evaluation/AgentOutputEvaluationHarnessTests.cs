@@ -134,4 +134,28 @@ public sealed class AgentOutputEvaluationHarnessTests
         result.Passed.Should().BeFalse();
         result.Failures.Should().Contain(f => f.Contains("nonexistentPropertyKey", StringComparison.Ordinal));
     }
+
+    [SkippableFact]
+    [Trait("Suite", "Core")]
+    public void Evaluate_returns_failed_result_when_findings_contains_null_entry()
+    {
+        AgentResult actual = new()
+        {
+            TaskId = "t1",
+            RunId = Guid.NewGuid().ToString("N"),
+            AgentType = AgentType.Topology,
+            Claims = ["c1"],
+            EvidenceRefs = [],
+            Confidence = 0.5,
+            Findings = [null!]
+        };
+
+        AgentOutputHarnessResult result = _harness.Evaluate(
+            AgentType.Topology,
+            actual,
+            new AgentOutputExpectation { MinimumFindingCount = 1 });
+
+        result.Passed.Should().BeFalse();
+        result.Failures.Should().Contain(f => f.Contains("finding", StringComparison.OrdinalIgnoreCase));
+    }
 }

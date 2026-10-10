@@ -9,6 +9,7 @@ using FsCheck.Xunit;
 
 namespace ArchLucid.Core.Tests.Findings.Serialization;
 
+[Trait("Category", "Unit")]
 public sealed class FindingJsonNumericReadersPropertyTests
 {
     private static readonly string[] BooleanSynonyms =

@@ -1,5 +1,6 @@
 import { AUTH_BOOTSTRAP_CANONICAL_PATH } from "@/lib/auth-bootstrap-evidence-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { isE2eLs010BootstrapRedirectSuppressed } from "@/lib/operator/e2e-live-seat-ls010-bypass";
 import { bootstrapDedicatedWorkspaceScope } from "@/lib/operator/operator-scope-bootstrap";
 import { isSampleWorkspaceVisitActive } from "@/lib/operator/operator-sample-workspace-visit";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
@@ -13,6 +14,10 @@ function isAuthBootstrapPath(pathname: string): boolean {
 /** LS-010 — signed-in live seat must not stay on silent demo when dedicated scope cannot be resolved. */
 export async function runSignedInDedicatedScopeBootstrap(): Promise<void> {
   if (!isLikelySignedIn() || isStaticDemoPayloadFallbackEnabled()) {
+    return;
+  }
+
+  if (isE2eLs010BootstrapRedirectSuppressed()) {
     return;
   }
 

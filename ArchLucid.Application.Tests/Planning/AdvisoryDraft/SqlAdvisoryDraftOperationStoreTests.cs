@@ -22,20 +22,19 @@ public sealed class SqlAdvisoryDraftOperationStoreTests
     };
 
     [Fact]
-    public void CreatePending_persists_and_survives_new_store_instance()
+    public async Task CreatePending_persists_and_survives_new_store_instance()
     {
         InMemoryAdvisoryDraftOperationRepository repository = new();
         SqlAdvisoryDraftOperationStore firstStore = new(repository);
 
-        AdvisoryDraftOperationCreateResult created = firstStore.CreatePending(DefaultScope);
+        AdvisoryDraftOperationCreateResult created = await firstStore.CreatePendingAsync(DefaultScope);
         created.Created.Should().BeTrue();
 
         SqlAdvisoryDraftOperationStore secondStore = new(repository);
         string operationId = OperationIdCodec.ForDraft(created.Record.OperationId);
 
-        bool found = secondStore.TryGet(operationId, DefaultScope, out AdvisoryDraftOperationRecord? record);
+        AdvisoryDraftOperationRecord? record = await secondStore.GetAsync(operationId, DefaultScope);
 
-        found.Should().BeTrue();
         record.Should().NotBeNull();
         record!.State.Should().Be(OperationState.Pending);
         record.StepLabel.Should().Be(AdvisoryDraftOperationSteps.Queued);
@@ -66,11 +65,11 @@ public sealed class SqlAdvisoryDraftOperationStoreTests
     }
 
     [Fact]
-    public void MarkSucceeded_round_trips_result_json()
+    public async Task MarkSucceeded_round_trips_result_json()
     {
         InMemoryAdvisoryDraftOperationRepository repository = new();
         SqlAdvisoryDraftOperationStore store = new(repository);
-        AdvisoryDraftOperationCreateResult created = store.CreatePending(DefaultScope);
+        AdvisoryDraftOperationCreateResult created = await store.CreatePendingAsync(DefaultScope);
         string operationId = OperationIdCodec.ForDraft(created.Record.OperationId);
         DraftArchitectureRequestResponse result = new()
         {
@@ -79,9 +78,10 @@ public sealed class SqlAdvisoryDraftOperationStoreTests
             SuggestedCapabilities = ["Audit logging"],
         };
 
-        store.MarkSucceeded(operationId, result);
+        await store.MarkSucceededAsync(DefaultScope, operationId, result);
 
-        store.TryGet(operationId, DefaultScope, out AdvisoryDraftOperationRecord? record).Should().BeTrue();
+        AdvisoryDraftOperationRecord? record = await store.GetAsync(operationId, DefaultScope);
+        record.Should().NotBeNull();
         record!.Result.Should().NotBeNull();
         record.Result!.SuggestedConstraints.Should().ContainSingle("Private networking");
         record.State.Should().Be(OperationState.Succeeded);

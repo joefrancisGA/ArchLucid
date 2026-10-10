@@ -91,7 +91,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
       data-finding-id={row.recordKind === "finding" ? row.findingId : undefined}
       aria-label={row.recordKind === "finding" ? `Finding: ${row.title}` : undefined}
     >
-      {hasBulkSelect ? (
+      {hasBulkSelect && row.recordKind === "finding" ? (
         <EnterpriseTableCell className="w-8">
           <input
             type="checkbox"
@@ -112,7 +112,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell, severityMeaning)}</EnterpriseTableCell>
           <EnterpriseTableCell>
             {row.recordKind === "decision" ? (
-              <span className="text-al-text-secondary">—</span>
+              <span className="text-al-text-secondary">Not used on decision rows</span>
             ) : row.traceConfidenceLevel === "High" ||
               row.traceConfidenceLevel === "Medium" ||
               row.traceConfidenceLevel === "Low" ? (

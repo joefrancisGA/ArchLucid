@@ -31,45 +31,63 @@ public static class ScimFilterParser
 
         public ScimFilterNode ParseFilter()
         {
+            // RFC 7644 §3.4.2.2: not, then and, then or. Equal precedence would parse
+            // "A or B and C" as "(A or B) and C" and drop rows that match only A.
+            return ParseOr();
+        }
+
+        private ScimFilterNode ParseOr()
+        {
+            ScimFilterNode left = ParseAnd();
             SkipWs();
-            if (PeekKeyword("not"))
+
+            while (PeekKeyword("or"))
             {
-                ConsumeKeyword("not");
+                ConsumeKeyword("or");
                 SkipWs();
-                if (!TryConsume('('))
-                    throw new ScimFilterParseException("Expected '(' after 'not'.");
-                ScimFilterNode inner = ParseFilter();
-                return !TryConsume(')') ? throw new ScimFilterParseException("Expected ')' to close 'not'.") : new ScimNotNode(inner);
-            }
-
-            ScimFilterNode left = ParseTerm();
-            SkipWs();
-            while (true)
-            {
-                if (PeekKeyword("and"))
-                {
-                    ConsumeKeyword("and");
-                    SkipWs();
-                    ScimFilterNode right = ParseTerm();
-                    left = new ScimAndNode(left, right);
-                    SkipWs();
-                    continue;
-                }
-
-                if (PeekKeyword("or"))
-                {
-                    ConsumeKeyword("or");
-                    SkipWs();
-                    ScimFilterNode right = ParseTerm();
-                    left = new ScimOrNode(left, right);
-                    SkipWs();
-                    continue;
-                }
-
-                break;
+                ScimFilterNode right = ParseAnd();
+                left = new ScimOrNode(left, right);
+                SkipWs();
             }
 
             return left;
+        }
+
+        private ScimFilterNode ParseAnd()
+        {
+            ScimFilterNode left = ParseUnary();
+            SkipWs();
+
+            while (PeekKeyword("and"))
+            {
+                ConsumeKeyword("and");
+                SkipWs();
+                ScimFilterNode right = ParseUnary();
+                left = new ScimAndNode(left, right);
+                SkipWs();
+            }
+
+            return left;
+        }
+
+        private ScimFilterNode ParseUnary()
+        {
+            SkipWs();
+
+            if (!PeekKeyword("not"))
+                return ParseTerm();
+
+            ConsumeKeyword("not");
+            SkipWs();
+
+            if (!TryConsume('('))
+                throw new ScimFilterParseException("Expected '(' after 'not'.");
+
+            ScimFilterNode inner = ParseFilter();
+
+            return !TryConsume(')')
+                ? throw new ScimFilterParseException("Expected ')' to close 'not'.")
+                : new ScimNotNode(inner);
         }
 
         private ScimFilterNode ParseTerm()

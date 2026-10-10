@@ -8,10 +8,10 @@ import {
 } from "@/lib/governance/governance-gate-display";
 
 describe("governanceGateLabelFromManifestStatus", () => {
-  it("returns Not configured for empty status", () => {
-    expect(governanceGateLabelFromManifestStatus(null)).toBe("Not configured");
-    expect(governanceGateLabelFromManifestStatus("")).toBe("Not configured");
-    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Not configured");
+  it("distinguishes missing status from stored empty status", () => {
+    expect(governanceGateLabelFromManifestStatus(null)).toBe("Manifest status was not stored.");
+    expect(governanceGateLabelFromManifestStatus("")).toBe("Status not recognized");
+    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Status not recognized");
   });
 
   it("maps finalized API values to Passed", () => {

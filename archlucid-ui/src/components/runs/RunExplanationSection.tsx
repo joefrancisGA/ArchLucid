@@ -320,7 +320,7 @@ export function RunExplanationSection({
   const expl = explanationBody(summary);
   const themeSummaries = summary.themeSummaries ?? [];
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
-  const riskPostureLabel = summary.riskPosture?.trim().length > 0 ? summary.riskPosture : "Not rated";
+  const riskPostureLabel = summary.riskPosture?.trim() || "Risk posture was not stored.";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback = isDeterministicExplanationFallback(summary);
   const conf = expl.confidence;

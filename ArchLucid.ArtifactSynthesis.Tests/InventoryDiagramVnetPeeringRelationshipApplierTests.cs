@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class InventoryDiagramVnetPeeringRelationshipApplierTests
 {
     private readonly DiagramAstFromGraphCompiler compiler = new();
@@ -54,6 +55,21 @@ public sealed class InventoryDiagramVnetPeeringRelationshipApplierTests
         CountPeeredLines(ast).Should().Be(0);
         DiagramNode vnetA = ast.Nodes.Single(node => node.Label == "vnet-a");
         vnetA.UnresolvedRelationshipDetails.Should().Contain("Peering to vnet-b is not connected");
+    }
+
+    [Fact]
+    public void Compile_disconnected_peering_without_remote_name_uses_omission_copy()
+    {
+        GraphNode vnetA = CreateVnet("vnet-a-node", "vnet-a");
+        vnetA.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
+            "[{\"properties\":{\"peeringState\":\"Disconnected\",\"remoteVirtualNetwork\":{\"id\":\"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/\"}}}]";
+
+        DiagramAst ast = compiler.Compile(
+            new GraphSnapshot { Nodes = [vnetA] },
+            DiagramMode.FullSubscription);
+
+        ast.Nodes.Single(node => node.Label == "vnet-a").UnresolvedRelationshipDetails.Should()
+            .Contain("Peering to Remote network name was not stored. is not connected");
     }
 
     [Fact]

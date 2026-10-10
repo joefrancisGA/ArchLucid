@@ -639,6 +639,14 @@ export function liveE2eApiContractPlaywrightTimeoutMs(): number {
 }
 
 /**
+ * Admin Users invite UI smokes (`live-api-invite-flow.spec.ts`) — submit helper can wait up to ~150s on proxy POST
+ * plus navigation and forbidden-tab polling; keep headroom above {@link liveE2eApiContractPlaywrightTimeoutMs}.
+ */
+export function liveE2eAdminInviteUiPlaywrightTimeoutMs(): number {
+  return process.env.CI ? 420_000 : 240_000;
+}
+
+/**
  * Polls GET /health/ready until success — tolerates brief API process startup, HTTP 503 under load, and transport blips in CI.
  */
 export async function waitForLiveApiReady(
@@ -844,6 +852,96 @@ export function countFindingsInAuthorityRunDetailPayload(payload: unknown): numb
   const findings = (snapshot as Record<string, unknown>).findings;
 
   return Array.isArray(findings) ? findings.length : 0;
+}
+
+/** Titles from committed authority run detail (`findingsSnapshot.findings`). */
+export function listFindingTitlesFromAuthorityRunDetailPayload(payload: unknown): string[] {
+  if (payload === null || typeof payload !== "object") {
+    return [];
+  }
+
+  const root = payload as Record<string, unknown>;
+  const snapshot = root.findingsSnapshot;
+
+  if (snapshot === null || typeof snapshot !== "object") {
+    return [];
+  }
+
+  const findings = (snapshot as Record<string, unknown>).findings;
+
+  if (!Array.isArray(findings)) {
+    return [];
+  }
+
+  const titles: string[] = [];
+
+  for (const row of findings) {
+    if (row === null || typeof row !== "object") {
+      continue;
+    }
+
+    const title = (row as Record<string, unknown>).title;
+
+    if (typeof title === "string" && title.trim().length > 0) {
+      titles.push(title.trim());
+    }
+  }
+
+  return titles;
+}
+
+function findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): { findingId: string; title: string } | null {
+  if (payload === null || typeof payload !== "object") {
+    return null;
+  }
+
+  const root = payload as Record<string, unknown>;
+  const snapshot = root.findingsSnapshot;
+
+  if (snapshot === null || typeof snapshot !== "object") {
+    return null;
+  }
+
+  const findings = (snapshot as Record<string, unknown>).findings;
+
+  if (!Array.isArray(findings)) {
+    return null;
+  }
+
+  for (const row of findings) {
+    if (row === null || typeof row !== "object") {
+      continue;
+    }
+
+    const record = row as Record<string, unknown>;
+    const title = typeof record.title === "string" ? record.title.trim() : "";
+    const findingId = typeof record.findingId === "string" ? record.findingId.trim() : "";
+
+    if (title.length > 0 && findingId.length > 0 && pattern.test(title)) {
+      return { findingId, title };
+    }
+  }
+
+  return null;
+}
+
+/** First matching committed finding id from authority run detail (`findingsSnapshot.findings`). */
+export function findFindingIdByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): string | null {
+  return findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(payload, pattern)?.findingId ?? null;
+}
+
+/** First matching committed finding title from authority run detail (`findingsSnapshot.findings`). */
+export function findFindingTitleByTitlePatternInAuthorityRunDetailPayload(
+  payload: unknown,
+  pattern: RegExp,
+): string | null {
+  return findCommittedFindingRowByTitlePatternInAuthorityRunDetailPayload(payload, pattern)?.title ?? null;
 }
 
 /** GET `/v1/architecture/review/{runId}` — run aggregate including golden manifest id after commit. */
@@ -1608,6 +1706,72 @@ export async function getRunArchitectureExportHistoryRaw(
   return request.get(`${resolveLiveApiBase()}/v1/architecture/review/${encodeURIComponent(runId)}/exports`, {
     headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
+}
+
+/** GET `/v1/artifacts/runs/{runId}/export/verify` — unblocks export history when lineage gate is enforced. */
+export async function verifyRunExportLineageRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
+  return request.get(`${resolveLiveApiBase()}/v1/artifacts/runs/${encodeURIComponent(runId)}/export/verify`, {
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+  });
+}
+
+export type RunExportLineageVerificationJson = {
+  status?: string;
+  runId?: string;
+  detail?: string | null;
+};
+
+/** Poll export verify until API reports Match (required before GET export history unblocks). */
+export async function ensureRunExportLineageAttestedRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+  options?: { timeoutMs?: number; pollIntervalMs?: number },
+): Promise<RunExportLineageVerificationJson> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const pollIntervalMs = options?.pollIntervalMs ?? 2_000;
+  const deadline = Date.now() + timeoutMs;
+  let lastBody: RunExportLineageVerificationJson = { status: "NotAttested" };
+  let pollCount = 0;
+
+  while (Date.now() < deadline) {
+    pollCount += 1;
+    const response = await verifyRunExportLineageRaw(request, runId, tenantScope);
+    const text = await response.text();
+
+    if (!response.ok()) {
+      throw new Error(text.length > 0 ? text : `Export verify failed (HTTP ${response.status()}).`);
+    }
+
+    lastBody = (JSON.parse(text) || {}) as RunExportLineageVerificationJson;
+    const status = (lastBody.status ?? "").trim();
+
+    if (status === "Match") {
+      return lastBody;
+    }
+
+    if (status === "NotAttested" && pollCount % 4 === 0) {
+      const reseed = await request.post(`${resolveLiveApiBase()}/v1/demo/seed`, {
+        headers: liveJsonHeaders(),
+        timeout: 120_000,
+      });
+
+      if (reseed.status() !== 204) {
+        const reseedBody = (await reseed.text()).slice(0, 300);
+        throw new Error(`POST /v1/demo/seed during export-lineage poll expected 204 — ${reseed.status()}: ${reseedBody}`);
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+  }
+
+  throw new Error(
+    `Export lineage verify did not reach Match within ${timeoutMs}ms — last status=${lastBody.status ?? "unknown"} detail=${lastBody.detail ?? ""}`,
+  );
 }
 
 /**

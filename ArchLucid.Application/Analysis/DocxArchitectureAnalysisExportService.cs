@@ -56,10 +56,15 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 builder.AddHeading("Required Capabilities", 3);
+
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
                     builder.AddBullet(item);
             }
 
+            AddEvidenceAssumptions(builder, report.Evidence);
+            AddEvidencePolicies(builder, report.Evidence);
+            AddEvidenceServiceCatalog(builder, report.Evidence);
+            AddEvidencePatterns(builder, report.Evidence);
             builder.AddSpacer();
         }
 
@@ -100,6 +105,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph($"System Name: {report.Manifest.SystemName}");
             builder.AddParagraph($"Run ID: {report.Manifest.RunId}");
             builder.AddParagraph($"Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
+
+            if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
+                builder.AddParagraph($"Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
+
             builder.AddParagraph($"Service Count: {report.Manifest.Services.Count}");
             builder.AddParagraph($"Datastore Count: {report.Manifest.Datastores.Count}");
             builder.AddParagraph($"Relationship Count: {report.Manifest.Relationships.Count}");
@@ -133,6 +142,21 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     builder.AddBullet($"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                 }
 
+                builder.AddSpacer();
+            }
+
+            ManifestGovernance governance = report.Manifest.Governance;
+
+            if (governance.RequiredControls.Count > 0
+                || governance.ComplianceTags.Count > 0
+                || governance.PolicyConstraints.Count > 0)
+            {
+                builder.AddHeading("Governance", 3);
+                builder.AddBullet($"Required Controls: {string.Join(", ", governance.RequiredControls)}");
+                builder.AddBullet($"Compliance Tags: {string.Join(", ", governance.ComplianceTags)}");
+                builder.AddBullet($"Policy Constraints: {string.Join(", ", governance.PolicyConstraints)}");
+                builder.AddBullet($"Risk Classification: {governance.RiskClassification}");
+                builder.AddBullet($"Cost Classification: {governance.CostClassification}");
                 builder.AddSpacer();
             }
         }
@@ -209,8 +233,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph(delta.AgentType.ToString(), true);
             builder.AddBullet($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             builder.AddBullet($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            builder.AddBullet($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            builder.AddBullet($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddBullet($"Left Confidence: {AgentResultConfidenceDisplay.Format(delta.LeftConfidence, "Left confidence was not stored.")}");
+            builder.AddBullet($"Right Confidence: {AgentResultConfidenceDisplay.Format(delta.RightConfidence, "Right confidence was not stored.")}");
             builder.AddDiffSection("Added Claims", delta.AddedClaims);
             builder.AddDiffSection("Removed Claims", delta.RemovedClaims);
             builder.AddDiffSection("Added Findings", delta.AddedFindings);
@@ -225,5 +249,70 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         }
 
         return builder.Build();
+    }
+
+    private static void AddEvidenceAssumptions(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Request.Assumptions.Count == 0)
+            return;
+
+        builder.AddHeading("Assumptions", 3);
+
+        foreach (string assumption in evidence.Request.Assumptions)
+            builder.AddBullet(assumption);
+    }
+
+    private static void AddEvidencePolicies(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Policies.Count == 0)
+            return;
+
+        builder.AddHeading("Policy Evidence", 3);
+
+        foreach (PolicyEvidence policy in evidence.Policies.OrderBy(static item => item.Title))
+        {
+            builder.AddParagraph(policy.Title, true);
+            builder.AddBullet($"Policy ID: {policy.PolicyId}");
+            builder.AddBullet($"Summary: {policy.Summary}");
+
+            if (policy.RequiredControls.Count > 0)
+                builder.AddBullet($"Required Controls: {string.Join(", ", policy.RequiredControls)}");
+        }
+    }
+
+    private static void AddEvidenceServiceCatalog(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.ServiceCatalog.Count == 0)
+            return;
+
+        builder.AddHeading("Service Catalog Hints", 3);
+
+        foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(static item => item.ServiceName))
+        {
+            builder.AddParagraph(service.ServiceName, true);
+            builder.AddBullet($"Category: {service.Category}");
+            builder.AddBullet($"Summary: {service.Summary}");
+
+            if (service.RecommendedUseCases.Count > 0)
+                builder.AddBullet($"Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
+        }
+    }
+
+    private static void AddEvidencePatterns(OpenXmlDocxDocumentBuilder builder, AgentEvidencePackage evidence)
+    {
+        if (evidence.Patterns.Count == 0)
+            return;
+
+        builder.AddHeading("Pattern Hints", 3);
+
+        foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(static item => item.Name))
+        {
+            builder.AddParagraph(pattern.Name, true);
+            builder.AddBullet($"Pattern ID: {pattern.PatternId}");
+            builder.AddBullet($"Summary: {pattern.Summary}");
+
+            if (pattern.SuggestedServices.Count > 0)
+                builder.AddBullet($"Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
+        }
     }
 }

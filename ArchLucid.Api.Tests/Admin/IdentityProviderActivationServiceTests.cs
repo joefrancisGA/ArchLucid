@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Core.Identity;
@@ -46,6 +48,50 @@ public sealed class IdentityProviderActivationServiceTests
 
         loaded.Should().NotBeNull();
         loaded!.ClaimMappingJson.Should().Contain("al-admins");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_persists_claim_mapping_json_with_wizard_property_names()
+    {
+        // The SSO wizard and SAML settings form parse this string as camelCase JSON.
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        await sut.ActivateAsync(
+            Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "department",
+                    CustomGroupClaimRegex = "^group-(Admin)$",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "finance-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(loaded!.ClaimMappingJson);
+        document.RootElement.GetProperty("roleClaimName").GetString().Should().Be("department");
+        document.RootElement.GetProperty("customGroupClaimRegex").GetString().Should().Be("^group-(Admin)$");
+        JsonElement entry = document.RootElement.GetProperty("mappings")[0];
+        entry.GetProperty("idpValue").GetString().Should().Be("finance-admins");
+        entry.GetProperty("archLucidRole").GetString().Should().Be("Admin");
     }
 
     [Fact]
@@ -1043,6 +1089,104 @@ public sealed class IdentityProviderActivationServiceTests
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*not supported*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_key_vault_secret_name_longer_than_persisted_column()
+    {
+        // Migration 183 stores KeyVaultSecretName as NVARCHAR(256). A longer name reaches SQL and fails the MERGE.
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+        string secretName = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength + 1);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("14141414-1414-1414-1414-141414141414"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                KeyVaultSecretName = secretName,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*KeyVaultSecretName*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_canonical_issuer_uri_longer_than_persisted_column()
+    {
+        // Migration 183 stores IssuerUri as NVARCHAR(2048). Canonicalization can keep a longer absolute URL.
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length + 1);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("15151515-1515-1515-1515-151515151515"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*IssuerUri*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_rejects_actor_id_longer_than_persisted_column()
+    {
+        // Migration 183 stores UpdatedByActorId as NVARCHAR(256).
+        IdentityProviderActivationService sut = new(new InMemoryTenantIdentityProviderConfigurationRepository());
+        string actorId = new('a', IdentityProviderPersistedFieldLimits.UpdatedByActorIdMaxLength + 1);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("16161616-1616-1616-1616-161616161616"),
+            actorId,
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*actorId*");
+    }
+
+    [Fact]
+    public async Task ActivateAsync_persists_fields_at_the_persisted_column_limit()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        string secretName = new('k', IdentityProviderPersistedFieldLimits.KeyVaultSecretNameMaxLength);
+        string actorId = new('a', IdentityProviderPersistedFieldLimits.UpdatedByActorIdMaxLength);
+        string issuerUri = "https://idp.example/" + new string(
+            'a',
+            IdentityProviderPersistedFieldLimits.IssuerUriMaxLength - "https://idp.example/".Length);
+        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            actorId,
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                KeyVaultSecretName = secretName,
+                ClaimMapping = ValidClaimMapping()
+            },
+            CancellationToken.None);
+
+        record.IssuerUri.Should().HaveLength(IdentityProviderPersistedFieldLimits.IssuerUriMaxLength);
+        record.KeyVaultSecretName.Should().Be(secretName);
+        record.UpdatedByActorId.Should().Be(actorId);
     }
 
     private static IdentityClaimRoleMappingRequest ValidClaimMapping() => new()

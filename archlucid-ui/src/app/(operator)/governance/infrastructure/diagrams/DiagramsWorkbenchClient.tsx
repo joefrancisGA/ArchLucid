@@ -102,6 +102,12 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
+import {
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
+} from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -229,6 +235,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SUBSCRIPTION_PROMPT_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_INCLUDE_NEVER_SHOW_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DISPLAY_OPTIONS_HELP,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_ALWAYS_EXCLUDED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
@@ -1693,7 +1700,14 @@ export function DiagramsWorkbenchClient() {
 
     downloadBrowserTextFile(
       `infra-evidence-mermaid-${selectedSnapshotId}-${exportModeToken}.mmd`,
-      mermaidSource,
+      [
+        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}`,
+        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}`,
+        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}`,
+        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}`,
+        "",
+        mermaidSource,
+      ].join("\n"),
       "text/plain;charset=utf-8",
     );
   }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
@@ -2120,6 +2134,9 @@ export function DiagramsWorkbenchClient() {
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram display options">
         <div>
           <p className={cn(OPERATOR_TYPOGRAPHY.body, "m-0 font-bold")}>Display options</p>
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 mt-1")}>
+            {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DISPLAY_OPTIONS_HELP}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           {selectedMode === "full" ? (

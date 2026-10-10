@@ -72,6 +72,24 @@ public sealed class IdentityClaimRoleMappingResolverTests
 
         roles.Should().Equal("Admin", "Operator", "Reader");
     }
+
+    [Fact]
+    public void ResolveRoles_maps_allowed_role_from_full_regex_match_without_a_capture_group()
+    {
+        // Operators paste a pattern that is the role name. Only a capturing group was applied before.
+        IdentityClaimRoleMappingDocument mapping = new()
+        {
+            RoleClaimName = "groups",
+            CustomGroupClaimRegex = "^Admin$|^Reader$",
+            Mappings = [],
+        };
+
+        IReadOnlyList<string> roles = IdentityClaimRoleMappingResolver.ResolveRoles(
+            mapping,
+            ["Admin", "Reader", "Operator"]);
+
+        roles.Should().Equal("Admin", "Reader");
+    }
 }
 
 [Trait("Category", "Unit")]

@@ -42,19 +42,19 @@ public sealed class ArchitectureSpineAs096UsersFirstNotScimGroupsArchitectureTes
     [Fact]
     public void As096_api_returns_400_for_scim_group_share_target()
     {
-        string controller = Path.Combine(
+        string validator = Path.Combine(
             RepoRoot,
-            "ArchLucid.Api",
-            "Controllers",
+            "ArchLucid.Application",
             "Architecture",
-            "ArchitecturesController.Shares.cs");
-        string controllerTests = Path.Combine(
+            "ArchitectureShareGrantTargetValidator.cs");
+        string validatorTests = Path.Combine(
             RepoRoot,
-            "ArchLucid.Api.Tests",
-            "ArchitecturesControllerSharesTests.cs");
+            "ArchLucid.Application.Tests",
+            "Architecture",
+            "ArchitectureShareGrantTargetValidatorTests.cs");
 
-        File.ReadAllText(controller).Should().Contain("ScimGroupNotSupported");
-        File.ReadAllText(controllerTests).Should().Contain("UpsertShare_WithScimGroupId_Returns400");
+        File.ReadAllText(validator).Should().Contain("ScimGroupNotSupported");
+        File.ReadAllText(validatorTests).Should().Contain("ScimGroupNotSupported");
     }
 
     [Fact]

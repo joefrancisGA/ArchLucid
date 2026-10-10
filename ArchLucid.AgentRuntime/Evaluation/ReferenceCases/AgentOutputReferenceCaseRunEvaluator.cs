@@ -243,16 +243,19 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
             return false;
         }
 
-        if (caseDef.MinimumFindingCount > 0 && actual.Findings.Count < caseDef.MinimumFindingCount)
+        int validFindingCount = actual.Findings.Count(static finding => finding is not null);
+
+        if (caseDef.MinimumFindingCount > 0 && validFindingCount < caseDef.MinimumFindingCount)
         {
             failureReason =
-                $"findings {actual.Findings.Count} < min {caseDef.MinimumFindingCount}";
+                $"findings {validFindingCount} < min {caseDef.MinimumFindingCount}";
 
             return false;
         }
 
         HashSet<string> findingCategories = actual.Findings
-            .Select(f => f.Category.Trim())
+            .Where(static finding => finding is not null)
+            .Select(static finding => finding!.Category.Trim())
             .Where(s => s.Length > 0)
             .Select(s => s.ToUpperInvariant())
             .ToHashSet();

@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class DiagramForestLongEdgeStubTests
 {
     private static readonly XNamespace Svg = "http://www.w3.org/2000/svg";

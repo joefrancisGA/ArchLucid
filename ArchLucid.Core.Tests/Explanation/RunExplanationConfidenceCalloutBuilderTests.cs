@@ -11,6 +11,14 @@ namespace ArchLucid.Core.Tests.Explanation;
 public sealed class RunExplanationConfidenceCalloutBuilderTests
 {
     [Fact]
+    public void FromAggregateJson_returns_null_for_malformed_json()
+    {
+        RunExplanationConfidenceCalloutBuilder.FromAggregateJson("{\"citations\":")
+            .Should()
+            .BeNull();
+    }
+
+    [Fact]
     public void FromAggregateJson_maps_numeric_citation_count()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
@@ -549,6 +557,24 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": 1e20,
+              "unresolvedIssueCount": 1e20,
+              "complianceGapCount": 1e20
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":1e20}""").RootElement).Should().BeNull();
+    }
+
+    [Fact]
     public void FromAggregateJson_ignores_negative_whole_number_counts_without_throwing()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
@@ -568,6 +594,27 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
             JsonDocument.Parse("""{"unresolvedIssueCount":-2}""").RootElement).Should().BeNull();
         RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(
             JsonDocument.Parse("""{"complianceGapCount":-3}""").RootElement).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromAggregateJson_ignores_negative_string_encoded_whole_number_counts()
+    {
+        RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": "-1",
+              "unresolvedIssueCount": "-2",
+              "complianceGapCount": "-3"
+            }
+            """).Should().NotBeNull();
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":"-1"}""").RootElement).Should().BeNull();
+        RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(
+            JsonDocument.Parse("""{"unresolvedIssueCount":"-2"}""").RootElement).Should().BeNull();
+        RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(
+            JsonDocument.Parse("""{"complianceGapCount":"-3"}""").RootElement).Should().BeNull();
     }
 
     [Fact]

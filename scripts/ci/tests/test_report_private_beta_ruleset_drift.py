@@ -14,7 +14,7 @@ if str(CI_ROOT) not in sys.path:
 import report_private_beta_ruleset_drift as sut
 
 
-def _ruleset(*, branch: str = "refs/heads/RC34", contexts: tuple[str, ...] = ("beta",)) -> dict[str, object]:
+def _ruleset(*, branch: str = "refs/heads/RC35", contexts: tuple[str, ...] = ("beta",)) -> dict[str, object]:
     return {
         "conditions": {"ref_name": {"include": [branch]}},
         "rules": [
@@ -42,7 +42,7 @@ class TestPrivateBetaRulesetDrift(unittest.TestCase):
 
         self.assertEqual(result["disposition"], "HOLD")
         self.assertIn("live ruleset is missing required context: corset", result["issues"])
-        self.assertIn("live ruleset does not include the RC34 release-cut branch", result["issues"])
+        self.assertIn("live ruleset does not include the RC35 release-cut branch", result["issues"])
 
 
 if __name__ == "__main__":

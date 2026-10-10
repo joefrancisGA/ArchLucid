@@ -13,5 +13,6 @@ describe("diagram-reconcile-match-kind-display", () => {
 
   it("maps connector gap kinds to operator labels", () => {
     expect(formatDiagramReconcileEdgeGapKindLabel("MissingInDiagram")).toBe("Missing in diagram");
+    expect(formatDiagramReconcileEdgeGapKindLabel("")).toBe("Gap kind was not stored.");
   });
 });

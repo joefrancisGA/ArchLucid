@@ -165,7 +165,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
     <>
       <span
         className={cn("inline-flex max-w-[min(100%,20rem)] items-center gap-1.5 sm:max-w-none", props.className)}
-        data-testid={WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID}
+        data-testid={WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID /* working-career-rehearsal-chooser */}
         data-chooser-source={source}
         data-effective-door={matrix.effectiveDoor}
         data-door-host-mode-cell={matrix.cellId}

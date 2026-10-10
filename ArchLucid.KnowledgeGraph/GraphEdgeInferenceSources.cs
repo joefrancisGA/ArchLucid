@@ -70,6 +70,10 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryHostnameInferredTarget = "inventory-hostname-inferred-target";
 
+    public const string InventoryStorageHostRef = "inventory-storage-host-ref";
+
+    public const string InventoryContainerImage = "inventory-container-image";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";

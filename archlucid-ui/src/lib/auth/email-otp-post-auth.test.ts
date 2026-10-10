@@ -15,8 +15,27 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "/architecture/reviews/1")).toBe("/architecture/reviews/1");
   });
 
+  it("prefers explicit safe returnUrl over consumed OIDC return for Complete", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/saved-return");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "/architecture/reviews/1")).toBe("/architecture/reviews/1");
+    expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it("prefers explicit default return path over idle-persisted sign-in URL in OIDC return storage", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/auth/signin?step=code");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "/")).toBe("/");
+  });
+
   it("rejects open redirects for Complete", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
+  });
+
+  it("falls back to consumed safe desk path when explicit returnUrl is unsafe", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/architecture/reviews/1");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/architecture/reviews/1");
   });
 
   it("rejects an unsafe consumed return URL", () => {
@@ -29,6 +48,19 @@ describe("resolveEmailOtpPostAuthPath", () => {
     vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("https://evil.example");
 
     expect(resolveBootstrapCompletePath("https://evil.example")).toBe("/");
+  });
+
+  it("prefers explicit safe returnUrl over consumed OIDC return for bootstrap complete", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/saved-return");
+
+    expect(resolveBootstrapCompletePath("/architecture/reviews/1")).toBe("/architecture/reviews/1");
+    expect(consumePostSignInReturnUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back to consumed safe desk path when bootstrap complete returnUrl is unsafe", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/architecture/reviews/1");
+
+    expect(resolveBootstrapCompletePath("https://evil.example")).toBe("/architecture/reviews/1");
   });
 
   it("routes AcceptInvitation to bootstrap", () => {
@@ -47,5 +79,11 @@ describe("resolveEmailOtpPostAuthPath", () => {
 
   it("routes SelectWorkspace to bootstrap", () => {
     expect(resolveEmailOtpPostAuthPath("SelectWorkspace", "/")).toBe("/auth/bootstrap");
+  });
+
+  it("returns the safe return path for unknown nextStep values instead of bootstrap", () => {
+    expect(resolveEmailOtpPostAuthPath("FutureBootstrapStep", "/architecture/reviews/1")).toBe(
+      "/architecture/reviews/1",
+    );
   });
 });

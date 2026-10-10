@@ -93,6 +93,32 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Securityüberwachung"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Cost with explicit human approval.");
+    }
+
+    [Fact]
     public void BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost()
     {
         ArchitectureRecommendationEngine sut = new();
@@ -246,6 +272,89 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
         securityRecommendation.TradeOffs.Should().ContainSingle();
         securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
             "Prioritize security-first over cost-first.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_does_not_claim_priorities_resolved_a_trade_off_when_none_select_either_dimension()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        SpecialistReviewFinding reliabilityFinding = CreateFailFinding(
+            "rel",
+            QualityDimension.Reliability,
+            "Stated recovery objective may not be achievable");
+
+        IReadOnlyList<ArchitectureRecommendation> securityCost = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Operations excellence"]);
+
+        TradeOffObject securityCostTradeOff = securityCost
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Should()
+            .ContainSingle()
+            .Subject;
+        securityCostTradeOff.RecommendedResolution.Should().Be(
+            "Balance Security and Cost with explicit human approval.");
+        securityCostTradeOff.ResolutionRationale.Should().Be(
+            "No declared priority selected Security or Cost, so the competing findings stay balanced.");
+
+        IReadOnlyList<ArchitectureRecommendation> reliabilityCost = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [reliabilityFinding, costFinding],
+            []);
+
+        TradeOffObject reliabilityCostTradeOff = reliabilityCost
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Reliability.ToString())
+            .TradeOffs
+            .Should()
+            .ContainSingle()
+            .Subject;
+        reliabilityCostTradeOff.RecommendedResolution.Should().Be(
+            "Balance Reliability and Cost with explicit human approval.");
+        reliabilityCostTradeOff.ResolutionRationale.Should().Be(
+            "No declared priority selected Reliability or Cost, so the competing findings stay balanced.");
+    }
+
+    [Fact]
+    public void BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings()
+    {
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+        ArchitectureRecommendationEngine sut = new();
+
+        string firstTradeOffId = sut.BuildRecommendations(
+                new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+                [securityFinding, costFinding],
+                ["Security"])
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Single()
+            .TradeOffId;
+        string secondTradeOffId = sut.BuildRecommendations(
+                new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+                [securityFinding, costFinding],
+                ["Security"])
+            .Single(recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString())
+            .TradeOffs
+            .Single()
+            .TradeOffId;
+
+        secondTradeOffId.Should().Be(firstTradeOffId);
     }
 
     private static SpecialistReviewFinding CreateFailFinding(

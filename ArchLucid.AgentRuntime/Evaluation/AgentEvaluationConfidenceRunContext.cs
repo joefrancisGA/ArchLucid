@@ -19,5 +19,7 @@ public sealed class AgentEvaluationConfidenceRunContext
 
     public required IReadOnlyDictionary<string, double?> CalibratedConfidenceByTaskId { get; init; }
 
+    public required IReadOnlyDictionary<string, StructuralExecutionMode?> StructuralExecutionModeByTaskId { get; init; }
+
     public AgentEvidencePackage? Evidence { get; init; }
 }

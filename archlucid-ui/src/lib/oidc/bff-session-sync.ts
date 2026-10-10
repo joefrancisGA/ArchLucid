@@ -9,6 +9,9 @@ const BFF_SESSION_REFRESH_PATH = "/api/auth/bff-session/refresh";
 const BFF_SESSION_ACTIVITY_PATH = "/api/auth/bff-session/activity";
 const BFF_SESSION_RP_LOGOUT_URL_PATH = "/api/auth/bff-session/rp-logout-url";
 
+/** Parity with `session.ts` expiry skew when accepting BFF refresh hints. */
+const BFF_REFRESH_EXPIRY_SKEW_MS = 60_000;
+
 function resolveWorkingModeForBffSession(): boolean {
   if (typeof window === "undefined") {
     return true;
@@ -91,7 +94,7 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
       const body = (await response.json()) as { expires_at_ms?: number };
       const expiresAtMs = Number(body.expires_at_ms);
 
-      if (Number.isFinite(expiresAtMs) && expiresAtMs > 0) {
+      if (Number.isFinite(expiresAtMs) && expiresAtMs > Date.now() - BFF_REFRESH_EXPIRY_SKEW_MS) {
         return { ok: true, expiresAtMs };
       }
 
@@ -107,20 +110,22 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
   }
 }
 
+export type BffSessionActivityPulseResult = "ok" | "unauthorized" | "ignored";
+
 /** Slides server-side BFF idle activity during presenter / print / export keepalive (LK-07). */
-export async function pulseBffSessionActivity(): Promise<void> {
+export async function pulseBffSessionActivity(): Promise<BffSessionActivityPulseResult> {
   if (typeof fetch === "undefined") {
-    return;
+    return "ignored";
   }
 
   const csrfToken = readBffCsrfTokenFromDocument();
 
   if (csrfToken === undefined) {
-    return;
+    return "ignored";
   }
 
   try {
-    await fetch(BFF_SESSION_ACTIVITY_PATH, {
+    const response = await fetch(BFF_SESSION_ACTIVITY_PATH, {
       method: "POST",
       credentials: "same-origin",
       headers: buildBffMutationHeaders(),
@@ -128,8 +133,19 @@ export async function pulseBffSessionActivity(): Promise<void> {
         working_mode: resolveWorkingModeForBffSession(),
       }),
     });
+
+    if (response.status === 401 || response.status === 403) {
+      return "unauthorized";
+    }
+
+    if (!response.ok) {
+      return "ignored";
+    }
+
+    return "ok";
   } catch {
     // Client idle UX still runs when the activity route is unavailable.
+    return "ignored";
   }
 }
 

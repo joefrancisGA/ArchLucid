@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
@@ -66,7 +67,8 @@ public sealed class GovernancePreviewService(
         if (candidateManifest is null)
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
-        if (!string.Equals(candidateManifest.RunId, runId, StringComparison.Ordinal))
+        // Persisted manifests use canonical "N" ids. Preview callers pass the dashed "D" form.
+        if (!GovernanceRunIdNormalizer.AreEquivalent(candidateManifest.RunId, runId))
             throw new GoldenManifestVersionNotFoundException(manifestVersion, runId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -157,7 +159,8 @@ public sealed class GovernancePreviewService(
             return null;
         }
 
-        if (!string.Equals(manifest.RunId, activation.RunId, StringComparison.Ordinal))
+        // Activation rows and manifest rows can store the same GUID in different formats.
+        if (!GovernanceRunIdNormalizer.AreEquivalent(manifest.RunId, activation.RunId))
         {
             notes.Add(
                 $"Golden manifest version '{activation.ManifestVersion}' does not belong to activation run '{activation.RunId}' for environment '{activation.Environment}'.");

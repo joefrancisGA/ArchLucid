@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
         string adrPath = Path.Combine(RepoRoot, AdrRelativePath);
         File.Exists(adrPath).Should().BeTrue();
 
-        string adr = File.ReadAllText(adrPath);
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(adrPath);
 
         adr.Should().Contain("**Status:** Proposed");
         adr.Should().Contain("RestrictToShares");
@@ -37,7 +37,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
     [Fact]
     public void As086_adr_0087_amends_no_per_architecture_acl_to_optional_restrict()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("No per-architecture ACL in V1");
         adr.Should().Contain("optional restrict-to-shares");
@@ -48,7 +48,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
     [Fact]
     public void As086_adr_0087_forbids_sql_rls_chat_and_presence()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("No SQL RLS");
         adr.Should().Contain("finding-comment chat");
@@ -60,7 +60,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
     [Fact]
     public void As086_adr_0087_documents_idor_and_404_policy()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("IDOR");
         adr.Should().Contain("404 Not Found");
@@ -71,7 +71,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
     [Fact]
     public void As086_readme_lists_adr_0087_row()
     {
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, ReadmeRelativePath));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ReadmeRelativePath));
 
         readme.Should().Contain("0087-architecture-scoped-sharing-restrict-to-shares.md");
         readme.Should().Contain("AS-086");

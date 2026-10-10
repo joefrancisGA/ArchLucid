@@ -15,27 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
     [Fact]
     public void Suggestion1245_1247_finding_verification_export_and_async_sealed_manifest_mappers()
     {
-        string export = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingVerificationController.Export.cs"));
-        string controller = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingVerificationController.cs"));
-        string guard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingVerificationController.SealedManifestGuard.cs"));
+        string export = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingVerificationController.Export.cs");
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingVerificationController.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingVerificationController.SealedManifestGuard.cs");
 
         export.Should().Contain("MapFindingVerificationSealedManifestConflict");
         export.Should().Contain("EnsureFindingVerificationRunSealedManifestAllowedAsync");
@@ -46,34 +28,10 @@ public sealed class ArchitectureReviewRobustnessWave105ArchitectureTests
     [Fact]
     public void Suggestion1248_1251_learning_and_product_learning_report_sealed_manifest_mappers()
     {
-        string learningReport = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "LearningController.PlanningReport.cs"));
-        string learningGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "LearningController.SealedManifestGuard.cs"));
-        string productLearning = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "ProductLearningController.Triage.cs"));
-        string productLearningGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "ProductLearningController.SealedManifestGuard.cs"));
+        string learningReport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/LearningController.PlanningReport.cs");
+        string learningGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/LearningController.SealedManifestGuard.cs");
+        string productLearning = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/ProductLearningController.Triage.cs");
+        string productLearningGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/ProductLearningController.SealedManifestGuard.cs");
 
         learningReport.Should().Contain("MapLearningPlanningSealedManifestConflict");
         learningGuard.Should().Contain("MapLearningPlanningSealedManifestConflict");

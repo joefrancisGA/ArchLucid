@@ -15,24 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave108ArchitectureTests
     [Fact]
     public void Suggestion1281_1284_agent_evaluation_provenance_and_resolution_sealed_manifest_mappers()
     {
-        string agentEvaluation = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunAgentEvaluationController.cs"));
-        string provenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceController.cs"));
-        string provenanceQuery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceQueryController.cs"));
-        string resolution = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceResolutionController.cs"));
+        string agentEvaluation = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController.cs");
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.cs");
+        string provenanceQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.cs");
+        string resolution = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.cs");
 
         agentEvaluation.Should().Contain("MapRunAgentEvaluationSealedManifestConflict");
         provenance.Should().Contain("MapProvenanceSealedManifestConflict");
@@ -43,22 +29,9 @@ public sealed class ArchitectureReviewRobustnessWave108ArchitectureTests
     [Fact]
     public void Suggestion1285_1287_governance_setup_environment_catalog_and_coverage_ack_sealed_manifest_mappers()
     {
-        string setup = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceSetupController.cs"));
-        string environmentCatalog = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceEnvironmentCatalogController.cs"));
-        string coverageAck = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunCoverageController.Acknowledgement.cs"));
+        string setup = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.cs");
+        string environmentCatalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
+        string coverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
 
         setup.Should().Contain("MapGovernanceSetupSealedManifestConflict");
         environmentCatalog.Should().Contain("MapGovernanceEnvironmentCatalogSealedManifestConflict");

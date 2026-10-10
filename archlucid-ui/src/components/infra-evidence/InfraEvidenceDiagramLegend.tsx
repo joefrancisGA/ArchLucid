@@ -59,7 +59,8 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
-  const showConnectorLegend = hasDeclared || hasProbable || hasInferred;
+  const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
+  const showConnectorLegend = hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
     return null;
@@ -82,13 +83,15 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
               {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
             </ul>
-            <div
-              className={cn("flex items-center gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="infra-evidence-diagram-legend-private-endpoint"
-            >
-              <PrivateEndpointAccessGlyph />
-              <span>Private endpoint</span>
-            </div>
+            {hasPrivateEndpointAccess ? (
+              <div
+                className={cn("flex items-center gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-evidence-diagram-legend-private-endpoint"
+              >
+                <PrivateEndpointAccessGlyph />
+                <span>Private endpoint</span>
+              </div>
+            ) : null}
             {hasInferred ? (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}

@@ -24,8 +24,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_options_default_enable_llm_judge_false()
     {
-        string optionsSource = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "FindingSemanticSupportBandOptions.cs"));
+        string optionsSource = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Findings/FindingSemanticSupportBandOptions.cs");
 
         optionsSource.Should().Contain("EnableLlmJudge");
         optionsSource.Should().Contain("= false");
@@ -35,12 +34,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_host_registers_noop_llm_judge_by_default()
     {
-        string composition = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Composition",
-                "Startup",
-                "ServiceCollectionExtensions.Decisioning.cs"));
+        string composition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Decisioning.cs");
 
         composition.Should().Contain("FindingSemanticSupportBandOptions");
         composition.Should().Contain("IFindingSemanticSupportBandLlmJudge");
@@ -50,12 +44,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_scorer_remains_heuristic_default_without_llm_judge_flag()
     {
-        string scorer = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Findings",
-                "FindingSemanticSupportBandScorer.cs"));
+        string scorer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Findings/FindingSemanticSupportBandScorer.cs");
 
         scorer.Should().Contain("Deterministic quote-overlap heuristic");
         scorer.Should().NotContain("EnableSemanticSupportBandLlmJudge");
@@ -64,12 +53,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_emission_applicator_skips_llm_judge_when_option_disabled()
     {
-        string emission = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Findings",
-                "FindingSemanticSupportBandEmissionApplicator.cs"));
+        string emission = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Findings/FindingSemanticSupportBandEmissionApplicator.cs");
 
         emission.Should().Contain("options.EnableLlmJudge");
         emission.Should().Contain("FindingSemanticSupportBandScorer.Score");

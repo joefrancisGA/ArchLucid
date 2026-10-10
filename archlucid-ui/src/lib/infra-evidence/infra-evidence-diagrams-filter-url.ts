@@ -31,8 +31,10 @@ export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
 
 export const INFRA_DIAGRAMS_MODE_OPTIONS: readonly { readonly value: string; readonly label: string }[] = [
   { value: "executive", label: "Executive — the sponsor view" },
-  { value: "full", label: "Full subscription — every resource in scope" },
+  { value: "full", label: "Full subscription — backbone resources; attachments may be hidden" },
   { value: "architecture", label: "Architecture — how parts fit" },
+  // Storage and data-plane inventory boxes. Distinct from data-flow movement and the data-architecture catalog.
+  { value: "data", label: "Data — accounts and stores" },
   { value: "dataFlow", label: "Data flow — what may connect" },
   { value: "dataArchitecture", label: "Data architecture — what stores what" },
   { value: "network", label: "Network — what can reach what" },

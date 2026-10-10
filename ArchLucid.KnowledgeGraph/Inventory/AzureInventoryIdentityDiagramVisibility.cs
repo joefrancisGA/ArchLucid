@@ -1,5 +1,5 @@
 using ArchLucid.Core.AzureExtractor;
-using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.KnowledgeGraph.Inventory;
 

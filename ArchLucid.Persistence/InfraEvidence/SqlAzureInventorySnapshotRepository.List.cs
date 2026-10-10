@@ -2,6 +2,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -29,6 +30,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
     private static readonly string VisibleToAzureResourceIdPredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("toResource.AzureResourceId");
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime subscription filter SQL; AzureInventoryResources scope via ScopeContext parameters.")]
     public async Task<(IReadOnlyList<AzureInventorySnapshotRecord> Items, int TotalCount)> ListSnapshotsAsync(
         ScopeContext scope,
         int page,
@@ -162,12 +166,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                        OR COALESCE(s.SubscriptionId, JSON_VALUE(p.ManifestJson, '$.subscriptionId')) = @SubscriptionId
                                    )
                                """
-            + PersistenceTenantScope.AndTripleWhere(scope, "s")
+            + SnapshotListSqlSeparator.BeforeOrderBy(PersistenceTenantScope.AndTripleWhere(scope, "s"))
             + """
                                ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """
-                               + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
+            + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = new
         {

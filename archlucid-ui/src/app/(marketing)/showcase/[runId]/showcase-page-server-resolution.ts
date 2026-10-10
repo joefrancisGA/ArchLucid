@@ -6,6 +6,7 @@ import {
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
+import { hasUsableMarketingRunExplanationCounts } from "@/lib/marketing/demo-preview-run-explanation-counts";
 import type { ShowcaseRenderMode } from "@/lib/marketing/showcase-telemetry";
 
 export const SHOWCASE_PAGE_REVALIDATE_SECONDS = 300;
@@ -65,6 +66,60 @@ export function resolveShowcaseApiBase(): string {
   return "";
 }
 
+function hasUsableShowcaseRunExplanation(payload: DemoCommitPagePreviewResponse): boolean {
+  return hasUsableMarketingRunExplanationCounts(payload.runExplanation);
+}
+
+function isUsableShowcasePipelineTimelineRow(event: unknown): boolean {
+  if (event === null || typeof event !== "object" || Array.isArray(event)) {
+    return false;
+  }
+
+  const row = event as {
+    eventId?: unknown;
+    occurredUtc?: unknown;
+    eventType?: unknown;
+  };
+
+  if (typeof row.eventId !== "string" || row.eventId.trim().length === 0) {
+    return false;
+  }
+
+  if (typeof row.occurredUtc !== "string" || row.occurredUtc.trim().length === 0) {
+    return false;
+  }
+
+  if (typeof row.eventType !== "string" || row.eventType.trim().length === 0) {
+    return false;
+  }
+
+  return true;
+}
+
+function hasUsableShowcasePipelineTimeline(payload: DemoCommitPagePreviewResponse): boolean {
+  if (!Array.isArray(payload.pipelineTimeline) || payload.pipelineTimeline.length === 0) {
+    return false;
+  }
+
+  const seenEventIds = new Set<string>();
+
+  for (const event of payload.pipelineTimeline) {
+    if (!isUsableShowcasePipelineTimelineRow(event)) {
+      return false;
+    }
+
+    const eventId = (event as { eventId: string }).eventId.trim();
+
+    if (seenEventIds.has(eventId)) {
+      return false;
+    }
+
+    seenEventIds.add(eventId);
+  }
+
+  return true;
+}
+
 export async function fetchShowcasePayload(
   url: string,
 ): Promise<ShowcaseFetchResult> {
@@ -105,11 +160,11 @@ export async function fetchShowcasePayload(
       return { kind: "invalid" };
     }
 
-    if (
-      !Array.isArray(payload.artifacts) ||
-      !Array.isArray(payload.pipelineTimeline) ||
-      payload.pipelineTimeline.some((event) => event === null || typeof event !== "object" || Array.isArray(event))
-    ) {
+    if (!Array.isArray(payload.artifacts) || payload.artifacts.length === 0 || !hasUsableShowcasePipelineTimeline(payload)) {
+      return { kind: "invalid" };
+    }
+
+    if (!hasUsableShowcaseRunExplanation(payload)) {
       return { kind: "invalid" };
     }
 

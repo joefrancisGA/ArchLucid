@@ -15,16 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion645_648_export_compare_comparisons_replay_drift_and_search_openapi_409()
     {
-        string exports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string comparisonsHistory = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.History.cs"));
-        string comparisonGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.SealedManifestGuard.cs"));
-        string comparisonsReplay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
-        string comparisonsDrift = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Drift.cs"));
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string comparisonsHistory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
+        string comparisonsReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
+        string comparisonsDrift = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Drift.cs");
 
         exports.Should().Contain("CompareExportRecords");
         exports.Should().Contain("EnsureSealedManifestReadAllowedForExportRecordAsync");
@@ -46,14 +41,10 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion649_651_governance_lineage_rationale_and_assigned_to_me_count_openapi_409()
     {
-        string governanceInsights = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.Insights.cs"));
-        string governanceGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.SealedManifestGuard.cs"));
-        string stickinessRegisters = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Registers.cs"));
-        string stickinessFacade = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "Stickiness", "GovernanceStickinessFacade.cs"));
+        string governanceInsights = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.Insights.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
+        string stickinessRegisters = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
+        string stickinessFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.cs");
 
         governanceInsights.Should().Contain("GetApprovalRequestLineage");
         governanceInsights.Should().Contain("GetApprovalRequestRationale");
@@ -69,13 +60,7 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
     [Fact]
     public void Suggestion652_trace_forensics_by_trace_id_openapi_409()
     {
-        string forensics = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "InternalArchitectureTraceForensicsController.cs"));
+        string forensics = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/InternalArchitectureTraceForensicsController.cs");
 
         forensics.Should().Contain("GetTraceForensicsByTraceId");
         forensics.Should().Contain("EnsureSealedManifestReadAllowedAsync");
@@ -140,15 +125,15 @@ public sealed class ArchitectureReviewRobustnessWave55ArchitectureTests
 
         approvalsApi.Should().Contain("getApprovalRequestLineage");
         approvalsApi.Should().Contain("getGovernanceApprovalRationale");
-        approvalsApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(approvalsApi);
         lineageHook.Should().Contain("governanceApprovalLineageBlockedReason");
         lineagePageHook.Should().Contain("governanceApprovalLineageBlockedReason");
         lineageBlocked.Should().Contain("governanceApprovalLineageBlockedReason");
         stickinessApi.Should().Contain("getGovernanceAssignedToMeFindingsCount");
-        stickinessApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(stickinessApi);
         assignedCountBlocked.Should().Contain("governanceAssignedToMeCountBlockedReason");
         replayCostApi.Should().Contain("fetchArchitectureComparisonReplayCostEstimate");
-        replayCostApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(replayCostApi);
         graphApi.Should().Contain("architectureGraphTemporalSnapshotBlockedReason");
         temporalBlocked.Should().Contain("architectureGraphTemporalSnapshotBlockedReason");
     }

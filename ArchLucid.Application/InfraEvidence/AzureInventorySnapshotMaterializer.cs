@@ -70,23 +70,10 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
-            List<AzureExtractorExtendedResourceRow> visibleInventoryRows = [];
-            HashSet<string> privateLinkOnlyNicArmIds = AzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(
-                inventory.Resources,
-                inventory.NetworkAssociations);
-
+            // Canonical evidence must retain imported resources independently of diagram visibility.
+            // Diagram consumers apply AzureInventoryVisibleSnapshotProjection when rendering.
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
-                if (AzureInventoryNeverShowArmTypes.ShouldOmitResource(
-                        row.ResourceType,
-                        row.AzureResourceId,
-                        privateLinkOnlyNicArmIds))
-                {
-                    continue;
-                }
-
-                visibleInventoryRows.Add(row);
-
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
                 CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
                     scope,
@@ -141,6 +128,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                         IsRedacted = redacted,
                     });
                 }
+
+                AddBastionSkuNameProperty(row, resourceRowId, properties);
 
                 if (row.IsUnknownType)
                 {
@@ -204,7 +193,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             AzureInventorySecurityEdgeMaterializeResult securityEdges =
                 AzureInventorySecurityEdgeMaterializer.Materialize(
-                    visibleInventoryRows,
+                    inventory.Resources,
                     inventory.RoleAssignments,
                     inventory.NetworkAssociations,
                     inventory.PolicyAssignments,
@@ -251,15 +240,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                 properties,
                 inventory.RecoveryServicesProtectedItems);
 
-            HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(resources);
-            List<AzureInventoryResourceRelationshipWrite> visibleRelationships =
-                AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(
-                    securityEdges.Relationships,
-                    visibleArmIds);
-
             byte[] contentHash = ComputeContentHash(
                 resources,
-                visibleRelationships,
+                securityEdges.Relationships,
                 securityEdges.AdfExternalSources);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
@@ -285,7 +268,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
-                    RelationshipCount = visibleRelationships.Count,
+                    RelationshipCount = securityEdges.Relationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
                     WarningCount = securityEdges.CompletenessWarnings.Count,
                     CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
@@ -298,7 +281,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     SubscriptionName = subscriptionName,
                     Resources = resources,
                     Properties = properties,
-                    Relationships = visibleRelationships,
+                    Relationships = securityEdges.Relationships,
                     AdfExternalSources = securityEdges.AdfExternalSources,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
@@ -325,7 +308,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 Succeeded = true,
                 CaptureStatus = status,
                 ResourceCount = resources.Count,
-                RelationshipCount = visibleRelationships.Count,
+                RelationshipCount = securityEdges.Relationships.Count,
                 ContentHashSha256 = contentHash,
             };
         }
@@ -391,6 +374,35 @@ public sealed class AzureInventorySnapshotMaterializer(
         }
 
         return SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+    }
+
+    private static void AddBastionSkuNameProperty(
+        AzureExtractorExtendedResourceRow row,
+        Guid resourceRowId,
+        List<AzureInventoryResourcePropertyWrite> properties)
+    {
+        if (string.IsNullOrWhiteSpace(row.SkuName)
+            || !row.ResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (properties.Any(property =>
+                property.ResourceRowId == resourceRowId
+                && property.PropertyKey.Equals(
+                    InventoryDiagramOrphanedStatePropertyKeys.SkuName,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        properties.Add(new AzureInventoryResourcePropertyWrite
+        {
+            ResourceRowId = resourceRowId,
+            PropertyKey = InventoryDiagramOrphanedStatePropertyKeys.SkuName,
+            PropertyValue = row.SkuName.Trim(),
+            IsRedacted = false,
+        });
     }
 
     private static void AppendRecoveryServicesVaultProtectedItemProperties(

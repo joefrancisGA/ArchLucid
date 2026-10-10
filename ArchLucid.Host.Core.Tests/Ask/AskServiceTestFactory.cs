@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
@@ -94,6 +95,11 @@ internal static class AskServiceTestFactory
             resolvedIndexing,
             NullLogger<AskResponseComposer>.Instance);
 
+        FindingInstrumentationAuditSupport resolvedFindingAudit = findingInstrumentationAudit
+            ?? new FindingInstrumentationAuditSupport(
+                Mock.Of<IAuditService>(),
+                NullLogger<FindingInstrumentationAuditSupport>.Instance);
+
         return new AskService(
             resolvedLlm,
             resolvedConversation,
@@ -103,7 +109,7 @@ internal static class AskServiceTestFactory
             narrativeBuilder,
             responseComposer,
             historyBuilder,
-            findingInstrumentationAudit ?? Mock.Of<FindingInstrumentationAuditSupport>(),
+            resolvedFindingAudit,
             actorContext ?? CreateDefaultActorContext(),
             NullLogger<AskService>.Instance);
     }

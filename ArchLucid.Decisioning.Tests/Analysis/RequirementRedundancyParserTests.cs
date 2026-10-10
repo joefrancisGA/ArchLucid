@@ -6,6 +6,7 @@ using Xunit;
 
 namespace ArchLucid.Decisioning.Tests.Analysis;
 
+[Trait("Category", "Unit")]
 public sealed class RequirementRedundancyParserTests
 {
     [Fact]

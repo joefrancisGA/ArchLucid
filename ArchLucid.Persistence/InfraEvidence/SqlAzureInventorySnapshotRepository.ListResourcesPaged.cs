@@ -1,11 +1,13 @@
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
@@ -20,6 +22,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
     private static readonly string PagedVisibleSqlDatabaseNamePredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlNeverShowSqlDatabasePredicate("ResourceType", "AzureResourceId");
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime visibility filter SQL; AzureInventoryResources scope via ScopeContext parameters.")]
     public async Task<(IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)?> ListResourcesBySnapshotIdPagedAsync(
         ScopeContext scope,
         Guid snapshotId,

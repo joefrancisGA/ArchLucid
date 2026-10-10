@@ -14,11 +14,11 @@ public sealed class CareerGravityCg033PipelineCompleteCopyArchitectureTests
     [Fact]
     public void Cg033_review_detail_wires_pipeline_complete_honesty_copy()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "pipeline-complete-career-honesty-copy.ts"));
-        string workspace = File.ReadAllText(
+        string workspace = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "run-detail-workspace-derive", "workspace-status.ts"));
-        string tracker = File.ReadAllText(
+        string tracker = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "use-run-progress-tracker.ts"));
 
         copy.Should().Contain("WORKING_PIPELINE_REHEARSAL_COMPLETE_LABEL");
@@ -30,7 +30,7 @@ public sealed class CareerGravityCg033PipelineCompleteCopyArchitectureTests
     [Fact]
     public void Cg033_docs_record_pipeline_complete_copy_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-033");

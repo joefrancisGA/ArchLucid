@@ -14,17 +14,9 @@ public sealed class CareerGravityCg037DigestAsCareerArchitectureTests
     [Fact]
     public void Cg037_exec_digest_wires_career_honesty_presenter()
     {
-        string presenter = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestCareerHonestyPresenter.cs"));
-        string composer = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "ExecDigest", "ExecDigestComposer.cs"));
-        string dispatcher = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Notifications",
-                "Email",
-                "ExecDigestEmailDispatcher.cs"));
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ExecDigest/ExecDigestCareerHonestyPresenter.cs");
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ExecDigest/ExecDigestComposer.cs");
+        string dispatcher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Notifications/Email/ExecDigestEmailDispatcher.cs");
         string sponsorPanel = File.ReadAllText(
             Path.Combine(
                 RepoRoot,

@@ -15,18 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave54ArchitectureTests
     [Fact]
     public void Suggestion633_638_review_trail_export_record_comparisons_and_provenance_openapi_409()
     {
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string exports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string exportGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.SealedManifestGuard.cs"));
-        string comparisons = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.History.cs"));
-        string comparisonGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.SealedManifestGuard.cs"));
-        string provenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string exportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.SealedManifestGuard.cs");
+        string comparisons = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
 
         authorityReads.Should().Contain("GetReviewTrailExport");
         authorityReads.Should().Contain("SealedManifestReadGuard");
@@ -61,9 +55,9 @@ public sealed class ArchitectureReviewRobustnessWave54ArchitectureTests
 
         approvalsApi.Should().Contain("listApprovalRequests");
         approvalsApi.Should().Contain("listPromotions");
-        approvalsApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(approvalsApi);
         environmentsApi.Should().Contain("listActivations");
-        environmentsApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(environmentsApi);
         workflowHook.Should().Contain("governanceWorkflowRunReadBlockedReason");
         workflowBlocked.Should().Contain("governanceWorkflowRunReadBlockedReason");
     }
@@ -84,12 +78,12 @@ public sealed class ArchitectureReviewRobustnessWave54ArchitectureTests
 
         exportHistoryHook.Should().Contain("getRunExportHistory");
         exportHistoryHook.Should().Contain("runExportHistoryBlockedReason");
-        exportHistoryApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportHistoryApi);
         exportHistoryBlocked.Should().Contain("runExportHistoryBlockedReason");
         detailArtifacts.Should().Contain("getRunProvenance");
         detailArtifacts.Should().Contain("/v1/runs/");
         detailArtifacts.Should().Contain("review-trail/provenance");
-        detailArtifacts.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(detailArtifacts);
         provenanceBlocked.Should().Contain("runProvenanceBlockedReason");
     }
 
@@ -108,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave54ArchitectureTests
                 "export-record-comparison-history-blocked-reason.ts"));
 
         exportRecordComparisonApi.Should().Contain("getExportRecordComparisonHistory");
-        exportRecordComparisonApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportRecordComparisonApi);
         exportRecordComparisonApi.Should().Contain("/v1/architecture/run/exports/");
         exportRecordComparisonBlocked.Should().Contain("exportRecordComparisonHistoryBlockedReason");
     }

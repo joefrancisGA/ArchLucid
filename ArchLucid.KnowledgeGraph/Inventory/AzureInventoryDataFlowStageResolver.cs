@@ -120,7 +120,8 @@ public static class AzureInventoryDataFlowStageResolver
 
         if (AzureInventoryAdfExternalSourceNodeFactory.IsExternalSourceNodeId(node.NodeId)
             || (node.Properties != null
-                && node.Properties.TryGetValue(
+                && GraphNodePropertyReader.TryGetPropertyValue(
+                    node.Properties,
                     AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyKey,
                     out string? externalFlag)
                 && string.Equals(
@@ -151,7 +152,7 @@ public static class AzureInventoryDataFlowStageResolver
     private static string ReadArmType(GraphNode node)
     {
         if (node.Properties != null
-            && node.Properties.TryGetValue("arm.type", out string? armType)
+            && GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.type", out string? armType)
             && !string.IsNullOrWhiteSpace(armType))
         {
             return armType;

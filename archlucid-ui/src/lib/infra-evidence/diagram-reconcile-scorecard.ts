@@ -134,10 +134,13 @@ export function buildDiagramReconcileCsv(
     });
 
   (reconciliation.edgeGaps ?? []).forEach((gap) => {
+    const fromCloudResourceId = gap.fromCloudResourceId?.trim() || "Endpoint was not stored";
+    const toCloudResourceId = gap.toCloudResourceId?.trim() || "Endpoint was not stored";
+
     lines.push([
       "connector-gap",
       gap.gapKind,
-      `${gap.fromCloudResourceId ?? "—"} → ${gap.toCloudResourceId ?? "—"}`,
+      `${fromCloudResourceId} → ${toCloudResourceId}`,
       "",
       gap.associationType,
       1,

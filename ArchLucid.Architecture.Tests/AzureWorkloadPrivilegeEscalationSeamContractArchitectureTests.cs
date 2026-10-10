@@ -16,7 +16,7 @@ public sealed class AzureWorkloadPrivilegeEscalationSeamContractArchitectureTest
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1244");
         text.Should().Contain("enable_api_sql_runtime_identity");
         text.Should().Contain("db_owner");
@@ -33,11 +33,11 @@ public sealed class AzureWorkloadPrivilegeEscalationSeamContractArchitectureTest
         File.Exists(packetPath).Should().BeTrue();
         File.Exists(aliasPath).Should().BeTrue();
 
-        string packet = File.ReadAllText(packetPath);
+        string packet = ArchitectureSourceProbe.ReadPathWithPartials(packetPath);
         packet.Should().Contain("azure-workload-privilege-escalation-seam-m-216");
         packet.Should().Contain("TB-1244");
 
-        File.ReadAllText(aliasPath).Should().Contain("M-216");
+        ArchitectureSourceProbe.ReadPathWithPartials(aliasPath).Should().Contain("M-216");
     }
 
     [Fact]
@@ -51,8 +51,8 @@ public sealed class AzureWorkloadPrivilegeEscalationSeamContractArchitectureTest
         File.Exists(openAiTf).Should().BeTrue();
         File.Exists(miDoc).Should().BeTrue();
 
-        File.ReadAllText(mainTf).Should().Contain("enable_api_sql_runtime_identity");
-        File.ReadAllText(openAiTf).Should().Contain("Cognitive Services OpenAI User");
+        ArchitectureSourceProbe.ReadPathWithPartials(mainTf).Should().Contain("enable_api_sql_runtime_identity");
+        ArchitectureSourceProbe.ReadPathWithPartials(openAiTf).Should().Contain("Cognitive Services OpenAI User");
     }
 
     private static string FindRepoRoot()

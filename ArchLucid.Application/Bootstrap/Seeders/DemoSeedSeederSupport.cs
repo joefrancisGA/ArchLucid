@@ -30,6 +30,7 @@ internal static class DemoSeedSeederSupport
 
     internal static async Task TryRepairSeededRunDescriptionAsync(
         DemoSeedSeederDependencies deps,
+        ScopeContext workspaceScope,
         RunRecord run,
         CancellationToken cancellationToken)
     {
@@ -41,7 +42,21 @@ internal static class DemoSeedSeederSupport
         bool projectChanged = !string.Equals(repairedProjectId, run.ProjectId, StringComparison.Ordinal);
 
         if (!descriptionChanged && !projectChanged)
+        {
+            await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+                deps,
+                workspaceScope,
+                run.RunId,
+                cancellationToken);
+
+            await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
+                deps,
+                workspaceScope,
+                run.RunId,
+                cancellationToken);
+
             return;
+        }
 
         if (descriptionChanged)
             run.Description = repairedDescription;
@@ -50,6 +65,18 @@ internal static class DemoSeedSeederSupport
             run.ProjectId = repairedProjectId;
 
         await deps.RunRepository.UpdateAsync(run, cancellationToken);
+
+        await DemoSeedSealedExportReceiptRepair.TryEnsureSealedExportReceiptFieldsAsync(
+            deps,
+            workspaceScope,
+            run.RunId,
+            cancellationToken);
+
+        await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
+            deps,
+            workspaceScope,
+            run.RunId,
+            cancellationToken);
     }
 
     internal static string ProductTourDemoSuffix(Guid tenantId)

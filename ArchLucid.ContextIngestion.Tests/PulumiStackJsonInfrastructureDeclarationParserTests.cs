@@ -50,6 +50,39 @@ public sealed class PulumiStackJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ignoresNonObjectResourceEntries()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "stack.json",
+            Format = "pulumi-stack-json",
+            DeclarationId = "decl-pulumi-malformed-resource",
+            Content = """
+                      {
+                        "version": 3,
+                        "deployment": {
+                          "resources": [
+                            "malformed-resource-entry",
+                            {
+                              "urn": "urn:pulumi:dev::proj::azure-native:storage:StorageAccount::orders",
+                              "type": "azure-native:storage:StorageAccount",
+                              "outputs": {
+                                "name": "ordersacct"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("ordersacct");
+    }
+
+    [Fact]
     public async Task ParseAsync_providerOnlyExport_ReturnsEmpty()
     {
         InfrastructureDeclarationReference declaration = new()

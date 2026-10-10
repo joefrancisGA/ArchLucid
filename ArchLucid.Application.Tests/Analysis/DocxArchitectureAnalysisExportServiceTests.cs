@@ -3,6 +3,7 @@ using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
 using DocumentFormat.OpenXml.Packaging;
@@ -78,6 +79,40 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateDocxAsync_uses_omission_copy_for_missing_confidence()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Compliance,
+                        LeftConfidence = null,
+                        RightConfidence = 0,
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Left confidence was not stored.");
+        text.Should().Contain("Right Confidence: 0.00");
+        text.Should().NotContain("n/a");
+    }
+
+    [Fact]
     public async Task GenerateDocxAsync_includes_execution_traces()
     {
         DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
@@ -113,6 +148,118 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain("Trace ID: trace-1");
         text.Should().Contain("system prompt");
         text.Should().Contain("{\"result\":\"accepted\"}");
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_includes_evidence_assumptions_policies_catalog_and_patterns()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Checkout API",
+                    Assumptions = ["Traffic stays in one region"],
+                },
+                Policies =
+                [
+                    new PolicyEvidence
+                    {
+                        PolicyId = "policy-encrypt",
+                        Title = "Encrypt at rest",
+                        Summary = "Stored data uses platform encryption",
+                        RequiredControls = ["cmk"],
+                    },
+                ],
+                ServiceCatalog =
+                [
+                    new ServiceCatalogEvidence
+                    {
+                        ServiceName = "Azure Service Bus",
+                        Category = "Messaging",
+                        Summary = "Durable queues",
+                        RecommendedUseCases = ["Async fan-out"],
+                    },
+                ],
+                Patterns =
+                [
+                    new PatternEvidence
+                    {
+                        PatternId = "pattern-event-driven",
+                        Name = "Event-Driven Architecture",
+                        Summary = "Decouple producers from consumers",
+                        SuggestedServices = ["Azure Service Bus"],
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Traffic stays in one region");
+        text.Should().Contain("Encrypt at rest");
+        text.Should().Contain("policy-encrypt");
+        text.Should().Contain("Azure Service Bus");
+        text.Should().Contain("Async fan-out");
+        text.Should().Contain("Event-Driven Architecture");
+        text.Should().Contain("pattern-event-driven");
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_includes_parent_manifest_version_and_governance()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                SystemName = "Acme",
+                Metadata = new ManifestMetadata
+                {
+                    ManifestVersion = "v2",
+                    ParentManifestVersion = "v1-parent",
+                },
+                Governance = new ManifestGovernance
+                {
+                    RequiredControls = ["private-endpoint"],
+                    ComplianceTags = ["ISO27001"],
+                    PolicyConstraints = ["data-residency-eu"],
+                    RiskClassification = "High",
+                    CostClassification = "Moderate",
+                },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Parent Manifest Version: v1-parent");
+        text.Should().Contain("Governance");
+        text.Should().Contain("private-endpoint");
+        text.Should().Contain("ISO27001");
+        text.Should().Contain("data-residency-eu");
+        text.Should().Contain("Risk Classification: High");
+        text.Should().Contain("Cost Classification: Moderate");
     }
 
     private static string ExtractDocxBodyText(byte[] docxBytes)

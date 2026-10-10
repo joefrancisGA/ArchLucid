@@ -6,7 +6,11 @@ import {
   buildSemanticSupportBandExportStamp,
   resolveFindingSemanticSupportBandScorerVersion,
 } from "@/lib/findings/finding-semantic-support-band-export";
-import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  humanReviewStatusDisplay,
+  severityBadgeLabel,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
 import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
@@ -96,7 +100,11 @@ function resolveExportRecordStatus(options?: RunFindingsExportOptions): string {
     return PRE_FINALIZE_FINDINGS_EXPORT_MARKER;
   }
 
-  return "Open";
+  if (options?.packageCommitted === true) {
+    return "Finalized review record";
+  }
+
+  return "Record status was not included on this export.";
 }
 
 /** Builds a CSV export for decision-grade findings only (client-side; checklist coverage omitted). */
@@ -118,14 +126,22 @@ export function buildQuickDecisionFindingsCsv(
       runId,
       severityLabelFromQuickDecisionFinding(finding),
       escapeCsvCell(finding.title),
-      escapeCsvCell(finding.recommendation),
-      finding.confidenceLevel ?? "",
-      finding.policyRuleId ?? "",
-      "trustLabel" in trustFields ? trustFields.trustLabel : "",
-      "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
-      semanticSupportBand,
-      semanticSupportBand.length > 0 ? resolveFindingSemanticSupportBandScorerVersion(finding) : "",
-      finding.isMuted ? "Muted" : "Open",
+      escapeCsvCell(finding.recommendation.trim().length > 0
+        ? finding.recommendation
+        : "No recommended action recorded for this finding."),
+      finding.confidenceLevel ?? "Confidence level was not stored",
+      finding.policyRuleId?.trim() || "Policy rule was not stored",
+      "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0
+        ? trustFields.trustLabel
+        : "Trust label was not stored",
+      "trustLabelReason" in trustFields
+        ? trustFields.trustLabelReason ?? "Trust label reason was not stored"
+        : "Trust label reason was not stored",
+      semanticSupportBand.length > 0 ? semanticSupportBand : "Semantic support band was not stored",
+      semanticSupportBand.length > 0
+        ? resolveFindingSemanticSupportBandScorerVersion(finding)
+        : "Semantic support band scorer version was not stored",
+      finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
       escapeCsvCell(recordStatus),
     ].join(",");
   });
@@ -157,7 +173,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       findingTitle: finding.title,
       severityLabel: severityLabelFromQuickDecisionFinding(finding),
       recommendedAction: finding.recommendation,
-      statusLabel: finding.isMuted ? "Muted" : "Open",
+      statusLabel: finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
       ruleId: finding.policyRuleId ?? null,
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
@@ -196,7 +212,12 @@ export function buildRunFindingsItsmJsonExportDocument(
     };
   }
 
-  return document;
+  return {
+    ...document,
+    recordStatus: options?.packageCommitted === true
+      ? "Finalized review record"
+      : "Record status was not included on this export.",
+  };
 }
 
 export function downloadRunFindingsItsmJsonExport(

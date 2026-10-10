@@ -69,9 +69,19 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
                 importedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
             });
 
+        List<string> taskTypes = CollectApprovedTaskTypes(existing.ApprovedTaskTypes);
+
+        // An empty approved-task list is a valid catalog row. Returning it unchanged makes
+        // POST import-faithfulness-harness look successful when no evaluation was stored.
+        if (taskTypes.Count == 0)
+        {
+            throw new InvalidOperationException(
+                $"Model alias '{aliasId}' has no approved task types to attach faithfulness harness evidence.");
+        }
+
         AgentModelCatalogRow updated = existing;
 
-        foreach (string taskType in existing.ApprovedTaskTypes.Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string taskType in taskTypes)
         {
             updated = await _evaluationRecorder
                 .RecordTaskEvaluationAsync(
@@ -85,5 +95,17 @@ public sealed class AgentModelCatalogFaithfulnessHarnessImporter(
         }
 
         return updated;
+    }
+
+    private static List<string> CollectApprovedTaskTypes(IReadOnlyList<string>? approvedTaskTypes)
+    {
+        if (approvedTaskTypes is null || approvedTaskTypes.Count == 0)
+            return [];
+
+        return approvedTaskTypes
+            .Select(static taskType => taskType?.Trim() ?? string.Empty)
+            .Where(static taskType => taskType.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

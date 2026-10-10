@@ -15,18 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion705_707_posture_seal_delta_and_export_replay_openapi_409()
     {
-        string postureController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePostureController.cs"));
-        string postureGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePostureController.SealedManifestGuard.cs"));
-        string architecturesController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
-        string architecturesGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.SealedManifestGuard.cs"));
-        string sealDeltaGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSealDeltaSealedManifestReadGuard.cs"));
-        string exportsController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
+        string postureController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs");
+        string postureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.SealedManifestGuard.cs");
+        string architecturesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
+        string architecturesGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
+        string sealDeltaGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureSealDeltaSealedManifestReadGuard.cs");
+        string exportsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
 
         postureController.Should().Contain("GetPosture");
         postureController.Should().Contain("EnsureGovernancePostureSealedManifestReadAllowedAsync");
@@ -43,29 +37,15 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     [Fact]
     public void Suggestion708_710_run_inventory_preview_and_coverage_preview_openapi_409()
     {
-        string authorityReadsController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityReadsGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.SealedManifestGuard.cs"));
-        string authorityQueryList = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.List.cs"));
-        string authorityQueryGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.SealedManifestGuard.cs"));
-        string runInventoryGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunInventorySealedManifestReadGuard.cs"));
-        string previewController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.cs"));
-        string previewGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernancePreviewController.SealedManifestGuard.cs"));
-        string coverageController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceCoverageController.cs"));
-        string coveragePreviewGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Coverage",
-                "GovernanceCoveragePreviewSealedManifestHashGuard.cs"));
+        string authorityReadsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string authorityReadsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs");
+        string authorityQueryList = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.List.cs");
+        string authorityQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
+        string runInventoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs");
+        string previewController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.cs");
+        string previewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.SealedManifestGuard.cs");
+        string coverageController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceCoverageController.cs");
+        string coveragePreviewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Coverage/GovernanceCoveragePreviewSealedManifestHashGuard.cs");
 
         authorityReadsController.Should().Contain("ListRuns");
         authorityReadsController.Should().Contain("EnsureRunInventorySealedManifestReadAllowedAsync");
@@ -121,12 +101,12 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
         string draftBlocked = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-draft-blocked-reason.ts"));
 
-        runsListApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runsListApi);
         runListBlocked.Should().Contain("runListBlockedReason");
         loadRunsPage.Should().Contain("runListBlockedReason");
         runsPageView.Should().Contain("runs-page-list-blocked-reason");
         draftApi.Should().Contain("getDraftRequest");
-        draftApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(draftApi);
         draftHook.Should().Contain("architectureDraftBlockedReason");
         draftBlocked.Should().Contain("architectureDraftBlockedReason");
     }

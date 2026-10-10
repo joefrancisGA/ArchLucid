@@ -69,8 +69,7 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "finding-explain-blocked-reason.ts"));
         string findingExplainPanel = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "FindingExplainPanel.tsx"));
-        string findingLlmAudit = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
+        string findingLlmAudit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
 
         askRecovery.Should().Contain("formatAskStreamHttpError");
         askBlockedReason.Should().Contain("askBlockedReason");
@@ -87,10 +86,8 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
     [Fact]
     public void Suggestion509_511_roi_freshness_and_openapi_409()
     {
-        string pilotReport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "PilotValueReport.cs"));
-        string pilotService = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "PilotValueReportService.cs"));
+        string pilotReport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/PilotValueReport.cs");
+        string pilotService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/PilotValueReportService.cs");
         string exportControls = File.ReadAllText(
             Path.Combine(
                 RepoRoot,
@@ -113,8 +110,7 @@ public sealed class ArchitectureReviewRobustnessWave43ArchitectureTests
                 "sponsor-report",
                 "_sections",
                 "use-pilot-value-report-pilot-page.ts"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
 
         pilotReport.Should().Contain("RoiSourceFreshnessDisposition");
         pilotService.Should().Contain("RoiSourceFreshnessDisposition");

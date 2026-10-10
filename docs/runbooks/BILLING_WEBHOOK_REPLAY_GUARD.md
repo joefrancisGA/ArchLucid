@@ -52,7 +52,7 @@ Implementation: `StripeBillingProvider`, `AzureMarketplaceBillingProvider`, `Mem
 | Cache key | `billing-webhook-replay:{provider}:{eventId}` |
 | Methods | `HasSeenAsync` (reject), `RememberAsync` (after successful processing) |
 
-When `HasSeenAsync` returns true **before** ledger insert, the provider returns `BillingWebhookHandleResult.ReplayRejected` → controllers respond with **HTTP 400** and a problem detail explaining replay within the protection window.
+When `HasSeenAsync` returns true **before** ledger insert, the provider returns `BillingWebhookHandleResult.ReplayRejected` → controllers respond with **HTTP 200** without reprocessing (Stripe and Marketplace require a 2xx ack for duplicate deliveries; see `BillingStripeWebhookReplayHttpTests` and `BillingMarketplaceWebhookReplayHttpTests`).
 
 **Important:** This layer is **per API host process memory**. After a cold restart, only the SQL ledger (below) protects against duplicates until the same event id is seen again within 24h on that instance.
 
@@ -67,7 +67,7 @@ Table: **`dbo.BillingWebhookEvents`** (PK **`EventId`** = dedupe key).
 | First sight | `TryInsertWebhookEventAsync` inserts row with `ResultStatus = 'Received'`. |
 | Success | `MarkWebhookProcessedAsync(..., 'Processed')` + replay guard `RememberAsync`. |
 | Failure | `MarkWebhookProcessedAsync(..., 'Failed')` — event id remains reserved; investigate before forced replay. |
-| Duplicate insert | PK violation → read prior `ResultStatus`. If **`Processed`**, treat as replay → **400** (Stripe/Marketplace providers today). |
+| Duplicate insert | PK violation → read prior `ResultStatus`. If **`Received`** or **`Processed`**, treat as replay → `ReplayRejected` → **HTTP 200** at controllers (no mutation). |
 
 Marketplace may also return **HTTP 200** with `DuplicateIgnored` when the controller path is wired for idempotent no-op (see `BillingMarketplaceWebhookController`).
 
@@ -78,7 +78,7 @@ Marketplace may also return **HTTP 200** with `DuplicateIgnored` when the contro
 | Result flag | Stripe HTTP | Marketplace HTTP | Side effects |
 |-------------|-------------|------------------|--------------|
 | Signature/JWT rejected | **400** | **400** | None |
-| `IsReplayRejected` | **400** | **400** | None |
+| `IsReplayRejected` | **200** | **200** | None (duplicate within replay window; no reprocessing) |
 | `DuplicateIgnored` | — | **200** | None |
 | `Returns202Accepted` (GA rollback no-op) | — | **202** | Ledger only (`AcknowledgedNoOp`) |
 | Success | **200** | **200** | Subscription / trial activation per event type |

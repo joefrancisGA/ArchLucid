@@ -135,5 +135,6 @@ internal static class ApplicationDatabaseExceptionMapper
 
     private static bool IsSqlProgrammingFaultNumber(int number) =>
         // 8120 = column invalid in select list (missing from GROUP BY / aggregate) — deterministic query bug, not outage.
-        number is 102 or 156 or 207 or 208 or 547 or 2812 or 319 or 4104 or 8120;
+        // 137 = undeclared variable, including a scope parameter glued to the next keyword (@ScopeProjectIdORDER).
+        number is 102 or 137 or 156 or 207 or 208 or 547 or 2812 or 319 or 4104 or 8120;
 }

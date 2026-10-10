@@ -25,13 +25,27 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
         List<string> factors = [$"Tenant tier: {tenant.Tier}.", "Band widened to cover optional Azure OpenAI attach for authority runs."];
         (decimal low, decimal high) = tenant.Tier switch
         {
-            TenantTier.Standard => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
-            TenantTier.Enterprise => (rates.EnterpriseMonthlyUsdLow, rates.EnterpriseMonthlyUsdHigh),
+            TenantTier.Standard => OrderMonthlyBand(rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
+            TenantTier.Enterprise => OrderMonthlyBand(rates.EnterpriseMonthlyUsdLow, rates.EnterpriseMonthlyUsdHigh),
             TenantTier.Free => (0, 0),
             _ => throw new InvalidOperationException("Tenant tier is not defined."),
         };
         if (tenant.Tier is TenantTier.Free)
             factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");
         return new TenantCostEstimate(rates.Currency, tenant.Tier, low, high, factors, rates.MethodologyNote);
+    }
+
+    /// <summary>
+    /// Why ArchLucid prints the pair as a monthly band (low — high). The two
+    /// <c>Billing:UnitRates</c> fields bind independently, so an inverted pair would display backwards.
+    /// </summary>
+    private static (decimal Low, decimal High) OrderMonthlyBand(decimal configuredLow, decimal configuredHigh)
+    {
+        if (configuredLow <= configuredHigh)
+        {
+            return (configuredLow, configuredHigh);
+        }
+
+        return (configuredHigh, configuredLow);
     }
 }

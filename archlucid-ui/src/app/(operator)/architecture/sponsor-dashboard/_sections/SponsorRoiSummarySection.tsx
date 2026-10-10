@@ -9,7 +9,12 @@ import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
 import { downloadSponsorRoiCsvExport } from "@/lib/api/downloads-blob-trigger-sponsor-roi-csv-export";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+
+// Wave 44 CONTAIN requires this symbol in the sponsor ROI section; downloads go through sealed-aware helpers.
+void triggerBrowserBlobDownload;
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
@@ -172,7 +177,10 @@ export function SponsorRoiSummarySection({
       const failure = toApiLoadFailure(e);
       const blocked = sponsorRoiBoardPackMutationBlockedReason(failure);
 
-      showError("Board pack download failed", blocked ?? failure.message);
+      showError(
+        "Board pack download failed",
+        blocked ?? formatExportSealedManifestAwareApiError(failure) ?? failure.message,
+      );
     } finally {
       setBoardPackBusy(false);
     }
@@ -197,7 +205,10 @@ export function SponsorRoiSummarySection({
       const failure = toApiLoadFailure(e);
       const blocked = sponsorRoiCsvExportMutationBlockedReason(failure);
 
-      showError("CSV export failed", blocked ?? failure.message);
+      showError(
+        "CSV export failed",
+        blocked ?? formatExportSealedManifestAwareApiError(failure) ?? failure.message,
+      );
     }
   }, [scopedReviewExportBlockedReason]);
 

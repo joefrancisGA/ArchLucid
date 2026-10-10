@@ -63,8 +63,8 @@ internal static class CompareVerdictChromeExportFormatter
             AppendSideBySideMarkdown(
                 sb,
                 "Run-level estimated savings (USD)",
-                delta.RoiHeadline.BaselineSavingsLabel ?? "—",
-                delta.RoiHeadline.TargetSavingsLabel ?? "—");
+                BaselineSavingsLabel(delta.RoiHeadline.BaselineSavingsLabel),
+                UpdatedSavingsLabel(delta.RoiHeadline.TargetSavingsLabel));
         }
 
         sb.AppendLine($"**Policy influence:** {delta.Wk21Line}");
@@ -122,8 +122,8 @@ internal static class CompareVerdictChromeExportFormatter
             AppendSideBySideHtml(
                 sb,
                 "Run-level estimated savings (USD)",
-                delta.RoiHeadline.BaselineSavingsLabel ?? "—",
-                delta.RoiHeadline.TargetSavingsLabel ?? "—");
+                BaselineSavingsLabel(delta.RoiHeadline.BaselineSavingsLabel),
+                UpdatedSavingsLabel(delta.RoiHeadline.TargetSavingsLabel));
         }
 
         sb.AppendLine(
@@ -174,7 +174,7 @@ internal static class CompareVerdictChromeExportFormatter
         if (delta.RoiHeadline is not null)
         {
             lines.Add(
-                $"Run-level estimated savings — baseline: {delta.RoiHeadline.BaselineSavingsLabel ?? "—"}, updated: {delta.RoiHeadline.TargetSavingsLabel ?? "—"}");
+                $"Run-level estimated savings — baseline: {BaselineSavingsLabel(delta.RoiHeadline.BaselineSavingsLabel)}, updated: {UpdatedSavingsLabel(delta.RoiHeadline.TargetSavingsLabel)}");
         }
 
         lines.Add($"Policy influence: {delta.Wk21Line}");
@@ -216,6 +216,16 @@ internal static class CompareVerdictChromeExportFormatter
         sb.AppendLine($"| Baseline review | {baselineValue} |");
         sb.AppendLine($"| Updated review | {targetValue} |");
         sb.AppendLine();
+    }
+
+    private static string BaselineSavingsLabel(string? value)
+    {
+        return value ?? "Baseline savings was not stored.";
+    }
+
+    private static string UpdatedSavingsLabel(string? value)
+    {
+        return value ?? "Updated savings was not stored.";
     }
 
     private static void AppendSideBySideHtml(

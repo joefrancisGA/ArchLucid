@@ -411,6 +411,80 @@ public sealed class GovernancePreviewServiceTests
     }
 
     [SkippableFact]
+    public async Task PreviewActivationAsync_accepts_equivalent_guid_run_id_formats()
+    {
+        // HTTP preview sends the dashed GUID. Persisted manifests keep the canonical N form.
+        Guid architectureRunId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        string callerRunId = architectureRunId.ToString("D");
+        string persistedRunId = architectureRunId.ToString("N");
+
+        _runDetailQueryService
+            .Setup(s => s.GetRunDetailAsync(callerRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun
+                {
+                    RunId = persistedRunId,
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    CurrentManifestVersion = "v1",
+                },
+                Manifest = Manifest(persistedRunId, "v1", g => g.RequiredControls.Add("PEP")),
+            });
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = callerRunId,
+            ManifestVersion = "v1",
+            Environment = "dev",
+        });
+
+        result.PreviewRunId.Should().Be(callerRunId);
+        result.Differences.Should().Contain(d =>
+            d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Added);
+    }
+
+    [SkippableFact]
+    public async Task PreviewActivationAsync_keeps_current_activation_when_run_id_formats_differ()
+    {
+        Guid currentRunId = Guid.Parse("33333333-4444-5555-6666-777777777777");
+        string persistedRunId = currentRunId.ToString("N");
+        string dashedRunId = currentRunId.ToString("D");
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail(RunA));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest(RunA, "v2"));
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v-old", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest(persistedRunId, "v-old", g => g.RequiredControls.Add("PEP")));
+
+        GovernanceEnvironmentActivation currentActivation = new()
+        {
+            ActivationId = "act-1",
+            RunId = dashedRunId,
+            ManifestVersion = "v-old",
+            Environment = "test",
+            IsActive = true,
+        };
+        _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<GovernanceEnvironmentActivation> { currentActivation });
+
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        {
+            RunId = RunA,
+            ManifestVersion = "v2",
+            Environment = "test",
+        });
+
+        result.CurrentRunId.Should().Be(dashedRunId);
+        result.Differences.Should().Contain(d =>
+            d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Removed);
+    }
+
+    [SkippableFact]
     public async Task PreviewActivationAsync_accepts_padded_run_id_and_manifest_version_when_in_scope()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))

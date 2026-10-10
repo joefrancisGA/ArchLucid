@@ -70,4 +70,27 @@ internal static partial class TerraformAzurermResourceTypeParser
 
         return leaf;
     }
+
+    /// <summary>
+    ///     Drops a trailing Terraform instance key (<c>[0]</c> or <c>[key]</c>) from a resource address.
+    ///     Count and for_each addresses stay distinct until this strip; the resource address is the span before the key.
+    /// </summary>
+    internal static string? TryStripTrailingInstanceKey(string? terraformAddress)
+    {
+        if (string.IsNullOrWhiteSpace(terraformAddress))
+            return null;
+
+        string trimmed = terraformAddress.Trim();
+        int bracket = trimmed.LastIndexOf('[');
+
+        if (bracket <= 0 || trimmed[^1] != ']')
+            return null;
+
+        string resourceAddress = trimmed[..bracket];
+
+        if (resourceAddress.IndexOf('.', StringComparison.Ordinal) < 0)
+            return null;
+
+        return resourceAddress;
+    }
 }

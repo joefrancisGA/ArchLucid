@@ -40,9 +40,9 @@ public sealed class AzureInventorySnapshotMaterializerTests
             """
             [
               {
-                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
-                "resourceType": "Microsoft.Compute/virtualMachines",
-                "name": "vm1",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/ext1",
+                "resourceType": "Microsoft.Compute/virtualMachines/extensions",
+                "name": "ext1",
                 "location": "eastus",
                 "properties": {}
               }
@@ -66,10 +66,11 @@ public sealed class AzureInventorySnapshotMaterializerTests
 
         result.Succeeded.Should().BeTrue();
         captured.Should().NotBeNull();
-        captured!.Relationships.Should().BeEmpty(
-            "parent-child edges are omitted when the parent ARM id is not itself a visible inventory row");
-        captured.RelationshipCount.Should().Be(0);
-        result.RelationshipCount.Should().Be(0);
+        captured!.Relationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.Contains
+            && relationship.ProvenanceKind == ProvenanceKind.ObservedFact);
+        captured.RelationshipCount.Should().Be(captured.Relationships.Count);
+        result.RelationshipCount.Should().Be(captured.Relationships.Count);
     }
 
     [Fact]
@@ -174,7 +175,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
     }
 
     [Fact]
-    public async Task TryMaterializePackageAsync_omits_never_show_solutions_and_virtual_network_links()
+    public async Task TryMaterializePackageAsync_preserves_hidden_resources_but_visible_projection_still_omits_them()
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -207,9 +208,21 @@ public sealed class AzureInventorySnapshotMaterializerTests
               },
               {
                 "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1",
-                "resourceType": "",
+                "resourceType": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
                 "name": "link1",
                 "location": "eastus",
+                "properties": { "registrationEnabled": "false" }
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi1",
+                "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "name": "mi1",
+                "properties": {}
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1",
+                "resourceType": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                "name": "peer1",
                 "properties": {}
               }
             ]
@@ -234,9 +247,25 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.Should().NotBeNull();
         captured!.Resources.Should().ContainSingle(resource =>
             resource.ResourceType == "Microsoft.Storage/storageAccounts");
-        captured.Resources.Should().NotContain(resource =>
-            resource.AzureResourceId.Contains("/solutions/", StringComparison.OrdinalIgnoreCase)
-            || resource.AzureResourceId.Contains("/virtualNetworkLinks/", StringComparison.OrdinalIgnoreCase));
+        captured.Resources.Should().HaveCount(5);
+        captured.Resources.Should().Contain(resource =>
+            resource.AzureResourceId.Contains("/solutions/", StringComparison.OrdinalIgnoreCase));
+        captured.Resources.Should().Contain(resource =>
+            resource.AzureResourceId.Contains("/virtualNetworkLinks/", StringComparison.OrdinalIgnoreCase));
+        captured.Relationships.Should().Contain(relationship =>
+            relationship.ToAzureResourceId.EndsWith("/virtualnetworklinks/link1", StringComparison.OrdinalIgnoreCase));
+        captured.Resources.Should().Contain(resource =>
+            resource.ResourceType == "Microsoft.ManagedIdentity/userAssignedIdentities");
+        captured.Resources.Should().Contain(resource =>
+            resource.ResourceType == "Microsoft.Network/virtualNetworks/virtualNetworkPeerings");
+        Guid linkRowId = captured.Resources.Single(resource =>
+            resource.AzureResourceId.EndsWith("/virtualnetworklinks/link1", StringComparison.OrdinalIgnoreCase)).ResourceRowId;
+        captured.Properties.Should().Contain(property =>
+            property.ResourceRowId == linkRowId
+            && property.PropertyKey == "registrationEnabled"
+            && property.PropertyValue == "false");
+        AzureInventoryVisibleSnapshotProjection.FilterVisibleResources(captured.Resources)
+            .Should().ContainSingle(resource => resource.ResourceType == "Microsoft.Storage/storageAccounts");
     }
 
     [Fact]
@@ -294,10 +323,14 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.Should().NotBeNull();
         captured!.Resources.Should().ContainSingle(resource =>
             resource.ResourceType == "Microsoft.Storage/storageAccounts");
-        captured.Relationships.Should().BeEmpty(
-            "diagnostic edges to omitted Log Analytics workspaces are not attested");
-        captured.RelationshipCount.Should().Be(0);
-        result.RelationshipCount.Should().Be(0);
+        captured.Relationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == GraphEdgeTypes.ConnectsTo
+            && relationship.ToAzureResourceId.EndsWith("/workspaces/log1", StringComparison.OrdinalIgnoreCase));
+        captured.RelationshipCount.Should().Be(captured.Relationships.Count);
+        result.RelationshipCount.Should().Be(captured.Relationships.Count);
+        HashSet<string> visibleArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(captured.Resources);
+        AzureInventoryVisibleSnapshotProjection.FilterVisibleRelationships(captured.Relationships, visibleArmIds)
+            .Should().BeEmpty("unresolved endpoints remain hidden in the default diagram projection");
     }
 
     private static Mock<IAzureInventorySnapshotRepository> CreateSnapshotRepository(

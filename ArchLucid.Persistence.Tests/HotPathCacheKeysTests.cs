@@ -98,6 +98,24 @@ public sealed class HotPathCacheKeysTests
     }
 
     [SkippableFact]
+    public void RunListByProjectFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+
+        string unpagedCeilingKey = HotPathCacheKeys.RunListByProjectFirstPage(scope, "billing", 200, 3);
+        string keysetCeilingKey = HotPathCacheKeys.RunListByProjectFirstPage(scope, "billing", 100, 3);
+
+        unpagedCeilingKey.Should().NotBe(keysetCeilingKey);
+        unpagedCeilingKey.Should().Contain(":200:billing");
+        keysetCeilingKey.Should().Contain(":100:billing");
+    }
+
+    [SkippableFact]
     public void RunListRecentInScopeFirstPage_includes_scope_revision()
     {
         ScopeContext scope = new()
@@ -111,6 +129,40 @@ public sealed class HotPathCacheKeysTests
 
         key.Should().Contain(":r7:");
         key.Should().EndWith(":50");
+    }
+
+    [SkippableFact]
+    public void RunListRecentInScopeFirstPage_cache_key_varies_with_clamped_take_so_unpaged_and_keyset_shapes_do_not_collide()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        string unpagedCeilingKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 200, 3);
+        string keysetCeilingKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 100, 3);
+
+        unpagedCeilingKey.Should().NotBe(keysetCeilingKey);
+        unpagedCeilingKey.Should().EndWith(":200");
+        keysetCeilingKey.Should().EndWith(":100");
+    }
+
+    [SkippableFact]
+    public void RunListRecentInScopeFirstPage_offset_limit_does_not_share_cache_key_with_unpaged_two_hundred_ceiling()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        string unpagedKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 200, 4);
+        string offsetKey = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, 50, 4);
+
+        unpagedKey.Should().NotBe(offsetKey);
     }
 
     [SkippableFact]

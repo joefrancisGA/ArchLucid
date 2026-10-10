@@ -89,6 +89,7 @@ import {
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, isLikelySignedIn } from "@/lib/oidc/session";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { parseRetryAfterHeader } from "@/lib/retry-after";
 
 /** JSON body shape for `GET /api/auth/me` — mirrors `CallerIdentityResponse`. */
 export type AuthMeResponse = {
@@ -110,6 +111,12 @@ export type CurrentPrincipalSyntheticReason =
 
 /** Upper bound for `GET /api/auth/me` before returning a conservative synthetic principal. */
 export const AUTH_ME_FETCH_TIMEOUT_MS = 10_000;
+
+/** Extra `/me` attempts after HTTP 429 so a burst does not collapse the shell to synthetic Read. */
+const AUTH_ME_429_RETRY_ATTEMPTS = 2;
+
+/** Cap for a single 429 wait so nav does not stall for a full proxy window. */
+const AUTH_ME_429_MAX_WAIT_MS = 20_000;
 
 /**
  * Compact principal read-model for UI code paths (nav, feature hints, enterprise surfacing).
@@ -326,20 +333,43 @@ async function fetchAuthMeWithTimeout(init: RequestInit): Promise<Response> {
   }
 }
 
+function resolveAuthMe429WaitMs(retryAfterHeader: string | null): number {
+  const retryAfterSeconds = parseRetryAfterHeader(retryAfterHeader);
+
+  if (retryAfterSeconds === null) {
+    return 15_000;
+  }
+
+  return Math.min(Math.max(retryAfterSeconds, 1) * 1000, AUTH_ME_429_MAX_WAIT_MS);
+}
+
 async function fetchCurrentPrincipalFromNetwork(
   options?: LoadCurrentPrincipalOptions,
 ): Promise<CurrentPrincipal> {
   try {
     const init = options?.init ?? (await buildAuthMeProxyRequestInit());
-    const response = await fetchAuthMeWithTimeout(init);
 
-    if (!response.ok) {
-      return createSyntheticPrincipal("me-http");
+    for (let attempt = 0; attempt <= AUTH_ME_429_RETRY_ATTEMPTS; attempt += 1) {
+      const response = await fetchAuthMeWithTimeout(init);
+
+      if (response.status === 429 && attempt < AUTH_ME_429_RETRY_ATTEMPTS) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, resolveAuthMe429WaitMs(response.headers.get("Retry-After"))),
+        );
+
+        continue;
+      }
+
+      if (!response.ok) {
+        return createSyntheticPrincipal("me-http");
+      }
+
+      const body = (await response.json()) as AuthMeResponse;
+
+      return normalizeAuthMeResponse(body);
     }
 
-    const body = (await response.json()) as AuthMeResponse;
-
-    return normalizeAuthMeResponse(body);
+    return createSyntheticPrincipal("me-http");
   } catch (error: unknown) {
     if (error instanceof DOMException && error.name === "AbortError") {
       return createSyntheticPrincipal("me-timeout");

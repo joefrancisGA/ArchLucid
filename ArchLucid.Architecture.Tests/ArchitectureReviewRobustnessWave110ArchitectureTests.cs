@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
     [Fact]
     public void Suggestion1305_1308_findings_export_inspect_and_evidence_chain_sealed_manifest_mappers()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string findingInspect = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingInspectController.cs"));
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
+        string findingInspect = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingInspectController.cs");
 
         findings.Should().Contain("MapProductRunQuerySealedManifestConflict");
         findingInspect.Should().Contain("MapFindingInspectSealedManifestConflict");
@@ -27,22 +25,9 @@ public sealed class ArchitectureReviewRobustnessWave110ArchitectureTests
     [Fact]
     public void Suggestion1309_1311_finding_llm_audit_aggregate_explanation_and_pipeline_timeline_sealed_manifest_mappers()
     {
-        string findingExplain = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.FindingExplain.cs"));
-        string runExplain = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.RunExplain.cs"));
-        string trail = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
+        string findingExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
+        string runExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs");
+        string trail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
 
         findingExplain.Should().Contain("MapExplanationSealedManifestConflict");
         runExplain.Should().Contain("MapExplanationSealedManifestConflict");

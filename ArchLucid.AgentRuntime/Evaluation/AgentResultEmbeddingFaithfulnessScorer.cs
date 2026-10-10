@@ -98,7 +98,11 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
                             finding,
                             out _,
                             out string description,
-                            out string recommendation))
+                            out string recommendation,
+                            out List<string> refs))
+                        continue;
+
+                    if (refs.Count > 0 && !index.AllRefsResolve(refs))
                         continue;
 
                     string hypothesis = $"{description} {recommendation}".Trim();
@@ -106,7 +110,13 @@ public sealed class AgentResultEmbeddingFaithfulnessScorer(
                     if (string.IsNullOrWhiteSpace(hypothesis))
                         continue;
 
-                    hypotheses.Add((hypothesis, fullBlob));
+                    string citedBlob = index.ResolveRefsBlob(refs);
+                    string blobForEvidence = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
+
+                    if (string.IsNullOrWhiteSpace(blobForEvidence))
+                        continue;
+
+                    hypotheses.Add((hypothesis, blobForEvidence));
                 }
             }
         }

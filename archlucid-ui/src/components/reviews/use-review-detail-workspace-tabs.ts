@@ -11,6 +11,7 @@ import {
   REVIEW_DETAIL_TAB_PARAM,
   REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM,
   type ReviewDetailTabId,
+  readPresenterModeFromSearchParams,
   readPresenterModeFromWindowLocation,
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTabFromHash,
@@ -108,6 +109,7 @@ export function useReviewDetailWorkspaceTabs(
     props.tabLifecycle !== undefined
       ? resolveReviewWorkspaceTabFromSearchParams(searchParams, resolved, lifecycle)
       : resolveReviewDetailTabFromLocation(null, null);
+  const searchParamPresenter = readPresenterModeFromSearchParams(searchParams);
   const searchParamWorkbenchFocus = useMemo((): ReviewWorkbenchColumnId | null => {
     if (props.tabLifecycle === undefined) {
       return null;
@@ -141,6 +143,16 @@ export function useReviewDetailWorkspaceTabs(
     );
     workbenchFocusColumnRef.current = searchParamWorkbenchFocus;
   }, [searchParamWorkbenchFocus]);
+
+  useEffect(() => {
+    // Next.js client navigations update useSearchParams without a popstate event.
+    if (presenterModeRef.current === searchParamPresenter) {
+      return;
+    }
+
+    presenterModeRef.current = searchParamPresenter;
+    setPresenterModeState(searchParamPresenter);
+  }, [searchParamPresenter]);
 
   useEffect(() => {
     const syncActiveTabFromUrl = (): void => {

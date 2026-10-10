@@ -109,6 +109,53 @@ public sealed class AzureInventoryAppSettingHostEdgeMapperTests
     }
 
     [Fact]
+    public void MapHosts_marks_storage_host_reference_with_storage_inference_source()
+    {
+        const string siteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.App/containerApps/worker";
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/staepcommtfhidevwus001";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = siteId,
+                ResourceType = "Microsoft.App/containerApps",
+                Name = "worker",
+            },
+            new()
+            {
+                AzureResourceId = storageId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                Name = "staepcommtfhidevwus001",
+            },
+        ];
+
+        List<AzureInventoryAppSettingHostRow> rows =
+        [
+            new()
+            {
+                SiteResourceId = siteId,
+                SettingName = "StorageEndpoint",
+                Host = "staepcommtfhidevwus001.blob.core.windows.net",
+                CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+            },
+        ];
+
+        List<AzureInventoryResourceRelationshipWrite> relationships = [];
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+        List<string> warnings = [];
+
+        AzureInventoryAppSettingHostEdgeMapper.MapHosts(resources, rows, relationships, keys, warnings);
+
+        relationships.Should().ContainSingle();
+        relationships[0].ToAzureResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(storageId));
+        relationships[0].InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryStorageHostRef);
+        relationships[0].ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+    }
+
+    [Fact]
     public void MapHosts_emits_server_edge_and_template_warning_for_catalog_template()
     {
         const string siteId =

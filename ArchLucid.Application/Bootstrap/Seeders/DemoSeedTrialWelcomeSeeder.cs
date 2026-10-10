@@ -37,7 +37,7 @@ public sealed class DemoSeedTrialWelcomeSeeder
 
         if (await _deps.RunRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken) is RunRecord existingWelcomeRun)
         {
-            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, existingWelcomeRun, cancellationToken);
+            await DemoSeedSeederSupport.TryRepairSeededRunDescriptionAsync(_deps, scope, existingWelcomeRun, cancellationToken);
 
             return;
         }

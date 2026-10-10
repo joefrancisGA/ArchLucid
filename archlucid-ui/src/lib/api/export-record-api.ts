@@ -4,14 +4,14 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { exportRecordBlockedReason } from "@/lib/exports/export-record-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type RunExportRecordResponse = components["schemas"]["RunExportRecordResponse"];
 
 /** Loads one persisted export audit row by export record id. */
 export async function getExportRecord(exportRecordId: string): Promise<RunExportRecordResponse> {
   try {
-    return await apiGet<RunExportRecordResponse>(
+    return await apiGetSealedManifestAware<RunExportRecordResponse>(
       `/v1/architecture/review/exports/${encodeURIComponent(exportRecordId)}`,
     );
   } catch (error: unknown) {

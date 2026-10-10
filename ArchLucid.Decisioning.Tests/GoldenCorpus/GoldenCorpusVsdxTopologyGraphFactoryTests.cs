@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
+[Trait("Category", "Unit")]
 public sealed class GoldenCorpusVsdxTopologyGraphFactoryTests
 {
     [Fact]

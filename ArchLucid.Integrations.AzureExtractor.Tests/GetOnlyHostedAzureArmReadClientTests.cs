@@ -2044,6 +2044,62 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string crossCollectionNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments?api-version=2022-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "ascScore",
+                                     "properties": {
+                                       "score": {
+                                         "percentage": 0.72
+                                       }
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "CROSS_COLLECTION_LINK"
+                               }
+                               """.Replace("CROSS_COLLECTION_LINK", crossCollectionNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: Defender secure score listing did not stop on cross-collection nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("resource scope", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionDefenderSummariesAsync_throws_when_next_link_repeats()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

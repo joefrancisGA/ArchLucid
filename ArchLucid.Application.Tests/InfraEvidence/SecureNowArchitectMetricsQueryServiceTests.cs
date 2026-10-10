@@ -119,6 +119,12 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             return Task.FromResult(snapshot);
         }
 
+        public Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
         public Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
             ScopeContext scope,
             Guid snapshotId,

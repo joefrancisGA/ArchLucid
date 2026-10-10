@@ -28,7 +28,17 @@ public static class ConfigurationEffectiveValueResolver
 
         const int maxLength = 256;
 
-        return v.Length <= maxLength ? v : string.Concat(v.AsSpan(0, maxLength), "…");
+        if (v.Length <= maxLength)
+            return v;
+
+        // Supplementary characters occupy two UTF-16 code units. Cutting on the high
+        // surrogate returns an unpaired unit in GET /v1/admin/config-summary.
+        int cut = maxLength;
+
+        if (char.IsHighSurrogate(v[cut - 1]))
+            cut--;
+
+        return string.Concat(v.AsSpan(0, cut), "…");
     }
 
     internal static bool IsSensitiveConfigPath(string configPath) =>

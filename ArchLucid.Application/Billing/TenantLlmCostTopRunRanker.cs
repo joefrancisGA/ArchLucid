@@ -56,10 +56,12 @@ public sealed class TenantLlmCostTopRunRanker(
 
         return runHexIds
             .Select(runHex => TryBuildRow(runHex, slicesByRunId))
-            .OfType<LlmCostTopRunRowResponse>()
-            .OrderByDescending(static row => row.EstimatedCostUsd)
-            .ThenByDescending(static row => row.PromptTokens + row.CompletionTokens)
+            .OfType<RankedLlmCostRun>()
+            .OrderByDescending(static ranked => ranked.Row.EstimatedCostUsd)
+            // Cost ties, including every unpriced run, must count reasoning tokens or a one-token prompt outranks them.
+            .ThenByDescending(static ranked => ranked.MeasurableTokens)
             .Take(takeCap)
+            .Select(static ranked => ranked.Row)
             .ToList();
     }
 
@@ -67,7 +69,7 @@ public sealed class TenantLlmCostTopRunRanker(
     ///     Returns <see langword="null" /> when the run has no traces or aggregates to zero cost and zero tokens,
     ///     which keeps it out of the ranking entirely.
     /// </summary>
-    private LlmCostTopRunRowResponse? TryBuildRow(
+    private RankedLlmCostRun? TryBuildRow(
         string runHex,
         IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId)
     {
@@ -83,11 +85,14 @@ public sealed class TenantLlmCostTopRunRanker(
         AgentExecutionTraceRunLlmCostSummary aggregate =
             AgentExecutionTraceRunLlmCostAggregator.Compute(slices, _costEstimator);
 
-        if (aggregate.PromptTokens + aggregate.CompletionTokens + aggregate.ReasoningTokens <= 0
-            && (aggregate.EstimatedCostUsd is null or <= 0m))
-            return null;
+        long measurableTokens = aggregate.PromptTokens + aggregate.CompletionTokens + aggregate.ReasoningTokens;
 
-        return new LlmCostTopRunRowResponse
+        if (measurableTokens <= 0 && (aggregate.EstimatedCostUsd is null or <= 0m))
+        {
+            return null;
+        }
+
+        LlmCostTopRunRowResponse row = new()
         {
             RunId = runHex,
             EstimatedCostUsd = aggregate.EstimatedCostUsd ?? 0m,
@@ -95,5 +100,7 @@ public sealed class TenantLlmCostTopRunRanker(
             CompletionTokens = aggregate.CompletionTokens,
             LlmCallCount = slices.Count,
         };
+
+        return new RankedLlmCostRun(row, measurableTokens);
     }
 }

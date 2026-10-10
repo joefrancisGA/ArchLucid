@@ -27,6 +27,12 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
         ArgumentNullException.ThrowIfNull(warnings);
 
         Dictionary<string, string> hostToArmId = AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        Dictionary<string, AzureExtractorExtendedResourceRow> resourcesByArmId = resources
+            .GroupBy(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId))
+            .ToDictionary(
+                group => group.Key,
+                group => group.First(),
+                StringComparer.OrdinalIgnoreCase);
 
         foreach (AzureInventoryAppSettingHostRow row in rows)
         {
@@ -117,6 +123,10 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
                 continue;
             }
 
+            string inferenceSource = IsStorageAccountTarget(targetArmId, resourcesByArmId)
+                ? GraphEdgeInferenceSources.InventoryStorageHostRef
+                : GraphEdgeInferenceSources.InventoryHostnameInferredTarget;
+
             MapRelationship(
                 relationships,
                 relationshipKeys,
@@ -125,8 +135,20 @@ internal static class AzureInventoryAppSettingHostEdgeMapper
                 AzureInventoryRelationshipAssociationTypes.HostnameInferredTarget,
                 ProvenanceKind.DeterministicInference,
                 DeterministicInferenceConfidence,
-                GraphEdgeInferenceSources.InventoryHostnameInferredTarget);
+                inferenceSource);
         }
+    }
+
+    private static bool IsStorageAccountTarget(
+        string targetArmId,
+        IReadOnlyDictionary<string, AzureExtractorExtendedResourceRow> resourcesByArmId)
+    {
+        return resourcesByArmId.TryGetValue(
+                   ArmResourceIdNormalizer.Normalize(targetArmId),
+                   out AzureExtractorExtendedResourceRow? target)
+               && target.ResourceType.Equals(
+                   "Microsoft.Storage/storageAccounts",
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ShouldSkipCatalogTarget(string? catalog)

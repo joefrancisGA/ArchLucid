@@ -513,7 +513,8 @@ function InspectSelectionIdentityHeader(props: {
       <div className="space-y-2" data-testid="security-evidence-path-inspect-identity">
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           <InlineGlossaryChip nounId="finding">Finding</InlineGlossaryChip> rank{" "}
-          {props.findingSummary.rankOrder ?? "—"} · control {props.findingSummary.controlId ?? "—"}
+          {props.findingSummary.rankOrder ?? "was not stored"} · control{" "}
+          {props.findingSummary.controlId?.trim() || "was not stored"}
         </p>
         <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
           {formatRemediationPrioritySortKeyLine(props.findingSummary.totalScore)}
@@ -557,7 +558,7 @@ function resolvePathInspectSubjectLabel(input: {
   if (input.selectedFinding != null) {
     const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
 
-    return `Finding ${rankHint} · control ${input.selectedFinding.controlId ?? "—"} · pattern ${input.selectedFinding.patternKey ?? "—"}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
   }
 
   if (input.selectedPath != null) {
@@ -932,7 +933,9 @@ export function SecurityEvidencePathInspectPanel(props: {
                   {pathQuery.data.routing.map((row) => (
                     <EnterpriseTableRow key={`${row.role}-${row.principalId ?? row.displayName ?? row.sourceReference}`}>
                       <EnterpriseTableCell>{row.role}</EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.displayName ?? row.principalId ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {row.displayName?.trim() || row.principalId?.trim() || "Owner was not stored"}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell>{formatSecurityEvidenceProvenanceKindLabel(row.provenanceKind)}</EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}

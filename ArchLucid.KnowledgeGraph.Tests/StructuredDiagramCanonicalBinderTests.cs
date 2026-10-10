@@ -208,6 +208,41 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void BindToCanonicalNodes_reads_source_evidence_id_when_persisted_property_key_uses_different_casing()
+    {
+        const string EvidenceItemId = "doc-casing-bind-evidence";
+        GraphNode declarationNode = CreateTopologyNode("obj-pay-sql", "pay_sql", []);
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = "pay_sql",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                SourceEvidenceItemId = EvidenceItemId,
+            },
+            CreateCompileOptions());
+        GraphNode diagramNode = compileResult.Snapshot.Nodes.Single();
+        diagramNode.Properties.Remove(StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId);
+        diagramNode.Properties["STRUCTUREDDIAGRAM.SOURCEEVIDENCEITEMID"] = EvidenceItemId;
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [declarationNode]);
+
+        bound.CanonicalBindings.Should().ContainSingle()
+            .Which.SourceEvidenceItemId.Should().Be(EvidenceItemId);
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_remaps_edges_to_bound_canonical_nodes()
     {
         GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);

@@ -29,6 +29,7 @@ public sealed class AgentEvaluationConfidencePipeline(
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
     IOptions<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions,
+    IOptions<AgentExecutionOptions> agentExecutionOptions,
     FindingConfidenceCalculator confidenceCalculator)
 {
     private readonly IAgentExecutionTraceRepository _traceRepository =
@@ -68,6 +69,9 @@ public sealed class AgentEvaluationConfidencePipeline(
     private readonly IOptions<AgentOutputLlmFaithfulnessOptions> _llmFaithfulnessOptions =
         llmFaithfulnessOptions ?? throw new ArgumentNullException(nameof(llmFaithfulnessOptions));
 
+    private readonly AgentExecutionOptions _agentExecutionOptions =
+        (agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions))).Value;
+
     private readonly FindingConfidenceCalculator _confidenceCalculator =
         confidenceCalculator ?? throw new ArgumentNullException(nameof(confidenceCalculator));
 
@@ -98,7 +102,8 @@ public sealed class AgentEvaluationConfidencePipeline(
         AgentExecutionTrace? trace,
         AgentEvidencePackage? evidence,
         IReadOnlyDictionary<string, double?> calibratedConfidenceByTaskId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        StructuralExecutionMode? taskStructuralExecutionMode = null)
     {
         if (trace is null)
             return (false, false);
@@ -114,7 +119,9 @@ public sealed class AgentEvaluationConfidencePipeline(
             _agentResultEvidenceFaithfulnessChecker,
             calibratedConfidenceByTaskId,
             _llmFaithfulnessEvaluator,
-            _llmFaithfulnessOptions.Value).ConfigureAwait(false);
+            _llmFaithfulnessOptions.Value,
+            taskStructuralExecutionMode: taskStructuralExecutionMode,
+            hostAgentExecutionMode: _agentExecutionOptions.Mode).ConfigureAwait(false);
 
         bool referenceMatched = await _referenceCaseRunEvaluator
             .ComputeAnyPassingReferenceCaseAsync(trace, cancellationToken)
@@ -207,6 +214,14 @@ public sealed class AgentEvaluationConfidencePipeline(
         Dictionary<string, double?> calibratedConfidenceByTaskId =
             AgentCalibratedConfidenceByTaskIdBuilder.Build(agentResults);
 
+        Dictionary<string, StructuralExecutionMode?> structuralExecutionModeByTaskId =
+            agentResults
+                .GroupBy(static result => result.TaskId, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    static group => group.Key,
+                    static group => group.First().TaskStructuralExecutionMode,
+                    StringComparer.OrdinalIgnoreCase);
+
         return new AgentEvaluationConfidenceRunContext
         {
             Scope = scope,
@@ -214,6 +229,7 @@ public sealed class AgentEvaluationConfidencePipeline(
             TraceByAgentType = traceByAgentType,
             TraceByTaskId = traceByTaskId,
             CalibratedConfidenceByTaskId = calibratedConfidenceByTaskId,
+            StructuralExecutionModeByTaskId = structuralExecutionModeByTaskId,
             Evidence = evidence,
         };
     }

@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs098ArchitectureSharingHelpArchitectureTes
     [Fact]
     public void As098_help_topic_registry_and_copy_name_tenant_boundary()
     {
-        string registry = File.ReadAllText(
+        string registry = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -24,7 +24,7 @@ public sealed class ArchitectureSpineAs098ArchitectureSharingHelpArchitectureTes
         registry.Should().Contain("restrict-to-shares");
         registry.Should().Contain("one tenant");
 
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture-sharing-help-guide-content.ts"));
 
         copy.Should().Contain("not a second tenant");
@@ -35,7 +35,7 @@ public sealed class ArchitectureSpineAs098ArchitectureSharingHelpArchitectureTes
     [Fact]
     public void As098_help_view_module_exists()
     {
-        string view = File.ReadAllText(
+        string view = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

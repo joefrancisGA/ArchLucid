@@ -5,6 +5,7 @@ using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Serialization;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -421,6 +422,121 @@ public sealed class TenantErasureLegalHoldControllerTests
         action.Should().BeOfType<NoContentResult>();
     }
 
+    [Fact]
+    public async Task SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs()
+    {
+        string? capturedUserId = null;
+        string? capturedUserName = null;
+        Mock<ITenantErasureCommandService> commands = new();
+        commands
+            .Setup(c => c.TrySetLegalHoldAsync(
+                Scope.TenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                true,
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, DateTimeOffset, string?, string, string, bool, string?, CancellationToken>(
+                (_, _, _, userId, userName, _, _, _) =>
+                {
+                    capturedUserId = userId;
+                    capturedUserName = userName;
+                })
+            .ReturnsAsync(true);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:tid-1:oid-1");
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            TenantExists(),
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow),
+            actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [
+                        new Claim(ClaimTypes.NameIdentifier, "name-id-claim"),
+                        new Claim(ClaimTypes.Name, "Display Name"),
+                    ],
+                    authenticationType: "test")),
+            },
+        };
+
+        TenantErasureLegalHoldRequest body = new()
+        {
+            UntilUtc = FixedNow.AddDays(30),
+            Reason = "hold",
+        };
+
+        IActionResult action = await controller.SetLegalHoldAsync(body, CancellationToken.None);
+
+        action.Should().BeOfType<NoContentResult>();
+        capturedUserId.Should().Be("jwt:tid-1:oid-1");
+        capturedUserName.Should().Be("Display Name");
+    }
+
+    [Fact]
+    public async Task ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs()
+    {
+        string? capturedUserId = null;
+        string? capturedUserName = null;
+        Mock<ITenantErasureCommandService> commands = new();
+        commands
+            .Setup(c => c.TryApproveErasureAsync(
+                Scope.TenantId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, string, string, string?, CancellationToken>(
+                (_, userId, userName, _, _) =>
+                {
+                    capturedUserId = userId;
+                    capturedUserName = userName;
+                })
+            .ReturnsAsync(true);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:tid-1:oid-1");
+
+        TenantErasureLegalHoldController controller = CreateController(
+            commands.Object,
+            TenantExists(),
+            scopeProvider.Object,
+            new FixedTimeProvider(FixedNow),
+            actorContext.Object);
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [
+                        new Claim(ClaimTypes.NameIdentifier, "name-id-claim"),
+                        new Claim(ClaimTypes.Name, "Display Name"),
+                    ],
+                    authenticationType: "test")),
+            },
+        };
+
+        IActionResult action = await controller.ApproveErasureAsync(CancellationToken.None);
+
+        action.Should().BeOfType<NoContentResult>();
+        capturedUserId.Should().Be("jwt:tid-1:oid-1");
+        capturedUserName.Should().Be("Display Name");
+    }
+
     private static ITenantRepository TenantExists()
     {
         Mock<ITenantRepository> tenants = new();
@@ -444,21 +560,33 @@ public sealed class TenantErasureLegalHoldControllerTests
         ITenantErasureCommandService tenantErasureCommands,
         ITenantRepository tenantRepository,
         IScopeContextProvider scopeProvider,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IActorContext? actorContext = null)
     {
         DefaultHttpContext httpContext = new();
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "user-1"), new Claim(ClaimTypes.Name, "operator@test")],
             authenticationType: "test"));
 
+        IActorContext resolvedActor = actorContext ?? CreateDefaultActorContext();
+
         return new TenantErasureLegalHoldController(
             tenantErasureCommands,
             tenantRepository,
             scopeProvider,
+            resolvedActor,
             timeProvider)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActorId()).Returns("user-1");
+
+        return actor.Object;
     }
 
     private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider

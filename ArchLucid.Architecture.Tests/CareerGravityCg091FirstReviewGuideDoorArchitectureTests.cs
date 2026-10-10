@@ -14,11 +14,11 @@ public sealed class CareerGravityCg091FirstReviewGuideDoorArchitectureTests
     [Fact]
     public void Cg091_first_review_guide_wires_career_honesty_state()
     {
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "first-review-guide-career-honesty.ts"));
-        string hook = File.ReadAllText(
+        string hook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-first-review-guide-state.ts"));
-        string status = File.ReadAllText(
+        string status = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "first-review-guide-status.ts"));
 
         honesty.Should().Contain("shouldSuppressReadyToFinalizeForCareerHonesty");
@@ -29,7 +29,7 @@ public sealed class CareerGravityCg091FirstReviewGuideDoorArchitectureTests
     [Fact]
     public void Cg091_docs_record_first_review_guide_rehearsal_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-091");

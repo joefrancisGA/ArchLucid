@@ -15,27 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
     [Fact]
     public void Suggestion1329_1331_page_bundle_critical_timelines_and_workspace_context_sealed_manifest_mappers()
     {
-        string critical = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.Critical.cs"));
-        string timelines = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.Timelines.cs"));
-        string workspaceContext = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.WorkspaceContext.cs"));
+        string critical = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.Critical.cs");
+        string timelines = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.Timelines.cs");
+        string workspaceContext = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
 
         critical.Should().Contain("MapRunDetailPageBundleSealedManifestConflict");
         timelines.Should().Contain("MapRunDetailPageBundleSealedManifestConflict");
@@ -45,13 +27,7 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
     [Fact]
     public void Suggestion1332_1335_run_summary_detail_buyer_summary_and_retrieval_grounding_sealed_manifest_mappers()
     {
-        string runDetail = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.RunDetail.cs"));
+        string runDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
 
         runDetail.Should().Contain("MapRunQuerySealedManifestConflict");
         runDetail.Should().Contain("GetRunSummary");

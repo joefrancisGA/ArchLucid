@@ -486,7 +486,7 @@
       "class_name": "ScimTokensAdminController",
       "route_template": "v{version:apiVersion}/admin/scim/tokens",
       "normalized_prefix": "/v1/admin/scim/tokens",
-      "commercial_tier": "Enterprise",
+      "commercial_tier": "enterprise",
       "class_policy": "AdminAuthority",
       "exemption": null,
       "nav_operator_href": null
@@ -1217,7 +1217,7 @@
       "route_template": "v{version:apiVersion}/billing/wallet",
       "normalized_prefix": "/v1/billing/wallet",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -1642,10 +1642,30 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs",
+      "class_name": "InfraEvidenceSecureNowQuestionsController",
+      "route_template": "v{version:apiVersion}/infra-evidence/snapshots/{snapshotId:guid}/questions",
+      "normalized_prefix": "/v1/infra-evidence/snapshots/{snapshotId:guid}/questions",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "InfraEvidence/InfraEvidenceSnapshotsController.cs",
       "class_name": "InfraEvidenceSnapshotsController",
       "route_template": "v{version:apiVersion}/infra-evidence/snapshots",
       "normalized_prefix": "/v1/infra-evidence/snapshots",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "InfraEvidence/InfrastructureDiagramComparisonsController.cs",
+      "class_name": "InfrastructureDiagramComparisonsController",
+      "route_template": "v{version:apiVersion}/infrastructure/diagram-comparisons",
+      "normalized_prefix": "/v1/infrastructure/diagram-comparisons",
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,

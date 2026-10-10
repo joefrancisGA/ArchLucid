@@ -27,7 +27,7 @@ public sealed class AiAgentReadinessGuardArchitectureTests
     [Fact]
     public void Tb325_ci_runs_prompt_injection_regression_gate()
     {
-        string ci = File.ReadAllText(Path.Combine(RepoRoot, ".github", "workflows", "ci.yml"));
+        string ci = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ".github", "workflows", "ci.yml"));
         ci.Should().Contain("ci-agent-prompt-injection-regression");
         ci.Should().Contain("--enforce-prompt-injection-block-layer");
     }
@@ -65,7 +65,7 @@ public sealed class AiAgentReadinessGuardArchitectureTests
         AgentExecutionTraceFailureReasonCodes.TokenBudgetExceeded.Should().Be("TokenBudgetExceeded");
         typeof(CostGuardrailInterceptor).Should().NotBeNull();
 
-        string production = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.Production.json"));
+        string production = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.Production.json"));
         production.Should().Contain("MaxTokensPerRun");
     }
 

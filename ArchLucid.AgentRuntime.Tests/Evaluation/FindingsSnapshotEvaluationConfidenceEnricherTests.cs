@@ -387,6 +387,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             new NoOpLlmFaithfulnessEvaluator(),
             Options.Create(new AgentOutputLlmFaithfulnessOptions()),
+            Options.Create(new AgentExecutionOptions { Mode = "Real" }),
             new FindingConfidenceCalculator());
 
         return new FindingsSnapshotEvaluationConfidenceEnricher(

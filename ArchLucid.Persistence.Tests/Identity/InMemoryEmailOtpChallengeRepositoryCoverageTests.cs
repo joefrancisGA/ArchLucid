@@ -326,4 +326,37 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Should()
             .Be(1);
     }
+
+    [Fact]
+    public async Task CountRecentFailedVerifications_counts_lockout_when_only_other_challenge_is_expired()
+    {
+        InMemoryEmailOtpChallengeRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "expired-hash",
+                ExpiresUtc = now.AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord lockout = await sut.InsertAsync(
+            new EmailOtpChallengeInsert
+            {
+                NormalizedEmail = "otp@example.com",
+                CodeHash = "correct-hash",
+                ExpiresUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryCompleteAsync(lockout.Id, "wrong", now, maxFailedAttempts: 1, CancellationToken.None))
+            .Result.Should()
+            .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
+
+        (await sut.CountRecentFailedVerificationsByEmailAsync("otp@example.com", now.AddHours(-1), now, CancellationToken.None))
+            .Should()
+            .Be(1);
+    }
 }

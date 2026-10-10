@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DiagramReconcileWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
+import {
+  DiagramReconcileWorkbenchClient,
+  formatDiagramReconcileAssociationType,
+  formatDiagramReconcileAzureResourceId,
+} from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
 
 const {
   ingestArchitectureDiagramMock,
@@ -101,6 +105,13 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("DiagramReconcileWorkbenchClient", () => {
+  it("uses omission copy for missing correspondence values", () => {
+    expect(formatDiagramReconcileAssociationType(null)).toBe("Association type was not stored.");
+    expect(formatDiagramReconcileAssociationType("PrivateEndpoint")).toBe("PrivateEndpoint");
+    expect(formatDiagramReconcileAzureResourceId(null)).toBe("Azure resource id was not stored.");
+    expect(formatDiagramReconcileAzureResourceId("/subscriptions/sub/resource")).toBe("/subscriptions/sub/resource");
+  });
+
   beforeEach(() => {
     window.sessionStorage.clear();
     searchParams = new URLSearchParams(

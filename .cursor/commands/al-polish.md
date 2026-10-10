@@ -52,7 +52,7 @@ The first-review path is collect → diagram → findings → one question → o
 - Do not invent a relationship, an owner, a path, or a resource.
 - Do not call an Azure write API.
 - Do not open a new product surface.
-- Do not commit or push. The parent reports the diff and stops.
+- Luna does not commit or push. After Phase 2, the parent opens one pull request against `master` for the files Luna changed. `--suggest-only` does not open a pull request.
 - Follow `.cursor/rules/Agent-Working-Tree-Safety.mdc` before Luna edits a tracked file. A blocked dirty path is skipped, not overwritten.
 - Follow `.cursor/rules/shell-hygiene.mdc` and `.cursor/rules/shell-heartbeat.mdc` for every shell.
 
@@ -118,4 +118,15 @@ The parent checks `git status --short` and `git diff --stat` against Luna's file
 | Tests | Command and result |
 | Diff | Paths Luna changed |
 
-Leave the changes unstaged unless the user, in that same message, names a branch and asks to commit.
+### Step 4 — Pull request against master
+
+When at least one item shipped, open a pull request. Skip this step when `--suggest-only` was set, the batch is empty, or Luna shipped nothing.
+
+1. Fetch `origin/master`.
+2. Ask the user to reply with the exact branch name `cursor/al-polish-<short-topic>`, and wait for that reply before creating it from `origin/master` or running any branch-switch, commit, or push command. Do not commit on `master`.
+3. Stage only the files Luna changed for this batch. Leave unrelated dirty and untracked files unstaged, including SQL, package zips, and `next-env.d.ts` when those were already dirty and were not in Luna's file list.
+4. Commit only Luna's paths with `git commit --only -- <Luna-file-list>` so any unrelated paths staged before this run remain outside the commit. The message says why a reviewer was seeing a guessed or blank value.
+5. Push with an explicit refspec: `git push -u origin HEAD:cursor/al-polish-<short-topic>`. Do not push that commit to `master`. Do not force-push.
+6. Open the pull request with base `master` and that branch as the head.
+
+Add the pull request URL to the report.

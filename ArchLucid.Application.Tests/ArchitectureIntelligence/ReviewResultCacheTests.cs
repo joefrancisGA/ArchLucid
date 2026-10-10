@@ -241,6 +241,26 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_misses_tombstone_when_cached_run_id_is_compact_and_invalidation_used_hyphenated_form()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-tryget-casing" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? miss).Should().BeFalse();
+        miss.Should().BeNull();
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set()
     {
         ReviewResultCache cache = new();
@@ -713,6 +733,53 @@ public sealed class ReviewResultCacheTests
         stillTombstoned.Should().BeNull();
         cache.TryGet(newManifest, out ClosedLoopReasoningResult? newBlocked).Should().BeFalse();
         newBlocked.Should().BeNull();
+    }
+
+    [Fact]
+    public void PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached()
+    {
+        ReviewResultCache cache = new();
+        List<IReviewResultCachePinScope> scopes = [];
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"dual-pin-cap-{index}" };
+
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            scopes.Add(cache.PinScope(manifest));
+        }
+
+        ReviewCacheDependencyManifest primary = new() { ContentHash = "dual-pin-primary" };
+        ReviewCacheDependencyManifest secondary = new() { ContentHash = "dual-pin-secondary" };
+
+        using IReviewResultCachePinScope dualScope = cache.PinScope(primary, secondary);
+
+        dualScope.IsPinned.Should().BeFalse();
+
+        string runId = Guid.NewGuid().ToString("N");
+        cache.Set(primary, new ClosedLoopReasoningResult { RunId = runId });
+        cache.TryGet(primary, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be(runId);
+
+        foreach (IReviewResultCachePinScope scope in scopes)
+            scope.Dispose();
+    }
+
+    [Fact]
+    public void InvalidateForRun_does_not_remove_entries_with_blank_stored_run_id()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-blank-runid-invalidate" };
+
+        ClosedLoopReasoningResult stored = new() { RunId = "   " };
+        ClosedLoopCacheHitPublishGuard.SanitizeForStorage(stored);
+        stored.RunId.Should().BeNull();
+
+        cache.Set(manifest, stored);
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().BeNull();
     }
 
     [Fact]

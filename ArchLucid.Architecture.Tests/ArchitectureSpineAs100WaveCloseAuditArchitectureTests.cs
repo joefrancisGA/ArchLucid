@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs100WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-100");
         source.Should().Contain("ADR **0084**");
@@ -28,7 +28,7 @@ public sealed class ArchitectureSpineAs100WaveCloseAuditArchitectureTests
         source.Should().Contain("NotVerifiable");
         source.Should().Contain("RestrictToShares");
         source.Should().Contain("AgentExecution:Mode");
-        source.Should().Contain("Wave 23");
+        source.Should().Contain("wave 23");
         source.Should().Contain("G-REAL-06");
         source.Should().Contain("IE-01");
     }
@@ -36,7 +36,7 @@ public sealed class ArchitectureSpineAs100WaveCloseAuditArchitectureTests
     [Fact]
     public void As100_readme_lists_shipped_wave_with_close_audit_link()
     {
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
 
         readme.Should().Contain("ARCHITECTURE_SPINE_ACCEPTANCE_2026-09-09.md");
         readme.Should().Contain("shipped");
@@ -54,7 +54,7 @@ public sealed class ArchitectureSpineAs100WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-100");
         source.Should().Contain("architecture-spine-00-index.md");

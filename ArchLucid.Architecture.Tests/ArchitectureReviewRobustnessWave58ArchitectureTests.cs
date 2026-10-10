@@ -15,18 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave58ArchitectureTests
     [Fact]
     public void Suggestion681_683_setup_resolution_and_environment_catalog_openapi_409()
     {
-        string setupController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceSetupController.cs"));
-        string setupGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceSetupController.SealedManifestGuard.cs"));
-        string resolutionController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceResolutionController.cs"));
-        string resolutionGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceResolutionController.SealedManifestGuard.cs"));
-        string catalogController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceEnvironmentCatalogController.cs"));
-        string catalogGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceEnvironmentCatalogController.SealedManifestGuard.cs"));
+        string setupController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.cs");
+        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
+        string resolutionController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.cs");
+        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
+        string catalogController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs");
+        string catalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
 
         setupController.Should().Contain("GetSetupGuideBundle");
         setupController.Should().Contain("EnsureGovernanceScopeSealedManifestReadAllowedAsync");
@@ -45,24 +39,10 @@ public sealed class ArchitectureReviewRobustnessWave58ArchitectureTests
     [Fact]
     public void Suggestion684_686_reviews_decisions_and_attestation_openapi_409()
     {
-        string registersController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Registers.cs"));
-        string attestationController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Attestation.cs"));
-        string facade = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.cs"));
-        string recurrenceFacade = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Recurrence.cs"));
+        string registersController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
+        string attestationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs");
+        string facade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.cs");
+        string recurrenceFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Recurrence.cs");
 
         registersController.Should().Contain("GetReviewsAwaitingAction");
         registersController.Should().Contain("GetDecisionsNeededSummary");
@@ -113,7 +93,7 @@ public sealed class ArchitectureReviewRobustnessWave58ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "governance-workflow-read-blocked-reason.ts"));
 
         coverageApi.Should().Contain("getGovernanceScopeCoverage");
-        coverageApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(coverageApi);
         coverageHook.Should().Contain("governanceScopeCoverageBlockedReason");
         coverageBlocked.Should().Contain("governanceScopeCoverageBlockedReason");
         setupStatus.Should().Contain("governanceSetupGuideBlockedReason");
@@ -146,11 +126,11 @@ public sealed class ArchitectureReviewRobustnessWave58ArchitectureTests
 
         compareApi.Should().Contain("compareAgentResults");
         compareApi.Should().Contain("compareAgentResultsSummary");
-        compareApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(compareApi);
         compareHook.Should().Contain("compareAgentResultsBlockedReason");
         compareBlocked.Should().Contain("compareAgentResultsBlockedReason");
         verifyApi.Should().Contain("verifyRunExportLineage");
-        verifyApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(verifyApi);
         verifyHook.Should().Contain("exportLineageVerifyBlockedReason");
         verifyBlocked.Should().Contain("exportLineageVerifyBlockedReason");
         queryKeys.Should().Contain("compareAgentResults");

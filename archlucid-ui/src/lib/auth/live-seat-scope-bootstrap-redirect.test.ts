@@ -10,6 +10,10 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
   isStaticDemoPayloadFallbackEnabled: () => false,
 }));
 
+vi.mock("@/lib/operator/e2e-live-seat-ls010-bypass", () => ({
+  isE2eLs010BootstrapRedirectSuppressed: () => false,
+}));
+
 vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => true,
 }));

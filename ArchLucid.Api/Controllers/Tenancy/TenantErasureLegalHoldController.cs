@@ -4,6 +4,7 @@ using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -26,6 +27,7 @@ public sealed class TenantErasureLegalHoldController(
     ITenantErasureCommandService tenantErasureCommands,
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider,
+    IActorContext actorContext,
     TimeProvider? timeProvider = null) : ControllerBase
 {
     private readonly ITenantErasureCommandService _tenantErasureCommands =
@@ -36,6 +38,9 @@ public sealed class TenantErasureLegalHoldController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
@@ -75,8 +80,8 @@ public sealed class TenantErasureLegalHoldController(
         string? legalHoldReason = body.Reason is null ? null : body.Reason.Trim();
 
         ClaimsPrincipal user = User;
-        string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
-        string userName = user.Identity?.Name ?? "unknown";
+        string userId = ResolveActorUserId();
+        string userName = ResolveActorUserName(user);
         string? correlation = HttpContext.TraceIdentifier;
 
         bool ok = await _tenantErasureCommands.TrySetLegalHoldAsync(
@@ -118,8 +123,8 @@ public sealed class TenantErasureLegalHoldController(
         }
 
         ClaimsPrincipal user = User;
-        string userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown";
-        string userName = user.Identity?.Name ?? "unknown";
+        string userId = ResolveActorUserId();
+        string userName = ResolveActorUserName(user);
         string? correlation = HttpContext.TraceIdentifier;
 
         bool ok = await _tenantErasureCommands.TryApproveErasureAsync(
@@ -135,5 +140,16 @@ public sealed class TenantErasureLegalHoldController(
                 ProblemTypes.Conflict);
 
         return NoContent();
+    }
+
+    // NameIdentifier is not the stable actor id. Platform audit stores this string as ActorUserId.
+    private string ResolveActorUserId()
+    {
+        return _actorContext.GetActorId();
+    }
+
+    private static string ResolveActorUserName(ClaimsPrincipal user)
+    {
+        return user.Identity?.Name ?? "unknown";
     }
 }

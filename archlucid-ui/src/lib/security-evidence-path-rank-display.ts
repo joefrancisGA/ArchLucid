@@ -10,7 +10,7 @@ export function formatSecurityEvidencePathRankLead(rank: SecurityEvidencePathRan
 
   return rank.dimensionProse.overall.trim().length > 0
     ? rank.dimensionProse.overall.trim()
-    : "Rank recorded for this path.";
+    : "Rank explanation was not stored.";
 }
 
 export function formatSecurityEvidencePathCompositeSortKeyLine(compositeSortScore: number): string {

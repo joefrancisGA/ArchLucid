@@ -61,23 +61,23 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId)}` |");
+                $"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId)}` |");
+                $"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId)}` |");
+                $"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId)}` |");
+                $"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId)}` |");
+                $"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -94,7 +94,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "**Incomplete**")} |");
+            $"| Sponsor-proof readiness | {FormatSponsorProofReadiness(proof.SponsorProofReadiness)} |");
 
         sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
         sb.AppendLine(
@@ -145,8 +145,20 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         return deltas.AgentOutputPilotStrictViolatesSponsorEvidence ? "**Failed** — PilotStrict sponsor-evidence checks reported failures for this run." : "**No PilotStrict failures** recorded for attested traces on this run.";
     }
 
-    private static string FormatGuid(Guid? id)
+    private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
-        return id is null ? "(none)" : id.Value.ToString("D");
+        return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatSponsorProofReadiness(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Sponsor-proof readiness was not stored.";
+        }
+
+        return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
+            ? $"**{readiness}**"
+            : $"**Unrecognized** — persisted value `{value}` is not a known classification.";
     }
 }

@@ -14,12 +14,9 @@ public sealed class LostWriteDraftCasArchitectureTests
     [Fact]
     public void Lw015_force_overwrite_audit_is_required_and_fail_closed()
     {
-        string support = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftForceOverwriteAuditSupport.cs"));
-        string required = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Audit", "RequiredAuditEventTypes.cs"));
-        string mutate = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
+        string support = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/DraftForceOverwriteAuditSupport.cs");
+        string required = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Audit/RequiredAuditEventTypes.cs");
+        string mutate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs");
 
         support.Should().Contain("LogOrThrowAsync");
         support.Should().Contain(nameof(AuditEventTypes.DraftIntakeForceOverwriteApplied));
@@ -41,10 +38,8 @@ public sealed class LostWriteDraftCasArchitectureTests
             "ArchLucid.Application",
             "Drafts",
             "DraftStartReviewStaleUpdatedUtcGuard.cs");
-        string mutate = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
-        string submit = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftAdmissionService.SubmitAndHeal.cs"));
+        string mutate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs");
+        string submit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/DraftAdmissionService.SubmitAndHeal.cs");
 
         File.Exists(patchGuardPath).Should().BeTrue();
         File.Exists(startReviewGuardPath).Should().BeTrue();
@@ -57,15 +52,8 @@ public sealed class LostWriteDraftCasArchitectureTests
     [Fact]
     public void Lw026_in_memory_draft_repository_does_not_bypass_cas_guard()
     {
-        string repository = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Persistence",
-                "Data",
-                "Repositories",
-                "InMemoryDraftRequestRepository.cs"));
-        string mutate = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "Stages", "DraftRequestMutateStage.cs"));
+        string repository = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Persistence/Data/Repositories/InMemoryDraftRequestRepository.cs");
+        string mutate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs");
 
         repository.Should().NotContain("ExpectedUpdatedUtc");
         repository.Should().NotContain("ForceOverwrite");

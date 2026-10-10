@@ -1,0 +1,224 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
+import { OPERATOR_SCOPE_STORAGE_KEY } from "@/lib/operator/operator-scope-storage";
+import { BFF_CSRF_HEADER } from "@/lib/proxy/bff-session-constants";
+
+describe("requestEmailOtpChallenge (pre-auth proxy)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns success for neutral API bodies that omit challengeId (anti-enumeration contract)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "If this address is eligible, you will receive a code.",
+        ssoRequired: false,
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result.kind).toBe("success");
+
+    if (result.kind === "success") {
+      expect(result.response.challengeId ?? null).toBeNull();
+    }
+  });
+
+  it("returns delivery_failed when the API marks emailDeliverySucceeded false", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Delivery failed.",
+        ssoRequired: false,
+        emailDeliverySucceeded: false,
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result).toEqual({ kind: "failure", category: "delivery_failed" });
+  });
+
+  it("maps challenge HTTP 400 validation failures to unknown (asymmetric with verify 401 invalid_code)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 400 }));
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("does not forward stale operator scope headers on challenge POST (pre-auth anonymous proxy)", async () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: "11111111-1111-1111-1111-111111111111",
+        workspaceId: "22222222-2222-2222-2222-222222222222",
+        projectId: "33333333-3333-3333-3333-333333333333",
+        workspaceLabel: "w",
+        projectLabel: "p",
+      }),
+    );
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Sent.",
+        ssoRequired: false,
+        challengeId: "ch-1",
+      }),
+    });
+
+    await requestEmailOtpChallenge("operator@example.com", null);
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+
+    expect(headers.get("x-tenant-id")).toBeNull();
+    expect(headers.get("x-workspace-id")).toBeNull();
+    localStorage.clear();
+  });
+
+  it("forwards botChallengeToken on challenge POST without BFF CSRF headers (pre-auth anonymous proxy)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Sent.",
+        ssoRequired: false,
+        challengeId: "ch-1",
+      }),
+    });
+
+    await requestEmailOtpChallenge("operator@example.com", null, "turnstile-token");
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+    const body = JSON.parse(String(init?.body)) as { botChallengeToken?: string };
+
+    expect(body.botChallengeToken).toBe("turnstile-token");
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
+  });
+
+  it("returns success when the API sets ssoRequired on the challenge body (UI applyChallengeSuccess handles SSO)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        message: "Use your organization SSO.",
+        ssoRequired: true,
+        ssoMessage: "Contact your admin.",
+      }),
+    });
+
+    const result = await requestEmailOtpChallenge("operator@example.com", null);
+
+    expect(result.kind).toBe("success");
+
+    if (result.kind === "success") {
+      expect(result.response.ssoRequired).toBe(true);
+    }
+  });
+});
+
+describe("verifyEmailOtpCode (pre-auth proxy)", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("maps verify HTTP 400 validation failures to unknown", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 400 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("maps verify HTTP 401 to invalid_code per API contract", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "invalid_code" });
+  });
+
+  it("maps verify HTTP 410 to unknown because EmailOtpAuthController documents only 200 and 401", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 410 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "unknown" });
+  });
+
+  it("maps verify HTTP 503 to delivery_failed via shared mapStatusToFailureCategory", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "delivery_failed" });
+  });
+
+  it("never maps API failures to too_many_attempts (429 uses rate_limited)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    const result = await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    expect(result).toEqual({ kind: "failure", category: "rate_limited" });
+    expect(result).not.toEqual({ kind: "failure", category: "too_many_attempts" });
+  });
+
+  it("does not forward stale operator scope headers on verify POST (pre-auth anonymous proxy)", async () => {
+    localStorage.setItem(
+      OPERATOR_SCOPE_STORAGE_KEY,
+      JSON.stringify({
+        tenantId: "11111111-1111-1111-1111-111111111111",
+        workspaceId: "22222222-2222-2222-2222-222222222222",
+        projectId: "33333333-3333-3333-3333-333333333333",
+        workspaceLabel: "w",
+        projectLabel: "p",
+      }),
+    );
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ accessToken: "token", tokenType: "Bearer", expiresInSeconds: 3600, platformUserId: "p", nextStep: "Complete" }), {
+        status: 200,
+      }),
+    );
+
+    await verifyEmailOtpCode("challenge-id", "123456", null);
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+
+    expect(headers.get("x-tenant-id")).toBeNull();
+    expect(headers.get("x-workspace-id")).toBeNull();
+    expect(headers.get(BFF_CSRF_HEADER)).toBeNull();
+    localStorage.clear();
+  });
+
+  it("still POSTs when challengeId is empty (callers must guard before invoke)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ accessToken: "token" }), { status: 200 }),
+    );
+
+    await verifyEmailOtpCode("", "123456", null);
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1];
+    const body = JSON.parse(String(init?.body)) as { challengeId: string };
+
+    expect(body.challengeId).toBe("");
+  });
+});

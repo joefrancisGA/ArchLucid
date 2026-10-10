@@ -52,6 +52,18 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
     }
 
     /// <inheritdoc />
+    public Task<ScimUserRecord?> GetByUserNameAsync(
+        Guid tenantId,
+        string userName,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+
+        // Uniqueness checks must see the latest row. A cached miss would allow a second live userName.
+        return _inner.GetByUserNameAsync(tenantId, userName, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<ScimUserRecord> InsertAsync(
         Guid tenantId,
         string externalId,

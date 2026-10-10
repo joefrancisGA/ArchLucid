@@ -20,7 +20,7 @@ public sealed class HybridHotPathReadCacheArchitectureTests
         File.Exists(slotPath).Should().BeTrue();
         File.Exists(legacyEnvelopePath).Should().BeFalse("HotPathWireEnvelope was removed by TB-590.");
 
-        string cacheText = File.ReadAllText(cachePath);
+        string cacheText = ArchitectureSourceProbe.ReadPathWithPartials(cachePath);
 
         cacheText.Should().Contain("HotPathTypedCacheSlot");
         cacheText.Should().Contain("TB-590");
@@ -35,7 +35,7 @@ public sealed class HybridHotPathReadCacheArchitectureTests
         string path = Path.Combine(RepoRoot, "ArchLucid.Persistence.Tests", "HybridHotPathReadCacheTests.cs");
 
         File.Exists(path).Should().BeTrue();
-        File.ReadAllText(path).Should().Contain("HotPathTypedCacheSlot_preserves_negative_cache_semantics");
+        ArchitectureSourceProbe.ReadPathWithPartials(path).Should().Contain("HotPathTypedCacheSlot_preserves_negative_cache_semantics");
     }
 
     private static string FindRepoRoot()

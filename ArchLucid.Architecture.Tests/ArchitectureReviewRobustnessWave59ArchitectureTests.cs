@@ -15,12 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
     [Fact]
     public void Suggestion693_694_architecture_identity_list_and_get_openapi_409()
     {
-        string architecturesController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
-        string architecturesGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.SealedManifestGuard.cs"));
-        string identityGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureIdentitySealedManifestReadGuard.cs"));
+        string architecturesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
+        string architecturesGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
+        string identityGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureIdentitySealedManifestReadGuard.cs");
 
         architecturesController.Should().Contain("ListArchitectures");
         architecturesController.Should().Contain("GetArchitecture");
@@ -50,14 +47,14 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-realized-value-attestation-query.ts"));
 
         exportCompareApi.Should().Contain("compareExportRecords");
-        exportCompareApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportCompareApi);
         exportCompareHook.Should().Contain("exportRecordCompareBlockedReason");
         comparisonRecordApi.Should().Contain("searchComparisonRecords");
-        comparisonRecordApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(comparisonRecordApi);
         comparisonSearchHook.Should().Contain("comparisonSearchBlockedReason");
         driftApi.Should().Contain("downloadComparisonDriftReport");
         attestationApi.Should().Contain("getRealizedValueAttestation");
-        attestationApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(attestationApi);
         attestationHook.Should().Contain("realizedValueAttestationBlockedReason");
     }
 
@@ -89,7 +86,7 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
         decisionsHook.Should().Contain("decisionsNeededSummaryBlockedReason");
         postureHook.Should().Contain("governancePostureBlockedReason");
         postureBlocked.Should().Contain("governancePostureBlockedReason");
-        identityApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(identityApi);
         identityHook.Should().Contain("architectureIdentityBlockedReason");
         identityDesk.Should().Contain("architecture-identity-desk-blocked-reason");
         dashboardHook.Should().Contain("governanceDashboardBlockedReason");
@@ -111,7 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave59ArchitectureTests
         rationaleHook.Should().Contain("getGovernanceApprovalRationale");
         rationaleHook.Should().Contain("governanceApprovalLineageBlockedReason");
         approvalsApi.Should().Contain("getGovernanceApprovalRationale");
-        approvalsApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(approvalsApi);
         queryKeys.Should().Contain("governanceApprovalRationale");
         queryKeys.Should().Contain("exportRecordCompare");
     }

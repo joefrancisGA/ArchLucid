@@ -142,6 +142,8 @@ public sealed class IdentityProviderConfigurationController(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.IdentitySsoConfigurationActivated,
+                    // Entra oid is also NameIdentifier. AuditService would replace the jwt:tid:oid actor id with that claim.
+                    ExplicitActor = true,
                     ActorUserId = record.UpdatedByActorId,
                     ActorUserName = User.Identity?.Name ?? record.UpdatedByActorId,
                     TenantId = scope.TenantId,

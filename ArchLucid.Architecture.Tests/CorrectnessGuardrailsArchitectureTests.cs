@@ -29,7 +29,7 @@ public sealed class CorrectnessGuardrailsArchitectureTests
             "FinalizedEvidenceImmutabilityIntegrationTests.cs");
 
         File.Exists(path).Should().BeTrue();
-        File.ReadAllText(path).Should().Contain("TB-322");
+        ArchitectureSourceProbe.ReadPathWithPartials(path).Should().Contain("TB-322");
     }
 
     [Fact]
@@ -54,8 +54,8 @@ public sealed class CorrectnessGuardrailsArchitectureTests
 
         string options = Path.Combine(RepoRoot, "ArchLucid.Core", "Configuration", "AgentFaithfulnessOptions.cs");
 
-        File.ReadAllText(checker).Should().Contain("MeetsCitationFidelity");
-        File.ReadAllText(options).Should().Contain("MinCitationFidelityDensityRatio");
+        ArchitectureSourceProbe.ReadPathWithPartials(checker).Should().Contain("MeetsCitationFidelity");
+        ArchitectureSourceProbe.ReadPathWithPartials(options).Should().Contain("MinCitationFidelityDensityRatio");
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class CorrectnessGuardrailsArchitectureTests
     [Fact]
     public void Ci_workflow_runs_correctness_guardrails_batch_328()
     {
-        string ciText = File.ReadAllText(Path.Combine(RepoRoot, ".github", "workflows", "ci.yml"));
+        string ciText = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ".github", "workflows", "ci.yml"));
         ciText.Should().Contain("test_correctness_guardrails_batch_328.py");
     }
 

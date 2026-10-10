@@ -33,7 +33,7 @@ export function buildArchitectureSponsorDraftWatermark(
     dateGenerated: input.generatedAtIso,
     knownGaps: input.knownGaps,
     notApproved: true,
-    confidentialityLabel: input.confidentialityLabel ?? "Internal — preliminary architecture draft",
+    confidentialityLabel: input.confidentialityLabel?.trim() || "Confidentiality was not stored.",
   };
 }
 
@@ -70,14 +70,14 @@ export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSp
     "## Architecture overview",
     input.architectureOverview.trim().length > 0
       ? input.architectureOverview.trim()
-      : "Architecture overview is still being clarified.",
+      : "Architecture overview was not stored.",
     "",
     "## Business outcome",
     input.businessOutcome.trim().length > 0
       ? input.businessOutcome.trim()
-      : "Business outcome is still being confirmed.",
+      : "Business outcome was not stored.",
     "",
-    `**Owner:** ${input.ownerLabel?.trim() || "Unassigned"}`,
+    `**Owner:** ${input.ownerLabel?.trim() || "Sponsor owner was not stored."}`,
     `**Sponsor readiness:** ${input.readinessStatus}`,
     "",
     `**Source architecture:** ${reviewUrl}`,

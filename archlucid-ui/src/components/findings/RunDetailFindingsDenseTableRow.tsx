@@ -138,11 +138,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[7rem] align-top">
-        {reviewStatus !== null ? (
-          <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
-        ) : (
-          <span className="text-al-text-secondary">Review status was not stored</span>
-        )}
+        <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[5rem] align-top">
         {viewEvidenceHref !== null ? (

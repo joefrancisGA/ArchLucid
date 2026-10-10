@@ -58,6 +58,13 @@ public sealed class SqlArchitectureWorkLeaseRepository(ISqlConnectionFactory con
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
 
+        if (record.TenantId != scope.TenantId
+            || record.WorkspaceId != scope.WorkspaceId
+            || record.ScopeProjectId != scope.ProjectId)
+        {
+            throw new InvalidOperationException("Work-lease upsert scope must match the lease row.");
+        }
+
         const string sql = """
             MERGE dbo.ArchitectureWorkLeases AS target
             USING (
@@ -73,6 +80,9 @@ public sealed class SqlArchitectureWorkLeaseRepository(ISqlConnectionFactory con
                     @ExpiresUtc AS ExpiresUtc
             ) AS source
             ON target.DraftId = source.DraftId
+               AND target.TenantId = @TenantId
+               AND target.WorkspaceId = @WorkspaceId
+               AND target.ScopeProjectId = @ScopeProjectId
             WHEN MATCHED THEN
                 UPDATE SET
                     HolderUserId = source.HolderUserId,
@@ -109,9 +119,9 @@ public sealed class SqlArchitectureWorkLeaseRepository(ISqlConnectionFactory con
                 new
                 {
                     record.DraftId,
-                    record.TenantId,
-                    record.WorkspaceId,
-                    ScopeProjectId = record.ScopeProjectId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
                     record.ArchitectureId,
                     record.HolderUserId,
                     AcquiredUtc = record.AcquiredUtc.UtcDateTime,

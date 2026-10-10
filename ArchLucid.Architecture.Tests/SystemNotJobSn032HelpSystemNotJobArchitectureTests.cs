@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn032HelpSystemNotJobArchitectureTests
     [Fact]
     public void Sn032_guide_content_names_identity_nested_jobs_and_clone()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-help-system-not-job-guide-content.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_HELP_ARCHITECTURE_DESK_CONCEPT_TILES");
@@ -27,7 +27,7 @@ public sealed class SystemNotJobSn032HelpSystemNotJobArchitectureTests
     [Fact]
     public void Sn032_help_view_wires_architecture_desk_guide()
     {
-        string view = File.ReadAllText(
+        string view = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -46,7 +46,7 @@ public sealed class SystemNotJobSn032HelpSystemNotJobArchitectureTests
     [Fact]
     public void Sn032_vitest_ratchet_names_architecture_desk_route_and_working_sources()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-help-system-not-job.test.ts"));
 
         test.Should().Contain("SN-032");

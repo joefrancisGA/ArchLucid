@@ -52,6 +52,10 @@ export function formatDecisionPipelineBuyerLabel(pipeline: string): string {
     return "Review pipeline";
   }
 
+  if (normalized === "pipeline was not stored.") {
+    return "Pipeline was not stored.";
+  }
+
   if (normalized.includes("authority")) {
     return "Authority rules";
   }

@@ -130,6 +130,9 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(
         return result.ToList();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Architecture review recurrence schedule lookup by ScheduleId within the active tenant catalog.")]
     public async Task<ArchitectureReviewRecurrenceSchedule?> GetByIdAsync(
         Guid scheduleId,
         CancellationToken cancellationToken = default)

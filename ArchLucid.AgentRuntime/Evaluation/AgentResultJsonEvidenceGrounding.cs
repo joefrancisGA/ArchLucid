@@ -28,25 +28,8 @@ internal static class AgentResultJsonEvidenceGrounding
                         claimText = string.IsNullOrEmpty(claimText) ? s : $"{claimText} {s}";
                 }
 
-                if (claim.TryGetProperty("evidenceRefs", out JsonElement r))
-                {
-                    if (r.ValueKind != JsonValueKind.Array)
-                        return false;
-
-                    foreach (JsonElement id in r.EnumerateArray())
-                    {
-                        if (id.ValueKind != JsonValueKind.String)
-                        {
-                            refs.Add(string.Empty);
-
-                            continue;
-                        }
-
-                        string? s = id.GetString();
-
-                        refs.Add(string.IsNullOrWhiteSpace(s) ? string.Empty : s.Trim());
-                    }
-                }
+                if (!TryReadEvidenceRefs(claim, out refs))
+                    return false;
 
                 return !string.IsNullOrWhiteSpace(claimText) || refs.Count > 0;
 
@@ -59,28 +42,85 @@ internal static class AgentResultJsonEvidenceGrounding
         JsonElement finding,
         out string category,
         out string description,
-        out string recommendation)
+        out string recommendation) =>
+        TryGetFindingTextParts(finding, out category, out description, out recommendation, out _);
+
+    internal static bool TryGetFindingTextParts(
+        JsonElement finding,
+        out string category,
+        out string description,
+        out string recommendation,
+        out List<string> evidenceRefs)
     {
         category = string.Empty;
         description = string.Empty;
         recommendation = string.Empty;
+        evidenceRefs = [];
 
-        if (finding.ValueKind != JsonValueKind.Object) return false;
+        if (finding.ValueKind != JsonValueKind.Object)
+            return false;
 
         category =
             finding.TryGetProperty("category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String
                 ? cat.GetString() ?? string.Empty
                 : string.Empty;
 
-        description =
-            finding.TryGetProperty("description", out JsonElement d) && d.ValueKind == JsonValueKind.String
-                ? d.GetString() ?? string.Empty
-                : string.Empty;
+        // Topology, critic, and compliance prompts emit message. Older fixtures use description.
+        description = FirstNonEmptyString(finding, MessagePropertyNames);
 
         recommendation =
             finding.TryGetProperty("recommendation", out JsonElement r) && r.ValueKind == JsonValueKind.String
                 ? r.GetString() ?? string.Empty
                 : string.Empty;
+
+        return TryReadEvidenceRefs(finding, out evidenceRefs);
+    }
+
+    // Same aliases ArchitectureFindingJsonConverter maps onto Message.
+    private static readonly string[] MessagePropertyNames = ["message", "description", "title", "detail"];
+
+    private static string FirstNonEmptyString(JsonElement owner, IReadOnlyList<string> propertyNames)
+    {
+        foreach (string propertyName in propertyNames)
+        {
+            if (!owner.TryGetProperty(propertyName, out JsonElement property) ||
+                property.ValueKind != JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? text = property.GetString();
+
+            if (!string.IsNullOrWhiteSpace(text))
+                return text;
+        }
+
+        return string.Empty;
+    }
+
+    private static bool TryReadEvidenceRefs(JsonElement owner, out List<string> refs)
+    {
+        refs = [];
+
+        if (!owner.TryGetProperty("evidenceRefs", out JsonElement evidenceRefs))
+            return true;
+
+        if (evidenceRefs.ValueKind != JsonValueKind.Array)
+            return false;
+
+        foreach (JsonElement id in evidenceRefs.EnumerateArray())
+        {
+            if (id.ValueKind != JsonValueKind.String)
+            {
+                refs.Add(string.Empty);
+
+                continue;
+            }
+
+            string? value = id.GetString();
+
+            refs.Add(string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim());
+        }
 
         return true;
     }

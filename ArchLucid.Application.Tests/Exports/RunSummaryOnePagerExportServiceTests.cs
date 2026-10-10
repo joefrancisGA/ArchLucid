@@ -205,7 +205,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             authority.Object,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
             configuration,
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -248,7 +248,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
             Mock.Of<IConfiguration>(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
@@ -279,7 +279,8 @@ public sealed class RunSummaryOnePagerExportServiceTests
             {
                 RunId = runId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Real
             },
             Manifest = manifest,
             HasBrokenManifestReference = false,

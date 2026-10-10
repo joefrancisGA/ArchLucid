@@ -193,7 +193,7 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
 
         MvcProblemDetails problem = conflict.Value.Should().BeOfType<MvcProblemDetails>().Subject;
-        problem.Type.Should().Be(ProblemTypes.Conflict);
+        problem.Type.Should().Be(ProblemTypes.DecisionReceiptSealedHashMismatch);
         problem.Detail.Should().Contain("sealed-hash verification");
     }
 

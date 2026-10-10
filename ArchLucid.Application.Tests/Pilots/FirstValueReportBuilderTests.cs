@@ -629,6 +629,8 @@ public sealed class FirstValueReportBuilderTests
             .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PilotBaselineRecord?)null);
 
+        IManifestHashService hashes = FirstValueReportBuilderTestDoubles.CreateManifestHashService();
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -641,10 +643,10 @@ public sealed class FirstValueReportBuilderTests
             pilotBaselines.Object,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateAuthorityQueryForSponsorExport(hashes),
+            hashes,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);

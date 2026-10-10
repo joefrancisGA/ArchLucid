@@ -80,7 +80,7 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(md.match(/Risk posture was not stored/g)).toHaveLength(1);
     expect(md).not.toContain("Residual risk posture: .");
     expect(md).toContain(
-      "| Severity was not stored | Finding title was not stored | No sponsor action was stored on this review. |",
+      "| Severity was not stored | Finding title was not stored | No recommended action recorded for this finding. |",
     );
   });
 });

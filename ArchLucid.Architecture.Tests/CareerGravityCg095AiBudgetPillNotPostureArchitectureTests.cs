@@ -14,7 +14,7 @@ public sealed class CareerGravityCg095AiBudgetPillNotPostureArchitectureTests
     [Fact]
     public void Cg095_budget_pill_wires_career_honesty_and_at_cap_copy()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -22,13 +22,13 @@ public sealed class CareerGravityCg095AiBudgetPillNotPostureArchitectureTests
                 "lib",
                 "llm",
                 "llm-budget-status-pill-career-honesty.ts"));
-        string pill = File.ReadAllText(
+        string pill = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "llm", "LlmBudgetStatusPill.tsx"));
-        string topBar = File.ReadAllText(
+        string topBar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
 
         copy.Should().Contain("LLM_BUDGET_STATUS_PILL_CAREER_HONESTY_BODY");
-        copy.Should().Contain("not the Career or Rehearsal door");
+        copy.Should().Contain("not the Record or Practice review type");
         copy.Should().Contain("at cap");
         copy.Should().NotContain("— paused");
         pill.Should().Contain("llm-budget-status-pill-career-honesty");
@@ -40,7 +40,7 @@ public sealed class CareerGravityCg095AiBudgetPillNotPostureArchitectureTests
     [Fact]
     public void Cg095_docs_record_budget_not_execute_posture()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-095");

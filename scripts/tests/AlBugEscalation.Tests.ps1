@@ -89,6 +89,36 @@ Describe 'al-bug-escalation.ps1' {
 
         $files | Should -Contain $script:redactorPath
     }
+
+    It 'does not treat a directory or a comma-packed path as a production file' {
+        Test-IsProductionEscalationPath -Path 'ArchLucid.Application/Governance/' | Should -BeFalse
+        Test-IsProductionEscalationPath -Path 'ArchLucid.Core/A.cs,ArchLucid.Core/B.cs' | Should -BeFalse
+        Test-IsProductionEscalationPath -Path $script:redactorPath | Should -BeTrue
+    }
+
+    It 'does not escalate a directory after repeated hits' {
+        $now = [datetime]::UtcNow
+        $entries = @(
+            New-HitEntry -At $now.AddDays(-1) -Paths @('ArchLucid.Application/Governance/')
+            New-HitEntry -At $now.AddDays(-2) -Paths @('ArchLucid.Application/Governance/')
+            New-HitEntry -At $now.AddDays(-3) -Paths @('ArchLucid.Application/Governance/')
+        )
+
+        $files = Get-EscalatedProductionFiles -RunLogEntries $entries -GitLogText '' -NowUtc $now
+
+        @($files).Count | Should -Be 0
+    }
+
+    It 'matches a hot file to its zone file or owning directory only' {
+        [string]$file = 'ArchLucid.Application/Governance/FindingDispositionService.cs'
+        [string]$directory = 'ArchLucid.Application/Governance/'
+        [string]$packed = "$file,ArchLucid.Application/Governance/Other.cs"
+
+        Test-EscalatedFileMatchesZonePath -ZonePath $file -EscalatedFile $file | Should -BeTrue
+        Test-EscalatedFileMatchesZonePath -ZonePath $directory -EscalatedFile $file | Should -BeTrue
+        Test-EscalatedFileMatchesZonePath -ZonePath $file -EscalatedFile $directory | Should -BeFalse
+        Test-EscalatedFileMatchesZonePath -ZonePath $file -EscalatedFile $packed | Should -BeFalse
+    }
 }
 
 Describe 'al-bug-sequential-run.ps1 escalation wiring' {

@@ -27,9 +27,9 @@ public sealed partial class AuditController
         if (matchingRows <= exportMaxRows)
             return null;
 
-        return MapAuditExportSealedManifestConflict(
-            new ConflictException(
-                $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
-                + "Narrow the date range or filters, or raise maxRows up to 10,000."));
+        return this.ConflictProblem(
+            $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
+            + "Narrow the date range or filters, or raise maxRows up to 10,000.",
+            ProblemTypes.AuditExportRowCapExceeded);
     }
 }

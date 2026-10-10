@@ -11,9 +11,7 @@ public static partial class DeclarationSecurityBaselineClassifier
                 DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
                 out _,
                 out string? minimumTlsVersion)
-            && !string.IsNullOrWhiteSpace(minimumTlsVersion)
-            && !string.Equals(minimumTlsVersion, "1.2", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(minimumTlsVersion, "1.3", StringComparison.OrdinalIgnoreCase))
+            && DeclarationMinimumTlsVersion.IsBelowTls12(minimumTlsVersion))
             return true;
 
         if (DeclarationSecurityPropertyKeyResolver.TryGet(
@@ -29,7 +27,7 @@ public static partial class DeclarationSecurityBaselineClassifier
                 DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
                 out _,
                 out string? sqlPublicAccess)
-            && IsEnabledToken(sqlPublicAccess))
+            && DeclarationSecurityEnabledToken.IsPublicNetworkEnabled(sqlPublicAccess))
         {
             if (TryGetProperty(properties, "terraformType", out string? terraformType)
                 && IsSqlResourceType(terraformType!))

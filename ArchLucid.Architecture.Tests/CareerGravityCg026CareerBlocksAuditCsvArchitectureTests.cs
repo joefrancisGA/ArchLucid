@@ -15,10 +15,8 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_audit_csv_controller_resolves_career_posture_gate()
     {
-        string csvExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.Export.Csv.cs"));
-        string guard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.CareerPostureGuard.cs"));
+        string csvExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.CareerPostureGuard.cs");
 
         csvExport.Should().Contain("ResolveAuditCsvCareerPostureAsync");
         guard.Should().Contain("AuditExportCareerPostureGate.ResolveForRunFilterAsync");
@@ -28,8 +26,7 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_audit_csv_formatter_includes_posture_columns_and_preamble()
     {
-        string formatter = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Formatters", "AuditEventCsvLineFormatter.cs"));
+        string formatter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Formatters/AuditEventCsvLineFormatter.cs");
 
         formatter.Should().Contain("WriteHonestyPreambleAsync");
         formatter.Should().Contain("StructuralExecutionMode");

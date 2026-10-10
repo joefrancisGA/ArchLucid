@@ -80,6 +80,52 @@ public sealed class RunListQueryParametersTests
             .Should()
             .Be(RunPagination.ClampTake(25) + 1);
 
+    [Fact]
+    public void ForProjectKeysetPage_clamps_oversized_take_before_probe_fetch_so_has_more_boundary_stays_aligned() =>
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 5_000),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+
+    [Fact]
+    public void ForProjectList_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForProjectKeysetPage(Scope(), "slug", null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
+    [Fact]
+    public void ForRecentInScope_and_keyset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(
+                RunListQueryParameters.ForRecentInScopeKeysetPage(Scope(), null, null, 500),
+                "Fetch")
+            .Should()
+            .Be(RunPagination.MaxTake + 1);
+    }
+
+    [Fact]
+    public void ForProjectList_and_ForRecentInScope_use_different_unset_take_defaults_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForProjectList(Scope(), "slug", 0), "Take").Should().Be(20);
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 0), "Take").Should().Be(200);
+    }
+
+    [Fact]
+    public void ForRecentInScope_and_offset_page_use_different_take_ceilings_by_design()
+    {
+        Read<int>(RunListQueryParameters.ForRecentInScope(Scope(), 500), "Take").Should().Be(200);
+        Read<int>(RunListQueryParameters.ForRecentInScopeOffsetPage(Scope(), 0, 500), "Fetch")
+            .Should()
+            .Be(RunPagination.ClampLimit(500) + 1);
+    }
+
     [Theory]
     [InlineData(-10, 0)]
     [InlineData(0, 0)]
@@ -125,6 +171,35 @@ public sealed class RunListQueryParametersTests
         object parameters = RunListQueryParameters.ForActiveRunCountByArchitectureRequest(Scope(), "\treq-1");
 
         Read<string>(parameters, "NormalizedArchitectureRequestId").Should().Be("REQ-1");
+    }
+
+    /// <summary>
+    ///     Project list filters use <see cref="RunRepositoryCore.AuthorityProjectSlugMatches" /> in-memory without
+    ///     <c>Require*</c> Unicode trim, so SQL bind values must not strip tabs on seeks either.
+    /// </summary>
+    [Fact]
+    public void ForProjectList_preserves_tab_prefix_in_normalized_slug_like_in_memory_list_filter()
+    {
+        object parameters = RunListQueryParameters.ForProjectList(Scope(), "\tbilling", 10);
+
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestCommittedByManifestCreatedUtc_preserves_tab_prefix_in_normalized_slug_like_in_memory_committed_seek()
+    {
+        object parameters = RunListQueryParameters.ForLatestCommittedByManifestCreatedUtc(Scope(), "\tbilling");
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
+    }
+
+    [Fact]
+    public void ForLatestGraphAtOrBefore_preserves_tab_prefix_in_normalized_slug_like_committed_and_list_seeks()
+    {
+        DateTime asOfUtc = new(2026, 10, 6, 0, 0, 0, DateTimeKind.Utc);
+        object parameters = RunListQueryParameters.ForLatestGraphAtOrBefore(Scope(), "\tbilling", asOfUtc);
+
+        Read<string>(parameters, "NormalizedAuthorityProjectSlug").Should().Be("\tBILLING");
     }
 
     [Fact]

@@ -8,4 +8,8 @@ describe("formatInfraEvidenceAskTopicKindLabel", () => {
     expect(formatInfraEvidenceAskTopicKindLabel("InventoryChange")).toBe("Inventory change");
     expect(formatInfraEvidenceAskTopicKindLabel("Drift")).toBe("Inventory drift");
   });
+
+  it("names an empty topic as missing stored data", () => {
+    expect(formatInfraEvidenceAskTopicKindLabel("")).toBe("Topic was not stored");
+  });
 });

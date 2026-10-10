@@ -51,6 +51,19 @@ describe("parseDiagramNeighborhoodMap", () => {
       links: [{ from: "shared:rg-sec", to: "vnet:app", count: 1 }],
     });
   });
+
+  it("preserves missing counts as null instead of converting them to zero", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" kind="shared" title="rg"><type name="virtualMachines"/></neighborhood>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]).toMatchObject({
+      resourceCount: null,
+      types: [{ name: "virtualMachines", count: null }],
+    });
+  });
 });
 
 describe("shouldAutoOpenDiagramNeighborhoodMap", () => {

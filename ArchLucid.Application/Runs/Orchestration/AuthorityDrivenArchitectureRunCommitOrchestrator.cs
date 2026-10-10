@@ -241,7 +241,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw new RunNotFoundException(runId);
         AuthorityCommitRecoveryVerifier.EnsureRecoverableOrThrow(run, runRecord, runId);
 
-        if (runRecord.GoldenManifestId is Guid goldenManifestId)
+        if (AuthorityCommitRecoveryVerifier.ShouldVerifySealedInventory(run)
+            && runRecord.GoldenManifestId is Guid goldenManifestId)
         {
             ManifestDocument? persistedManifest =
                 await _goldenManifestRepository.GetByIdAsync(scope, goldenManifestId, cancellationToken);

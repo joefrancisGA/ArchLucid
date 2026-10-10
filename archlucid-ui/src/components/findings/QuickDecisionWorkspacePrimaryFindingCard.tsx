@@ -106,9 +106,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               className={FINDINGS_ROW_METADATA_TAG_SIZE}
               data-testid={`finding-review-status-${finding.findingId}`}
             />
-          ) : (
-            <StatusTag kind="neutral" label="Open" className={FINDINGS_ROW_METADATA_TAG_SIZE} />
-          )}
+          ) : null}
           <StatusTag
             kind="neutral"
             label={findingEnforcementTierLabel(finding.enforcementTier)}
@@ -243,7 +241,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
             href={viewEvidenceHref}
-            evidenceRefCount={evidenceRefCount}
+            evidenceRefCount={evidenceRefCount ?? 0}
             className="shrink-0"
           />
         ) : null}

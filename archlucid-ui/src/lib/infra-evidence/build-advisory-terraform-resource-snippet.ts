@@ -38,7 +38,7 @@ export function buildAdvisoryTerraformResourceSnippet(
 
   const lines = [
     "# Advisory reconstruction from inventory evidence — not original Terraform.",
-    `# generation_method = ${hub.terraformGenerationMethod ?? "advisory"}`,
+    `# generation_method = ${hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}`,
     ...(snapshotId.length > 0 ? [`# snapshot_id = ${snapshotId}`] : []),
     `resource "${parsed.resourceType}" "${parsed.resourceName}" {`,
     ...(azureResourceId.length > 0 ? [`  # azure_resource_id = ${azureResourceId}`] : []),

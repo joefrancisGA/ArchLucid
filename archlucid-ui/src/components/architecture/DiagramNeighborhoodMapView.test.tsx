@@ -44,10 +44,77 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText("app-vnet")).toBeInTheDocument();
     expect(screen.getByText("app-vnet")).not.toHaveAttribute("title");
     expect(screen.getByText("4 resources")).toBeInTheDocument();
+    expect(screen.getByText(
+      "These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.",
+    )).toBeInTheDocument();
     expect(screen.getByText("security — 1 — app-vnet")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app"));
     expect(onOpenNeighborhood).toHaveBeenCalledWith("vnet:app");
+  });
+
+  it("keeps shared services out of the resource group section", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [
+            {
+              id: "vnet:app",
+              kind: "vnet",
+              title: "app-vnet",
+              resourceCount: 2,
+              memberIds: ["vm-a"],
+              frameIds: ["vnet-app"],
+              types: [],
+            },
+            {
+              id: "remainder:rg-app",
+              kind: "remainder",
+              title: "rg-app",
+              resourceCount: 3,
+              memberIds: ["app"],
+              frameIds: ["rg-app"],
+              types: [],
+            },
+            {
+              id: "other-resource-groups",
+              kind: "other",
+              title: "Other resource groups",
+              resourceCount: 8,
+              memberIds: ["other-resource-groups-rollup"],
+              frameIds: ["rg-other"],
+              types: [],
+            },
+            {
+              id: "shared-services",
+              kind: "shared-services",
+              title: "Shared services",
+              resourceCount: 1,
+              memberIds: ["vault"],
+              frameIds: ["shared-services"],
+              types: [{ name: "key vaults", count: 1 }],
+            },
+          ],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    const resourceGroups = screen.getByTestId("architecture-diagram-resource-groups");
+    expect(resourceGroups).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-remainder:rg-app"),
+    );
+    expect(resourceGroups).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-other-resource-groups"),
+    );
+    expect(resourceGroups).not.toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-shared-services"),
+    );
+    expect(screen.getByRole("heading", { name: "Shared services" })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-shared-services")).toContainElement(
+      screen.getByTestId("architecture-diagram-neighborhood-tile-shared-services"),
+    );
   });
 
   it("summarizes links after the twelfth row", () => {
@@ -59,5 +126,30 @@ describe("DiagramNeighborhoodMapView", () => {
     render(<DiagramNeighborhoodMapView map={{ ...map, links }} onOpenNeighborhood={vi.fn()} />);
 
     expect(screen.getByText("+ 1 more links")).toBeInTheDocument();
+  });
+
+  it("distinguishes missing counts from stored zero", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{
+            ...map.neighborhoods[0],
+            resourceCount: null,
+            types: [{ name: "virtualMachines", count: null }],
+          }, {
+            ...map.neighborhoods[1],
+            resourceCount: 0,
+            types: [{ name: "virtualMachines", count: 0 }],
+          }],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Resource count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("virtualMachines count was not stored")).toBeInTheDocument();
+    expect(screen.getByText("0 resources")).toBeInTheDocument();
+    expect(screen.getByText("virtualMachines 0")).toBeInTheDocument();
   });
 });

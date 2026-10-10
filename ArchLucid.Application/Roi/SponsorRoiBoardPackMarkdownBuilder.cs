@@ -73,11 +73,11 @@ public static class SponsorRoiBoardPackMarkdownBuilder
         {
             string committed = system.CommittedUtc.HasValue
                 ? system.CommittedUtc.Value.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
-                : "—";
+                : "Committed time was not stored.";
 
             string savings = system.EstimatedUsdSavings.HasValue
                 ? FormatUsd(system.EstimatedUsdSavings.Value)
-                : "—";
+                : "Estimated savings was not stored.";
 
             sb.AppendLine(
                 $"| {EscapeCell(system.SystemName)} | `{EscapeCell(system.RunId)}` | {committed} | {savings} |");

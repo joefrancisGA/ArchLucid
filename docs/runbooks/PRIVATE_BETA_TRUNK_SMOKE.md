@@ -140,7 +140,7 @@ the canonical workflow and invitee proof directly from both refs:
 ```bash
 python3 scripts/ci/check_private_beta_ref_parity.py \
   --base-ref origin/master \
-  --release-ref origin/RC34
+  --release-ref origin/RC35
 ```
 
 ```bash

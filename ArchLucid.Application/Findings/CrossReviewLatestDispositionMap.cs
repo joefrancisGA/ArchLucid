@@ -15,19 +15,42 @@ public static class CrossReviewLatestDispositionMap
 
         Dictionary<string, FindingDisposition> latest = new(StringComparer.OrdinalIgnoreCase);
 
-        // Oldest first so a later decision overwrites an earlier one; the repository returns newest-first, and callers
-        // should not have to care which order they got.
-        foreach (FindingReviewEventRecord reviewEvent in reviewEvents.OrderBy(static record => record.OccurredAtUtc))
+        foreach (FindingReviewEventRecord reviewEvent in SelectLatestEvents(reviewEvents))
         {
-            if (reviewEvent.Disposition is null)
-                continue;
-
-            if (string.IsNullOrWhiteSpace(reviewEvent.FindingId))
-                continue;
-
-            latest[reviewEvent.FindingId.Trim()] = reviewEvent.Disposition.Value;
+            latest[reviewEvent.FindingId.Trim()] = reviewEvent.Disposition!.Value;
         }
 
         return latest;
+    }
+
+    /// <summary>
+    ///     Latest disposition-bearing event per finding. Callers that need revisit time or evidence text use the
+    ///     event; <see cref="Build" /> keeps only the disposition enum.
+    /// </summary>
+    public static IReadOnlyList<FindingReviewEventRecord> SelectLatestEvents(
+        IReadOnlyCollection<FindingReviewEventRecord> reviewEvents)
+    {
+        ArgumentNullException.ThrowIfNull(reviewEvents);
+
+        Dictionary<string, FindingReviewEventRecord> latest = new(StringComparer.OrdinalIgnoreCase);
+
+        // Oldest first so a later decision overwrites an earlier one. ListSinceUtcAsync returns newest-first,
+        // and callers should not have to care which order they got.
+        foreach (FindingReviewEventRecord reviewEvent in reviewEvents.OrderBy(static record => record.OccurredAtUtc))
+        {
+            if (reviewEvent.Disposition is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(reviewEvent.FindingId))
+            {
+                continue;
+            }
+
+            latest[reviewEvent.FindingId.Trim()] = reviewEvent;
+        }
+
+        return latest.Values.ToList();
     }
 }

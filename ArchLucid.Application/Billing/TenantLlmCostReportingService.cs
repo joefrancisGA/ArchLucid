@@ -60,7 +60,7 @@ public sealed class TenantLlmCostReportingService(
             .ConfigureAwait(false);
 
         decimal monthPressure = monthState.TotalUsdPressure;
-        decimal perDayEstimate = bucketDays > 0 ? Math.Round(monthPressure / bucketDays, 4) : 0m;
+        decimal perDayEstimate = RoundedPerDayShare(monthPressure, bucketDays);
 
         List<LlmCostDailyBucketResponse> dailyRows = [];
 
@@ -130,4 +130,25 @@ public sealed class TenantLlmCostReportingService(
 
     private static string FormatUtcMonthKey(DateTime utc) =>
         utc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>
+    ///     Four-decimal daily shares must not exceed the month. Rounding up makes the earlier days
+    ///     larger than the pressure, and the last day is then clamped to zero, so the chart sums high.
+    /// </summary>
+    private static decimal RoundedPerDayShare(decimal monthPressure, int bucketDays)
+    {
+        if (bucketDays <= 0)
+        {
+            return 0m;
+        }
+
+        decimal rounded = Math.Round(monthPressure / bucketDays, 4);
+
+        if (rounded <= 0m || rounded * (bucketDays - 1) <= monthPressure)
+        {
+            return rounded;
+        }
+
+        return decimal.Floor(monthPressure / bucketDays * 10000m) / 10000m;
+    }
 }

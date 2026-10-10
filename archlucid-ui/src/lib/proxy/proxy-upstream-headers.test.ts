@@ -185,6 +185,33 @@ describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
     delete process.env.ARCHLUCID_PROXY_PROJECT_ID;
   });
 
+  it("forwards browser scope on pre-auth invitation validate in production posture", () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    process.env.ARCHLUCID_PROXY_TENANT_ID = "11111111-1111-1111-1111-111111111111";
+    process.env.ARCHLUCID_PROXY_WORKSPACE_ID = "22222222-2222-2222-2222-222222222222";
+    process.env.ARCHLUCID_PROXY_PROJECT_ID = "33333333-3333-3333-3333-333333333333";
+
+    const headers = buildProxyUpstreamHeaders(
+      mockNextRequest({
+        scopeHeaders: {
+          "x-tenant-id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "x-workspace-id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          "x-project-id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        },
+      }),
+      "v1/auth/invitations/validate",
+    );
+
+    expect(headers.get("x-tenant-id")).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+    expect(headers.get("Authorization")).toBeNull();
+
+    process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.ARCHLUCID_PROXY_TENANT_ID;
+    delete process.env.ARCHLUCID_PROXY_WORKSPACE_ID;
+    delete process.env.ARCHLUCID_PROXY_PROJECT_ID;
+  });
+
   it("forwards browser registration scope on public anonymous funnel telemetry in production posture", () => {
     const originalNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "production";

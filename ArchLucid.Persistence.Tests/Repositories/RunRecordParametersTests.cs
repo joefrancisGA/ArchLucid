@@ -95,6 +95,19 @@ public sealed class RunRecordParametersTests
     public void Update_omits_the_created_timestamp() =>
         HasProperty(RunRecordParameters.Update(Run()), "CreatedUtc").Should().BeFalse();
 
+    /// <summary>
+    ///     The trace id is stamped after insert. The update must carry it so the artifacts-stage write stores it
+    ///     in the same statement that sets the golden manifest.
+    /// </summary>
+    [Fact]
+    public void Update_carries_otel_trace_id()
+    {
+        RunRecord run = Run();
+        run.OtelTraceId = "0123456789abcdef0123456789abcdef";
+
+        Read<string>(RunRecordParameters.Update(run), "OtelTraceId").Should().Be(run.OtelTraceId);
+    }
+
     [Fact]
     public void AnchorGuardKey_carries_only_the_row_identity()
     {
@@ -132,6 +145,25 @@ public sealed class RunRecordParametersTests
         Read<string>(parameters, "Decision").Should().Be("Approved");
         Read<string>(parameters, "ActorUserId").Should().Be("user-1");
         Read<DateTime>(parameters, "OccurredUtc").Should().Be(occurredUtc);
+    }
+
+    [Fact]
+    public void ForOperatorGovernanceDisposition_passes_occurred_utc_kind_through_unchanged()
+    {
+        DateTime unspecified = new(2026, 8, 11, 12, 0, 0, DateTimeKind.Unspecified);
+
+        DateTime bound = Read<DateTime>(
+            RunRecordParameters.ForOperatorGovernanceDisposition(
+                Scope(),
+                RunId,
+                "Approved",
+                null,
+                "user-1",
+                unspecified),
+            "OccurredUtc");
+
+        bound.Should().Be(unspecified);
+        bound.Kind.Should().Be(DateTimeKind.Unspecified);
     }
 
     /// <summary>Operator rationale is buyer-visible prose, so it is stored exactly as typed.</summary>

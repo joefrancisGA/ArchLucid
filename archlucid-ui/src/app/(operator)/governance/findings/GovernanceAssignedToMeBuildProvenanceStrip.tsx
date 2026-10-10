@@ -16,7 +16,7 @@ export function GovernanceAssignedToMeBuildProvenanceStrip(): React.JSX.Element 
       data-testid="governance-assigned-to-me-build-provenance-limitation"
       role="note"
     >
-      Provenance limitation: build identity is unavailable in this environment, so screenshots and support bundles
+      Provenance limitation: Build identity is unavailable in this environment, so screenshots and support bundles
       cannot be tied to a deployed UI commit from this page alone.
     </p>
   );

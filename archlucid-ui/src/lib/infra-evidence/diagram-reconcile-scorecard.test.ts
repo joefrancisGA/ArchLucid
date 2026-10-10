@@ -89,4 +89,20 @@ describe("diagram-reconcile-scorecard", () => {
     expect(csv).toContain('"correspondence","Confirmed","Portal"');
     expect(csv).toContain('"connector-gap","MissingInDiagram"');
   });
+
+  it("labels missing connector endpoints without inventing an empty value", () => {
+    const result = {
+      ...reconciliation(),
+      edgeGaps: [{
+        ...reconciliation().edgeGaps[0],
+        fromCloudResourceId: null,
+        toCloudResourceId: "",
+      }],
+    };
+
+    const csv = buildDiagramReconcileCsv(result);
+
+    expect(csv).toContain('"Endpoint was not stored → Endpoint was not stored"');
+    expect(csv).not.toContain('"— → —"');
+  });
 });

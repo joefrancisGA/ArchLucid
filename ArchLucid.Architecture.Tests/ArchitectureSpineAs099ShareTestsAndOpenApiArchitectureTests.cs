@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string snapshot = File.ReadAllText(path);
+        string snapshot = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         snapshot.Should().Contain("/v1/architectures/{architectureId}/shares");
         snapshot.Should().Contain("/v1/architectures/{architectureId}/shares/{targetActorOid}");
@@ -37,7 +37,7 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("OpenApi_v1_json_documents_architecture_share_crud_and_restrict_flag");
         source.Should().Contain("ArchitectureShareListResponse");
@@ -62,12 +62,12 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
             "Security",
             "RestrictedArchitectureShareIdorIntegrationTests.cs");
 
-        File.ReadAllText(sharesTests).Should().Contain("ListShares_ReturnsSharePayload");
-        File.ReadAllText(sharesTests).Should().Contain("UpsertShare_WithAdmin_Returns204");
-        File.ReadAllText(sharesTests).Should().Contain("DeleteShare_WhenMissing_Returns404");
-        File.ReadAllText(restrictTests).Should().Contain("SetRestrictToShares_EnableWithConfirm_AutoInsertsActorAdminShare");
-        File.ReadAllText(idorUnitTests).Should().Contain("GetArchitecture_WhenUnshared_Returns404_Not200");
-        File.ReadAllText(idorIntegrationTests).Should().Contain("Unshared_user_cannot_get_restricted_architecture_sql");
+        ArchitectureSourceProbe.ReadPathWithPartials(sharesTests).Should().Contain("ListShares_ReturnsSharePayload");
+        ArchitectureSourceProbe.ReadPathWithPartials(sharesTests).Should().Contain("UpsertShare_WithAdmin_Returns204");
+        ArchitectureSourceProbe.ReadPathWithPartials(sharesTests).Should().Contain("DeleteShare_WhenMissing_Returns404");
+        ArchitectureSourceProbe.ReadPathWithPartials(restrictTests).Should().Contain("SetRestrictToShares_EnableWithConfirm_AutoInsertsActorAdminShare");
+        ArchitectureSourceProbe.ReadPathWithPartials(idorUnitTests).Should().Contain("GetArchitecture_WhenUnshared_Returns404_Not200");
+        ArchitectureSourceProbe.ReadPathWithPartials(idorIntegrationTests).Should().Contain("Unshared_user_cannot_get_restricted_architecture_sql");
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("schemas.generated");
         source.Should().Contain("ArchitectureShareListResponse");
@@ -97,7 +97,7 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
             "architecture-share-api-contract.test.ts");
 
         File.Exists(contractTest).Should().BeTrue();
-        File.ReadAllText(contractTest).Should().Contain("AS-099");
+        ArchitectureSourceProbe.ReadPathWithPartials(contractTest).Should().Contain("AS-099");
     }
 
     private static string FindRepoRoot()

@@ -47,6 +47,7 @@ public sealed class TopologyAgentHandlerTests
                                   "findingId": "FIND-001",
                                   "sourceAgent": "Topology",
                                   "severity": "Info",
+                                  "enforcementTier": "Advisory",
                                   "category": "Topology",
                                   "message": "Managed Azure services fit the MVP.",
                                   "evidenceRefs": [ "request" ]

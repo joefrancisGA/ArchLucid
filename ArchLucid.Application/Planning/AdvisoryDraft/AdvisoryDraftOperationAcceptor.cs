@@ -22,7 +22,7 @@ public sealed class AdvisoryDraftOperationAcceptor(
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(scope);
 
-        AdvisoryDraftOperationCreateResult createResult = _store.CreatePending(scope);
+        AdvisoryDraftOperationCreateResult createResult = await _store.CreatePendingAsync(scope, cancellationToken);
 
         if (!createResult.Created)
         {

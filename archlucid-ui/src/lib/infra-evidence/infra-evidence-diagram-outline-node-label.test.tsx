@@ -52,4 +52,11 @@ describe("InfraEvidenceDiagramOutlineNodeLabel", () => {
     expect(screen.getByText("core-vnet")).toBeTruthy();
     expect(screen.queryByText("Core-VNet")).toBeNull();
   });
+
+  it("does not expose the node id when the label is absent", () => {
+    render(<InfraEvidenceDiagramOutlineNodeLabel node={node({ id: "n_mermaid", label: "" })} />);
+
+    expect(screen.getByText("Node name was not stored")).toBeTruthy();
+    expect(screen.queryByText("n_mermaid")).toBeNull();
+  });
 });

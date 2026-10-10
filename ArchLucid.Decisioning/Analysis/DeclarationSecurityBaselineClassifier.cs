@@ -112,9 +112,6 @@ public static partial class DeclarationSecurityBaselineClassifier
         return false;
     }
 
-    private static bool IsEnabledToken(string? value) =>
-        string.Equals(value, "enabled", StringComparison.OrdinalIgnoreCase);
-
     private static bool IsTruthy(string? value) =>
         string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
         || string.Equals(value, "allow", StringComparison.OrdinalIgnoreCase)

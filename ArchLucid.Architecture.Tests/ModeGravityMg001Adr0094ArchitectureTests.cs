@@ -14,7 +14,7 @@ public sealed class ModeGravityMg001Adr0094ArchitectureTests
     [Fact]
     public void Mg001_adr_0094_forbids_operator_experience_as_gravity_and_keeps_guided()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0094-working-one-execute-gravity.md"));
 
         adr.Should().Contain("## Trade-offs");
@@ -31,9 +31,9 @@ public sealed class ModeGravityMg001Adr0094ArchitectureTests
     [Fact]
     public void Mg001_guard_inventory_and_vitest_exist()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "mode-gravity-adr-inventory.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "mode-gravity-adr-guard.test.ts"));
 
         inventory.Should().Contain("MODE_GRAVITY_ADR_0094_RELATIVE_PATH");

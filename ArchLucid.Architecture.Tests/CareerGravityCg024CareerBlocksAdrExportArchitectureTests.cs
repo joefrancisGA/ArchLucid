@@ -15,9 +15,9 @@ public sealed class CareerGravityCg024CareerBlocksAdrExportArchitectureTests
     [Fact]
     public void Cg024_adr_modal_resolves_door_stamp_for_career_artifact_validator()
     {
-        string modal = File.ReadAllText(
+        string modal = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GenerateAdrFromRunModal.tsx"));
-        string helper = File.ReadAllText(
+        string helper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -36,7 +36,7 @@ public sealed class CareerGravityCg024CareerBlocksAdrExportArchitectureTests
     [Fact]
     public void Cg024_adr_export_prepends_rehearsal_header_markdown()
     {
-        string formatter = File.ReadAllText(
+        string formatter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -44,7 +44,7 @@ public sealed class CareerGravityCg024CareerBlocksAdrExportArchitectureTests
                 "lib",
                 "career-artifact",
                 "format-career-adr-export-rehearsal-header-markdown.ts"));
-        string modal = File.ReadAllText(
+        string modal = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GenerateAdrFromRunModal.tsx"));
 
         formatter.Should().Contain("formatCareerAdrExportRehearsalHeaderMarkdown");
@@ -55,7 +55,7 @@ public sealed class CareerGravityCg024CareerBlocksAdrExportArchitectureTests
     [Fact]
     public void Cg024_adr_modal_hard_blocks_simulator_career_without_confirm_bypass()
     {
-        string modal = File.ReadAllText(
+        string modal = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "GenerateAdrFromRunModal.tsx"));
 
         modal.Should().Contain("careerSimulatorHardBlocked");
@@ -65,7 +65,7 @@ public sealed class CareerGravityCg024CareerBlocksAdrExportArchitectureTests
     [Fact]
     public void Cg024_docs_record_adr_export_career_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-024");

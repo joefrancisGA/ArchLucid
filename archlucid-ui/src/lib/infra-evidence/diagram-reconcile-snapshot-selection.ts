@@ -24,10 +24,12 @@ export function resolveDiagramReconcileSnapshotSelectionSummary(input: {
 
   const nowMs = input.nowMs ?? Date.now();
   const capturedUtc = selected.capturedUtc ?? "";
-  const ageLabel =
-    capturedUtc.trim().length > 0 ? formatRelativeTime(capturedUtc, nowMs) : "capture time unknown";
+  const hasCaptureTime = capturedUtc.trim().length > 0;
+  const ageLabel = hasCaptureTime ? formatRelativeTime(capturedUtc, nowMs) : "Age unavailable";
   const latestSnapshotId = input.snapshots[0]?.snapshotId ?? "";
-  const selectionMarker =
+  const selectionMarker = !hasCaptureTime
+    ? null
+    :
     input.urlSnapshotId.trim().length === 0 && selected.snapshotId === latestSnapshotId
       ? "Auto-selected"
       : selected.snapshotId === latestSnapshotId

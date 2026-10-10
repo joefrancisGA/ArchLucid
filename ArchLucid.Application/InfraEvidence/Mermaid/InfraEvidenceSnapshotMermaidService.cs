@@ -42,6 +42,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
         ("network", DiagramMode.Network),
         ("businessContinuity", DiagramMode.BusinessContinuity),
         ("identity", DiagramMode.Identity),
+        ("data", DiagramMode.Data),
         ("dataFlow", DiagramMode.DataFlow),
         ("dataArchitecture", DiagramMode.DataArchitecture),
         ("avd", DiagramMode.Avd),
@@ -956,7 +957,9 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             CollapseToBackboneKeep = options?.CollapseToBackboneKeep ?? false,
             HiddenExecutiveTierKeys = options?.HiddenExecutiveTierKeys,
             IncludePrivateEndpointNodes = options?.IncludePrivateEndpointNodes ?? includePrivateEndpointNodes,
-            IncludeNetworkDetails = options?.IncludeNetworkDetails ?? includeNetworkDetails,
+            // The mode parser never sets this flag. A compile-options object built for another
+            // display flag still has the bool default false, and ?? does not replace false.
+            IncludeNetworkDetails = includeNetworkDetails || (options?.IncludeNetworkDetails ?? false),
             IncludeRecoveryServices = options?.IncludeRecoveryServices ?? includeRecoveryServices,
             IncludeAvdAssets = options?.IncludeAvdAssets ?? includeAvdAssets,
             IncludeCrossGroupFanOut = includeCrossGroupFanOut,

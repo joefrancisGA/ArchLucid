@@ -63,14 +63,7 @@ public static class AzureInventoryRecoveryServicesProtectedItemSanitizer
             return false;
         }
 
-        string? targetRegion = TryReadString(properties, "recoveryFabricFriendlyName");
-
-        if (string.IsNullOrWhiteSpace(targetRegion)
-            && properties.TryGetProperty("providerSpecificDetails", out JsonElement providerDetails)
-            && providerDetails.ValueKind is JsonValueKind.Object)
-        {
-            targetRegion = TryReadString(providerDetails, "initialRecoveryFabricLocation");
-        }
+        string? targetRegion = TryReadRecoveryTargetRegion(properties);
 
         string? targetResourceId = TryReadString(properties, "recoveryContainerId");
 
@@ -99,6 +92,29 @@ public static class AzureInventoryRecoveryServicesProtectedItemSanitizer
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Throttled,
             WarningCode = warningCode,
         };
+    }
+
+    /// <summary>
+    ///     A2A list items publish the current failover region on
+    ///     <c>providerSpecificDetails.recoveryFabricLocation</c>.
+    ///     <c>initialRecoveryFabricLocation</c> is the original target and stays behind after reprotect.
+    /// </summary>
+    private static string? TryReadRecoveryTargetRegion(JsonElement properties)
+    {
+        if (!properties.TryGetProperty("providerSpecificDetails", out JsonElement providerDetails)
+            || providerDetails.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? currentLocation = TryReadString(providerDetails, "recoveryFabricLocation");
+
+        if (!string.IsNullOrWhiteSpace(currentLocation))
+        {
+            return currentLocation;
+        }
+
+        return TryReadString(providerDetails, "initialRecoveryFabricLocation");
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)

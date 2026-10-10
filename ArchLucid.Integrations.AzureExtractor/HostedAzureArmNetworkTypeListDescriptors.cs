@@ -33,6 +33,7 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
         new("Microsoft.Network/networkSecurityGroups", $"providers/Microsoft.Network/networkSecurityGroups?api-version={NetworkApiVersion}"),
         new("Microsoft.Network/privateEndpoints", $"providers/Microsoft.Network/privateEndpoints?api-version={NetworkApiVersion}"),
         new("Microsoft.Compute/virtualMachines", $"providers/Microsoft.Compute/virtualMachines?api-version={ComputeApiVersion}"),
+        new("Microsoft.Compute/restorePointCollections", $"providers/Microsoft.Compute/restorePointCollections?api-version={ComputeApiVersion}"),
         new("Microsoft.Network/applicationGateways", $"providers/Microsoft.Network/applicationGateways?api-version={NetworkApiVersion}"),
         new("Microsoft.Network/loadBalancers", $"providers/Microsoft.Network/loadBalancers?api-version={NetworkApiVersion}"),
         new("Microsoft.Network/privateDnsZones", $"providers/Microsoft.Network/privateDnsZones?api-version={PrivateDnsApiVersion}"),

@@ -14,7 +14,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { governanceGateOperatorFootnote } from "@/lib/governance/governance-gate-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -220,7 +219,7 @@ export function RunDetailOutcomeCards({
     <div id="run-decision-summary" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
       {coverageBanner}
       {dispositionPanel}
-      {!hidePromotedStatus && statusHeadline !== null ? (
+          {!hidePromotedStatus && (statusHeadline !== null || hasGoldenManifest) ? (
         <div
           className={cn(
             "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 shadow-sm",
@@ -230,7 +229,7 @@ export function RunDetailOutcomeCards({
           role="status"
         >
           <p className={cn("m-0 whitespace-pre-line font-semibold leading-snug text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-            {statusHeadline}
+            {statusHeadline ?? "Finalized architecture review."}
           </p>
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE}
@@ -243,19 +242,19 @@ export function RunDetailOutcomeCards({
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Decision</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
-                  {(aggregateRiskPosture ?? governanceGateLabel ?? "Package finalized").trim()}
+                  {aggregateRiskPosture?.trim() || governanceGateLabel?.trim() || "Decision was not stored."}
                 </dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Material finding</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">PHI minimization risk</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Material finding was not stored.</dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
                     ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
-                    : `${BUYER_SURFACE_VOCABULARY.evidenceGraph} ready`}
+                    : "Citation count was not returned."}
                 </dd>
               </div>
               <div>

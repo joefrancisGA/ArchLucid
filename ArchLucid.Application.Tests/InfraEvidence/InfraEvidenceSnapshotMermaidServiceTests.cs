@@ -307,6 +307,47 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Render_full_subscription_keeps_network_details_when_another_display_flag_is_set()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        Mock<IDiagramAstFromGraphCompiler> compiler = new();
+        DiagramAstFromGraphCompiler realCompiler = new();
+        List<DiagramAstCompileOptions?> observedOptions = [];
+
+        compiler
+            .Setup(candidate => candidate.Compile(
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<DiagramMode>(),
+                It.IsAny<DiagramAstCompileOptions?>()))
+            .Callback((GraphSnapshot _, DiagramMode _, DiagramAstCompileOptions? options) => observedOptions.Add(options))
+            .Returns((GraphSnapshot graph, DiagramMode mode, DiagramAstCompileOptions? options) =>
+                realCompiler.Compile(graph, mode, options));
+
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds(),
+            compiler.Object);
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(
+                CreateScope(),
+                SnapshotId,
+                "full",
+                null,
+                null,
+                cancellationToken: CancellationToken.None,
+                includeCrossGroupFanOut: true,
+                includeNetworkDetails: true);
+
+        result.Succeeded.Should().BeTrue();
+        observedOptions.Should().ContainSingle();
+        observedOptions[0].Should().NotBeNull();
+        observedOptions[0]!.IncludeNetworkDetails.Should().BeTrue();
+        observedOptions[0]!.IncludeCrossGroupFanOut.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Render_failure_response_includes_exception_message_without_stack_trace()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount: 3);
@@ -1668,6 +1709,12 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
             return Task.FromResult<AzureInventorySnapshotRecord?>(null);
         }
 
+        public Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
         public Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
             ScopeContext scope,
             Guid snapshotId,
@@ -1816,6 +1863,40 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
 
         networkResult.Succeeded.Should().BeTrue();
         networkResult.Value!.Mermaid.Should().Contain("corp-vnet");
+    }
+
+    [Fact]
+    public async Task Data_mode_renders_data_factory_and_omits_virtual_networks()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildDataFlowSnapshot();
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "data", null, null, cancellationToken: CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.IsBadRequest.Should().BeFalse();
+        result.Value.Should().NotBeNull();
+        result.Value!.Mode.Should().Be("data");
+        result.Value.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        result.Value.Mermaid.Should().NotBeNullOrWhiteSpace();
+        result.Value.Mermaid.Should().Contain("adf1");
+        result.Value.Mermaid.Should().NotContain("corp-vnet");
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidPreviewResponse> preview =
+            await service.TryGetPreviewAsync(scope, SnapshotId, cancellationToken: CancellationToken.None);
+
+        InfraEvidenceMermaidModePreview dataPreview = preview.Value!.Modes
+            .Should()
+            .ContainSingle(mode => mode.Mode == "data")
+            .Subject;
+
+        dataPreview.Status.Should().NotBe(MermaidDiagramRenderStatus.Failed.ToString());
+        dataPreview.NodeCount.Should().BeGreaterThan(0);
     }
 
     [Fact]

@@ -285,6 +285,17 @@ public static class InventoryDiagramIndirectRelationshipResolver
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
                 toNode?.Label ?? string.Empty);
+
+            if (string.Equals(edge.EdgeType, "CAN_READ", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"observed call (read) → {targetName}";
+            }
+
+            if (string.Equals(edge.EdgeType, "CAN_WRITE", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"observed call (write) → {targetName}";
+            }
+
             return $"observed call → {targetName}";
         }
 

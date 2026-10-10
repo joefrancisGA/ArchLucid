@@ -8,13 +8,13 @@ export function formatInfraEvidenceSnapshotCapturedLabel(
   ianaTimeZoneId: string = DEFAULT_IANA_TIME_ZONE_ID,
 ): string {
   if (capturedUtc == null || capturedUtc.trim().length === 0) {
-    return "unknown time";
+    return "Captured time was not stored";
   }
 
   const formatted = formatInstantInPreferredTimeZone(capturedUtc, ianaTimeZoneId);
 
   if (formatted === " — ") {
-    return "unknown time";
+    return "Captured time was not stored";
   }
 
   return formatted;
@@ -32,7 +32,7 @@ export function formatInfraEvidenceSubscriptionLabel(
 
   const id = subscriptionId?.trim() ?? "";
 
-  if (id.length > 0 && !isUuidLike(id)) {
+  if (id.length > 0) {
     return id;
   }
 

@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.Runs.Enrichment;
 
-public static class RunDetailEnrichmentServiceCollectionExtensions
+internal static class RunDetailEnrichmentServiceCollectionExtensions
 {
     public static IServiceCollection AddAuthorityRunDetailEnrichment(this IServiceCollection services)
     {

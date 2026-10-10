@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.ProductLine;
 
+[Trait("Category", "Unit")]
 public sealed class EffectiveProductLineResolverTests
 {
     [Theory]

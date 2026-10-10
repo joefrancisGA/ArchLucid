@@ -14,10 +14,14 @@ Architecture-scoped sharing is **inside one tenant**. It does not replace ADR 00
 
 When `RestrictToShares = false` (grandfather default, AS-088), every workspace member with ReadAuthority can view the architecture. ExecuteAuthority gates decide actions as today.
 
+Intersection (AS-090): **Decide share without ExecuteAuthority cannot dispose**. **ExecuteAuthority without share cannot dispose**. Evaluator: `ArchitectureShareAccessEvaluator`.
+
 ## Actor keys (AS-096)
 
 - Share rows store `ActorOid` as the Entra user key from `IActorContext.GetActorId()` (`jwt:{tenantId}:{oid}`).
-- SCIM group ids (`group:` / `scim-group:`) are rejected with HTTP 400.
+- SCIM groups are **not** share targets. SCIM group ids (`group:` / `scim-group:`) are rejected with HTTP 400.
+
+SQL RLS is forbidden on architecture shares (AS-097). Guard: `ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests`.
 
 ## Restrict-to-shares (AS-089)
 
@@ -38,6 +42,10 @@ Required durable audit events:
 - `ArchitectureIdentity.ShareRevoked`
 - `ArchitectureIdentity.RestrictToSharesEnabled`
 - `ArchitectureIdentity.RestrictToSharesDisabled`
+
+## Help boundary (AS-098)
+
+In-app help (`/help/architecture-sharing`) names the architecture-share boundary as **one tenant**, not a second tenant and not chat or live presence. Guard: `ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTests`.
 
 ## API surface (AS-099)
 

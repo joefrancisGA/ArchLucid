@@ -240,6 +240,148 @@ describe("MarketingShowcasePage", () => {
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
 
+  it("treats API payloads missing runExplanation as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const missingExplanationPayload = {
+      ...payload,
+      runExplanation: null,
+    } as unknown as DemoCommitPagePreviewResponse;
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(missingExplanationPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("treats API payloads with an empty artifacts array as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const emptyArtifactsPayload = {
+      ...payload,
+      artifacts: [],
+    };
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(emptyArtifactsPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("treats API payloads with an empty pipeline timeline as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const emptyTimelinePayload = {
+      ...payload,
+      pipelineTimeline: [],
+    };
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(emptyTimelinePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("treats API payloads with duplicate pipeline timeline eventId values as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const duplicateEventId = payload.pipelineTimeline[0]!.eventId;
+    const duplicateTimelinePayload = {
+      ...payload,
+      pipelineTimeline: [
+        payload.pipelineTimeline[0],
+        {
+          ...payload.pipelineTimeline[0],
+          occurredUtc: "2026-04-23T00:00:01+00:00",
+          eventType: "Analyze",
+        },
+      ],
+    };
+
+    duplicateTimelinePayload.pipelineTimeline[1]!.eventId = duplicateEventId;
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(duplicateTimelinePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("treats API payloads with timeline rows missing eventId as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const sparseTimelinePayload = {
+      ...payload,
+      pipelineTimeline: [
+        {
+          occurredUtc: "2026-04-23T00:00:00+00:00",
+          eventType: "Commit",
+          actorUserName: "fixture",
+          correlationId: null,
+        },
+      ],
+    } as unknown as DemoCommitPagePreviewResponse;
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(sparseTimelinePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
   it("treats API payloads with a null timeline row as invalid", async () => {
     vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
 
@@ -251,6 +393,34 @@ describe("MarketingShowcasePage", () => {
 
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify(malformedPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("treats API payloads with a negative finding count as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const negativeFindingCountPayload = {
+      ...payload,
+      runExplanation: {
+        ...payload.runExplanation!,
+        findingCount: -3,
+      },
+    };
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(negativeFindingCountPayload), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
