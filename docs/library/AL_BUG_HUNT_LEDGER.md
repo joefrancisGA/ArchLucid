@@ -6,6 +6,8 @@
 
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
 
+2026-10-10 seed hunt (seed-only): `ui-oidc` — reread the callback client, PKCE consumption, token persistence, and redirect orchestration; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused OIDC module suite passed all 70 tests.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate was promoted after cheap-disproof. The exact queue suite ran 29 tests: 17 passed and 12 failed on the known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines. Rehomed the five existing candidate rows under the zone’s canonical hypothesis block so the picker can evaluate them.
@@ -6030,7 +6032,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -19007,6 +19009,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `assertOidcSignInConfig` — **cheap-disproof 2026-10-10 thorough hunt:** supplemental Google initiation validates its own authority and client id before redirect; primary config success does not authorize the supplemental path.
 - [x] (valid-no-repro) `postTokenForm` — **cheap-disproof 2026-10-10 thorough hunt:** callers validate required access-token material before persistence and malformed OAuth responses are covered by token-client tests; no reachable downstream misclassification was reproduced.
 - [x] (valid-no-repro) `getOidcRedirectUri` — **cheap-disproof 2026-10-10 thorough hunt:** the fixed URI is deployment configuration for a registered public-client callback, and no attacker-controlled input reaches this branch; no source-tied redirect failure was reproduced.
+
+- [ ] (candidate) `CallbackClient` — successful token persistence can complete before the component’s cancellation guard observes a route unmount, leaving a valid local session while the callback never navigates to bootstrap or the restored return URL — locus: `persistTokenResponse` before `window.location.replace`; input: callback component unmount during token exchange completion.
+- [ ] (candidate) `CallbackClient` — accepting a token response without an `id_token` skips nonce verification and may allow a provider configuration that does not bind the authorization response to the stored PKCE nonce — locus: conditional `if (tokens.id_token)` nonce check; input: code callback whose token response omits `id_token`.
+- [ ] (candidate) `initiateOidcRedirect` — a discovery document that passes endpoint validation but fails authorization URL construction can leave newly stored PKCE state behind because cleanup wraps discovery only — locus: `buildAuthorizeUrl` outside the `try` block; input: provider endpoint accepted by discovery but rejected by URL construction.
+- [ ] (candidate) `consumePkceState` — when primary and supplemental states are both present, a callback with a matching state can consume the wrong flow if an IdP reuses state values across providers — locus: primary-first flow scan; input: duplicate callback state across simultaneous primary and Google sign-in attempts.
+- [ ] (candidate) `persistTokenResponse` — malformed access-token JWT claims can still persist expiry and leave the callback navigating even when display/subject hint extraction fails — locus: non-throwing JWT decode before asynchronous BFF sync; input: token response with opaque or malformed `access_token` accepted by the provider.
 
 ---
 
