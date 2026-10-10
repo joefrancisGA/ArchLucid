@@ -73,8 +73,7 @@ public sealed partial class AgentOutputEvaluationRecorder
         string agentLabel = trace.AgentType.ToString();
         TagList tags = new() { { "agent_type", agentLabel } };
 
-        AgentResult? matchingResult = agentResults.FirstOrDefault(r =>
-            string.Equals(r.TaskId, trace.TaskId, StringComparison.OrdinalIgnoreCase));
+        AgentResult? matchingResult = AgentResultLatestForTaskSelector.Select(agentResults, trace.TaskId);
 
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
             await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
