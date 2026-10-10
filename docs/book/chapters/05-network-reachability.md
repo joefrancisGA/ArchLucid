@@ -88,7 +88,7 @@ For platform services (storage, Key Vault, SQL Database, Cosmos DB, App Service,
 
 A storage account's public exposure comes from two settings that work together:
 
-- **`publicNetworkAccess`**: `Enabled`, `Disabled`, or `SecuredByPerimeter`. When disabled, the public endpoint refuses traffic and only private endpoints work. `SecuredByPerimeter` hands the decision to a network security perimeter, which is a separate resource with its own rules.
+- **`publicNetworkAccess`**: `Enabled`, `Disabled`, or `SecuredByPerimeter`. When disabled, ordinary public traffic is refused, but configured trusted-service exceptions remain effective; otherwise only private endpoints work. `SecuredByPerimeter` hands the decision to a network security perimeter, which is a separate resource with its own rules.
 - **`networkAcls`**: the storage firewall. Its **`defaultAction`** is `Allow` or `Deny`. With `Deny`, traffic is accepted only from listed **IP rules** (public address ranges), **virtual network rules** (subnets with a storage service endpoint), **resource instance rules** (specific Azure resources), and the **bypass** list, which can let trusted Azure services through.
 
 The portal presents these as three choices, which map roughly as follows:
