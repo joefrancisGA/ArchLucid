@@ -9675,7 +9675,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-03
@@ -33275,6 +33275,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-09 seed hunt (seed-only): re-read `RecoverableOutboxProcessorBase`, `RecoverableOutboxFailureHandler`, retry/option normalization, post-commit projection, retrieval indexing, and export-push processors; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 2026-10-10 seed hunt (seed-only): reread the shared recoverable outbox isolation shell, dead-letter/retry hooks, option clamping, retry arithmetic, and sibling projection/retrieval/export processors; cancellation and missing-detail rows remained contract-dependent, option normalization had no production caller with `maxBatch = 0`, and no new reachable wrong outcome survived the hunt-ready bar. The scoped coordination/outbox suite passed 21/21; no production change.
+
+2026-10-10 seed hunt (seed-only): reread the sibling projection, retrieval, Cosmos, and export processor completion paths, ambient scope setup, sealed-manifest guards, direct dead-letter handling, and retry boundaries; no fresh reachable wrong outcome survived the hunt-ready bar. The scoped coordination/outbox suite passed 21/21. Retained the existing bounded candidates; no production change.
 
 - [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — cancellation during bounded parallel processing can leave already-dequeued sibling entries leased without an explicit cancellation reconciliation — locus: `RecoverableOutboxProcessorBase.cs` ~55–76; input: cancel a batch after one parallel entry completes and another is still leased.
 - [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — cancellation after failure persistence but during the dead-letter/retry hook can obscure the persisted terminal state from the processor caller — locus: `RecoverableOutboxFailureHandler.cs` ~34–78; input: cancellation races a hook after `RecordBackoffAfterProcessingFailureAsync` succeeds.
