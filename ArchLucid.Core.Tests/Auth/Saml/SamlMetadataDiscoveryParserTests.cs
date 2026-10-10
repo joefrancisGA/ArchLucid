@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 using ArchLucid.Core.Auth.Saml;
+using ArchLucid.Core.Time;
 
 using FluentAssertions;
 
@@ -124,6 +125,37 @@ public sealed class SamlMetadataDiscoveryParserTests
         SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml);
 
         result.SigningCertificateThumbprints.Should().Equal(currentIdp.Thumbprint);
+    }
+
+    [Fact]
+    public void Parse_excludes_certs_outside_injected_clock_window()
+    {
+        DateTimeOffset frozenUtc = new(2026, 6, 15, 12, 0, 0, TimeSpan.Zero);
+        using X509Certificate2 notYetValid = CreateCertificate(frozenUtc.AddDays(1), frozenUtc.AddDays(30));
+        using X509Certificate2 expired = CreateCertificate(frozenUtc.AddYears(-2), frozenUtc.AddDays(-1));
+        using X509Certificate2 current = CreateCertificate(frozenUtc.AddDays(-1), frozenUtc.AddDays(30));
+        DelegateTimeProvider clock = new(() => frozenUtc);
+        string xml = $"""
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                              xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                              entityID="https://idp.example/metadata">
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(notYetValid.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(expired.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+                <KeyDescriptor use="signing">
+                  <ds:KeyInfo><ds:X509Data><ds:X509Certificate>{Convert.ToBase64String(current.RawData)}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>
+                </KeyDescriptor>
+              </IDPSSODescriptor>
+            </EntityDescriptor>
+            """;
+
+        SamlMetadataDiscoveryResult result = SamlMetadataDiscoveryParser.Parse(xml, clock);
+
+        result.SigningCertificateThumbprints.Should().Equal(current.Thumbprint);
     }
 
     private static X509Certificate2 CreateCertificate(DateTimeOffset notBefore, DateTimeOffset notAfter)
