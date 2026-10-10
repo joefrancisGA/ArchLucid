@@ -35215,9 +35215,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — decision rows reached findings bulk disposition
 - **related-pd-tb:** none
@@ -35231,15 +35231,17 @@ ABQ-09 churn hotspot.
 
 2026-10-10 thorough hunt (hit): `useGovernanceFindingsQueueBulkActions` restored every URL-supplied `bulkFindings` id without checking the loaded queue, and `GovernanceFindingsBulkActions` submitted those ids directly. A stale selection from another review scope could therefore remain actionable when the queue rows had changed. The hook now intersects URL selections with the active queue's loaded finding ids; regression `drops URL selections that are absent from the active queue`; the focused hook regression passed and UI typecheck passed.
 
+2026-10-10 thorough hunt (dry): cheap-disproved the four remaining candidates. Loaded-but-filtered findings remain selectable by design, synopsis prefetch follows displayed rows and re-runs when filters change, saved-view setters are followed by atomic route replacement with no reproduced stale render, and queue-mode selection is revalidated against active loaded IDs. Focused hook/saved-view tests passed 15/15; the client suite had 11 known external-store/update-depth and workspace-label baseline failures. No production change.
+
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
 
-- [ ] (candidate) `GovernanceFindingsQueueClient` / `useGovernanceFindingsQueueBulkActions` — the new URL-selection boundary uses all loaded queue rows rather than currently displayed rows, so a filtered-out finding can remain selected and reach bulk disposition; input: `bulkFindings=<loaded-id>` while an active register/NL/density filter hides that row.
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient` / `useGovernanceFindingsQueueBulkActions` — the URL-selection boundary uses all loaded queue rows rather than currently displayed rows, so a filtered-out finding can remain selected and reach bulk disposition — **cheap-disproof 2026-10-10 thorough hunt:** selection intentionally persists across display filters while the active loaded-id boundary prevents stale/out-of-scope rows.
 - [x] (proven) `GovernanceFindingsQueueClient` / `GovernanceFindingsQueueDesktopTable` / `GovernanceFindingsQueueTableRow` — mixed queue rows of `recordKind: "decision"` were included in `availableFindingIds` and rendered a selectable checkbox, allowing a decision id to reach findings bulk disposition; **hit 2026-10-10 thorough hunt:** filter available ids to findings, suppress decision-row checkboxes, and restrict page/group select-all to finding rows; regression `does not expose decision rows to findings bulk selection`.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `findingIds` is extracted after display filtering, so ITSM correlation prefetch may omit loaded findings hidden by density or search filters and leave a later unfiltered navigation without prefetched correlation context; input: a loaded finding hidden by `hideGeneric=1` before opening it from a scope change.
-- [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — synchronous local filter setters followed by saved-view navigation may briefly render the prior queue with the new filter state before the URL-derived queue mode catches up; input: selecting a saved view while the queue is loading and its payload changes scope.
-- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — mode changes update the available-ID boundary but retain a selected ID that is shared by tenant and assigned-to-me queues, so selection semantics may leak across product-line route transitions; input: the same finding id appears in both queue modes while `bulkFindings` persists.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `findingIds` is extracted after display filtering, so ITSM correlation prefetch may omit loaded findings hidden by density or search filters — **cheap-disproof 2026-10-10 thorough hunt:** prefetch follows the displayed-row contract and reruns when filter-derived rows change; no later unfiltered navigation loses reachable context.
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — synchronous local filter setters followed by saved-view navigation might briefly render the prior queue with new filter state — **cheap-disproof 2026-10-10 thorough hunt:** route replacement is issued in the same callback after applying the saved view; no reachable stale render or wrong URL was reproduced.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueBulkActions` — mode changes might retain a selected ID shared by tenant and assigned-to-me queues — **cheap-disproof 2026-10-10 thorough hunt:** the active loaded finding-id set revalidates selection whenever queue data/mode changes; no cross-mode disposition outcome was reachable.
 
 - [x] (proven) `useGovernanceFindingsQueueBulkActions` — URL-supplied `bulkFindings` was restored without intersecting the currently loaded queue rows, so a stale selection from another review scope reached bulk disposition — **hit 2026-10-10 thorough hunt:** `GovernanceFindingsBulkActions` submits the hook's selected IDs directly; the hook now filters URL selections against the queue's loaded finding IDs and revalidates when the loaded set changes; regression `drops URL selections that are absent from the active queue`.
 - [x] (valid-no-repro) `useGovernanceFindingsQueueBulkActions` — switching between tenant and assigned-to-me routes while `bulkFindings` remains in the URL may preserve selection without a mode-specific validation pass — **cheap-disproof 2026-10-10 thorough hunt:** the active loaded finding-id set is now an effect dependency and URL selections are re-filtered whenever it changes; focused hook regression passed.
