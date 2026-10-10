@@ -8,6 +8,8 @@
 
 2026-10-10 seed hunt (seed-only): `ui-oidc` — reread the callback client, PKCE consumption, token persistence, and redirect orchestration; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused OIDC module suite passed all 70 tests.
 
+2026-10-10 seed hunt (seed-only): `ui-oidc` — reread OAuth callback error mapping and remaining OIDC session/configuration boundaries; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused OIDC module suite passed all 70 tests.
+
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC plus callback suite ran 75 tests: 74 passed and 1 existing buyer-polished follow-up-link baseline failed.
 
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
@@ -6034,7 +6036,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-04
@@ -19019,6 +19021,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `initiateOidcRedirect` — **cheap-disproof 2026-10-10 thorough hunt:** discovery parsing requires absolute HTTP(S) authorization and token endpoints before `buildAuthorizeUrl` runs; no reachable endpoint shape reproduced a post-discovery construction failure.
 - [x] (invalid) `consumePkceState` — **cheap-disproof 2026-10-10 thorough hunt:** state values are generated independently and a cross-provider collision requires an IdP defect not reachable from these client files; PKCE tests passed.
 - [x] (valid-no-repro) `persistTokenResponse` — **cheap-disproof 2026-10-10 thorough hunt:** JWT hint extraction is deliberately non-throwing while server-side BFF synchronization remains authoritative; no downstream misclassification was reproduced.
+
+- [ ] (candidate) `decodeOAuthErrorDescription` — an unusually large or repeated percent-encoded `error_description` can be fully decoded and rendered into callback error handling without a length bound — locus: decode-and-return path; input: IdP callback with a multi-megabyte encoded description.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — unknown OAuth error codes and descriptions are copied into technical callback messaging before buyer-safe mapping, so control characters or provider-internal details may reach an operator-facing error surface — locus: default error branch; input: callback with unknown `error` and newline/control-heavy `error_description`.
+- [ ] (candidate) `getOidcScopes` — a whitespace-normalized but otherwise arbitrary public scope string is sent to the authorization request, so a deployment typo can request an unintended scope set — locus: environment-backed scope return; input: malformed `NEXT_PUBLIC_OIDC_SCOPES`.
+- [ ] (candidate) `storePostSignInReturnUrl` — safe-path validation permits unbounded query and fragment payloads, so a large callback return URL can inflate session storage and make the next redirect unusable — locus: `isSafeReturnPath` acceptance before storage; input: very long same-origin return path.
+- [ ] (candidate) `clearOidcSession` — clearing local OIDC keys starts asynchronous BFF cookie deletion without awaiting it, so an immediate authenticated API request after sign-out may still use the old HttpOnly cookie — locus: fire-and-forget `clearBffSessionCookie`; input: sign-out followed immediately by a protected request.
 
 ---
 
