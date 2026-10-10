@@ -53,6 +53,16 @@ class IdentifierErrors(unittest.TestCase):
             with self.subTest(text=text):
                 self.assertEqual(levels(text)[0][0], checker.ERROR)
 
+    def test_named_private_endpoints_are_errors(self) -> None:
+        for text in (
+            "realacct.privatelink.blob.core.windows.net",
+            "realkv.privatelink.vaultcore.azure.net",
+            "realsql.privatelink.database.windows.net",
+            "payapi.privatelink.azurewebsites.net",
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(levels(text), [(checker.ERROR, f"named service endpoint {text}")])
+
     def test_backlog_ids_are_errors(self) -> None:
         self.assertEqual([level for level, _ in levels("SN-1 TB-22 FR-333")], [checker.ERROR] * 3)
 
@@ -78,6 +88,13 @@ class AllowedText(unittest.TestCase):
 
     def test_privatelink_zone_and_wildcards_pass(self) -> None:
         text = "privatelink.blob.core.windows.net, *.onmicrosoft.com, <account>.blob.core.windows.net"
+        self.assertEqual(levels(text), [])
+
+    def test_bare_privatelink_zones_pass(self) -> None:
+        text = (
+            "privatelink.vaultcore.azure.net privatelink.database.windows.net "
+            "privatelink.azurewebsites.net privatelink.dfs.core.windows.net"
+        )
         self.assertEqual(levels(text), [])
 
     def test_times_and_invalid_addresses_pass(self) -> None:
