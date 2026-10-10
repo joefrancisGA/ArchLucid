@@ -32584,9 +32584,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 39
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
+- **hunts:** 40
+- **bugs-found:** 20
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — padded semver route value was validated but not normalized before version lookup
 - **related-pd-tb:** none
@@ -32595,6 +32595,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-10 seed hunt (seed-only): reread policy-pack assignment mutations, catalog CRUD, effective/page-bundle/version reads, simulation and validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The focused `PolicyPacksController` filter passed 80/80. No production change.
+
+2026-10-10 seed hunt (seed→hit): `PolicyPacksController.PromoteCatalogEntry` validated an optional semver after trimming for validation but forwarded the original padded version to the facade, so a reachable catalog-promotion request such as `" 1.0.0 "` could fail version lookup despite valid input. The controller now forwards the trimmed optional version; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`. A focused runtime repro failed before the fix and passed after it. The permanent scoped test was blocked before execution by the pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`.
 
 2026-10-10 seed hunt (seed-only): re-read the selected policy-pack controller mutations, scope-aware reads, simulation validation, and focused tests; the demote-conflict fall-through candidate was invalid because the selected facade path does not emit a reachable conflict outcome, despite a mock-only repro returning 204. No production change; 80 scoped `PolicyPacksController` tests passed.
 
@@ -32615,6 +32617,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — an OpenAPI catalog-promotion body with surrounding whitespace in its optional semver, such as `" 1.0.0 "`, passed trimmed validation but was forwarded untrimmed to the facade — **hit 2026-10-10 seed hunt:** forward `request.Version?.Trim()` after validation; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
 - [x] (invalid) `PolicyPacksController.Assign` — a reachable OpenAPI body with case-variant `scopeLevel` such as `workspace` passes the case-insensitive validator and is forwarded in its original spelling, while the surrounding workflow normalizes scope decisions; cheap-disproof: `PolicyPackAssignStage.AssignAsync` applies `GovernanceScopeLevel.TryNormalize` before comparing, persisting, and logging the assignment.
 - [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — a reachable JSON `runIds` array containing null slots is skipped during normalization but still participates in the submitted-list cap and validation boundary, so response request-count semantics may diverge from the caller’s slot count; cheap-disproof: the workflow intentionally counts distinct nonblank normalized ids, with existing duplicate and padded-id regressions covering the contract.
 - [x] (invalid) `PolicyPacksController.GetEffective` — successful ETag fingerprints resolve `IScopeContextProvider` from `HttpContext.RequestServices` instead of the controller’s injected provider, so a reachable alternate composition with distinct scoped instances could emit a scope-mismatched validator and 304 response; cheap-disproof: production DI resolves the same scoped provider instance from the request service provider, and no alternate composition/input is present in the selected files.
@@ -35217,13 +35220,19 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread `ResourceHubClient.tsx` and its focused component tests; no candidate met the same-run failing-repro promotion bar. The focused UI test run was blocked before execution by the existing duplicate `CreateEmptyAgentResultRepository` member `CS0111` in the shared .NET test project. Seeded bounded candidates for resource-title trailing segments, duplicate RBAC/network row keys, and tab navigation carrying stale technical-disclosure state; no production or regression code was changed.
+
+- [ ] (candidate) `ResourceHubClient.resourceTitle` — a reachable captured resource identifier ending in `/` produces an empty final segment and suppresses the fallback identifier, so the resource hub title can render blank; input is reachable from `hub.currentConfiguration.azureResourceId` or `hub.externalResourceId`.
+- [ ] (candidate) `ResourceHubClient` RBAC and network relationship tables — captured rows can share the current React key fields (`principalId-roleDefinitionId` or `fromAzureResourceId-toAzureResourceId`) while differing in scope or relationship type, making row identity non-unique; input is reachable from `hub.rbacAssignments` and `hub.networkRelationships`.
+- [ ] (candidate) `ResourceHubClient.setActiveTab` / `syncInfraResourceHubTechnicalKeyToUrl` — switching tabs while a technical disclosure query key is present may retain a disclosure key that the destination tab does not render until the effect observes the URL change; input is reachable from the technical disclosure query parameter and tab navigation.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 

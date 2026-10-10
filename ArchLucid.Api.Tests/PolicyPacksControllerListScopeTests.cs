@@ -740,6 +740,36 @@ public sealed class PolicyPacksControllerListScopeTests
     }
 
     [Fact]
+    public async Task PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PromoteCatalogEntryAsync(
+                It.Is<PolicyPackPromoteCatalogBody>(body =>
+                    body.SourcePolicyPackId == packId
+                    && body.Version == "1.0.0"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackCatalogEntryDetail>
+            {
+                Outcome = PolicyPackHttpOutcome.Success,
+            });
+
+        PolicyPacksController sut = CreateSut(httpFacade, tenantExists: true);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = packId,
+                Version = " 1.0.0 ",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        httpFacade.VerifyAll();
+    }
+
+    [Fact]
     public async Task ExplainPack_returns_bad_request_when_route_id_empty()
     {
         Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
