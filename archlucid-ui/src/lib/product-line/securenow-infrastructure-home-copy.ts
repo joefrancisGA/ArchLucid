@@ -1,6 +1,5 @@
 import {
   SECURENOW_INFRASTRUCTURE_ASK_PATH,
-  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
@@ -13,15 +12,14 @@ import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-h
 
 export const SECURENOW_INFRASTRUCTURE_DRIFT_LABEL = "Changes & drift" as const;
 
-export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Infrastructure" as const;
+export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Environment" as const;
 
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
-  "Explore Azure inventory snapshots, diagrams, resource evidence hubs, and grounded Ask." as const;
+  "Explore resources, connections, changes, and evidence-backed answers." as const;
 
 /**
  * SecureNow home — infrastructure evidence workbench destinations.
- * Order matches the Infrastructure navbar, with Terraform mapping last.
- * Extract & upload stays in the navbar only (ExecuteAuthority).
+ * Order matches the Environment navbar, with Terraform mapping last.
  */
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
@@ -29,16 +27,6 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
     summary: "Explore cloud resources and open the evidence hub for a single resource.",
     recommendedFirst: true,
-  },
-  {
-    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
-    label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
-    summary: "Compare inventory snapshots, classify drift, and export advisory Terraform.",
-  },
-  {
-    href: SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
-    summary: "Declare edges between resources when config files or tribal knowledge are not ingested.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
@@ -49,6 +37,11 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     href: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
     summary: "Reconcile uploaded diagrams against inventory snapshots with explainable correspondence rows.",
+  },
+  {
+    href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+    label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
+    summary: "Compare inventory snapshots, classify changes, and export advisory Terraform.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_ASK_PATH,
