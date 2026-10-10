@@ -22,6 +22,10 @@
 | Quick Scan (public site) | Sample-only; AI off until owner decision (**M-110**). |
 | SOC 2 / pen test | Self-assessment and owner-conducted materials only — not CPA SOC 2 or third-party pen-test publication. |
 | Invite 401 after a long wait | CI/JWT mint expired or API `/health/ready` was unreachable (HTTP 000). Founder: re-issue invite; engineering: `scripts/ci/refresh_private_beta_ci_jwt.sh` and skip remaining warms on HTTP 000. |
+| Expired invite | The link is single-use and time-bound. Ask the founder for a newly issued invite; do not forward an old link. |
+| Expired session | Sign in again without reusing the old invitation token, then open the newest invite link. If the problem repeats, include the correlation ID shown on the recovery screen. |
+| Wrong tenant | Access is denied when the signed-in identity is outside the invited tenant. Sign out, use the invited organization account, and contact support if the tenant name is unexpected. |
+| Capped HTTP 429 | Invitation validation is rate-limited. Wait for the displayed retry window instead of repeatedly refreshing; send support the correlation ID if the cap persists. |
 
 ## Kill switch and spend freeze
 
@@ -32,6 +36,9 @@ If a named tenant starts Real execute unexpectedly, freeze spend with [`PRIVATE_
 | Scenario | Reply skeleton |
 | --- | --- |
 | **Invite expired** | “Use the new invite link below. If SSO is required, sign in with the same email we invited.” |
+| **Session expired** | “Sign in again, then use the newest invitation link. Please do not reuse a stale tab or token.” |
+| **Wrong tenant** | “The invitation is scoped to the invited organization. Sign in with that organization account, or send us the correlation ID if the tenant looks wrong.” |
+| **Validation capped (429)** | “Invitation checks are temporarily capped. Wait until the retry window ends, then try once. Send the correlation ID if it still fails.” |
 | **Run stuck** | “Send the `runId` from the review URL. We will check pipeline timeline and worker health.” |
 | **Training data** | “See trust center data-handling; your tenant evidence stays in your scope per DPA outline.” |
 | **Empty export** | “Confirm the run reached commit/finalize; send manifest id from provenance card.” |
@@ -50,9 +57,12 @@ If a named tenant starts Real execute unexpectedly, freeze spend with [`PRIVATE_
 
 Record one row per invitee with `tenantId` redacted to an internal reference, the
 UTC timestamp, `correlationId` when the stage came from an API request, and the
-result (`success`, `blocked`, or `abandoned`). Do not put evidence contents, access
-tokens, or raw email addresses in this log. A missing stage is a follow-up signal,
-not evidence that the user completed the next stage.
+result (`success`, `blocked`, or `abandoned`). For auth recovery, record the
+support-safe error class (`expired-invite`, `expired-session`, `wrong-tenant`,
+`rate-limited`, or `upstream-unavailable`) rather than the token or raw response.
+Do not put evidence contents, access tokens, or raw email addresses in this log.
+A missing stage is a follow-up signal, not evidence that the user completed the
+next stage.
 
 ## Operator onboarding
 

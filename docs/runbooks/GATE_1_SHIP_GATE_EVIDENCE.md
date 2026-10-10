@@ -33,6 +33,29 @@ archlucid pilot ship-gate-evidence \
   --ui-base-url https://<staging-ui-host>
 ```
 
+## Pinned RC34 dispatch recipe
+
+For the RC34 cut, use the owner-approved immutable commit `e59cffa423` (replace
+it only after the release owner records a newer approved SHA). Run the staging
+deployment workflow with that SHA, then run the evidence command against the
+completed committed run:
+
+```bash
+gh workflow run "CD staging on merge" \
+  --ref master \
+  -f target_sha=e59cffa423
+
+archlucid pilot ship-gate-evidence \
+  --run-id <committed-run-guid> \
+  --ui-base-url https://<staging-ui-host>
+```
+
+Attach the resulting directory exactly as
+`artifacts/ship-gate-evidence/<runId>/`. Do not copy an artifact from another
+commit, synthesize a PASS, or rename the run-id directory. The evidence
+consistency guard rejects mixed commit SHAs, duplicate run IDs, and requested
+runs without records.
+
 Artifacts (default):
 
 - `artifacts/ship-gate-evidence/<runId>/ship-gate-evidence.json`
