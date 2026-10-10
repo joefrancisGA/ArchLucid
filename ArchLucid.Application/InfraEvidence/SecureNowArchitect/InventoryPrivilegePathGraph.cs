@@ -64,8 +64,10 @@ internal static class InventoryPrivilegePathGraph
                     representedAssignments.Add(key);
                     foreach (AzureInventoryRoleAssignmentReadModel assignment in assignments)
                     {
+                        (ProvenanceKind provenanceKind, string? inferenceSource) =
+                            ResolveAssignmentProvenance(assignment, relationship);
                         AddRoleEdge(outgoing, roleEdgeKeys, relationship.FromAzureResourceId, relationship.ToAzureResourceId,
-                            assignment, relationship.ProvenanceKind, relationship.InferenceSource);
+                            assignment, provenanceKind, inferenceSource);
                     }
                     continue;
                 }
@@ -90,8 +92,9 @@ internal static class InventoryPrivilegePathGraph
             }
             foreach (AzureInventoryRoleAssignmentReadModel assignment in assignments)
             {
+                (ProvenanceKind provenanceKind, string? inferenceSource) = ResolveAssignmentProvenance(assignment, null);
                 AddRoleEdge(outgoing, roleEdgeKeys, AzureInventoryPrincipalNodeId.Format(key.PrincipalId.ToLowerInvariant()),
-                    key.Scope, assignment, ProvenanceKind.ObservedFact, GraphEdgeInferenceSources.InventoryRbacAssignment);
+                    key.Scope, assignment, provenanceKind, inferenceSource);
             }
         }
 
@@ -213,6 +216,26 @@ internal static class InventoryPrivilegePathGraph
             RoleDefinitionId = roleDefinitionId,
             RoleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(assignment.RoleDefinitionId),
         });
+    }
+
+    private static (ProvenanceKind Kind, string? InferenceSource) ResolveAssignmentProvenance(
+        AzureInventoryRoleAssignmentReadModel assignment,
+        AzureInventoryResourceRelationshipReadModel? relationship)
+    {
+        if (assignment.PimEligibilityKind?.Equals("unknown", StringComparison.OrdinalIgnoreCase) == true
+            || assignment.PimEligibilityKind?.Equals("eligible", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return (ProvenanceKind.DeterministicInference, GraphEdgeInferenceSources.PimEligibilityUnknown);
+        }
+
+        if (!string.IsNullOrWhiteSpace(assignment.PimEligibilityKind))
+        {
+            return (ProvenanceKind.ObservedFact, GraphEdgeInferenceSources.InventoryRbacAssignment);
+        }
+
+        return relationship is null
+            ? (ProvenanceKind.ObservedFact, GraphEdgeInferenceSources.InventoryRbacAssignment)
+            : (relationship.ProvenanceKind, relationship.InferenceSource);
     }
 
     private static void AddEdge(

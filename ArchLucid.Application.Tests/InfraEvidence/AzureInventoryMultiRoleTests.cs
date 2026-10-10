@@ -65,19 +65,22 @@ public sealed class AzureInventoryMultiRoleTests
     public void Pim_unknown_relationship_provenance_is_retained_for_every_role()
     {
         var snapshot = Snapshot([Owner, Contributor], true);
-        snapshot = new() { Resources = snapshot.Resources, RoleAssignments = snapshot.RoleAssignments,
+        snapshot = new() { Resources = snapshot.Resources,
+            RoleAssignments = [Assignment(Owner, pimEligibilityKind: "standing"), Assignment(Contributor, pimEligibilityKind: "eligible")],
             Relationships = [new() { FromAzureResourceId = AzureInventoryPrincipalNodeId.Format(Principal), ToAzureResourceId = Target,
                 RelationshipType = GraphEdgeTypes.HasRole, ProvenanceKind = ProvenanceKind.DerivedFact,
                 InferenceSource = GraphEdgeInferenceSources.PimEligibilityUnknown }] };
         var graph = InventoryPrivilegePathGraph.Build(snapshot);
         var edges = graph.OutgoingEdges.Values.SelectMany(edges => edges).ToArray();
         Assert.Equal(2, edges.Length);
-        Assert.All(edges, edge =>
-        {
-            Assert.Equal(ProvenanceKind.DerivedFact, edge.ProvenanceKind);
-            Assert.Equal(GraphEdgeInferenceSources.PimEligibilityUnknown, edge.InferenceSource);
-        });
-        Assert.All(PrivilegePathEnumerator.Enumerate(graph, new()), path => Assert.True(path.HasInsufficientEvidenceHop));
+        Assert.Contains(edges, edge => edge.RoleDefinitionId == Owner
+            && edge.ProvenanceKind == ProvenanceKind.ObservedFact
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
+        Assert.Contains(edges, edge => edge.RoleDefinitionId == Contributor
+            && edge.ProvenanceKind == ProvenanceKind.DeterministicInference
+            && edge.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
+        Assert.Contains(PrivilegePathEnumerator.Enumerate(graph, new()), path => !path.HasInsufficientEvidenceHop);
+        Assert.Contains(PrivilegePathEnumerator.Enumerate(graph, new()), path => path.HasInsufficientEvidenceHop);
     }
 
     [Fact]
@@ -130,8 +133,11 @@ public sealed class AzureInventoryMultiRoleTests
         return edges;
     }
 
-    private static AzureInventoryRoleAssignmentReadModel Assignment(string role, string scope = Target) =>
-        new() { PrincipalId = Principal, Scope = scope, RoleDefinitionId = role };
+    private static AzureInventoryRoleAssignmentReadModel Assignment(
+        string role,
+        string scope = Target,
+        string? pimEligibilityKind = null) =>
+        new() { PrincipalId = Principal, Scope = scope, RoleDefinitionId = role, PimEligibilityKind = pimEligibilityKind };
 
     private static AzureInventorySnapshotDetailReadModel Snapshot(string[] roles, bool relationshipPresent) => new()
     {
