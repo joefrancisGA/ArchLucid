@@ -129,7 +129,7 @@ public static class SamlMetadataDiscoveryParser
         ArgumentNullException.ThrowIfNull(timeProvider);
 
         // Host SAML binding keeps a signing cert only when X509Certificate2.IsValidLocalTime is true.
-        // Compare in UTC so ARCH002 is satisfied and DST does not shift the validity window.
+        // X509 NotBefore/NotAfter are local wall-clock; convert to UTC like SamlSpConfigurationDiagnostics so ARCH002 is satisfied without shifting the window.
         DateTimeOffset nowUtc = timeProvider.GetUtcNow();
         DateTimeOffset notBeforeUtc = new(certificate.NotBefore.ToUniversalTime(), TimeSpan.Zero);
         DateTimeOffset notAfterUtc = new(certificate.NotAfter.ToUniversalTime(), TimeSpan.Zero);
