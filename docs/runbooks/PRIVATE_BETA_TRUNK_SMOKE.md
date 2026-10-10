@@ -186,6 +186,22 @@ After the repair set is present on the release cut:
 3. Record the run IDs and SHA in the RC evidence bundle.
 4. Keep Gate 1, G-REAL-06, G-REAL-07, and ruleset application as separate owner actions.
 
+### Observed RC35 evidence row — 2026-10-10
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `11c35de4762785ea1f99bd16475a09660f24374a` |
+| UI typecheck / beta-readiness guards | **FAIL** — run `38063851079` |
+| UI typecheck / OpenAPI fail-fast | **FAIL** — run `38063851079`; `CS0103` for `ArmResourceIdNormalizer` |
+| OpenAPI refresh | **FAIL** — run `38063851100` |
+| Private-beta JwtBearer access path | **FAIL** — run `38063851075` |
+| RC release gate | **PASS** — run `38063851076` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
