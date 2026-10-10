@@ -29813,13 +29813,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread graph projection caches, in-memory repository scope behavior, temporal response contracts, provenance algorithms/completeness, identity/sensitivity materializers, and quality-attribute parsing; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed-only): reread declaration identity actor/path materializers, topology sensitivity classification, edge inference helpers, and request quality-attribute parsing. Identity heuristics, normalized property reads, bounded duration units, and public-edge classification matched reachable contracts; no new hunt-ready row met the reachability and wrong-outcome bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
