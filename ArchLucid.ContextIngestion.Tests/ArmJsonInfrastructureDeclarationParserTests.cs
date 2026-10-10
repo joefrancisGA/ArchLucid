@@ -15,6 +15,31 @@ public sealed class ArmJsonInfrastructureDeclarationParserTests
         Microsoft.Extensions.Logging.Abstractions.NullLogger<ArmJsonInfrastructureDeclarationParser>.Instance);
 
     [Fact]
+    public async Task ParseAsync_IgnoresNonObjectResourceEntries()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "template.json",
+            Format = "arm-json",
+            Content = """
+                      {
+                        "resources": [
+                          "malformed-resource-entry",
+                          {
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "name": "docs"
+                          }
+                        ]
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "docs");
+    }
+
+    [Fact]
     public async Task ParseAsync_SkipsNestedDeployments()
     {
         InfrastructureDeclarationReference declaration = new()

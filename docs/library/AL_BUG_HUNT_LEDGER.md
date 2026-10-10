@@ -6,6 +6,8 @@
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `InfrastructureDeclarationBatchPathIndex.TryResolve` consulted a basename alias before the parent-relative path, so an ARM linked template such as `prod/linked.json` could resolve to `shared/linked.json` when both existed in one upload. Parent-relative resolution now precedes basename fallback; regression `ParseAsync_DeploymentTemplateLink_prefers_parent_relative_path_when_duplicate_file_names_exist`; scoped ContextIngestion/Canonicalization tests passed 815/815.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `ArmJsonInfrastructureDeclarationParser` called `JsonElement.TryGetProperty` on non-object entries in a reachable `resources` array, so one malformed entry threw `InvalidOperationException` and discarded valid sibling resources. Non-object elements are now skipped; regression `ParseAsync_IgnoresNonObjectResourceEntries`; scoped ContextIngestion/Canonicalization tests passed 816/816.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27403,6 +27405,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): ARM JSON resource arrays now skip non-object entries without aborting valid sibling resources; 816 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `ArmJsonInfrastructureDeclarationParser.TryGetPropertyIgnoreCase` — a reachable non-object entry in `resources` caused `InvalidOperationException` before valid sibling resources were parsed — **hit 2026-10-10 seed hunt:** guard property lookup by `JsonValueKind.Object`; regression `ParseAsync_IgnoresNonObjectResourceEntries`.
 
 2026-10-10 seed hunt (seed→hit): duplicate in-batch ARM linked-template filenames now resolve through the parent-relative path before basename fallback; 815 scoped ContextIngestion/Canonicalization tests passed.
 
