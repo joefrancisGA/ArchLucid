@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): reread the trace-quality, reference-case, harness, faithfulness, and semantic-judge paths after the citation-object fix; no fresh row met the promotion bar without duplicating a saturated score-validation class. The scoped Evaluation suite passed 202/202. Seeded bounded candidates for configured required-key casing and external judge-score range handling; no production or regression code was changed.
+
 2026-10-10 seed hunt (seed→hit): `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted `{"citations":[{"source":""}]}` because any property made the object appear non-empty; a malformed agent payload could satisfy PilotStrict citation presence. The gate now requires at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed→hit): `AgentOutputReferenceCaseRunEvaluator` counted `findings: [null]` toward `MinimumFindingCount`, so a malformed reachable reference-trace payload could pass a case requiring one finding. The evaluator now counts only non-null findings; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`; 201 scoped Evaluation tests passed.
@@ -16626,7 +16628,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
@@ -16803,6 +16805,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-10 seed hunt (seed-only): reread the trace-quality, reference-case, harness, faithfulness, and semantic-judge paths after the citation-object fix; no fresh row met the promotion bar without duplicating a saturated score-validation class. The scoped Evaluation suite passed 202/202. Seeded bounded candidates for configured required-key casing and external judge-score range handling; no production or regression code was changed.
+
 2026-10-10 seed hunt (seed→hit): proved that `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted citation objects containing only blank string values, allowing malformed agent output to satisfy PilotStrict citation presence. The gate now requires a nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
 
 - **id:** agent-runtime-evaluation
@@ -16842,6 +16846,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
 - [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepts a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal can be treated as an automatically grounded category when the rest of the finding text overlaps evidence. Reachability: agent-produced `findings[].category` JSON is parsed by the evaluation checker at the trust boundary.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` had a property and therefore satisfied the presence gate despite containing no usable citation value — **hit 2026-10-10 seed hunt:** require at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
+- [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks use ordinal property-name matching while actual `AgentResult` JSON is emitted with Web/camelCase naming; a configured key with casing that differs from the wire name can produce a false reference-case or harness failure. Reachability: reference-case and harness expectations are configuration inputs paired with serialized agent output.
+- [ ] (candidate) `AgentOutputLlmSemanticJudge.TryParseJudgeResponse` — an external judge response with `overallQuality` outside `[0,1]` is clamped into the valid range instead of treated as malformed; this overlaps the saturated score-validation class and needs shared parsing treatment before promotion. Reachability: keyed LLM completion response consumed by the semantic-judge parser.
 
 ### Hypotheses
 
