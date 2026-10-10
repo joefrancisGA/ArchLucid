@@ -493,6 +493,6 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 - Still to verify: whether `authorizationresources` includes deny assignments and role assignment conditions.
 - Verify cmdlet details: `Search-AzGraph` `-First` maximum, `-SkipToken` and `-UseTenantScope` parameters, and the shape of its return object (`.Data`, `.SkipToken`) in the current Az.ResourceGraph version; `Get-MgApplicationFederatedIdentityCredential` parameter names.
 - Decide whether PIM eligibility for Azure resources belongs here or in Chapter 4.
-- The lab's query files (`queries/*.kql`) belong in the companion lab repo; keep them in sync with sections 3.3 and 3.10.
+- The lab's query files live in `docs/book/lab/queries/` (Appendix A); keep them in sync with sections 3.3 and 3.10.
 - Consider a figure: the application → service principal → role assignment join, with the wrong join (application object ID) shown crossed out.
 - Add the Chapter 3 fact checks to GTM **M-306** when it is picked up.

@@ -1,0 +1,15 @@
+resources
+| where type =~ 'microsoft.storage/storageaccounts'
+| extend sharedKey = case(
+    isnull(properties.allowSharedKeyAccess), 'not set (platform default)',
+    tobool(properties.allowSharedKeyAccess), 'enabled',
+    'disabled')
+| project
+    id,
+    name,
+    subscriptionId,
+    resourceGroup,
+    allowSharedKeyAccess = properties.allowSharedKeyAccess,
+    sharedKey,
+    publicNetworkAccess = properties.publicNetworkAccess,
+    minimumTlsVersion = properties.minimumTlsVersion

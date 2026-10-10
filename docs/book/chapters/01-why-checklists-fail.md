@@ -269,7 +269,7 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 | Key vaults without purge protection (two) | Hygiene |
 | Missing diagnostic settings on several resources | Hygiene |
 | Guest account with no recent sign-in | Hygiene |
-| Storage accounts without minimum TLS version set | Hygiene |
+| Sandbox storage accounts that allow anonymous blob access | Hygiene |
 | NSG allowing RDP from a single corporate IP range | Hygiene; not internet-wide |
 | Untagged resources | Hygiene |
 
@@ -318,5 +318,5 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 - Verify the John Lambert quote wording and source (2015 GitHub post "Defender's mindset"); confirm attribution permission is not needed for a short quotation.
 - Verified 2026-10-10 (revision pass 1): the policy display name "Storage accounts should prevent shared key access"; attack path analysis requires the Defender CSPM plan.
 - The posture figures (61% → 78%, 512 → 371 recommendations, 41 / 63 / 88 item buckets) are invented for the narrative; keep them clearly fictional.
-- Lab table must stay in sync with Appendix A once the Terraform lab exists.
+- Lab table is in sync with Appendix A and `docs/book/lab/terraform` (2026-10-10). The "minimum TLS not set" row was replaced, because the provider always sends a TLS version; keep the two in step on future edits.
 - Consider a figure: the same 20 lab items drawn as a list on the left and as a graph on the right, with the path highlighted.

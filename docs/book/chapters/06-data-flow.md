@@ -390,7 +390,7 @@ AzureActivity
 
 ## Author notes (remove before submission)
 
-- The opening incident, the auditor exchange, and the payments API component are fictional; the payments API is new in this chapter and should be introduced in the Appendix A lab tenant description.
+- The opening incident, the auditor exchange, and the payments API component are fictional; the payments API is new in this chapter and is built by the Appendix A lab module (`payments-api-<suffix>`, `mi-payments-api`).
 - Verified 2026-10-10 (revision pass 1): storage diagnostic categories and `StorageBlobLogs` fields, including `DelegationSas`; the `LISTKEYS/ACTION` operation and `AzureActivity` columns; Key Vault `AuditEvent` / `AZKVAuditLogs`; 30-day default workspace retention; code samples execute cleanly.
 - Still to do: exercise `activity_problems` with Chapter 7's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.
 - Have counsel review section 6.5's framing so it stays clear of legal advice.

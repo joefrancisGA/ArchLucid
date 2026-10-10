@@ -38,7 +38,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 ## Writing rules
 
 - Plain, direct sentences. Define every acronym on first use per chapter.
-- Every technique ships with a runnable example in the companion lab (planned: separate public repo).
+- Every technique ships with a runnable example in the companion lab (Terraform and queries in [`lab/`](lab/); planned to move to a separate public repo).
 - Version-specific Azure features go in dated sidebars: `> **As of 2026-10:** ...`.
 - No invented statistics. Cite sources or say "in my experience".
 - Label AI output in examples as AI output, the same way the book asks readers to.
@@ -58,7 +58,8 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | revised (~5,600) | 6,000 |
 | 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | revised (~5,600) | 6,000 |
 | 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | revised (~6,000) | 6,000 |
-| | **Total** | | **~76,000** |
+| A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,300 incl. code) | 4,000 |
+| | **Total** | | **~80,000** |
 
 Status values: `stub` → `outline` → `first draft` → `revised` → `reviewed` → `final`.
 

@@ -67,7 +67,7 @@ An **observed fact** is something you read directly from an authoritative source
 
 Examples:
 
-- Role assignment `ra-7f3…` grants the role **Contributor** to service principal `sp-payments-deploy` at the scope of resource group `rg-payments-prod`.
+- Role assignment `ra-7f3…` grants the role **Contributor** to the `payments-deploy` service principal at the scope of resource group `rg-payments-prod`.
 - Storage account `custdata` has the property `allowSharedKeyAccess` set to `true`.
 - App registration `payments-deploy` has a federated identity credential whose subject is `repo:contoso/payments:ref:refs/heads/main`.
 
@@ -85,7 +85,7 @@ A **derived fact** is computed from observed facts using rules that have no mean
 
 Examples:
 
-- Because `sp-payments-deploy` holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata`. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
+- Because the `payments-deploy` service principal holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata`. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
 - Because user `alice` is a member of group `payments-admins`, which is a member of group `platform-ops`, and `platform-ops` holds Reader on the subscription, `alice` effectively holds Reader on the subscription.
 - The snapshot taken today differs from the snapshot taken yesterday by one added role assignment.
 
@@ -99,14 +99,14 @@ A **deterministic inference** is a repeatable, rule-based conclusion that depend
 
 Examples:
 
-- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action`. `custdata` allows shared key access. Therefore `sp-payments-deploy` **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
+- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action`. `custdata` allows shared key access. Therefore the `payments-deploy` service principal **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
 - The storage account's network rules allow access from a subnet where a virtual machine runs. Therefore the VM **can reach** the storage endpoint, *assuming* no NSG, firewall, or route table blocks the flow.
 
 The difference from a derived fact is the word *assuming*. The first example is a strong inference. The role definition really does include that action, and shared key access really is enabled. But the conclusion "can read blob data" depends on conditions the collected evidence may not cover: network restrictions evaluated at request time, a deny assignment you couldn't read, or a condition on the role assignment.
 
 Deterministic inference is the workhorse of path analysis. Almost every interesting hop on an attack path is one. That's fine, as long as the assumptions are **stated, not implied**. A good inference record looks like this:
 
-- **Conclusion:** `sp-payments-deploy` can read blob data in `custdata`.
+- **Conclusion:** the `payments-deploy` service principal can read blob data in `custdata`.
 - **Rule:** Contributor permits `listKeys`, and shared key access is enabled, so key-based data access is possible.
 - **Inputs:** role assignment `ra-7f3…`, storage property `allowSharedKeyAccess = true`, role definition for Contributor.
 - **Assumptions:** no deny assignment applies; storage network rules permit the caller's network location; no role assignment condition restricts the action.
@@ -144,7 +144,7 @@ A **human assertion** is something a named person states to be true. Humans know
 Examples:
 
 - "`custdata` holds production customer records." — asserted by Priya Shah, Data Protection Officer, 2026-09-14, expires 2027-03-14.
-- "The Contributor assignment for `sp-payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
+- "The Contributor assignment for `payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
 
 Human assertions are often the most important context in a report, and the most neglected. Three properties make them trustworthy:
 
