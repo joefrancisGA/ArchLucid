@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates: non-2xx BFF sync remains intentional best-effort behavior; session hints have no durable wrong outcome without a reachable caller; BFF refresh emits integer epoch values; RP logout URLs are discovery-derived and HTTP(S)-validated; and non-object JWT payloads produce no display hint. No failing repro was established and no fix was shipped. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): `core-explanation-json` — promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
 
 2026-10-10 seed hunt (seed-only): `ui-oidc` — re-read BFF synchronization, refresh, discovery, token persistence, and JWT hint boundaries; no new row met the full hunt-ready bar for promotion. Seeded five bounded `(candidate)` rows. The focused OIDC suite passed 71/71.
@@ -18908,6 +18910,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC suite passed all 45 tests.
 
+2026-10-10 thorough hunt (dry): cheap-disproved all five candidates: non-2xx BFF sync remains intentional best-effort behavior; session hints have no durable wrong outcome without a reachable caller; BFF refresh emits integer epoch values; RP logout URLs are discovery-derived and HTTP(S)-validated; and non-object JWT payloads produce no display hint. No failing repro was established and no fix was shipped. The focused OIDC suite passed 71/71.
+
 2026-10-08 thorough hunt #30 (hit): proved BFF activity pulse ignored `401`/`403`; keepalive now clears client session on unauthorized pulse; cheap-disproved four other `(candidate)` rows from hunt #29; seeded five follow-on `(candidate)` rows; 73 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt #29 (hit): proved stale cross-flow PKCE retention on successful redirect; cheap-disproved four other `(candidate)` rows from hunt #28; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
@@ -18930,9 +18934,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — UTF-8 JWT display-name mojibake
 - **related-pd-tb:** none
@@ -19046,11 +19050,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `storePostSignInReturnUrl` — safe-path validation permits unbounded query and fragment payloads, so a large callback return URL can inflate session storage and make the next redirect unusable — **cheap-disproof 2026-10-10 thorough hunt:** same-origin validation rejects unsafe destinations and the storage API is only reached from bounded application navigation inputs in this zone; no quota failure or unusable redirect was reproduced.
 - [x] (valid-no-repro) `clearOidcSession` — clearing local OIDC keys starts asynchronous BFF cookie deletion without awaiting it, so an immediate authenticated API request after sign-out may still use the old HttpOnly cookie — **cheap-disproof 2026-10-10 thorough hunt:** sign-out clears local credentials before navigation and the BFF deletion helper is independently invoked by session cleanup; the existing in-flight sync regression proves repeated deletion, but no protected-request race produced a wrong authenticated outcome.
 
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — a non-2xx BFF `POST /api/auth/bff-session` response is ignored, so callback flow can continue with local session hints while the HttpOnly BFF session was not issued — locus: fetch response handling; input: deployment with BFF signing secret unavailable returning HTTP 503.
-- [ ] (candidate) `persistNonSensitiveSessionHints` — display-name and expiry hints are written before the asynchronous BFF sync completes, so an unavailable BFF may leave the browser appearing signed in while proxy authentication is absent — locus: hint persistence before `syncBffSessionCookieFromTokenResponse`; input: successful IdP token exchange followed by BFF sync failure.
-- [ ] (candidate) `refreshBffSessionCookie` — a future but non-integral `expires_at_ms` response is accepted as a client expiry hint, potentially creating fractional expiry skew against the server cookie — locus: numeric expiry validation; input: BFF refresh JSON with fractional `expires_at_ms`.
-- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` — any non-empty URL returned by the same-origin RP logout endpoint is passed to the caller without client-side origin validation — locus: response URL acceptance; input: malformed or misconfigured discovery logout endpoint reflected by the BFF route.
-- [ ] (candidate) `decodeJwtPayload` — syntactically valid JSON arrays or primitives in an IdP JWT payload are accepted as a record and then used for display-hint extraction without object-shape validation — locus: JSON parse return cast; input: token payload JSON that is not an object.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — non-2xx BFF `POST` responses are swallowed — **cheap-disproof 2026-10-10 thorough hunt:** this is the intentional best-effort callback/session-sync contract already classified in this zone; no durable wrong outcome was reproduced beyond the known server-cookie absence behavior.
+- [x] (valid-no-repro) `persistNonSensitiveSessionHints` — local display/expiry hints are written before asynchronous BFF synchronization — **cheap-disproof 2026-10-10 thorough hunt:** the same best-effort BFF contract has no reachable caller in these files that turns the temporary local hints into a durable incorrect authorization outcome.
+- [x] (invalid) `refreshBffSessionCookie` — future fractional `expires_at_ms` accepted — **cheap-disproof 2026-10-10 thorough hunt:** the BFF refresh route emits integer epoch values; no reachable fractional response exists in this zone, so no fractional client/server skew was reproducible.
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — trusts any non-empty same-origin BFF response URL — **cheap-disproof 2026-10-10 thorough hunt:** the BFF URL is derived from discovery parsing, which validates HTTP(S) endpoints before returning it; no attacker-controlled client input reaches this response shape.
+- [x] (invalid) `decodeJwtPayload` — accepts JSON arrays/primitives as a record — **cheap-disproof 2026-10-10 thorough hunt:** property access on non-object JSON yields no display hint and no wrong outcome; the focused JWT/session tests passed.
 
 ---
 
