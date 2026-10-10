@@ -11793,7 +11793,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: api-key-auth
 
-2026-10-10 seed hunt (seed-only): re-read the handler, normalizer use, rotation service/controller, startup configuration boundary, and focused tests; no distinct source-backed candidate met the full hunt-ready bar after the prior five rows were revalidated. No hypothesis was promoted. The focused API-key filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. No new candidate was added.
+2026-10-10 seed hunt (seed-only): re-read the selected API-key source files and focused tests; no new mechanism-backed row met the hunt-ready bar and no hypothesis was promoted. The exact picker filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. Existing five candidates remain bounded and unproven.
+
+2026-10-10 seed hunt (seed-only): re-read the handler, normalizer use, rotation service/controller, startup configuration boundary, and focused tests; no distinct source-backed candidate met the full hunt-ready bar after the prior five rows were revalidated. No hypothesis was promoted. The exact API-key filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. No new candidate was added.
 
 2026-10-10 seed hunt (seed-only): re-read the API-key handler, material normalizer boundary, admin rotation service/controller, configuration validation, and focused tests; the five existing candidates remained either intentional configuration semantics or lacked a demonstrated wrong outcome/reachability chain, so none was promoted. The focused API-key filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. No new candidate was added because the source review produced no distinct mechanism beyond the existing bounded rows.
 
