@@ -188,10 +188,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 AzureInventoryReferencedEndpointNodeFactory.EnsureNode(fromArmId, nodeIdByArmId, nodes, seenNodeIds);
             }
 
-            if (AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(nodeIdByArmId, toArmId).Count == 0)
-            {
-                AzureInventoryReferencedEndpointNodeFactory.EnsureNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
-            }
+            IReadOnlyList<string> toNodeIds = AzureInventoryReferencedEndpointNodeFactory.ResolveTargetNodeIds(
+                toArmId, nodeIdByArmId, nodes, seenNodeIds);
 
             if (!AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(
                     nodeIdByArmId,
@@ -203,9 +201,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
 
             string edgeType = ResolveRelationshipEdgeType(relationship);
 
-            foreach (string toNodeId in AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
-                         nodeIdByArmId,
-                         toArmId))
+            foreach (string toNodeId in toNodeIds)
             {
                 if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
                 {
