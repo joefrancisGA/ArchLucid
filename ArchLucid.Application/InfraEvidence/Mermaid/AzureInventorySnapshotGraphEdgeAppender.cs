@@ -15,7 +15,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string edgeType,
         string inferenceSource,
         string? label = null,
-        string? provenanceKind = null)
+        string? provenanceKind = null,
+        bool promoteStrongerProvenance = true)
     {
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
@@ -28,7 +29,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         }
 
         Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
-            declaredConnectionId: null, promoteStrongerProvenance: true);
+            declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance);
     }
 
     /// <summary>
