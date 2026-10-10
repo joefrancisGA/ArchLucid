@@ -61,7 +61,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,300 incl. code) | 4,000 |
 | B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~4,500 incl. code) | 5,000 |
 | C | [Prompt patterns](appendices/c-prompt-patterns.md) | first draft (~4,000 incl. code) | 4,000 |
-| D | [Case study (optional)](appendices/d-case-study.md) | scaffold; needs owner facts and approval | 4,000 |
+| D | [Case study (optional)](appendices/d-case-study.md) | outline (needs owner facts and approval) | 4,000 |
 | | **Total** | | **~93,000** |
 
 Status values: `stub` → `outline` → `first draft` → `revised` → `reviewed` → `final`.
