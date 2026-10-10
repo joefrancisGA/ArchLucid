@@ -113,8 +113,9 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
         reasons = ["publicNetworkAccess is Disabled"]
 
         # Trusted-service exceptions stay in effect even when public access is disabled.
-        if acls.get("bypass") and acls["bypass"].lower() != "none":
-            reasons.append(f"bypass {acls['bypass']} still admits trusted Azure services")
+        bypass = acls.get("bypass")
+        if bypass and bypass.lower() != "none":
+            return "restricted", reasons + [f"bypass {bypass} still admits trusted Azure services"]
 
         return "private only", reasons
 
