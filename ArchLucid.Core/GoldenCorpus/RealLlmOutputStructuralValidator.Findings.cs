@@ -23,13 +23,22 @@ public static partial class RealLlmOutputStructuralValidator
                 return new RealLlmStructuralValidationResult(false, checks);
             }
             RealLlmStructuralValidationResult? traceResult = ValidateFindingTrace(finding, index, checks);
-            if (traceResult is not null) return traceResult;
-            if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl) || !TryReadNonEmptyTextToken(severityEl, out _))
+
+            if (traceResult is not null)
+            {
+                return traceResult;
+            }
+
+            if (!TryGetPropertyCaseInsensitive(finding, "severity", out JsonElement severityEl)
+                || severityEl.ValueKind != JsonValueKind.String
+                || !TryReadNonEmptyTextToken(severityEl, out _))
             {
                 checks.Add(new RealLlmStructuralCheckItem("findingSeverity", false, $"findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}] must have a non-empty string 'severity'."));
                 return new RealLlmStructuralValidationResult(false, checks);
             }
+
             bool hasContent = FindingContentFields.Any(f => TryGetPropertyCaseInsensitive(finding, f, out JsonElement el) && TryReadNonEmptyTextToken(el, out _));
+
             if (!hasContent)
             {
                 checks.Add(new RealLlmStructuralCheckItem("findingContent", false, $"findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}] must have at least one non-empty content field (description, message, title, or detail)."));

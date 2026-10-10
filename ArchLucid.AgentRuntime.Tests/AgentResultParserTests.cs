@@ -169,7 +169,7 @@ public sealed class AgentResultParserTests
     public void ParseAndValidate_when_findings_use_legacy_low_medium_high_severity_succeeds()
     {
         const string json = """
-                            {"runId":"run1","taskId":"task1","agentType":"Compliance","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"findings":[{"severity":"Low","category":"Security","message":"Legacy low label"},{"severity":"Medium","category":"Security","message":"Legacy medium label"},{"severity":"High","category":"Security","message":"Legacy high label"}],"createdUtc":"2026-01-01T00:00:00Z"}
+                            {"runId":"run1","taskId":"task1","agentType":"Compliance","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"findings":[{"severity":"Low","category":"Security","message":"Legacy low label","enforcementTier":"Advisory"},{"severity":"Medium","category":"Security","message":"Legacy medium label","enforcementTier":"Advisory"},{"severity":"High","category":"Security","message":"Legacy high label","enforcementTier":"Advisory"}],"createdUtc":"2026-01-01T00:00:00Z"}
                             """;
 
         AgentResult result = _sut.ParseAndValidate(json, "run1", "task1", AgentType.Compliance);

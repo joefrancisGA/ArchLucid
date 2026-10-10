@@ -44,7 +44,7 @@ public sealed class CriticAgentHandlerTests
                                 "Secret management should not remain implicit."
                               ],
                               "evidenceRefs": [
-                                "critic-checklist",
+                                "doc:architecture.pdf#L3",
                                 "request"
                               ],
                               "confidence": 0.84,
@@ -53,17 +53,19 @@ public sealed class CriticAgentHandlerTests
                                   "findingId": "FIND-CRITIC-001",
                                   "sourceAgent": "Critic",
                                   "severity": "Warning",
+                                  "enforcementTier": "Advisory",
                                   "category": "Critic",
                                   "message": "ObservabilityUnderSpecified",
-                                  "evidenceRefs": [ "critic-checklist" ]
+                                  "evidenceRefs": [ "doc:architecture.pdf#L3" ]
                                 },
                                 {
                                   "findingId": "FIND-CRITIC-002",
                                   "sourceAgent": "Critic",
                                   "severity": "Warning",
+                                  "enforcementTier": "Advisory",
                                   "category": "Critic",
                                   "message": "SecretManagementUnderSpecified",
-                                  "evidenceRefs": [ "critic-checklist" ]
+                                  "evidenceRefs": [ "doc:architecture.pdf#L3" ]
                                 }
                               ],
                               "proposedChanges": {
@@ -184,6 +186,7 @@ public sealed class CriticAgentHandlerTests
                                   "findingId": "FIND-CRITIC-CRIT-001",
                                   "sourceAgent": "Critic",
                                   "severity": "Critical",
+                                  "enforcementTier": "PolicyViolation",
                                   "category": "Critic",
                                   "message": "Topology proposes public App Service ingress but request constraint requires private endpoints only.",
                                   "evidenceRefs": [ "request" ]
@@ -304,6 +307,7 @@ public sealed class CriticAgentHandlerTests
                                   "findingId": "FIND-GENERIC-MFA",
                                   "sourceAgent": "Critic",
                                   "severity": "Error",
+                                  "enforcementTier": "PolicyViolation",
                                   "category": "Critic",
                                   "message": "Enable MFA for all user accounts.",
                                   "evidenceRefs": [ "critic-checklist" ]
@@ -312,6 +316,7 @@ public sealed class CriticAgentHandlerTests
                                   "findingId": "FIND-SPECIFIC",
                                   "sourceAgent": "Critic",
                                   "severity": "Warning",
+                                  "enforcementTier": "Advisory",
                                   "category": "Critic",
                                   "message": "CheckoutApi lacks doc:azure-networking.bicep#L18 private-endpoint wiring for PaymentDb.",
                                   "evidenceRefs": [ "doc:azure-networking.bicep#L18" ]

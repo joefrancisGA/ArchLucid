@@ -162,7 +162,7 @@ public sealed class AgentPromptRegressionTests
             Description = "Regression test architecture request for agent prompt and simulator path.",
             Environment = "test",
             CloudProvider = CloudProvider.Azure,
-            Constraints = ["Use encryption in transit and at rest."]
+            Constraints = ["Use encryption in transit and at rest.", "require private networking"]
         };
     }
 
