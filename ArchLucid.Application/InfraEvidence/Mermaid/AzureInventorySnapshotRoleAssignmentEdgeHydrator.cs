@@ -49,26 +49,28 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
                     out string resourceNodeId)
                 ? resourceNodeId
                 : "role-scope-" + MermaidIdSanitizer.Sanitize(scope);
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.HasRole}";
+            GraphEdge? edge = AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                edges, edgeKeys, fromNodeId, toNodeId, GraphEdgeTypes.HasRole,
+                GraphEdgeInferenceSources.InventoryRbacAssignment,
+                provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                promoteStrongerProvenance: false, allowSelfEdges: true);
 
-            if (!edgeKeys.Add(edgeKey))
+            if (edge is null)
             {
                 continue;
             }
 
-            string? roleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(
-                assignment.RoleDefinitionId);
-            GraphEdge edge = new()
+            string? roleName;
+            try
             {
-                EdgeId = "edge-" + edgeKey,
-                FromNodeId = fromNodeId,
-                ToNodeId = toNodeId,
-                EdgeType = GraphEdgeTypes.HasRole,
-                Label = GraphEdgeTypes.HasRole,
-                Weight = 1.0d,
-                InferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment,
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-            };
+                roleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(assignment.RoleDefinitionId);
+            }
+            catch (ArgumentException)
+            {
+                // Failed role lookup historically reserves the key without inserting an edge.
+                edges.Remove(edge);
+                throw;
+            }
             edge.Properties["scope"] = scope;
             edge.Properties["roleDefinitionId"] = assignment.RoleDefinitionId;
 
@@ -76,8 +78,6 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
             {
                 edge.Properties["roleName"] = roleName;
             }
-
-            edges.Add(edge);
         }
     }
 

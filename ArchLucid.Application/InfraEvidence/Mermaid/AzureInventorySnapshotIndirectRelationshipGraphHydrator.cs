@@ -14,7 +14,8 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
     public static void Hydrate(
         AzureInventorySnapshotDetailReadModel snapshot,
         IReadOnlyList<GraphNode> nodes,
-        IReadOnlyList<GraphEdge> edges)
+        IReadOnlyList<GraphEdge> edges,
+        AzureInventorySnapshotGraphIndexes? indexes = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
@@ -25,12 +26,8 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
             return;
         }
 
-        Dictionary<string, GraphNode> nodesByArmId = nodes
-            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId) && !string.IsNullOrWhiteSpace(armId))
-            .GroupBy(
-                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        indexes ??= AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes);
+        IReadOnlyDictionary<string, GraphNode> nodesByArmId = indexes.NodesByArmId;
 
         Dictionary<string, InventoryDiagramEvidenceCurrency?> evidenceCurrencyByArmId = snapshot.Resources
             .Where(resource => !string.IsNullOrWhiteSpace(resource.AzureResourceId))
