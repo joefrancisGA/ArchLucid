@@ -313,7 +313,9 @@ test.describe(
     });
 
   test.describe("browser journeys", () => {
-    test.describe.configure({ mode: "serial" });
+    // Keep independent invitee journeys running after a Reviews-hub failure so one
+    // diagnostic timeout cannot hide the remaining private-beta access coverage.
+    test.describe.configure({ mode: "parallel" });
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
