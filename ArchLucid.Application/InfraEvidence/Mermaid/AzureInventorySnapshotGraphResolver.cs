@@ -13,8 +13,6 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 public sealed class AzureInventorySnapshotGraphResolver(
     IAzureInventorySnapshotRepository snapshotRepository) : IAzureInventorySnapshotGraphResolver
 {
-    private const double EffectiveControlEdgeWeight = 1.0d;
-
     private readonly IAzureInventorySnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));
 
@@ -204,30 +202,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
 
             foreach (string toNodeId in toNodeIds)
             {
-                if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
-                if (!edgeKeys.Add(edgeKey))
-                {
-                    continue;
-                }
-
-                edges.Add(new GraphEdge
-                {
-                    EdgeId = $"edge-{edgeKey}",
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
-                    EdgeType = edgeType,
-                    Label = edgeType,
-                    Weight = ResolveEdgeWeight(relationship.InferenceSource),
-                    InferenceSource = relationship.InferenceSource,
-                    ProvenanceKind = relationship.ProvenanceKind.ToString(),
-                    DeclaredConnectionId = relationship.DeclaredConnectionId?.ToString(),
-                });
+                AzureInventorySnapshotGraphEdgeAppender.TryAddRelationship(
+                    edges, edgeKeys, fromNodeId, toNodeId, edgeType, relationship);
             }
         }
 
@@ -504,22 +480,6 @@ public sealed class AzureInventorySnapshotGraphResolver(
         }
 
         return string.Empty;
-    }
-
-    private static double ResolveEdgeWeight(string? inferenceSource)
-    {
-        if (string.IsNullOrWhiteSpace(inferenceSource))
-        {
-            return 1.0d;
-        }
-
-        if (inferenceSource.Equals(GraphEdgeInferenceSources.InventoryEffectiveNsg, StringComparison.OrdinalIgnoreCase)
-            || inferenceSource.Equals(GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
-        {
-            return EffectiveControlEdgeWeight;
-        }
-
-        return 1.0d;
     }
 
     private static void EnsurePeeringEndpointNode(

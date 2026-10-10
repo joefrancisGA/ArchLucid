@@ -1,9 +1,10 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
-/// <summary>Dedupes graph edges emitted by snapshot hydrators.</summary>
+/// <summary>Constructs and dedupes snapshot edges while preserving each caller's evidence policy.</summary>
 internal static class AzureInventorySnapshotGraphEdgeAppender
 {
     public static void TryAdd(
@@ -26,6 +27,43 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             return;
         }
 
+        Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
+            declaredConnectionId: null, promoteStrongerProvenance: true);
+    }
+
+    /// <summary>
+    ///     Explicit relationships keep the first duplicate, including its declaration and nullable source.
+    ///     An empty resolved edge type is retained, matching the captured relationship's existing behavior.
+    /// </summary>
+    public static void TryAddRelationship(
+        List<GraphEdge> edges,
+        HashSet<string> edgeKeys,
+        string fromNodeId,
+        string toNodeId,
+        string edgeType,
+        AzureInventoryResourceRelationshipReadModel relationship)
+    {
+        ArgumentNullException.ThrowIfNull(edges);
+        ArgumentNullException.ThrowIfNull(edgeKeys);
+        ArgumentNullException.ThrowIfNull(relationship);
+
+        Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, relationship.InferenceSource, edgeType,
+            relationship.ProvenanceKind.ToString(), relationship.DeclaredConnectionId?.ToString(),
+            promoteStrongerProvenance: false);
+    }
+
+    private static void Append(
+        List<GraphEdge> edges,
+        HashSet<string> edgeKeys,
+        string fromNodeId,
+        string toNodeId,
+        string edgeType,
+        string? inferenceSource,
+        string? label,
+        string? provenanceKind,
+        string? declaredConnectionId,
+        bool promoteStrongerProvenance)
+    {
         if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
         {
             return;
@@ -36,6 +74,11 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
 
         if (!edgeKeys.Add(edgeKey))
         {
+            if (!promoteStrongerProvenance)
+            {
+                return;
+            }
+
             existingIndex = edges.FindIndex(edge =>
                 string.Equals(edge.FromNodeId, fromNodeId, StringComparison.Ordinal)
                 && string.Equals(edge.ToNodeId, toNodeId, StringComparison.Ordinal)
@@ -60,6 +103,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             ProvenanceKind = string.IsNullOrWhiteSpace(provenanceKind)
                 ? ProvenanceKind.ObservedFact.ToString()
                 : provenanceKind,
+            DeclaredConnectionId = declaredConnectionId,
         };
 
         if (existingIndex >= 0)
