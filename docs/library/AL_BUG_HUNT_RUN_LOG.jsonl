@@ -9097,3 +9097,4 @@
 {"at":"2026-10-10T01:11:45.9134005Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/","ArchLucid.Core/Billing/","ArchLucid.Core/Budgeting/"]}
 {"at":"2026-10-10T01:29:56.8854818Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs","ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
 {"at":"2026-10-10T01:37:28.0842347Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs","ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs","ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs"]}
+{"at":"2026-10-10T01:43:15.2120828Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
