@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook source plus the existing buyer-polished settings regression; no new reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `WebhooksSettings` test passed 1/1. No production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection reread; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection source review after the prior seed-only run; no new reachable wrong outcome met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
@@ -10958,15 +10960,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): promoted failed-load deep-link clearing. `useWebhooksSettingsMutations` waited only on `loading`, so a rejected `listAlertRoutingSubscriptions` looked like a missing subscription and stripped `webhookEnableId`. `refreshSubscriptions` then called `setPendingEnable(null)` and rewrote the URL even though no dialog was open. The effect now returns until `hasLoadedSuccessfully`, and unchanged confirmation ids do not sync the URL. Regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`. 61 scoped webhooks folder vitest tests passed.
+
+2026-10-10 seed hunt (seed-only): re-read `WebhooksSettingsClient.tsx` and `use-webhooks-settings.ts`, including the buyer-polished shell regression; no new reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `WebhooksSettingsClient.buyer-polished.test.tsx` test passed 1/1. No production or regression code changed.
 
 2026-10-03 seed hunt (seed-only): re-read the webhook settings client, hook, loader, mutation flow, and existing page tests; no candidate met the wrong-outcome and product-contract bar for same-run proof. Seeded five candidates covering failed-refresh confirmation state, channel-type normalization, selector-safe subscription identifiers, mixed event-type severity filtering, and stale mutation state after scope changes.
 2026-10-03 seed hunt (seed-only): re-read the picked client and hook source plus 58 focused tests; no new mechanism-backed candidate met the reachability and wrong-outcome bar, and all existing webhook regressions passed.
