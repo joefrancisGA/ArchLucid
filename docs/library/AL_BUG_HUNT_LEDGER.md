@@ -10,6 +10,8 @@
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `CanonicalInfrastructurePropertyBag.ShouldRedactKey` normalized underscores but not hyphens, so a reachable `access-key` property bypassed the `access_key` sensitive fragment and retained its secret value. Sensitive-key normalization now removes both separators; regression `TryAddTfProperty_redacts_hyphenated_sensitive_keys`; scoped ContextIngestion/Canonicalization tests passed 817/817.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase` called `JsonElement.TryGetProperty` on malformed non-object `imagePullSecrets` entries, so one reachable Kubernetes upload entry threw `InvalidOperationException` and aborted the resource. Non-object property sources now return no match; regression `ParseAsync_IgnoresNonObjectImagePullSecretEntries`; scoped ContextIngestion/Canonicalization tests passed 818/818.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27407,6 +27409,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): canonical JSON property lookup now safely ignores non-object nested entries; 818 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `CanonicalInfrastructureJsonElementReader.TryGetPropertyIgnoreCase` — a non-object `imagePullSecrets` entry caused Kubernetes JSON ingestion to throw instead of preserving the workload resource — **hit 2026-10-10 seed hunt:** return no property match for non-object elements; regression `ParseAsync_IgnoresNonObjectImagePullSecretEntries`.
 
 2026-10-10 seed hunt (seed→hit): sensitive-key normalization now treats hyphenated and underscored spellings equivalently for redaction; 817 scoped ContextIngestion/Canonicalization tests passed.
 
