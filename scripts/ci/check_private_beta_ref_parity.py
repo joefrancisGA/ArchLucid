@@ -11,6 +11,7 @@ from pathlib import Path
 WORKFLOW_PATH = ".github/workflows/private-beta-access-on-push.yml"
 SPEC_PATH = "archlucid-ui/e2e/live-api-private-beta-access.spec.ts"
 HELPER_PATH = "archlucid-ui/e2e/helpers/live-private-beta-access.ts"
+READINESS_PATH = "archlucid-ui/e2e/helpers/live-page-readiness.ts"
 REQUIRED_MARKERS = (
     "branches: [main, master, RC35]",
     "LIVE_E2E_PRIVATE_BETA_ACCESS",
@@ -21,6 +22,8 @@ REQUIRED_HELPER_MARKERS = (
     "LIVE_JWT_TOKEN",
     "private-beta",
     "resolveLiveJwtMode",
+)
+REQUIRED_READINESS_MARKERS = (
     "[dead-link-404]",
     "[reviews-hub-timeout]",
 )
@@ -48,6 +51,7 @@ def compare_refs(base_ref: str, release_ref: str) -> list[str]:
             workflow = _show_ref(ref, WORKFLOW_PATH)
             spec = _show_ref(ref, SPEC_PATH)
             helper = _show_ref(ref, HELPER_PATH)
+            readiness = _show_ref(ref, READINESS_PATH)
         except ValueError as error:
             issues.append(str(error))
             continue
@@ -63,6 +67,10 @@ def compare_refs(base_ref: str, release_ref: str) -> list[str]:
         for marker in REQUIRED_HELPER_MARKERS:
             if marker not in helper:
                 issues.append(f"{ref}:{HELPER_PATH} is missing marker: {marker}")
+
+        for marker in REQUIRED_READINESS_MARKERS:
+            if marker not in readiness:
+                issues.append(f"{ref}:{READINESS_PATH} is missing marker: {marker}")
 
     return issues
 
