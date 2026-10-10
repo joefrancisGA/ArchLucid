@@ -346,7 +346,7 @@ Three things can get in the way:
 
 - **Chapter 11's immutability policy.** If you locked it, the storage account can't be deleted until the retention period ends. Chapter 11's lab tells you to leave it unlocked or use a short period for exactly this reason. Destroy Chapter 11's module first.
 - **Key vault soft delete.** The provider purges the sandbox vaults on destroy. If a purge fails, purge them from the portal before redeploying, or the names stay reserved for the retention period.
-- **Changes made outside Terraform.** Anything you added in the portal isn't in state. Delete it by hand, or `destroy` may fail on a resource group that still contains it.
+- **Changes made outside Terraform.** Because this module sets `prevent_deletion_if_contains_resources = false`, deleting its resource groups can also delete resources added through the portal. Move anything you need to keep out of the lab groups before `destroy`.
 
 Deleting the Entra objects removes them to the deleted items list for 30 days. That's harmless in a dedicated tenant.
 
