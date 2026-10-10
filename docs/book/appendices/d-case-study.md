@@ -52,7 +52,7 @@ These are flagged for review, not failed automatically:
 1. Export nothing from the engagement into this repository. Work from the engagement's own reports and snapshots, in the organization's environment or a store it controls.
 2. Build a rename map (real name → case study name) outside the repository, using neutral names in the same style as the book's Contoso names. Apply it consistently, so a reader can follow one identity across sections.
 3. Write each number into the evidence register (section D.4) with its source *before* writing it into the prose.
-4. Run `python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md` after every editing session, and with `--publish` before the text leaves the repository.
+4. Run `python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md` after every editing session, and with `--publish` before the text leaves the repository. CI runs the draft-mode check on every pull request, so a prohibited identifier can't merge, but only the `--publish` run catches unfilled placeholders.
 
 ---
 

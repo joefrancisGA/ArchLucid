@@ -339,6 +339,13 @@ jobs:
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
 
+      - name: Book case-study sanitization (draft mode) + checker unit tests
+        # Draft mode fails on identifiers that must never be published; unfilled placeholders are allowed
+        # until the author runs --publish before the appendix leaves the repository.
+        run: |
+          python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md
+          python -m unittest discover -s docs/book/tools -p "test_*.py"
+
   doc-markdown-links:
     name: "Docs: markdown link integrity"
     # Warn-only: job + per-step continue-on-error so every doc/link guard runs and surfaces failures in one CI run.
