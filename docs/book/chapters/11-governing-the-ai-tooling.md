@@ -453,7 +453,7 @@ This lab deploys the tooling's core resources with the controls from this chapte
 
 **Step 1 — Deploy.** Apply the Terraform module from section 11.9 in a separate resource group, completed with the blob private endpoint, the private DNS zones and links, and a dedicated Log Analytics workspace. Use a user-assigned managed identity for each component in section 11.3.
 
-**Step 2 — Prove the keys are gone.** Try to list the storage account's keys and use one, and try to call the Azure OpenAI deployment with an API key. Both should fail. Then call the deployment with the explanation pipeline's managed identity from inside the virtual network, and confirm it succeeds. Call it from outside, and confirm it fails.
+**Step 2 — Prove key authentication is disabled.** If your lab operator can list the storage account's keys, try to use one for a data-plane request, and try to call the Azure OpenAI deployment with an API key. Both key-authenticated calls should fail. Then call the deployment with the explanation pipeline's managed identity from inside the virtual network, and confirm it succeeds. Call it from outside, and confirm it fails.
 
 **Step 3 — Run Chapter 5's check.** Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and confirm it returns no rows. Temporarily enable public network access on the storage account in the portal, and confirm that the policy denies it.
 
