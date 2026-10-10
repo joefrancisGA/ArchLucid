@@ -27,4 +27,26 @@ describe("demo-preview-present", () => {
   it("labels unreadable duration bounds honestly", () => {
     expect(computeDemoReviewDurationLabel([], "not-a-date")).toBe("Duration not readable");
   });
+
+  it("distinguishes missing and stored empty overall assessments", () => {
+    const payload = getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    const missingPayload = {
+      ...payload,
+      runExplanation: payload.runExplanation === null
+        ? null
+        : { ...payload.runExplanation, overallAssessment: null },
+    };
+    expect(buildDemoPreviewAtAGlanceMetrics(missingPayload).overallAssessment).toBe(
+      "Overall assessment was not stored.",
+    );
+
+    const emptyPayload = {
+      ...payload,
+      runExplanation: payload.runExplanation === null
+        ? null
+        : { ...payload.runExplanation, overallAssessment: "" },
+    };
+    expect(buildDemoPreviewAtAGlanceMetrics(emptyPayload).overallAssessment).toBe("");
+  });
 });

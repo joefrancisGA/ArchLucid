@@ -582,11 +582,11 @@ export function RunExplanationSection({
             <dt>Model ID</dt>
             <dd className="m-0">{prov.modelId}</dd>
             <dt>Prompt template</dt>
-            <dd className="m-0">{prov.promptTemplateId ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptTemplateId ?? "Prompt template was not stored."}</dd>
             <dt>Prompt version</dt>
-            <dd className="m-0">{prov.promptTemplateVersion ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptTemplateVersion ?? "Prompt version was not stored."}</dd>
             <dt>Content hash</dt>
-            <dd className="m-0">{prov.promptContentHash ?? "Not returned"}</dd>
+            <dd className="m-0">{prov.promptContentHash ?? "Content hash was not stored."}</dd>
           </dl>
         </details>
       ) : null}

@@ -188,7 +188,7 @@ export function RunDetailManifestSummarySection(
                   </p>
                   {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
                   || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (
-                    <p className="m-0">Policy references: Not returned</p>
+                    <p className="m-0">Policy references: Policy references were not stored.</p>
                   ) : manifestSummary.reviewStandardsAtCommit.policyReferences.length > 0 ? (
                     <p className="m-0">
                       Policy references: {manifestSummary.reviewStandardsAtCommit.policyReferences.join(", ")}
@@ -196,7 +196,7 @@ export function RunDetailManifestSummarySection(
                   ) : null}
                   {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === undefined
                   || manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === null ? (
-                    <p className="m-0">Reviewed dimensions: Not returned</p>
+                    <p className="m-0">Reviewed dimensions: Reviewed dimensions were not stored.</p>
                   ) : manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions.length > 0 ? (
                     <p className="m-0">
                       Reviewed dimensions:{" "}

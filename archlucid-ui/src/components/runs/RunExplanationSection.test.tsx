@@ -266,4 +266,54 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("v2")).toBeInTheDocument();
     expect(screen.getByText("abc")).toBeInTheDocument();
   });
+
+  it("distinguishes missing provenance values from stored empty strings", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: {
+              agentType: "unit-agent",
+              modelId: "gpt-test",
+              promptTemplateId: null,
+              promptTemplateVersion: undefined,
+              promptContentHash: null,
+            },
+          },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    const missingValues = document.querySelectorAll("#doc-explanation-provenance dd");
+    expect(missingValues[2]).toHaveTextContent("Prompt template was not stored.");
+    expect(missingValues[3]).toHaveTextContent("Prompt version was not stored.");
+    expect(missingValues[4]).toHaveTextContent("Content hash was not stored.");
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: {
+              agentType: "unit-agent",
+              modelId: "gpt-test",
+              promptTemplateId: "",
+              promptTemplateVersion: "",
+              promptContentHash: "",
+            },
+          },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    const storedValues = document.querySelectorAll("#doc-explanation-provenance dd");
+    expect(storedValues[2]?.textContent).toBe("");
+    expect(storedValues[3]?.textContent).toBe("");
+    expect(storedValues[4]?.textContent).toBe("");
+  });
 });

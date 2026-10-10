@@ -69,7 +69,7 @@ export function buildDemoPreviewAtAGlanceMetrics(payload: DemoCommitPagePreviewR
 
   return {
     status: manifest ? manifestStatusForDisplay(manifest.status) : "Not returned",
-    overallAssessment: runExplanation?.overallAssessment?.trim() || "Not returned",
+    overallAssessment: runExplanation?.overallAssessment ?? "Overall assessment was not stored.",
     policyPack: manifest
       ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "")
       : "Not returned",
