@@ -19,7 +19,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? provenanceKind = null,
         bool promoteStrongerProvenance = true,
         bool preserveNullProvenance = false,
-        bool allowSelfEdges = false)
+        bool allowSelfEdges = false,
+        string? identityKey = null)
     {
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
@@ -33,7 +34,7 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
 
         return Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
             declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance,
-            preserveNullProvenance: preserveNullProvenance, allowSelfEdges: allowSelfEdges);
+            preserveNullProvenance: preserveNullProvenance, allowSelfEdges: allowSelfEdges, identityKey: identityKey);
     }
 
     /// <summary>
@@ -69,7 +70,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? declaredConnectionId,
         bool promoteStrongerProvenance,
         bool preserveNullProvenance = false,
-        bool allowSelfEdges = false)
+        bool allowSelfEdges = false,
+        string? identityKey = null)
     {
         // Recovery Services historically retains self-edges; other producers reject them by default.
         if (!allowSelfEdges && string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
@@ -77,7 +79,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             return null;
         }
 
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
+        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}"
+            + (identityKey is null ? string.Empty : "|" + identityKey);
         int existingIndex = -1;
 
         if (!edgeKeys.Add(edgeKey))
@@ -90,7 +93,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             existingIndex = edges.FindIndex(edge =>
                 string.Equals(edge.FromNodeId, fromNodeId, StringComparison.Ordinal)
                 && string.Equals(edge.ToNodeId, toNodeId, StringComparison.Ordinal)
-                && string.Equals(edge.EdgeType, edgeType, StringComparison.Ordinal));
+                && string.Equals(edge.EdgeType, edgeType, StringComparison.Ordinal)
+                && (identityKey is null || string.Equals(edge.EdgeId, "edge-" + edgeKey, StringComparison.Ordinal)));
 
             if (existingIndex < 0
                 || ProvenanceRank(provenanceKind) <= ProvenanceRank(edges[existingIndex].ProvenanceKind))

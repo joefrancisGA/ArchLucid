@@ -11,15 +11,14 @@ internal sealed record AzureInventorySnapshotGraphIndexes(
 {
     public static AzureInventorySnapshotGraphIndexes Create(
         AzureInventorySnapshotDetailReadModel snapshot,
-        IReadOnlyList<GraphNode> nodes)
+        IReadOnlyList<GraphNode> nodes,
+        AzureInventorySnapshotPropertyIndex? properties = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
 
         return new(
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList()),
+            (properties ?? AzureInventorySnapshotPropertyIndex.Create(snapshot)).ByResourceRowId,
             nodes
                 .Where(node => node.Properties.TryGetValue("arm.id", out string? armId) && !string.IsNullOrWhiteSpace(armId))
                 .GroupBy(node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]), StringComparer.OrdinalIgnoreCase)

@@ -119,6 +119,36 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Apply_multiple_resource_roles_summarizes_access_without_mutating_assignment_evidence()
+    {
+        DiagramAst ast = CreateAst();
+        ast.Edges = [new() { FromNodeId = "vm", ToNodeId = "vault", Label = "has role", InferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment },
+            new() { FromNodeId = "vm", ToNodeId = "vault", Label = "has role", InferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment }];
+        GraphSnapshot graph = new() { Edges = [CreateRoleEdge("vm", "vault", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/vault", "Reader"),
+            CreateRoleEdge("vm", "vault", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/vault", "Owner")] };
+        var mapping = new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm", ["vault"] = "vault" };
+        InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
+        InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
+        ast.Edges.Should().ContainSingle().Which.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.HasAccess);
+        graph.Edges.Should().HaveCount(2);
+        graph.Edges.Select(edge => edge.Properties["roleName"]).Should().BeEquivalentTo("Reader", "Owner");
+    }
+
+    [Fact]
+    public void Apply_multiple_subscription_roles_retains_each_outline_detail()
+    {
+        DiagramAst ast = CreateAst();
+        GraphSnapshot graph = new() { Edges = [CreateRoleEdge("vm", "subscription", "/subscriptions/sub", "Reader"),
+            CreateRoleEdge("vm", "subscription", "/subscriptions/sub", "Owner")] };
+        var mapping = new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm" };
+        InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
+        InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
+        ast.Edges.Should().BeEmpty();
+        ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
+            .BeEquivalentTo("Has Reader on this subscription", "Has Owner on this subscription");
+    }
+
     private static DiagramAst CreateAst()
     {
         return new DiagramAst

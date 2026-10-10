@@ -32,7 +32,10 @@ internal static class PrivilegePathMaterializer
                 InferenceSource = string.IsNullOrWhiteSpace(hop.InferenceSource)
                     ? MapInferenceSource(hop.EdgeType)
                     : hop.InferenceSource,
-                EvidenceReference = $"snapshot:{snapshotId:D}:{hop.EdgeType}:{hop.FromNodeId}->{hop.ToNodeId}",
+                EvidenceReference = $"snapshot:{snapshotId:D}:{hop.EdgeType}:{hop.FromNodeId}->{hop.ToNodeId}"
+                    + (hop.EdgeType == GraphEdgeTypes.HasRole && hop.RoleDefinitionId is not null
+                        ? ":role-definition:" + Uri.EscapeDataString(hop.RoleDefinitionId)
+                        : string.Empty),
             });
         }
 

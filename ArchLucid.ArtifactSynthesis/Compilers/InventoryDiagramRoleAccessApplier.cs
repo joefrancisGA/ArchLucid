@@ -48,6 +48,19 @@ internal static class InventoryDiagramRoleAccessApplier
                 InventoryDiagramRelationshipLabelTexts.HasAccess,
                 GraphEdgeInferenceSources.InventoryRbacAssignment,
                 ProvenanceKind.ObservedFact.ToString());
+
+            // A diagram access line summarizes a resource pair; the graph retains each grant separately.
+            DiagramEdge accessEdge = ast.Edges.First(candidate =>
+                !candidate.IsLayoutOnly
+                && candidate.FromNodeId == sourceDiagramNodeId
+                && candidate.ToNodeId == targetDiagramNodeId
+                && candidate.Label == InventoryDiagramRelationshipLabelTexts.HasAccess);
+            ast.Edges.RemoveAll(candidate =>
+                !ReferenceEquals(candidate, accessEdge)
+                && !candidate.IsLayoutOnly
+                && candidate.FromNodeId == sourceDiagramNodeId
+                && candidate.ToNodeId == targetDiagramNodeId
+                && candidate.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
         }
     }
 

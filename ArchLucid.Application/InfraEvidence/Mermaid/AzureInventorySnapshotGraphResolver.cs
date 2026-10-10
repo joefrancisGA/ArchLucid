@@ -67,6 +67,11 @@ public sealed class AzureInventorySnapshotGraphResolver(
             ? snapshot
             : AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes);
 
+        AzureInventorySnapshotPropertyIndex propertyIndex = AzureInventorySnapshotPropertyIndex.Create(snapshot);
+        AzureInventorySnapshotPropertyIndex visiblePropertyIndex = ReferenceEquals(snapshot, graphSnapshot)
+            ? propertyIndex
+            : AzureInventorySnapshotPropertyIndex.Create(graphSnapshot);
+
         Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         List<GraphNode> nodes = [];
 
@@ -211,14 +216,16 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodes,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            visiblePropertyIndex);
         AzureInventorySnapshotVnetPeeringEdgeHydrator.AddMissingPeeringEdges(
             snapshot,
             nodeIdByArmId,
             nodes,
             seenNodeIds,
             edges,
-            edgeKeys);
+            edgeKeys,
+            propertyIndex);
         AzureInventorySnapshotPrivateEndpointEdgeHydrator.AddMissingTargetEdges(
             snapshot,
             nodeIdByArmId,
@@ -229,12 +236,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
             collectedArmIds,
             hiddenArmIds,
             includeNeverShowArmTypes,
-            retainIdentityDiagramArmTypes);
+            retainIdentityDiagramArmTypes,
+            propertyIndex);
         AzureInventorySnapshotSubnetPlacementEdgeHydrator.AddMissingPlacementEdges(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            propertyIndex);
         AzureInventorySnapshotPropertyArmIdEdgeHydrator.AddMissingPropertyArmIdEdges(
             snapshot,
             nodeIdByArmId,
@@ -244,12 +253,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            propertyIndex);
         AzureInventorySnapshotLogicAppConnectionHydrator.AddMissingConnectionEdges(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            propertyIndex);
         AzureInventorySnapshotDatabricksAccessConnectorEdgeHydrator.AddMissingAccessConnectorEdges(
             snapshot,
             nodeIdByArmId,
@@ -279,7 +290,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
-        AzureInventorySnapshotGraphIndexes metadataIndexes = AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes);
+        AzureInventorySnapshotGraphIndexes metadataIndexes = AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes, propertyIndex);
         AzureInventorySnapshotNodeRelationshipGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
         AzureInventorySnapshotParentAttachmentGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
         AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges, metadataIndexes);

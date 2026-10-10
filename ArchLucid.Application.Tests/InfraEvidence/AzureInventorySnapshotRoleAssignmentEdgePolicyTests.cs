@@ -1,7 +1,10 @@
 using System.Text.Json;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.ArtifactSynthesis.Compilers;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -30,34 +33,41 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
 
     [Theory]
     [MemberData(nameof(Scenarios))]
-    public async Task Role_edges_preserve_identity_scope_provenance_and_first_assignment(string mode)
+    public async Task Role_edges_preserve_each_identity_scope_and_role_with_observed_provenance(string mode)
     {
         GraphSnapshot graph = await ResolveScenarioAsync(mode);
         GraphEdge[] roles = graph.Edges.Where(edge => edge.EdgeType == GraphEdgeTypes.HasRole).ToArray();
         bool suppressed = mode is "redacted" or "invalid-json" or "blank-identity" or "missing-identity"
             or "missing-principal" or "blank-principal" or "blank-scope";
-        Assert.Equal(suppressed ? 0 : 1, roles.Length);
+        bool multiple = mode is "reader-first" or "owner-first" or "duplicate-scopes" or "two-principals";
+        Assert.Equal(suppressed ? 0 : multiple ? 2 : 1, roles.Length);
         foreach (GraphEdge edge in roles)
         {
             Assert.Equal(Workload, graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId);
-            Assert.Equal(Scope(mode), edge.Properties["scope"]);
-            Assert.Equal(mode == "owner-first" ? Owner : mode == "unknown-role" ? "custom-role" : Reader, edge.Properties["roleDefinitionId"]);
+            var assignment = Assert.Single(Snapshot(mode).RoleAssignments, assignment =>
+                assignment.PrincipalId.Trim() == edge.Properties["principalId"]
+                && ArmResourceIdNormalizer.Normalize(assignment.Scope) == edge.Properties["scope"]
+                && assignment.RoleDefinitionId == edge.Properties["roleDefinitionId"]);
+            Assert.Equal(assignment.RoleDefinitionId, edge.Properties["roleDefinitionId"]);
             if (mode == "unknown-role") Assert.False(edge.Properties.ContainsKey("roleName"));
-            else Assert.Equal(mode == "owner-first" ? "Owner" : "Reader", edge.Properties["roleName"]);
+            else Assert.Equal(edge.Properties["roleDefinitionId"] == Owner ? "Owner" : "Reader", edge.Properties["roleName"]);
             Assert.Equal(GraphEdgeTypes.HasRole, edge.Label);
             Assert.Equal(1d, edge.Weight);
             Assert.Equal(GraphEdgeInferenceSources.InventoryRbacAssignment, edge.InferenceSource);
             Assert.Equal(nameof(ProvenanceKind.ObservedFact), edge.ProvenanceKind);
-            Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.HasRole}", edge.EdgeId);
+            Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.HasRole}|"
+                + AzureInventoryRoleAssignmentIdentity.Create(assignment.PrincipalId, assignment.Scope, assignment.RoleDefinitionId), edge.EdgeId);
             Assert.Null(edge.DeclaredConnectionId);
             if (mode is "unknown-scope" or "subscription") Assert.StartsWith("role-scope-", edge.ToNodeId);
             else Assert.Equal(mode == "self" ? Workload : Target, graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId);
         }
         if (mode is "reader-first" or "owner-first" or "duplicate-scopes" or "two-principals")
         {
-            // Characterize existing loss of assignment detail; this refactor preserves the graph's policy.
             Assert.Equal(2, Snapshot(mode).RoleAssignments.Count);
-            Assert.Single(roles);
+            Assert.Equal(2, roles.Select(edge => edge.EdgeId).Distinct().Count());
+            var diagram = new DiagramAstFromGraphCompiler().Compile(graph, DiagramMode.FullSubscription);
+            var access = Assert.Single(diagram.Edges, edge => edge.InferenceSource == GraphEdgeInferenceSources.InventoryRbacAssignment);
+            Assert.Equal("Has access", access.Label);
         }
     }
 
@@ -67,7 +77,7 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
 
     [Theory]
     [MemberData(nameof(ExistingCases))]
-    public void Existing_edge_is_unchanged_and_only_key_set_controls_duplicates(string? provenance, bool keyPresent)
+    public void Endpoint_only_edge_does_not_suppress_assignment_evidence(string? provenance, bool keyPresent)
     {
         GraphEdge original = new()
         {
@@ -80,9 +90,9 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
         HashSet<string> keys = new(StringComparer.Ordinal);
         if (keyPresent) keys.Add($"workload|target|{GraphEdgeTypes.HasRole}");
         Hydrate(Snapshot("exact"), edges, keys);
-        Assert.Equal(keyPresent ? 1 : 2, edges.Count);
+        Assert.Equal(2, edges.Count);
         Assert.Same(original, edges[0]);
-        Assert.Single(keys);
+        Assert.Equal(keyPresent ? 2 : 1, keys.Count);
         Assert.Equal("original", original.EdgeId);
         Assert.Equal("custom", original.Label);
         Assert.Equal(.4d, original.Weight);
@@ -92,30 +102,30 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
         Assert.Equal("explanation", original.ReasoningTrace);
         Assert.Equal("original scope", original.Properties["scope"]);
         Assert.Single(original.Properties);
-        if (!keyPresent) Assert.Equal("Reader", edges[1].Properties["roleName"]);
+        Assert.Equal("Reader", edges[1].Properties["roleName"]);
     }
 
     [Fact]
-    public void Key_without_edge_blocks_insertion()
+    public void Endpoint_only_key_does_not_block_assignment_insertion()
     {
         List<GraphEdge> edges = [];
         HashSet<string> keys = new(StringComparer.Ordinal) { $"workload|target|{GraphEdgeTypes.HasRole}" };
         Hydrate(Snapshot("exact"), edges, keys);
-        Assert.Empty(edges);
-        Assert.Single(keys);
+        Assert.Single(edges);
+        Assert.Equal(2, keys.Count);
     }
 
     [Fact]
-    public void Repeated_hydration_keeps_first_role_and_object()
+    public void Repeated_hydration_retains_distinct_roles_without_reinserting_existing_assignments()
     {
         List<GraphEdge> edges = [];
         HashSet<string> keys = new(StringComparer.Ordinal);
         Hydrate(Snapshot("exact"), edges, keys);
         GraphEdge original = Assert.Single(edges);
         Hydrate(Snapshot("owner-first"), edges, keys);
-        Assert.Same(original, Assert.Single(edges));
-        Assert.Equal("Reader", original.Properties["roleName"]);
-        Assert.Single(keys);
+        Assert.Equal(2, edges.Count);
+        Assert.Same(original, edges.Single(edge => edge.Properties["roleName"] == "Reader"));
+        Assert.Equal(2, keys.Count);
     }
 
     [Fact]
@@ -136,10 +146,15 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
     [Theory]
     [InlineData("reader-first")]
     [InlineData("owner-first")]
-    public void Privilege_analysis_currently_rejects_multiple_roles_for_same_principal_and_scope(string mode)
+    public void Privilege_analysis_retains_multiple_roles_for_same_principal_and_scope(string mode)
     {
-        // Separate security path: preserve and expose this known limitation during the diagram refactor.
-        Assert.Throws<ArgumentException>(() => InventoryPrivilegePathGraph.Build(Snapshot(mode)));
+        var graph = InventoryPrivilegePathGraph.Build(Snapshot(mode));
+        var roles = graph.OutgoingEdges.Values.SelectMany(edges => edges).Where(edge => edge.EdgeType == GraphEdgeTypes.HasRole).ToList();
+        Assert.Equal(new[] { "Owner", "Reader" }, roles.Select(edge => edge.RoleName).OrderBy(name => name).ToArray());
+        var paths = PrivilegePathEnumerator.Enumerate(graph, new());
+        Assert.Equal(2, paths.Count);
+        Assert.Contains(paths, path => path.Hops[^1].EdgeType == GraphEdgeTypes.CanRead);
+        Assert.Contains(paths, path => path.Hops[^1].EdgeType == GraphEdgeTypes.CanWrite);
     }
 
     internal static async Task<GraphSnapshot> ResolveScenarioAsync(string mode)
