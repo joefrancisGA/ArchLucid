@@ -18947,6 +18947,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five seeded candidates: issuer metadata is unused by the in-zone flow; malformed successful token JSON has no accepted-session path; provider-supplied extreme lifetimes have no configured maximum or attacker reachability; the one-minute refresh skew is intentional; and supplemental scopes are deployment configuration with a safe default. No failing repro or fix was established. The focused OIDC suite passed 71/71.
 
+2026-10-10 thorough hunt (dry): cheap-disproved all five follow-on candidates: authorize URL construction is parser-gated, malformed callback descriptions are intentionally tolerant, oversized provider details have no demonstrated wrong outcome, Web Crypto absence is an environment prerequisite, and incomplete PKCE storage has no reachable production caller. No failing repro or fix was established. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
@@ -19109,11 +19111,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `refreshBffSessionCookie` — a finite `expires_at_ms` inside the one-minute acceptance skew is accepted as the new client expiry — **cheap-disproof 2026-10-10 thorough hunt:** the skew is an explicit boundary to avoid immediate refresh churn, and the existing refresh path re-evaluates expiry on the next request; no durable stale-session outcome was reproduced.
 - [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — supplemental provider scopes are read directly from public configuration — **cheap-disproof 2026-10-10 thorough hunt:** the value is deployment configuration, the Google flow requests its provider-specific default when unset, and no in-zone attacker input can mutate the scope before redirect.
 
-- [ ] (candidate) `buildAuthorizeUrl` — direct callers can supply a non-HTTP authorization endpoint even though normal discovery parsing validates schemes, so an in-zone bypass of the parser could construct a browser navigation to an unsupported URL.
-- [ ] (candidate) `decodeOAuthErrorDescription` — malformed percent-encoding falls back to a partially decoded string, so a reachable provider error may surface a misleading callback message rather than a stable decoded description.
-- [ ] (candidate) `humanizeAuthorizeCallbackError` — unknown provider descriptions are included without a length bound, so a reachable oversized OAuth error could create an unusable callback error surface.
-- [ ] (candidate) `createPkcePair` — the fixed 32-byte verifier path depends on browser Web Crypto availability, so a reachable constrained browser context may fail sign-in before a controlled configuration error is shown.
-- [ ] (candidate) `storePkceState` — exported storage accepts empty state, verifier, or nonce values, so a reachable caller could leave a callback with incomplete PKCE material that is consumed as if pending.
+- [x] (invalid) `buildAuthorizeUrl` — direct callers can supply a non-HTTP authorization endpoint even though normal discovery parsing validates schemes — **cheap-disproof 2026-10-10 thorough hunt:** the reachable redirect path calls this helper only after discovery parsing has required HTTP(S) endpoints; no in-zone bypass caller exists.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — malformed percent-encoding falls back to a partially decoded string — **cheap-disproof 2026-10-10 thorough hunt:** the fallback is explicit error-tolerant behavior, and no provider error was shown to create a wrong authorization or navigation outcome.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unknown provider descriptions are included without a length bound — **cheap-disproof 2026-10-10 thorough hunt:** callback text is rendered as escaped UI text and the provider-controlled detail has no demonstrated durable or security-sensitive wrong outcome in this zone.
+- [x] (invalid) `createPkcePair` — the fixed 32-byte verifier path depends on browser Web Crypto availability — **cheap-disproof 2026-10-10 thorough hunt:** unsupported browser capability is an environment prerequisite, not a reachable input or incorrect OIDC state transition in these helpers.
+- [x] (invalid) `storePkceState` — exported storage accepts empty state, verifier, or nonce values — **cheap-disproof 2026-10-10 thorough hunt:** production redirect callers supply generated non-empty values; no reachable caller in the selected files writes incomplete PKCE state.
 
 ---
 
