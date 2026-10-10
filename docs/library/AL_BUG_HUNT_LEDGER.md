@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `core-explanation-json` — re-read aggregate scalar readers, case-insensitive property lookup, structured list/reasoning coercion, and the prompt schema; no new reachable wrong-outcome chain met the hunt-ready bar. The scoped `RunExplanation` test command was blocked before execution by the existing unrelated `ARCH002` in `Auth/Saml/SamlMetadataDiscoveryParser.cs`; no production code changed.
+
 2026-10-10 seed hunt (seed-only): `ui-auth-callback` — final reread in the current seed window covered text filtering, generation invalidation, response status handling, form toggles, and success navigation; no distinct reachable mechanism or wrong outcome remained. No production code changed.
 
 2026-10-10 seed hunt (seed-only): `ui-auth-callback` — revisited error retention, success unmounting, access-request headers, native validation, honeypot DOM state, and in-flight navigation with 63 focused tests; no distinct reachable mechanism remained. No production code changed.
@@ -9068,7 +9070,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
