@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `core-explanation-json` — re-read aggregate scalar readers, case-insensitive property lookup, structured list/reasoning coercion, and the prompt schema; no existing row was hunt-ready. The scoped `RunExplanation` suite passed 47/47; seeded one source-backed duplicate-property candidate and made no production change.
+
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — reread scalar coercion, structured list/reasoning normalization, and citation/count regressions after the master merge; no new reachable mechanism met the hunt-ready bar. The scoped `RunExplanation` suite passed 47/47; no production code changed.
 
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — repeated the scalar text-token, property-name, and structured list/reasoning review; no distinct reachable wrong outcome was found. The scoped filter again failed at unrelated `ARCH002` before tests executed; no production code changed.
@@ -27052,7 +27054,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -27086,6 +27088,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-12 seed hunt #2174 (seed-only): reseeded core-explanation-json with `-Hint explanation -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` / `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — an LLM response containing duplicate top-level property names that differ only by case, with the first `reasoning` or list field empty and the later field valid, may stop at the first token and discard an otherwise structured explanation; reachable input is model-produced JSON from the `StructuredExplanationLlmPromptSchema` response contract.
 
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.FromAggregateJson` — a parseable non-object aggregate root reaches object-only property enumeration and throws instead of returning a safe absent result — **hit 2026-10-03 thorough hunt:** guard non-object `JsonElement` roots before confidence sub-readers; regression `FromAggregateJson_returns_null_for_non_object_root`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
