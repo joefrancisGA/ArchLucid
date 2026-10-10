@@ -57,6 +57,21 @@ function formatExpiration(value: string | null | undefined): string {
   return parsed.toLocaleString();
 }
 
+function formatUnavailableConnectionField(
+  label: string,
+  props: InfraEvidenceDeclaredConnectionDetailPanelProps,
+): string {
+  if (props.connectionsLoading) {
+    return `Loading ${label.toLowerCase()}…`;
+  }
+
+  if (props.connectionsError !== null) {
+    return `${label} could not be loaded.`;
+  }
+
+  return `${label} could not be resolved because the declared connection was not found.`;
+}
+
 /** Read-only accountability panel for a declared diagram edge. */
 export function InfraEvidenceDeclaredConnectionDetailPanel(
   props: InfraEvidenceDeclaredConnectionDetailPanelProps,
@@ -119,9 +134,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         <div className="sm:col-span-2">
           <dt className="text-al-text-secondary">Rationale</dt>
           <dd className="m-0">
-            {matchedConnection?.rationale === null || matchedConnection?.rationale === undefined
-              ? "Rationale was not stored."
-              : formatPanelCell(matchedConnection.rationale)}
+            {matchedConnection == null
+              ? formatUnavailableConnectionField("Rationale", props)
+              : matchedConnection.rationale === null || matchedConnection.rationale === undefined
+                ? "Rationale was not stored."
+                : formatPanelCell(matchedConnection.rationale)}
           </dd>
         </div>
         <div>
@@ -144,7 +161,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Expires</dt>
-          <dd className="m-0">{formatExpiration(matchedConnection?.expirationUtc)}</dd>
+          <dd className="m-0">
+            {matchedConnection == null
+              ? formatUnavailableConnectionField("Expiration", props)
+              : formatExpiration(matchedConnection.expirationUtc)}
+          </dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Status</dt>
