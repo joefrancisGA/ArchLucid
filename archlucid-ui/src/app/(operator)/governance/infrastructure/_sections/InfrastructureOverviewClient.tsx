@@ -38,8 +38,10 @@ import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-cop
 import { cn } from "@/lib/utils";
 
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
+import { SecureNowDataSourcesHomeSection } from "@/components/product-line/SecureNowDataSourcesHomeSection";
+import { SecureNowFindingsHomeSection } from "@/components/product-line/SecureNowFindingsHomeSection";
 import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
-import { SecureNowSecurityHomeSection } from "@/components/product-line/SecureNowSecurityHomeSection";
+import { SecureNowRemediationHomeSection } from "@/components/product-line/SecureNowRemediationHomeSection";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
@@ -132,9 +134,11 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
 
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
-            <SecureNowSecurityHomeSection />
-            <SecureNowComplianceHomeSection />
+            <SecureNowFindingsHomeSection />
             <SecureNowInfrastructureHomeSection />
+            <SecureNowRemediationHomeSection />
+            <SecureNowComplianceHomeSection />
+            <SecureNowDataSourcesHomeSection />
           </div>
         ) : (
           <section aria-labelledby="governance-infrastructure-workbenches-heading">

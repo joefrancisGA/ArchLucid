@@ -34,11 +34,10 @@ import {
   SECURENOW_INFRASTRUCTURE_HOME_ROWS,
   SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING,
 } from "@/lib/product-line/securenow-infrastructure-home-copy";
-import { SECURENOW_SECURITY_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-security-home-copy";
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
-  it("renders Security, ARC-AMPE compliance, and Infrastructure sections on the Security home", () => {
+  it("renders Home sections in SecureNow sidebar order", () => {
     render(<InfrastructureOverviewClient secureNowHome />);
 
     expect(screen.getByTestId("governance-infrastructure-overview-page-title")).toHaveTextContent(
@@ -51,17 +50,20 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
 
     expect(sectionTestIds).toEqual([
-      "securenow-security-home-section",
-      "securenow-compliance-home-section",
+      "securenow-findings-home-section",
       "securenow-infrastructure-home-section",
+      "securenow-remediation-home-section",
+      "securenow-compliance-home-section",
+      "securenow-data-sources-home-section",
     ]);
     expect(screen.getByTestId("securenow-compliance-home-section")).toBeInTheDocument();
     expect(screen.getByTestId("securenow-infrastructure-home-section")).toBeInTheDocument();
-    expect(screen.getByTestId("securenow-security-home-section")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-findings-home-section")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Findings" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Remediation" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Data sources" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_COMPLIANCE_HOME_SECTION_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: SECURENOW_SECURITY_HOME_SECTION_HEADING })).toBeInTheDocument();
-    expect(screen.getAllByText(/ARC-AMPE architecture themes/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByTestId(`securenow-compliance-home-link-${SECURENOW_POLICY_PACKS_PATH}`)).toHaveAttribute(
       "href",
       SECURENOW_POLICY_PACKS_PATH,
@@ -71,9 +73,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "/infrastructure/resources",
     );
     expect(
-      screen.getByTestId(`securenow-security-home-link-${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}`),
+      screen.getByTestId(`securenow-findings-home-link-${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}`),
     ).toHaveAttribute("href", SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH);
-    expect(screen.queryByTestId("securenow-security-home-link-/integrations/cloud-connections")).not.toBeInTheDocument();
+    expect(screen.getByTestId("securenow-data-sources-home-link-/integrations/cloud-connections")).toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/teams")).not.toBeInTheDocument();
@@ -88,16 +90,15 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
     expect(primaryContent).toHaveTextContent(/All seven destinations are available from this hub/i);
-    expect(primaryContent).toHaveTextContent(/Security, compliance, and infrastructure destinations are grouped below/i);
+    expect(primaryContent).toHaveTextContent(/Findings, environment, remediation, compliance, and data sources are grouped below/i);
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
     expect(SECURENOW_INFRASTRUCTURE_HOME_ROWS.map((row) => row.href)).toEqual([
       "/infrastructure/resources",
-      "/infrastructure/snapshots-drift",
-      "/infrastructure/declared-connections",
       "/infrastructure/diagrams",
       "/infrastructure/diagram-reconcile",
+      "/infrastructure/snapshots-drift",
       "/infrastructure/ask",
       "/infrastructure/terraform",
     ]);
