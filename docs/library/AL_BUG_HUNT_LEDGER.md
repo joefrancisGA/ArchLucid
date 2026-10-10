@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `agent-runtime-safety` — re-ran the scoped 584-test filter and classified the retained candidates: sanitizer mid-loop cancellation is valid-no-repro because there is no asynchronous/reentrant boundary; streaming-buffer unboundedness is valid-no-repro because provider `maxTokens` is the reachable output bound; the inner-cancellation candidate is already proven and fixed. No additional production change.
+
 2026-10-10 thorough hunt (hit): `agent-runtime-safety` — `CircuitBreakingContentSafetyGuard` caught `OperationCanceledException` only when the caller token was canceled, so an inner timeout/cancellation with an unrelated token was converted into fail-open/fail-closed SDK output. The guard now propagates all operation-cancellation exceptions; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`; 584 scoped safety and prompt-injection tests passed. The sanitizer cancellation and streaming-buffer candidates had no failing repro.
 
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker again exposed only the retired ledger path with no open, hunt-ready, or candidate hypotheses. Re-read the selected controller history; no new reachable mechanism-backed wrong outcome was available beyond the already-closed actor-id and run-id normalization classes. No production or regression code changed.
@@ -15439,6 +15441,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-10 thorough hunt (dry): re-ran the exact picker filter with 584 passing tests; retained candidate rows are now classified as two valid-no-repro boundaries and one previously proven cancellation fix, with no new failing repro or production change.
+
 2026-10-10 thorough hunt (hit): promoted `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` from a timeout token was caught by the generic exception path when the caller token remained active, converting cancellation into SDK error output (or fail-open allow). The guard now rethrows all `OperationCanceledException` instances; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`. Cheap-disproved the sanitizer mid-loop cancellation candidate because the sanitizer has no asynchronous/reentrant callback boundary, and recorded the streaming-buffer candidate as valid-no-repro because provider `maxTokens` is the reachable output bound and no separate configured character limit exists. The scoped picker filter passed 584 tests.
 
 2026-10-10 seed hunt (seed-only): re-read the selected content-safety guards and prompt-injection sanitizers; all existing delimiter, cancellation, truncation, and fail-open boundaries were covered by 584 scoped tests, with no new hunt-ready row promoted. Seeded three reachable follow-on candidates.
@@ -16319,10 +16323,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 63
+- **hunts:** 64
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16345,9 +16349,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — cancellation is checked only before iterating potentially large evidence collections — locus: policy/service/pattern/note loops; input: a reachable large evidence package from an agent run with cancellation requested during sanitization; wrong outcome: prompt preparation continues after cancellation instead of stopping promptly.
-- [ ] (candidate) `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` with a caller token that is not yet canceled is converted into fail-open/fail-closed content-safety output — locus: generic exception catch after `invokeInner`; input: Azure client timeout/cancellation from an inner request while the outer request token remains active; wrong outcome: a canceled safety scan is reported as an allow or SDK block instead of propagating cancellation.
-- [ ] (candidate) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffering has no explicit output-size bound before the final safety scan — locus: `StringBuilder completionJson` and `bufferedChunks`; input: a reachable provider stream that emits the configured maximum-token response or more chunks; wrong outcome: unbounded memory growth before output safety can reject the response.
+- [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — cancellation is checked only before iterating potentially large evidence collections — **cheap-disproof 2026-10-10 thorough hunt:** the sanitizer has no asynchronous or reentrant callback boundary during its synchronous loops, so no reachable mid-loop cancellation input could be constructed.
+- [x] (proven) `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` with a caller token that is not yet canceled is converted into fail-open/fail-closed content-safety output — **hit 2026-10-10 thorough hunt:** the generic exception catch converted an inner timeout cancellation into SDK output; all `OperationCanceledException` instances now propagate; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`.
+- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.StreamJsonAsync` — buffering has no explicit output-size bound before the final safety scan — **cheap-disproof 2026-10-10 thorough hunt:** the reachable provider contract supplies `maxTokens`; no separate configured character bound exists from which to derive a valid failing input without inventing a limit.
 
 - [x] (proven) `AgentEvidenceUntrustedInputSanitizer.SanitizePromptIdentifier` — client-supplied `RequestId` with a deleted control character inside `CUSTOMER_CONTENT_END` (`\u0001`, `\u007F`, `\u0085`) reassembled the delimiter after marker escape and closed the architecture quarantine before `Evidence Package` — **hit 2026-10-09 thorough hunt:** `EscapeEmbeddedMarkers` ran before `StripControlChars`; `EscapeCustomerMarkersAfterControlStrip` strips first, then escapes, for prompt identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`.
 
