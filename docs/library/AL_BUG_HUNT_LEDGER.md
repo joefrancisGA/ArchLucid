@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected Safety and PromptInjection sources and focused tests; no new reachable mechanism-backed wrong outcome met the same-run hunt-ready bar. Seeded two bounded candidates for nullable externally populated tag/evidence collections. The picker filter passed 584 tests. No production or regression code changed.
+
 2026-10-10 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the dual toggle-confirmation URL candidate: `webhooksToggleConfirmHrefFromSearch` intentionally deletes `webhookEnableId` whenever a disable id is present, and no application path generates both ids. The focused webhooks and URL-helper suites passed 202 tests. No production change.
 
 2026-10-10 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook source plus all 61 focused webhooks tests; no new reachable mechanism-backed wrong outcome met the same-run repro bar. Seeded one bounded candidate for a URL carrying both toggle-confirmation ids. No production or regression code changed.
@@ -16352,7 +16354,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 68
+- **hunts:** 69
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
@@ -16366,6 +16368,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed→hit): `AzureContentSafetyGuard` whitespace early-return skipped `ThrowIfCancellationRequested`; fixed before non-cancellable allow path; 577 scoped agent-runtime-safety tests passed.
 
+2026-10-10 seed hunt (seed-only): re-read the selected Safety and PromptInjection paths and the picker filter; no candidate met the same-run failing-repro bar. Seeded two bounded candidates for externally populated nullable collections: `AzureResourceTagPromptSanitizer.SanitizeTagMap` receiving a null tag value, and `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` receiving an evidence payload with a null collection. The picker filter passed 584 tests. No production change.
+
 2026-09-27 seed hunt (seed-only): reseeded agent-runtime-safety; no new hunt-ready rows; cheap-disproved `CompleteJsonAsync` guard bypass when `EvaluateCompletionPromptAndResponse=false` (intentional config parity with streaming) and ledger `EvidenceRef` Unicode line-separator spoof (`SanitizePersistedCustomerProse` on ref fields); regressions `CompleteJsonAsync_when_evaluation_disabled_skips_guard_scans_and_returns_inner_json` and `AppendLedgerContext_collapses_unicode_line_separator_in_evidence_ref`; 149 scoped agent-runtime-safety tests passed.
 
 2026-10-02 seed hunt (seed-only): re-read selected safety and prompt-injection sources; seeded a sanitizer-reentrancy candidate for repeated in-place sanitization; 575 focused tests passed with analyzers disabled and no candidate promoted.
@@ -16377,6 +16381,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract and could throw instead of returning a sanitized tag map; input: Azure resource metadata deserialized with `"tags":{"owner":null}`.
+- [ ] (candidate) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — an externally populated evidence payload with a null collection reaches a direct `foreach` over `Policies`, `ServiceCatalog`, `Patterns`, or `Notes` and could throw before prompt construction; input: agent evidence JSON containing `"policies":null` or another nullable collection.
 
 - [x] (valid-no-repro) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — cancellation is checked only before iterating potentially large evidence collections — **cheap-disproof 2026-10-10 thorough hunt:** the sanitizer has no asynchronous or reentrant callback boundary during its synchronous loops, so no reachable mid-loop cancellation input could be constructed.
 - [x] (proven) `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` with a caller token that is not yet canceled is converted into fail-open/fail-closed content-safety output — **hit 2026-10-10 thorough hunt:** the generic exception catch converted an inner timeout cancellation into SDK output; all `OperationCanceledException` instances now propagate; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`.
