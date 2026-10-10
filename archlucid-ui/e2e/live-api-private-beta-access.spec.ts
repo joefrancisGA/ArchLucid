@@ -33,7 +33,10 @@ import {
 } from "./helpers/live-private-beta-access";
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
-import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
+import {
+  expectLiveFirstReviewGuideReady,
+  expectLiveReviewsHubListReady,
+} from "./helpers/live-page-readiness";
 import {
   assertLiveSeatOperatorScopeChrome,
   waitAndDismissFirstSessionPurposeChooser,
@@ -511,6 +514,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     await stubEmptyArchitectureDraftListRoute(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -589,6 +593,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);
@@ -635,6 +640,7 @@ test.describe(
     await primePrivateBetaBrowserPage(page, inviteeSession.accessToken);
     await page.goto(inviteeSession.redirectPath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/architecture\/first-review-guide\?source=invitation/);
+    await expectLiveFirstReviewGuideReady(page);
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);

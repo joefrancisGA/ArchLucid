@@ -266,6 +266,29 @@ export async function expectLiveReviewsHubListReady(
   await expectNoGenericErrorBoundary(page);
 }
 
+/** Waits for the invitee landing guide to render its meaningful first-review surface. */
+export async function expectLiveFirstReviewGuideReady(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const main = getAppMain(page);
+
+  await expectNoGenericErrorBoundary(page);
+  await expect(main.getByTestId("first-review-guide-page")).toBeVisible({ timeout: timeoutMs });
+  await expect(main.getByTestId("first-review-guide-header-loading")).toHaveCount(0, {
+    timeout: timeoutMs,
+  });
+  await expectAnyLocatorVisible(
+    [
+      main.getByTestId("first-review-guide-readiness"),
+      main.getByTestId("first-review-guide-primary-actions"),
+      main.getByTestId("first-review-guide-primary-content"),
+    ],
+    timeoutMs,
+  );
+}
+
 /** `/architecture/reviews/new` — stable test id survives Working vs Guided chrome copy differences. */
 export async function expectLiveReviewsNewPageReady(
   page: Page,
