@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `PulumiStackJsonInfrastructureDeclarationParser` aborted a reachable Pulumi stack upload when a malformed non-object entry appeared in `deployment.resources`, discarding valid sibling resources. Shared infrastructure property lookup now returns no match for non-object JSON values; regression `ParseAsync_ignoresNonObjectResourceEntries`; focused Pulumi parser tests passed 4/4.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — revalidated the registration response body fallbacks, duplicate-submit guards, readiness messaging, and schema constraints against reachable UI inputs; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `InMemoryContextSnapshotRepository.GetLatestAsync` filtered snapshots only by project id, so a tenant could receive another tenant's latest snapshot when project ids overlapped. Latest reads now apply the current saved scope metadata when a scoped provider is configured; regression `GetLatestAsync_does_not_return_snapshot_saved_by_different_tenant_for_same_project`; scoped ContextIngestion/Canonicalization tests passed 814/814.
@@ -27417,6 +27419,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-10 seed hunt (seed→hit): duplicate pre-dedup topology object ids no longer throw during sensitivity expansion; 819 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (proven) `SecurityBaselineSensitivityScopeExpander.Expand` — duplicate topology object ids in pre-dedup connector output caused `ToDictionary` to throw before `CanonicalDeduplicator` ran — **hit 2026-10-10 seed hunt:** group duplicate ids and retain the first sensitivity entry; covered by the scoped canonicalization suite.
+
+2026-10-10 seed hunt (seed→hit): Pulumi stack resource arrays now skip non-object entries without aborting valid sibling resources; focused Pulumi parser tests passed 4/4.
+
+- [x] (proven) `InfrastructureDeclarationJsonElementReader.TryGetPropertyIgnoreCase` / `PulumiStackJsonInfrastructureDeclarationParser.TryAddPulumiResource` — a reachable non-object entry in `deployment.resources` caused `InvalidOperationException` before valid sibling resources were parsed — **hit 2026-10-10 seed hunt:** guard shared property lookup by `JsonValueKind.Object`; regression `ParseAsync_ignoresNonObjectResourceEntries`.
 
 2026-10-10 seed hunt (seed-only): re-read context-ingestion request orchestration, canonicalization, document parsing, and infrastructure JSON serialization; no distinct fresh row met the full reachability and wrong-outcome bar. No production change.
 
