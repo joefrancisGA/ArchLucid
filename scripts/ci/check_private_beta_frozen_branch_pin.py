@@ -34,6 +34,21 @@ def git_ref_exists(root: Path, ref: str) -> bool:
     return result.returncode == 0
 
 
+def git_ref_sha(root: Path, ref: str) -> str | None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", ref],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    return result.stdout.strip() or None
+
+
 def is_ancestor(root: Path, ancestor: str, ref: str) -> bool:
     result = subprocess.run(
         ["git", "merge-base", "--is-ancestor", ancestor, ref],
@@ -67,15 +82,21 @@ def main() -> int:
 
         return 0
 
+    current_rc34_sha = git_ref_sha(root, RC34_REF)
+    current_label = current_rc34_sha or RC34_REF
+
     if not is_ancestor(root, pinned_sha, RC34_REF):
         print(
-            f"::warning::private-beta frozen pin {pinned_sha} is not an ancestor of {RC34_REF}; "
+            f"::warning::private-beta frozen pin {pinned_sha} is not an ancestor of {current_label}; "
             "refresh only after the current frozen smoke finishes",
         )
 
         return 0
 
-    print(f"Frozen private-beta pin {pinned_sha} is an ancestor of {RC34_REF}.")
+    print(
+        f"Frozen private-beta pin {pinned_sha} is an ancestor of {current_label} "
+        f"({RC34_REF}).",
+    )
 
     return 0
 
