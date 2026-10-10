@@ -560,9 +560,10 @@ public sealed class DiagramAstFromGraphCompilerTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
         string mermaid = renderer.Render(ast);
 
-        ast.Nodes.Should().NotContain(node => node.Label == "app-subnet");
+        ast.Nodes.Should().Contain(node => node.Label == "app-subnet");
         mermaid.Should().Contain("subgraph");
         mermaid.Should().Contain("core-vnet");
+        mermaid.Should().Contain("app-subnet");
     }
 
     [Fact]
@@ -593,7 +594,7 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().HaveCount(graph.Nodes.Count - 2);
+        ast.Nodes.Should().HaveCount(graph.Nodes.Count - 1);
         string mermaid = renderer.Render(ast);
         mermaid.Should().Contain("flowchart TD");
     }
@@ -1077,7 +1078,7 @@ public sealed class DiagramAstFromGraphCompilerTests
             ToNodeId = "sql-1",
             EdgeType = GraphEdgeTypes.ConnectsTo,
             Label = GraphEdgeTypes.ConnectsTo,
-            InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+            InferenceSource = GraphEdgeTypes.ConnectsTo,
             ProvenanceKind = "ObservedFact",
         });
 

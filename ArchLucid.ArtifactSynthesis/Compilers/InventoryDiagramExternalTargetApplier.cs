@@ -198,9 +198,10 @@ internal static class InventoryDiagramExternalTargetApplier
             .Where(node => graphToDiagramNodeId.ContainsKey(node.NodeId)
                 && AzureInventoryVnetPeeringParser.IsVirtualNetworkResourceType(
                     DiagramAstGraphNodeClassifier.ReadArmType(node)))
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(
-                node => node.NodeId,
-                node => graphToDiagramNodeId[node.NodeId],
+                group => group.Key,
+                group => graphToDiagramNodeId[group.First().NodeId],
                 StringComparer.Ordinal);
 
         foreach (GraphNode privateEndpointNode in graph.Nodes.Where(IsPrivateEndpointNode))

@@ -41,11 +41,6 @@ internal static class DiagramEdgeLabelHumanizer
 
         string label = storedLabel.Trim();
 
-        if (HasEvidenceCurrencyPrefix(label))
-        {
-            return true;
-        }
-
         if (string.Equals(label, "Likely", StringComparison.OrdinalIgnoreCase))
         {
             return true;
@@ -68,7 +63,13 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.OrdinalIgnoreCase)
+                || HasEvidenceCurrencyPrefix(label);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryObservedDependency, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.StartsWith("Observed in logs", StringComparison.Ordinal);
         }
 
         return false;
@@ -85,7 +86,7 @@ internal static class DiagramEdgeLabelHumanizer
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
     {
-        if (TryResolveObservedDependencyLabel(edgeType, inferenceSource, out string observedLabel))
+        if (TryResolveObservedDependencyLabel(storedLabel, edgeType, inferenceSource, out string observedLabel))
         {
             return observedLabel;
         }
@@ -165,6 +166,7 @@ internal static class DiagramEdgeLabelHumanizer
     }
 
     private static bool TryResolveObservedDependencyLabel(
+        string? storedLabel,
         string? edgeType,
         string? inferenceSource,
         out string label)
@@ -179,14 +181,14 @@ internal static class DiagramEdgeLabelHumanizer
             return false;
         }
 
-        if (string.Equals(edgeType, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
+        if (IsObservedReadToken(edgeType) || IsObservedReadToken(storedLabel))
         {
             label = "Observed in logs (read)";
 
             return true;
         }
 
-        if (string.Equals(edgeType, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
+        if (IsObservedWriteToken(edgeType) || IsObservedWriteToken(storedLabel))
         {
             label = "Observed in logs (write)";
 
@@ -196,6 +198,22 @@ internal static class DiagramEdgeLabelHumanizer
         label = "Observed in logs";
 
         return true;
+    }
+
+    private static bool IsObservedReadToken(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && (string.Equals(value, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase)
+                || value.Contains("CanRead", StringComparison.OrdinalIgnoreCase)
+                || value.Contains("(read)", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsObservedWriteToken(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value)
+            && (string.Equals(value, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase)
+                || value.Contains("CanWrite", StringComparison.OrdinalIgnoreCase)
+                || value.Contains("(write)", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool TryResolveQualifiedMessagingLabel(string? inferenceSource, out string label)
