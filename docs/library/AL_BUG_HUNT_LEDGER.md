@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
+
 2026-10-10 seed hunt (seed-only): `archlucid-core` — the picker exposed only the ledger path for this retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter was attempted but stopped at the existing ARCH002 `DateTime.Now` analyzer baseline.
 
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC suite passed all 45 tests.
@@ -30642,6 +30644,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-10 seed hunt (seed-only): re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
+
 2026-10-09 seed hunt (seed→hit): promoted `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` into platform audit `ActorUserId`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; trial actor `(candidate)` remains open.
 
 2026-10-08 seed hunt (seed→hit): promoted `TenantBaselineController.PutAsync` audit actor parity; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; trial and legal-hold actor `(candidate)` rows remain open.
@@ -30656,8 +30660,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 313
-- **last-hunt:** 2026-10-09
+- **hunts:** 314
+- **last-hunt:** 2026-10-10
 - **bugs-found:** 518
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — legal-hold platform audit stored NameIdentifier instead of actor-context id
