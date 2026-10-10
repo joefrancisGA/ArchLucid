@@ -141,13 +141,25 @@ public sealed class AzureInventorySnapshotGraphResolver(
         List<GraphEdge> edges = [];
         HashSet<string> edgeKeys = new(StringComparer.Ordinal);
 
-        foreach (AzureInventoryResourceRelationshipReadModel relationship in graphSnapshot.Relationships
+        HashSet<string> collectedArmIds = AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(snapshot.Resources);
+        HashSet<string> hiddenArmIds = new(collectedArmIds, StringComparer.OrdinalIgnoreCase);
+        hiddenArmIds.ExceptWith(AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(graphSnapshot.Resources));
+
+        // Visibility removes collected hidden resources; absent endpoints are retained as references.
+        foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships
                      .OrderBy(candidate => ReadRelationshipArmId(candidate.FromAzureResourceId), StringComparer.Ordinal)
                      .ThenBy(candidate => ReadRelationshipArmId(candidate.ToAzureResourceId), StringComparer.Ordinal)
                      .ThenBy(candidate => ReadRelationshipArmId(candidate.RelationshipType), StringComparer.Ordinal))
         {
             string fromArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
             string toArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+            if (!includeNeverShowArmTypes
+                && (IsHiddenEndpoint(fromArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)
+                    || IsHiddenEndpoint(toArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
+            {
+                continue;
+            }
+
             bool isPeering = AzureInventoryRelationshipAssociationTypes.IsVnetPeeringRelationship(
                 relationship.RelationshipType,
                 relationship.InferenceSource);
@@ -170,6 +182,16 @@ public sealed class AzureInventorySnapshotGraphResolver(
                 seenNodeIds,
                 nodeIdByArmId,
                 graphSnapshot.AdfExternalSources);
+
+            if (!AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(nodeIdByArmId, fromArmId, out _))
+            {
+                AzureInventoryReferencedEndpointNodeFactory.EnsureNode(fromArmId, nodeIdByArmId, nodes, seenNodeIds);
+            }
+
+            if (AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(nodeIdByArmId, toArmId).Count == 0)
+            {
+                AzureInventoryReferencedEndpointNodeFactory.EnsureNode(toArmId, nodeIdByArmId, nodes, seenNodeIds);
+            }
 
             if (!AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(
                     nodeIdByArmId,
@@ -301,6 +323,15 @@ public sealed class AzureInventorySnapshotGraphResolver(
             Nodes = nodes,
             Edges = edges,
         };
+    }
+
+    private static bool IsHiddenEndpoint(string armId, IReadOnlySet<string> collectedArmIds, IReadOnlySet<string> hiddenArmIds, bool retainIdentityDiagramArmTypes)
+    {
+        return hiddenArmIds.Contains(armId)
+            || (!collectedArmIds.Contains(armId)
+                && AzureInventoryReferencedEndpointNodeFactory.TryReadResourceType(armId, out string resourceType)
+                && AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                    resourceType, armId, retainIdentityDiagramArmTypes: retainIdentityDiagramArmTypes));
     }
 
     private static string ResolveNodeId(AzureInventoryResourceRecord resource)

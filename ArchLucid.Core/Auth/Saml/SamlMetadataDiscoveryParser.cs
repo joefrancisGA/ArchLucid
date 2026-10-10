@@ -51,6 +51,7 @@ public static class SamlMetadataDiscoveryParser
 
     private static List<string> ExtractSigningCertificateThumbprints(XElement entity, TimeProvider timeProvider)
     {
+        ArgumentNullException.ThrowIfNull(entity);
         ArgumentNullException.ThrowIfNull(timeProvider);
 
         List<string> thumbprints = [];
@@ -92,6 +93,9 @@ public static class SamlMetadataDiscoveryParser
 
     private static string? TryReadCurrentSigningThumbprint(XElement certElement, TimeProvider timeProvider)
     {
+        ArgumentNullException.ThrowIfNull(certElement);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+
         string? base64 = certElement.Value?.Trim();
 
         if (string.IsNullOrWhiteSpace(base64))
