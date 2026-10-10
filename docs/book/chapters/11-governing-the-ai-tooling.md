@@ -126,7 +126,7 @@ Ask, for each field, whether the explanation needs it:
 - **Resource and identity names.** Often needed for an engineer's ticket, rarely for a board summary. Use placeholders such as "APP-1" and "User A" for audiences that don't act on the specific resource, and substitute the names back in after validation, outside the model.
 - **Object IDs and subscription IDs.** Almost never needed for prose. Keep them in the record, not the pack.
 - **Personal data.** User names and email addresses appear in privilege graphs because people hold roles. Use a role-based description ("the payments team's developer lead") or a placeholder unless the audience needs the person.
-- **App setting names.** Chapter 3 recorded that secret-bearing settings exist without recording their values, and left keeping the setting *names* as a governance choice. Decide it here. Names like `PAYMENTS_STORAGE_CONNECTION` help an engineer, but they also tell a reader where the credentials are. Keep them in snapshots if your engineers need them, and leave them out of packs for audiences that don't.
+- **App setting names.** Chapter 3 left keeping setting names as a governance choice, but App Service returns names and values together from an operation that Reader can't call. If you approve a separately privileged collection step, discard values before anything is persisted. Keep only the names your engineers need in snapshots, and leave them out of packs for audiences that don't.
 - **Secret values.** Never. Chapter 3 kept them out of snapshots, so they can't reach a pack. Keep it that way when someone proposes "just adding the connection string so the model can explain it."
 
 ### Residency and processing location
