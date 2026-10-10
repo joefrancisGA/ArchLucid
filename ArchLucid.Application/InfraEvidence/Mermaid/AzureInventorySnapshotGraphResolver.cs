@@ -37,7 +37,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         }
 
         AzureInventorySnapshotDetailReadModel? snapshot =
-            await _snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+            await _snapshotRepository.TryGetCanonicalSnapshotDetailAsync(scope, snapshotId, cancellationToken);
 
         if (snapshot is null)
         {

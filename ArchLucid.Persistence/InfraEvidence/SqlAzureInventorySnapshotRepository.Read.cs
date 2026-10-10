@@ -15,6 +15,16 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
+        AzureInventorySnapshotDetailReadModel? snapshot =
+            await TryGetCanonicalSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        return snapshot is null ? null : AzureInventoryVisibleSnapshotProjection.Apply(snapshot);
+    }
+
+    public async Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(scope);
 
         AzureInventorySnapshotRecord? header =
@@ -130,7 +140,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     new { scope.TenantId, SnapshotId = snapshotId },
                     cancellationToken: cancellationToken));
 
-        return AzureInventoryVisibleSnapshotProjection.Apply(new AzureInventorySnapshotDetailReadModel
+        return new AzureInventorySnapshotDetailReadModel
         {
             Header = header,
             Resources = resources.ToList(),
@@ -150,7 +160,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             RoleAssignments = roleAssignments.ToList(),
             Diagnostics = diagnostics.ToList(),
             DefenderSummaries = defenderSummaries.ToList(),
-        });
+        };
     }
 
     private sealed class RelationshipRow
