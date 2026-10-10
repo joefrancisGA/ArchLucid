@@ -15,55 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
     [Fact]
     public void Suggestion1053_1059_runs_export_architecture_export_governance_coverage_posture_preview_retrieval_and_feedback_openapi_409()
     {
-        string runsExportGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsExportController.SealedManifestGuard.cs"));
-        string architectureExportGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArchitectureExportController.SealedManifestGuard.cs"));
-        string coverageGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceCoverageController.SealedManifestGuard.cs"));
-        string postureGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernancePostureController.SealedManifestGuard.cs"));
-        string previewGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernancePreviewController.SealedManifestGuard.cs"));
-        string retrievalGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "RetrievalController.SealedManifestGuard.cs"));
-        string feedbackGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "FindingFeedbackController.SealedManifestGuard.cs"));
+        string runsExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsExportController.SealedManifestGuard.cs");
+        string architectureExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArchitectureExportController.SealedManifestGuard.cs");
+        string coverageGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceCoverageController.SealedManifestGuard.cs");
+        string postureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePostureController.SealedManifestGuard.cs");
+        string previewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.SealedManifestGuard.cs");
+        string retrievalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.SealedManifestGuard.cs");
+        string feedbackGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/FindingFeedbackController.SealedManifestGuard.cs");
 
         runsExportGuard.Should().Contain("MapRunsExportSealedManifestConflict");
         architectureExportGuard.Should().Contain("MapArchitectureExportSealedManifestConflict");

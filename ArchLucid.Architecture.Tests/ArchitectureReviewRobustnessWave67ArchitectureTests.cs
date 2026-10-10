@@ -15,34 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion789_791_draft_wizard_and_architecture_identity_mutation_openapi_409()
     {
-        string draftController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.cs"));
-        string wizardDrafts = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "WizardIntakeDraftsController.cs"));
-        string architectures = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "ArchitecturesController.cs"));
-        string architectureGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "ArchitecturesController.SealedManifestGuard.cs"));
+        string draftController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.cs");
+        string wizardDrafts = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/WizardIntakeDraftsController.cs");
+        string architectures = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
+        string architectureGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
 
         draftController.Should().Contain("CreateDraft");
         draftController.Should().Contain("EnsureDraftIntakeSealedManifestReadAllowedAsync");
@@ -61,27 +37,9 @@ public sealed class ArchitectureReviewRobustnessWave67ArchitectureTests
     [Fact]
     public void Suggestion792_794_governance_promotion_activation_and_approval_mutation_openapi_409()
     {
-        string promotions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PromotionsActivations.cs"));
-        string approvalCreate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Create.cs"));
-        string approvalBatch = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Batch.cs"));
+        string promotions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PromotionsActivations.cs");
+        string approvalCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Create.cs");
+        string approvalBatch = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Batch.cs");
 
         promotions.Should().Contain("Promote");
         promotions.Should().Contain("Activate");

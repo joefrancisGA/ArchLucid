@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn019StartReviewFromDeskOnlyWorkingArchitectureT
     [Fact]
     public void Sn019_module_names_nested_create_resolver()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -30,7 +30,7 @@ public sealed class SystemNotJobSn019StartReviewFromDeskOnlyWorkingArchitectureT
     [Fact]
     public void Sn019_create_hook_wires_nested_resolver_for_alt_n()
     {
-        string hook = File.ReadAllText(
+        string hook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-working-start-href.ts"));
 
         hook.Should().Contain("useWorkingCreateStartHref");
@@ -40,7 +40,7 @@ public sealed class SystemNotJobSn019StartReviewFromDeskOnlyWorkingArchitectureT
     [Fact]
     public void Sn019_vitest_ratchet_names_nested_create_and_portfolio_fallback()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

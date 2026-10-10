@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateDocumentdbTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "db-1", label: "docdb", sourceId: "azurerm_documentdb.main"));
+            ComputeNode(nodeId: "db-1", label: "docdb", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-docdb")));
 

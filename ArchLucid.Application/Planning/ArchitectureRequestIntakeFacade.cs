@@ -34,20 +34,33 @@ public sealed class ArchitectureRequestIntakeFacade(
         return _architectureRequestDraftService.DraftAsync(input, cancellationToken);
     }
 
-    public AdvisoryDraftOperationQueryResult GetDraftAsyncResult(Guid operationId, ScopeContext scope)
+    public async Task<AdvisoryDraftOperationQueryResult> GetDraftAsyncResultAsync(
+        Guid operationId,
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
         string opaqueOperationId = OperationIdCodec.ForDraft(operationId);
-        if (!_advisoryDraftOperationStore.TryGet(opaqueOperationId, scope, out AdvisoryDraftOperationRecord? record) || record is null)
+        AdvisoryDraftOperationRecord? record = await _advisoryDraftOperationStore.GetAsync(
+            opaqueOperationId,
+            scope,
+            cancellationToken);
+
+        if (record is null)
             return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.NotFound };
+
         if (record.State is OperationState.Running or OperationState.Pending or OperationState.CancelRequested)
             return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.InProgress };
+
         if (record.State == OperationState.Failed)
             return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.Failed, ErrorMessage = record.ErrorMessage ?? "Structured brief suggestion failed." };
+
         if (record.State == OperationState.Canceled)
             return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.Canceled };
+
         if (record.Result is null)
             return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.ResultUnavailable };
+
         return new AdvisoryDraftOperationQueryResult { Outcome = AdvisoryDraftOperationOutcome.Success, Result = record.Result };
     }
 
@@ -86,6 +99,7 @@ public sealed class ArchitectureRequestIntakeFacade(
     private async Task<ArchitectureRequestIntakeParseResult> ValidateParsedRequestAsync(ArchitectureRequest parsed, CancellationToken cancellationToken)
     {
         FluentValidation.Results.ValidationResult validationResult = await _architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
+
         if (validationResult.IsValid) return new ArchitectureRequestIntakeParseResult { Outcome = ArchitectureRequestIntakeOutcome.Success, Request = parsed };
         return new ArchitectureRequestIntakeParseResult { Outcome = ArchitectureRequestIntakeOutcome.ValidationFailed, ValidationErrors = validationResult.Errors.Select(static e => e.ErrorMessage).ToList() };
     }

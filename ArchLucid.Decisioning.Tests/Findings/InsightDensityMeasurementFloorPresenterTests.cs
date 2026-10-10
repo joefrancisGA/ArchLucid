@@ -4,6 +4,7 @@ using Xunit;
 
 namespace ArchLucid.Decisioning.Tests.Findings;
 
+[Trait("Category", "Unit")]
 public sealed class InsightDensityMeasurementFloorPresenterTests
 {
     [Fact]

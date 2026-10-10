@@ -34,7 +34,7 @@ internal static class ArchitectureConstraintRepositoryPaths
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(csprojPath);
 
-        string text = File.ReadAllText(csprojPath);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(csprojPath);
 
         return ProjectReferenceInclude
             .Matches(text)

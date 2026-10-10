@@ -45,8 +45,7 @@ public sealed class FailClosedScopeDerivationArchitectureTests
     [Fact]
     public void Scope_resolution_guard_middleware_is_registered_in_pipeline()
     {
-        string pipeline = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Startup", "PipelineExtensions.cs"));
+        string pipeline = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Startup/PipelineExtensions.cs");
 
         pipeline.Should().Contain("ScopeResolutionGuardMiddleware");
     }
@@ -54,14 +53,7 @@ public sealed class FailClosedScopeDerivationArchitectureTests
     [Fact]
     public void Production_safety_rules_include_scope_derivation_guard()
     {
-        string rules = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Core",
-                "Startup",
-                "Validation",
-                "Rules",
-                "ProductionSafetyRules.cs"));
+        string rules = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Startup/Validation/Rules/ProductionSafetyRules.cs");
 
         rules.Should().Contain("CollectScopeDerivationUnsafeInProductionLike");
     }
@@ -99,8 +91,7 @@ public sealed class FailClosedScopeDerivationArchitectureTests
     [Fact]
     public void Scope_ids_defaults_are_not_used_in_scope_guard_evaluator()
     {
-        string guard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Security", "ScopeResolutionGuard.cs"));
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Security/ScopeResolutionGuard.cs");
 
         guard.Should().Contain(nameof(ScopeIds.IsDevelopmentDefault));
     }

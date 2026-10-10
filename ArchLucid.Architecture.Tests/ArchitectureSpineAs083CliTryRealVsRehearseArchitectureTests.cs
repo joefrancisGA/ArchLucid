@@ -43,8 +43,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_real_mode_smoke_accepts_rehearse_alias_without_aoai_requirement()
     {
-        string options = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommandOptions.cs"));
+        string options = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/Commands/RealModeSmokeCommandOptions.cs");
 
         options.Should().Contain("\"--rehearse\"");
         options.Should().Contain("allowSimulator = true");
@@ -53,8 +52,7 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     [Fact]
     public void As083_cli_usage_and_validate_config_use_career_rehearsal_vocabulary()
     {
-        string usage = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommand.cs"));
+        string usage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/Commands/RealModeSmokeCommand.cs");
 
         usage.Should().Contain("--rehearse");
         usage.Should().Contain("Practice review type");

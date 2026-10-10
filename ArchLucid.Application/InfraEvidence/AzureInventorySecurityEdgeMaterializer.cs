@@ -257,6 +257,11 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
+        AzureInventoryContainerImageEdgeMapper.MapImages(
+            resources,
+            relationships,
+            relationshipKeys);
+
         if (dependencyObservationsFilePresent)
         {
             AzureInventoryDependencyObservationEdgeMapper.MapObservations(

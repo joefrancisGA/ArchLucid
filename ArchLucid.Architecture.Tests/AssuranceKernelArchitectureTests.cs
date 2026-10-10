@@ -29,7 +29,6 @@ public sealed class AssuranceKernelArchitectureTests
             "ChatCompletion",
             "IChat",
             "PromptTemplate",
-            "AiInference",
         ];
 
         foreach (string relativePath in relativePaths)
@@ -44,6 +43,15 @@ public sealed class AssuranceKernelArchitectureTests
                 source.Should().NotContain(token, $"{relativePath} is deterministic truth-kernel code");
             }
         }
+
+        string guardPath = Path.Combine(
+            RepoRoot,
+            "ArchLucid.Core",
+            "InfraEvidence",
+            "SecurityEvidencePathGuard.cs");
+        File.ReadAllText(guardPath).Should().Contain(
+            "AiInference hops cannot use Confirmed confidence",
+            "the truth kernel must reject LLM-inferred hops rather than call an LLM");
     }
 
     [Fact]
@@ -70,7 +78,8 @@ public sealed class AssuranceKernelArchitectureTests
         File.Exists(checklistRouter).Should().BeTrue();
 
         File.ReadAllText(failureClassifier).Should().Contain("IsCommitBlocking");
-        File.ReadAllText(provenanceValidator).Should().Contain("Evidence");
+        File.ReadAllText(provenanceValidator).Should().Contain("HasAgentCitationProvenance");
+        File.ReadAllText(provenanceValidator).Should().Contain("HasTypedEngineProvenance");
         File.ReadAllText(checklistRouter).Should().Contain("ChecklistCoverage");
     }
 

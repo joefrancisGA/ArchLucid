@@ -8,6 +8,7 @@ public enum ArchitectureShareMutationStatus
     ArchitectureNotFound = 1,
     NotAuthorized = 2,
     ValidationFailed = 3,
+    ScimGroupNotSupported = 4,
 }
 
 public sealed class ArchitectureShareMutationResult
@@ -41,4 +42,11 @@ public sealed class ArchitectureShareMutationResult
 
     public static ArchitectureShareMutationResult ValidationFailed(string message) =>
         new() { Status = ArchitectureShareMutationStatus.ValidationFailed, ValidationMessage = message };
+
+    public static ArchitectureShareMutationResult ScimGroupNotSupported() =>
+        new()
+        {
+            Status = ArchitectureShareMutationStatus.ScimGroupNotSupported,
+            ValidationMessage = ArchitectureShareActorValidation.GroupShareRejectedMessage,
+        };
 }

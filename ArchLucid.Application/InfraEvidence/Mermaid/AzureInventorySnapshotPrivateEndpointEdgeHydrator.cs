@@ -59,21 +59,15 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
                          .OrderBy(property => property.PropertyKey, StringComparer.Ordinal))
             {
                 string targetArmId = ArmResourceIdNormalizer.Normalize(property.PropertyValue);
-                if (!AzureInventoryReferencedEndpointNodeFactory.TryReadResourceType(targetArmId, out _)
-                    || (!includeNeverShowArmTypes && AzureInventoryReferencedEndpointNodeFactory.IsHiddenEndpoint(
-                        targetArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
-                {
-                    continue;
-                }
-
-                if (AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(nodeIdByArmId, targetArmId).Count == 0)
-                {
-                    AzureInventoryReferencedEndpointNodeFactory.EnsureNode(targetArmId, nodeIdByArmId, nodes, seenNodeIds);
-                }
-
-                foreach (string toNodeId in AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
+                foreach (string toNodeId in AzureInventoryReferencedEndpointNodeFactory.ResolveVisibleTargetNodeIds(
+                             targetArmId,
                              nodeIdByArmId,
-                             targetArmId))
+                             nodes,
+                             seenNodeIds,
+                             collectedArmIds,
+                             hiddenArmIds,
+                             includeNeverShowArmTypes,
+                             retainIdentityDiagramArmTypes))
                 {
                     if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
                     {

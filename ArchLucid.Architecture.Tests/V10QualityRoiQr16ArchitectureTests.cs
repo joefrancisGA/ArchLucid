@@ -20,8 +20,7 @@ public sealed class V10QualityRoiQr16ArchitectureTests
                 "ArchLucid.Api.Tests",
                 "Contracts",
                 "openapi-v1.contract.snapshot.json"));
-        string contractTests = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "OpenApiContractSnapshotTests.cs"));
+        string contractTests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api.Tests/OpenApiContractSnapshotTests.cs");
         string regenScript = File.ReadAllText(
             Path.Combine(RepoRoot, "scripts", "ci", "update_openapi_contract_snapshot.sh"));
         string ratchet = File.ReadAllText(

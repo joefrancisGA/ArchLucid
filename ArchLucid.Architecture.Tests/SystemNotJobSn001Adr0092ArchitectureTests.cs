@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn001Adr0092ArchitectureTests
     [Fact]
     public void Sn001_adr_0092_forbids_draft_compare_and_allows_labeled_envelope()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0092-working-cheap-what-if-envelope.md"));
 
         adr.Should().Contain("## Trade-offs");
@@ -30,9 +30,9 @@ public sealed class SystemNotJobSn001Adr0092ArchitectureTests
     [Fact]
     public void Sn001_guard_inventory_and_vitest_exist()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-adr-inventory.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-adr-guard.test.ts"));
 
         inventory.Should().Contain("SYSTEM_NOT_JOB_ADR_0092_RELATIVE_PATH");
@@ -44,7 +44,7 @@ public sealed class SystemNotJobSn001Adr0092ArchitectureTests
     [Fact]
     public void Sn001_readme_lists_adr_0092()
     {
-        string readme = File.ReadAllText(
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "README.md"));
 
         readme.Should().Contain("0092-working-cheap-what-if-envelope.md");

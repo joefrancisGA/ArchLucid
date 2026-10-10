@@ -39,6 +39,6 @@ public sealed class ArchitectureSharesActorOidMigrationArchitectureTests
             "401_ArchitectureShares_ActorOid.sql");
 
         File.Exists(path).Should().BeTrue($"expected SQL at {path}");
-        return File.ReadAllText(path);
+        return ArchitectureSourceProbe.ReadPathWithPartials(path);
     }
 }

@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
     [Fact]
     public void Suggestion1317_1319_review_trail_rationale_manifest_summary_and_golden_manifest_sealed_manifest_mappers()
     {
-        string trail = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
+        string trail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
 
         trail.Should().Contain("MapRunQuerySealedManifestConflict");
         trail.Should().Contain("GetRunRationale");
@@ -27,8 +26,7 @@ public sealed class ArchitectureReviewRobustnessWave111ArchitectureTests
     [Fact]
     public void Suggestion1320_1323_review_trail_reads_run_manifest_and_detail_sealed_manifest_mappers()
     {
-        string reads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
+        string reads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
 
         reads.Should().Contain("MapReviewTrailSealedManifestConflict");
         reads.Should().Contain("GetReviewTrail");

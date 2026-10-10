@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave96ArchitectureTests
     [Fact]
     public void Suggestion1137_1143_authority_and_manifest_compare_outcome_sealed_manifest_conflict_mappers()
     {
-        string authorityCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.cs"));
-        string manifestCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Compare.cs"));
+        string authorityCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
+        string manifestCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Compare.cs");
 
         authorityCompare.Should().Contain("MapCompareSealedManifestConflict");
         manifestCompare.Should().Contain("MapGoldenManifestReadSealedManifestConflict");

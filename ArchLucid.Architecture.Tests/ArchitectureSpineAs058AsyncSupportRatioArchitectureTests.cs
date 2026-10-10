@@ -12,19 +12,9 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_lane_b_reader_and_composer_types_exist()
     {
-        string reader = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Findings",
-                "FindingSemanticSupportBandAsyncLaneBReader.cs"));
+        string reader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Findings/FindingSemanticSupportBandAsyncLaneBReader.cs");
 
-        string composer = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Findings",
-                "FindingSemanticSupportBandComposer.cs"));
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Findings/FindingSemanticSupportBandComposer.cs");
 
         reader.Should().Contain("FindingSemanticSupportBandAsyncLaneBReader");
         composer.Should().Contain("AsyncMayLagHonestyCopy");
@@ -33,11 +23,9 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_run_detail_query_applies_lane_b_compose_on_read_path()
     {
-        string detailLoad = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "RunDetailQueryService.DetailLoad.cs"));
+        string detailLoad = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/RunDetailQueryService.DetailLoad.cs");
 
-        string semanticSupport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "RunDetailQueryService.SemanticSupportBand.cs"));
+        string semanticSupport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/RunDetailQueryService.SemanticSupportBand.cs");
 
         detailLoad.Should().Contain("ApplySemanticSupportBandOverlaysAndLaneBComposeAsync");
         semanticSupport.Should().Contain("ApplyToAgentResultsAsync");
@@ -46,13 +34,7 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_findings_merge_stage_does_not_enqueue_lane_b_jobs()
     {
-        string stage = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "Services",
-                "Findings",
-                "FindingsMergeAndGateStage.cs"));
+        string stage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/Findings/FindingsMergeAndGateStage.cs");
 
         stage.Should().Contain("FindingSemanticSupportBandEmissionApplicator.Apply");
         stage.Should().NotContain("LaneBCompose");

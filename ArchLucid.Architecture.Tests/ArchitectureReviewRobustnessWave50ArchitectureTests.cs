@@ -15,28 +15,17 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
     [Fact]
     public void Suggestion585_590_timelines_trail_ledger_coverage_and_graph_openapi_409()
     {
-        string timelinesBundle = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.Timelines.cs"));
-        string sealedGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.SealedManifestGuard.cs"));
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityTrail = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string technologyLedger = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "TechnologyLedgerController.cs"));
-        string clarificationQuestions = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ReviewClarificationQuestionsController.cs"));
-        string runCoverage = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunCoverageController.cs"));
-        string runCoverageAck = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunCoverageController.Acknowledgement.cs"));
-        string runDetailQuery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Detail.cs"));
-        string runProvenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
-        string graphSnapshot = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "GraphController.Snapshot.cs"));
+        string timelinesBundle = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.Timelines.cs");
+        string sealedGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.SealedManifestGuard.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string authorityTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string technologyLedger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string clarificationQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string runCoverage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.cs");
+        string runCoverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
+        string runDetailQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs");
+        string runProvenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
+        string graphSnapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs");
 
         timelinesBundle.Should().Contain("GetTimelinesBundle");
         timelinesBundle.Should().Contain("EnsureSealedManifestReadAllowed");
@@ -94,22 +83,22 @@ public sealed class ArchitectureReviewRobustnessWave50ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "graph-api.ts"));
 
         pageBundleClient.Should().Contain("fetchRunDetailTimelinesBundle");
-        pageBundleClient.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(pageBundleClient);
         timelinesBlockedReason.Should().Contain("runDetailTimelinesBundleBlockedReason");
         runDetailList.Should().Contain("getRunStageTimeline");
         runDetailList.Should().Contain("getRunPipelineTimeline");
-        runDetailList.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailList);
         pipelineBlockedReason.Should().Contain("runPipelineTimelineBlockedReason");
         technologyLedgerApi.Should().Contain("getTechnologyLedger");
-        technologyLedgerApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(technologyLedgerApi);
         technologyLedgerBlockedReason.Should().Contain("technologyLedgerBlockedReason");
         clarificationApi.Should().Contain("getReviewClarificationQuestions");
-        clarificationApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(clarificationApi);
         clarificationBlockedReason.Should().Contain("reviewClarificationQuestionsBlockedReason");
         graphApi.Should().Contain("getArchitectureGraphPage");
         graphApi.Should().Contain("getArchitectureGraphTemporalSnapshot");
         graphApi.Should().Contain("mergeArchitectureGraphPages");
-        graphApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(graphApi);
     }
 
     [Fact]

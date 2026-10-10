@@ -14,13 +14,7 @@ public sealed class EvidenceSourceInspectEsi001ArchitectureTests
     [Fact]
     public void Esi001_catalog_controller_and_ui_cells_exist()
     {
-        string controller = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewStoredEvidenceFilesController.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewStoredEvidenceFilesController.cs");
         string cells = File.ReadAllText(
             Path.Combine(
                 RepoRoot,

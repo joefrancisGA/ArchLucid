@@ -249,10 +249,10 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
             graph.Nodes.ToDictionary(node => node.NodeId, StringComparer.Ordinal),
             graph.Edges);
 
-        path.HasUnresolvedGap.Should().BeFalse();
-        path.OrderedHopNodeIds.Should().BeEmpty();
+        path.HasUnresolvedGap.Should().BeTrue();
+        path.OrderedHopNodeIds.Should().Equal("agw-node", "fw-node");
         path.ReachesTarget.Should().BeFalse();
-        path.MissingHopDescription.Should().BeNull();
+        path.MissingHopDescription.Should().Contain("missing hop after fw");
     }
 
     [Fact]

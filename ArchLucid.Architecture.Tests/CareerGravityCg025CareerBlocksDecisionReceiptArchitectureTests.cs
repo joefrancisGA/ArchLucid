@@ -15,10 +15,8 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_service_stamps_posture_after_sealed_hash()
     {
-        string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
-        string stamper = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptCareerPostureStamper.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptService.cs");
+        string stamper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/DecisionReceiptCareerPostureStamper.cs");
 
         service.Should().Contain("DecisionReceiptCareerPostureStamper.ApplyCommittedRunPosture");
         stamper.Should().Contain("RehearsalIncomplete");
@@ -29,8 +27,7 @@ public sealed class CareerGravityCg025CareerBlocksDecisionReceiptArchitectureTes
     [Fact]
     public void Cg025_decision_receipt_contract_requires_posture_fields()
     {
-        string contract = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Exports", "DecisionReceiptDocument.cs"));
+        string contract = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Exports/DecisionReceiptDocument.cs");
 
         contract.Should().Contain("StructuralExecutionMode");
         contract.Should().Contain("WorkingCareerRehearsalDoor");

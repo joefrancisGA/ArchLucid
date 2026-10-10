@@ -15,13 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave100ArchitectureTests
     [Fact]
     public void Suggestion1185_1187_run_comparison_agent_pair_load_sealed_manifest_conflict_mappers()
     {
-        string runComparisonAgents = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunComparisonController.Agents.cs"));
+        string runComparisonAgents = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.Agents.cs");
 
         runComparisonAgents.Should().Contain("MapRunComparisonSealedManifestConflict");
     }
@@ -29,20 +23,8 @@ public sealed class ArchitectureReviewRobustnessWave100ArchitectureTests
     [Fact]
     public void Suggestion1188_1191_draft_async_and_manifest_compare_sealed_manifest_conflict_mappers()
     {
-        string draftAsync = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Intake.DraftAsync.cs"));
-        string comparisonController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonController.cs"));
+        string draftAsync = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Intake.DraftAsync.cs");
+        string comparisonController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
         draftAsync.Should().Contain("MapRunsSealedManifestConflict");
         comparisonController.Should().Contain("MapComparisonSealedManifestConflict");

@@ -69,9 +69,9 @@ public sealed class SponsorOnePagerPdfBuilderTests
     [SkippableFact]
     public async Task BuildPdfAsync_WhenRunPresent_ReturnsPdfMagicBytes()
     {
-        ArchitectureRunDetail detail = BuildCommittedDetail("r-pdf-1");
+        ArchitectureRunDetail detail = BuildCommittedDetail("11111111-1111-1111-1111-111111111111");
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r-pdf-1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("11111111-1111-1111-1111-111111111111", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -109,7 +109,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
-        byte[]? pdf = await sut.BuildPdfAsync("r-pdf-1", "http://localhost:5000");
+        byte[]? pdf = await sut.BuildPdfAsync("11111111-1111-1111-1111-111111111111", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
         pdf.Length.Should().BeGreaterThan(32);
@@ -231,19 +231,23 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             });
 
+        IManifestHashService hashes = FirstValueReportBuilderTestDoubles.CreateManifestHashService();
+
         return new SponsorOnePagerPdfBuilder(
             query,
             scorecard,
             deltas,
             markdown,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateAuthorityQueryForSponsorExport(hashes),
+            hashes,
             scope,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
-            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+            new ConfigurationBuilder()
+                .AddInMemoryCollection(FirstValueReportBuilderTestDoubles.CreateCareerCompleteRealModeHonestyValues())
+                .Build(),
             site);
     }
 
@@ -294,8 +298,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             });
 
         IConfigurationRoot configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .AddInMemoryCollection(FirstValueReportBuilderTestDoubles.CreateCareerCompleteRealModeHonestyValues())
             .Build();
 
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
@@ -306,6 +309,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             FirstValueReportBrandingTestDoubles.CreateApplyHelper(branding);
 
         IPilotBaselineRepository baselineRepo = pilotBaselines ?? CreateDefaultPilotBaselineRepository();
+        IManifestHashService hashes = FirstValueReportBuilderTestDoubles.CreateManifestHashService();
 
         return new FirstValueReportBuilder(
             query,
@@ -319,10 +323,10 @@ public sealed class SponsorOnePagerPdfBuilderTests
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            FirstValueReportBuilderTestDoubles.CreateAuthorityQueryForSponsorExport(hashes),
+            hashes,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
@@ -373,7 +377,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
             CompletedUtc = new DateTime(2026, 4, 1, 2, 0, 0, DateTimeKind.Utc),
             CurrentManifestVersion = "v1",
-            StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            StructuralExecutionMode = StructuralExecutionMode.Real,
         };
 
         GoldenManifest manifest = new()

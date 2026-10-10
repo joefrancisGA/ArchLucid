@@ -15,7 +15,7 @@ public sealed class ArchitectureSpineAs080NewWorkingTenantsCareerIntentArchitect
     [Fact]
     public void As080_door_module_defaults_new_tenants_to_career()
     {
-        string doorModule = File.ReadAllText(Path.Combine(RepoRoot, DoorModuleRelativePath));
+        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DoorModuleRelativePath));
 
         doorModule.Should().Contain("NEW_WORKING_TENANT_CAREER_REHEARSAL_DOOR_DEFAULT");
         doorModule.Should().Contain("\"career\"");
@@ -25,7 +25,7 @@ public sealed class ArchitectureSpineAs080NewWorkingTenantsCareerIntentArchitect
     [Fact]
     public void As080_door_module_documents_grandfather_rehearsal_for_legacy_simulator_clones()
     {
-        string doorModule = File.ReadAllText(Path.Combine(RepoRoot, DoorModuleRelativePath));
+        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DoorModuleRelativePath));
 
         doorModule.Should().Contain("LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT");
         doorModule.Should().Contain("WORKING_CAREER_REHEARSAL_TENANT_GRANDFATHER_STORAGE_KEY");
@@ -36,7 +36,7 @@ public sealed class ArchitectureSpineAs080NewWorkingTenantsCareerIntentArchitect
     [Fact]
     public void As080_door_module_does_not_flip_host_agent_execution_mode()
     {
-        string doorModule = File.ReadAllText(Path.Combine(RepoRoot, DoorModuleRelativePath));
+        string doorModule = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DoorModuleRelativePath));
 
         doorModule.Should().NotContain("AgentExecution:Mode");
         doorModule.Should().NotContain("appsettings");

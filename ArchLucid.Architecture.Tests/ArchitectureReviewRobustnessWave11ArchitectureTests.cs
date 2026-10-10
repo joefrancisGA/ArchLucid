@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion101_replay_prepare_reverifies_pins()
     {
-        string replay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
+        string replay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Replay/ReplayRunPrepareStage.cs");
 
         replay.Should().Contain("VerifyPinIntegrityOrThrowAsync");
         replay.Should().Contain("IRunEvidencePackagePinService");
@@ -43,8 +42,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
             .Should()
             .BeTrue();
 
-        string azure = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Findings", "OrphanedAzureResourceFindingEngine.cs"));
+        string azure = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs");
 
         azure.Should().Contain("EffectfulFindingEngineCollectionFreshness");
         azure.Should().NotContain("TryGetLatestCollectionTimestampUtcInScopeAsync");
@@ -53,11 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion104_golden_cohort_uses_pin_aware_hasher()
     {
-        string cohort = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning.Tests",
-                "GoldenCohortContentBaselineGeneratorTests.cs"));
+        string cohort = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning.Tests/GoldenCohortContentBaselineGeneratorTests.cs");
 
         cohort.Should().Contain("ComputeContentSha256Hex(contract, createTimePins: null)");
         cohort.Should().Contain("Content_sha_changes_when_create_time_pins_present");
@@ -66,12 +60,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion105_openapi_documents_content_hash_pins()
     {
-        string openApi = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "OpenApi",
-                "PublicHttpContractSchemasOpenApiDocumentTransformer.cs"));
+        string openApi = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/OpenApi/PublicHttpContractSchemasOpenApiDocumentTransformer.cs");
 
         openApi.Should().Contain("pinnedArchitectureVersionContentHashSha256");
         openApi.Should().Contain("pinnedKnowledgeModelContentHashSha256");
@@ -80,20 +69,11 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion106_focused_pilot_pins_in_reuse_and_hasher()
     {
-        string graphStage = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Pipeline",
-                "Stages",
-                "AuthorityPipelineGraphStage.cs"));
+        string graphStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineGraphStage.cs");
 
         graphStage.Should().Contain("FocusedPilotModeEnabled");
 
-        string hasher = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
+        string hasher = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/ManifestHashService.cs");
 
         hasher.Should().Contain("CreateTimeFocusedPilotModeEnabled");
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
@@ -102,12 +82,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion107_knowledge_model_load_verifies_content_hash()
     {
-        string access = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "ArchitectureIntelligence",
-                "ArchitectureKnowledgeModelAccess.cs"));
+        string access = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ArchitectureKnowledgeModelAccess.cs");
 
         access.Should().Contain("EnsurePinnedKnowledgeModelContentHashOrThrow");
     }
@@ -133,14 +108,7 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
             .Should()
             .BeTrue();
 
-        string materialization = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Commit",
-                "AuthorityCommitDecisionMaterializationStage.cs"));
+        string materialization = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitDecisionMaterializationStage.cs");
 
         materialization.Should().Contain("RunHeaderPinnedPolicyPackAssignmentFactory");
         materialization.Should().NotContain("ListByScopeAsync");
@@ -149,13 +117,11 @@ public sealed class ArchitectureReviewRobustnessWave11ArchitectureTests
     [Fact]
     public void Suggestion110_findings_list_and_first_value_use_lifecycle_guard()
     {
-        string findingsQuery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Query", "RunFindingsQueryService.cs"));
+        string findingsQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Query/RunFindingsQueryService.cs");
 
         findingsQuery.Should().Contain("IRunFindingsListStage");
 
-        string firstValue = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "FirstValueReportBuilder.cs"));
+        string firstValue = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/FirstValueReportBuilder.cs");
 
         firstValue.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
     }

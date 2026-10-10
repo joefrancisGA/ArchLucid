@@ -180,10 +180,30 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                 continue;
             }
 
-            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, traversalLinks, graphNodesById, graph.Edges));
+            // The data-flow skip itself is also a traversal link; excluding it forces intermediate hops or a gap.
+            IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> linksForEdge = ExcludeDirectPair(
+                traversalLinks,
+                edge.FromNodeId,
+                edge.ToNodeId);
+
+            paths.Add(ProjectPath(edge.FromNodeId, edge.ToNodeId, linksForEdge, graphNodesById, graph.Edges));
         }
 
         return paths;
+    }
+
+    private static IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> ExcludeDirectPair(
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> traversalLinks,
+        string fromNodeId,
+        string toNodeId)
+    {
+        ArgumentNullException.ThrowIfNull(traversalLinks);
+
+        return traversalLinks
+            .Where(link =>
+                !string.Equals(link.FromNodeId, fromNodeId, StringComparison.Ordinal)
+                || !string.Equals(link.ToNodeId, toNodeId, StringComparison.Ordinal))
+            .ToList();
     }
 
     private static bool IsTraversalGraphEdge(GraphEdge edge)
@@ -941,8 +961,10 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         {
             (string currentNodeId, List<string> currentNodes, List<InventoryDiagramDataFlowTraversalHopLink> currentLinks) = queue.Dequeue();
 
+            bool hasContinuation = HasDirectContinuationToTarget(currentNodeId, targetNodeId, graphEdges);
+
             if (currentNodes.Count > bestHopNodeIds.Count
-                && HasDirectContinuationToTarget(currentNodeId, targetNodeId, graphEdges))
+                || (currentNodes.Count == bestHopNodeIds.Count && currentNodes.Count > 0 && hasContinuation))
             {
                 bestHopNodeIds = currentNodes;
                 bestPathLinks = currentLinks;

@@ -2,6 +2,7 @@ using ArchLucid.Application.InfraEvidence.Mermaid;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
 public sealed class AzureInventoryArmEndpointNodeResolverTests
 {
     private const string Parent = "/subscriptions/s/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet";
@@ -19,9 +20,15 @@ public sealed class AzureInventoryArmEndpointNodeResolverTests
     public void Exact_then_nearest_nonblank_ancestor_wins(string? exact, string? nearest, string? root, string expected)
     {
         Dictionary<string, string> nodes = new(StringComparer.OrdinalIgnoreCase);
-        if (exact is not null) nodes[Grandchild] = exact;
-        if (nearest is not null) nodes[Child] = nearest;
-        if (root is not null) nodes[Parent] = root;
+
+        if (exact is not null)
+            nodes[Grandchild] = exact;
+
+        if (nearest is not null)
+            nodes[Child] = nearest;
+
+        if (root is not null)
+            nodes[Parent] = root;
 
         bool found = AzureInventoryArmEndpointNodeResolver.TryResolveExactOrAncestorNodeId(nodes, Grandchild, out string actual);
 

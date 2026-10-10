@@ -108,18 +108,22 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
                 .Where(alternative => !string.IsNullOrWhiteSpace(alternative))
                 .Select(alternative => alternative.Trim())
                 .ToList() ?? [],
-            ValidationMethod = item.ValidationMethod?.Trim() ?? "Re-run specialist review after design update.",
+            ValidationMethod = item.ValidationMethod is null
+                ? "Validation method was not stored."
+                : item.ValidationMethod.Trim(),
             Confidence = ClampConfidence(item.Confidence),
             RequiresHumanApproval = item.RequiresHumanApproval ?? false,
             Effort = new EffortEstimate
             {
-                Band = string.IsNullOrWhiteSpace(item.EffortBand) ? "Medium" : item.EffortBand.Trim(),
+                Band = item.EffortBand is null ? "Effort band was not stored." : item.EffortBand.Trim(),
                 BasisNotes = item.Notes?.Trim() ?? string.Empty,
-                ImplementationEstimateAvailable = true,
+                ImplementationEstimateAvailable = item.EffortBand is not null,
             },
             RiskReduction = new RiskReductionEstimate
             {
-                Level = string.IsNullOrWhiteSpace(item.RiskReductionLevel) ? "Moderate" : item.RiskReductionLevel.Trim(),
+                Level = item.RiskReductionLevel is null
+                    ? "Risk reduction was not stored."
+                    : item.RiskReductionLevel.Trim(),
                 ScenarioNotes = item.Notes?.Trim(),
             },
             Provenance = new ClaimProvenance

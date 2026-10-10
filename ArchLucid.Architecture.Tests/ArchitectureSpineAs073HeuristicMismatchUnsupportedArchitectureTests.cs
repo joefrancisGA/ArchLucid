@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs073HeuristicMismatchUnsupportedArchitectu
 
         File.Exists(testPath).Should().BeTrue();
 
-        string source = File.ReadAllText(testPath);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(testPath);
 
         source.Should().Contain("As073_arm_citation_with_opposite_message_scores_unsupported");
         source.Should().Contain("Anonymous internet callers");

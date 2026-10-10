@@ -15,7 +15,7 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
     [Fact]
     public void As076_adr_0086_exists_and_forbids_host_mode_flip()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("Career");
         adr.Should().Contain("Rehearsal");
@@ -26,16 +26,25 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
     [Fact]
     public void As076_working_chooser_component_exists()
     {
-        string chooser = File.ReadAllText(
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "components",
-                "governance",
+                "workspace-mode",
                 "WorkingCareerRehearsalChooser.tsx"));
+        string testId = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "lib",
+                "governance",
+                "working-career-rehearsal-chooser-keyboard.ts"));
 
-        chooser.Should().Contain("working-career-rehearsal-chooser");
+        chooser.Should().Contain("WORKING_CAREER_REHEARSAL_CHOOSER_TEST_ID");
+        testId.Should().Contain("working-career-rehearsal-chooser");
     }
 
     private static string FindRepoRoot()

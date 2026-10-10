@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence;
 

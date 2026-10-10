@@ -24,14 +24,12 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion191_zip_export_fail_closed_when_sealed_receipt_fields_missing()
     {
-        string loader = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportAuthorityMaterialLoader.cs"));
+        string loader = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/RunExportAuthorityMaterialLoader.cs");
 
         loader.Should().Contain("TryGetSealedReceiptReadinessOutcome");
         loader.Should().Contain("SealedReceiptIncomplete");
 
-        string builder = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportPackageBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/RunExportPackageBuilder.cs");
 
         builder.Should().Contain("SealedReceiptIncomplete");
     }
@@ -39,13 +37,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion192_blob_push_fail_closed_on_sealed_receipt_mismatch()
     {
-        string processor = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Host.Core",
-                "Coordination",
-                "Export",
-                "RunExportBlobPushOutboxProcessor.cs"));
+        string processor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Coordination/Export/RunExportBlobPushOutboxProcessor.cs");
 
         processor.Should().Contain("packageResult.IsConflict");
         processor.Should().Contain("RecordDeadLetterAsync");
@@ -54,18 +46,11 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion193_missing_sealed_receipt_fields_distinct_409()
     {
-        string problemTypes = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "ProblemDetails", "ProblemDetailsOptions.cs"));
+        string problemTypes = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/ProblemDetails/ProblemDetailsOptions.cs");
 
         problemTypes.Should().Contain("DecisionReceiptSealedIncomplete");
 
-        string download = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.Export.Download.cs"));
+        string download = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs");
 
         download.Should().Contain("DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete");
         download.Should().Contain("ProblemTypes.DecisionReceiptSealedIncomplete");
@@ -74,19 +59,12 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion194_review_board_export_verifies_sealed_receipt()
     {
-        string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "ArchitectureReviewExportService.Hydrate.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/ArchitectureReviewExportService.Hydrate.cs");
 
         service.Should().Contain("EnsureSealedDecisionReceiptVerifiedOrThrowAsync");
         service.Should().Contain("EnsureSealedExportReceiptVerifiedOrThrowAsync");
 
-        string binder = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "ManifestDecisionReceiptExportBinder.cs"));
+        string binder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/ManifestDecisionReceiptExportBinder.cs");
 
         binder.Should().Contain("BuildVerifiedExportReceipt");
     }
@@ -95,12 +73,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     public void Suggestion195_run_id_compare_diffs_inventory_checked_projection()
     {
         string facade = ReadCompareRunsFacadeSources();
-        string builder = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Analysis",
-                "ManifestCompareInventoryCheckedDocumentBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/ManifestCompareInventoryCheckedDocumentBuilder.cs");
 
         int compareIndex = facade.IndexOf("CompareManifestsAsync", StringComparison.Ordinal);
         string compareBody = facade[compareIndex..];
@@ -112,8 +85,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion196_end_to_end_replay_enforces_pin_and_inventory()
     {
-        string service = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "EndToEndReplayComparisonService.cs"));
+        string service = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/EndToEndReplayComparisonService.cs");
 
         service.Should().Contain("LoadScopedRunPairAsync");
         service.Should().Contain("PinFingerprintMismatch");
@@ -127,13 +99,11 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
 
         facade.Should().Contain("InputFingerprints = RunComparePinFingerprintGuard.BuildCompareInputFingerprints");
 
-        string diff = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Diffs", "AgentResultDiffResult.cs"));
+        string diff = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Diffs/AgentResultDiffResult.cs");
 
         diff.Should().Contain("CompareInputFingerprints? InputFingerprints");
 
-        string controller = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunComparisonController.Agents.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.Agents.cs");
 
         controller.Should().Contain("inputFingerprints");
         controller.Should().Contain("LeftManifestNotFound");
@@ -142,13 +112,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion198_recovery_binds_receipt_version_from_sealed_document()
     {
-        string orchestrator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("persistedManifest.Metadata?.Version");
     }
@@ -156,8 +120,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion199_export_lineage_fail_closed_on_sealed_manifest_hash()
     {
-        string verifier = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportLineageVerifier.cs"));
+        string verifier = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Analysis/RunExportLineageVerifier.cs");
 
         verifier.Should().Contain("golden.ManifestHash");
         verifier.Should().Contain("RunExportLineageVerificationStatus.Mismatch");
@@ -166,13 +129,7 @@ public sealed class ArchitectureReviewRobustnessWave20ArchitectureTests
     [Fact]
     public void Suggestion200_finding_read_fail_closed_on_invalid_anchors()
     {
-        string converter = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Core",
-                "Findings",
-                "Serialization",
-                "FindingJsonConverter.cs"));
+        string converter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Findings/Serialization/FindingJsonConverter.cs");
 
         converter.Should().Contain("enforcementTier is required");
         converter.Should().Contain("evidencePackageId must be a valid GUID when present");

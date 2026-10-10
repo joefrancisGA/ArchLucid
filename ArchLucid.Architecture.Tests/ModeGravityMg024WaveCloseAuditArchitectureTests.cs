@@ -22,7 +22,7 @@ public sealed class ModeGravityMg024WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("MG-024");
         source.Should().Contain("eval chrome remains false");
@@ -35,7 +35,7 @@ public sealed class ModeGravityMg024WaveCloseAuditArchitectureTests
     [Fact]
     public void Mg024_readme_lists_shipped_wave_with_close_audit_link()
     {
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
 
         readme.Should().Contain("MODE_GRAVITY_ACCEPTANCE_2026-09-11.md");
         readme.ToLowerInvariant().Should().Contain("mode-gravity");
@@ -54,7 +54,7 @@ public sealed class ModeGravityMg024WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("mode-gravity-00-index.md");
         source.Should().Contain("toHaveLength(24)");

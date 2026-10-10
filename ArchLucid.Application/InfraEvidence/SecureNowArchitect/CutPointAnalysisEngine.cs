@@ -2,6 +2,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 

@@ -171,7 +171,7 @@ function UnfinishedWorkRailTableRow(props: {
         {item.workTypeLabel}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {item.activityLabel ?? "—"}
+        {item.activityLabel ?? "Activity was not stored."}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <StatusTag kind={statusTag.kind} label={statusTag.label} />

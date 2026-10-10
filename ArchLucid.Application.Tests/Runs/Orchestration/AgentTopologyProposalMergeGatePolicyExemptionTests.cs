@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGatePolicyExemptionTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "pe-1", label: "exempt", sourceId: "azurerm_policy_exemption.exempt"));
+            ComputeNode(nodeId: "pe-1", label: "exempt", sourceId: "azurerm_storage_account.exempt"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-exempt")));
 

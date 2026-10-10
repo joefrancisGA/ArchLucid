@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1353_1355_architecture_graph_full_page_and_temporal_snapshot_sealed_manifest_mappers()
     {
-        string reviewGraph = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.ReviewGraph.cs"));
-        string snapshot = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.Snapshot.cs"));
+        string reviewGraph = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.ReviewGraph.cs");
+        string snapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs");
 
         reviewGraph.Should().Contain("MapGraphSealedManifestConflict");
         reviewGraph.Should().Contain("GetArchitectureGraph");
@@ -40,20 +28,8 @@ public sealed class ArchitectureReviewRobustnessWave114ArchitectureTests
     [Fact]
     public void Suggestion1356_1359_interactive_graph_run_query_and_graph_guard_sealed_manifest_mappers()
     {
-        string provenance = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.Provenance.cs"));
-        string guard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.SealedManifestGuard.cs"));
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
+        string guard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.SealedManifestGuard.cs");
 
         provenance.Should().Contain("MapProductRunQuerySealedManifestConflict");
         provenance.Should().Contain("GetInteractiveGraphSnapshot");

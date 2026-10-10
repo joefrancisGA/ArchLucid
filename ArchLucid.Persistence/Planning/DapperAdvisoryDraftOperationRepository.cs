@@ -112,37 +112,6 @@ public sealed class DapperAdvisoryDraftOperationRepository(IDbConnectionFactory 
     }
 
     /// <inheritdoc />
-    public async Task<AdvisoryDraftOperationRow?> GetByOperationIdAsync(
-        Guid operationId,
-        CancellationToken cancellationToken)
-    {
-        const string sql = """
-                           SELECT TenantId,
-                                  WorkspaceId,
-                                  ProjectId,
-                                  OperationId,
-                                  State,
-                                  StepLabel,
-                                  CurrentStep,
-                                  CreatedUtc,
-                                  HeartbeatUtc,
-                                  CompletedUtc,
-                                  ResultJson,
-                                  ErrorMessage
-                           FROM dbo.AdvisoryDraftOperations
-                           WHERE OperationId = @OperationId
-                           """;
-
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        return await connection.QueryFirstOrDefaultAsync<AdvisoryDraftOperationRow>(
-            new CommandDefinition(
-                sql,
-                new { OperationId = operationId },
-                cancellationToken: cancellationToken));
-    }
-
-    /// <inheritdoc />
     public async Task UpdateAsync(
         AdvisoryDraftOperationRow row,
         CancellationToken cancellationToken)

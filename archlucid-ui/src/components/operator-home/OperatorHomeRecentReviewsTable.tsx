@@ -124,7 +124,7 @@ export function OperatorHomeRecentReviewsTable(
                       <span className="text-al-text-secondary">{updatedPresentation.relativeLabel}</span>
                     </span>
                   ) : (
-                    "—"
+                    "Updated time was not stored."
                   )}
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>

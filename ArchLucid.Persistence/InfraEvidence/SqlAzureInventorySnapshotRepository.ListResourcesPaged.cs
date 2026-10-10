@@ -6,6 +6,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 

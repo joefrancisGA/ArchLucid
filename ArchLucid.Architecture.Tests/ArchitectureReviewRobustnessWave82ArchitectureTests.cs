@@ -15,70 +15,18 @@ public sealed class ArchitectureReviewRobustnessWave82ArchitectureTests
     [Fact]
     public void Suggestion969_975_ask_finding_compare_manifest_and_digest_openapi_409()
     {
-        string ask = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.cs"));
-        string askGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "AskController.SealedManifestGuard.cs"));
-        string findingAsk = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "ArchitectureFindingAskController.cs"));
-        string findingAskGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "ArchitectureFindingAskController.SealedManifestGuard.cs"));
-        string compare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
-        string compareGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.SealedManifestGuard.cs"));
-        string manifestExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Export.cs"));
-        string manifestDiagram = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Get.Diagram.cs"));
-        string manifestGet = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Get.Manifest.cs"));
-        string manifestGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.SealedManifestGuard.cs"));
-        string digests = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisorySchedulingController.Digests.cs"));
-        string digestsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisorySchedulingController.SealedManifestGuard.cs"));
+        string ask = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/AskController.cs");
+        string askGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/AskController.SealedManifestGuard.cs");
+        string findingAsk = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.cs");
+        string findingAskGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.SealedManifestGuard.cs");
+        string compare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
+        string compareGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.SealedManifestGuard.cs");
+        string manifestExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Export.cs");
+        string manifestDiagram = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Diagram.cs");
+        string manifestGet = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Manifest.cs");
+        string manifestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.SealedManifestGuard.cs");
+        string digests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisorySchedulingController.Digests.cs");
+        string digestsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisorySchedulingController.SealedManifestGuard.cs");
 
         ask.Should().Contain("MapAskSealedManifestConflict");
         askGuard.Should().Contain("MapAskSealedManifestConflict");

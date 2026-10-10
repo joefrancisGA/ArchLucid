@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn026SearchBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn026_module_names_search_bind_resolvers()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn026SearchBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn026_nested_search_page_mounts_peer_search_client()
     {
-        string nestedClient = File.ReadAllText(
+        string nestedClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -51,7 +51,7 @@ public sealed class SystemNotJobSn026SearchBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn026_vitest_ratchet_names_nested_empty_and_global_copy()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

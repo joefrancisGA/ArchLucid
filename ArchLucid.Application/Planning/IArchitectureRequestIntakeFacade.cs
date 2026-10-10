@@ -8,7 +8,10 @@ namespace ArchLucid.Application.Planning;
 public interface IArchitectureRequestIntakeFacade
 {
     Task<DraftArchitectureRequestResponse> DraftAsync(DraftArchitectureRequestInput input, CancellationToken cancellationToken = default);
-    AdvisoryDraftOperationQueryResult GetDraftAsyncResult(Guid operationId, ScopeContext scope);
+    Task<AdvisoryDraftOperationQueryResult> GetDraftAsyncResultAsync(
+        Guid operationId,
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
     Task<RewriteArchitectureOverviewResponse> RewriteOverviewAsync(RewriteArchitectureOverviewInput input, CancellationToken cancellationToken = default);
     Task<RephraseClarificationAnswersResponse> RephraseClarificationAnswersAsync(RephraseClarificationAnswersInput input, CancellationToken cancellationToken = default);
     Task<ExplainStructuredBriefSuggestionResponse> ExplainStructuredBriefSuggestionAsync(ExplainStructuredBriefSuggestionInput input, CancellationToken cancellationToken = default);

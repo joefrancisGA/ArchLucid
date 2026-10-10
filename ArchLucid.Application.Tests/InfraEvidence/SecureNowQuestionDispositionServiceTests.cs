@@ -6,6 +6,7 @@ using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 
 using Moq;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 

@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class DiagramCollapsedAttachmentEdgeLifterTests
 {
     private readonly DiagramAstFromGraphCompiler compiler = new();

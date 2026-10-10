@@ -15,20 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1209_1211_compare_explain_and_policy_pack_sealed_manifest_conflict_mappers()
     {
-        string explanationCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
-        string policyAssignment = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
+        string explanationCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
 
         explanationCompare.Should().Contain("MapExplanationSealedManifestConflict");
         policyAssignment.Should().Contain("MapPolicyPackSealedManifestConflict");
@@ -37,20 +25,8 @@ public sealed class ArchitectureReviewRobustnessWave102ArchitectureTests
     [Fact]
     public void Suggestion1212_1215_demo_viewer_compare_sealed_manifest_conflict_mappers()
     {
-        string demoCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Demo",
-                "DemoViewerController.Compare.cs"));
-        string demoGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Demo",
-                "DemoViewerController.SealedManifestGuard.cs"));
+        string demoCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.Compare.cs");
+        string demoGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.SealedManifestGuard.cs");
 
         demoCompare.Should().Contain("MapDemoViewerSealedManifestConflict");
         demoGuard.Should().Contain("MapDemoViewerSealedManifestConflict");

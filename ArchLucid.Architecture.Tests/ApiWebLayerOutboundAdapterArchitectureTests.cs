@@ -77,7 +77,7 @@ public sealed class ApiWebLayerOutboundAdapterArchitectureTests
 
         List<string> violations = [];
 
-        foreach (Match match in ApiWebLayerAddHttpClientImplementationRegex.Matches(File.ReadAllText(path)))
+        foreach (Match match in ApiWebLayerAddHttpClientImplementationRegex.Matches(ArchitectureSourceProbe.ReadPathWithPartials(path)))
         {
             string implementation = match.Groups["Implementation"].Value;
 

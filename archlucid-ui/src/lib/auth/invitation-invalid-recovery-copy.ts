@@ -10,6 +10,7 @@ export type InvitationRecoveryContext =
   | "expired"
   | "revoked"
   | "accepted"
+  | "rate-limited"
   | "validation-failed";
 
 /** Sign in without persisting or passing the broken invitation token (TB-1474). */
@@ -34,7 +35,13 @@ export const AUTH_INVITE_VALIDATION_RETRY_LABEL = "Try again";
 export const AUTH_INVITE_VALIDATION_FAILED_MESSAGE =
   "We could not validate this invitation. Try again or contact your administrator.";
 
-export function resolveInvalidInvitationMessage(context: InvitationRecoveryContext): string {
+export const AUTH_INVITE_RATE_LIMITED_MESSAGE =
+  "Invitation checks are temporarily capped. Wait for the retry window, then try again.";
+
+export function resolveInvalidInvitationMessage(
+  context: InvitationRecoveryContext,
+  retryAfterSeconds?: number | null,
+): string {
   switch (context) {
     case "expired":
       return "This invitation has expired. Ask your administrator to send a new invitation.";
@@ -42,6 +49,10 @@ export function resolveInvalidInvitationMessage(context: InvitationRecoveryConte
       return "This invitation is no longer active.";
     case "accepted":
       return "This invitation has already been used.";
+    case "rate-limited":
+      return retryAfterSeconds && retryAfterSeconds > 0
+        ? `Invitation checks are temporarily capped. Try again in about ${retryAfterSeconds} seconds.`
+        : AUTH_INVITE_RATE_LIMITED_MESSAGE;
     case "validation-failed":
       return AUTH_INVITE_VALIDATION_FAILED_MESSAGE;
     case "missing-token":

@@ -139,11 +139,14 @@ public sealed class AuthorityPipelineFindingsStage(
                 _timeProvider);
         }
 
-        IReadOnlyList<AgentResult> agentResults = await _agentResultRepository
+        IReadOnlyList<AgentResult>? agentResults = await _agentResultRepository
             .GetByRunIdAsync(scope, run.RunId.ToString("D"), cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false)
+            ?? [];
 
-        FindingsSnapshotWithheldMerger.MergeAgentWithheld(findingsSnapshot, agentResults);
+        FindingsSnapshotWithheldMerger.MergeAgentWithheld(
+            findingsSnapshot,
+            agentResults ?? Array.Empty<AgentResult>());
 
         try
         {

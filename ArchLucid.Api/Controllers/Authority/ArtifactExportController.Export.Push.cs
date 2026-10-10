@@ -177,7 +177,7 @@ public sealed partial class ArtifactExportController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
 }

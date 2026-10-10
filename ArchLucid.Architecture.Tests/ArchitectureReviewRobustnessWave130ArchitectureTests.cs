@@ -175,14 +175,10 @@ public sealed class ArchitectureReviewRobustnessWave130ArchitectureTests
     [Fact]
     public void Suggestion1554_1556_manifest_summary_retrieval_search_runtime_409_and_compare_lifecycle_hint()
     {
-        string manifestSummary = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Get.Summary.cs"));
-        string manifestGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.SealedManifestGuard.cs"));
-        string retrievalController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.cs"));
-        string retrievalGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.SealedManifestGuard.cs"));
+        string manifestSummary = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Summary.cs");
+        string manifestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.SealedManifestGuard.cs");
+        string retrievalController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.cs");
+        string retrievalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.SealedManifestGuard.cs");
         string compareHook = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-compare-runs-end-to-end-query.ts"));
         string lifecycleHint = File.ReadAllText(

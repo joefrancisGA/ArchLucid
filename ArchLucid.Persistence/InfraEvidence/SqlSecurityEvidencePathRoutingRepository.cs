@@ -170,18 +170,22 @@ public sealed class SqlSecurityEvidencePathRoutingRepository(ISqlConnectionFacto
         if (pathCount != 1)
             throw new InvalidOperationException("Scoped routing replacement target path was not found.");
 
-        await conn.ExecuteAsync(
-            new CommandDefinition(
-                """
+        const string deleteRoutingSql = """
                 DELETE r
                 FROM dbo.SecurityEvidencePathRouting r
                 INNER JOIN dbo.SecurityEvidencePaths p
                     ON p.TenantId = r.TenantId AND p.PathId = r.PathId
-                WHERE r.TenantId = @TenantId
-                  AND r.PathId = @PathId
+                WHERE p.TenantId = @TenantId
                   AND p.WorkspaceId = @WorkspaceId
-                  AND p.ProjectId = @ProjectId;
-                """,
+                  AND p.ProjectId = @ProjectId
+                  AND p.PathId = @PathId
+                  AND r.TenantId = @TenantId
+                  AND r.PathId = @PathId;
+                """;
+
+        await conn.ExecuteAsync(
+            new CommandDefinition(
+                deleteRoutingSql,
                 new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
                 transaction,
                 cancellationToken: cancellationToken));

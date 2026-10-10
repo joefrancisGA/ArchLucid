@@ -91,7 +91,7 @@ export function ArchitectureIdentityDeskVersionsSection(
                         Open review
                       </Link>
                     ) : (
-                      "—"
+                      "Linked review was not stored."
                     )}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>

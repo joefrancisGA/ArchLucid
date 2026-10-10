@@ -161,14 +161,10 @@ public sealed class ArchitectureReviewRobustnessWave62ArchitectureTests
     [Fact]
     public void Suggestion738_739_manifest_summary_and_retrieval_search_openapi_409()
     {
-        string manifestSummary = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Get.Summary.cs"));
-        string manifestGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.SealedManifestGuard.cs"));
-        string retrievalController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.cs"));
-        string retrievalGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "RetrievalController.SealedManifestGuard.cs"));
+        string manifestSummary = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Get.Summary.cs");
+        string manifestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.SealedManifestGuard.cs");
+        string retrievalController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.cs");
+        string retrievalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/RetrievalController.SealedManifestGuard.cs");
 
         manifestSummary.Should().Contain("GetManifestSummary");
         manifestSummary.Should().Contain("Status409Conflict");

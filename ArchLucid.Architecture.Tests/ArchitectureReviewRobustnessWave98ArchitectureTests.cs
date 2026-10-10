@@ -15,27 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave98ArchitectureTests
     [Fact]
     public void Suggestion1161_1164_manifest_summary_governance_review_and_audit_export_action_level_sealed_manifest_conflict_mappers()
     {
-        string authorityQueryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.SealedManifestGuard.cs"));
-        string governanceReview = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Review.cs"));
-        string auditExportGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "AuditController.Export.Guard.cs"));
+        string authorityQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
+        string governanceReview = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Review.cs");
+        string auditExportGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Guard.cs");
 
         authorityQueryGuard.Should().Contain("MapRunQuerySealedManifestConflict");
         governanceReview.Should().Contain("MapGovernanceSealedManifestConflict");
@@ -45,20 +27,8 @@ public sealed class ArchitectureReviewRobustnessWave98ArchitectureTests
     [Fact]
     public void Suggestion1165_1167_export_history_record_load_and_run_archive_sealed_manifest_conflict_mappers()
     {
-        string exportsController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ExportsController.cs"));
-        string runArchive = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Archive.cs"));
+        string exportsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string runArchive = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Archive.cs");
 
         exportsController.Should().Contain("MapExportReplaySealedManifestConflict");
         runArchive.Should().Contain("MapRunsSealedManifestConflict");

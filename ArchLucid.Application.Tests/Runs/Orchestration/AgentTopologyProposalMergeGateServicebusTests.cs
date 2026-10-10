@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateServicebusTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "sb-1", label: "bus", sourceId: "azurerm_servicebus.main"));
+            ComputeNode(nodeId: "sb-1", label: "bus", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-bus")));
 

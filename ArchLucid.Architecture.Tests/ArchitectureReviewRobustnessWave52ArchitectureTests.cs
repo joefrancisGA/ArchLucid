@@ -15,28 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
     [Fact]
     public void Suggestion609_614_run_findings_ai_provenance_advisory_comparisons_and_forensics_openapi_409()
     {
-        string findings = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
-        string aiRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.Run.cs"));
-        string provenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceController.cs"));
-        string advisory = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string comparisons = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.History.cs"));
-        string forensics = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "InternalArchitectureTraceForensicsController.cs"));
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
+        string aiRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.Run.cs");
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.cs");
+        string advisory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.cs");
+        string comparisons = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string forensics = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/InternalArchitectureTraceForensicsController.cs");
 
         findings.Should().Contain("ListRunFindings");
         findings.Should().Contain("EnsureSealedManifestReadAllowedAsync");
@@ -94,21 +78,21 @@ public sealed class ArchitectureReviewRobustnessWave52ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-provenance-blocked-reason.ts"));
 
         architectureRequestList.Should().Contain("getArchitectureRequest");
-        architectureRequestList.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(architectureRequestList);
         architectureRequestBlocked.Should().Contain("architectureRequestBlockedReason");
         learningEvolution.Should().Contain("getImprovementPlan");
-        learningEvolution.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(learningEvolution);
         advisoryApi.Should().Contain("listRecommendations");
-        advisoryApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(advisoryApi);
         advisoryBlocked.Should().Contain("advisoryRunReadBlockedReason");
         graphApi.Should().Contain("getProvenanceGraph");
         graphApi.Should().Contain("/v1/provenance/runs/");
-        graphApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(graphApi);
         provenanceBlocked.Should().Contain("provenanceGraphAliasBlockedReason");
         closedLoopApi.Should().Contain("fetchArchitectureIntelligenceRunModel");
-        closedLoopApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(closedLoopApi);
         aiRunModelBlocked.Should().Contain("architectureIntelligenceRunModelBlockedReason");
-        findingProvenance.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(findingProvenance);
         findingProvenance.Should().Contain("findingProvenanceBlockedReason");
         findingProvenanceBlocked.Should().Contain("findingProvenanceBlockedReason");
     }

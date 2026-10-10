@@ -57,7 +57,7 @@ public sealed class AgentRuntimePackageCoverageBatch14Tests
     }
 
     [Theory]
-    [InlineData("doc:requirements.md#line-42", true)]
+    [InlineData("doc:requirements.md#L42", true)]
     [InlineData("request", false)]
     public void CriticFindingEvidenceCitationRules_detects_concrete_citations(string evidenceRef, bool expected)
     {
@@ -104,7 +104,7 @@ public sealed class AgentRuntimePackageCoverageBatch14Tests
         ArchitectureFinding finding = new()
         {
             Message = "Public endpoint detected.",
-            EvidenceRefs = ["doc:architecture.pdf#page-3"],
+            EvidenceRefs = ["doc:architecture.pdf#L3"],
         };
         InsightDensityLlmJudgment judgment = new()
         {

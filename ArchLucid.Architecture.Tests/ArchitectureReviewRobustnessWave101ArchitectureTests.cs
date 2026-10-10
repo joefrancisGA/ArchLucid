@@ -15,13 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
     [Fact]
     public void Suggestion1197_1199_manifest_compare_lifecycle_and_inventory_sealed_manifest_conflict_mappers()
     {
-        string comparisonController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonController.cs"));
+        string comparisonController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
         comparisonController.Should().Contain("MapComparisonSealedManifestConflict");
     }
@@ -29,13 +23,7 @@ public sealed class ArchitectureReviewRobustnessWave101ArchitectureTests
     [Fact]
     public void Suggestion1200_1203_compare_explain_sealed_manifest_conflict_mappers()
     {
-        string explanationCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
+        string explanationCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
 
         explanationCompare.Should().Contain("MapExplanationSealedManifestConflict");
     }

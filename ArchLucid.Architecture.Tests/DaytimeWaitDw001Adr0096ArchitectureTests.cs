@@ -14,7 +14,7 @@ public sealed class DaytimeWaitDw001Adr0096ArchitectureTests
     [Fact]
     public void Dw001_adr_0096_forbids_run_progress_url_and_fake_percent_complete()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0096-career-real-never-owns-the-tab.md"));
 
         adr.Should().Contain("**Status:** Accepted");
@@ -22,7 +22,7 @@ public sealed class DaytimeWaitDw001Adr0096ArchitectureTests
         adr.Should().Contain("percentComplete");
         adr.Should().Contain("stay on this page");
 
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "daytime-wait-adr-guard.test.ts"));
 
         guardTest.Should().Contain("DW-001 / ADR 0096");

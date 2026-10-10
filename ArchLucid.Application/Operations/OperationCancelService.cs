@@ -64,7 +64,7 @@ public sealed class OperationCancelService(
                 await TryMarkBackgroundJobCanceledAsync(payload, scope, cancellationToken);
 
             if (kind == OperationIdKind.Draft)
-                _advisoryDraftOperationStore.MarkCanceled(operationId);
+                await _advisoryDraftOperationStore.MarkCanceledAsync(scope, operationId, cancellationToken);
         }
 
         OperationDetail? updated = await _operationQueryService.GetAsync(operationId, scope, cancellationToken);

@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion21_finding_engines_accept_analysis_context()
     {
-        string engineInterface = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Interfaces", "IFindingEngine.cs"));
+        string engineInterface = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Interfaces/IFindingEngine.cs");
 
         engineInterface.Should().Contain("FindingAnalysisContext? analysisContext");
 
@@ -46,8 +45,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string discovery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Plugins", "FindingEnginePluginDiscovery.cs"));
+        string discovery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Plugins/FindingEnginePluginDiscovery.cs");
 
         discovery.Should().Contain("InvalidOperationException");
     }
@@ -55,8 +53,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion23_graph_reuse_fail_closed_on_missing_fingerprints()
     {
-        string resolver = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "Graph", "GraphSnapshotCommittedReuseResolver.cs"));
+        string resolver = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/Graph/GraphSnapshotCommittedReuseResolver.cs");
 
         resolver.Should().Contain("expectedArchitectureVersionId");
         resolver.Should().Contain("return false");
@@ -65,18 +62,11 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion24_authority_lifecycle_phase_exposed_and_commit_gated()
     {
-        string runDetail = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "ArchitectureRunDetail.cs"));
+        string runDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/ArchitectureRunDetail.cs");
 
         runDetail.Should().Contain("AuthorityLifecyclePhase");
 
-        string commitIntegrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string commitIntegrity = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs");
 
         commitIntegrity.Should().Contain("AuthorityRunLifecyclePhaseResolver");
         commitIntegrity.Should().Contain("authority lifecycle phase");
@@ -98,8 +88,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string submit = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftAdmissionService.SubmitAndHeal.cs"));
+        string submit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Drafts/DraftAdmissionService.SubmitAndHeal.cs");
 
         submit.Should().Contain("SpawnedDocumentContentHashSha256");
         submit.Should().Contain("EnsureSpawnedDocumentHashMatches");
@@ -117,8 +106,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string context = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
+        string context = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Architecture/FindingAnalysisContext.cs");
 
         context.Should().Contain("RequiredFindingCategories");
     }
@@ -135,12 +123,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string contributor = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceAuthorityFindingsContributor.cs"));
+        string contributor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/ArchitectureIntelligenceAuthorityFindingsContributor.cs");
 
         contributor.Should().Contain("SpecialistFindingAuthorityEmbedding.Embed");
     }
@@ -148,8 +131,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion28_create_architecture_avoids_four_agent_loop()
     {
-        string kernel = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
+        string kernel = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureSynthesisKernel.cs");
 
         kernel.Should().Contain("EnsureArchitectureIdentityAsync");
         kernel.Should().NotContain("IArchitectureRunExecuteOrchestrator");
@@ -178,13 +160,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string commitIntegrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string commitIntegrity = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs");
 
         commitIntegrity.Should().Contain("StructuralExecutionModeCommitGuard");
     }

@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn029DraftListReachableFromPortfolioArchitecture
     [Fact]
     public void Sn029_module_names_portfolio_anchor_save_exit_and_owner()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -30,7 +30,7 @@ public sealed class SystemNotJobSn029DraftListReachableFromPortfolioArchitecture
     [Fact]
     public void Sn029_working_portfolio_lists_drafts_beside_identity_inventory()
     {
-        string listSection = File.ReadAllText(
+        string listSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -49,7 +49,7 @@ public sealed class SystemNotJobSn029DraftListReachableFromPortfolioArchitecture
     [Fact]
     public void Sn029_save_and_exit_uses_working_portfolio_anchor()
     {
-        string saveActions = File.ReadAllText(
+        string saveActions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -64,7 +64,7 @@ public sealed class SystemNotJobSn029DraftListReachableFromPortfolioArchitecture
     [Fact]
     public void Sn029_vitest_ratchet_names_save_exit_anchor_and_open_drafts_filter()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

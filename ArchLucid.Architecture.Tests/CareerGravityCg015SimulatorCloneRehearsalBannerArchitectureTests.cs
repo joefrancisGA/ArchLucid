@@ -42,8 +42,7 @@ public sealed class CareerGravityCg015SimulatorCloneRehearsalBannerArchitectureT
     public void Cg015_does_not_flip_host_agent_execution_mode_default()
     {
         string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string catalog = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Configuration", "ConfigurationKeyCatalog.AgentExecution.cs"));
+        string catalog = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Configuration/ConfigurationKeyCatalog.AgentExecution.cs");
         string bannerResolver = File.ReadAllText(
             Path.Combine(
                 RepoRoot,

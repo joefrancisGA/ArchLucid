@@ -23,12 +23,12 @@ internal static class InventoryConnectionEndpointIncluder
             return nodes;
         }
 
-        Dictionary<string, GraphNode> includedById = nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
-        Dictionary<string, GraphNode> graphNodesById = graph.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
+        Dictionary<string, GraphNode> includedById = nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        Dictionary<string, GraphNode> graphNodesById = graph.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
         foreach (GraphEdge edge in graph.Edges)
         {

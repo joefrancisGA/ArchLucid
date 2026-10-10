@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs095ApiHiddenArchitecture404ArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-095");
         source.Should().Contain("ArchitectureNotFound");
@@ -35,9 +35,10 @@ public sealed class ArchitectureSpineAs095ApiHiddenArchitecture404ArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
-        source.Should().Contain("ArchitectureShareNotVisibleAsNotFoundResponsePolicy");
+        source.Should().Contain("NotFoundProblem");
+        source.Should().Contain("ProblemTypes.ResourceNotFound");
         source.Should().NotContain("ForbiddenProblem");
     }
 
@@ -51,7 +52,7 @@ public sealed class ArchitectureSpineAs095ApiHiddenArchitecture404ArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("EnsureArchitectureReadAllowed_when_unshared_restricted_returns_404_not_403");
         source.Should().Contain("EnsureRunReadAllowed_when_unshared_restricted_returns_404_not_403");
@@ -68,11 +69,12 @@ public sealed class ArchitectureSpineAs095ApiHiddenArchitecture404ArchitectureTe
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-095");
         source.Should().Contain("HttpStatusCode.NotFound");
         source.Should().NotContain("HttpStatusCode.Forbidden");
+        source.Should().Contain("must not resolve for same-tenant principals without architecture share");
     }
 
     private static string FindRepoRoot()

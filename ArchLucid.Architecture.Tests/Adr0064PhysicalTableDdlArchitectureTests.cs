@@ -227,7 +227,7 @@ synonymIndex.Should().BeGreaterThanOrEqualTo(0, "ArchLucid.sql must create the A
             if (number < minimumNumber)
                 continue;
 
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
             AlterRunsTableRegex.IsMatch(StripSqlComments(text)).Should().BeFalse(
                 $"{fileName} must ALTER the physical Reviews/Runs table after ADR 0064, not the dbo.Runs synonym");
@@ -260,7 +260,7 @@ synonymIndex.Should().BeGreaterThanOrEqualTo(0, "ArchLucid.sql must create the A
         string path = Path.Combine(parts);
         File.Exists(path).Should().BeTrue($"expected SQL at {path}");
 
-        return File.ReadAllText(path);
+        return ArchitectureSourceProbe.ReadPathWithPartials(path);
     }
 
     private static string FindRepoRoot()

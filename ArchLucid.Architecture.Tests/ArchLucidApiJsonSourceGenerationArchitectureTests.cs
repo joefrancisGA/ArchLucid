@@ -13,7 +13,7 @@ public sealed class ArchLucidApiJsonSourceGenerationArchitectureTests
     public void Tb2162_mvc_json_options_delegate_to_ArchLucidApiJsonSerializerOptions()
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Api", "Startup", "MvcExtensions.cs");
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("ArchLucidApiJsonSerializerOptions.Configure");
         text.Should().NotContain("options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase");
@@ -27,7 +27,7 @@ public sealed class ArchLucidApiJsonSourceGenerationArchitectureTests
             "ArchLucid.Api",
             "Serialization",
             "ArchLucidApiJsonTypeInfoResolverChain.cs");
-        string chainText = File.ReadAllText(chainPath);
+        string chainText = ArchitectureSourceProbe.ReadPathWithPartials(chainPath);
 
         chainText.Should().Contain("AuthApiJsonSerializerContext.Default");
         chainText.Should().Contain("RunsApiJsonSerializerContext.Default");

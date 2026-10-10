@@ -59,4 +59,21 @@ public sealed class PilotValueReportMarkdownFormatterTests
         md.Should().Contain("**Policy influence:**");
         md.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
+
+    [Fact]
+    public void Format_labels_missing_average_pipeline_completion_as_not_stored()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+
+        string markdown = sut.Format(new PilotValueReport
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = DateTime.UtcNow.AddDays(-1),
+            ToUtc = DateTime.UtcNow,
+            AveragePipelineCompletionSeconds = null,
+        });
+
+        markdown.Should().Contain("Average pipeline completion was not stored.");
+        markdown.Should().NotContain("| Avg pipeline completion | — |");
+    }
 }

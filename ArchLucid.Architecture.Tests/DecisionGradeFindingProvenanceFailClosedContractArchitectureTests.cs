@@ -16,7 +16,7 @@ public sealed class DecisionGradeFindingProvenanceFailClosedContractArchitecture
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-1221");
         text.Should().Contain("ProvenanceKind");
         text.Should().Contain("IFindingProvenanceValidator");
@@ -38,11 +38,11 @@ public sealed class DecisionGradeFindingProvenanceFailClosedContractArchitecture
         File.Exists(packetPath).Should().BeTrue();
         File.Exists(aliasPath).Should().BeTrue();
 
-        string packet = File.ReadAllText(packetPath);
+        string packet = ArchitectureSourceProbe.ReadPathWithPartials(packetPath);
         packet.Should().Contain("decision-grade-finding-provenance-m-208");
         packet.Should().Contain("TB-1221");
 
-        File.ReadAllText(aliasPath).Should().Contain("M-208");
+        ArchitectureSourceProbe.ReadPathWithPartials(aliasPath).Should().Contain("M-208");
     }
 
     [Fact]

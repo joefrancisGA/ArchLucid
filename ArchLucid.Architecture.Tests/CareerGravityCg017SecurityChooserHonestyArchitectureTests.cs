@@ -22,7 +22,7 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
 
         File.Exists(as077Path).Should().BeTrue();
 
-        string as077 = File.ReadAllText(as077Path);
+        string as077 = ArchitectureSourceProbe.ReadPathWithPartials(as077Path);
 
         as077.Should().Contain("WorkingCareerRehearsalChooser");
         as077.Should().Contain("OperatorSegmentedModeToolbar");
@@ -32,15 +32,15 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
     [Fact]
     public void Cg017_security_top_bar_excludes_career_rehearsal_chrome()
     {
-        string topBar = File.ReadAllText(
+        string topBar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "docs",
                 "architecture",
                 "CAREER_GRAVITY_BADGE_PIPELINE_COPY_INVENTORY.md"));
-        string help = File.ReadAllText(
+        string help = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -60,8 +60,8 @@ public sealed class CareerGravityCg017SecurityChooserHonestyArchitectureTests
     [Fact]
     public void Cg017_does_not_flip_host_execute_mode_default()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string topBar = File.ReadAllText(
+        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string topBar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");

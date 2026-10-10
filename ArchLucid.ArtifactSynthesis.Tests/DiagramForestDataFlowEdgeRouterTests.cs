@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class DiagramForestDataFlowEdgeRouterTests
 {
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
@@ -175,6 +176,7 @@ public sealed class DiagramForestDataFlowEdgeRouterTests
             options);
 
         route.Should().NotBeNull();
+
         foreach (DiagramForestDataFlowColumnLayout.NodePlacement other in layout.Placements.Where(placement =>
                      placement.Node.NodeId is not "source-middle" and not "storage-node"))
         {

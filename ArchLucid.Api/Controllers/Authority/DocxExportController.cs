@@ -22,8 +22,6 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.CareerArtifacts;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Provenance;
@@ -131,8 +129,10 @@ public sealed partial class DocxExportController(
             : authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
         await Task.WhenAll(runDetailTask, compareDetailTask);
         RunDetailDto? runDetail = await runDetailTask;
+
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
         if (runDetail.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
                 ProblemTypes.ManifestNotFound);
@@ -166,12 +166,15 @@ public sealed partial class DocxExportController(
             ct);
 
         ComparisonResult? manifestComparison = null;
+
         if (compareWithRunId is not null)
         {
             RunDetailDto? targetDetail = await compareDetailTask;
+
             if (targetDetail is null)
                 return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.",
                     ProblemTypes.RunNotFound);
+
             if (targetDetail.GoldenManifest is null)
                 return this.NotFoundProblem(
                     $"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.",
@@ -206,6 +209,7 @@ public sealed partial class DocxExportController(
         }
 
         ComparisonExplanationResult? comparisonNarrative = null;
+
         if (manifestComparison is not null && includeComparisonExplanation)
             comparisonNarrative = await explanationService.ExplainComparisonAsync(manifestComparison, ct);
 
@@ -241,11 +245,7 @@ public sealed partial class DocxExportController(
                 ct,
                 _runRepository,
                 _architectureInventoryBindingRepository);
-            TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
-            CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
-                careerExportHonesty,
-                transparencyTrail);
-            CareerArtifactExportCompletenessGate.EnsureCanExport(careerExportHonesty, careerArtifactInput);
+            CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
             string careerExportHonestyPlainText = CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty);
 
             DocxExportResult result = await docxExportService.ExportAsync(

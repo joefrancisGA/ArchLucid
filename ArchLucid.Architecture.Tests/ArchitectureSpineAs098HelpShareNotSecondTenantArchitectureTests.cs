@@ -49,7 +49,7 @@ public sealed class ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTe
             "help-topic-view-resolver-operate.tsx");
 
         File.ReadAllText(loader).Should().Contain("architecture-sharing");
-        File.ReadAllText(resolver).Should().Contain("HelpArchitectureShareRestrictGuideView");
+        File.ReadAllText(resolver).Should().Contain("HelpArchitectureSharingGuideView");
     }
 
     [Fact]

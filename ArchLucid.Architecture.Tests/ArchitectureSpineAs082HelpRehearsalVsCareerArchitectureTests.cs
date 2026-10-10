@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs082HelpRehearsalVsCareerArchitectureTests
     [Fact]
     public void As082_help_content_names_career_and_rehearsal_doors()
     {
-        string content = File.ReadAllText(Path.Combine(RepoRoot, HelpGuideContentRelativePath));
+        string content = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, HelpGuideContentRelativePath));
 
         content.Should().Contain("Career");
         content.Should().Contain("Rehearsal");
@@ -32,7 +32,7 @@ public sealed class ArchitectureSpineAs082HelpRehearsalVsCareerArchitectureTests
     [Fact]
     public void As082_help_view_registers_career_rehearsal_door_tiles()
     {
-        string view = File.ReadAllText(Path.Combine(RepoRoot, HelpGuideViewRelativePath));
+        string view = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, HelpGuideViewRelativePath));
 
         view.Should().Contain("HelpWorkingCareerRehearsalGuideView");
         view.Should().Contain("help-career-rehearsal-door-tile-career");
@@ -42,7 +42,7 @@ public sealed class ArchitectureSpineAs082HelpRehearsalVsCareerArchitectureTests
     [Fact]
     public void As082_chooser_links_to_in_app_help_topic_not_github_blob()
     {
-        string chooser = File.ReadAllText(Path.Combine(RepoRoot, ChooserRelativePath));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, ChooserRelativePath));
 
         chooser.Should().Contain("/help/career-rehearsal-doors");
         chooser.Should().NotContain("github.com");

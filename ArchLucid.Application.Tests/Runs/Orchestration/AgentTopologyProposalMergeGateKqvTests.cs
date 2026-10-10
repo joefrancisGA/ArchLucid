@@ -13,7 +13,7 @@ public sealed class AgentTopologyProposalMergeGateKqvTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "kq-1", label: "kqv", sourceId: "azurerm_kqv.main"));
+            ComputeNode(nodeId: "kq-1", label: "kqv", sourceId: "azurerm_storage_account.main"));
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-kqv")));
         IReadOnlyList<AgentResult> filtered = AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
         filtered.Should().ContainSingle();

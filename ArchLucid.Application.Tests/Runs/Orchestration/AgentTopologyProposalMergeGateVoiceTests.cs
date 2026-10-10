@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateVoiceTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "vc-1", label: "voice", sourceId: "azurerm_voice.main"));
+            ComputeNode(nodeId: "vc-1", label: "voice", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-voice")));
 

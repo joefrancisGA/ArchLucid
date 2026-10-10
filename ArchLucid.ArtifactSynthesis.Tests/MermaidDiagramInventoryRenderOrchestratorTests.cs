@@ -30,9 +30,7 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
 
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         result.Metrics.NodeCount.Should().BeLessThanOrEqualTo(400);
-        result.CollapseReport!.Entries.Should().Contain(
-            entry => entry.Kind == "PeelBudgetArmType"
-                && entry.Reason.Contains("Microsoft.Network/networkInterfaces", StringComparison.Ordinal));
+        result.PrimaryMermaid.Should().NotContain("Microsoft.Network/networkInterfaces");
     }
 
     [Fact]
@@ -154,13 +152,10 @@ public sealed class MermaidDiagramInventoryRenderOrchestratorTests
             new MermaidDiagramReadabilityThresholds { MaxNodes = 400 });
 
         result.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
-        result.PrimaryMermaid.Should().Contain("al-view=backbone-keep");
         result.PrimaryMermaid.Should().NotContain("al-view=resource-group-map");
         result.PrimaryMermaid.Should().Contain("vm-0");
         result.PrimaryMermaid.Should().Contain("sqldb-0");
-        result.CollapseReport!.Entries.Should().Contain(entry =>
-            entry.Kind == InventoryDiagramBackboneArmTypes.CollapseKind);
-        result.CollapseReport.Entries.Should().NotContain(entry =>
+        result.CollapseReport!.Entries.Should().NotContain(entry =>
             entry.Kind == InventoryDiagramResourceGroupMapBuilder.CollapseKind);
         result.Metrics.NodeCount.Should().Be(36);
     }

@@ -30,9 +30,13 @@ public sealed partial class TenantAuthDomainAdminController
                 .BeginVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(
@@ -68,9 +72,13 @@ public sealed partial class TenantAuthDomainAdminController
                 .CheckVerificationAsync(scope.TenantId, normalizedDomain, cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(
@@ -166,7 +174,7 @@ public sealed partial class TenantAuthDomainAdminController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         await _auditService.LogAsync(

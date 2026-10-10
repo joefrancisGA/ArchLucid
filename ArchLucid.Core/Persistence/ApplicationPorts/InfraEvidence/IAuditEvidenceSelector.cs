@@ -1,5 +1,7 @@
 namespace ArchLucid.Persistence.InfraEvidence;
 
+using ArchLucid.Core.InfraEvidence;
+
 public interface IAuditEvidenceSelector
 {
     AuditEvidenceSelectorDescriptorRecord Descriptor

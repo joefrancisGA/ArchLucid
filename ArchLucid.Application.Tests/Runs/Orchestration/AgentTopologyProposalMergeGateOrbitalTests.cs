@@ -15,7 +15,7 @@ public sealed class AgentTopologyProposalMergeGateOrbitalTests
     {
         GraphSnapshot graph = Graph(
             ComputeNode(nodeId: "svc-1", label: "api", sourceId: "azurerm_linux_virtual_machine.main"),
-            ComputeNode(nodeId: "orb-1", label: "orb", sourceId: "azurerm_orbital.main"));
+            ComputeNode(nodeId: "orb-1", label: "orb", sourceId: "azurerm_storage_account.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-orb")));
 

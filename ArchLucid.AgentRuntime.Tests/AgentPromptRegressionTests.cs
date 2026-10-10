@@ -138,6 +138,7 @@ public sealed class AgentPromptRegressionTests
 
         string raw = File.ReadAllText(baselinePath);
         using JsonDocument doc = JsonDocument.Parse(raw);
+
         if (!doc.RootElement.TryGetProperty(baselineProperty, out JsonElement expectedEl))
             throw new InvalidOperationException($"Baseline JSON missing property '{baselineProperty}'.");
 
@@ -162,7 +163,7 @@ public sealed class AgentPromptRegressionTests
             Description = "Regression test architecture request for agent prompt and simulator path.",
             Environment = "test",
             CloudProvider = CloudProvider.Azure,
-            Constraints = ["Use encryption in transit and at rest."]
+            Constraints = ["Use encryption in transit and at rest.", "require private networking"]
         };
     }
 

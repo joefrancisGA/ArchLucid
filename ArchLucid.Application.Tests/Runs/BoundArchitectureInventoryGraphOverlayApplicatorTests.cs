@@ -12,6 +12,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.Runs;
 

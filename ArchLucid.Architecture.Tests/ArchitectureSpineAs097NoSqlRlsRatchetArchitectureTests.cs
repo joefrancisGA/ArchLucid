@@ -57,7 +57,7 @@ public sealed class ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests
 
         File.Exists(repositoryPath).Should().BeTrue();
 
-        string source = File.ReadAllText(repositoryPath);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(repositoryPath);
 
         source.Should().Contain("dbo.ArchitectureShares");
         source.Should().Contain("TenantId = @TenantId");
@@ -75,7 +75,7 @@ public sealed class ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests
 
         File.Exists(contractPath).Should().BeTrue();
 
-        string contract = File.ReadAllText(contractPath);
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(contractPath);
 
         contract.Should().Contain("AS-097");
         contract.Should().Contain("SQL RLS");
@@ -94,7 +94,7 @@ public sealed class ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests
 
         File.Exists(adrPath).Should().BeTrue();
 
-        string adr = File.ReadAllText(adrPath);
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(adrPath);
 
         adr.Should().Contain("AS-097");
         adr.Should().Contain("No SQL RLS");
@@ -121,7 +121,7 @@ public sealed class ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests
         string path = Path.Combine(RepoRoot, "ArchLucid.Persistence", relativePath);
         File.Exists(path).Should().BeTrue($"expected SQL at {path}");
 
-        return File.ReadAllText(path);
+        return ArchitectureSourceProbe.ReadPathWithPartials(path);
     }
 
     private static string FindRepoRoot()

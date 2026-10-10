@@ -85,7 +85,11 @@ function governedCoverageLabel(
   const coverage = (payload as { governedFindingCoverage?: GovernedCoveragePayload } | null)
     ?.governedFindingCoverage;
 
-  if (!coverage || !coverage.isAvailable) {
+  if (!coverage) {
+    return "Governed coverage was not stored.";
+  }
+
+  if (!coverage.isAvailable) {
     return "Not available";
   }
 

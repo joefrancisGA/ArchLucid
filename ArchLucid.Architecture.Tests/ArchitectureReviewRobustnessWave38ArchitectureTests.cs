@@ -15,8 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
     [Fact]
     public void Suggestion441_443_legacy_authority_compare_lifecycle_and_409()
     {
-        string controller = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
 
         controller.Should().Contain("ICompareRunsApplicationFacade");
         controller.Should().Contain("LoadScopedRunPairAsync");
@@ -29,14 +28,10 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
     [Fact]
     public void Suggestion444_448_remediation_409_and_openapi_declarations()
     {
-        string remediationController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
-        string comparisonController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
-        string manifestsCompare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
-        string packsController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
+        string remediationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs");
+        string comparisonController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
+        string manifestsCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Compare.cs");
+        string packsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
 
         remediationController.Should().Contain("IsSealedManifestConflict");
         remediationController.Should().Contain("ConflictProblem");

@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Diagrams;
 
+[Trait("Category", "Unit")]
 public sealed class ArchitectureDiagramMermaidCliConfigWriterTests
 {
     [Fact]
