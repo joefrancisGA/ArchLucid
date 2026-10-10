@@ -128,6 +128,31 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(dataSourceLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
       SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
     );
+    expect(findingsLinks.map((link) => link.label)).toEqual(["My findings", "All findings"]);
+    expect(remediationLinks.map((link) => link.label)).toEqual([
+      "Priorities & waves",
+      "Fix playbooks",
+      "Remediation tracker",
+    ]);
+    expect(environmentLinks.map((link) => link.label)).toEqual([
+      "Resources",
+      "Diagrams",
+      "Diagram reconciliation",
+      "Changes & drift",
+      "Ask about your environment",
+      "Terraform mapping",
+    ]);
+    expect(complianceLinks.map((link) => link.label)).toEqual([
+      "Frameworks",
+      "Effective rules",
+      "Audit evidence",
+    ]);
+    expect(dataSourceLinks.map((link) => link.label)).toEqual([
+      "Azure connections",
+      "Declared connections",
+      "Connection status",
+      "Manual upload",
+    ]);
 
     const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
 
