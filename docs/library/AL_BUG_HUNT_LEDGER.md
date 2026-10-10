@@ -6911,7 +6911,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -29820,6 +29820,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread structured diagram compilation/reconstruction, inventory overlay normalization, graph projection, WAF trade-off indexing, and provenance graph joins after the casing-parity fixes; remaining comparisons were either explicit case-sensitive diagram identity contracts or normalized internal IDs/GUIDs, so no new hunt-ready row met the reachability and wrong-outcome bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed→hit): `StructuredDiagramCompiledGraphBinder.TryReadSourceEvidenceItemId` used an exact persisted property-key lookup, so a reachable compiled diagram node with casing-drifted `structuredDiagram.sourceEvidenceItemId` bound without its citation metadata; source-evidence lookup now reuses `GraphNodePropertyReader`; regression `BindToCanonicalNodes_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and binder tests passed 8/8 after the fix.
 
