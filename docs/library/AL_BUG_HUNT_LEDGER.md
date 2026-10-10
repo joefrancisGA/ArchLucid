@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC suite passed all 45 tests.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate was promoted after cheap-disproof. The exact queue suite ran 29 tests: 17 passed and 12 failed on the known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines. Rehomed the five existing candidate rows under the zone’s canonical hypothesis block so the picker can evaluate them.
@@ -18872,6 +18874,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-10 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC suite passed all 45 tests.
+
 2026-10-08 thorough hunt #30 (hit): proved BFF activity pulse ignored `401`/`403`; keepalive now clears client session on unauthorized pulse; cheap-disproved four other `(candidate)` rows from hunt #29; seeded five follow-on `(candidate)` rows; 73 scoped oidc vitest tests passed.
 
 2026-10-08 thorough hunt #29 (hit): proved stale cross-flow PKCE retention on successful redirect; cheap-disproved four other `(candidate)` rows from hunt #28; seeded five follow-on `(candidate)` rows; 65 scoped oidc vitest tests passed.
@@ -18894,7 +18898,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
@@ -18986,11 +18990,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `pulseBffSessionActivity` — ignores non-OK responses — **hit 2026-10-08 thorough hunt #30:** activity `401`/`403` returned void; keepalive left client hints signed-in; fixed with `BffSessionActivityPulseResult` and `clearOidcSession` from `use-oidc-session-keepalive`; regressions in `bff-session-sync.test.ts` and `use-oidc-session-keepalive.test.ts`.
 - [x] (valid-no-repro) `readSignedInDisplayName` — returns JWT display name after `clearOidcSession` until storage flush — **cheap-disproof 2026-10-08 thorough hunt #30:** hint readers re-read storage on render; one-frame staleness requires a synchronous render in the same tick as clear without state update — not reachable as a durable signed-in bug.
 
-- [ ] (candidate) `ensureAccessTokenFresh` — BFF refresh `403` does not clear session when activity pulse already returned unauthorized — locus: `session.ts` refresh vs `use-oidc-session-keepalive.ts` pulse ordering; input: parallel heartbeat refresh and activity pulse during idle expiry; wrong outcome: refresh failure revives signed-in hints after pulse cleared session.
-- [ ] (candidate) `signOutAndRedirectHome` — activity pulse races federated logout redirect — locus: `sign-out.ts` vs keepalive interval; input: operator signs out while print keepalive still enabled; wrong outcome: pulse re-syncs BFF cookie after DELETE.
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — omits `working_mode` when workspace mode storage unreadable — locus: `bff-session-sync.ts` `resolveWorkingModeForBffSession`; input: private mode toggle during callback token sync; wrong outcome: HttpOnly cookie pins wrong working_mode flag.
-- [ ] (candidate) `loadDiscoveryDocument` — caches Google vs primary metadata under one key — locus: `discovery.ts` cache key; input: operator switches from Entra to Google without reload; wrong outcome: authorize uses wrong JWKS endpoints.
-- [ ] (candidate) `consumePostSignInReturnUrl` — accepts protocol-relative `//evil` paths — locus: `session.ts` `isSafeReturnPath`; input: tampered sessionStorage return URL before callback; wrong outcome: post-sign-in navigation leaves origin.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — **cheap-disproof 2026-10-10 thorough hunt:** refresh single-flight plus `refreshSessionGeneration` prevents a pre-logout refresh result from restoring expiry hints, and the focused refresh suite passed.
+- [x] (invalid) `signOutAndRedirectHome` — **cheap-disproof 2026-10-10 thorough hunt:** the keepalive pulse only calls `clearOidcSession` on unauthorized and never synchronizes a token or BFF cookie after logout; no proposed re-authentication path exists.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — **cheap-disproof 2026-10-10 thorough hunt:** unreadable workspace-mode storage resolves through the explicit default mode and the request always includes `working_mode`; all focused BFF sync tests passed.
+- [x] (invalid) `loadDiscoveryDocument` — **cheap-disproof 2026-10-10 thorough hunt:** the cache is keyed by normalized discovery URL, so Google and primary authorities cannot share a promise; discovery tests passed.
+- [x] (invalid) `consumePostSignInReturnUrl` — **cheap-disproof 2026-10-10 thorough hunt:** `isSafeReturnPath` rejects protocol-relative paths before consumption; session safety tests passed.
 
 ---
 

@@ -9081,3 +9081,4 @@
 {"at":"2026-10-09T23:56:40.9108362Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-09T23:59:54.9456792Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-10T00:06:44.5398017Z","zoneId":"ui-review-intake-wizards","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/new/"]}
+{"at":"2026-10-10T00:13:12.2673115Z","zoneId":"ui-oidc","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
