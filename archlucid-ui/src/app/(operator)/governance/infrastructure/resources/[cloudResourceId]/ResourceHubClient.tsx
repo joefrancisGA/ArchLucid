@@ -455,8 +455,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return cloudResourceId;
     }
 
-    const configName = hub.currentConfiguration?.azureResourceId.split("/").pop();
-    const rawTitle = configName ?? hub.externalResourceId.split("/").pop() ?? cloudResourceId;
+    const configResourceId = hub.currentConfiguration?.azureResourceId;
+    const configName =
+      configResourceId != null && !configResourceId.endsWith("/")
+        ? configResourceId.split("/").filter(Boolean).pop()
+        : undefined;
+    const externalResourceName =
+      !hub.externalResourceId.endsWith("/") ? hub.externalResourceId.split("/").filter(Boolean).pop() : undefined;
+    const rawTitle = configName ?? externalResourceName ?? cloudResourceId;
 
     return normalizeSecureNowResourceNameForDisplay(rawTitle);
   }, [cloudResourceId, hub]);

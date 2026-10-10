@@ -386,6 +386,31 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_source_content_line_endings_differ()
+    {
+        ClosedLoopReasoningRequest lf = CreateRequest("Architecture note.\nSecond line.");
+        ClosedLoopReasoningRequest crlf = CreateRequest("Architecture note.\r\nSecond line.");
+
+        ReviewCacheManifestBuilder.Build(lf).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(crlf).ContentHash);
+    }
+
+    [Theory]
+    [InlineData("\u2028")]
+    [InlineData("\u2029")]
+    public void Build_matches_content_hash_when_source_content_uses_unicode_line_separators(
+        string lineSeparator)
+    {
+        ClosedLoopReasoningRequest lf = CreateRequest("Architecture note.\nSecond line.");
+        ClosedLoopReasoningRequest unicodeLine = CreateRequest($"Architecture note.{lineSeparator}Second line.");
+
+        ReviewCacheManifestBuilder.Build(lf).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(unicodeLine).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_casing()
     {
         ClosedLoopReasoningRequest lower = CreateRequest("Same body.");

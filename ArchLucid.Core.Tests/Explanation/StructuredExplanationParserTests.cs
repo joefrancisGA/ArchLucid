@@ -76,6 +76,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty()
+    {
+        const string json = """{"reasoning":"","REASONING":"Recovered explanation"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
     public void Parse_null_or_whitespace_yields_empty_reasoning()
     {
         StructuredExplanationParser.Parse(null).Reasoning.Should().BeEmpty();
