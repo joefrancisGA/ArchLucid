@@ -77,11 +77,17 @@ export function RunDetailFeasibilityVerdictSection(
             <dt className="font-medium">Envelope</dt>
             <dd className="m-0">{verdict.softEnvelope.envelopeDescription}</dd>
             <dt className="font-medium">Soft assumption</dt>
-            <dd className="m-0">{verdict.softEnvelope.softAssumption}</dd>
+            <dd className="m-0">
+              {verdict.softEnvelope.softAssumption === null || verdict.softEnvelope.softAssumption === undefined
+                ? "Soft assumption was not stored."
+                : verdict.softEnvelope.softAssumption}
+            </dd>
           </dl>
         ) : null}
 
-        {verdict.unsatCoreInvariantKeys !== undefined && verdict.unsatCoreInvariantKeys.length > 0 ? (
+        {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
+        ) : verdict.unsatCoreInvariantKeys.length > 0 ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>

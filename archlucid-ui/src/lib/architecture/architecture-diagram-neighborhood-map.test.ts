@@ -64,6 +64,19 @@ describe("parseDiagramNeighborhoodMap", () => {
       types: [{ name: "virtualMachines", count: null }],
     });
   });
+
+  it("preserves omitted link counts and titles as null", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" kind="shared"/>
+        <link from="rg" to="rg"/>
+        <link from="rg" to="rg" count="0"/>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]?.title).toBeNull();
+    expect(parsed?.links.map((link) => link.count)).toEqual([null, 0]);
+  });
 });
 
 describe("shouldAutoOpenDiagramNeighborhoodMap", () => {

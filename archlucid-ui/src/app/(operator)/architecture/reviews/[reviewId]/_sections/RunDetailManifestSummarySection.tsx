@@ -138,12 +138,18 @@ export function RunDetailManifestSummarySection(
                           { missingLabel: "not-returned" },
                         )}{" "}
                         pack assignment(s) ·{" "}
-                        {finiteIntegerCountDisplay(
-                          manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
-                          { missingLabel: "not-returned" },
-                        )}{" "}
-                        compliance rule key(s)
-                        {typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          ? "Compliance rule key count was not stored."
+                          : finiteIntegerCountDisplay(
+                              manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
+                              { missingLabel: "not-returned" },
+                            )}{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          ? null
+                          : "compliance rule key(s)"}
+                        {manifestSummary.effectiveGovernanceAtCommit.conflictCount === null
+                          ? " · Merge conflict count was not stored."
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
                         && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
                         && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`

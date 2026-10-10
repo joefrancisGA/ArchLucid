@@ -76,8 +76,16 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
   }
 
   lines.push(
-    `- **Pack assignments:** ${snapshot.packAssignments.length} · **Compliance rule keys:** ${snapshot.complianceRuleKeyCount}${
-      snapshot.conflictCount > 0 ? ` · **Merge conflicts:** ${snapshot.conflictCount}` : ""
+    `- **Pack assignments:** ${snapshot.packAssignments.length} · **Compliance rule keys:** ${
+      snapshot.complianceRuleKeyCount === null
+        ? "Compliance rule key count was not stored."
+        : snapshot.complianceRuleKeyCount
+    }${
+      snapshot.conflictCount === null
+        ? " · Merge conflict count was not stored."
+        : snapshot.conflictCount > 0
+          ? ` · **Merge conflicts:** ${snapshot.conflictCount}`
+          : ""
     }`,
   );
 

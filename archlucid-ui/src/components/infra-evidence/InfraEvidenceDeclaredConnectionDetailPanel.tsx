@@ -40,7 +40,11 @@ function formatPanelCell(value: string | null | undefined): string {
 }
 
 function formatExpiration(value: string | null | undefined): string {
-  if (value == null || value.trim().length === 0) {
+  if (value === null || value === undefined) {
+    return "Expiration was not stored.";
+  }
+
+  if (value.trim().length === 0) {
     return "Not recorded";
   }
 
@@ -114,7 +118,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div className="sm:col-span-2">
           <dt className="text-al-text-secondary">Rationale</dt>
-          <dd className="m-0">{formatPanelCell(matchedConnection?.rationale)}</dd>
+          <dd className="m-0">
+            {matchedConnection?.rationale === null || matchedConnection?.rationale === undefined
+              ? "Rationale was not stored."
+              : formatPanelCell(matchedConnection.rationale)}
+          </dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Evidence reference</dt>

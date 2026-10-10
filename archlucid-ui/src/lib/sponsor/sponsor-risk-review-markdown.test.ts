@@ -97,6 +97,16 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(zero).toContain("0 unresolved review issues.");
     expect(zero).not.toContain("Unresolved issue count was not stored.");
   });
+
+  it("reports a missing compliance gap count while preserving zero and positives", () => {
+    const missing = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: null }), []);
+    const zero = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: 0 }), []);
+    const positive = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: 2 }), []);
+
+    expect(missing).toContain("Compliance gap count was not stored.");
+    expect(zero).not.toContain("Compliance gap count was not stored.");
+    expect(positive).toContain("2 compliance gaps");
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

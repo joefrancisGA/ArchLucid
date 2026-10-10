@@ -177,6 +177,72 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(storedEmpty).not.toContain("Security model was not stored.");
   });
 
+  it("reports omitted manifest values while preserving stored empty values", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      manifestHash: null,
+      assumptions: null,
+      topology: null,
+      security: { gaps: null },
+      warnings: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      manifestHash: "",
+      assumptions: [],
+      topology: { selectedPatterns: [], resources: [], gaps: [], services: [] },
+      security: { gaps: [] },
+      warnings: [],
+    });
+
+    expect(omitted).toContain("Review record hash was not stored.");
+    expect(omitted).toContain("Assumptions were not stored.");
+    expect(omitted).toContain("Architecture structure was not stored.");
+    expect(omitted).toContain("Security gaps were not stored.");
+    expect(omitted).toContain("Warnings were not stored.");
+    expect(storedEmpty).toContain("_No assumptions listed._");
+    expect(storedEmpty).not.toContain("Architecture structure was not stored.");
+    expect(storedEmpty).not.toContain("Security gaps were not stored.");
+    expect(storedEmpty).not.toContain("Warnings were not stored.");
+    expect(storedEmpty).not.toContain("Review record hash was not stored.");
+  });
+
+  it("reports omitted service purpose and preserves an empty purpose", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      topology: { services: [{ serviceName: "API", purpose: null }] },
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      topology: { services: [{ serviceName: "API", purpose: "" }] },
+    });
+
+    expect(omitted).toContain("Purpose was not stored.");
+    expect(storedEmpty).not.toContain("Purpose was not stored.");
+  });
+
+  it("reports omitted policy-at-commit counts while preserving zero", () => {
+    const omitted: string[] = [];
+    const zero: string[] = [];
+
+    pushPolicyAtCommitMarkdownLines(
+      { effectiveGovernanceAtCommit: { hasEffectivePolicy: true } },
+      omitted,
+    );
+    pushPolicyAtCommitMarkdownLines(
+      {
+        effectiveGovernanceAtCommit: {
+          hasEffectivePolicy: true,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+        },
+      },
+      zero,
+    );
+
+    expect(omitted.join("\n")).toContain("Compliance rule key count was not stored.");
+    expect(omitted.join("\n")).toContain("Merge conflict count was not stored.");
+    expect(zero.join("\n")).toContain("Compliance rule keys:** 0");
+    expect(zero.join("\n")).not.toContain("was not stored.");
+  });
+
   it("includes feasibility verdict section with soft envelope on manifest exports", () => {
     const doc = {
       manifestId: "m1",

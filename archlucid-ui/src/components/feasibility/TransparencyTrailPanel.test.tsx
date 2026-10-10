@@ -92,4 +92,25 @@ describe("TransparencyTrailPanel", () => {
 
     expect(screen.queryByText(/was not stored\./)).not.toBeInTheDocument();
   });
+
+  it("reports missing assertion keys and skipped tiers without classifying them as SHOULD", () => {
+    render(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: null, value: "Ship" }],
+          inferred: [],
+          skipped: [
+            { questionKey: "missing-tier", tier: null },
+            { questionKey: "should-question", tier: "Should" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Assertion key was not stored\./)).toBeInTheDocument();
+    expect(screen.getByText("Question tier was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Skipped SHOULD questions (1)")).toBeInTheDocument();
+    expect(screen.getByText("should-question")).toBeInTheDocument();
+    expect(screen.queryByText("Skipped SHOULD questions (2)")).not.toBeInTheDocument();
+  });
 });

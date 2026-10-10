@@ -33,7 +33,11 @@ function MustSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skippe
 }
 
 function ShouldSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
-  return trail.skipped.filter((entry) => entry.tier !== "Must");
+  return trail.skipped.filter((entry) => entry.tier === "Should");
+}
+
+function MissingTierSkippedEntries(trail: TransparencyTrail): TransparencyTrail["skipped"] {
+  return trail.skipped.filter((entry) => entry.tier === null || entry.tier === undefined);
 }
 
 /** ADR 0050 asserted / inferred / skipped transparency record for review surfaces. */
@@ -115,7 +119,9 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
           <ul className="mt-1 list-disc pl-5">
             {trail.asserted.map((entry) => (
               <li key={entry.key}>
-                {entry.key}: {entry.value}
+                {entry.key === null || entry.key === undefined
+                  ? "Assertion key was not stored."
+                  : `${entry.key}: ${entry.value}`}
                 {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
                   ? ` — ${entry.responderLabel}`
                   : entry.responderLabel === null || entry.responderLabel === undefined
@@ -179,6 +185,11 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
           </ul>
         </div>
       ) : null}
+      {MissingTierSkippedEntries(trail).map((entry) => (
+        <p key={entry.questionKey} className="m-0">
+          Question tier was not stored.
+        </p>
+      ))}
     </div>
   );
 

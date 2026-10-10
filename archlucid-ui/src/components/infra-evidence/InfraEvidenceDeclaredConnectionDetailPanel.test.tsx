@@ -40,4 +40,41 @@ describe("InfraEvidenceDeclaredConnectionDetailPanel", () => {
 
     expect(screen.getByText("Approver was not included on the loaded connection")).toBeInTheDocument();
   });
+
+  it("distinguishes omitted expiration and rationale from stored empty strings", () => {
+    const { rerender } = render(
+      <InfraEvidenceDeclaredConnectionDetailPanel
+        {...baseProps}
+        edge={{ ...baseProps.edge, declaredConnectionId: "connection-1" }}
+        connections={[{
+          connectionId: "connection-1",
+          rationale: null,
+          evidenceReference: null,
+          expirationUtc: null,
+          status: null,
+        }] as never}
+      />,
+    );
+
+    expect(screen.getByText("Expiration was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Rationale was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <InfraEvidenceDeclaredConnectionDetailPanel
+        {...baseProps}
+        edge={{ ...baseProps.edge, declaredConnectionId: "connection-1" }}
+        connections={[{
+          connectionId: "connection-1",
+          rationale: "",
+          evidenceReference: null,
+          expirationUtc: "",
+          status: null,
+        }] as never}
+      />,
+    );
+
+    expect(screen.getAllByText("Not recorded").length).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByText("Expiration was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Rationale was not stored.")).not.toBeInTheDocument();
+  });
 });

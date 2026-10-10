@@ -81,6 +81,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (manifestHash) {
     lines.push(`- **Review record hash:** \`${manifestHash}\``);
+  } else if (m.manifestHash === null || m.manifestHash === undefined) {
+    lines.push("Review record hash was not stored.");
   }
 
   if (manifestVersion) {
@@ -116,7 +118,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   lines.push("## Architecture overview");
   lines.push("");
 
-  pushBulletLines(lines, m.assumptions, "_No assumptions listed._");
+  if (m.assumptions === null || m.assumptions === undefined) {
+    lines.push("Assumptions were not stored.");
+  } else {
+    pushBulletLines(lines, m.assumptions, "_No assumptions listed._");
+  }
 
   lines.push("");
 
@@ -137,6 +143,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     pushBulletLines(lines, topology.selectedPatterns, undefined);
     pushBulletLines(lines, topology.resources, undefined);
     pushBulletLines(lines, topology.gaps, undefined);
+    lines.push("");
+  } else {
+    lines.push("Architecture structure was not stored.");
     lines.push("");
   }
 
@@ -208,6 +217,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (purpose) {
         lines.push(`  - ${purpose}`);
+      } else if (s.purpose === null || s.purpose === undefined) {
+        lines.push("  - Purpose was not stored.");
       }
     }
 
@@ -337,12 +348,20 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       lines.push("");
     }
 
-    pushBulletLines(lines, security.gaps, undefined);
+    if (security.gaps === null || security.gaps === undefined) {
+      lines.push("Security gaps were not stored.");
+    } else {
+      pushBulletLines(lines, security.gaps, undefined);
+    }
   } else {
     lines.push("Security model was not stored.");
   }
 
-  pushBulletLines(lines, m.warnings, undefined);
+  if (m.warnings === null || m.warnings === undefined) {
+    lines.push("Warnings were not stored.");
+  } else {
+    pushBulletLines(lines, m.warnings, undefined);
+  }
 
   const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
   const feasibilityVerdictMarkdown =

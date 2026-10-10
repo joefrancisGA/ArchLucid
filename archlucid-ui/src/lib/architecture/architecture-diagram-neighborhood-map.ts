@@ -6,7 +6,7 @@ export type DiagramNeighborhoodType = {
 export type DiagramNeighborhood = {
   readonly id: string;
   readonly kind: string;
-  readonly title: string;
+  readonly title: string | null;
   readonly resourceCount: number | null;
   readonly memberIds: readonly string[];
   readonly frameIds: readonly string[];
@@ -16,7 +16,7 @@ export type DiagramNeighborhood = {
 export type DiagramNeighborhoodLink = {
   readonly from: string;
   readonly to: string;
-  readonly count: number;
+  readonly count: number | null;
 };
 
 export type DiagramNeighborhoodMap = {
@@ -123,7 +123,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
     .map((element): DiagramNeighborhood => ({
       id: element.getAttribute("id") ?? "",
       kind: element.getAttribute("kind") ?? "",
-      title: element.getAttribute("title") ?? "",
+      title: element.getAttribute("title"),
       resourceCount: readNonNegativeInteger(element, "resource-count"),
       memberIds: [...element.querySelectorAll(":scope > member")]
         .map((member) => member.getAttribute("id") ?? "")
@@ -144,7 +144,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
     .map((element): DiagramNeighborhoodLink => ({
       from: element.getAttribute("from") ?? "",
       to: element.getAttribute("to") ?? "",
-      count: readNonNegativeInteger(element, "count") ?? 0,
+      count: readNonNegativeInteger(element, "count"),
     }))
     .filter((link) => link.from.length > 0 && link.to.length > 0);
 

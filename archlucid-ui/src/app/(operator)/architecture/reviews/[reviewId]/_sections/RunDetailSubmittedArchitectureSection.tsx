@@ -98,6 +98,7 @@ export function RunDetailSubmittedArchitectureSection(
   const fullDescriptionOpenRef = useRef(fullDescriptionOpen);
   fullDescriptionOpenRef.current = fullDescriptionOpen;
   const text = props.architectureText?.trim() ?? "";
+  const architectureTextWasNotStored = props.architectureText === null || props.architectureText === undefined;
   const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
   const helperText =
     props.helperText ??
@@ -233,7 +234,11 @@ export function RunDetailSubmittedArchitectureSection(
         >
           <ArchitectureNarrativeMarkdownView
             markdown=""
-            emptyStateMessage="Open the Evidence tab to view submitted documents and diagrams."
+            emptyStateMessage={
+              architectureTextWasNotStored
+                ? "Submitted architecture text was not stored."
+                : "Open the Evidence tab to view submitted documents and diagrams."
+            }
           />
         </CollapsibleSection>
       </section>

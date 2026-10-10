@@ -47,4 +47,17 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
 
     expect(label).toBe("policy.violation.CIS-1.1: Encrypt data at rest (confidence 85)");
   });
+
+  it("reports an omitted key while preserving a stored key", () => {
+    expect(formatInferredTrailEntryLabel({
+      key: null,
+      value: "Observed",
+      confidence: 50,
+    })).toBe("Inferred trail key was not stored.");
+    expect(formatInferredTrailEntryLabel({
+      key: "signal",
+      value: "Observed",
+      confidence: 50,
+    })).toBe("signal: Observed (confidence 50)");
+  });
 });
