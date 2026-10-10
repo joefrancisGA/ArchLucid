@@ -34,7 +34,7 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByText(/Approved with monitoring · 1 monitored risk/i)).toBeInTheDocument();
     expect(screen.getByText(/Decision date/i)).toBeInTheDocument();
     expect(screen.getByTestId("runs-list-buyer-featured-card")).toHaveTextContent(/Review owner/i);
-    expect(screen.getByText(/Approval lead/i)).toBeInTheDocument();
+    expect(screen.getByText(/Jordan Lee \(Architecture approver\)/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /open review/i })).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.getByText(/Complete/i)).toBeInTheDocument();
@@ -49,5 +49,20 @@ describe("RunsListBuyerFeaturedCard", () => {
     );
 
     expect(screen.getByText("Decision date was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Review owner was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Approval authority was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Last audit event was not stored.")).toBeInTheDocument();
+  });
+
+  it("preserves stored in-progress card metadata", () => {
+    render(
+      <RunsListBuyerFeaturedCard
+        run={{ ...sampleRun, runId: "claims-intake-in-progress-003" }}
+      />,
+    );
+
+    expect(screen.getAllByText("Taylor Morgan").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Not recorded").length).toBeGreaterThan(0);
+    expect(screen.getByText("Review pipeline started")).toBeInTheDocument();
   });
 });
