@@ -61,8 +61,20 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
   lines.push(SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD);
   lines.push("");
   lines.push(`- **Confidence band:** ${envelope.confidenceLow}–${envelope.confidenceHigh}`);
-  lines.push(`- **Envelope:** ${envelope.envelopeDescription}`);
-  lines.push(`- **Soft assumption:** ${envelope.softAssumption}`);
+  lines.push(
+    `- **Envelope:** ${
+      envelope.envelopeDescription === null || envelope.envelopeDescription === undefined
+        ? "Envelope description was not stored."
+        : envelope.envelopeDescription
+    }`,
+  );
+  lines.push(
+    `- **Soft assumption:** ${
+      envelope.softAssumption === null || envelope.softAssumption === undefined
+        ? "Soft assumption was not stored."
+        : envelope.softAssumption
+    }`,
+  );
 
   if ((envelope.costOfBeingWrong ?? "").trim().length > 0) {
     lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);

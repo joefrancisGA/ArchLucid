@@ -86,6 +86,8 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${Math.trunc(summary.complianceGapCount)} compliance gap${
           Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
         } in the aggregate assessment.`
+      : summary.complianceGapCount === null || summary.complianceGapCount === undefined
+        ? "Compliance gap count was not stored."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 

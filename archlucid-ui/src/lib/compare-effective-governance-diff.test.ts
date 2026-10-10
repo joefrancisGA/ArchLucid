@@ -106,6 +106,28 @@ describe("compare-effective-governance-diff", () => {
     });
   });
 
+  it("preserves omitted governance counts separately from stored zero", () => {
+    const omitted = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: { hasEffectivePolicy: true },
+    });
+    const emptyKeys = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: { hasEffectivePolicy: true, complianceRuleKeys: [] },
+    });
+    const storedZero = parseCompareManifestGovernanceSnapshot({
+      effectiveGovernanceAtCommit: {
+        hasEffectivePolicy: true,
+        complianceRuleKeyCount: 0,
+        conflictCount: 0,
+      },
+    });
+
+    expect(omitted.atCommit?.complianceRuleKeyCount).toBeNull();
+    expect(omitted.atCommit?.conflictCount).toBeNull();
+    expect(emptyKeys.atCommit?.complianceRuleKeyCount).toBe(0);
+    expect(storedZero.atCommit?.complianceRuleKeyCount).toBe(0);
+    expect(storedZero.atCommit?.conflictCount).toBe(0);
+  });
+
   it("prefers policy-at-commit keys over current effective in diff view", () => {
     const effective: EffectivePolicyPackSet = {
       tenantId: "tenant-1",

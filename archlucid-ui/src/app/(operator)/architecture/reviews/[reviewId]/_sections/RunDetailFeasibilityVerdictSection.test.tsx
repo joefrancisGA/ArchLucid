@@ -59,4 +59,44 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.getByText("Infeasibility verdict needs citation")).toBeInTheDocument();
     expect(screen.queryByText("Hold")).not.toBeInTheDocument();
   });
+
+  it("distinguishes omitted soft verdict fields from stored empty values", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: null,
+          },
+          unsatCoreInvariantKeys: null,
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Soft assumption was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Unsat core was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+          },
+          unsatCoreInvariantKeys: [],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.queryByText("Soft assumption was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Unsat core was not stored.")).not.toBeInTheDocument();
+  });
 });

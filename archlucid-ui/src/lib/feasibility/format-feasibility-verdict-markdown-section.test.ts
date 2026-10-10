@@ -84,4 +84,30 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(missing).toContain("Operating envelope was not stored.");
     expect(stored).not.toContain("Operating envelope was not stored.");
   });
+
+  it("reports an omitted envelope description without changing stored empty text", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: {
+        confidenceLow: 0,
+        confidenceHigh: 0,
+        softAssumption: "",
+      },
+    });
+    const storedEmpty = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: {
+        confidenceLow: 0,
+        confidenceHigh: 0,
+        envelopeDescription: "",
+        softAssumption: "",
+      },
+    });
+
+    expect(missing).toContain("Envelope description was not stored.");
+    expect(missing).not.toContain("undefined");
+    expect(storedEmpty).not.toContain("Envelope description was not stored.");
+  });
 });

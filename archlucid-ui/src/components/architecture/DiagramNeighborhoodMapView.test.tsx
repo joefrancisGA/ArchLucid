@@ -152,4 +152,23 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText("0 resources")).toBeInTheDocument();
     expect(screen.getByText("virtualMachines 0")).toBeInTheDocument();
   });
+
+  it("distinguishes omitted link counts and titles from stored empty values", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{ ...map.neighborhoods[0], title: null }],
+          links: [
+            { from: "vnet:app", to: "vnet:app", count: null },
+            { from: "vnet:app", to: "vnet:app", count: 0 },
+          ],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Neighborhood title was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("vnet:app — Link count was not stored — vnet:app")).toBeInTheDocument();
+    expect(screen.getByText("vnet:app — 0 — vnet:app")).toBeInTheDocument();
+  });
 });

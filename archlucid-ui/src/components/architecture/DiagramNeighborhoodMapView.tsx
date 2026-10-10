@@ -11,7 +11,9 @@ export type DiagramNeighborhoodMapViewProps = {
 };
 
 function titleFor(map: DiagramNeighborhoodMap, id: string): string {
-  return map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title ?? id;
+  const title = map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title;
+
+  return title === null || title === undefined ? id : title;
 }
 
 function renderTypeChip(type: { readonly name: string; readonly count: number | null }): React.JSX.Element {
@@ -45,7 +47,7 @@ function renderTile(
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
       <span className="w-full break-words text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
-        {neighborhood.title}
+        {neighborhood.title === null ? "Neighborhood title was not stored." : neighborhood.title}
       </span>
       <span className="text-[12px] text-[#64748b]">
         {neighborhood.resourceCount == null
@@ -90,7 +92,9 @@ export function DiagramNeighborhoodMapView(
         <ul className="m-0 space-y-1 p-0 text-[12px] text-slate-600 dark:text-slate-300">
           {visibleLinks.map((link) => (
             <li key={`${link.from}-${link.to}`}>
-              {`${titleFor(props.map, link.from)} — ${link.count} — ${titleFor(props.map, link.to)}`}
+              {`${titleFor(props.map, link.from)} — ${
+                link.count === null ? "Link count was not stored" : link.count
+              } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
           {remainingLinkCount > 0 ? <li>{`+ ${remainingLinkCount} more links`}</li> : null}

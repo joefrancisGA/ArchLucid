@@ -28,9 +28,9 @@ export type CompareEffectiveCoverageAssignmentAtCommitRow = {
 export type CompareEffectiveGovernanceAtCommitSnapshot = {
   readonly generatedUtc: string | null;
   readonly ruleSetHash: string | null;
-  readonly complianceRuleKeyCount: number;
+  readonly complianceRuleKeyCount: number | null;
   readonly complianceRuleKeys: readonly string[];
-  readonly conflictCount: number;
+  readonly conflictCount: number | null;
   readonly packAssignments: readonly CompareEffectivePackAssignmentAtCommitRow[];
   readonly coverageAssignments: readonly CompareEffectiveCoverageAssignmentAtCommitRow[];
   readonly hasEffectivePolicy: boolean;
@@ -188,14 +188,16 @@ function parseEffectiveGovernanceAtCommit(value: unknown): CompareEffectiveGover
   }
 
   const complianceRuleKeys = readStringArray(value.complianceRuleKeys);
-  const complianceRuleKeyCount = readFiniteNumber(value.complianceRuleKeyCount) ?? complianceRuleKeys.length;
+  const storedComplianceRuleKeyCount = readFiniteNumber(value.complianceRuleKeyCount);
+  const complianceRuleKeyCount =
+    storedComplianceRuleKeyCount ?? (Array.isArray(value.complianceRuleKeys) ? complianceRuleKeys.length : null);
 
   return {
     generatedUtc: readTrimmedString(value.generatedUtc),
     ruleSetHash: readTrimmedString(value.ruleSetHash),
     complianceRuleKeyCount,
     complianceRuleKeys,
-    conflictCount: readFiniteNumber(value.conflictCount) ?? 0,
+    conflictCount: readFiniteNumber(value.conflictCount),
     packAssignments: parseAtCommitPackAssignments(value.packAssignments),
     coverageAssignments: parseAtCommitCoverageAssignments(value.coverageAssignments),
     hasEffectivePolicy: readBoolean(value.hasEffectivePolicy),

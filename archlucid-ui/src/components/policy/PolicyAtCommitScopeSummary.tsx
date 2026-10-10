@@ -74,9 +74,15 @@ export function PolicyAtCommitScopeSummary(
         className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid={`${testIdPrefix}-counts`}
       >
-        Policy at commit · {packAssignments.length} pack assignment(s) · {snapshot.complianceRuleKeyCount} compliance
-        rule key(s)
-        {snapshot.conflictCount > 0 ? ` · ${snapshot.conflictCount} merge conflict(s)` : null}
+        Policy at commit · {packAssignments.length} pack assignment(s) ·{" "}
+        {snapshot.complianceRuleKeyCount === null || snapshot.complianceRuleKeyCount === undefined
+          ? "Compliance rule key count was not stored."
+          : `${snapshot.complianceRuleKeyCount} compliance rule key(s)`}
+        {snapshot.conflictCount === null || snapshot.conflictCount === undefined
+          ? " · Merge conflict count was not stored."
+          : snapshot.conflictCount > 0
+            ? ` · ${snapshot.conflictCount} merge conflict(s)`
+            : null}
       </p>
 
       {exclusionSummary !== null ? (
