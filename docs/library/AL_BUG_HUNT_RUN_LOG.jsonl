@@ -9239,3 +9239,4 @@
 {"at":"2026-10-10T15:17:11.8849124Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/","ArchLucid.AgentRuntime.Tests/Evaluation/"]}
 {"at":"2026-10-10T15:21:22.0078027Z","zoneId":"agent-runtime-evaluation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/","ArchLucid.AgentRuntime.Tests/Evaluation/"]}
 {"at":"2026-10-10T15:25:17.7373546Z","zoneId":"agent-runtime-evaluation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/","ArchLucid.AgentRuntime.Tests/Evaluation/"]}
+{"at":"2026-10-10T15:29:27.2157927Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/","ArchLucid.Contracts.Tests/"]}

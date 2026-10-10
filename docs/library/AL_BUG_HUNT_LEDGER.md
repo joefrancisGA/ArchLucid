@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): repeated the selected evaluation-path reread after the required-key and judge-score candidate seed; no fresh mechanism met the promotion bar, and the remaining score-validation row would duplicate a saturated class. The scoped Evaluation suite passed 202/202. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): reread the trace-quality, reference-case, harness, faithfulness, and semantic-judge paths after the citation-object fix; no fresh row met the promotion bar without duplicating a saturated score-validation class. The scoped Evaluation suite passed 202/202. Seeded bounded candidates for configured required-key casing and external judge-score range handling; no production or regression code was changed.
@@ -7662,7 +7664,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -27351,6 +27353,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
+
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-contracts; proved `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` dropped out-of-range numeric ordinals instead of throwing like `treatment`/`classification`; fixed to throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`; 22 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs; no contract-only wrong outcome reached the hunt-ready bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for nullable JSON collections, empty snapshot identifiers, nullable mapping identifiers, and unknown edge-gap values; no production or regression code was changed.
@@ -27385,6 +27389,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - (candidate) `InfrastructureDiagramComparisonCreateRequest.SnapshotId` — public comparison-create JSON can send the all-zero GUID; if the service treats the missing snapshot as an empty inventory rather than rejecting it, the caller can receive a successful comparison with no authoritative inventory. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
 - (candidate) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — mapping-save JSON can omit or set `"diagramNodeId": null` while supplying a normalized label and cloud-resource id; if null means “missing” rather than an intentional clear, the save path can create or overwrite a mapping that cannot be addressed by diagram node id. Reachability: API mapping-save payload for the recently added infrastructure-diagram comparison workflow.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
+- (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
+- (candidate) `DiagramInfrastructureCorrespondenceRow.MatchKind` — reconciliation output accepts arbitrary strings such as `"Exact "` or `"Unexpected"` despite publishing a finite match-kind vocabulary; exact-value UI mapping can render a valid correspondence as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
+- (candidate) `SecureNowQuestionDispositionResponse.AuditEntries` — a response JSON payload can explicitly set `"auditEntries": null`, replacing the initialized list; a client that renders audit history without null normalization can fail on an otherwise valid disposition response. Reachability: API response payload for the SecureNow disposition detail route.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.
