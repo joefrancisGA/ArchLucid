@@ -9265,3 +9265,4 @@
 {"at":"2026-10-10T17:18:42.3066966Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-10T17:20:23.2208799Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-10T17:22:40.9534642Z","zoneId":"core-costing","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
+{"at":"2026-10-10T17:24:15.6339219Z","zoneId":"core-costing","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
