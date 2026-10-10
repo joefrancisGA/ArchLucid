@@ -6,6 +6,8 @@
 
 2026-10-10 seed hunt (seed-only): `api-policy-packs` — re-read assignment mutations, catalog CRUD and reads, conditional effective responses, simulation/validation, and focused tests after the version-normalization hit. No fresh row met the full hunt-ready bar; seeded three bounded `(candidate)` rows for assignment scope-label canonicalization, nullable bulk run-id slot/count semantics, and effective-response ETag scope-provider identity. The focused `PolicyPacksController` filter passed 81/81. No production change.
 
+2026-10-10 seed hunt (seed-only): `api-policy-packs` — repeated the selected controller and focused-test reread; the existing three candidates remained lenses only because their downstream prerequisite or wrong outcome was not established in the selected paths. The focused `PolicyPacksController` filter passed 81/81. No production change.
+
 2026-10-10 thorough hunt (dry): `knowledge-graph-provenance` — cheap-disproved the four picker candidates. Provenance null-list input lacked a selected-path caller; graph delta extraction is unused repo-wide; active edge inferrers emit canonical node ids; and the scoped suites produced no failure attributable to these rows. KnowledgeGraph had 362 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed→hit): `TerraformShowJsonInfrastructureDeclarationParser` aborted a reachable Terraform show JSON upload when a malformed non-object entry appeared in `root_module.resources`, before valid sibling resources could be parsed. Terraform property lookup now reuses the guarded shared JSON reader; regression `ParseAsync_ignores_non_object_root_module_resources`; scoped ContextIngestion/Canonicalization tests passed 823/823; Release compile passed with 0 warnings and 0 errors.
@@ -11583,7 +11585,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 38
+- **hunts:** 37
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-08
@@ -32494,7 +32496,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -32525,9 +32527,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
-- (candidate) `PolicyPacksController.Assign` — a reachable OpenAPI body with case-variant `scopeLevel` such as `workspace` passes the case-insensitive validator and is forwarded in its original spelling, while the surrounding workflow normalizes scope decisions; the persisted assignment/audit path may expose a noncanonical scope label. Input: generated API client `AssignPolicyPackRequest.ScopeLevel`.
-- (candidate) `PolicyPacksController.SimulateBulk` — a reachable JSON `runIds` array containing null slots is skipped during normalization but still participates in the submitted-list cap and validation boundary, so response request-count semantics may diverge from the caller’s slot count. Input: OpenAPI `runIds` array with null and valid GUID elements.
-- (candidate) `PolicyPacksController.GetEffective` — successful ETag fingerprints resolve `IScopeContextProvider` from `HttpContext.RequestServices` instead of the controller’s injected provider, so a reachable alternate composition with distinct scoped instances could emit a scope-mismatched validator and 304 response. Input: production request through a host composition that supplies different scoped provider instances.
+- [ ] (candidate) `PolicyPacksController.Assign` — a reachable OpenAPI body with case-variant `scopeLevel` such as `workspace` passes the case-insensitive validator and is forwarded in its original spelling, while the surrounding workflow normalizes scope decisions; the persisted assignment/audit path may expose a noncanonical scope label. Input: generated API client `AssignPolicyPackRequest.ScopeLevel`.
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — a reachable JSON `runIds` array containing null slots is skipped during normalization but still participates in the submitted-list cap and validation boundary, so response request-count semantics may diverge from the caller’s slot count. Input: OpenAPI `runIds` array with null and valid GUID elements.
+- [ ] (candidate) `PolicyPacksController.GetEffective` — successful ETag fingerprints resolve `IScopeContextProvider` from `HttpContext.RequestServices` instead of the controller’s injected provider, so a reachable alternate composition with distinct scoped instances could emit a scope-mismatched validator and 304 response. Input: production request through a host composition that supplies different scoped provider instances.
 - [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — a reachable facade outcome outside the explicitly mapped cross-tenant, validation, and not-found cases could fall through to HTTP 200 with a null or incomplete catalog detail — **cheap-disproof 2026-10-09:** the selected controller’s reachable facade outcome set is the mapped cross-tenant, validation, not-found, or success path; a conflict outcome is not established by these files.
 - [x] (invalid) `PolicyPacksController.DemoteCatalogEntry` — a reachable facade conflict outcome could fall through to HTTP 204, making a failed catalog mutation appear successful — **cheap-disproof 2026-10-09:** the selected controller has no reachable conflict-producing facade path; sealed-manifest conflicts are exceptions caught before result mapping.
 - [x] (invalid) `PolicyPacksController.Create` — a success-shaped facade result with no `PolicyPack` value could be serialized as HTTP 200 instead of failing closed — **cheap-disproof 2026-10-09:** a null success value is a constructed mock/implementation state with no reachable OpenAPI or controller caller in the selected paths.
