@@ -10493,7 +10493,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 33
+- **hunts:** 34
 - **last-hunt:** 2026-10-06
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
@@ -35235,6 +35235,11 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `ResourceHubClient.setActiveTab` / `syncInfraResourceHubTechnicalKeyToUrl` — switching tabs while a technical disclosure query key is present may retain a disclosure key that the destination tab does not render until the effect observes the URL change; input is reachable from the technical disclosure query parameter and tab navigation.
 
 2026-10-10 seed hunt (seed→hit): proved the trailing-slash resource-title candidate with a reachable captured configuration identifier; normalized non-empty path segments and fell back to the external resource name; regression `falls back to the external resource name when the configuration id has a trailing slash`.
+
+2026-10-10 seed hunt (seed-only): re-read the selected `ResourceHubClient.tsx` rendering and query-state paths; no candidate was promoted to a same-run failing repro. Seeded bounded candidates for architecture-review pagination routing and audit-lineage row identity; no production or regression code changed.
+
+- [ ] (candidate) `ResourceHubClient` architecture-review findings stream — when `hub.architectureReviewFindings.hasMore` is true, the “more” link targets the operational remediation workbench via `buildResourceScopedWorkbenchHref` instead of an architecture-review findings destination; input is reachable from the captured `hub.architectureReviewFindings` page.
+- [ ] (candidate) `ResourceHubClient` audit “Other linked controls” list — two captured matches with the same `controlId` and `auditEvidenceSnapshotId` but different `assessmentId` values receive the same React key `${controlId}-${auditEvidenceSnapshotId}`, so a reachable cross-assessment list can have non-unique row identity; input is reachable from `hub.auditLineageLink.matches`.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 
