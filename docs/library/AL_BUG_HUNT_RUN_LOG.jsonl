@@ -9142,3 +9142,4 @@
 {"at":"2026-10-10T04:22:22.0035569Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-10T04:29:22.8668212Z","zoneId":"core-costing","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-10T04:35:55.6889110Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-10T04:40:08.1108049Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
