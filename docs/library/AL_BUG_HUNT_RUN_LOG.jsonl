@@ -9139,3 +9139,4 @@
 {"at":"2026-10-10T04:07:30.2805329Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-10T04:13:21.8611693Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-10T04:16:58.6635943Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-10T04:22:22.0035569Z","zoneId":"context-ingestion","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}

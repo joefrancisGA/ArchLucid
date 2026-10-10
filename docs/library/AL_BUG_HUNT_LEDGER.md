@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — dotenv comment scanning treated an escaped quote inside a double-quoted value as a quote delimiter, so a reachable `#` in the value truncated valid SQL connection settings and suppressed the inferred edge. The scanner now tracks escaped quotes and unescapes supported double-quoted dotenv escapes; regression `Dotenv_escaped_quote_does_not_make_hash_inside_quoted_value_a_comment`; scoped ContextIngestion/Canonicalization tests passed 813/813.
+
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — re-read aggregate scalar readers, case-insensitive property lookup, structured list/reasoning coercion, and the prompt schema; no existing row was hunt-ready. The scoped `RunExplanation` suite passed 47/47; seeded one source-backed duplicate-property candidate and made no production change.
 
 2026-10-10 seed hunt (seed-only): `core-explanation-json` — reread scalar coercion, structured list/reasoning normalization, and citation/count regressions after the master merge; no new reachable mechanism met the hunt-ready bar. The scoped `RunExplanation` suite passed 47/47; no production code changed.
@@ -27299,6 +27301,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `DotenvInfrastructureDeclarationParser` — `export KEY=value` lines kept `export` in `SettingName` and proposal `Name` while URL host inference still worked — **hit 2026-10-06 seed hunt:** strip optional `export ` shell prefix before key parse; regression `Dotenv_export_prefixed_line_strips_export_for_setting_name`.
 - [x] (proven) `DotenvInfrastructureDeclarationParser` — inline `#` comments on `KEY=value` lines stayed in the value, so a SQL catalog became `archlucid # primary` and a quoted connection string kept the closing quote — **hit 2026-10-09 seed hunt:** strip an unquoted `#` preceded by whitespace before host parsing; regression `Dotenv_inline_comment_does_not_attach_to_sql_catalog`; 812 scoped ContextIngestion/Canonicalization tests passed.
+- [x] (proven) `DotenvInfrastructureDeclarationParser.StripUnquotedInlineComment` — an escaped quote inside a double-quoted dotenv value toggled quote state, so a following `#` was treated as a comment and suppressed a valid SQL connection proposal — **hit 2026-10-10 seed hunt:** ignore escaped quote delimiters and unescape supported double-quoted values; regression `Dotenv_escaped_quote_does_not_make_hash_inside_quoted_value_a_comment`; 813 scoped ContextIngestion/Canonicalization tests passed.
 - [ ] (candidate) `ComposeEnvInfrastructureDeclarationParser` — `env_file:` references are not expanded into proposed edges (only inline `environment:` blocks) — **seed 2026-10-06:** multi-file compose extracts per SN-RT-09.
 - [ ] (candidate) `HelmChartInfrastructureDeclarationParser` — batch parse ignores `values.yaml` connection strings when only `Chart.yaml` triggers helm format — **seed 2026-10-06:** DX-30 chart uploads with values beside templates.
 - [ ] (candidate) `TerraformShowJsonInfrastructureDeclarationParser` — legacy state JSON with top-level `modules` array and no `values` / `planned_values` wrapper — **seed 2026-10-06:** mislabeled `terraform-show-json` uploads.
@@ -29240,11 +29243,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1042
-- **bugs-found:** 425
+- **hunts:** 1043
+- **bugs-found:** 426
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — dotenv inline comment attached to SQL catalog
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
