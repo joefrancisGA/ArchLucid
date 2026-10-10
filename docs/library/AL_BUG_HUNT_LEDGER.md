@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `architecture-recommendation` — `ArchitectureRecommendationTradeOffBuilder` used ASCII-only word boundaries, so a reachable Unicode priority such as `Securityüberwachung` falsely matched the standalone `Security` dimension and forced Security-first resolution. Matching now uses Unicode-aware `\b` boundaries; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`; scoped Alternatives/ProposedChange tests passed 45/45.
+
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read embedding batch/cardinality handling, manifest summarization, agentic retry orchestration, fine-tuning export, and policy-pack indexing; no fresh row met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 362/362; retained five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed→hit): `retrieval` — `StructureAwareTextChunker` treated a shorter three-backtick line inside a valid four-backtick Markdown fence as a closing delimiter, fragmenting reachable manifest/artifact code content into unwrapped chunks. Fence parsing now requires a closing fence at least as long as its opener; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`; scoped Retrieval/Indexing tests passed 362/362.
@@ -9402,6 +9404,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated `Security` inside a Unicode word as a standalone declared priority, so `Securityüberwachung` incorrectly forced Security-first resolution; use Unicode-aware word boundaries; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`; 45 scoped Alternatives/ProposedChange tests passed.
+
 2026-10-10 seed hunt (seed-only): re-read deterministic trade-off IDs, actionable-finding gating, severity normalization, and recommendation ID coverage; no fresh hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45 and no production code changed.
 
 2026-10-10 seed hunt (seed-only): re-read stable trade-off identity, null finding handling, critical-severity normalization, and duplicate trade-off orchestration; no fresh hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45 and no production code changed.
@@ -9495,6 +9499,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.BuildPreferredResolution` — `not-cost` declared priorities falsely prefer Cost — **hit 2026-09-28 seed hunt #19:** `not-` negation must mirror `no-` / `non-` handling; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_not_cost`.
 
 - [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — `TradeOffId = Guid.NewGuid()` made trade-off identity non-deterministic across rebuilds of the same finding set; **hit 2026-10-10 seed hunt:** derive the ID from the ordered dimension pair and proposed decision via `ArchitectureRecommendationStableId`; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`.
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.DeclaredPriorityPrefersDimension` — ASCII-only boundaries treated `Security` inside a reachable Unicode word as a standalone priority — **hit 2026-10-10 seed hunt:** use Unicode-aware `\b` matching; regression `BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first`.
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — copies full `declaredPriorities` into each recommendation's `Dependencies` even when trade-off resolution already consumed priorities; reachable on multi-finding reviews and may overstate per-recommendation dependency edges in exported manifests.
 - [ ] (candidate) `ArchitectureRecommendationEngine.IsActionableFinding` — a null element in the reachable specialist-finding collection throws while building all recommendations instead of preserving other actionable findings; verify whether the review pipeline can emit null collection entries before promoting.
 - [ ] (candidate) `ArchitectureRecommendationEngine.CreateRecommendation` — a reachable `Critical` severity with surrounding whitespace may fail the human-approval check if `ArchitectureRecommendationSeverityLabel.IsCritical` does not normalize the same way as effort estimation; verify the severity producer and helper contract before promoting.
@@ -9527,11 +9532,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 52
+- **hunts:** 53
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 23
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — trade-off IDs changed across identical recommendation rebuilds
+- **last-bug:** 2026-10-10 — Unicode priority text falsely matched a standalone Security dimension
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

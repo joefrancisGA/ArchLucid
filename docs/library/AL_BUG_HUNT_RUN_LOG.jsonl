@@ -9156,3 +9156,4 @@
 {"at":"2026-10-10T05:46:50.9164786Z","zoneId":"retrieval","outcome":"hit","huntPaths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-10T05:51:38.4859566Z","zoneId":"retrieval","outcome":"hit","huntPaths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-10T05:55:42.2891084Z","zoneId":"retrieval","outcome":"seed-only","huntPaths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-10T06:03:33.8387165Z","zoneId":"architecture-recommendation","outcome":"hit","huntPaths":["ArchLucid.Application/ArchitectureIntelligence/"]}

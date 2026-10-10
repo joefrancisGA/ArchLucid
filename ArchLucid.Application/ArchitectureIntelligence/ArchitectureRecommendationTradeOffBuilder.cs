@@ -238,7 +238,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     private static Regex CreateDimensionWordPattern(string dimensionToken)
     {
         return new Regex(
-            $"(?:^|[^A-Za-z]){Regex.Escape(dimensionToken)}(?:$|[^A-Za-z])",
+            $@"\b{Regex.Escape(dimensionToken)}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 

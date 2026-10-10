@@ -93,6 +93,32 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
     }
 
     [Fact]
+    public void BuildRecommendations_does_not_treat_unicode_word_containing_security_as_security_first()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding securityFinding = CreateFailFinding(
+            "sec",
+            QualityDimension.Security,
+            "Public endpoint lacks documented trust boundary");
+        SpecialistReviewFinding costFinding = CreateFailFinding(
+            "cost",
+            QualityDimension.Cost,
+            "Spend exceeds stated ceiling");
+
+        IReadOnlyList<ArchitectureRecommendation> recommendations = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel { ModelId = "m", TenantId = "t" },
+            [securityFinding, costFinding],
+            ["Securityüberwachung"]);
+
+        ArchitectureRecommendation securityRecommendation = recommendations.Single(
+            recommendation => recommendation.AffectedRequirementOrQualityAttribute == QualityDimension.Security.ToString());
+
+        securityRecommendation.TradeOffs.Should().ContainSingle();
+        securityRecommendation.TradeOffs[0].RecommendedResolution.Should().Contain(
+            "Balance Security and Cost with explicit human approval.");
+    }
+
+    [Fact]
     public void BuildRecommendations_balances_security_cost_trade_off_when_priority_mentions_no_cost()
     {
         ArchitectureRecommendationEngine sut = new();
