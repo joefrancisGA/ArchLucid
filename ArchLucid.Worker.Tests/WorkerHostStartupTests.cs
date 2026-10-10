@@ -745,7 +745,7 @@ public sealed class WorkerHostStartupTests
                 {
                     builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
                     builder.UseSetting("ConnectionStrings:Redis", "localhost");
-                    builder.UseSetting("ArchiForge:IgnoredLegacyFlag", "true");
+                    builder.UseSetting("LegacyProduct:IgnoredLegacyFlag", "true");
                 });
 
             Action act = () => _ = factory.Services;

@@ -49,20 +49,24 @@ public sealed class OperationQueryService(
     {
       OperationIdKind.Job => await GetJobOperationAsync(operationId, payload, scope, cancellationToken),
       OperationIdKind.Run => await GetRunOperationAsync(operationId, payload, scope, cancellationToken),
-      OperationIdKind.Draft => GetDraftOperation(operationId, scope, cancellationToken),
+      OperationIdKind.Draft => await GetDraftOperationAsync(operationId, scope, cancellationToken),
       _ => null
     };
   }
 
-  private OperationDetail? GetDraftOperation(
+  private async Task<OperationDetail?> GetDraftOperationAsync(
     string operationId,
     ScopeContext scope,
     CancellationToken cancellationToken)
   {
     cancellationToken.ThrowIfCancellationRequested();
 
-    if (!_advisoryDraftOperationStore.TryGet(operationId, scope, out AdvisoryDraftOperationRecord? record)
-        || record is null)
+    AdvisoryDraftOperationRecord? record = await _advisoryDraftOperationStore.GetAsync(
+      operationId,
+      scope,
+      cancellationToken);
+
+    if (record is null)
     {
       return null;
     }

@@ -870,17 +870,17 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
-    public void GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation()
+    public async Task GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation()
     {
         InMemoryAdvisoryDraftOperationStore store = new();
-        AdvisoryDraftOperationRecord record = store.CreatePending(Scope).Record;
+        AdvisoryDraftOperationRecord record = (await store.CreatePendingAsync(Scope)).Record;
         string opaqueOperationId = OperationIdCodec.ForDraft(record.OperationId);
-        store.MarkFailed(Scope, opaqueOperationId, "LLM timeout");
+        await store.MarkFailedAsync(Scope, opaqueOperationId, "LLM timeout");
 
         Mock<IArchitectureRequestIntakeFacade> intakeFacade = new();
         intakeFacade
-            .Setup(f => f.GetDraftAsyncResult(record.OperationId, Scope))
-            .Returns(new AdvisoryDraftOperationQueryResult
+            .Setup(f => f.GetDraftAsyncResultAsync(record.OperationId, Scope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdvisoryDraftOperationQueryResult
             {
                 Outcome = AdvisoryDraftOperationOutcome.Failed,
                 ErrorMessage = "LLM timeout",
@@ -888,7 +888,10 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController();
 
-        IActionResult action = controller.GetDraftRequestAsyncResult(record.OperationId, intakeFacade.Object);
+        IActionResult action = await controller.GetDraftRequestAsyncResult(
+            record.OperationId,
+            intakeFacade.Object,
+            CancellationToken.None);
 
         ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status422UnprocessableEntity);

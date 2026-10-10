@@ -6,17 +6,35 @@ namespace ArchLucid.Application.Planning.AdvisoryDraft;
 
 public interface IAdvisoryDraftOperationStore
 {
-    AdvisoryDraftOperationCreateResult CreatePending(ScopeContext scope);
+    Task<AdvisoryDraftOperationCreateResult> CreatePendingAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 
-    bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record);
+    Task<AdvisoryDraftOperationRecord?> GetAsync(
+        string operationId,
+        ScopeContext scope,
+        CancellationToken cancellationToken = default);
 
-    void MarkRunning(ScopeContext scope, string operationId);
+    Task MarkRunningAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default);
 
-    void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep);
+    Task UpdateProgressAsync(
+        ScopeContext scope,
+        string operationId,
+        string stepLabel,
+        int currentStep,
+        CancellationToken cancellationToken = default);
 
-    void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result);
+    Task MarkSucceededAsync(
+        ScopeContext scope,
+        string operationId,
+        DraftArchitectureRequestResponse result,
+        CancellationToken cancellationToken = default);
 
-    void MarkFailed(ScopeContext scope, string operationId, string errorMessage);
+    Task MarkFailedAsync(
+        ScopeContext scope,
+        string operationId,
+        string errorMessage,
+        CancellationToken cancellationToken = default);
 
-    void MarkCanceled(ScopeContext scope, string operationId);
+    Task MarkCanceledAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default);
 }

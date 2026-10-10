@@ -50,12 +50,16 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public IActionResult GetDraftRequestAsyncResult(
+    public async Task<IActionResult> GetDraftRequestAsyncResult(
         [FromRoute] Guid operationId,
-        [FromServices] IArchitectureRequestIntakeFacade intakeFacade)
+        [FromServices] IArchitectureRequestIntakeFacade intakeFacade,
+        CancellationToken cancellationToken)
     {
         AdvisoryDraftOperationQueryResult result =
-            intakeFacade.GetDraftAsyncResult(operationId, scopeContextProvider.GetCurrentScope());
+            await intakeFacade.GetDraftAsyncResultAsync(
+                operationId,
+                scopeContextProvider.GetCurrentScope(),
+                cancellationToken);
 
         return result.Outcome switch
         {

@@ -75,7 +75,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Edges.Should().NotContain(edge => edge.Label != null && edge.Label.Contains("rt-app", StringComparison.Ordinal));
+        ast.Edges.Should().NotContain(edge => edge.Label is not null && edge.Label.Contains("rt-app", StringComparison.Ordinal));
         ast.Nodes.Should().NotContain(node => node.Label == "rt-app");
     }
 

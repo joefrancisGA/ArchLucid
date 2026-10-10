@@ -17,11 +17,13 @@ internal sealed class StoreAdvisoryDraftProgress(
     private readonly string _operationId =
         string.IsNullOrWhiteSpace(operationId) ? throw new ArgumentException("Operation id is required.", nameof(operationId)) : operationId;
 
-    public void ReportStep(string stepLabel, int currentStep, int totalSteps)
+    public Task ReportStepAsync(string stepLabel, int currentStep, int totalSteps)
     {
         if (string.IsNullOrWhiteSpace(stepLabel))
-            return;
+        {
+            return Task.CompletedTask;
+        }
 
-        _store.UpdateProgress(_scope, _operationId, stepLabel.Trim(), currentStep);
+        return _store.UpdateProgressAsync(_scope, _operationId, stepLabel.Trim(), currentStep);
     }
 }

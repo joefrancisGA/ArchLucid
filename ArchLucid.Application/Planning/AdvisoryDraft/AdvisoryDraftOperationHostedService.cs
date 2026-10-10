@@ -46,11 +46,11 @@ public sealed class AdvisoryDraftOperationHostedService(
 
     private async Task ProcessAsync(AdvisoryDraftOperationWorkItem item, CancellationToken stoppingToken)
     {
-        _store.MarkRunning(item.Scope, item.OperationId);
+        await _store.MarkRunningAsync(item.Scope, item.OperationId, stoppingToken);
 
         if (_cancellationRegistry.IsCancelRequested(item.Scope, item.OperationId))
         {
-            _store.MarkCanceled(item.Scope, item.OperationId);
+            await _store.MarkCanceledAsync(item.Scope, item.OperationId, stoppingToken);
             return;
         }
 
@@ -69,15 +69,15 @@ public sealed class AdvisoryDraftOperationHostedService(
 
             if (_cancellationRegistry.IsCancelRequested(item.Scope, item.OperationId))
             {
-                _store.MarkCanceled(item.Scope, item.OperationId);
+                await _store.MarkCanceledAsync(item.Scope, item.OperationId, stoppingToken);
                 return;
             }
 
-            _store.MarkSucceeded(item.Scope, item.OperationId, response);
+            await _store.MarkSucceededAsync(item.Scope, item.OperationId, response, stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            _store.MarkCanceled(item.Scope, item.OperationId);
+            await _store.MarkCanceledAsync(item.Scope, item.OperationId, stoppingToken);
         }
         catch (Exception ex)
         {
@@ -86,7 +86,7 @@ public sealed class AdvisoryDraftOperationHostedService(
                 "Advisory draft operation failed for {OperationId}",
                 item.OperationId);
 
-            _store.MarkFailed(item.Scope, item.OperationId, ex.Message);
+            await _store.MarkFailedAsync(item.Scope, item.OperationId, ex.Message, stoppingToken);
         }
     }
 }

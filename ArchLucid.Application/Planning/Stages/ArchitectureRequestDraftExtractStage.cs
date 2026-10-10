@@ -46,13 +46,15 @@ public sealed class ArchitectureRequestDraftExtractStage(IAgentCompletionClient 
         if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
             throw new ArgumentException("FreeTextDescription is required.", nameof(input));
 
-        progress?.ReportStep(AdvisoryDraftOperationSteps.ReadingOverview, 1, AdvisoryDraftOperationSteps.TotalSteps);
+        if (progress is not null)
+            await progress.ReportStepAsync(AdvisoryDraftOperationSteps.ReadingOverview, 1, AdvisoryDraftOperationSteps.TotalSteps);
 
         string userPrompt = BuildDraftUserPrompt(input);
 
         long extractionStartTicks = Stopwatch.GetTimestamp();
 
-        progress?.ReportStep(AdvisoryDraftOperationSteps.Extracting, 2, AdvisoryDraftOperationSteps.TotalSteps);
+        if (progress is not null)
+            await progress.ReportStepAsync(AdvisoryDraftOperationSteps.Extracting, 2, AdvisoryDraftOperationSteps.TotalSteps);
 
         string responseJson = await _completionClient.CompleteJsonAsync(
             DraftSystemPrompt,

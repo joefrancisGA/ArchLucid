@@ -11,9 +11,12 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
 {
     private readonly ConcurrentDictionary<string, AdvisoryDraftOperationRecord> _records = new(StringComparer.Ordinal);
 
-    public AdvisoryDraftOperationCreateResult CreatePending(ScopeContext scope)
+    public Task<AdvisoryDraftOperationCreateResult> CreatePendingAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         Guid operationId = Guid.NewGuid();
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
@@ -37,27 +40,31 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
                 throw new InvalidOperationException("Failed to register advisory draft operation.");
             }
 
-            return new AdvisoryDraftOperationCreateResult(existing, Created: false);
+            return Task.FromResult(new AdvisoryDraftOperationCreateResult(existing, Created: false));
         }
 
-        return new AdvisoryDraftOperationCreateResult(record, Created: true);
+        return Task.FromResult(new AdvisoryDraftOperationCreateResult(record, Created: true));
     }
 
-    public bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record)
+    public Task<AdvisoryDraftOperationRecord?> GetAsync(
+        string operationId,
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
     {
-        record = null;
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!OperationIdCodec.TryParse(operationId, out OperationIdKind kind, out string payload)
             || kind != OperationIdKind.Draft
             || !Guid.TryParse(payload, out Guid parsedId))
         {
-            return false;
+            return Task.FromResult<AdvisoryDraftOperationRecord?>(null);
         }
 
-        return _records.TryGetValue(BuildKey(scope, parsedId), out record);
+        _records.TryGetValue(BuildKey(scope, parsedId), out AdvisoryDraftOperationRecord? record);
+        return Task.FromResult(record);
     }
 
-    public void MarkRunning(ScopeContext scope, string operationId)
+    public Task MarkRunningAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default)
     {
         UpdateRecord(scope, operationId, static record =>
         {
@@ -65,20 +72,33 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
             record.StepLabel = AdvisoryDraftOperationSteps.ReadingOverview;
             record.CurrentStep = 1;
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
-        });
+        }, cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    public void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep)
+    public Task UpdateProgressAsync(
+        ScopeContext scope,
+        string operationId,
+        string stepLabel,
+        int currentStep,
+        CancellationToken cancellationToken = default)
     {
         UpdateRecord(scope, operationId, record =>
         {
             record.StepLabel = stepLabel;
             record.CurrentStep = currentStep;
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
-        });
+        }, cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    public void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result)
+    public Task MarkSucceededAsync(
+        ScopeContext scope,
+        string operationId,
+        DraftArchitectureRequestResponse result,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(result);
 
@@ -90,10 +110,16 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
             record.Result = result;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    public void MarkFailed(ScopeContext scope, string operationId, string errorMessage)
+    public Task MarkFailedAsync(
+        ScopeContext scope,
+        string operationId,
+        string errorMessage,
+        CancellationToken cancellationToken = default)
     {
         UpdateRecord(scope, operationId, record =>
         {
@@ -102,26 +128,37 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
             record.ErrorMessage = errorMessage;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    public void MarkCanceled(ScopeContext scope, string operationId)
+    public Task MarkCanceledAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default)
     {
         UpdateRecord(scope, operationId, record =>
         {
             if (record.State is OperationState.Succeeded or OperationState.Failed or OperationState.Canceled)
+            {
                 return;
+            }
 
             record.State = OperationState.Canceled;
             record.StepLabel = AdvisoryDraftOperationSteps.Canceled;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    private void UpdateRecord(ScopeContext scope, string operationId, Action<AdvisoryDraftOperationRecord> mutate)
+    private void UpdateRecord(
+        ScopeContext scope,
+        string operationId,
+        Action<AdvisoryDraftOperationRecord> mutate,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!OperationIdCodec.TryParse(operationId, out OperationIdKind kind, out string payload)
             || kind != OperationIdKind.Draft
@@ -131,7 +168,9 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         }
 
         if (!_records.TryGetValue(BuildKey(scope, parsedId), out AdvisoryDraftOperationRecord? record))
+        {
             return;
+        }
 
         mutate(record);
     }

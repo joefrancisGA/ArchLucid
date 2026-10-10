@@ -14,7 +14,9 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
     private readonly IAdvisoryDraftOperationRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
 
-    public AdvisoryDraftOperationCreateResult CreatePending(ScopeContext scope)
+    public async Task<AdvisoryDraftOperationCreateResult> CreatePendingAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -22,14 +24,16 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
         AdvisoryDraftOperationRow row = BuildRow(scope, operationId, now);
-        bool inserted = _repository.TryInsertPendingAsync(row, CancellationToken.None).GetAwaiter().GetResult();
+        bool inserted = await _repository.TryInsertPendingAsync(row, cancellationToken);
 
         if (!inserted)
         {
-            AdvisoryDraftOperationRow? existing = _repository
-                .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, operationId, CancellationToken.None)
-                .GetAwaiter()
-                .GetResult()
+            AdvisoryDraftOperationRow? existing = await _repository.GetAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    operationId,
+                    cancellationToken)
                 ?? throw new InvalidOperationException("Failed to register advisory draft operation.");
 
             return new AdvisoryDraftOperationCreateResult(MapToRecord(scope, existing), Created: false);
@@ -38,51 +42,62 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
         return new AdvisoryDraftOperationCreateResult(MapToRecord(scope, row), Created: true);
     }
 
-    public bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record)
+    public async Task<AdvisoryDraftOperationRecord?> GetAsync(
+        string operationId,
+        ScopeContext scope,
+        CancellationToken cancellationToken = default)
     {
-        record = null;
-
         if (!TryParseDraftOperationId(operationId, out Guid parsedId))
         {
-            return false;
+            return null;
         }
 
-        AdvisoryDraftOperationRow? row = _repository
-            .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, parsedId, CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
+        AdvisoryDraftOperationRow? row = await _repository.GetAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            parsedId,
+            cancellationToken);
 
         if (row is null)
         {
-            return false;
+            return null;
         }
 
-        record = MapToRecord(scope, row);
-        return true;
+        return MapToRecord(scope, row);
     }
 
-    public void MarkRunning(ScopeContext scope, string operationId) =>
-        UpdateRecord(scope, operationId, static record =>
+    public Task MarkRunningAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default) =>
+        UpdateRecordAsync(scope, operationId, static record =>
         {
             record.State = OperationState.Running;
             record.StepLabel = AdvisoryDraftOperationSteps.ReadingOverview;
             record.CurrentStep = 1;
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
-        });
+        }, cancellationToken);
 
-    public void UpdateProgress(ScopeContext scope, string operationId, string stepLabel, int currentStep) =>
-        UpdateRecord(scope, operationId, record =>
+    public Task UpdateProgressAsync(
+        ScopeContext scope,
+        string operationId,
+        string stepLabel,
+        int currentStep,
+        CancellationToken cancellationToken = default) =>
+        UpdateRecordAsync(scope, operationId, record =>
         {
             record.StepLabel = stepLabel;
             record.CurrentStep = currentStep;
             record.HeartbeatUtc = TimeProvider.System.GetUtcNow();
-        });
+        }, cancellationToken);
 
-    public void MarkSucceeded(ScopeContext scope, string operationId, DraftArchitectureRequestResponse result)
+    public Task MarkSucceededAsync(
+        ScopeContext scope,
+        string operationId,
+        DraftArchitectureRequestResponse result,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        UpdateRecord(scope, operationId, record =>
+        return UpdateRecordAsync(scope, operationId, record =>
         {
             record.State = OperationState.Succeeded;
             record.StepLabel = AdvisoryDraftOperationSteps.Complete;
@@ -90,21 +105,25 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             record.Result = result;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
     }
 
-    public void MarkFailed(ScopeContext scope, string operationId, string errorMessage) =>
-        UpdateRecord(scope, operationId, record =>
+    public Task MarkFailedAsync(
+        ScopeContext scope,
+        string operationId,
+        string errorMessage,
+        CancellationToken cancellationToken = default) =>
+        UpdateRecordAsync(scope, operationId, record =>
         {
             record.State = OperationState.Failed;
             record.StepLabel = AdvisoryDraftOperationSteps.Failed;
             record.ErrorMessage = errorMessage;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
 
-    public void MarkCanceled(ScopeContext scope, string operationId) =>
-        UpdateRecord(scope, operationId, record =>
+    public Task MarkCanceledAsync(ScopeContext scope, string operationId, CancellationToken cancellationToken = default) =>
+        UpdateRecordAsync(scope, operationId, record =>
         {
             if (record.State is OperationState.Succeeded or OperationState.Failed or OperationState.Canceled)
             {
@@ -115,9 +134,13 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             record.StepLabel = AdvisoryDraftOperationSteps.Canceled;
             record.CompletedUtc = TimeProvider.System.GetUtcNow();
             record.HeartbeatUtc = record.CompletedUtc.Value;
-        });
+        }, cancellationToken);
 
-    private void UpdateRecord(ScopeContext scope, string operationId, Action<AdvisoryDraftOperationRecord> mutate)
+    private async Task UpdateRecordAsync(
+        ScopeContext scope,
+        string operationId,
+        Action<AdvisoryDraftOperationRecord> mutate,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -126,10 +149,12 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
             return;
         }
 
-        AdvisoryDraftOperationRow? row = _repository
-            .GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, parsedId, CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
+        AdvisoryDraftOperationRow? row = await _repository.GetAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            parsedId,
+            cancellationToken);
 
         if (row is null)
         {
@@ -138,7 +163,7 @@ public sealed class SqlAdvisoryDraftOperationStore(IAdvisoryDraftOperationReposi
 
         AdvisoryDraftOperationRecord record = MapToRecord(scope, row);
         mutate(record);
-        _repository.UpdateAsync(MapToRow(record), CancellationToken.None).GetAwaiter().GetResult();
+        await _repository.UpdateAsync(MapToRow(record), cancellationToken);
     }
 
     private static bool TryParseDraftOperationId(string operationId, out Guid parsedId)
