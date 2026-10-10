@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed→hit): regression: `TopologyProposalRelationshipEdgeMapper` again failed to resolve a root Terraform address when the only inventoried graph node used a module-qualified count instance (`module.wrapper.azurerm_app_service.main[0]`). The prior resource-address fallback was absent from the current mapper, so `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index` failed with an empty edge list. The mapper now indexes a root address only when exactly one indexed instance exists, while preserving exact instance resolution and refusing ambiguous multiple-instance roots. The focused edge-mapper and graph-merge suite passed 990/990; the scoped Release compile timed out without compiler errors.
 
+2026-10-10 seed hunt (seed-only): `api-key-auth` — re-read API-key matching, normalization, expiry, rotation, and admin audit paths. No new auth bypass or secret-disclosure row met the hunt-ready bar. The picker filter was blocked before test discovery by existing `IActorContext` compile errors in `TenantTrialControllerTests`; seeded one bounded audit-canonicalization candidate and made no production or regression change.
+
 2026-10-10 thorough hunt (dry): `ui-architecture-diagram` — the only remaining candidate claimed that substring focus matching could confuse a short resource id with a longer rendered node id, but the selected production path provides ARM/resource identifiers and outline `al-seed` values rather than a reachable short/long collision case. No hunt-ready hypothesis remained and no failing repro was warranted. The camera/focus suites passed 57/57; the broader workbench suite had one existing UUID subscription-label failure. No production change.
 
 2026-10-10 thorough hunt (dry): `agent-runtime-safety` — cheap-disproved both nullable-collection candidates as unreachable at the selected production boundary: `SanitizeTagMap` has no selected runtime caller receiving nullable Azure tag values, and `AgentEvidencePackage` is assembled in-process rather than deserialized from the proposed JSON shape. The focused picker filter passed 584 tests. No production change.
@@ -12102,10 +12104,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 77
+- **hunts:** 78
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-09 — API key rotation audits stored the actor as unknown
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12161,6 +12163,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `AdminApiKeySettingsController.RotateKeyIdAsync` — the legacy route accepts a valid case/whitespace-variant slot but writes the raw `keyId` into its audit payload while the service returns the canonical slot, so audit readers can see a noncanonical slot for a successful rotation — input: `POST /v1/admin/apikeys/%20readonly%20/rotate` or another route-encoded casing variant.
 - [x] (proven) `AdminApiKeySettingsController` rotation audits — API key principal name was copied onto the event, then `AuditService` stored `ActorUserId` as `unknown` because `NameIdentifier` is absent unless `ExplicitActor` is set — **hit 2026-10-09 seed hunt (seed→hit):** both settings rotate and legacy key-id rotate share `LogRotationAuditAsync`; regressions `RotateAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` and `RotateKeyIdAsync_persisted_audit_keeps_api_key_name_when_name_identifier_is_absent` (failed first as `unknown`).
 - [x] (proven) `AdminApiKeySettingsService.GetSnapshot` / `Rotate` treat UTF-8 BOM-only `AdminKey` as configured — **hit 2026-09-27 seed hunt #53:** `HasConfiguredKeyMaterial` counted BOM-only mask segments while auth normalization left no matchable material; fixed via shared `ApiKeyMaterialNormalizer` and masker segment skip; regressions `GetSnapshot_treats_utf8_bom_only_admin_slot_as_unconfigured`, `Rotate_without_invalidate_previous_returns_replace_when_admin_slot_is_utf8_bom_only`, `When_admin_key_config_is_only_utf8_bom_returns_invalid_key`.
 
