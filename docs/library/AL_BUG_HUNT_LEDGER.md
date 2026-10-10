@@ -5152,7 +5152,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-08
@@ -29820,6 +29820,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread temporal snapshot response contracts, provenance graph algorithms/completeness analysis, and `KnowledgeGraphService` limit/truncation behavior. UTC fields, bounded GUID traversal, and node/edge truncation matched explicit contracts; no new hunt-ready row met the reachability and wrong-outcome bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed-only): reread distributed/memory/non-caching graph projection caches, MessagePack/JSON fallback, in-memory snapshot scope checks, and provenance serialization. Cache corruption already degrades to a miss and remaining repository/cache branches matched their explicit contracts; no new hunt-ready row met the reachability and wrong-outcome bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
