@@ -21,12 +21,12 @@ It read well. Almost every sentence in it was wrong in a way that mattered:
 
 - "Our investigation found that attackers *could*" drifted, by the second sentence, to "customer data *has been exposed*". Nothing showed exposure. Chapter 2's hop 8 said there were no read logs to show anything either way.
 - "85% likelihood" came from nowhere. Nothing calibrated produced it.
-- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. Chapter 4's lab showed that narrowing one identity's role closed all six paths.
+- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. Chapter 4's lab showed that all six paths converge on one deployment identity, so a few targeted changes close most of them.
 - "Privileged help-desk accounts" turned one user with one directory role into a category.
 
 The analyst's second attempt used the approach in this chapter. They gave the model a small, structured evidence pack generated from the snapshot, with the six paths as cited hop tables. They required a citation on every sentence and ran the result through a short validator. It took a few minutes longer to set up the first time. The output:
 
-> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six pass through one deployment identity, `payments-deploy` [H4]. Its broad role on the payments resource group lets it reach both stores [H5, H7, H9]. We have no evidence about whether any path has been used, because read logging is not enabled on either store [G1, G2]. Narrowing that one identity's role to what deployments need would close all six paths [C1].
+> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six pass through one deployment identity, `payments-deploy` [H4]. Its broad role on the payments resource group lets it reach both stores [H5, H7, H9]. We have no evidence about whether any path has been used, because read logging is not enabled on either store [G1, G2]. Narrowing that identity's role to what deployments need would close the three paths to `custdata` [C1].
 
 That paragraph is shorter, less dramatic, and defensible line by line. It also contains a decision the board could actually make.
 
@@ -126,7 +126,7 @@ The evidence pack is a small JSON document generated from your derivation step. 
     { "id": "G2", "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined." }
   ],
   "cutPoints": [
-    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P6.", "closes": ["P1", "P2", "P3", "P4", "P5", "P6"] }
+    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.", "closes": ["P1", "P2", "P3"] }
   ]
 }
 ```
@@ -292,7 +292,7 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Executive or board** — consequence, decision, cost of the decision, honesty about what isn't known:
 
-> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six run through a single deployment identity [H4], so one change closes all of them [C1]. We cannot tell whether any path has been used, because read logging is not enabled on either store [G1, G2].
+> Six access paths lead from people and pipelines to customer data in two storage accounts [P1–P6]. All six run through a single deployment identity [H4]. Narrowing its role closes the three paths to live customer data, and the three to the archive remain while the pipeline deploys the reconciliation app [C1]. We cannot tell whether any path has been used, because read logging is not enabled on either store [G1, G2].
 
 **Security architect** — structure, convergence, assumptions, where the evidence is weakest:
 
@@ -300,7 +300,7 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Engineer on the payments team** — what to change and in what order:
 
-> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
+> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
 
 **Auditor** — evidence chain and time:
 
