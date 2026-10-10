@@ -29413,13 +29413,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1047
+- **hunts:** 1048
 - **bugs-found:** 428
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread appsettings/JSON/CloudFormation/Kubernetes parsers, canonical property caps and redaction, resource identity fingerprints, and fallback error handling; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 825/825. No production change.
 
 2026-10-10 seed hunt (seed→hit): `MermaidDiagramSourceParser` ignored normal C4 declarations after the `C4Context` line because anchored C4 regexes lacked multiline mode, and relation-created placeholders were never upgraded by later `Person`/`System` declarations. C4 matching now scans line-by-line and explicit declarations update existing placeholders; regression `Parse_C4DeclarationAfterRelationship_UpgradesPlaceholderNode`; pre-fix repro failed, scoped ContextIngestion/Canonicalization tests passed 825/825, and Release compile passed with 0 warnings and 0 errors.
 
