@@ -33,4 +33,4 @@
 - A. Companion lab setup (sample tenant, Terraform, deliberately vulnerable paths). First draft: [appendices/a-companion-lab.md](appendices/a-companion-lab.md).
 - B. Query cookbook (Resource Graph KQL, Microsoft Graph). First draft: [appendices/b-query-cookbook.md](appendices/b-query-cookbook.md).
 - C. Prompt patterns for grounded security explanations. First draft: [appendices/c-prompt-patterns.md](appendices/c-prompt-patterns.md).
-- D. Optional case study (owner-approved, sanitized).
+- D. Optional case study (owner-approved, sanitized). Scaffold: [appendices/d-case-study.md](appendices/d-case-study.md), with sanitization check `tools/check_case_study.py`.
