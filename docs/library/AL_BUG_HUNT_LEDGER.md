@@ -35221,13 +35221,15 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-10 seed hunt (seed-only): reread `GovernanceFindingsQueueClient`, the queue synopsis/results path, visibility URL handling, and the focused client tests; no new hunt-ready row met the reachability and wrong-outcome bar. The exact client file ran 22 tests with 11 existing external-store/update-depth and workspace-label baseline failures; seeded bounded candidates for approval provenance wiring, saved-view payload validation, and blank finding identifiers, with no production or regression change.
+
 - **id:** ui-governance-findings-queue
 - **status:** open
 - **impact:** medium
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
@@ -35248,6 +35250,10 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [ ] (candidate) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner; the selected client has no provenance source wiring to establish the caller contract.
+- [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering; the saved-view API payload contract and failure behavior need confirmation.
+- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — a reachable risk-register finding with a blank `findingId` may enter bulk-selection state and be submitted as an empty disposition id; the API row contract and bulk endpoint validation need confirmation.
 
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` / `useGovernanceFindingsQueueBulkActions` — the URL-selection boundary uses all loaded queue rows rather than currently displayed rows, so a filtered-out finding can remain selected and reach bulk disposition — **cheap-disproof 2026-10-10 thorough hunt:** selection intentionally persists across display filters while the active loaded-id boundary prevents stale/out-of-scope rows.
 - [x] (proven) `GovernanceFindingsQueueClient` / `GovernanceFindingsQueueDesktopTable` / `GovernanceFindingsQueueTableRow` — mixed queue rows of `recordKind: "decision"` were included in `availableFindingIds` and rendered a selectable checkbox, allowing a decision id to reach findings bulk disposition; **hit 2026-10-10 thorough hunt:** filter available ids to findings, suppress decision-row checkboxes, and restrict page/group select-all to finding rows; regression `does not expose decision rows to findings bulk selection`.
