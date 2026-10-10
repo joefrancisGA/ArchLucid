@@ -35241,6 +35241,8 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `ResourceHubClient` architecture-review findings stream — when `hub.architectureReviewFindings.hasMore` is true, the “more” link targets the operational remediation workbench via `buildResourceScopedWorkbenchHref` instead of an architecture-review findings destination; input is reachable from the captured `hub.architectureReviewFindings` page.
 - [ ] (candidate) `ResourceHubClient` audit “Other linked controls” list — two captured matches with the same `controlId` and `auditEvidenceSnapshotId` but different `assessmentId` values receive the same React key `${controlId}-${auditEvidenceSnapshotId}`, so a reachable cross-assessment list can have non-unique row identity; input is reachable from `hub.auditLineageLink.matches`.
 
+2026-10-10 seed hunt (seed-only): rechecked the retained architecture-review pagination and audit-lineage row-identity candidates against the selected component; neither had a same-run falsifiable wrong outcome with sufficient route or identity evidence, so no repro or production change was warranted.
+
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained row-key candidates, added architecture-finding pagination routing and trailing-resource-title candidates; 49 scoped ResourceHubClient tests passed.
