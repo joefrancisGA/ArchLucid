@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — confidence enrichment dropped each persisted result's `TaskStructuralExecutionMode` before reusing the shared quality evaluator, so real traces skipped the real-only finding-citation coverage floor and could be marked schema-passed. Confidence evaluation now propagates the mode through the run context and both enrichers; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`; 197 scoped Evaluation tests passed.
+
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — PilotStrict accepted a reachable reference-trace JSON payload whose non-empty `citations` array contained only `null` or blank entries, so malformed citation presence could bypass the citation gate. Citation presence now requires a non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 196 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — a reachable reference-trace JSON payload containing `findings: [null]` threw during required finding-category evaluation instead of recording a failed reference case. Null finding entries are now skipped before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`; 194 scoped Evaluation tests passed.
@@ -16783,11 +16785,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 33
-- **bugs-found:** 20
+- **hunts:** 34
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — malformed non-empty citation entries bypassed the PilotStrict citation-presence gate
+- **last-bug:** 2026-10-10 — confidence enrichment skipped real-only finding citation coverage
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16811,6 +16813,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
 
 ### Hypotheses
+
+- [x] (proven) `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — persisted real-task execution mode was not forwarded to the shared quality evaluator, so real traces omitted finding-citation coverage enforcement during confidence enrichment — **hit 2026-10-10 seed hunt:** propagate `TaskStructuralExecutionMode` through the confidence context, pipeline, and enrichers; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`.
 
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the PilotStrict presence gate, allowing malformed citation payloads to avoid the citation-specific rejection reason — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 
