@@ -41,6 +41,11 @@ internal static class DiagramEdgeLabelHumanizer
 
         string label = storedLabel.Trim();
 
+        if (HasEvidenceCurrencyPrefix(label))
+        {
+            return true;
+        }
+
         if (string.Equals(label, "Likely", StringComparison.OrdinalIgnoreCase))
         {
             return true;
@@ -67,6 +72,15 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         return false;
+    }
+
+    private static bool HasEvidenceCurrencyPrefix(string label)
+    {
+        return label.StartsWith("Current", StringComparison.Ordinal)
+            || label.StartsWith("Configured", StringComparison.Ordinal)
+            || label.StartsWith("Observed", StringComparison.Ordinal)
+            || label.StartsWith("Derived", StringComparison.Ordinal)
+            || label.StartsWith("Evidence currency was not stored", StringComparison.Ordinal);
     }
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
