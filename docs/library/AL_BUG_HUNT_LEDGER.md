@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `ui-oidc` — promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
 
 2026-10-10 seed hunt (seed-only): `archlucid-core` — the picker exposed only the ledger path for this retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter was attempted but stopped at the existing ARCH002 `DateTime.Now` analyzer baseline.
@@ -18890,6 +18892,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
+
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC plus callback suite ran 75 tests: 74 passed and 1 existing buyer-polished follow-up-link baseline failed.
@@ -18920,11 +18924,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 34
-- **bugs-found:** 32
+- **hunts:** 35
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-08 — stale cross-flow PKCE on OIDC redirect
+- **last-bug:** 2026-10-10 — UTF-8 JWT display-name mojibake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19030,7 +19034,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `consumePkceState` — **cheap-disproof 2026-10-10 thorough hunt:** state values are generated independently and a cross-provider collision requires an IdP defect not reachable from these client files; PKCE tests passed.
 - [x] (valid-no-repro) `persistTokenResponse` — **cheap-disproof 2026-10-10 thorough hunt:** JWT hint extraction is deliberately non-throwing while server-side BFF synchronization remains authoritative; no downstream misclassification was reproduced.
 
-- [x] (valid-no-repro) `decodeOAuthErrorDescription` — an unusually large or repeated percent-encoded `error_description` can be fully decoded and rendered into callback error handling without a length bound — **cheap-disproof 2026-10-10 thorough hunt:** the callback query is browser/IdP input and decoding is unbounded, but no reachable production limit or user-visible failure was established; the focused callback-message tests passed and no failing repro was produced.
+- [x] (proven) `decodeJwtPayload` — JWT payloads containing UTF-8 identity names were decoded with `atob()`'s Latin-1 string, producing mojibake in the operator display-name hint — **hit 2026-10-10 seed hunt:** decode the Base64 bytes with `TextDecoder("utf-8", { fatal: true })`; regression `decodes UTF-8 display names without mojibake`; reachable from the IdP-supplied JWT payload used by `persistTokenResponse`.
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unknown OAuth error codes and descriptions are copied into technical callback messaging before buyer-safe mapping, so control characters or provider-internal details may reach an operator-facing error surface — **cheap-disproof 2026-10-10 thorough hunt:** React renders callback text as escaped text and the detailed branches intentionally preserve provider diagnostics for the operator; no control-character or provider-detail failure beyond that documented contract was reproduced.
 - [x] (invalid) `getOidcScopes` — a whitespace-normalized but otherwise arbitrary public scope string is sent to the authorization request, so a deployment typo can request an unintended scope set — **cheap-disproof 2026-10-10 thorough hunt:** the public environment value is deployment configuration, and the authorization request intentionally forwards configured scopes; no attacker-controlled or in-zone scope mutation path exists.
 - [x] (valid-no-repro) `storePostSignInReturnUrl` — safe-path validation permits unbounded query and fragment payloads, so a large callback return URL can inflate session storage and make the next redirect unusable — **cheap-disproof 2026-10-10 thorough hunt:** same-origin validation rejects unsafe destinations and the storage API is only reached from bounded application navigation inputs in this zone; no quota failure or unusable redirect was reproduced.
