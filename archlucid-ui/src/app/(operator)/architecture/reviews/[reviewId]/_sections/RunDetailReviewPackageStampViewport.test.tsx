@@ -86,6 +86,22 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
     expect(screen.queryByTestId("transparency-trail-panel")).toBeNull();
   });
 
+  it("renders the pre-seal stamp band when a golden manifest is present but feasibility is still hydrating", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        feasibilityVerdict={null}
+        runCompleted
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-review-package-stamp-viewport")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-stamp-decision-receipt-strip")).toBeNull();
+  });
+
   it("shows the pre-finalize trail and coverage strip before seal", () => {
     workspaceModeMock.isWorkingMode = true;
 

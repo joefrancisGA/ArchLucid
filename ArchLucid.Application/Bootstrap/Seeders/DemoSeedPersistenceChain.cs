@@ -82,6 +82,12 @@ public sealed class DemoSeedPersistenceChain(DemoSeedSeederDependencies deps)
             richFindingsAndGraph: true,
             cancellationToken);
 
+        await DemoSeedExportLineageAuditRepair.TryEnsureManifestGeneratedExportLineageAnchorAsync(
+            deps,
+            scope,
+            runId,
+            cancellationToken);
+
         return chain;
     }
 

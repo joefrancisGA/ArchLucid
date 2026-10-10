@@ -61,6 +61,9 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Execution history listed by schedule id within the active tenant catalog connection.")]
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         ScopeContext scope,
         Guid scheduleId,

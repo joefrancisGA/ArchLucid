@@ -18,6 +18,9 @@ public sealed class DapperEvolutionSimulationRunRepository(
     IScopeContextProvider scopeContextProvider)
     : IEvolutionSimulationRunRepository
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on EvolutionCandidateChangeSets by id before simulation run insert.")]
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

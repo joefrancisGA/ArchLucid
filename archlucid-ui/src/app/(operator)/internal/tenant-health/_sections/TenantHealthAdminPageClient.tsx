@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { RefreshButton } from "@/components/ui/refresh-button";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   EnterpriseTable,
   EnterpriseTableBody,

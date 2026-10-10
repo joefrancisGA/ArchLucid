@@ -79,6 +79,9 @@ public sealed class DapperPolicyPackChangeLogRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack change log listed by PolicyPackId within the active tenant catalog.")]
     public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByPolicyPackIdAsync(
         Guid policyPackId,
         int maxRows = 50,
@@ -119,6 +122,9 @@ public sealed class DapperPolicyPackChangeLogRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Policy pack change log listed by tenant within the active tenant catalog.")]
     public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantAsync(
         Guid tenantId,
         int maxRows = 100,

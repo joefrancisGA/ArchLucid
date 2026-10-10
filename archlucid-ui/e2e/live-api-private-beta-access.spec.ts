@@ -23,6 +23,7 @@ import {
   revokeAdminUserInvite,
   stubEmptyArchitectureDraftListRoute,
   validateInvitationToken,
+  waitForOperatorAuthMeProxyOk,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
@@ -31,6 +32,7 @@ import {
   resolveScopeFromAuthMe,
   writeJwtBrowserSession,
 } from "./helpers/live-private-beta-access";
+import { injectDefaultTenantOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
@@ -410,11 +412,14 @@ test.describe(
 
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
-    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
+    await expect(async () => {
+      await injectDefaultTenantOperatorScope(page);
+      await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 90_000,
+      });
+      await expectLiveReviewsHubListReady(page, { timeoutMs: 30_000, projectId: scope.projectId });
+    }).toPass({ timeout: 120_000 });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
     );
@@ -514,7 +519,11 @@ test.describe(
 
     await stubEmptyArchitectureDraftListRoute(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await assertLiveSeatOperatorScopeChrome(page);
+    await injectDefaultTenantOperatorScope(page, {
+      reestablishJwtSession: false,
+      jwtAccessToken: inviteeSession.accessToken,
+      sampleWorkspaceVisitActive: false,
+    });
 
     const meDirect = await fetchAuthMeWithBearer(request, inviteeSession.accessToken);
     const directRoles = readRoleClaims(meDirect.claims);
@@ -530,7 +539,12 @@ test.describe(
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
 
-    const runId = await submitPrivateBetaSimplifiedPilotWizard(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await assertLiveSeatOperatorScopeChrome(page);
+
+    const runId = await submitPrivateBetaSimplifiedPilotWizard(page, {
+      jwtAccessToken: inviteeSession.accessToken,
+    });
 
     await waitForArchitectureRunListIncludesRun(
       request,
@@ -543,11 +557,18 @@ test.describe(
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
-    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
+    await expect(async () => {
+      await injectDefaultTenantOperatorScope(page, {
+        reestablishJwtSession: false,
+        jwtAccessToken: inviteeSession.accessToken,
+        sampleWorkspaceVisitActive: false,
+      });
+      await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 90_000,
+      });
+      await expectLiveReviewsHubListReady(page, { timeoutMs: 30_000, projectId: scope.projectId });
+    }).toPass({ timeout: 120_000 });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
     );

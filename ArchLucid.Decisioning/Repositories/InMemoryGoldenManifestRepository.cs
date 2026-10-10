@@ -187,5 +187,38 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             return Task.FromResult<IReadOnlyList<ManifestDocument>>(matches);
         }
     }
+
+    /// <inheritdoc />
+    public Task UpdateSealedHasherBoundSliceAsync(
+        ScopeContext scope,
+        ManifestDocument manifest,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(manifest);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_lock)
+        {
+            ManifestDocument? existing = _store.FirstOrDefault(x =>
+                x.ManifestId == manifest.ManifestId
+                && x.TenantId == scope.TenantId
+                && x.WorkspaceId == scope.WorkspaceId
+                && x.ProjectId == scope.ProjectId);
+
+            if (existing is null)
+            {
+                _store.Add(manifest);
+            }
+            else
+            {
+                existing.ManifestHash = manifest.ManifestHash;
+                existing.FeasibilityVerdict = manifest.FeasibilityVerdict;
+                existing.CommittedDecisionReceiptHashSha256 = manifest.CommittedDecisionReceiptHashSha256;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
 }
 

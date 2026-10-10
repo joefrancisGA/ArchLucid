@@ -27,7 +27,8 @@ public static class DemoSeedScenarioRegistry
         new(RetailCheckoutSlug, "retail-export-record", "Retail Checkout export record", "customer-intake"),
         new(NorthwindProductTourSlug, "northwind-product-tour", "Product tour workspace", null),
         new(MeridianAlpineRegulatedSlug, "meridian-alpine-regulated", "Meridian Alpine regulated workspace", "claims-intake"),
-        new(CreatedPackageSampleSlug, "created-package-sample", "Created architecture package sample", "ai-knowledge-assistant")
+        new(CreatedPackageSampleSlug, "created-package-sample", "Created architecture package sample", "ai-knowledge-assistant"),
+        new(NorthwindProductTourSlug, "demo-export-lineage-repair", "Repair ManifestGenerated audit anchors for evaluator workspaces", null),
     ];
 
     /// <summary>Ordered seed steps for <see cref="DemoSeedService.SeedAsync"/>.</summary>

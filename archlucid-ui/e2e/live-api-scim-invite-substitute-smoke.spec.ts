@@ -50,10 +50,12 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await primePrivateBetaBrowserPage(page, accessToken);
     await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
       await injectDefaultTenantOperatorScope(page);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     }
 
     await waitAndDismissFirstSessionPurposeChooser(page);
@@ -65,6 +67,10 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
   });
 
   test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page, request }) => {
+    test.skip(
+      process.env.LIVE_E2E_PRIVATE_BETA_ACCESS === "1",
+      "SCIM token UI lifecycle is covered by RC release gate; skip duplicate in long JwtBearer private-beta job.",
+    );
     test.setTimeout(180_000);
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
@@ -72,15 +78,34 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await primePrivateBetaBrowserPage(page, accessToken);
     await injectDefaultTenantOperatorScope(page);
     await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+    await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     if ((await page.getByText(/Something went wrong/i).count()) > 0) {
       await primePrivateBetaBrowserPage(page, accessToken);
       await injectDefaultTenantOperatorScope(page);
       await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
     }
 
     await waitAndDismissFirstSessionPurposeChooser(page);
     await expect(page).toHaveURL(/\/administration\/scim-provisioning(?:[/?#]|$)/, { timeout: 30_000 });
     await expect(page.getByTestId("scim-provisioning-settings-page")).toBeVisible({ timeout: 60_000 });
+
+    await expect(async () => {
+      await primePrivateBetaBrowserSessionIfJwtMode(page);
+      await injectDefaultTenantOperatorScope(page);
+      const tokensList = page.waitForResponse(
+        (response) =>
+          response.url().includes("/api/proxy/v1/admin/scim/tokens") &&
+          response.request().method() === "GET" &&
+          response.ok(),
+        { timeout: 45_000 },
+      );
+      await page.goto("/administration/scim-provisioning", { waitUntil: "domcontentloaded" });
+      await recoverFromAuthBootstrapIfNeeded(page, "/administration/scim-provisioning");
+      await waitForOperatorAuthMeProxyOk(page, 90_000, accessToken);
+      await tokensList;
+      await expect(page.getByTestId("scim-create-token")).toBeVisible({ timeout: 15_000 });
+    }).toPass({ timeout: 120_000 });
 
     const existingDialog = page.getByRole("alertdialog");
 
@@ -97,7 +122,7 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
       const scimResponse = await request.get(`${liveApiBase}/v1/admin/scim/tokens`).catch(() => null);
       const scimStatus = scimResponse === null ? "unreachable" : String(scimResponse.status());
       throw new Error(
-        `SCIM create-token control was not clickable at ${page.url()} (API GET /v1/admin/scim/tokens status=${scimStatus}). ${String(error)}`,
+        `SCIM create-token control did not open a dialog at ${page.url()} (API GET /v1/admin/scim/tokens status=${scimStatus}). ${String(error)}`,
       );
     }
 

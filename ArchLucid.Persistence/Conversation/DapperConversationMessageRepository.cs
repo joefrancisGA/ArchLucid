@@ -21,6 +21,9 @@ public sealed class DapperConversationMessageRepository(
     : IConversationMessageRepository
 {
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Denormalized scope lookup on ConversationThreads by ThreadId before message insert.")]
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(message);

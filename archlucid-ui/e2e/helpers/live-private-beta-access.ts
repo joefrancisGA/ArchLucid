@@ -257,6 +257,55 @@ async function writeJwtBrowserSessionOnCurrentDocument(
   }
 }
 
+/** Waits for a successful operator `/me` via the UI proxy (JwtBearer CI access-path). */
+export async function waitForOperatorAuthMeProxyOk(
+  page: Page,
+  timeoutMs = 90_000,
+  accessToken?: string,
+): Promise<void> {
+  const trimmedToken = accessToken?.trim() ?? "";
+  if (trimmedToken.length > 0) {
+    await writeJwtBrowserSession(page, trimmedToken);
+  }
+
+  const matchesMe = (response: { url(): string; request(): { method(): string }; ok(): boolean }): boolean =>
+    response.url().includes("/api/proxy/api/auth/me") &&
+    response.request().method() === "GET" &&
+    response.ok();
+
+  try {
+    await page.waitForResponse(matchesMe, { timeout: 8_000 });
+    return;
+  } catch {
+    /* fall through — /me may have completed before this waiter registered */
+  }
+
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const probe = await probeAuthMeViaProxy(page);
+
+    if (probe.ok) {
+      return;
+    }
+
+    if (probe.status === 429) {
+      await page.waitForTimeout(parseAuthMe429RetryMs(probe.text));
+      continue;
+    }
+
+    break;
+  }
+
+  const origin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(origin)) {
+    await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
+  }
+
+  await page.waitForResponse(matchesMe, { timeout: timeoutMs });
+}
+
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
   const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
@@ -505,16 +554,30 @@ export async function validateInvitationToken(
   if (!res.ok()) {
     const body = await res.text();
 
-    throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
+    if (res.status() === 429 && attempt < maxAttempts - 1) {
+      const rateLimitBody = await res.text();
+      const waitMs = parseInvitationValidateRateLimitBackoffMs(res.headers()["retry-after"], rateLimitBody);
+
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      continue;
+    }
+
+    if (!res.ok()) {
+      const body = await res.text();
+
+      throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
+    }
+
+    const body = (await res.json()) as LiveInvitationValidationResult;
+
+    if (!body.status) {
+      throw new Error("Invitation validate response missing status.");
+    }
+
+    return body;
   }
 
-  const body = (await res.json()) as LiveInvitationValidationResult;
-
-  if (!body.status) {
-    throw new Error("Invitation validate response missing status.");
-  }
-
-  return body;
+  throw new Error("GET /v1/auth/invitations/validate exhausted rate-limit retries.");
 }
 
 /** Seeds a platform user and returns a Reader pre-auth JWT (harness; TB-927 invitee principal). */
@@ -678,6 +741,30 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
   const body = (await res.json()) as { invitations?: unknown[] };
 
   return Array.isArray(body.invitations) ? body.invitations : [];
+}
+
+/** Polls admin invitations API until the row for `email` reaches `expectedStatus`. */
+export async function expectAdminInvitationStatus(
+  request: APIRequestContext,
+  email: string,
+  expectedStatus: string,
+): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const invitations = await listPendingInvitations(request);
+        const match = invitations.find(
+          (item) =>
+            typeof item === "object" &&
+            item !== null &&
+            (item as { email?: string }).email?.toLowerCase() === email.toLowerCase(),
+        ) as { status?: string } | undefined;
+
+        return match?.status ?? "";
+      },
+      { timeout: 90_000 },
+    )
+    .toBe(expectedStatus);
 }
 
 export type LiveScopeDebugBody = {

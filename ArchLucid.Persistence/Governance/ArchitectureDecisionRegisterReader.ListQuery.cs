@@ -7,6 +7,9 @@ namespace ArchLucid.Persistence.Governance;
 
 public sealed partial class ArchitectureDecisionRegisterReader
 {
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Runtime-composed filter SQL; GoldenManifests scope bound via @TenantId/@WorkspaceId parameters.")]
     public async Task<IReadOnlyList<ArchitectureDecisionRegisterEntry>> ListAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;

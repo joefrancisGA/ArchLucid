@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
@@ -143,6 +144,9 @@ public sealed partial class SqlArtifactBundleRepository(
     }
 
     /// <inheritdoc cref="GetByBundleIdAsync(System.Guid,System.Threading.CancellationToken)" />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Artifact bundle lookup by BundleId within the active tenant catalog.")]
     public async Task<ArtifactBundle?> GetByBundleIdAsync(
         Guid bundleId,
         IDbConnection connection,

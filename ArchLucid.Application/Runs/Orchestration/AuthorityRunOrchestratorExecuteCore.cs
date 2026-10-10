@@ -210,6 +210,13 @@ public sealed partial class AuthorityRunOrchestrator
                     RunActivity = runActivity
                 };
 
+                // The artifacts stage persists GoldenManifestId. Provenance has to be on the row in that
+                // write; applying it afterward mutates a sealed anchor and the header guard rejects the update.
+                RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
+                    run,
+                    request.EffectiveModelAliasId,
+                    _agentModelAliasRegistry);
+
                 AuthorityPipelineStagesExecutionResult stageResult =
                     await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
@@ -217,11 +224,6 @@ public sealed partial class AuthorityRunOrchestrator
                 {
                     LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
                         "(none)");
-
-                    RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
-                        run,
-                        request.EffectiveModelAliasId,
-                        _agentModelAliasRegistry);
 
                     await UpdateRunWithTransientRetryAsync(run, stagesUow, pipelineCt);
 

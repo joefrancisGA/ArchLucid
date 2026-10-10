@@ -59,6 +59,9 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert delivery attempts listed by AlertId within the active tenant catalog.")]
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
         ScopeContext scope,
         Guid alertId,
@@ -88,6 +91,9 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Alert delivery attempts listed by RoutingSubscriptionId within the active tenant catalog.")]
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
         ScopeContext scope,
         Guid routingSubscriptionId,

@@ -8,8 +8,11 @@ import {
   OPERATOR_SCOPE_COOKIE_NAME,
   serializeOperatorScopeCookiePayload,
 } from "@/lib/operator/operator-scope-cookie";
+import { OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY } from "@/lib/operator/operator-sample-workspace-visit";
+import { E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY } from "@/lib/operator/e2e-live-seat-ls010-bypass";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
+import { resolveLiveJwtMode } from "./live-api-auth";
 import {
   expectBuyerPolishedReviewDetailShellReady,
   gotoLiveRunDetailPage,
@@ -19,6 +22,9 @@ import {
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
   stubEmptyArchitectureDraftListRoute,
+  waitForOperatorAuthMeProxyOk,
+  primePrivateBetaBrowserSessionIfJwtMode,
+  writeJwtBrowserSession,
 } from "./live-private-beta-access";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
@@ -79,11 +85,15 @@ async function writeOperatorScopeToBrowser(
     (
       payload: {
         readonly key: string;
+        readonly sampleVisitKey: string;
         readonly tenantId: string;
         readonly workspaceId: string;
         readonly projectId: string;
         readonly cookieName: string;
         readonly cookieValue: string;
+        readonly sampleWorkspaceVisitActive: boolean;
+        readonly suppressLs010BootstrapRedirect: boolean;
+        readonly ls010BypassKey: string;
       },
     ) => {
       const record = {
@@ -95,15 +105,29 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
+      if (payload.sampleWorkspaceVisitActive) {
+        window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+        window.sessionStorage.removeItem(payload.ls010BypassKey);
+      } else {
+        window.sessionStorage.removeItem(payload.sampleVisitKey);
+        if (payload.suppressLs010BootstrapRedirect) {
+          window.sessionStorage.setItem(payload.ls010BypassKey, "1");
+        }
+      }
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
       key: OPERATOR_SCOPE_STORAGE_KEY,
+      sampleVisitKey: OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY,
       tenantId: scope.tenantId,
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
+      sampleWorkspaceVisitActive,
+      suppressLs010BootstrapRedirect,
+      ls010BypassKey: E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY,
     },
   );
 
@@ -115,11 +139,15 @@ async function writeOperatorScopeToBrowser(
     (
       payload: {
         readonly key: string;
+        readonly sampleVisitKey: string;
         readonly tenantId: string;
         readonly workspaceId: string;
         readonly projectId: string;
         readonly cookieName: string;
         readonly cookieValue: string;
+        readonly sampleWorkspaceVisitActive: boolean;
+        readonly suppressLs010BootstrapRedirect: boolean;
+        readonly ls010BypassKey: string;
       },
     ) => {
       const record = {
@@ -131,17 +159,39 @@ async function writeOperatorScopeToBrowser(
       };
 
       window.localStorage.setItem(payload.key, JSON.stringify(record));
+      if (payload.sampleWorkspaceVisitActive) {
+        window.sessionStorage.setItem(payload.sampleVisitKey, "1");
+        window.sessionStorage.removeItem(payload.ls010BypassKey);
+      } else {
+        window.sessionStorage.removeItem(payload.sampleVisitKey);
+        if (payload.suppressLs010BootstrapRedirect) {
+          window.sessionStorage.setItem(payload.ls010BypassKey, "1");
+        }
+      }
+      window.localStorage.setItem("archlucid.workspace-mode.v1.personal", "guided");
       document.cookie = `${payload.cookieName}=${payload.cookieValue}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`;
     },
     {
       key: OPERATOR_SCOPE_STORAGE_KEY,
+      sampleVisitKey: OPERATOR_SAMPLE_WORKSPACE_VISIT_STORAGE_KEY,
       tenantId: scope.tenantId,
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
       cookieName: OPERATOR_SCOPE_COOKIE_NAME,
       cookieValue: scopeCookieValue,
+      sampleWorkspaceVisitActive,
+      suppressLs010BootstrapRedirect,
+      ls010BypassKey: E2E_LS010_BOOTSTRAP_REDIRECT_SUPPRESS_STORAGE_KEY,
     },
   );
+}
+
+/** Re-commit demo tenant scope cookie/init script before a direct finding-detail navigation. */
+export async function refreshDemoWorkspaceOperatorScopeForNavigation(
+  page: Page,
+  scope: DemoWorkspaceScopeIds,
+): Promise<void> {
+  await writeOperatorScopeToBrowser(page, scope, { persistViaInitScript: true });
 }
 
 /**
@@ -164,6 +214,9 @@ export async function injectDemoWorkspaceOperatorScope(
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  if (resolveLiveJwtMode()) {
+    await waitForOperatorAuthMeProxyOk(page);
+  }
 }
 
 /**

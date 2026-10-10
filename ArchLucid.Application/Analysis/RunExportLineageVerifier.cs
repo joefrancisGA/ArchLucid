@@ -140,7 +140,8 @@ public sealed class RunExportLineageVerifier(
         {
             RunId = runId,
             EventType = AuditEventTypes.ManifestGenerated,
-            Take = 50
+            Take = 50,
+            IncludeDataJson = true,
         };
 
         IReadOnlyList<AuditEvent> rows = await _auditRepository.GetFilteredAsync(
@@ -150,19 +151,22 @@ public sealed class RunExportLineageVerifier(
             filter,
             ct);
 
-        AuditEvent? anchor = rows
-            .OrderByDescending(e => e.OccurredUtc)
-            .ThenByDescending(e => e.EventId)
-            .FirstOrDefault();
+        foreach (AuditEvent row in rows.OrderByDescending(e => e.OccurredUtc).ThenByDescending(e => e.EventId))
+        {
+            if (string.IsNullOrWhiteSpace(row.DataJson))
+                continue;
 
-        if (anchor is null || string.IsNullOrWhiteSpace(anchor.DataJson))
-            return null;
+            ManifestGeneratedAuditPayload? payload = JsonSerializer.Deserialize<ManifestGeneratedAuditPayload>(
+                row.DataJson,
+                AuditJsonSerializationOptions.Instance);
 
-        ManifestGeneratedAuditPayload? payload = JsonSerializer.Deserialize<ManifestGeneratedAuditPayload>(
-            anchor.DataJson,
-            AuditJsonSerializationOptions.Instance);
+            if (payload is null || string.IsNullOrWhiteSpace(payload.ManifestHash))
+                continue;
 
-        return string.IsNullOrWhiteSpace(payload?.ManifestHash) ? null : payload.ManifestHash;
+            return payload.ManifestHash;
+        }
+
+        return null;
     }
 
     [InformationalAudit]

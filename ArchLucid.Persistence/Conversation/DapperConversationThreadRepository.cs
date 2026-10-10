@@ -46,6 +46,9 @@ public sealed class DapperConversationThreadRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Conversation thread lookup by ThreadId within the active tenant catalog.")]
     public async Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -159,6 +162,9 @@ public sealed class DapperConversationThreadRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Conversation thread touch by ThreadId within the active tenant catalog.")]
     public async Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
