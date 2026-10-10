@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): repeated the selected evaluation-path reread after the required-key and judge-score candidate seed; no fresh mechanism met the promotion bar, and the remaining score-validation row would duplicate a saturated class. The scoped Evaluation suite passed 202/202. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): reread the trace-quality, reference-case, harness, faithfulness, and semantic-judge paths after the citation-object fix; no fresh row met the promotion bar without duplicating a saturated score-validation class. The scoped Evaluation suite passed 202/202. Seeded bounded candidates for configured required-key casing and external judge-score range handling; no production or regression code was changed.
 
 2026-10-10 seed hunt (seed→hit): `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted `{"citations":[{"source":""}]}` because any property made the object appear non-empty; a malformed agent payload could satisfy PilotStrict citation presence. The gate now requires at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
@@ -16805,6 +16807,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-10 seed hunt (seed-only): repeated the selected evaluation-path reread after the required-key and judge-score candidate seed; no fresh mechanism met the promotion bar, and the remaining score-validation row would duplicate a saturated class. The scoped Evaluation suite passed 202/202. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): reread the trace-quality, reference-case, harness, faithfulness, and semantic-judge paths after the citation-object fix; no fresh row met the promotion bar without duplicating a saturated score-validation class. The scoped Evaluation suite passed 202/202. Seeded bounded candidates for configured required-key casing and external judge-score range handling; no production or regression code was changed.
 
 2026-10-10 seed hunt (seed→hit): proved that `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted citation objects containing only blank string values, allowing malformed agent output to satisfy PilotStrict citation presence. The gate now requires a nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
@@ -33172,7 +33176,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-06
