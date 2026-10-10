@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (hit): `agent-runtime-safety` — `CircuitBreakingContentSafetyGuard` caught `OperationCanceledException` only when the caller token was canceled, so an inner timeout/cancellation with an unrelated token was converted into fail-open/fail-closed SDK output. The guard now propagates all operation-cancellation exceptions; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`; 584 scoped safety and prompt-injection tests passed. The sanitizer cancellation and streaming-buffer candidates had no failing repro.
+
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker again exposed only the retired ledger path with no open, hunt-ready, or candidate hypotheses. Re-read the selected controller history; no new reachable mechanism-backed wrong outcome was available beyond the already-closed actor-id and run-id normalization classes. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker again exposed only the retired ledger path with no open, hunt-ready, or candidate hypotheses. Re-read the selected controller history; no new reachable mechanism-backed wrong outcome was available beyond the already-closed actor-id and run-id normalization classes. No production or regression code changed.
@@ -15437,6 +15439,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-10 thorough hunt (hit): promoted `CircuitBreakingContentSafetyGuard.GuardAsync` — an inner `OperationCanceledException` from a timeout token was caught by the generic exception path when the caller token remained active, converting cancellation into SDK error output (or fail-open allow). The guard now rethrows all `OperationCanceledException` instances; regression `When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit`. Cheap-disproved the sanitizer mid-loop cancellation candidate because the sanitizer has no asynchronous/reentrant callback boundary, and recorded the streaming-buffer candidate as valid-no-repro because provider `maxTokens` is the reachable output bound and no separate configured character limit exists. The scoped picker filter passed 584 tests.
+
 2026-10-10 seed hunt (seed-only): re-read the selected content-safety guards and prompt-injection sanitizers; all existing delimiter, cancellation, truncation, and fail-open boundaries were covered by 584 scoped tests, with no new hunt-ready row promoted. Seeded three reachable follow-on candidates.
 
 2026-10-09 thorough hunt (hit): prompt identifiers escaped TB-949 markers before control-character removal, so a client-supplied `RequestId` containing a deleted control inside `CUSTOMER_CONTENT_END` closed the architecture quarantine early; escape now follows the strip for identifiers and run-header fields; regressions `SanitizeAsync_request_id_control_char_inside_end_marker_does_not_reconstitute_delimiter` and `AppendRunHeader_task_id_control_char_inside_end_marker_does_not_reconstitute_delimiter`; 584 scoped agent-runtime-safety tests passed.
@@ -16315,11 +16319,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 62
+- **hunts:** 63
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-09 — request id control character reassembled customer-content end marker
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
