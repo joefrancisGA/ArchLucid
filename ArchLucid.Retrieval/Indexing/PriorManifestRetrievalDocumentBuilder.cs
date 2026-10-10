@@ -20,13 +20,15 @@ public static class PriorManifestRetrievalDocumentBuilder
 
         List<RetrievalDocument> documents = [];
 
-        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
+        for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
+            ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
+
             if (string.IsNullOrWhiteSpace(decision.Title))
                 continue;
 
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -102,18 +104,26 @@ public static class PriorManifestRetrievalDocumentBuilder
 
         List<RetrievalDocument> documents = [];
 
+        int findingIndex = 0;
+
         foreach (Finding finding in findings)
         {
             if (finding.IsMuted)
+            {
+                findingIndex++;
                 continue;
+            }
 
             string message = ResolveFindingMessage(finding);
 
             if (string.IsNullOrWhiteSpace(message))
+            {
+                findingIndex++;
                 continue;
+            }
 
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{runId:N}-{findingIndex}"
                 : finding.FindingId.Trim();
 
             string content =
@@ -136,6 +146,8 @@ public static class PriorManifestRetrievalDocumentBuilder
                 createdUtc,
                 decisionId: null,
                 findingId: findingId));
+
+            findingIndex++;
         }
 
         return documents;

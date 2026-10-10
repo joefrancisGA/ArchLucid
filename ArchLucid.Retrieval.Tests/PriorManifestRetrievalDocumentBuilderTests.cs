@@ -65,4 +65,45 @@ public sealed class PriorManifestRetrievalDocumentBuilderTests
         doc.Content.Should().Contain("Right-size underused VM.");
         doc.ContentHash.Should().NotBeNullOrWhiteSpace();
     }
+
+    [Fact]
+    public void BuildFromFindings_missing_finding_id_is_stable_across_rebuilds()
+    {
+        Guid runId = Guid.NewGuid();
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = null!,
+                Category = "Security",
+                Severity = FindingSeverity.Error,
+                Rationale = "Use private endpoints.",
+            },
+        ];
+
+        string firstDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+        string secondDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        secondDocumentId.Should().Be(firstDocumentId);
+    }
 }

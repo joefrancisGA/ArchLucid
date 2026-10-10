@@ -87,6 +87,42 @@ public sealed class RetrievalPackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_is_stable_across_rebuilds()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            RunId = runId,
+            ManifestId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = null!,
+                    Category = "Security",
+                    Title = "Prefer private endpoints",
+                    SelectedOption = "Private Link",
+                    Rationale = "Reduce public exposure.",
+                },
+            ],
+        };
+
+        string firstDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromManifest(manifest, DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+        string secondDocumentId = PriorManifestRetrievalDocumentBuilder
+            .BuildFromManifest(manifest, DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        secondDocumentId.Should().Be(firstDocumentId);
+    }
+
+    [Fact]
     public void PolicyPackChunker_handles_empty_header_fallback_and_sentence_windows()
     {
         PolicyPackChunker chunker = new();

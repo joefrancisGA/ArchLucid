@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `retrieval` — `PriorManifestRetrievalDocumentBuilder` generated random decision and finding document IDs whenever reachable deserialized records lacked source IDs, so repeated run-completion indexing accumulated duplicate vectors instead of replacing prior documents. Missing IDs now use manifest/run-scoped deterministic indexes; regressions `PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_is_stable_across_rebuilds` and `BuildFromFindings_missing_finding_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 361/361.
+
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read batch embedding cardinality, stale-chunk cleanup, in-memory scope matching, Azure filter construction, and scope-validator coverage; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `architecture-recommendation` — re-read deterministic trade-off IDs, actionable-finding gating, severity normalization, and recommendation ID coverage after the trade-off identity hit; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Alternatives/ProposedChange suite passed 45/45; retained bounded candidates and made no production change.
@@ -18890,6 +18892,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-10 seed hunt (seed→hit): missing prior-manifest decision and finding IDs generated random retrieval document IDs across retries; use manifest/run-scoped deterministic indexes; regressions `PriorManifestRetrievalDocumentBuilder_BuildFromManifest_missing_decision_id_is_stable_across_rebuilds` and `BuildFromFindings_missing_finding_id_is_stable_across_rebuilds`; 361 scoped Retrieval/Indexing tests passed.
+
 2026-10-10 seed hunt (seed-only): re-read batch embedding cardinality, stale-chunk cleanup, in-memory scope matching, Azure filter construction, and scope-validator coverage; no fresh hunt-ready row was promoted. The exact Retrieval/Indexing filter passed 359/359 and no production code changed.
 
 2026-10-10 seed hunt (seed-only): re-read retrieval query planning, Azure scope filtering, in-memory matching, and indexing cleanup; no new hunt-ready row was promoted. Scoped Retrieval/Indexing tests passed 357/357; retained the existing bounded query-reuse candidate.
@@ -18928,11 +18932,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 65
+- **hunts:** 66
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 28
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — missing finding IDs generated duplicate retrieval document IDs
+- **last-bug:** 2026-10-10 — prior-manifest missing decision and finding IDs generated duplicate retrieval document IDs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
