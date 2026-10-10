@@ -671,15 +671,15 @@
     },
     {
       "typeName": "ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController",
-      "capability": "authority",
-      "productLine": "architecture",
+      "capability": "infra-evidence",
+      "productLine": "both",
       "status": "assigned",
       "ownerNote": null
     },
     {
       "typeName": "ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController",
-      "capability": "authority",
-      "productLine": "architecture",
+      "capability": "infra-evidence",
+      "productLine": "both",
       "status": "assigned",
       "ownerNote": null
     },
