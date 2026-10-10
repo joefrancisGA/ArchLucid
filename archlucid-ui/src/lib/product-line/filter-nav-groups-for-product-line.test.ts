@@ -160,7 +160,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "Frameworks, effective rules, and audit evidence.",
       "Where SecureNow's evidence comes from.",
       "Where findings and fixes are sent.",
-      undefined,
+      "Settings, billing, users, inventory upload, connector health, and support.",
     ]);
     expect(
       rows
