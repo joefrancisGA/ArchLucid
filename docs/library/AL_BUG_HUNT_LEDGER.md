@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
 
+2026-10-10 seed hunt (seed-only): `retrieval` — re-read run-completion orchestration, Azure platform scope filters, batch embedding and stale-chunk cleanup, and the existing indexing failure regressions; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained the existing bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read generated finding identity, embedding cache cardinality, Azure vector deletion, in-memory cancellation, and artifact identity paths; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained the existing bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read cancellation handling, Azure chunk deletion, circuit-breaking embeddings, agentic fallback paths, and in-memory mutation boundaries; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained the existing bounded candidates and made no production change.
@@ -18910,7 +18912,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 63
+- **hunts:** 64
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
