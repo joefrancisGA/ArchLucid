@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `AgentOutputReferenceCaseRunEvaluator` counted `findings: [null]` toward `MinimumFindingCount`, so a malformed reachable reference-trace payload could pass a case requiring one finding. The evaluator now counts only non-null findings; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`; 201 scoped Evaluation tests passed.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — reread the confidence pipeline, evaluation recorder, sponsor aggregator, quality gate, and reference-case paths. No new row met the same-run failing-repro bar; seeded a bounded candidate for duplicate persisted AgentResult rows where first-result selection can disagree with latest-trace and calibrated-confidence selection. The scoped Evaluation filter passed 200/200. No production change.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — re-read the selected confidence, quality-gate, reference-case, harness, and judge paths after the host-mode confidence fix. The only apparent confidence-mode candidate was already proven in the current branch; no fresh independent row met the promotion bar. The scoped Evaluation filter passed 200/200. No production change.
@@ -16799,7 +16801,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
-2026-10-10 seed hunt (seed-only): reread the trace quality, confidence, citation, faithfulness, grounding, and reference-case paths after the latest evaluation fixes; no fresh row met the same-run failing-repro bar. The scoped Evaluation suite passed 200/200. Seeded numeric enum-category grounding and blank-valued citation-object candidates; no production or regression code was changed.
+2026-10-10 seed hunt (seed→hit): proved that `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` counted JSON-null findings toward `MinimumFindingCount`, allowing a malformed reference-trace result to pass a case with no valid finding. The evaluator now counts only non-null findings; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`; 201 scoped Evaluation tests passed.
 
 - **id:** agent-runtime-evaluation
 - **status:** open
@@ -16807,11 +16809,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 40
-- **bugs-found:** 25
+- **hunts:** 41
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — confidence enrichment skipped real-only finding citation coverage
+- **last-bug:** 2026-10-10 — null reference-case findings counted toward minimum
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16820,6 +16822,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-09 seed hunt (seed-only): re-read the evaluation quality gate, harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` deserialized a null `ArchitectureFinding`, then category coverage dereferenced `f.Category` and threw instead of recording a failed case — **hit 2026-10-10 seed hunt:** skip null finding entries before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`.
+- [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` counted the null slot toward `MinimumFindingCount`, so a case requiring one finding could pass with no valid finding — **hit 2026-10-10 seed hunt:** count only non-null findings before applying the minimum; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`.
 
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
 - [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` / `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted `AgentResult` rows for one retried task can use the first result for mode/prompt selection while calibrated confidence and structural mode lookups use another duplicate; locus: `FirstOrDefault` versus grouped/dictionary selection; input: an auto-retried task with two persisted results sharing `TaskId`; reachability: quality evaluation, confidence enrichment, and sponsor aggregation all consume persisted retry results.

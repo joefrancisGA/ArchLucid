@@ -173,6 +173,61 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum()
+    {
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new AgentExecutionReferenceEvaluationOptions { Enabled = true });
+
+        const string parsedJson = """
+                                  {"resultId":"r1","taskId":"t1","runId":"run-1","agentType":"Topology","claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[null]}
+                                  """;
+
+        FixedCatalog catalog = new(
+        [
+            new AgentOutputReferenceCaseDefinition
+            {
+                CaseId = "null-finding-minimum",
+                AgentType = AgentType.Topology,
+                MinimumFindingCount = 1,
+            },
+        ]);
+        Mock<IAgentOutputSemanticEvaluator> semantic = new();
+        semantic
+            .Setup(s => s.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<AgentType>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentOutputSemanticScore
+            {
+                TraceId = "tr1",
+                AgentType = AgentType.Topology,
+                OverallSemanticScore = 1.0,
+            });
+
+        AgentOutputReferenceCaseRunEvaluator sut = new(
+            options.Object,
+            catalog,
+            new AgentOutputEvaluator(),
+            semantic.Object,
+            Mock.Of<IAgentOutputEvaluationResultRepository>(),
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "tr1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        bool passing = await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None);
+
+        passing.Should().BeFalse();
+    }
+
     [SkippableFact]
     public async Task ComputeAnyPassingReferenceCase_returns_false_when_composite_semantic_below_minimum()
     {

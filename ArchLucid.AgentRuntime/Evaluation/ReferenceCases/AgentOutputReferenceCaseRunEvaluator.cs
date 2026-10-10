@@ -243,10 +243,12 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
             return false;
         }
 
-        if (caseDef.MinimumFindingCount > 0 && actual.Findings.Count < caseDef.MinimumFindingCount)
+        int validFindingCount = actual.Findings.Count(static finding => finding is not null);
+
+        if (caseDef.MinimumFindingCount > 0 && validFindingCount < caseDef.MinimumFindingCount)
         {
             failureReason =
-                $"findings {actual.Findings.Count} < min {caseDef.MinimumFindingCount}";
+                $"findings {validFindingCount} < min {caseDef.MinimumFindingCount}";
 
             return false;
         }
