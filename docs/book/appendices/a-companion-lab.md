@@ -361,6 +361,7 @@ Deleting the Entra objects removes them to the deleted items list for 30 days. T
 ## Author notes (remove before submission)
 
 - The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 4.81.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
+- The live run is scripted in [`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md), which also covers Appendices B and C.
 - Untested against a live tenant: `queries/checklist.kql`; the Function App code in section A.5; whether `azuread_application_owner.payments_deploy_platform` conflicts with an owner the API adds automatically for the caller; the resource count quoted in A.5.
 - Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 4.x, and add the exact HCL to A.7.
 - Add a rough monthly cost table once a live deployment has run for a week.
