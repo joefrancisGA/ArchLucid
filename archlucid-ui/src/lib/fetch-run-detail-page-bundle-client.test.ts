@@ -4,9 +4,9 @@ import { ApiRequestError } from "@/lib/api-request-error";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
 import { fetchRunDetailCriticalPageBundle } from "./fetch-run-detail-page-bundle-client";
-import { apiGet } from "./api/http";
+import { apiGet } from "./api/http-verbs-get";
 
-vi.mock("./api/http", () => ({
+vi.mock("./api/http-verbs-get", () => ({
   apiGet: vi.fn(),
 }));
 
