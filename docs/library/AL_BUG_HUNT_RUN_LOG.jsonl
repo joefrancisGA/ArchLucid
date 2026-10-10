@@ -9111,3 +9111,4 @@
 {"at":"2026-10-10T02:34:29.4617172Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs","ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs","ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs"]}
 {"at":"2026-10-10T02:36:19.5377801Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs","ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs","ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs"]}
 {"at":"2026-10-10T02:39:03.8547643Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-10T02:41:34.9158606Z","zoneId":"ui-oidc","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
