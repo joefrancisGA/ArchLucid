@@ -16,7 +16,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string inferenceSource,
         string? label = null,
         string? provenanceKind = null,
-        bool promoteStrongerProvenance = true)
+        bool promoteStrongerProvenance = true,
+        bool preserveNullProvenance = false)
     {
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
@@ -29,7 +30,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         }
 
         Append(edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource, label, provenanceKind,
-            declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance);
+            declaredConnectionId: null, promoteStrongerProvenance: promoteStrongerProvenance,
+            preserveNullProvenance: preserveNullProvenance);
     }
 
     /// <summary>
@@ -63,7 +65,8 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
         string? label,
         string? provenanceKind,
         string? declaredConnectionId,
-        bool promoteStrongerProvenance)
+        bool promoteStrongerProvenance,
+        bool preserveNullProvenance = false)
     {
         if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
         {
@@ -101,7 +104,10 @@ internal static class AzureInventorySnapshotGraphEdgeAppender
             Label = string.IsNullOrWhiteSpace(label) ? edgeType : label,
             Weight = 1.0d,
             InferenceSource = inferenceSource,
-            ProvenanceKind = string.IsNullOrWhiteSpace(provenanceKind)
+            // Some inventory producers historically leave provenance unset; preserve that when requested.
+            ProvenanceKind = preserveNullProvenance && provenanceKind is null
+                ? null
+                : string.IsNullOrWhiteSpace(provenanceKind)
                 ? ProvenanceKind.ObservedFact.ToString()
                 : provenanceKind,
             DeclaredConnectionId = declaredConnectionId,

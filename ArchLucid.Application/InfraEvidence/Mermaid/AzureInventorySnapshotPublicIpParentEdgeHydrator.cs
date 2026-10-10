@@ -46,12 +46,10 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
                              nodeIdByArmId,
                              parentArmId))
                 {
-                    if (string.Equals(publicIpNodeId, parentNodeId, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    TryAddEdge(edges, edgeKeys, publicIpNodeId, parentNodeId);
+                    AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                        edges, edgeKeys, publicIpNodeId, parentNodeId,
+                        GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp,
+                        promoteStrongerProvenance: false, preserveNullProvenance: true);
                 }
             }
         }
@@ -91,28 +89,4 @@ internal static class AzureInventorySnapshotPublicIpParentEdgeHydrator
             .ToList();
     }
 
-    private static void TryAddEdge(
-        List<GraphEdge> edges,
-        HashSet<string> edgeKeys,
-        string fromNodeId,
-        string toNodeId)
-    {
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.Exposes}";
-
-        if (!edgeKeys.Add(edgeKey))
-        {
-            return;
-        }
-
-        edges.Add(new GraphEdge
-        {
-            EdgeId = $"edge-{edgeKey}",
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = GraphEdgeTypes.Exposes,
-            Label = GraphEdgeTypes.Exposes,
-            Weight = 1.0d,
-            InferenceSource = GraphEdgeInferenceSources.InventoryPublicIp,
-        });
-    }
 }
