@@ -37,6 +37,23 @@ class TestPrivateBetaRefParity(unittest.TestCase):
 
         self.assertEqual(len(issues), 2)
 
+    def test_requires_failure_class_diagnostics_in_private_beta_helper(self) -> None:
+        workflow = "\n".join(sut.REQUIRED_MARKERS)
+        spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
+        helper = " ".join(marker for marker in sut.REQUIRED_HELPER_MARKERS if marker != "[dead-link-404]")
+
+        def fake_show(ref: str, path: str) -> str:
+            if path == sut.WORKFLOW_PATH:
+                return workflow
+
+            return spec if path == sut.SPEC_PATH else helper
+
+        with patch.object(sut, "_show_ref", side_effect=fake_show):
+            issues = sut.compare_refs("base", "release")
+
+        self.assertEqual(len(issues), 2)
+        self.assertTrue(all("[dead-link-404]" in issue for issue in issues))
+
 
 if __name__ == "__main__":
     unittest.main()
