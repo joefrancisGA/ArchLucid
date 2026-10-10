@@ -863,6 +863,88 @@ describe("WebhooksIntegrationPage", () => {
     );
   });
 
+  it("keeps the newest same-scope subscription load when create and refresh overlap", async () => {
+    const subscriptionId = "sub-newest-load-1";
+    let resolveCreate: ((value: unknown) => void) | undefined;
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveCreateLoad: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: "sub-existing-load-1",
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Existing subscription",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/existing",
+            minimumSeverity: "High",
+            isEnabled: false,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveCreateLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(1));
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    resolveCreate?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    resolveCreateLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Newest subscription",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/newest",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    resolveRefreshLoad?.([]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.getByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 

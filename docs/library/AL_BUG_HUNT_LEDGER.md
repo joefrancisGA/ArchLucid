@@ -12,6 +12,8 @@
 
 2026-10-10 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook source plus the existing buyer-polished settings regression; no new reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `WebhooksSettings` test passed 1/1. No production or regression code changed.
 
+2026-10-10 seed hunt (seed→hit): `ui-webhooks-settings` — overlapping same-scope subscription loads let an older refresh response overwrite a newer mutation-triggered reload, reverting the visible webhook rows. Loads now use a request sequence guard in addition to scope generation; regression `keeps the newest same-scope subscription load when create and refresh overlap`; the full `WebhooksSettings` page suite passed 60/60.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection reread; no new reachable mechanism-backed candidate met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — repeated the selected Safety and PromptInjection source review after the prior seed-only run; no new reachable wrong outcome met the hunt-ready bar. The scoped picker filter passed 584 tests. No production or regression code changed.
@@ -10945,6 +10947,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — writes continue-last id before DOM scroll — **cheap-disproof 2026-10-04:** `resolveContinueLastWebhookSubscription` returns null for stale ids; continue-last only offers ids from the current inventory.
 
 - [x] (valid-no-repro) `useWebhooksSettings.showAlertSeverityFilter` — exact lowercase `archlucid.alert.` prefix — **cheap-disproof 2026-10-04:** create-form event vocabulary is the fixed `webhookOutboundEventCatalog` with canonical lowercase ids only.
+
+- [x] (proven) `useWebhooksSettingsLoad.load` — a refresh started while create was in flight could finish after the create-triggered reload and overwrite newer same-scope rows with stale data; **hit 2026-10-10 seed hunt:** added a request sequence guard alongside scope generation; regression `keeps the newest same-scope subscription load when create and refresh overlap`.
 
 2026-09-27 seed hunt (seed→hit): reseeded ui-webhooks-settings after continue-last gating; proved failed manual `listAlertRoutingSubscriptions` refresh still rendered `WebhooksSubscriptionsTable` from stale `webhookRows` while configuration status and continue-last were already gated on `hasLoadedSuccessfully`; fixed by rendering the table only when `hasLoadedSuccessfully`; regression `hides stale subscriptions table when manual refresh fails`; 53 scoped webhooks page tests passed (2 pre-existing sources-strip failures unrelated).
 
