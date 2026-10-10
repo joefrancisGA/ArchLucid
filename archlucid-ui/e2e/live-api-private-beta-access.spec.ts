@@ -34,6 +34,7 @@ import {
 import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 import { submitPrivateBetaSimplifiedPilotWizard } from "./helpers/private-beta-simplified-pilot-wizard";
 import {
+  expectLiveBrandedNotFoundRecovery,
   expectLiveFirstReviewGuideReady,
   expectLiveReviewsHubListReady,
 } from "./helpers/live-page-readiness";
@@ -308,8 +309,7 @@ test.describe(
         await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
       }
 
-      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
+      await expectLiveBrandedNotFoundRecovery(page);
     });
 
   test.describe("browser journeys", () => {
