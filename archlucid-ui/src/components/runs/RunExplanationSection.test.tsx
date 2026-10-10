@@ -312,11 +312,8 @@ describe("RunExplanationSection", () => {
     );
 
     const storedValues = document.querySelectorAll("#doc-explanation-provenance dd");
-    expect(storedValues[2]).toHaveTextContent("");
-    expect(storedValues[2]).not.toHaveTextContent("was not stored");
-    expect(storedValues[3]).toHaveTextContent("");
-    expect(storedValues[3]).not.toHaveTextContent("was not stored");
-    expect(storedValues[4]).toHaveTextContent("");
-    expect(storedValues[4]).not.toHaveTextContent("was not stored");
+    expect(storedValues[2]?.textContent).toBe("");
+    expect(storedValues[3]?.textContent).toBe("");
+    expect(storedValues[4]?.textContent).toBe("");
   });
 });
