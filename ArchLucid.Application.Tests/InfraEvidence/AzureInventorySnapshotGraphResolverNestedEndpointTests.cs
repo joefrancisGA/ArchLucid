@@ -205,7 +205,7 @@ public sealed class AzureInventorySnapshotGraphResolverNestedEndpointTests
     {
         Mock<IAzureInventorySnapshotRepository> repository = new();
         repository
-            .Setup(candidate => candidate.TryGetSnapshotDetailAsync(
+            .Setup(candidate => candidate.TryGetCanonicalSnapshotDetailAsync(
                 It.IsAny<ScopeContext>(),
                 SnapshotId,
                 It.IsAny<CancellationToken>()))

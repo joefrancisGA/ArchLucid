@@ -84,6 +84,33 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
       await snapshotRepository.TryGetByPackageIdAsync(scopeB, packageId, CancellationToken.None);
 
     foreignLookup.Should().BeNull("snapshot headers are project-scoped.");
+
+    const string hiddenId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-a";
+    const string visibleId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a";
+    Guid hiddenRowId = Guid.NewGuid();
+    await snapshotRepository.MaterializeSnapshotAsync(scopeA, header.SnapshotId, new AzureInventorySnapshotMaterializeWriteRequest
+    {
+      CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+      ResourceCount = 2,
+      RelationshipCount = 1,
+      Resources =
+      [
+        new AzureInventoryResourceRecord { SnapshotId = header.SnapshotId, TenantId = TenantId, ResourceRowId = hiddenRowId, AzureResourceId = hiddenId, ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities" },
+        new AzureInventoryResourceRecord { SnapshotId = header.SnapshotId, TenantId = TenantId, ResourceRowId = Guid.NewGuid(), AzureResourceId = visibleId, ResourceType = "Microsoft.Network/virtualNetworks" },
+      ],
+      Properties = [new AzureInventoryResourcePropertyWrite { ResourceRowId = hiddenRowId, PropertyKey = "principalId", PropertyValue = "principal-a" }],
+      Relationships = [new AzureInventoryResourceRelationshipWrite { FromAzureResourceId = visibleId, ToAzureResourceId = hiddenId, RelationshipType = "contains", ProvenanceKind = ProvenanceKind.ObservedFact }],
+    });
+    AzureInventorySnapshotDetailReadModel? canonical = await snapshotRepository.TryGetCanonicalSnapshotDetailAsync(scopeA, header.SnapshotId);
+    canonical!.Resources.Should().HaveCount(2);
+    canonical.Properties.Should().ContainSingle(property => property.ResourceRowId == hiddenRowId);
+    canonical.Relationships.Should().ContainSingle();
+    AzureInventorySnapshotDetailReadModel? visible = await snapshotRepository.TryGetSnapshotDetailAsync(scopeA, header.SnapshotId);
+    visible!.Resources.Should().ContainSingle(resource => resource.AzureResourceId == visibleId);
+    visible.Properties.Should().BeEmpty();
+    visible.Relationships.Should().BeEmpty();
+    (await snapshotRepository.TryGetCanonicalSnapshotDetailAsync(scopeB, header.SnapshotId)).Should().BeNull();
+
   }
 
   [SkippableFact]

@@ -18,6 +18,12 @@ public interface IAzureInventorySnapshotRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Reads all stored evidence without diagram visibility filtering, within the caller's scope.</summary>
+    Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     Task<AzureInventorySnapshotDetailReadModel?> TryGetSnapshotDetailAsync(
         ScopeContext scope,
         Guid snapshotId,
