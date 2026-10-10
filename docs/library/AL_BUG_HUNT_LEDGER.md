@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): `architecture-recommendation` — re-read stable trade-off identity, null finding handling, critical-severity normalization, and duplicate trade-off orchestration after the identity fix; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Alternatives/ProposedChange suite passed 45/45; retained bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed→hit): `architecture-recommendation` — `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` generated a random `TradeOffId` on every recommendation rebuild, so identical specialist findings produced unstable trade-off identities for downstream diffs and telemetry. Trade-off IDs now derive from the ordered dimension pair and proposed decision; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`; scoped Alternatives/ProposedChange tests passed 45/45. The Application compile check timed out twice without compiler errors.
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
@@ -9390,6 +9392,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-10 seed hunt (seed-only): re-read stable trade-off identity, null finding handling, critical-severity normalization, and duplicate trade-off orchestration; no fresh hunt-ready row was promoted. The exact Alternatives/ProposedChange filter passed 45/45 and no production code changed.
+
 2026-10-10 seed hunt (seed→hit): promoted trade-off identity stability; `TradeOffId` now derives from the ordered dimension pair and proposed decision instead of a random GUID; regression `BuildRecommendations_reuses_trade_off_id_when_rebuilding_same_findings`; exact Alternatives/ProposedChange filter passed 45/45. Application compile check timed out twice without compiler errors.
 
 2026-10-10 seed hunt (seed-only): re-read `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` with the selected Alternatives/ProposedChange tests; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded three bounded `(candidate)` rows for trade-off identity stability, null finding entries, and critical-severity normalization. The exact focused filter passed 45/45 with the known unrelated `ARCH002` warning.
@@ -9511,7 +9515,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 50
+- **hunts:** 51
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
