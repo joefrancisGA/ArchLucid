@@ -283,6 +283,65 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change()
+    {
+        Guid secondWorkspaceId = Guid.NewGuid();
+        Guid secondProjectId = Guid.NewGuid();
+        Mock<IPolicyPackResolver> policyPackResolver = new();
+        policyPackResolver
+            .Setup(r => r.ResolveAsync(
+                TenantId,
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (Guid _, Guid workspaceId, Guid _, CancellationToken _) =>
+                    workspaceId == WorkspaceId
+                        ? BuildEffectivePackSet(["pack-a"])
+                        : BuildEffectivePackSet(["pack-b"]));
+
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedAsync("policy", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([1f, 0f]);
+
+        List<RetrievalQuery> capturedQueries = [];
+        Mock<IVectorIndex> index = new();
+        index.Setup(i => i.SearchAsync(
+                It.IsAny<RetrievalQuery>(),
+                It.IsAny<float[]>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RetrievalQuery, float[], CancellationToken>(
+                (searchQuery, _, _) => capturedQueries.Add(searchQuery))
+            .ReturnsAsync([]);
+
+        RetrievalQueryService sut = CreateService(
+            embeddings.Object,
+            index.Object,
+            policyPackResolver: policyPackResolver.Object);
+        RetrievalQuery query = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            QueryText = "policy",
+            IncludePlatformCorpora = true,
+            SkipQueryExpansion = true,
+        };
+
+        await sut.SearchAsync(query, CancellationToken.None);
+
+        query.WorkspaceId = secondWorkspaceId;
+        query.ProjectId = secondProjectId;
+
+        await sut.SearchAsync(query, CancellationToken.None);
+
+        capturedQueries.Should().HaveCount(2);
+        capturedQueries[0].AllowedPolicyPackRulePackIds.Should().BeEquivalentTo(["pack-a"]);
+        capturedQueries[1].AllowedPolicyPackRulePackIds.Should().BeEquivalentTo(["pack-b"]);
+    }
+
+    [Fact]
     public async Task SearchAsync_IncludePlatformCorpora_OverlapsPolicyPackResolveWithQueryExpand()
     {
         TaskCompletionSource resolveGate = new(TaskCreationOptions.RunContinuationsAsynchronously);

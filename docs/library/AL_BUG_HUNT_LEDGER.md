@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
 
+2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalQueryService.ResolveQueryPlanAsync` mutated caller-owned policy-pack assignments, so reusing a query after changing workspace/project scope searched with stale assignments. Policy-pack resolution now remains local to the search plan; regression `SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change`; scoped Retrieval/Indexing tests passed 358/358.
+
 2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalDocumentBuilder.BuildForManifest` generated a new random decision document id whenever a reachable deserialized decision had no `DecisionId`, so repeated indexing accumulated duplicate decision vectors instead of replacing the prior document. Missing IDs now use a manifest-scoped deterministic index; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 357/357.
 
 2026-10-10 seed hunt (seed→hit): `core-costing` — live Azure pricing cancellation was swallowed by both the Retail client’s broad HTTP catch and the estimator’s broad fallback catch, so a canceled pricing request silently returned an illustrative estimate. Both layers now rethrow `OperationCanceledException`; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; scoped Costing tests passed 426/426.
@@ -18900,11 +18902,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 58
+- **hunts:** 59
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 26
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — missing manifest decision IDs generated duplicate retrieval document IDs
+- **last-bug:** 2026-10-10 — reused retrieval queries retained stale policy-pack assignments
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18913,7 +18915,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalDocumentBuilder.BuildForProvenance` content hash ignores graph bytes — same run id, changed provenance graph — **hit 2026-10-09 seed hunt:** unchanged-document skip kept the first graph searchable; hash now covers serialized graph content; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`.
 - [x] (proven) `RetrievalIndexingService` deletes prior vectors for an empty document before batch chunk-cap validation — **hit 2026-10-10 seed hunt:** an oversized later document threw after the empty reindex had already removed earlier vectors; defer empty-document deletion and catalog mutation until cap validation and embedding/upsert work complete; regression `IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`.
 - [x] (proven) `RetrievalDocumentBuilder.BuildForManifest` generated a new random decision id when a manifest decision had no id, so repeated indexing of the same manifest created duplicate decision document ids; **hit 2026-10-10 seed hunt:** use `generated-{manifestId}-{decisionIndex}` for missing IDs; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`.
-- [ ] (candidate) `RetrievalQueryService.ResolveQueryPlanAsync` mutates `AllowedPolicyPackRulePackIds` while resolving platform corpora, so a reused query object may retain assignment state across calls with changed scope.
+- [x] (proven) `RetrievalQueryService.ResolveQueryPlanAsync` mutated `AllowedPolicyPackRulePackIds` while resolving platform corpora, so a reused query object retained assignment state across calls with changed scope — **hit 2026-10-10 seed hunt:** keep policy-pack resolution local to the search plan and pass the resolved IDs through search retries; regression `SearchAsync_re_resolves_policy_packs_when_reusing_query_after_scope_change`.
 - [ ] (candidate) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope, so an empty assigned policy-pack set may still expose non-policy platform documents where callers expect no platform results.
 - [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.
 

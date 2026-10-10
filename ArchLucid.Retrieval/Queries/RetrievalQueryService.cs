@@ -83,9 +83,18 @@ public sealed class RetrievalQueryService(
 
         long startTicks = Stopwatch.GetTimestamp();
 
-        AgenticRetrievalQueryPlan queryPlan = await ResolveQueryPlanAsync(query, budgetCt).ConfigureAwait(false);
+        (AgenticRetrievalQueryPlan queryPlan, HashSet<string>? resolvedPolicyPackRulePackIds) =
+            await ResolveQueryPlanAsync(query, budgetCt).ConfigureAwait(false);
 
-        IReadOnlyList<RetrievalHit> initialHits = await ExecuteSearchPassAsync(query, queryPlan, budgetCt)
+        Func<RetrievalQuery, AgenticRetrievalQueryPlan, CancellationToken, Task<IReadOnlyList<RetrievalHit>>> executeSearchPass =
+            (searchQuery, plan, cancellationToken) =>
+                ExecuteSearchPassAsync(
+                    searchQuery,
+                    plan,
+                    cancellationToken,
+                    resolvedPolicyPackRulePackIds);
+
+        IReadOnlyList<RetrievalHit> initialHits = await executeSearchPass(query, queryPlan, budgetCt)
             .ConfigureAwait(false);
 
         (IReadOnlyList<RetrievalHit> hits, IterativeRetrievalTraceState? iterativeTrace) =
@@ -94,7 +103,7 @@ public sealed class RetrievalQueryService(
                     query,
                     queryPlan,
                     initialHits,
-                    ExecuteSearchPassAsync,
+                    executeSearchPass,
                     budgetCt)
                 .ConfigureAwait(false);
 
@@ -113,28 +122,36 @@ public sealed class RetrievalQueryService(
         return hits;
     }
 
-    private async Task<AgenticRetrievalQueryPlan> ResolveQueryPlanAsync(RetrievalQuery query, CancellationToken budgetCt)
+    private async Task<(AgenticRetrievalQueryPlan Plan, HashSet<string>? AllowedPolicyPackRulePackIds)> ResolveQueryPlanAsync(
+        RetrievalQuery query,
+        CancellationToken budgetCt)
     {
         if (query.SkipQueryExpansion)
         {
+            HashSet<string>? allowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds;
+
             if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
             {
-                query.AllowedPolicyPackRulePackIds = await _assignedPolicyPackRulePackIdResolver
+                allowedPolicyPackRulePackIds = await _assignedPolicyPackRulePackIdResolver
                     .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt)
                     .ConfigureAwait(false);
             }
 
             string trimmedQuery = query.QueryText.Trim();
 
-            return new AgenticRetrievalQueryPlan
-            {
-                OriginalQueryText = query.QueryText,
-                RerankQueryText = trimmedQuery,
-                EmbedText = trimmedQuery,
-                UsedHyde = false,
-                UsedQueryRewrite = false,
-            };
+            return (
+                new AgenticRetrievalQueryPlan
+                {
+                    OriginalQueryText = query.QueryText,
+                    RerankQueryText = trimmedQuery,
+                    EmbedText = trimmedQuery,
+                    UsedHyde = false,
+                    UsedQueryRewrite = false,
+                },
+                allowedPolicyPackRulePackIds);
         }
+
+        HashSet<string>? resolvedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds;
 
         if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
         {
@@ -145,20 +162,23 @@ public sealed class RetrievalQueryService(
 
             await Task.WhenAll(resolveTask, expandTask).ConfigureAwait(false);
 
-            query.AllowedPolicyPackRulePackIds = await resolveTask.ConfigureAwait(false);
+            resolvedPolicyPackRulePackIds = await resolveTask.ConfigureAwait(false);
 
-            return await expandTask.ConfigureAwait(false);
+            return (await expandTask.ConfigureAwait(false), resolvedPolicyPackRulePackIds);
         }
 
-        return await _agenticRetrievalQueryExpander
-            .ExpandAsync(query.QueryText, budgetCt)
-            .ConfigureAwait(false);
+        return (
+            await _agenticRetrievalQueryExpander
+                .ExpandAsync(query.QueryText, budgetCt)
+                .ConfigureAwait(false),
+            resolvedPolicyPackRulePackIds);
     }
 
     private async Task<IReadOnlyList<RetrievalHit>> ExecuteSearchPassAsync(
         RetrievalQuery query,
         AgenticRetrievalQueryPlan queryPlan,
-        CancellationToken budgetCt)
+        CancellationToken budgetCt,
+        HashSet<string>? resolvedPolicyPackRulePackIds)
     {
         int finalTopK = Math.Clamp(query.TopK, 1, RetrievalQuery.MaxTopK);
         RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;
@@ -167,7 +187,7 @@ public sealed class RetrievalQueryService(
             ? Math.Max(finalTopK, rerankOptions.GetEffectiveMaxCandidates())
             : finalTopK;
 
-        RetrievalQuery searchQuery = CloneWithTopK(query, candidateTopK);
+        RetrievalQuery searchQuery = CloneWithTopK(query, candidateTopK, resolvedPolicyPackRulePackIds);
 
         float[] embedding = await _embeddingService.EmbedAsync(queryPlan.EmbedText, budgetCt);
         IReadOnlyList<RetrievalHit> hits = await _vectorIndex
@@ -208,7 +228,10 @@ public sealed class RetrievalQueryService(
         return hits;
     }
 
-    private static RetrievalQuery CloneWithTopK(RetrievalQuery query, int topK)
+    private static RetrievalQuery CloneWithTopK(
+        RetrievalQuery query,
+        int topK,
+        HashSet<string>? resolvedPolicyPackRulePackIds)
     {
         return new RetrievalQuery
         {
@@ -220,7 +243,7 @@ public sealed class RetrievalQueryService(
             QueryText = query.QueryText,
             TopK = topK,
             IncludePlatformCorpora = query.IncludePlatformCorpora,
-            AllowedPolicyPackRulePackIds = query.AllowedPolicyPackRulePackIds,
+            AllowedPolicyPackRulePackIds = resolvedPolicyPackRulePackIds ?? query.AllowedPolicyPackRulePackIds,
             SkipReranking = query.SkipReranking,
             SkipQueryExpansion = query.SkipQueryExpansion
         };
