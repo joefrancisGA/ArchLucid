@@ -34041,7 +34041,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-10
@@ -34071,6 +34071,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyAdmitLimitRefreshStore.TryPromoteAsync` — must re-stamp `UtcNow` from `TimeProvider` like admit refresh or promote evaluates stale queue expiry — **cheap-disproof 2026-09-27 seed hunt #23:** promote loop supplies fresh `TimeProvider.GetUtcNow()` each poll (#1542); refresh re-reads limits only; regression `AdmitLimitRefreshStore_preserves_promote_utc_now_from_caller`.
 - **related-pd-tb:** none
 - **code-changed-since:** 0
+
+2026-10-10 seed hunt (seed-only): reread the service, SQL store, in-memory store, and concurrency/lease lifecycle tests; no fresh reachable mechanism remained after the equal-timestamp FIFO fix and prior cancellation, lease, cleanup, and timestamp findings. The scoped test project was blocked before execution by pre-existing duplicate `CreateEmptyAgentResultRepository` member `CS0111`. No production or regression code was changed.
 
 2026-09-26 seed hunt #6971 (seed→hit): reseeded queue-wait deadline alignment; proved `WaitForAdmissionAsync` anchored queue-wait deadline to post-admit `GetUtcNow()` so slow `TryAdmit` extended the client wait beyond store `QueueExpiresUtc`; fixed by anchoring deadline to admit UTC captured at enqueue (`admitUtcNow + queueWaitTimeout`); regression `WaitForAdmissionAsync_rejects_queue_timeout_at_store_enqueue_expiry_not_post_admit_skew`; 34 scoped QuickScanDistributedConcurrency tests passed.
 
