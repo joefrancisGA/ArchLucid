@@ -50,7 +50,7 @@ public static class SecurityEvidencePathGuard
                 && hop.HopConfidenceBand == PathConfidenceBand.Confirmed)
             {
                 throw new InvalidOperationException(
-                    "AiInference hops cannot use Confirmed confidence.");
+                    "LLM-inferred hops cannot use Confirmed confidence.");
             }
         }
 

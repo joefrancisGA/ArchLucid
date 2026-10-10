@@ -47,14 +47,22 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier)
-            && TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
+        // Enum default is PolicyViolation (0). Agent golden JSON often omits the
+        // field; treat absence as Advisory so live-LLM payloads stay non-blocking.
+        if (TryGetPropertyIgnoreCase(root, "enforcementTier", out JsonElement enforcementTier))
         {
-            finding.EnforcementTier = tier;
+            if (TryReadEnforcementTier(enforcementTier, out FindingEnforcementTier tier))
+            {
+                finding.EnforcementTier = tier;
+            }
+            else
+            {
+                throw new JsonException("enforcementTier is required.");
+            }
         }
         else
         {
-            throw new JsonException("enforcementTier is required.");
+            finding.EnforcementTier = FindingEnforcementTier.Advisory;
         }
 
         finding.Message = ReadMessage(root);

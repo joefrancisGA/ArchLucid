@@ -15,6 +15,8 @@ public sealed class JsonBooleanStringReaderPropertyTests
     [
         ("true", true),
         ("false", false),
+        ("1", true),
+        ("0", false),
         ("on", true),
         ("off", false),
         ("yes", true),

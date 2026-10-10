@@ -84,6 +84,7 @@
     "dbo.AuditEvidenceSnapshots",
     "dbo.AuditFrameworks",
     "dbo.AuditManualEvidenceSubmissions",
+    "dbo.AzureInventoryAdfExternalSources",
     "dbo.AzureInventoryChanges",
     "dbo.AzureInventoryDiagnosticConfigurations",
     "dbo.AzureInventoryDiffNarratives",

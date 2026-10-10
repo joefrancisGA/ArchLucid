@@ -40,7 +40,7 @@ public sealed class SecurityEvidencePathGuardTests
         Action act = () => SecurityEvidencePathGuard.ValidateAndMaterialize(header, [hop]);
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*AiInference*Confirmed*");
+            .WithMessage("*LLM-inferred*Confirmed*");
     }
 
     [Fact]

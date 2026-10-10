@@ -162,7 +162,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
-        t.BlobUploadFailed.Should().BeFalse();
+        t.BlobUploadFailed.Should().BeNull();
     }
 
     [SkippableFact]
