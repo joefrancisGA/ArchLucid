@@ -116,6 +116,7 @@ public sealed class AgentEvaluationConfidencePipelineTests
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             faithfulnessEvaluator.Object,
             Options.Create(new AgentOutputLlmFaithfulnessOptions()),
+            Options.Create(new AgentExecutionOptions { Mode = "Real" }),
             new FindingConfidenceCalculator());
 
         (bool schemaPassed, bool referenceMatched) result =
@@ -124,7 +125,7 @@ public sealed class AgentEvaluationConfidencePipelineTests
                 evidence: null,
                 new Dictionary<string, double?>(),
                 CancellationToken.None,
-                StructuralExecutionMode.Real);
+                taskStructuralExecutionMode: null);
 
         result.schemaPassed.Should().BeFalse();
         result.referenceMatched.Should().BeFalse();

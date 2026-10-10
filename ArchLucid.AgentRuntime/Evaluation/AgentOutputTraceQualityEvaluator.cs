@@ -289,7 +289,8 @@ public static class AgentOutputTraceQualityEvaluator
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
         AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null,
-        StructuralExecutionMode? taskStructuralExecutionMode = null) =>
+        StructuralExecutionMode? taskStructuralExecutionMode = null,
+        string? hostAgentExecutionMode = null) =>
         ComputeQualityGateAcceptedForConfidenceAsyncCore(
             trace,
             options,
@@ -302,7 +303,8 @@ public static class AgentOutputTraceQualityEvaluator
             calibratedConfidenceByTaskId,
             llmFaithfulnessEvaluator,
             llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions(),
-            taskStructuralExecutionMode);
+            taskStructuralExecutionMode,
+            hostAgentExecutionMode);
 
     private static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsyncCore(
         AgentExecutionTrace trace,
@@ -316,7 +318,8 @@ public static class AgentOutputTraceQualityEvaluator
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
         AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions,
-        StructuralExecutionMode? taskStructuralExecutionMode)
+        StructuralExecutionMode? taskStructuralExecutionMode,
+        string? hostAgentExecutionMode)
     {
         if (trace.QualityRejected
             || trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
@@ -337,7 +340,8 @@ public static class AgentOutputTraceQualityEvaluator
                 llmFaithfulnessEvaluator: llmFaithfulnessEvaluator,
                 calibratedConfidenceByTaskId: calibratedConfidenceByTaskId,
                 llmFaithfulnessOptions: llmFaithfulnessOptions,
-                taskStructuralExecutionMode: taskStructuralExecutionMode).ConfigureAwait(false);
+                taskStructuralExecutionMode: taskStructuralExecutionMode,
+                hostAgentExecutionMode: hostAgentExecutionMode).ConfigureAwait(false);
 
         return result is { GateOutcome: not AgentOutputQualityGateOutcome.Rejected };
     }
