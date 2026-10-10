@@ -4,6 +4,8 @@
 
 2026-10-10 seed hunt (seed-only): `ui-oidc` — reread OIDC configuration, redirect, token, discovery, and session boundaries; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused OIDC module suite passed all 70 tests.
 
+2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
+
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate met the full hunt-ready bar and no hypothesis was promoted. Seeded five canonical `(candidate)` rows under the zone hypothesis block. The exact queue suite ran 26 tests: 15 passed and 11 failed on the known external-store/update-depth baseline and workspace-label expectation mismatch.
 
 2026-10-09 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client and focused test inventory; no candidate was promoted after cheap-disproof. The exact queue suite ran 29 tests: 17 passed and 12 failed on the known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines. Rehomed the five existing candidate rows under the zone’s canonical hypothesis block so the picker can evaluate them.
@@ -18902,7 +18904,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-08
@@ -19000,11 +19002,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `loadDiscoveryDocument` — **cheap-disproof 2026-10-10 thorough hunt:** the cache is keyed by normalized discovery URL, so Google and primary authorities cannot share a promise; discovery tests passed.
 - [x] (invalid) `consumePostSignInReturnUrl` — **cheap-disproof 2026-10-10 thorough hunt:** `isSafeReturnPath` rejects protocol-relative paths before consumption; session safety tests passed.
 
-- [ ] (candidate) `persistTokenResponse` — a successful token response can write signed-in expiry/display hints before asynchronous BFF cookie synchronization completes, so a sync failure may render the client as signed in without a usable server session — locus: fire-and-forget `syncBffSessionCookieFromTokenResponse`; input: callback token exchange followed by a failed `/api/auth/bff-session` request.
-- [ ] (candidate) `initiateOidcRedirect` — malformed or unavailable primary authority failure can leave a newly stored post-sign-in return path in storage when a prior supplemental PKCE flow is present — locus: discovery-failure cleanup condition; input: primary sign-in retry after a pending Google flow and a new return URL.
-- [ ] (candidate) `assertOidcSignInConfig` — primary OIDC configuration validation can report success while a separately selected supplemental provider is incomplete — locus: primary-only config assertion; input: Google sign-in control with missing supplemental client configuration.
-- [ ] (candidate) `postTokenForm` — a successful token endpoint response with a non-object JSON value can pass through the cast and fail later outside the token-client boundary — locus: unchecked `parsed as OidcTokenResponse`; input: provider returns JSON `null`, array, or scalar with HTTP 200.
-- [ ] (candidate) `getOidcRedirectUri` — a fixed redirect URI is accepted without same-origin or callback-path validation, so deployment configuration can send authorization codes to an unintended registered origin — locus: fixed `NEXT_PUBLIC_OIDC_REDIRECT_URI` branch; input: production environment with a typoed or cross-origin redirect setting.
+- [x] (valid-no-repro) `persistTokenResponse` — **cheap-disproof 2026-10-10 thorough hunt:** BFF synchronization failure is intentionally best-effort and no route-level caller or test establishes a durable signed-in UI claim after the server session is unavailable; token persistence tests passed.
+- [x] (valid-no-repro) `initiateOidcRedirect` — **cheap-disproof 2026-10-10 thorough hunt:** primary discovery cleanup preserves a pending supplemental return path only when no new primary return URL was stored; redirect failure tests cover the cross-flow cases.
+- [x] (invalid) `assertOidcSignInConfig` — **cheap-disproof 2026-10-10 thorough hunt:** supplemental Google initiation validates its own authority and client id before redirect; primary config success does not authorize the supplemental path.
+- [x] (valid-no-repro) `postTokenForm` — **cheap-disproof 2026-10-10 thorough hunt:** callers validate required access-token material before persistence and malformed OAuth responses are covered by token-client tests; no reachable downstream misclassification was reproduced.
+- [x] (valid-no-repro) `getOidcRedirectUri` — **cheap-disproof 2026-10-10 thorough hunt:** the fixed URI is deployment configuration for a registered public-client callback, and no attacker-controlled input reaches this branch; no source-tied redirect failure was reproduced.
 
 ---
 
