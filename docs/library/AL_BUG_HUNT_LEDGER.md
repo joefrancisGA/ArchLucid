@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (dry): `securenow-question-queue` — the retained `SqlSecureNowQuestionDispositionRepository.UpsertAsync` concurrency candidate remains plausible because its SQL `MERGE` has no explicit serialization hint, but no SQL Server was reachable for a failing concurrent repro. The scoped Application test build was blocked by pre-existing duplicate `CreateEmptyAgentResultRepository`; no production change.
+
 2026-10-10 seed hunt (seed-only): `agent-runtime-safety` — re-read the selected Safety and PromptInjection sources and focused tests; no new reachable mechanism-backed wrong outcome met the same-run hunt-ready bar. Seeded two bounded candidates for nullable externally populated tag/evidence collections. The picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the dual toggle-confirmation URL candidate: `webhooksToggleConfirmHrefFromSearch` intentionally deletes `webhookEnableId` whenever a disable id is present, and no application path generates both ids. The focused webhooks and URL-helper suites passed 202 tests. No production change.
@@ -35836,13 +35838,15 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-04 — reopening an expired question disposition preserved its expired timestamp
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 thorough hunt (dry): cheap-disproof confirmed the concurrent API answer/ignore path reaches `SqlSecureNowQuestionDispositionRepository.UpsertAsync` and its unhinted `MERGE`, but no SQL Server or SQL integration test execution was available for the required failing repro. The Application `SecureNowQuestion` filter was blocked before test execution by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`; candidate retained without a production change.
 
 2026-10-03 seed hunt (hit): inventory questions disappeared when the optional inferred-connection request failed; preserved question results while surfacing the secondary load error; `SecureNowQuestionQueue` regression passed.
 2026-10-03 seed hunt (hit): SecureNow mutation validation accepted an undefined `ScopeKind`; rejected invalid enum values at both the controller boundary and service boundary; 3 focused validation tests passed.
