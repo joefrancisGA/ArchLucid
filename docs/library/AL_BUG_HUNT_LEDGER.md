@@ -31169,6 +31169,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-10 seed hunt (seed→hit): promoted `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` actor propagation; both routes passed `User.Identity?.Name` into the trial facade, so platform audits stored a display name as `ActorUserId`; inject `IActorContext` and pass `GetActorId()`; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`. The focused API xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated controller repro failed before the fix and passed afterward.
+
 2026-10-10 seed hunt (seed-only): re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
 
 2026-10-09 seed hunt (seed→hit): promoted `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` into platform audit `ActorUserId`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; trial actor `(candidate)` remains open.
@@ -31185,11 +31187,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 314
+- **hunts:** 315
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 518
+- **bugs-found:** 519
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-09 — legal-hold platform audit stored NameIdentifier instead of actor-context id
+- **last-bug:** 2026-10-10 — trial lifecycle passed display name instead of actor-context id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31201,7 +31203,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TenantSponsorDigestPreferencesController.PostSponsorDigestPreferences` — audit `ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` — **hit 2026-10-07 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PostSponsorDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; reachable `POST /v1/tenant/sponsor-digest-preferences`.
 - [x] (proven) `TenantExecDigestPreferencesController.PostExecDigestPreferences` — audit `ActorUserId` / `ActorUserName` both set from `User.Identity?.Name ?? "operator"` — **hit 2026-10-07 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PostExecDigestPreferences_audit_uses_actor_context_id_when_display_name_differs`; reachable `POST /v1/tenant/exec-digest-preferences`.
 - [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
-- [ ] (candidate) `TenantTrialController` — trial lifecycle calls pass `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable trial admin POST routes.
+- [x] (proven) `TenantTrialController` — trial lifecycle calls passed `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable `POST /v1/tenant/link-entra` and `/v1/tenant/convert` routes — **hit 2026-10-10 seed hunt:** inject `IActorContext` and pass the canonical actor id to the trial facade; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`.
 - [x] (proven) `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` as `actorUserId`, and `AppendPlatformAuditAsync` stored that string on `PlatformAuditEvent.ActorUserId` — **hit 2026-10-09 seed hunt:** `IActorContext.GetActorId()` for the stable id; display name stays `Identity.Name`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; reachable `POST /v1/tenant/erasure/legal-hold` and `POST /v1/tenant/erasure/approve`.
 
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.

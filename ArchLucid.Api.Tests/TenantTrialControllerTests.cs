@@ -17,12 +17,61 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Security.Claims;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class TenantTrialControllerTests
 {
+    [Fact]
+    public async Task LinkEntraAsync_passes_stable_actor_id_to_trial_facade()
+    {
+        Mock<ITenantTrialFacade> trialFacade = new();
+        trialFacade
+            .Setup(facade => facade.LinkEntraAsync(
+                It.IsAny<TenantTrialLinkEntraBody>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success });
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(context => context.GetActorId()).Returns("actor-id");
+
+        TenantTrialController sut = new(trialFacade.Object, actorContext.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(
+                        new ClaimsIdentity(
+                            [
+                                new Claim(ClaimTypes.Name, "display-name"),
+                                new Claim(ClaimTypes.NameIdentifier, "actor-id"),
+                            ],
+                            "test")),
+                },
+            },
+        };
+
+        IActionResult result = await sut.LinkEntraAsync(
+            new TenantLinkEntraRequest
+            {
+                EntraTenantId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        trialFacade.Verify(
+            facade => facade.LinkEntraAsync(
+                It.IsAny<TenantTrialLinkEntraBody>(),
+                "actor-id",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     [SkippableFact]
     public async Task GetTrialStatusAsync_returns_not_found_when_tenant_missing()
     {
@@ -1054,7 +1103,8 @@ public sealed class TenantTrialControllerTests
             gate,
             trialUsers,
             trialAbuseRepository ?? Mock.Of<ISelfServiceTrialAbuseRepository>(),
-            schedulerOpts))
+            schedulerOpts),
+            Mock.Of<IActorContext>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
