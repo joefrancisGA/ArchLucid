@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn013HandoffLayoutLk04LeftoverArchitectureTests
     [Fact]
     public void Sn013_handoff_layout_module_names_gate_and_snapshot_summary()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-spawn-lock-handoff-layout.ts"));
 
         module.Should().Contain("shouldRenderSpawnLockedHandoffLayout");
@@ -25,7 +25,7 @@ public sealed class SystemNotJobSn013HandoffLayoutLk04LeftoverArchitectureTests
     [Fact]
     public void Sn013_handoff_panel_uses_snapshot_summary_and_clone_control()
     {
-        string panel = File.ReadAllText(
+        string panel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -42,7 +42,7 @@ public sealed class SystemNotJobSn013HandoffLayoutLk04LeftoverArchitectureTests
     [Fact]
     public void Sn013_vitest_ratchet_names_handoff_layout_and_undo_window()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

@@ -14,7 +14,7 @@ public sealed class CareerGravityCg027CareerBlocksCliExportBundleArchitectureTes
     [Fact]
     public void Cg027_write_folder_resolves_export_bundle_career_posture_gate()
     {
-        string writer = File.ReadAllText(
+        string writer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "PilotProofPacketCommand.WriteFolder.cs"));
 
         writer.Should().Contain("ExportBundleCareerPostureResolver.ResolveFromDeltasJson");
@@ -24,7 +24,7 @@ public sealed class CareerGravityCg027CareerBlocksCliExportBundleArchitectureTes
     [Fact]
     public void Cg027_resolver_reuses_simulator_career_honesty_presenter()
     {
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "ExportBundleCareerPostureResolver.cs"));
 
         resolver.Should().Contain("SimulatorCareerHonestyPresenter.ShouldBlockWorkingCareer");
@@ -35,7 +35,7 @@ public sealed class CareerGravityCg027CareerBlocksCliExportBundleArchitectureTes
     [Fact]
     public void Cg027_pilot_run_deltas_response_includes_execute_posture_fields()
     {
-        string contract = File.ReadAllText(
+        string contract = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Pilots", "PilotRunDeltasResponse.cs"));
 
         contract.Should().Contain("StructuralExecutionMode");
@@ -45,7 +45,7 @@ public sealed class CareerGravityCg027CareerBlocksCliExportBundleArchitectureTes
     [Fact]
     public void Cg027_docs_record_cli_bundle_career_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-027");

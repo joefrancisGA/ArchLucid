@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     [Fact]
     public void Suggestion121_manifest_retrieval_uses_lifecycle_guard()
     {
-        string get = File.ReadAllText(
+        string get = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -30,13 +30,13 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     [Fact]
     public void Suggestion122_pin_enforcement_at_create()
     {
-        string row = File.ReadAllText(
+        string row = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "PolicyPacks", "PinnedPolicyPackRow.cs"));
 
         row.Should().Contain("BlockCommitOnCritical");
         row.Should().Contain("BlockCommitMinimumSeverity");
 
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
         pinService.Should().Contain("BlockCommitOnCritical");
@@ -45,13 +45,13 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     [Fact]
     public void Suggestion123_decision_receipt_binds_manifest_hash()
     {
-        string receipt = File.ReadAllText(
+        string receipt = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Exports", "DecisionReceiptDocument.cs"));
 
         receipt.Should().Contain("ManifestHashSha256");
         receipt.Should().Contain("ManifestVersion");
 
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Finalization", "ManifestDecisionReceiptExportBinder.cs"));
 
         service.Should().Contain("manifest.ManifestHash");
@@ -70,7 +70,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
             .Should()
             .BeTrue();
 
-        string manifest = File.ReadAllText(
+        string manifest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Manifest", "ManifestDocument.cs"));
 
         manifest.Should().Contain("CommittedArtifactInventory");
@@ -88,7 +88,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
             .Should()
             .BeTrue();
 
-        string integrity = File.ReadAllText(
+        string integrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "CommitOutputIntegrityService.cs"));
 
         integrity.Should().Contain("FindingEvidenceReferentialIntegrityValidator");
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
             .Should()
             .BeTrue();
 
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         compare.Should().Contain("BuildCompareInputFingerprints");
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
             .Should()
             .BeTrue();
 
-        string prepare = File.ReadAllText(
+        string prepare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
 
         prepare.Should().Contain("ReplayRunScopeAssertionGuard");
@@ -126,7 +126,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     [Fact]
     public void Suggestion128_lifecycle_transition_audit()
     {
-        string auditTypes = File.ReadAllText(
+        string auditTypes = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Audit", "AuditEventTypes.cs"));
 
         auditTypes.Should().Contain("LifecycleTransition");
@@ -140,7 +140,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
     [Fact]
     public void Suggestion129_hasher_v8()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
@@ -161,7 +161,7 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
             .Should()
             .BeTrue();
 
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

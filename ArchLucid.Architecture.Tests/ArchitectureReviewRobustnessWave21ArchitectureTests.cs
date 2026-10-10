@@ -24,12 +24,12 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion201_sponsor_review_packet_fail_closed_on_sealed_receipt()
     {
-        string builder = File.ReadAllText(
+        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "SponsorReviewPacketBuilder.cs"));
 
         builder.Should().Contain("EnsureSealedExportReceiptVerifiedOrThrowAsync");
 
-        string binder = File.ReadAllText(
+        string binder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -43,13 +43,13 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion202_version_compare_applies_inventory_checked_topology_overlay()
     {
-        string versionCompare = File.ReadAllText(
+        string versionCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Analysis",
                 "CompareRunsApplicationFacade.VersionCompare.cs"));
-        string builder = File.ReadAllText(
+        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -63,7 +63,7 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion203_explain_compare_routes_through_pin_inventory_facade()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -78,7 +78,7 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion204_audit_export_fail_closed_on_row_cap_truncation()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.Export.Guard.cs"));
 
         guard.Should().Contain("CountFilteredAsync");
@@ -88,7 +88,7 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion205_governance_mutation_correction_binds_sealed_manifest_hash()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "GovernanceMutationCorrectionService.cs"));
 
         service.Should().Contain("EnsureSealedManifestHashMatchesOrThrow");
@@ -97,9 +97,9 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion206_authority_manifest_id_compare_enforces_pin_inventory()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "AuthorityManifestIdCompareGuard.cs"));
 
         controller.Should().Contain("AuthorityManifestIdCompareGuard");
@@ -109,9 +109,9 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion207_ui_blob_download_rejects_json_problem_as_zip()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-guard.ts"));
-        string trigger = File.ReadAllText(
+        string trigger = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger.ts"));
 
         guard.Should().Contain("assertBinaryDownloadContentType");
@@ -122,14 +122,14 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion208_signed_review_record_get_verifies_sealed_manifest_hash()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ArtifactExportController.SealedManifestGuard.cs"));
-        string trail = File.ReadAllText(
+        string trail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
 
         guard.Should().Contain("SealedManifestReadGuard");
@@ -139,21 +139,21 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion209_skip_persist_recovery_fail_closed_on_decision_trace_inventory()
     {
-        string finalization = File.ReadAllText(
+        string finalization = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Runs",
                 "Finalization",
                 "ManifestFinalizationService.Artifacts.cs"));
-        string capturer = File.ReadAllText(
+        string capturer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "Runs",
                 "Finalization",
                 "ManifestCommittedArtifactInventoryCapturer.cs"));
-        string recovery = File.ReadAllText(
+        string recovery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -170,14 +170,14 @@ public sealed class ArchitectureReviewRobustnessWave21ArchitectureTests
     [Fact]
     public void Suggestion210_finding_write_fail_closed_on_invalid_anchors()
     {
-        string coreConverter = File.ReadAllText(
+        string coreConverter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
                 "Findings",
                 "Serialization",
                 "FindingJsonConverter.cs"));
-        string contractConverter = File.ReadAllText(
+        string contractConverter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "ArchitectureFindingJsonConverter.cs"));
 
         coreConverter.Should().Contain("evidencePackageId in properties must be a valid GUID when present");

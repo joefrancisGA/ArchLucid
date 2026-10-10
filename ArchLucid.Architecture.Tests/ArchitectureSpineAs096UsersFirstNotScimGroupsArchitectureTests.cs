@@ -20,7 +20,7 @@ public sealed class ArchitectureSpineAs096UsersFirstNotScimGroupsArchitectureTes
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-096");
         source.Should().Contain("ScimGroupNotSupported");
@@ -33,7 +33,7 @@ public sealed class ArchitectureSpineAs096UsersFirstNotScimGroupsArchitectureTes
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-096");
         source.Should().Contain("SCIM groups are **not** share targets");
@@ -53,8 +53,8 @@ public sealed class ArchitectureSpineAs096UsersFirstNotScimGroupsArchitectureTes
             "ArchLucid.Api.Tests",
             "ArchitecturesControllerSharesTests.cs");
 
-        File.ReadAllText(controller).Should().Contain("ScimGroupNotSupported");
-        File.ReadAllText(controllerTests).Should().Contain("UpsertShare_WithScimGroupId_Returns400");
+        ArchitectureSourceProbe.ReadPathWithPartials(controller).Should().Contain("ScimGroupNotSupported");
+        ArchitectureSourceProbe.ReadPathWithPartials(controllerTests).Should().Contain("UpsertShare_WithScimGroupId_Returns400");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class ArchitectureSpineAs096UsersFirstNotScimGroupsArchitectureTes
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("SCIM groups are not supported");
         source.Should().Contain("ARCHITECTURE_IDENTITY_DESK_SHARE_USERS_ONLY_HELPER");

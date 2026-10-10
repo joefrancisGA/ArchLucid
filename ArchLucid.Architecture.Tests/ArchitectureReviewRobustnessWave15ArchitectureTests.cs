@@ -25,13 +25,13 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
             .Should()
             .BeTrue();
 
-        string cohort = File.ReadAllText(
+        string cohort = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api.Tests", "GoldenCohortSimulatorDriftTests.cs"));
 
         cohort.Should().Contain("committedArtifactInventory");
         cohort.Should().Contain("ComputeContentSha256Hex(");
 
-        string cli = File.ReadAllText(
+        string cli = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Runs.FingerprintSeed.cs"));
 
         cli.Should().Contain("ComputeContentSha256Hex(");
@@ -40,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion142_bundle_inventory_hashes_blob_bytes()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -55,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion143_recovery_recomputes_inventory_hashes()
     {
-        string capturer = File.ReadAllText(
+        string capturer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -65,7 +65,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
 
         capturer.Should().Contain("EnsureStoredInventoryContentHashesMatchOrThrow");
 
-        string verifier = File.ReadAllText(
+        string verifier = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -80,17 +80,17 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion144_typed_evidence_package_id_on_finding()
     {
-        string finding = File.ReadAllText(
+        string finding = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "Finding.cs"));
 
         finding.Should().Contain("EvidencePackageId");
 
-        string keys = File.ReadAllText(
+        string keys = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Findings", "FindingPropertyKeys.cs"));
 
         keys.Should().Contain("EvidencePackageId");
 
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion145_openapi_compare_input_fingerprints_inventory()
     {
-        string openApi = File.ReadAllText(
+        string openApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -113,7 +113,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
         openApi.Should().Contain("ApplyCompareInputFingerprints");
         openApi.Should().Contain("baseCommittedArtifactInventoryHashSha256");
 
-        string fingerprints = File.ReadAllText(
+        string fingerprints = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Comparison", "CompareInputFingerprints.cs"));
 
         fingerprints.Should().Contain("BaseCommittedArtifactInventoryHashSha256");
@@ -122,7 +122,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion146_lifecycle_transition_on_create()
     {
-        string writer = File.ReadAllText(
+        string writer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -136,7 +136,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion147_async_execute_asserts_scope()
     {
-        string hosted = File.ReadAllText(
+        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -150,12 +150,12 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion148_replay_clone_fail_closed_without_source_header()
     {
-        string clone = File.ReadAllText(
+        string clone = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunCloneStage.cs"));
 
         clone.Should().Contain("source run header binding");
 
-        string execute = File.ReadAllText(
+        string execute = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         execute.Should().Contain("evidence clone requires create-time pins");
@@ -164,7 +164,7 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion149_skip_persist_still_seals_inventory()
     {
-        string artifacts = File.ReadAllText(
+        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -179,17 +179,17 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
     [Fact]
     public void Suggestion150_decision_receipt_hash_and_hasher_v10()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptCanonicalHasher.cs"));
 
         hasher.Should().Contain("ComputeSha256Hex");
 
-        string receipt = File.ReadAllText(
+        string receipt = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Exports", "DecisionReceiptDocument.cs"));
 
         receipt.Should().Contain("ReceiptHashSha256");
 
-        string manifestHasher = File.ReadAllText(
+        string manifestHasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         manifestHasher.Should().Contain("HasherSchemaVersion = \"v12\"");

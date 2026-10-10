@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn007ImpactPreviewEnvelopeEntryArchitectureTests
     [Fact]
     public void Sn007_envelope_entry_module_forbids_career_architecture_what_if()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-impact-preview-envelope-entry.ts"));
 
         module.Should().Contain("SYSTEM_NOT_JOB_IMPACT_PREVIEW_POLICY_ENVELOPE_BODY");
@@ -26,9 +26,9 @@ public sealed class SystemNotJobSn007ImpactPreviewEnvelopeEntryArchitectureTests
     [Fact]
     public void Sn007_nested_impact_preview_route_and_client_exist()
     {
-        string routes = File.ReadAllText(
+        string routes = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "architecture", "architecture-routes.ts"));
-        string nestedClient = File.ReadAllText(
+        string nestedClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -45,7 +45,7 @@ public sealed class SystemNotJobSn007ImpactPreviewEnvelopeEntryArchitectureTests
         routes.Should().Contain("impact-preview");
         nestedClient.Should().Contain("nestedPolicyEnvelopeEntry");
 
-        string pageView = File.ReadAllText(
+        string pageView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -63,7 +63,7 @@ public sealed class SystemNotJobSn007ImpactPreviewEnvelopeEntryArchitectureTests
     [Fact]
     public void Sn007_vitest_ratchet_names_policy_envelope_entry()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-impact-preview-envelope-entry.test.ts"));
 
         test.Should().Contain("SN-007");

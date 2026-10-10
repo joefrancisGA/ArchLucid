@@ -15,51 +15,51 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
     [Fact]
     public void Suggestion1497_1502_setup_resolution_catalog_and_register_sealed_manifest_mappers()
     {
-        string setupController = File.ReadAllText(
+        string setupController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceSetupController.cs"));
-        string setupGuard = File.ReadAllText(
+        string setupGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceSetupController.SealedManifestGuard.cs"));
-        string resolutionController = File.ReadAllText(
+        string resolutionController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceResolutionController.cs"));
-        string resolutionGuard = File.ReadAllText(
+        string resolutionGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceResolutionController.SealedManifestGuard.cs"));
-        string catalogController = File.ReadAllText(
+        string catalogController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceEnvironmentCatalogController.cs"));
-        string catalogGuard = File.ReadAllText(
+        string catalogGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceEnvironmentCatalogController.SealedManifestGuard.cs"));
-        string registersController = File.ReadAllText(
+        string registersController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceStickinessController.Registers.cs"));
-        string attestationController = File.ReadAllText(
+        string attestationController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -89,9 +89,9 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
     [Fact]
     public void Suggestion1503_1508_coverage_compare_agents_and_export_lineage_verify_blocked_reason_wiring()
     {
-        string coverageApi = File.ReadAllText(
+        string coverageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-coverage-api.ts"));
-        string coverageBlocked = File.ReadAllText(
+        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -99,11 +99,11 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "lib",
                 "governance",
                 "governance-coverage-blocked-reason.ts"));
-        string coverageHook = File.ReadAllText(
+        string coverageHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-scope-coverage-query.ts"));
-        string compareApi = File.ReadAllText(
+        string compareApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-compare.ts"));
-        string compareBlocked = File.ReadAllText(
+        string compareBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,11 +111,11 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "lib",
                 "compare",
                 "compare-agent-results-blocked-reason.ts"));
-        string compareHook = File.ReadAllText(
+        string compareHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-compare-agent-results-query.ts"));
-        string verifyApi = File.ReadAllText(
+        string verifyApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-lineage-verify-api.ts"));
-        string verifyBlocked = File.ReadAllText(
+        string verifyBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -123,7 +123,7 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "lib",
                 "exports",
                 "export-lineage-verify-blocked-reason.ts"));
-        string verifyHook = File.ReadAllText(
+        string verifyHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-lineage-verify-query.ts"));
 
         coverageApi.Should().Contain("getGovernanceScopeCoverage");
@@ -147,7 +147,7 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
     [Fact]
     public void Suggestion1504_1506_setup_resolution_and_environment_catalog_fail_closed_ux()
     {
-        string setupStatus = File.ReadAllText(
+        string setupStatus = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -158,7 +158,7 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "setup",
                 "_sections",
                 "resolve-governance-setup-status.ts"));
-        string setupPage = File.ReadAllText(
+        string setupPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -169,7 +169,7 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "setup",
                 "_sections",
                 "GovernanceSetupGuidePageView.tsx"));
-        string resolutionPageHook = File.ReadAllText(
+        string resolutionPageHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -180,7 +180,7 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "standards-and-rules",
                 "_sections",
                 "use-governance-resolution-page.ts"));
-        string resolutionPage = File.ReadAllText(
+        string resolutionPage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -191,11 +191,11 @@ public sealed class ArchitectureReviewRobustnessWave126ArchitectureTests
                 "standards-and-rules",
                 "_sections",
                 "GovernanceResolutionPageView.tsx"));
-        string environmentHook = File.ReadAllText(
+        string environmentHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-environment-catalog-query.ts"));
-        string environmentsClient = File.ReadAllText(
+        string environmentsClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "governance", "GovernanceEnvironmentsClient.tsx"));
-        string readBlocked = File.ReadAllText(
+        string readBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

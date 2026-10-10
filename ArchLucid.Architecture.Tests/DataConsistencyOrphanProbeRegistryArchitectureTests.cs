@@ -21,7 +21,7 @@ public sealed class DataConsistencyOrphanProbeRegistryArchitectureTests
     [Fact]
     public void ArchLucid_sql_RunId_foreign_key_tables_are_registered_in_orphan_probe_registry()
     {
-        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(ResolveArchLucidSqlPath());
         HashSet<string> ddlTables = ExtractRunForeignKeyTables(sql);
         HashSet<string> registeredTables = DataConsistencyOrphanProbeRegistry.All
             .Select(static registration => registration.TableName)
@@ -66,7 +66,7 @@ public sealed class DataConsistencyOrphanProbeRegistryArchitectureTests
     [Fact]
     public void Data_consistency_matrix_documents_background_probed_orphan_tables()
     {
-        string matrix = File.ReadAllText(ResolveDataConsistencyMatrixPath());
+        string matrix = ArchitectureSourceProbe.ReadPathWithPartials(ResolveDataConsistencyMatrixPath());
 
         matrix.Should().Contain(nameof(DataConsistencyOrphanProbeRegistry), because: "matrix should link to the registry");
 

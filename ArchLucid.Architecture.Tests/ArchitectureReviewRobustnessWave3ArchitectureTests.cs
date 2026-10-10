@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion21_finding_engines_accept_analysis_context()
     {
-        string engineInterface = File.ReadAllText(
+        string engineInterface = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Interfaces", "IFindingEngine.cs"));
 
         engineInterface.Should().Contain("FindingAnalysisContext? analysisContext");
@@ -46,7 +46,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string discovery = File.ReadAllText(
+        string discovery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Plugins", "FindingEnginePluginDiscovery.cs"));
 
         discovery.Should().Contain("InvalidOperationException");
@@ -55,7 +55,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion23_graph_reuse_fail_closed_on_missing_fingerprints()
     {
-        string resolver = File.ReadAllText(
+        string resolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "Graph", "GraphSnapshotCommittedReuseResolver.cs"));
 
         resolver.Should().Contain("expectedArchitectureVersionId");
@@ -65,12 +65,12 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion24_authority_lifecycle_phase_exposed_and_commit_gated()
     {
-        string runDetail = File.ReadAllText(
+        string runDetail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "ArchitectureRunDetail.cs"));
 
         runDetail.Should().Contain("AuthorityLifecyclePhase");
 
-        string commitIntegrity = File.ReadAllText(
+        string commitIntegrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -98,7 +98,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string submit = File.ReadAllText(
+        string submit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftAdmissionService.SubmitAndHeal.cs"));
 
         submit.Should().Contain("SpawnedDocumentContentHashSha256");
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string context = File.ReadAllText(
+        string context = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
 
         context.Should().Contain("RequiredFindingCategories");
@@ -135,7 +135,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string contributor = File.ReadAllText(
+        string contributor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -148,7 +148,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
     [Fact]
     public void Suggestion28_create_architecture_avoids_four_agent_loop()
     {
-        string kernel = File.ReadAllText(
+        string kernel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
 
         kernel.Should().Contain("EnsureArchitectureIdentityAsync");
@@ -178,7 +178,7 @@ public sealed class ArchitectureReviewRobustnessWave3ArchitectureTests
             .Should()
             .BeTrue();
 
-        string commitIntegrity = File.ReadAllText(
+        string commitIntegrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

@@ -14,7 +14,7 @@ public sealed class DeskIaDi001Adr0095ArchitectureTests
     [Fact]
     public void Di001_adr_0095_names_governance_inventory_and_forbids_tab_collapse()
     {
-        string adr = File.ReadAllText(
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0095-sealed-record-governance-home.md"));
 
         adr.Should().Contain("## Trade-offs");
@@ -28,9 +28,9 @@ public sealed class DeskIaDi001Adr0095ArchitectureTests
     [Fact]
     public void Di001_guard_inventory_and_vitest_exist()
     {
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "desk-ia-adr-inventory.ts"));
-        string guardTest = File.ReadAllText(
+        string guardTest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "desk-ia-adr-guard.test.ts"));
 
         inventory.Should().Contain("DESK_IA_ADR_0095_RELATIVE_PATH");

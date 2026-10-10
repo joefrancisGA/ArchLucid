@@ -22,7 +22,7 @@ public sealed class CareerGravityCg016ChooserKeyboardCarbonArchitectureTests
 
         File.Exists(as077Path).Should().BeTrue();
 
-        string as077 = File.ReadAllText(as077Path);
+        string as077 = ArchitectureSourceProbe.ReadPathWithPartials(as077Path);
 
         as077.Should().Contain("WorkingCareerRehearsalChooser");
         as077.Should().Contain("OperatorSegmentedModeToolbar");
@@ -32,7 +32,7 @@ public sealed class CareerGravityCg016ChooserKeyboardCarbonArchitectureTests
     [Fact]
     public void Cg016_findings_reexports_canonical_chooser_and_does_not_add_a_third_file()
     {
-        string governance = File.ReadAllText(
+        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -40,7 +40,7 @@ public sealed class CareerGravityCg016ChooserKeyboardCarbonArchitectureTests
                 "components",
                 "governance",
                 "WorkingCareerRehearsalChooser.tsx"));
-        string findings = File.ReadAllText(
+        string findings = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -52,7 +52,7 @@ public sealed class CareerGravityCg016ChooserKeyboardCarbonArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailFindingsWorkspace.tsx"));
-        string topBar = File.ReadAllText(
+        string topBar = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "shell", "OperatorShellTopBar.tsx"));
 
         IEnumerable<string> chooserFiles = Directory.EnumerateFiles(
@@ -71,8 +71,8 @@ public sealed class CareerGravityCg016ChooserKeyboardCarbonArchitectureTests
     [Fact]
     public void Cg016_does_not_flip_host_agent_execution_mode_default()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
-        string chooser = File.ReadAllText(
+        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

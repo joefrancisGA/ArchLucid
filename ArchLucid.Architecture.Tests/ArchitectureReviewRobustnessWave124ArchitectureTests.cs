@@ -15,49 +15,49 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
     [Fact]
     public void Suggestion1473_1479_export_dashboard_agent_compare_and_disposition_sealed_manifest_mappers()
     {
-        string runsExportGuard = File.ReadAllText(
+        string runsExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunsExportController.SealedManifestGuard.cs"));
-        string architectureExportGuard = File.ReadAllText(
+        string architectureExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ArchitectureExportController.SealedManifestGuard.cs"));
-        string runComparisonGuard = File.ReadAllText(
+        string runComparisonGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunComparisonController.SealedManifestGuard.cs"));
-        string runComparisonAgents = File.ReadAllText(
+        string runComparisonAgents = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunComparisonController.Agents.cs"));
-        string governanceInsights = File.ReadAllText(
+        string governanceInsights = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceController.Insights.cs"));
-        string governanceGuard = File.ReadAllText(
+        string governanceGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceController.SealedManifestGuard.cs"));
-        string dispositions = File.ReadAllText(
+        string dispositions = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -85,15 +85,15 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
     [Fact]
     public void Suggestion1480_1483_export_record_comparison_dashboard_and_disposition_blocked_reason_wiring()
     {
-        string exportRecordApi = File.ReadAllText(
+        string exportRecordApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "export-record-api.ts"));
-        string exportRecordBlocked = File.ReadAllText(
+        string exportRecordBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "exports", "export-record-blocked-reason.ts"));
-        string exportRecordHook = File.ReadAllText(
+        string exportRecordHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-export-record-query.ts"));
-        string comparisonRecordApi = File.ReadAllText(
+        string comparisonRecordApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "comparison-record-api.ts"));
-        string comparisonRecordBlocked = File.ReadAllText(
+        string comparisonRecordBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -101,11 +101,11 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
                 "lib",
                 "compare",
                 "comparison-record-blocked-reason.ts"));
-        string comparisonRecordHook = File.ReadAllText(
+        string comparisonRecordHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-comparison-record-query.ts"));
-        string dashboardApi = File.ReadAllText(
+        string dashboardApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-workflow-api-dashboard.ts"));
-        string dashboardBlocked = File.ReadAllText(
+        string dashboardBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -113,11 +113,11 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
                 "lib",
                 "governance",
                 "governance-dashboard-blocked-reason.ts"));
-        string dashboardHook = File.ReadAllText(
+        string dashboardHook = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-governance-dashboard-query.ts"));
-        string dispositionsApi = File.ReadAllText(
+        string dispositionsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-stickiness-api-dispositions.ts"));
-        string dispositionsBlocked = File.ReadAllText(
+        string dispositionsBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -150,7 +150,7 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
     [Fact]
     public void Suggestion1484_export_record_dashboard_and_disposition_fail_closed_ux()
     {
-        string exportRecordCallout = File.ReadAllText(
+        string exportRecordCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -162,7 +162,7 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailExportRecordStatusCallout.tsx"));
-        string overviewSummary = File.ReadAllText(
+        string overviewSummary = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -172,7 +172,7 @@ public sealed class ArchitectureReviewRobustnessWave124ArchitectureTests
                 "governance",
                 "_sections",
                 "GovernanceOverviewSummaryPanelShell.tsx"));
-        string dispositionCallout = File.ReadAllText(
+        string dispositionCallout = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

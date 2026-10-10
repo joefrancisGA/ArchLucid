@@ -12,7 +12,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_service_system_prompt_requires_weakest_band_inheritance()
     {
-        string askService = File.ReadAllText(
+        string askService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskService.cs"));
 
         askService.Should().Contain("weakest semantic support band");
@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_user_prompt_composer_wires_band_index_constraint()
     {
-        string composer = File.ReadAllText(
+        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskUserPromptComposer.cs"));
 
         composer.Should().Contain("BuildPromptConstraintSection");
@@ -32,7 +32,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ui_footnote_component_exists_for_ask_thread()
     {
-        string footnote = File.ReadAllText(
+        string footnote = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -40,7 +40,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
                 "components",
                 "ask",
                 "AskCitedFindingsSemanticSupportBandFootnote.tsx"));
-        string footnoteCopy = File.ReadAllText(
+        string footnoteCopy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

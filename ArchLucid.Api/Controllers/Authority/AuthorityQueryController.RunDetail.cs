@@ -225,7 +225,7 @@ public sealed partial class AuthorityQueryController
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
         catch (KeyNotFoundException)
         {

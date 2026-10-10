@@ -221,7 +221,7 @@ public sealed class DependencyConstraintTests
         File.Exists(reexportPath).Should().BeTrue(because: "UI OpenAPI re-export must exist at {0}", reexportPath);
         File.Exists(generatedPath).Should().BeTrue(because: "generated UI API types must exist at {0}", generatedPath);
 
-        string reexportText = File.ReadAllText(reexportPath);
+        string reexportText = ArchitectureSourceProbe.ReadPathWithPartials(reexportPath);
         reexportText.Should().Contain("./api-types.generated", because: "UI types must be sourced from generated OpenAPI output.");
     }
 

@@ -15,14 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion453_remediation_instance_list_sealed_hash_guard_and_409()
     {
-        string queryService = File.ReadAllText(
+        string queryService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "RemediationInstances",
                 "RemediationInstanceQueryService.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
 
         queryService.Should().Contain("ListInstancesAsync");
@@ -35,9 +35,9 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion455_456_demo_and_workspace_context_compare_facade_preflight()
     {
-        string demoCompare = File.ReadAllText(
+        string demoCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Demo", "DemoViewerController.Compare.cs"));
-        string workspaceContext = File.ReadAllText(
+        string workspaceContext = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -57,11 +57,11 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion458_464_openapi_409_roi_freshness_and_holistic_guard()
     {
-        string replay = File.ReadAllText(
+        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
-        string referenceExport = File.ReadAllText(
+        string referenceExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "ReferenceEvidenceAdminExportService.cs"));
-        string holistic = File.ReadAllText(
+        string holistic = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.CompareHolistic.cs"));
 
         replay.Should().Contain("ReplayComparisonsBatch");
@@ -74,7 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion454_457_460_463_compare_run_detail_and_infra_ui_fail_closed()
     {
-        string compareChrome = File.ReadAllText(
+        string compareChrome = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,7 +85,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareResultsPanelVerdictChrome.tsx"));
-        string deferredModel = File.ReadAllText(
+        string deferredModel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -97,7 +97,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "load-run-detail-deferred-model.ts"));
-        string sponsorPack = File.ReadAllText(
+        string sponsorPack = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -107,7 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "why-archlucid",
                 "_sections",
                 "WhyArchLucidSponsorPackBody.tsx"));
-        string infraConflict = File.ReadAllText(
+        string infraConflict = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -115,7 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
                 "lib",
                 "infra-evidence",
                 "infra-evidence-sealed-manifest-conflict.ts"));
-        string deliverablesCard = File.ReadAllText(
+        string deliverablesCard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

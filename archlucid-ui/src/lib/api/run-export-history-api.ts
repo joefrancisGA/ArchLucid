@@ -4,14 +4,14 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { runExportHistoryBlockedReason } from "@/lib/exports/run-export-history-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type RunExportHistoryResponse = components["schemas"]["RunExportHistoryResponse"];
 
 /** Loads persisted export audit rows for a run (whitelabel pre-fill, replay lineage). */
 export async function getRunExportHistory(runId: string): Promise<RunExportHistoryResponse> {
   try {
-    return await apiGet<RunExportHistoryResponse>(
+    return await apiGetSealedManifestAware<RunExportHistoryResponse>(
       `/v1/architecture/review/${encodeURIComponent(runId)}/exports`,
     );
   } catch (error: unknown) {

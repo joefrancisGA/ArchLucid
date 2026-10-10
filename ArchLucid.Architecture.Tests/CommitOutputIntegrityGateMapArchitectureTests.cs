@@ -17,7 +17,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void CommitOutputIntegrityService_enforces_structural_and_provenance_gates_before_scorecard()
     {
-        string integrity = File.ReadAllText(
+        string integrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -41,7 +41,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist()
     {
-        string integrity = File.ReadAllText(
+        string integrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -79,7 +79,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void FinalizeQualityScorecard_evaluator_counts_ten_ui_parity_dimensions()
     {
-        string evaluator = File.ReadAllText(
+        string evaluator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -103,7 +103,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void Orchestrator_enforces_career_artifact_gates_outside_scorecard()
     {
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -119,7 +119,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void FinalizeReadinessService_reuses_commit_gate_evaluators()
     {
-        string readiness = File.ReadAllText(
+        string readiness = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -144,7 +144,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void Ui_scorecard_derives_verify_hypothesis_from_job_view_classifier()
     {
-        string derive = File.ReadAllText(
+        string derive = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

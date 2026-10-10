@@ -19,14 +19,14 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
             .Should()
             .BeTrue();
 
-        string sql = File.ReadAllText(
+        string sql = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "343_RunCreatePinsWave6.sql"));
 
         sql.Should().Contain("PinnedEvidencePackagePinsJson");
         sql.Should().Contain("@runTable");
         sql.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
-        string bootstrapSql = File.ReadAllText(
+        string bootstrapSql = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
 
         bootstrapSql.Should().Contain("PinnedEvidencePackagePinsJson");
@@ -36,7 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion52_commit_requires_policy_pack_pin_hash()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
         pinService.Should().Contain("run is missing a policy pack pin hash");
@@ -45,13 +45,13 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion53_focused_pilot_restored_from_run_header()
     {
-        string scopePin = File.ReadAllText(
+        string scopePin = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunGovernanceScopePinService.cs"));
 
         scopePin.Should().Contain("PinnedFocusedPilotModeEnabled");
         scopePin.Should().Contain("BeginRestoredScope");
 
-        string executor = File.ReadAllText(
+        string executor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -66,7 +66,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion54_cross_run_prior_graph_fail_closed()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -79,12 +79,12 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion55_multi_cloud_evidence_pins_on_context()
     {
-        string context = File.ReadAllText(
+        string context = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
 
         context.Should().Contain("EvidencePins");
 
-        string loader = File.ReadAllText(
+        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -107,13 +107,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
             .Should()
             .BeTrue();
 
-        string commitIntegrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string commitIntegrity = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
 
         commitIntegrity.Should().Contain("ArchitectureVersionContentFingerprintVerifier");
     }
@@ -121,7 +115,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion57_manifest_hasher_v3_binds_create_time_pins()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("CreateTimePolicyPackPins");
@@ -131,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion58_lifecycle_phase_on_list_and_compare_guard()
     {
-        string runSummary = File.ReadAllText(
+        string runSummary = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "RunSummary.cs"));
 
         runSummary.Should().Contain("AuthorityLifecyclePhase");
@@ -145,7 +139,7 @@ public sealed class ArchitectureReviewRobustnessWave6ArchitectureTests
     [Fact]
     public void Suggestion59_replay_blocks_four_agent_when_stage_outcomes_exist()
     {
-        string replay = File.ReadAllText(
+        string replay = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         replay.Should().Contain("SourceRunHasAuthorityStageProgressAsync");

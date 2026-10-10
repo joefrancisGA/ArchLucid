@@ -18,7 +18,7 @@ internal static class ProductCapabilityWorkerMapLoader
         if (!File.Exists(path))
             throw new FileNotFoundException("Product capability worker map is missing.", path);
 
-        string json = File.ReadAllText(path);
+        string json = ArchitectureSourceProbe.ReadPathWithPartials(path);
         ProductCapabilityWorkerMapDocument? document =
             JsonSerializer.Deserialize<ProductCapabilityWorkerMapDocument>(json, SerializerOptions);
 

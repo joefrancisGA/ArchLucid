@@ -15,9 +15,9 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_audit_csv_controller_resolves_career_posture_gate()
     {
-        string csvExport = File.ReadAllText(
+        string csvExport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.Export.Csv.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Admin", "AuditController.CareerPostureGuard.cs"));
 
         csvExport.Should().Contain("ResolveAuditCsvCareerPostureAsync");
@@ -28,7 +28,7 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_audit_csv_formatter_includes_posture_columns_and_preamble()
     {
-        string formatter = File.ReadAllText(
+        string formatter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Formatters", "AuditEventCsvLineFormatter.cs"));
 
         formatter.Should().Contain("WriteHonestyPreambleAsync");
@@ -39,7 +39,7 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_ts_helper_builds_audit_csv_preamble()
     {
-        string helper = File.ReadAllText(
+        string helper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "audit", "audit-export-career-posture.ts"));
 
         helper.Should().Contain("buildAuditExportCsvHonestyPreambleLines");
@@ -49,7 +49,7 @@ public sealed class CareerGravityCg026CareerBlocksAuditCsvArchitectureTests
     [Fact]
     public void Cg026_docs_record_audit_csv_career_gate()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-026");

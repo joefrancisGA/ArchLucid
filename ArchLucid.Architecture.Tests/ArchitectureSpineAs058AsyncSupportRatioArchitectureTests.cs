@@ -12,14 +12,14 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_lane_b_reader_and_composer_types_exist()
     {
-        string reader = File.ReadAllText(
+        string reader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
                 "Findings",
                 "FindingSemanticSupportBandAsyncLaneBReader.cs"));
 
-        string composer = File.ReadAllText(
+        string composer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -33,10 +33,10 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_run_detail_query_applies_lane_b_compose_on_read_path()
     {
-        string detailLoad = File.ReadAllText(
+        string detailLoad = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "RunDetailQueryService.DetailLoad.cs"));
 
-        string semanticSupport = File.ReadAllText(
+        string semanticSupport = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "RunDetailQueryService.SemanticSupportBand.cs"));
 
         detailLoad.Should().Contain("ApplySemanticSupportBandOverlaysAndLaneBComposeAsync");
@@ -46,7 +46,7 @@ public sealed class ArchitectureSpineAs058AsyncSupportRatioArchitectureTests
     [Fact]
     public void As058_findings_merge_stage_does_not_enqueue_lane_b_jobs()
     {
-        string stage = File.ReadAllText(
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",

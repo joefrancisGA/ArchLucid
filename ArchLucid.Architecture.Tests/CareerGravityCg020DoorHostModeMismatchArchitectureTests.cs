@@ -15,7 +15,7 @@ public sealed class CareerGravityCg020DoorHostModeMismatchArchitectureTests
     [Fact]
     public void Cg020_matrix_module_names_four_cells_and_blocked_career_on_simulator()
     {
-        string matrix = File.ReadAllText(
+        string matrix = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -23,7 +23,7 @@ public sealed class CareerGravityCg020DoorHostModeMismatchArchitectureTests
                 "lib",
                 "governance",
                 "working-career-door-host-mode-matrix.ts"));
-        string chooser = File.ReadAllText(
+        string chooser = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -46,7 +46,7 @@ public sealed class CareerGravityCg020DoorHostModeMismatchArchitectureTests
     [Fact]
     public void Cg020_does_not_flip_host_execute_mode_default()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
+        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "ArchLucid.Api", "appsettings.json"));
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");
     }

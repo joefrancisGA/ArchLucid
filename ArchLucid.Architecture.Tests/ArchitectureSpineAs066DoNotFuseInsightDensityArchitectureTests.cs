@@ -38,7 +38,7 @@ public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTes
             string path = Path.Combine(RepoRoot, relativePath);
             File.Exists(path).Should().BeTrue($"expected density gate source at {relativePath}");
 
-            string source = File.ReadAllText(path);
+            string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
             foreach (string token in ForbiddenSupportBandTokens)
             {
@@ -58,7 +58,7 @@ public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTes
             "Findings",
             "DeterministicInsightDensityGate.cs");
 
-        string densityGate = File.ReadAllText(densityGatePath);
+        string densityGate = ArchitectureSourceProbe.ReadPathWithPartials(densityGatePath);
 
         foreach (string token in ForbiddenSupportBandTokens.Where(static token => token.Contains('-', StringComparison.Ordinal)))
         {
@@ -78,7 +78,7 @@ public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTes
             "Findings",
             "FindingsMergeAndGateStage.cs");
 
-        string stage = File.ReadAllText(stagePath);
+        string stage = ArchitectureSourceProbe.ReadPathWithPartials(stagePath);
 
         int densityApplicatorIndex = stage.IndexOf(
             "FindingInsightDensityGateApplicator.ApplyToFindings",
@@ -100,7 +100,7 @@ public sealed class ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTes
     [Fact]
     public void As066_adr_0085_documents_insight_density_sibling_signal_follow_up()
     {
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("AS-066");
         adr.Should().Contain("insight-density");

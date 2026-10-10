@@ -15,18 +15,12 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion61_evidence_pin_hash_verified_at_commit()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
 
         pinService.Should().Contain("VerifyPinIntegrityOrThrowAsync");
 
-        string commitIntegrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string commitIntegrity = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
 
         commitIntegrity.Should().Contain("_runEvidencePackagePinService");
         commitIntegrity.Should().Contain("VerifyPinIntegrityOrThrowAsync");
@@ -35,7 +29,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion62_replay_clones_create_time_pins()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "ReplayAuthorityRunRecordFactory.cs"));
 
         factory.Should().Contain("PinnedPolicyPackIdsJson");
@@ -46,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion63_commit_loads_knowledge_model_for_kappa()
     {
-        string commitIntegrity = File.ReadAllText(
+        string commitIntegrity = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -54,15 +48,22 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
                 "Orchestration",
                 "CommitOutputIntegrityService.cs"));
 
+        string pinEvaluator = ArchitectureSourceProbe.ReadPathWithPartials(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Application",
+                "Governance",
+                "CommitArchitectureVersionPinIntegrityEvaluator.cs"));
+
         commitIntegrity.Should().Contain("_architectureKnowledgeModelAccess");
-        commitIntegrity.Should().Contain("GetForRunAsync");
+        pinEvaluator.Should().Contain("GetForRunAsync");
         commitIntegrity.Should().NotContain("knowledgeModel: null");
     }
 
     [Fact]
     public void Suggestion64_export_surfaces_use_lifecycle_guard()
     {
-        string csv = File.ReadAllText(
+        string csv = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -73,7 +74,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
 
         csv.Should().Contain("AuthorityLifecycleCompareExportGuard");
 
-        string docx = File.ReadAllText(
+        string docx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
 
         docx.Should().Contain("AuthorityLifecycleCompareExportGuard");
@@ -82,7 +83,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion65_ui_uses_authority_lifecycle_phase()
     {
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "authority-lifecycle-commit-block.ts"));
 
         compare.Should().Contain("authorityLifecyclePhase");
@@ -92,12 +93,12 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion66_evidence_pin_json_fail_closed()
     {
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
 
         pinService.Should().Contain("not a valid PinnedEvidencePackageRow array");
 
-        string binder = File.ReadAllText(
+        string binder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -112,12 +113,12 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion67_effectful_loader_honors_pin_commitment()
     {
-        string context = File.ReadAllText(
+        string context = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
 
         context.Should().Contain("HasCreateTimeEvidencePinCommitment");
 
-        string loader = File.ReadAllText(
+        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -131,7 +132,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion68_agent_loop_restores_focused_pilot_from_header()
     {
-        string agentLoop = File.ReadAllText(
+        string agentLoop = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -147,7 +148,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
     [Fact]
     public void Suggestion69_manifest_hasher_v4_binds_evidence_pin_hash()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
@@ -166,7 +167,7 @@ public sealed class ArchitectureReviewRobustnessWave7ArchitectureTests
             .Should()
             .BeTrue();
 
-        string mapper = File.ReadAllText(
+        string mapper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Queries", "AuthorityRunMapper.cs"));
 
         mapper.Should().Contain("AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader");

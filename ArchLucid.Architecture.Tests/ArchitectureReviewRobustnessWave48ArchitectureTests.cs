@@ -15,11 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
     [Fact]
     public void Suggestion561_564_retrieval_grounding_traces_and_agent_eval_openapi_409()
     {
-        string runDetail = File.ReadAllText(
+        string runDetail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.RunDetail.cs"));
-        string runProvenance = File.ReadAllText(
+        string runProvenance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Provenance.cs"));
-        string agentEvaluation = File.ReadAllText(
+        string agentEvaluation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunAgentEvaluationController.cs"));
 
         runDetail.Should().Contain("GetRunRetrievalGrounding");
@@ -37,11 +37,11 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
     [Fact]
     public void Suggestion562_565_retrieval_and_agent_forensics_sealed_manifest_aware_reads()
     {
-        string runDetailArtifacts = File.ReadAllText(
+        string runDetailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string retrievalBlockedReason = File.ReadAllText(
+        string retrievalBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-retrieval-grounding-blocked-reason.ts"));
-        string retrievalSection = File.ReadAllText(
+        string retrievalSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -53,9 +53,9 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
                 "[reviewId]",
                 "_sections",
                 "RunDetailRetrievalGroundingSection.tsx"));
-        string forensicsBlockedReason = File.ReadAllText(
+        string forensicsBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-agent-forensics-blocked-reason.ts"));
-        string forensicsSection = File.ReadAllText(
+        string forensicsSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunAgentForensicsSection.tsx"));
 
         runDetailArtifacts.Should().Contain("getRunRetrievalGrounding");
@@ -72,15 +72,15 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
     [Fact]
     public void Suggestion566_568_compare_subpanels_fail_closed()
     {
-        string findingCorrelationQuery = File.ReadAllText(
+        string findingCorrelationQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-compare-finding-correlation-query.ts"));
-        string findingCorrelationBlockedReason = File.ReadAllText(
+        string findingCorrelationBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "compare-finding-correlation-blocked-reason.ts"));
-        string governanceDiffQuery = File.ReadAllText(
+        string governanceDiffQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-compare-governance-diff-query.ts"));
-        string governanceDiffBlockedReason = File.ReadAllText(
+        string governanceDiffBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "compare-governance-diff-blocked-reason.ts"));
-        string replayCostSection = File.ReadAllText(
+        string replayCostSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -91,7 +91,7 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "ArchitectureComparisonReplayCostSection.tsx"));
-        string replayCostBlockedReason = File.ReadAllText(
+        string replayCostBlockedReason = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "comparison-replay-cost-blocked-reason.ts"));
 
         findingCorrelationQuery.Should().Contain("compareFindingCorrelationBlockedReason");
@@ -105,11 +105,11 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
     [Fact]
     public void Suggestion569_572_programmatic_download_consolidation()
     {
-        string meetingPacket = File.ReadAllText(
+        string meetingPacket = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "ReviewMeetingPacketButton.tsx"));
-        string shareMenu = File.ReadAllText(
+        string shareMenu = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "ReviewHeaderShareMenu.tsx"));
-        string sponsorExports = File.ReadAllText(
+        string sponsorExports = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -120,7 +120,7 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
                 "sponsor-dashboard",
                 "_sections",
                 "SponsorExportsSection.tsx"));
-        string compareResultsPanel = File.ReadAllText(
+        string compareResultsPanel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -131,7 +131,7 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-results-panel.ts"));
-        string compareDiffStack = File.ReadAllText(
+        string compareDiffStack = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -142,9 +142,9 @@ public sealed class ArchitectureReviewRobustnessWave48ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareResultsPanelDiffStack.tsx"));
-        string runPackageDownload = File.ReadAllText(
+        string runPackageDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-run-package.ts"));
-        string architectureDocx = File.ReadAllText(
+        string architectureDocx = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "downloads-blob-trigger-architecture-package-docx.ts"));
 
         meetingPacket.Should().Contain("downloadRunPackageExport");

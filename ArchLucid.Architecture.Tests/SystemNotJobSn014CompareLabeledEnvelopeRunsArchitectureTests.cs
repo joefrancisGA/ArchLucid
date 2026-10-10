@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn014CompareLabeledEnvelopeRunsArchitectureTests
     [Fact]
     public void Sn014_compare_labeled_envelope_module_names_picker_gate_and_stamps()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-labeled-envelope-runs.ts"));
 
         module.Should().Contain("COMPARE_RUN_PICKERS_REQUIRE_COMMITTED_MANIFESTS");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn014CompareLabeledEnvelopeRunsArchitectureTests
     [Fact]
     public void Sn014_compare_pickers_section_requires_committed_manifests_in_working_mode()
     {
-        string pickersSection = File.ReadAllText(
+        string pickersSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -45,14 +45,14 @@ public sealed class SystemNotJobSn014CompareLabeledEnvelopeRunsArchitectureTests
     [Fact]
     public void Sn014_vitest_ratchet_names_inventory_allowed_journey_and_compare_api_run_ids()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "lib",
                 "system-not-job-compare-labeled-envelope-runs.test.ts"));
-        string inventory = File.ReadAllText(
+        string inventory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-gate-inventory.ts"));
 
         test.Should().Contain("SN-014");

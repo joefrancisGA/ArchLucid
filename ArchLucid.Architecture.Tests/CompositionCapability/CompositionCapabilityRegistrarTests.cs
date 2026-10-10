@@ -36,7 +36,7 @@ public sealed class CompositionCapabilityRegistrarTests
     [Trait("Category", "Unit")]
     public void AddArchLucidApplicationServices_invokes_all_four_capability_facades()
     {
-        string source = File.ReadAllText(CompositionCapabilityRegistrarPaths.RootServiceCollectionExtensionsFile);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(CompositionCapabilityRegistrarPaths.RootServiceCollectionExtensionsFile);
 
         foreach (string facadeName in RequiredFacadeMethodNames)
         {

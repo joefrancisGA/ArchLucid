@@ -1,6 +1,7 @@
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 

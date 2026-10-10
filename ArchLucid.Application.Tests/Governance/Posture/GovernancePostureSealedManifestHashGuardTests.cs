@@ -12,6 +12,8 @@ using Xunit;
 
 namespace ArchLucid.Application.Tests.Governance.Posture;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GovernancePostureSealedManifestHashGuardTests
 {
     [Fact]

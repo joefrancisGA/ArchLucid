@@ -7,7 +7,7 @@ import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/archit
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
-import { apiGet } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 
 import type {
   ArchitectureIntelligenceProductSourceContext,
@@ -25,7 +25,7 @@ export async function fetchArchitectureIntelligenceProductSourceContext(
   runId: string,
 ): Promise<ArchitectureIntelligenceProductSourceContext> {
   try {
-    return await apiGet<ArchitectureIntelligenceProductSourceContext>(
+    return await apiGetSealedManifestAware<ArchitectureIntelligenceProductSourceContext>(
       `/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
     );
   } catch (error: unknown) {
@@ -40,7 +40,7 @@ export async function fetchArchitectureIntelligenceRunModel(
   runId: string,
 ): Promise<ArchitectureKnowledgeModel> {
   try {
-    return await apiGet<ArchitectureKnowledgeModel>(
+    return await apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
       `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
     );
   } catch (error: unknown) {

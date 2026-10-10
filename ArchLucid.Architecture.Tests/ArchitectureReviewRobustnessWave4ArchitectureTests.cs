@@ -24,7 +24,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string topologyEngine = File.ReadAllText(
+        string topologyEngine = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "TopologyCrossRunDiffFindingEngine.cs"));
 
         topologyEngine.Should().Contain("CrossRunDiffFindingPriorGuard.EnsurePriorPresentOrThrow");
@@ -33,12 +33,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion32_evidence_pin_on_finding_analysis_context()
     {
-        string context = File.ReadAllText(
+        string context = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Architecture", "FindingAnalysisContext.cs"));
 
         context.Should().Contain("EvidencePackagePin? EvidencePin");
 
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunEvidencePackagePinService.cs"));
 
         pinService.Should().Contain("ResolvePinsFromHeader");
@@ -48,12 +48,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion33_pack_required_engine_types_entailment()
     {
-        string packDocument = File.ReadAllText(
+        string packDocument = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "PolicyPackContentDocument.cs"));
 
         packDocument.Should().Contain("requiredEngineTypes");
 
-        string mergeStage = File.ReadAllText(
+        string mergeStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -76,19 +76,19 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string migration342 = File.ReadAllText(
+        string migration342 = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Migrations", "342_RunPolicyPackPin.sql"));
 
         migration342.Should().Contain("@runTable");
         migration342.Should().NotMatchRegex(@"(?m)^\s*ALTER\s+TABLE\s+dbo\.Runs\b");
 
-        string bootstrapSql = File.ReadAllText(
+        string bootstrapSql = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql"));
 
         bootstrapSql.Should().Contain("PinnedPolicyPackIdsJson");
         bootstrapSql.Should().Contain("@policyPackPinRunTable");
 
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
         pinService.Should().Contain("ApplyToRunHeaderAsync");
@@ -106,7 +106,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion36_replay_skips_agent_tasks_when_authority_complete()
     {
-        string replayPrepare = File.ReadAllText(
+        string replayPrepare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunPrepareStage.cs"));
 
         replayPrepare.Should().Contain("AuthorityPipelineComplete");
@@ -116,7 +116,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion37_stable_llm_recommendation_ids()
     {
-        string stableId = File.ReadAllText(
+        string stableId = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -125,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
 
         stableId.Should().Contain("FromLlmRecommendation");
 
-        string mapper = File.ReadAllText(
+        string mapper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -138,12 +138,12 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion38_authority_lifecycle_phase_on_run_detail_response()
     {
-        string runDetails = File.ReadAllText(
+        string runDetails = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Models", "RunDetailsResponse.cs"));
 
         runDetails.Should().Contain("AuthorityLifecyclePhase");
 
-        string queryService = File.ReadAllText(
+        string queryService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Services", "Authority", "RunGraphQueryService.cs"));
 
         queryService.Should().Contain("response.AuthorityLifecyclePhase");
@@ -152,7 +152,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
     [Fact]
     public void Suggestion39_block_create_on_mixed_or_fallback_mode()
     {
-        string coordination = File.ReadAllText(
+        string coordination = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -177,7 +177,7 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
             .Should()
             .BeTrue();
 
-        string findingsStage = File.ReadAllText(
+        string findingsStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",

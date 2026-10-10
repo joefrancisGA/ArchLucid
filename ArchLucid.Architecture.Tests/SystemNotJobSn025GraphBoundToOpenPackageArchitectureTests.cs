@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn025GraphBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn025_module_names_graph_bind_resolvers()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn025GraphBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn025_peer_redirect_wires_sn025_resolver()
     {
-        string redirect = File.ReadAllText(
+        string redirect = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -46,7 +46,7 @@ public sealed class SystemNotJobSn025GraphBoundToOpenPackageArchitectureTests
     [Fact]
     public void Sn025_vitest_ratchet_names_redirect_portfolio_and_empty_state()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

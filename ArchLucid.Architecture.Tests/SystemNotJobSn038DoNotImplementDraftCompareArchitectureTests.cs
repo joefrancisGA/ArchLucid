@@ -14,16 +14,16 @@ public sealed class SystemNotJobSn038DoNotImplementDraftCompareArchitectureTests
     [Fact]
     public void Sn038_records_draft_compare_as_not_shipped_residual()
     {
-        string residuals = File.ReadAllText(
+        string residuals = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
                 "src",
                 "lib",
                 "system-not-job-out-of-wave-residuals.ts"));
-        string doc = File.ReadAllText(
+        string doc = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_OUT_OF_WAVE_RESIDUALS.md"));
-        string prompts = File.ReadAllText(
+        string prompts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md"));
 
         residuals.Should().Contain("SN-038");

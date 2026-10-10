@@ -82,11 +82,13 @@ public static class CareerExportCoverageHonestyMaterialLoader
             ruleSetId = exportDetail?.GoldenManifest?.RuleSetId?.Trim();
             ruleSetVersion = exportDetail?.GoldenManifest?.RuleSetVersion?.Trim();
 
-            IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository
+            IReadOnlyList<AgentExecutionTrace>? traces = await agentExecutionTraceRepository
                 .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
                 .ConfigureAwait(false);
-            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(traces);
-            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(traces);
+            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(
+                traces ?? Array.Empty<AgentExecutionTrace>());
+            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(
+                traces ?? Array.Empty<AgentExecutionTrace>());
         }
 
         bool? architectureInventoryBound = await ResolveArchitectureInventoryBoundAsync(

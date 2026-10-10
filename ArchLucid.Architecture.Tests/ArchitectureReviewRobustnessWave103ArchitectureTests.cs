@@ -15,18 +15,18 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
     [Fact]
     public void Suggestion1221_1224_seed_fake_policy_pack_pilot_and_finding_verification_sealed_manifest_conflict_mappers()
     {
-        string seedFake = File.ReadAllText(
+        string seedFake = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "InternalArchitectureDiagnosticsController.SeedFake.cs"));
-        string policyMapper = File.ReadAllText(
+        string policyMapper = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Http", "Governance", "PolicyPackHttpResultMapper.cs"));
-        string pilotPacks = File.ReadAllText(
+        string pilotPacks = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string findingVerification = File.ReadAllText(
+        string findingVerification = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -43,14 +43,14 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
     [Fact]
     public void Suggestion1225_1227_workspace_prior_compare_sealed_manifest_blocked_reason_mappers()
     {
-        string workspaceContext = File.ReadAllText(
+        string workspaceContext = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunDetailPageBundleController.WorkspaceContext.cs"));
-        string bundleGuard = File.ReadAllText(
+        string bundleGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -65,7 +65,7 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
     [Fact]
     public void Suggestion1228_1232_seed_finding_ledger_inventory_and_coverage_blocked_reason_wiring()
     {
-        string seedFakeBlocked = File.ReadAllText(
+        string seedFakeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -73,11 +73,11 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
                 "lib",
                 "runs",
                 "internal-architecture-seed-fake-mutation-blocked-reason.ts"));
-        string lifecycleApi = File.ReadAllText(
+        string lifecycleApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-lifecycle.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
-        string findingMuteBlocked = File.ReadAllText(
+        string findingMuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,9 +85,9 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
                 "lib",
                 "findings",
                 "finding-mute-mutation-blocked-reason.ts"));
-        string ledgerApi = File.ReadAllText(
+        string ledgerApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "technology-ledger.ts"));
-        string ledgerBlocked = File.ReadAllText(
+        string ledgerBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -95,9 +95,9 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
                 "lib",
                 "runs",
                 "technology-ledger-mutation-blocked-reason.ts"));
-        string inventoryApi = File.ReadAllText(
+        string inventoryApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-inventory-binding-api.ts"));
-        string inventoryBlocked = File.ReadAllText(
+        string inventoryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -105,9 +105,9 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
                 "lib",
                 "architecture",
                 "architecture-inventory-binding-blocked-reason.ts"));
-        string coverageApi = File.ReadAllText(
+        string coverageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "coverage-preview-api.ts"));
-        string coverageBlocked = File.ReadAllText(
+        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

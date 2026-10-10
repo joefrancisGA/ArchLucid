@@ -6,6 +6,8 @@ using Xunit;
 
 namespace ArchLucid.Decisioning.Tests.Findings;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class IdentityBlastRadiusCounterfactualFormatterTests
 {
     [Fact]

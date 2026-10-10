@@ -23,7 +23,7 @@ public sealed class SystemNotJobSn037PromptInventoryVitestArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("SN-037");
         source.Should().Contain("system-not-job-00-index.md");
@@ -33,7 +33,7 @@ public sealed class SystemNotJobSn037PromptInventoryVitestArchitectureTests
     [Fact]
     public void Sn037_composer_prompts_reference_inventory_ratchet()
     {
-        string prompts = File.ReadAllText(
+        string prompts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "architecture", "SYSTEM_NOT_JOB_COMPOSER_PROMPTS.md"));
 
         prompts.Should().Contain("system-not-job-prompt-inventory.test.ts");

@@ -14,7 +14,7 @@ public sealed class CareerGravityCg096ErrorPagesDoorArchitectureTests
     [Fact]
     public void Cg096_review_detail_error_wires_recovery_career_honesty()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -22,7 +22,7 @@ public sealed class CareerGravityCg096ErrorPagesDoorArchitectureTests
                 "lib",
                 "error-recovery",
                 "error-recovery-career-honesty.ts"));
-        string reviewError = File.ReadAllText(
+        string reviewError = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,7 +43,7 @@ public sealed class CareerGravityCg096ErrorPagesDoorArchitectureTests
     [Fact]
     public void Cg096_docs_record_error_recovery_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-096");

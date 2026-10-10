@@ -9,6 +9,8 @@ using FsCheck.Xunit;
 
 namespace ArchLucid.Core.Tests.Json;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class StrictSchemaVersionReaderPropertyTests
 {
     private static readonly string[] BooleanSynonyms =

@@ -16,7 +16,7 @@ public sealed class QualityGateDefinitionVersioningContractArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
         text.Should().Contain("TB-972");
         text.Should().Contain("advisoryCurrent");
         text.Should().Contain("QualityGateDefinitionFingerprint");

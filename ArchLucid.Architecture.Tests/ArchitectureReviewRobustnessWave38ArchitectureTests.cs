@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
     [Fact]
     public void Suggestion441_443_legacy_authority_compare_lifecycle_and_409()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityCompareController.cs"));
 
         controller.Should().Contain("ICompareRunsApplicationFacade");
@@ -29,13 +29,13 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
     [Fact]
     public void Suggestion444_448_remediation_409_and_openapi_declarations()
     {
-        string remediationController = File.ReadAllText(
+        string remediationController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
-        string comparisonController = File.ReadAllText(
+        string comparisonController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
-        string manifestsCompare = File.ReadAllText(
+        string manifestsCompare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "ManifestsController.Compare.cs"));
-        string packsController = File.ReadAllText(
+        string packsController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
 
         remediationController.Should().Contain("IsSealedManifestConflict");
@@ -49,9 +49,9 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
     [Fact]
     public void Suggestion449_452_compare_and_buyer_manifest_ui_fail_closed()
     {
-        string compareBlocked = File.ReadAllText(
+        string compareBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "compare", "compare-run-pair-blocked-reason.ts"));
-        string compareChrome = File.ReadAllText(
+        string compareChrome = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -62,11 +62,11 @@ public sealed class ArchitectureReviewRobustnessWave38ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "CompareResultsPanelVerdictChrome.tsx"));
-        string deliverableGrid = File.ReadAllText(
+        string deliverableGrid = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDeliverableGrid.tsx"));
-        string bundleSection = File.ReadAllText(
+        string bundleSection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestBuyerBundleDownloadSection.tsx"));
-        string summaryBundle = File.ReadAllText(
+        string summaryBundle = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ManifestDetailSummaryDecisionsBlocks.tsx"));
 
         compareBlocked.Should().Contain("compareRunPairBlockedReason");

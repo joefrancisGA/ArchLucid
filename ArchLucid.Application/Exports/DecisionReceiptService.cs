@@ -127,6 +127,9 @@ public sealed class DecisionReceiptService(
         FeasibilityVerdict? verdict = compareDetail.GoldenManifest.FeasibilityVerdict;
         string? manifestVersion = compareDetail.GoldenManifest.Metadata?.Version;
 
+        if (verdict is null)
+            return NotFound();
+
         DecisionReceiptRunBuildOutcome? readinessOutcome =
             ManifestDecisionReceiptExportBinder.TryGetSealedReceiptReadinessOutcome(
                 compareDetail.GoldenManifest,

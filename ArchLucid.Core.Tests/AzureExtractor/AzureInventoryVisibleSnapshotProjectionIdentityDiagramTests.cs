@@ -2,6 +2,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Persistence.InfraEvidence;
 
 using FluentAssertions;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Core.Tests.AzureExtractor;
 

@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence;
 

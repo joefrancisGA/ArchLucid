@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests
     [Fact]
     public void As085_assert_script_documents_adr_0086_and_allowlist()
     {
-        string script = File.ReadAllText(Path.Combine(RepoRoot, AssertScriptRelativePath));
+        string script = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AssertScriptRelativePath));
 
         script.Should().Contain("AS-085");
         script.Should().Contain("ADR 0086");
@@ -33,7 +33,7 @@ public sealed class ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests
     [Fact]
     public void As085_default_appsettings_keeps_simulator_mode()
     {
-        string appsettings = File.ReadAllText(Path.Combine(RepoRoot, AppsettingsRelativePath));
+        string appsettings = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, AppsettingsRelativePath));
 
         appsettings.Should().Contain("\"Mode\": \"Simulator\"");
         appsettings.Should().Contain("ADR 0086");
@@ -43,8 +43,8 @@ public sealed class ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests
     [Fact]
     public void As085_demo_compose_overlay_documents_simulator_default()
     {
-        string compose = File.ReadAllText(Path.Combine(RepoRoot, DemoComposeRelativePath));
-        string adr = File.ReadAllText(Path.Combine(RepoRoot, Adr0086RelativePath));
+        string compose = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, DemoComposeRelativePath));
+        string adr = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, Adr0086RelativePath));
 
         compose.Should().Contain("AgentExecution:Mode=Simulator");
         compose.Should().Contain("ADR 0086");

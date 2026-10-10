@@ -22,7 +22,7 @@ public sealed class ArchitectureSpineAs093AuditShareChangesArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-093");
         source.Should().Contain("LogOrThrowAsync");
@@ -37,7 +37,7 @@ public sealed class ArchitectureSpineAs093AuditShareChangesArchitectureTests
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Core", "Audit", "RequiredAuditEventTypes.cs");
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain(nameof(AuditEventTypes.ArchitectureShareGranted));
         source.Should().Contain(nameof(AuditEventTypes.ArchitectureShareRevoked));
@@ -50,7 +50,7 @@ public sealed class ArchitectureSpineAs093AuditShareChangesArchitectureTests
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Audit", "RequiredAuditTrailOrphanProbeSql.cs");
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("ArchitectureShareGrantedMissingAudit");
         source.Should().Contain("ArchitectureRestrictToSharesEnabledMissingAudit");

@@ -15,35 +15,35 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
     [Fact]
     public void Suggestion1269_1272_remediation_audit_precommit_and_trace_forensics_sealed_manifest_mappers()
     {
-        string remediation = File.ReadAllText(
+        string remediation = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Findings",
                 "FindingRemediationAssignmentController.cs"));
-        string auditDownload = File.ReadAllText(
+        string auditDownload = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Admin",
                 "AuditController.Export.Download.cs"));
-        string auditCsv = File.ReadAllText(
+        string auditCsv = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Admin",
                 "AuditController.Export.Csv.cs"));
-        string preCommit = File.ReadAllText(
+        string preCommit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernancePreCommitSimulationController.cs"));
-        string traceForensics = File.ReadAllText(
+        string traceForensics = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -61,23 +61,23 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
     [Fact]
     public void Suggestion1273_1275_run_events_governance_dry_run_and_finding_mute_sealed_manifest_mappers()
     {
-        string runEvents = File.ReadAllText(
+        string runEvents = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "AuthorityRunEventsController.cs"));
-        string dryRun = File.ReadAllText(
+        string dryRun = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceController.PolicyPacks.DryRun.cs"));
-        string findingMute = File.ReadAllText(
+        string findingMute = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingMuteController.cs"));
-        string findingUnmute = File.ReadAllText(
+        string findingUnmute = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingMuteController.Unmute.cs"));
 
         runEvents.Should().Contain("MapRunEventsSealedManifestConflict");
@@ -89,9 +89,9 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
     [Fact]
     public void Suggestion1276_1280_unmute_pre_finalize_and_agent_forensics_blocked_reason_wiring()
     {
-        string unmuteClient = File.ReadAllText(
+        string unmuteClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "findings", "finding-unmute-client.ts"));
-        string unmuteBlocked = File.ReadAllText(
+        string unmuteBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -99,9 +99,9 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
                 "lib",
                 "findings",
                 "finding-unmute-mutation-blocked-reason.ts"));
-        string preFinalizeApi = File.ReadAllText(
+        string preFinalizeApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "pre-finalize-checklist.ts"));
-        string preFinalizeBlocked = File.ReadAllText(
+        string preFinalizeBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -109,7 +109,7 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
                 "lib",
                 "runs",
                 "pre-finalize-checklist-blocked-reason.ts"));
-        string artifactsApi = File.ReadAllText(
+        string artifactsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave107ArchitectureTests
                 "lib",
                 "api",
                 "architecture-runs-read-detail-artifacts.ts"));
-        string forensicsBlocked = File.ReadAllText(
+        string forensicsBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

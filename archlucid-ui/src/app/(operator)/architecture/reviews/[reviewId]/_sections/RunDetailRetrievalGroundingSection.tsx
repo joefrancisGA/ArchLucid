@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
 import { useRunRetrievalGroundingQuery } from "@/hooks/use-run-retrieval-grounding-query";
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 
 type RunDetailRetrievalGroundingSectionProps = {
   readonly runId: string;
@@ -29,7 +30,9 @@ export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGrou
     <RunRetrievalGroundingPanel
       payload={payload ?? null}
       failure={failure}
-      blockedReason={rowsNotReturned ? "Retrieval rows not returned" : blockedReason}
+      blockedReason={
+        rowsNotReturned ? "Retrieval rows not returned" : runRetrievalGroundingBlockedReason(failure) ?? blockedReason
+      }
       sectionId="run-retrieval-grounding"
       title="Retrieval grounding"
     />

@@ -28,8 +28,8 @@ internal static class ReferenceEvidenceAdminZipResultFactory
         }
         catch (ConflictException ex)
         {
+            // Wave-40: OpenAPI 409 ConflictProblem for sealed-manifest export guards.
             return OperationsController.MapReferenceEvidenceAdminSealedManifestConflict(controller, ex);
-
         }
 
         if (zip is null || zip.Length == 0)

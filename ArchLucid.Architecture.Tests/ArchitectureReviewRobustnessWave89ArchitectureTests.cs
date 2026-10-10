@@ -15,49 +15,49 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
     [Fact]
     public void Suggestion1053_1059_runs_export_architecture_export_governance_coverage_posture_preview_retrieval_and_feedback_openapi_409()
     {
-        string runsExportGuard = File.ReadAllText(
+        string runsExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunsExportController.SealedManifestGuard.cs"));
-        string architectureExportGuard = File.ReadAllText(
+        string architectureExportGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "ArchitectureExportController.SealedManifestGuard.cs"));
-        string coverageGuard = File.ReadAllText(
+        string coverageGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernanceCoverageController.SealedManifestGuard.cs"));
-        string postureGuard = File.ReadAllText(
+        string postureGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernancePostureController.SealedManifestGuard.cs"));
-        string previewGuard = File.ReadAllText(
+        string previewGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Governance",
                 "GovernancePreviewController.SealedManifestGuard.cs"));
-        string retrievalGuard = File.ReadAllText(
+        string retrievalGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Planning",
                 "RetrievalController.SealedManifestGuard.cs"));
-        string feedbackGuard = File.ReadAllText(
+        string feedbackGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -77,7 +77,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
     [Fact]
     public void Suggestion1060_1062_governance_coverage_posture_and_finding_feedback_blocked_reason_wiring()
     {
-        string coverageBlocked = File.ReadAllText(
+        string coverageBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -85,9 +85,9 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "governance",
                 "governance-coverage-blocked-reason.ts"));
-        string coverageApi = File.ReadAllText(
+        string coverageApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "governance-coverage-api.ts"));
-        string postureBlocked = File.ReadAllText(
+        string postureBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -95,7 +95,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "governance",
                 "governance-posture-blocked-reason.ts"));
-        string postureApi = File.ReadAllText(
+        string postureApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -103,7 +103,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "api",
                 "governance-stickiness-api-registers.ts"));
-        string feedbackBlocked = File.ReadAllText(
+        string feedbackBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -111,7 +111,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "findings",
                 "finding-feedback-mutation-blocked-reason.ts"));
-        string findingsApi = File.ReadAllText(
+        string findingsApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "findings-api.ts"));
 
         coverageBlocked.Should().Contain("governanceScopeCoverageBlockedReason");
@@ -125,7 +125,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
     [Fact]
     public void Suggestion1063_1064_run_provenance_and_retrieval_search_blocked_reason_wiring()
     {
-        string provenanceBlocked = File.ReadAllText(
+        string provenanceBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -133,7 +133,7 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "provenance",
                 "run-provenance-blocked-reason.ts"));
-        string provenanceApi = File.ReadAllText(
+        string provenanceApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -141,9 +141,9 @@ public sealed class ArchitectureReviewRobustnessWave89ArchitectureTests
                 "lib",
                 "api",
                 "architecture-runs-read-detail-artifacts.ts"));
-        string askBlocked = File.ReadAllText(
+        string askBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "ask", "ask-blocked-reason.ts"));
-        string retrievalApi = File.ReadAllText(
+        string retrievalApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "retrieval-search-api.ts"));
 
         provenanceBlocked.Should().Contain("runProvenanceBlockedReason");

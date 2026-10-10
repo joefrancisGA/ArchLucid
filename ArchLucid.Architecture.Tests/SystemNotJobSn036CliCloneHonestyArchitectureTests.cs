@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn036CliCloneHonestyArchitectureTests
     [Fact]
     public void Sn036_honesty_module_names_cg_062_cg_021_and_lw_cas_reminder()
     {
-        string honesty = File.ReadAllText(
+        string honesty = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "DraftCloneSnapshotHonesty.cs"));
 
         honesty.Should().Contain("CG-062");
@@ -27,9 +27,9 @@ public sealed class SystemNotJobSn036CliCloneHonestyArchitectureTests
     [Fact]
     public void Sn036_command_wires_clone_snapshot_api_and_stdout_banner()
     {
-        string command = File.ReadAllText(
+        string command = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "DraftCloneSnapshotCommand.cs"));
-        string api = File.ReadAllText(
+        string api = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Drafts.cs"));
 
         command.Should().Contain("CloneDraftSnapshotAsync");
@@ -42,7 +42,7 @@ public sealed class SystemNotJobSn036CliCloneHonestyArchitectureTests
     [Fact]
     public void Sn036_cli_tests_cover_honesty_stdout_and_clone_success()
     {
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Cli.Tests", "DraftCloneSnapshotCommandTests.cs"));
 
         tests.Should().Contain("SN-036");
@@ -54,9 +54,9 @@ public sealed class SystemNotJobSn036CliCloneHonestyArchitectureTests
     [Fact]
     public void Sn036_vitest_ratchet_names_cli_inventory_and_cas_patch_reminder()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-cli-clone-honesty.ts"));
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-cli-clone-honesty.test.ts"));
 
         module.Should().Contain("SN-036");

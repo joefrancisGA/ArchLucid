@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -69,9 +70,9 @@ public sealed class SponsorOnePagerPdfBuilderTests
     [SkippableFact]
     public async Task BuildPdfAsync_WhenRunPresent_ReturnsPdfMagicBytes()
     {
-        ArchitectureRunDetail detail = BuildCommittedDetail("r-pdf-1");
+        ArchitectureRunDetail detail = BuildCommittedDetail("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001");
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r-pdf-1", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -109,7 +110,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
-        byte[]? pdf = await sut.BuildPdfAsync("r-pdf-1", "http://localhost:5000");
+        byte[]? pdf = await sut.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
         pdf.Length.Should().BeGreaterThan(32);
@@ -123,9 +124,9 @@ public sealed class SponsorOnePagerPdfBuilderTests
     [SkippableFact]
     public async Task BuildPdfAsync_WhenRoiBaselinesMissing_ThrowsSponsorPdfBlocked()
     {
-        ArchitectureRunDetail detail = BuildCommittedDetail("r-pdf-incomplete");
+        ArchitectureRunDetail detail = BuildCommittedDetail("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002");
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r-pdf-incomplete", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -165,7 +166,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object, pilotBaselines.Object);
         SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, site.Object, scope.Object);
 
-        Func<Task> act = () => sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
+        Func<Task> act = () => sut.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002", "http://localhost:5000");
 
         await act.Should().ThrowAsync<SponsorFirstValuePdfBlockedException>();
     }
@@ -173,9 +174,9 @@ public sealed class SponsorOnePagerPdfBuilderTests
     [SkippableFact]
     public async Task BuildPdfAsync_WhenDemoTenant_ThrowsSponsorPdfBlocked()
     {
-        ArchitectureRunDetail detail = BuildCommittedDetail("r-pdf-demo");
+        ArchitectureRunDetail detail = BuildCommittedDetail("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003");
         Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r-pdf-demo", It.IsAny<CancellationToken>()))
+        query.Setup(q => q.GetRunDetailAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003", It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         Mock<IRunRepository> runs = new();
@@ -209,7 +210,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         SponsorOnePagerPdfBuilder sut = CreateSponsorOnePagerPdfBuilder(query.Object, scorecard, deltas.Object, markdown, siteDemo.Object);
 
-        Func<Task> act = () => sut.BuildPdfAsync("r-pdf-demo", "http://localhost:5000");
+        Func<Task> act = () => sut.BuildPdfAsync("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003", "http://localhost:5000");
 
         await act.Should().ThrowAsync<SponsorFirstValuePdfBlockedException>()
             .WithMessage("*demo*");
@@ -236,14 +237,14 @@ public sealed class SponsorOnePagerPdfBuilderTests
             scorecard,
             deltas,
             markdown,
-            Mock.Of<IAuthorityQueryService>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
             Mock.Of<IManifestHashService>(),
             scope,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
-            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyConfiguration(),
             site);
     }
 
@@ -293,10 +294,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             });
 
-        IConfigurationRoot configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
-            .Build();
+        IConfiguration configuration = FirstValueReportBuilderTestDoubles.CreateCareerExportReadyConfiguration();
 
         Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
         siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
@@ -319,10 +317,10 @@ public sealed class SponsorOnePagerPdfBuilderTests
             baselineRepo,
             FirstValueReportBuilderTestDoubles.CreateDefaultCostEvidenceResolver(),
             FirstValueReportBuilderTestDoubles.CreateDefaultFreshnessOptions(),
-            Mock.Of<IAuthorityQueryService>(),
+            FirstValueReportBuilderTestDoubles.CreateCareerExportReadyAuthorityQuery(),
             Mock.Of<IManifestHashService>(),
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            FirstValueReportBuilderTestDoubles.CreateEmptyTraceRepository(),
             Mock.Of<IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
@@ -374,6 +372,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             CompletedUtc = new DateTime(2026, 4, 1, 2, 0, 0, DateTimeKind.Utc),
             CurrentManifestVersion = "v1",
             StructuralExecutionMode = StructuralExecutionMode.Simulator,
+            WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
         };
 
         GoldenManifest manifest = new()

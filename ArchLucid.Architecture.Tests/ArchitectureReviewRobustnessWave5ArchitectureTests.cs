@@ -15,13 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion41_cross_run_engines_load_prior_graph_snapshot()
     {
-        string topologyEngine = File.ReadAllText(
+        string topologyEngine = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "TopologyCrossRunDiffFindingEngine.cs"));
 
         topologyEngine.Should().Contain("IGraphSnapshotRepository");
         topologyEngine.Should().Contain("GetByIdAsync");
 
-        string analyzer = File.ReadAllText(
+        string analyzer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "GraphSnapshotTopologyDiffAnalyzer.cs"));
 
         analyzer.Should().Contain("AnalyzeCategoryDelta(GraphSnapshot graphSnapshot, GraphSnapshot? priorGraph)");
@@ -40,7 +40,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string pinService = File.ReadAllText(
+        string pinService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunPolicyPackPinService.cs"));
 
         pinService.Should().Contain("PinnedPolicyPackRow");
@@ -59,7 +59,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string loader = File.ReadAllText(
+        string loader = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -72,13 +72,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion44_commit_reverifies_pin_and_draft_hashes()
     {
-        string commitIntegrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string commitIntegrity = ArchitectureSourceProbe.ReadCommitOutputIntegrityPipeline();
 
         commitIntegrity.Should().Contain("VerifyPinIntegrityOrThrowAsync");
         commitIntegrity.Should().Contain("SpawnedDocumentContentHashSha256");
@@ -88,12 +82,12 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion45_manifest_hash_includes_architecture_version_id()
     {
-        string manifestDocument = File.ReadAllText(
+        string manifestDocument = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Manifest", "ManifestDocument.cs"));
 
         manifestDocument.Should().Contain("ArchitectureVersionId");
 
-        string hashService = File.ReadAllText(
+        string hashService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hashService.Should().Contain("manifest.ArchitectureVersionId");
@@ -102,7 +96,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion46_replay_execute_uses_authority_path()
     {
-        string replayExecute = File.ReadAllText(
+        string replayExecute = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunExecutePreparedStage.cs"));
 
         replayExecute.Should().Contain("ExecuteAuthorityPreparedReplayAsync");
@@ -124,7 +118,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string governance = File.ReadAllText(
+        string governance = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -139,7 +133,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
 
         governance.Should().Contain("resolveAuthorityLifecycleCommitBlock");
 
-        string strip = File.ReadAllText(
+        string strip = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunDetailPackageStatusStrip.tsx"));
 
         strip.Should().Contain("authorityLifecyclePhase");
@@ -148,12 +142,12 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion48_authority_phase_writes_split_from_legacy_status()
     {
-        string transitionService = File.ReadAllText(
+        string transitionService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Runs", "IRunStateTransitionService.cs"));
 
         transitionService.Should().Contain("ShouldSkipLegacyRunStatusPatchAfterAuthorityProgress");
 
-        string processor = File.ReadAllText(
+        string processor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -168,7 +162,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
     [Fact]
     public void Suggestion49_synthesis_kernel_pack_pin_and_admittance_guard()
     {
-        string kernel = File.ReadAllText(
+        string kernel = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
 
         kernel.Should().Contain("StructuralExecutionModeAdmittanceGuard.EnsureAdmittableOrThrow");
@@ -187,7 +181,7 @@ public sealed class ArchitectureReviewRobustnessWave5ArchitectureTests
             .Should()
             .BeTrue();
 
-        string hosted = File.ReadAllText(
+        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",

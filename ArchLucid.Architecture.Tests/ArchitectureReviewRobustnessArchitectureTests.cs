@@ -16,7 +16,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     public void Suggestion1_synthesis_kernel_isolated_from_review_execute()
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs");
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().NotContain("IArchitectureRunExecuteOrchestrator");
         source.Should().NotContain("IAuthorityRunOrchestrator");
@@ -34,7 +34,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
             .Should()
             .BeTrue();
 
-        string runRecord = File.ReadAllText(
+        string runRecord = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "ApplicationPorts", "Models", "RunRecord.cs"));
 
         runRecord.Should().Contain("ArchitectureVersionId");
@@ -50,7 +50,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
             "Orchestration",
             "CommitOutputIntegrityService.cs");
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("DecisionGradeFindingProvenanceValidator");
         source.Should().Contain("Commit blocked: one or more findings lack decision-grade provenance");
@@ -72,7 +72,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         emitStage.Should().Contain("FindingsSnapshotGenerationStatus.PartiallyComplete");
 
-        string decisioningStage = File.ReadAllText(
+        string decisioningStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -96,7 +96,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         source.Should().Contain("ThrowIfAuthorityPipelineCompleteAsync");
 
-        string scopeResolve = File.ReadAllText(
+        string scopeResolve = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -111,12 +111,12 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion7_intake_gates_block_sentinels_and_cloud_pack_mismatch()
     {
-        string draftValidator = File.ReadAllText(
+        string draftValidator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "ArchitectureDraftReviewReadinessValidator.cs"));
 
         draftValidator.Should().Contain("HasUnconfirmedStructuredBriefPlaceholders");
 
-        string submit = File.ReadAllText(
+        string submit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -125,12 +125,12 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         submit.Should().Contain("ArchitectureDraftReviewReadinessValidator.EnsureReviewReady");
 
-        string projector = File.ReadAllText(
+        string projector = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "DraftRequestProjector.cs"));
 
         projector.Should().Contain("IsConfirmedBriefEntry");
 
-        string apiValidator = File.ReadAllText(
+        string apiValidator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Api", "Validators", "ArchitectureRequestValidator.cs"));
 
         apiValidator.Should().Contain("PolicyPackCloudTargetMismatchEvaluator");
@@ -139,25 +139,25 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2344_request_actors_materialize_and_security_engines_read_graph_nodes()
     {
-        string materializer = File.ReadAllText(
+        string materializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestActorMaterializer.cs"));
 
         materializer.Should().Contain("GraphNodeTypes.TrustBoundary");
         materializer.Should().Contain("TrustOrigin.External");
 
-        string stages = File.ReadAllText(
+        string stages = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
 
         stages.Should().Contain("request-actors");
         stages.Should().Contain("RequestActorMaterializer.MaterializeFromActorsJson");
 
-        string externalExposure = File.ReadAllText(
+        string externalExposure = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ExternalExposureFindingEngine.cs"));
 
         externalExposure.Should().Contain("GraphNodeTypes.TrustBoundary");
         externalExposure.Should().Contain("actorNodeId");
 
-        string request = File.ReadAllText(
+        string request = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Requests", "ArchitectureRequest.cs"));
 
         request.Should().Contain("DraftActors");
@@ -166,19 +166,19 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2345_quality_attribute_nodes_feed_dr_rpo_topology_analyzer()
     {
-        string materializer = File.ReadAllText(
+        string materializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestQualityAttributeMaterializer.cs"));
 
         materializer.Should().Contain("rtoHours");
         materializer.Should().Contain("theme");
 
-        string stages = File.ReadAllText(
+        string stages = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
 
         stages.Should().Contain("request-quality-attributes");
         stages.Should().Contain("RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute");
 
-        string analyzer = File.ReadAllText(
+        string analyzer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Analysis", "DrRpoTopologyAnalyzer.cs"));
 
         analyzer.Should().Contain("GraphNodeTypes.QualityAttribute");
@@ -192,12 +192,12 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2347_assumption_nodes_materialize_with_connector_edges()
     {
-        string materializer = File.ReadAllText(
+        string materializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "RequestAssumptionMaterializer.cs"));
 
         materializer.Should().Contain("structured-brief");
 
-        string edgeMaterializer = File.ReadAllText(
+        string edgeMaterializer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.KnowledgeGraph",
@@ -207,7 +207,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         edgeMaterializer.Should().Contain("GraphEdgeTypes.RelatesTo");
         edgeMaterializer.Should().Contain("StructuredBriefAssumptionLink");
 
-        string stages = File.ReadAllText(
+        string stages = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
 
         stages.Should().Contain("request-assumption-edges");
@@ -217,7 +217,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2346_required_capability_coverage_blocks_finalize_scorecard()
     {
-        string signals = File.ReadAllText(
+        string signals = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -228,7 +228,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         signals.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
         signals.Should().Contain("required-capability-coverage");
 
-        string evaluator = File.ReadAllText(
+        string evaluator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -239,7 +239,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         evaluator.Should().Contain("MissingRequiredCapabilityCount");
         evaluator.Should().Contain("MissingRequiredCapabilities");
 
-        string dto = File.ReadAllText(
+        string dto = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Governance", "FinalizeQualityScorecardCountsDto.cs"));
 
         dto.Should().Contain("MissingRequiredCapabilityCount");
@@ -248,14 +248,14 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2351_manifest_diagram_service_emits_semantic_overlay_subgraphs()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Diagrams", "ManifestDiagramService.cs"));
 
         service.Should().Contain("AppendSemanticOverlay");
         service.Should().Contain("\"actors\", \"Actors\"");
         service.Should().Contain("DiagramSemantics");
 
-        string projection = File.ReadAllText(
+        string projection = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Decisioning",
@@ -269,14 +269,14 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2350_prior_package_semantics_merge_service_and_create_stage()
     {
-        string mergeService = File.ReadAllText(
+        string mergeService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Drafts", "PriorPackageSemanticMergeService.cs"));
 
         mergeService.Should().Contain("MergePriorPackageSemanticsOntoRequestAsync");
         mergeService.Should().Contain("ConfirmedInlineRequirements");
         mergeService.Should().Contain("IsConfirmedBriefEntry");
 
-        string createStage = File.ReadAllText(
+        string createStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -286,7 +286,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         createStage.Should().Contain("MergePriorPackageSemanticsAsync");
 
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -300,7 +300,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2349_brief_grounding_runs_in_structural_post_processor_enricher()
     {
-        string enricher = File.ReadAllText(
+        string enricher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -311,7 +311,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         enricher.Should().Contain("ApplyBriefGrounding");
         enricher.Should().Contain("StructuralGroundingDropLog");
 
-        string postProcessor = File.ReadAllText(
+        string postProcessor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -327,7 +327,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2352_closed_loop_strengthening_runs_before_manifest_persist()
     {
-        string decisioningStage = File.ReadAllText(
+        string decisioningStage = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -346,7 +346,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         computeHashIndex.Should().BeGreaterThan(strengthenIndex);
         computeHashIndex.Should().BeLessThan(saveManifestIndex);
 
-        string strengtheningPass = File.ReadAllText(
+        string strengtheningPass = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -356,7 +356,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         strengtheningPass.Should().Contain("IClosedLoopManifestMerger");
         strengtheningPass.Should().Contain("PublishToProduct = true");
 
-        string manifestMerger = File.ReadAllText(
+        string manifestMerger = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -366,7 +366,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         manifestMerger.Should().Contain("ClosedLoopRecommendationBriefGroundingFilter");
         manifestMerger.Should().Contain("ClosedLoopManifestTopologyMerger");
 
-        string scoreSync = File.ReadAllText(
+        string scoreSync = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -380,7 +380,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2370_graph_materialization_pipeline_is_canonical_and_default_builder_uses_it()
     {
-        string stages = File.ReadAllText(
+        string stages = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Materialization", "GraphMaterializationStages.cs"));
 
         stages.Should().Contain("CreateDefaultPipeline");
@@ -389,7 +389,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         stages.Should().Contain("request-quality-attributes");
         stages.Should().Contain("request-assumption-edges");
 
-        string builder = File.ReadAllText(
+        string builder = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.KnowledgeGraph", "Builders", "DefaultGraphBuilder.cs"));
 
         builder.Should().Contain("GraphMaterializationStages.CreateDefaultPipeline");
@@ -398,14 +398,14 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void TB2352_lift_mutation_microcases_manifest_matches_benchmark_ids()
     {
-        string mutationManifest = File.ReadAllText(
+        string mutationManifest = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "tests", "eval-corpus", "mutation-microcases.json"));
 
         mutationManifest.Should().Contain("mutate-rto-30m");
         mutationManifest.Should().Contain("mutate-add-private-endpoint");
         mutationManifest.Should().Contain("\"minimumCaseCount\": 8");
 
-        string pairs = File.ReadAllText(
+        string pairs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "tests", "eval-corpus", "agent-structural-eval-pairs.json"));
 
         pairs.Should().Contain("closedLoopStrengtheningScenarios");
@@ -424,7 +424,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string merge = File.ReadAllText(
+        string merge = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "AgentTopologyProposalGraphMerge.cs"));
 
         merge.Should().Contain("AgentTopologyProposalMergeGate.FilterValidatedProposals");
@@ -434,7 +434,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     public void Suggestion9_create_idempotency_hashes_request_body()
     {
         string path = Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "ArchitectureRunIdempotencyHashing.cs");
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("FingerprintRequest");
     }
@@ -442,7 +442,7 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
     [Fact]
     public void Suggestion10_effectful_engines_and_generated_plugin_skip_set()
     {
-        string composition = File.ReadAllText(
+        string composition = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Composition",

@@ -45,7 +45,7 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/IntegrationOutbox/IntegrationEventOutboxSql.cs"
             },
             {
-                "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.cs",
+                "ArchLucid.Persistence/Coordination/ProductLearning/DapperProductLearningPilotSignalRepository.InsertList.cs",
                 "ProductLearningPilotSignalSql",
                 "ArchLucid.Persistence/Coordination/ProductLearning/ProductLearningPilotSignalSql.cs"
             },
@@ -60,12 +60,12 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Tenancy/TenantDirectorySql.cs"
             },
             {
-                "ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs",
+                "ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.Write.cs",
                 "FindingsSnapshotWriteSql",
                 "ArchLucid.Persistence/Sql/FindingsSnapshotWriteSql.cs"
             },
             {
-                "ArchLucid.Persistence/Data/Repositories/AgentResultRepository.cs",
+                "ArchLucid.Persistence/Data/Repositories/AgentResultRepository.Mutate.cs",
                 "AgentResultWriteSql",
                 "ArchLucid.Persistence/Sql/AgentResultWriteSql.cs"
             },
@@ -80,7 +80,7 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Sql/AgentExecutionTraceSql.cs"
             },
             {
-                "ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs",
+                "ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.Write.cs",
                 "GoldenManifestWriteSql",
                 "ArchLucid.Persistence/Sql/GoldenManifestWriteSql.cs"
             },
@@ -125,7 +125,17 @@ public sealed class RepositorySqlExtractionRatchetTests
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },
             {
-                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.cs",
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.Settle.cs",
+                "LlmTenantBudgetSql",
+                "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.Reserve.cs",
+                "LlmTenantBudgetSql",
+                "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
+            },
+            {
+                "ArchLucid.Persistence/Data/Repositories/SqlLlmTenantBudgetRepository.Monthly.Period.cs",
                 "LlmTenantBudgetSql",
                 "ArchLucid.Persistence/Sql/LlmTenantBudgetSql.cs"
             },

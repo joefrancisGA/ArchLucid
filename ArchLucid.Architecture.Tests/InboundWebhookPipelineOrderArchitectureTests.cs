@@ -27,7 +27,7 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
         string root = FindRepoRoot();
         string controllerPath = Path.Combine(root, "ArchLucid.Api", "Controllers", "Integrations", "ItsmInboundWebhooksController.cs");
         File.Exists(controllerPath).Should().BeTrue();
-        string controller = File.ReadAllText(controllerPath);
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(controllerPath);
 
         controller.Should().Contain("[EnableRateLimiting(\"fixed\")]");
 
@@ -44,7 +44,7 @@ public sealed class InboundWebhookPipelineOrderArchitectureTests
             "Integrations",
             "Itsm",
             "ItsmInboundWebhookFacade.cs");
-        string facade = File.ReadAllText(facadePath);
+        string facade = ArchitectureSourceProbe.ReadPathWithPartials(facadePath);
 
         int verify = facade.IndexOf("TryVerifyWebhookSecurity", StringComparison.Ordinal);
         int parseCall = facade.IndexOf("TryParseWebhookJson", StringComparison.Ordinal);

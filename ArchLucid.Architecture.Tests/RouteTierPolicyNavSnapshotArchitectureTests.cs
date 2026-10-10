@@ -25,7 +25,7 @@ public sealed class RouteTierPolicyNavSnapshotArchitectureTests
         string path = Path.Combine(RepoRoot, "scripts", "ci", "data", "route_tier_policy_nav_registry.json");
         File.Exists(path).Should().BeTrue();
 
-        using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path));
+        using JsonDocument doc = JsonDocument.Parse(ArchitectureSourceProbe.ReadPathWithPartials(path));
         JsonElement entries = doc.RootElement.GetProperty("entries");
         entries.GetArrayLength().Should().BeGreaterThan(100, "registry must cover controller route families");
     }
@@ -36,8 +36,8 @@ public sealed class RouteTierPolicyNavSnapshotArchitectureTests
         string ciPath = Path.Combine(RepoRoot, ".github", "workflows", "ci.yml");
         string rcPath = Path.Combine(RepoRoot, ".github", "workflows", "rc-release-gate.yml");
 
-        string ciText = File.ReadAllText(ciPath);
-        string rcText = File.ReadAllText(rcPath);
+        string ciText = ArchitectureSourceProbe.ReadPathWithPartials(ciPath);
+        string rcText = ArchitectureSourceProbe.ReadPathWithPartials(rcPath);
 
         ciText.Should().Contain("assert_route_tier_policy_nav.py");
         rcText.Should().Contain("assert_route_tier_policy_nav.py");
@@ -49,10 +49,10 @@ public sealed class RouteTierPolicyNavSnapshotArchitectureTests
         string registryPath = Path.Combine(RepoRoot, "scripts", "ci", "data", "route_tier_policy_nav_registry.json");
         string matrixPath = Path.Combine(RepoRoot, "docs", "library", "ROUTE_TIER_POLICY_NAV_MATRIX.md");
 
-        using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(registryPath));
+        using JsonDocument doc = JsonDocument.Parse(ArchitectureSourceProbe.ReadPathWithPartials(registryPath));
         int registryCount = doc.RootElement.GetProperty("entries").GetArrayLength();
 
-        string matrixText = File.ReadAllText(matrixPath);
+        string matrixText = ArchitectureSourceProbe.ReadPathWithPartials(matrixPath);
         Match marker = Regex.Match(matrixText, @"<!-- route-tier-policy-nav-registry-count:(\d+) -->");
 
         marker.Success.Should().BeTrue();

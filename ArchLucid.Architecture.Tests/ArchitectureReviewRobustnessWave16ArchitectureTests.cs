@@ -25,7 +25,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
             .Should()
             .BeTrue();
 
-        string orchestrator = File.ReadAllText(
+        string orchestrator = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -36,7 +36,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
         orchestrator.Should().Contain("ManifestCommittedArtifactInventoryRecoveryMaterialBuilder.BuildAsync");
         orchestrator.Should().Contain("recomputedMaterial");
 
-        string verifier = File.ReadAllText(
+        string verifier = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -51,7 +51,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion152_finding_json_round_trips_evidence_package_id()
     {
-        string converter = File.ReadAllText(
+        string converter = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
@@ -62,7 +62,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
         converter.Should().Contain("evidencePackageId");
         converter.Should().Contain("EvidencePackageId");
 
-        string tests = File.ReadAllText(
+        string tests = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core.Tests",
@@ -76,7 +76,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion153_hasher_b_does_not_default_inventory_to_null()
     {
-        string fingerprint = File.ReadAllText(
+        string fingerprint = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Contracts", "Manifest", "GoldenManifestFingerprint.cs"));
 
         fingerprint.Should().Contain("EmptyCommittedArtifactInventory");
@@ -86,7 +86,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion154_receipt_hash_for_all_committed_runs()
     {
-        string capturer = File.ReadAllText(
+        string capturer = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -101,7 +101,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion155_async_replay_asserts_scope()
     {
-        string hosted = File.ReadAllText(
+        string hosted = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -116,12 +116,12 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion156_compare_inventory_fingerprint_guard()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "RunComparePinFingerprintGuard.cs"));
 
         guard.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
 
-        string facade = File.ReadAllText(
+        string facade = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         facade.Should().Contain("EnsureCommittedArtifactInventoryFingerprintsMatchOrThrow");
@@ -130,7 +130,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion157_replay_clone_preserves_evidence_package_id()
     {
-        string clone = File.ReadAllText(
+        string clone = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunCloneStage.cs"));
 
         clone.Should().Contain("EvidencePackageId = original.EvidencePackageId");
@@ -139,7 +139,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion158_skip_persist_captures_governance_and_review_snapshots()
     {
-        string artifacts = File.ReadAllText(
+        string artifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -159,7 +159,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
     [Fact]
     public void Suggestion159_findings_inventory_hashes_persisted_blob_bytes()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -182,7 +182,7 @@ public sealed class ArchitectureReviewRobustnessWave16ArchitectureTests
             .Should()
             .BeTrue();
 
-        string openApiSnapshot = File.ReadAllText(
+        string openApiSnapshot = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api.Tests",

@@ -33,7 +33,7 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
     public void Adr0030_header_declares_coordinator_strangler_fully_retired()
     {
         string path = Path.Combine(RepoRoot, "docs", "architecture", "adrs", "0030-coordinator-authority-pipeline-unification.md");
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain(
             "coordinator strangler initiative fully retired",
@@ -53,7 +53,7 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
             if (!IsArchLucidProductionSource(path))
                 continue;
 
-            string text = File.ReadAllText(path);
+            string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
             foreach (string typeName in RetiredProductionTypeNames)
             {
@@ -91,7 +91,7 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
             "Modules",
             "CoordinatorArtifactsCompositionModule.Coordinator.cs");
 
-        string text = File.ReadAllText(coordinatorArtifacts);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(coordinatorArtifacts);
 
         text.Should().Contain("RegisterCoordinatorAuthorityAndRepositories");
         text.Should().NotContain(
@@ -114,7 +114,7 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
     public void Coordinator_strangler_inventory_documents_code_complete_closure()
     {
         string path = Path.Combine(RepoRoot, "docs", "architecture", "COORDINATOR_STRANGLER_INVENTORY.md");
-        string text = File.ReadAllText(path);
+        string text = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         text.Should().Contain("Improvement 3");
         text.Should().Contain("TB-919");

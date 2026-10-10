@@ -12,9 +12,9 @@ public sealed class DiagramImportComparisonArchitectureTests
     [Fact]
     public void Run_linked_reconciliation_keeps_sealed_manifest_guard()
     {
-        string reconciliationService = File.ReadAllText(
+        string reconciliationService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "DiagramInfrastructureReconciliationService.cs"));
-        string advisoryService = File.ReadAllText(
+        string advisoryService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "InfraEvidence", "InfrastructureDiagramComparisonService.cs"));
 
         reconciliationService.Should().Contain("DiagramInfrastructureReconciliationSealedManifestHashGuard");

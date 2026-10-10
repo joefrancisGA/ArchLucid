@@ -15,28 +15,28 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion392_394_audit_architecture_evidence_fail_closed_on_sealed_hash()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "AuditEvidence",
                 "AuditArchitectureEvidenceSealedManifestHashGuard.cs"));
-        string exportService = File.ReadAllText(
+        string exportService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "AuditEvidence",
                 "AuditEvidencePackageExportService.cs"));
-        string hybridService = File.ReadAllText(
+        string hybridService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "AuditEvidence",
                 "AuditHybridEvidenceQueryService.cs"));
-        string lineageService = File.ReadAllText(
+        string lineageService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -53,21 +53,21 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion395_396_snapshot_export_fail_closed_when_run_cited()
     {
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "Mermaid",
                 "InfraEvidenceSnapshotSealedManifestHashGuard.cs"));
-        string mermaidService = File.ReadAllText(
+        string mermaidService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "Mermaid",
                 "InfraEvidenceSnapshotMermaidService.cs"));
-        string terraformService = File.ReadAllText(
+        string terraformService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -82,13 +82,13 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion397_diagram_model_get_fail_closed_on_sealed_hash()
     {
-        string service = File.ReadAllText(
+        string service = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
                 "InfraEvidence",
                 "StructuredDiagramIngestService.cs"));
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -104,14 +104,14 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion398_post_commit_projection_outbox_fail_closed_on_sealed_hash()
     {
-        string processor = File.ReadAllText(
+        string processor = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Host.Core",
                 "Coordination",
                 "Projection",
                 "PostCommitProjectionOutboxProcessor.cs"));
-        string guard = File.ReadAllText(
+        string guard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -125,14 +125,14 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion399_traceability_bundle_maps_conflict_to_409()
     {
-        string runQuery = File.ReadAllText(
+        string runQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunQueryController.Findings.cs"));
-        string authorityReads = File.ReadAllText(
+        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -149,7 +149,7 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion400_async_docx_enqueue_fail_closed_on_sealed_hash()
     {
-        string controller = File.ReadAllText(
+        string controller = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -165,11 +165,11 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion401_402_share_and_print_ui_fail_closed()
     {
-        string shareButton = File.ReadAllText(
+        string shareButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "ShareReviewPackageButton.tsx"));
-        string printOpen = File.ReadAllText(
+        string printOpen = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "PackagePrintOpenButton.tsx"));
-        string printButton = File.ReadAllText(
+        string printButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "reviews", "PackagePrintButton.tsx"));
 
         shareButton.Should().Contain("runCollateralSealedManifestCopyBlockedReason");
@@ -180,14 +180,14 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion403_e2e_compare_maps_conflict_to_409()
     {
-        string replayController = File.ReadAllText(
+        string replayController = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunComparisonController.Replay.cs"));
-        string comparisonService = File.ReadAllText(
+        string comparisonService = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -202,7 +202,7 @@ public sealed class ArchitectureReviewRobustnessWave34ArchitectureTests
     [Fact]
     public void Suggestion404_data_consistency_outbox_skips_hash_when_no_run_id()
     {
-        string outboxGuard = File.ReadAllText(
+        string outboxGuard = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",

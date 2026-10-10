@@ -170,7 +170,8 @@ public sealed partial class RoiController(
         if (!TryParseBoardPackFormat(format, out SponsorRoiBoardPackFormat parsedFormat))
             return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+        IActionResult? sealedGuardResult =
+            await EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(cancellationToken);
 
         if (sealedGuardResult is not null)
             return sealedGuardResult;

@@ -21,7 +21,7 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("CountRestrictedWithoutActorShareAsync");
         source.Should().Contain("adjustedTotalCount");
@@ -34,7 +34,7 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("AS-094");
         source.Should().Contain("CanExposeArchitectureScopedHitAsync");
@@ -55,8 +55,8 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
         File.Exists(listTests).Should().BeTrue();
         File.Exists(searchTests).Should().BeTrue();
 
-        File.ReadAllText(listTests).Should().Contain("response.TotalCount.Should().Be(0)");
-        File.ReadAllText(searchTests).Should().Contain("FilterAsync_omits_run_and_finding_hits_for_restricted_architecture");
+        ArchitectureSourceProbe.ReadPathWithPartials(listTests).Should().Contain("response.TotalCount.Should().Be(0)");
+        ArchitectureSourceProbe.ReadPathWithPartials(searchTests).Should().Contain("FilterAsync_omits_run_and_finding_hits_for_restricted_architecture");
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public sealed class ArchitectureSpineAs094HubListHonorsRestrictArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("visibleArchitectureIds");
         source.Should().Contain("architectureDraftEntryIsVisibleToActor");

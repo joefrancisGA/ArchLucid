@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
     [Fact]
     public void Sn010_mint_module_names_nested_resolver_and_unlinked_honesty()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-nested-review-job-mint.ts"));
 
         module.Should().Contain("resolveSystemNotJobWorkingReviewOpenHref");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
     [Fact]
     public void Sn010_impact_preview_surfaces_use_nested_review_resolver()
     {
-        string evolutionView = File.ReadAllText(
+        string evolutionView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -38,7 +38,7 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
                 "_sections",
                 "EvolutionReviewPageView.tsx"));
 
-        string evidenceBasis = File.ReadAllText(
+        string evidenceBasis = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -59,7 +59,7 @@ public sealed class SystemNotJobSn010NestedReviewJobVsDeskArchitectureTests
     [Fact]
     public void Sn010_vitest_ratchet_names_peer_honesty_and_inventory_rows()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-nested-review-job-mint.test.ts"));
 
         test.Should().Contain("SN-010");

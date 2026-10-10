@@ -16,7 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>Premium-tier prose assumption extractor and contradiction emitter in Real mode (DX-55).</summary>
 public sealed class PremiumProseAssumptionFindingGenerator(

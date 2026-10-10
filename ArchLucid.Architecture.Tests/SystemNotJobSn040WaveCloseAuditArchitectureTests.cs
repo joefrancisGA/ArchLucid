@@ -22,7 +22,7 @@ public sealed class SystemNotJobSn040WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("SN-040");
         source.Should().Contain("Spawn-locked draft is not a writable Career editor");
@@ -36,7 +36,7 @@ public sealed class SystemNotJobSn040WaveCloseAuditArchitectureTests
     [Fact]
     public void Sn040_readme_lists_shipped_wave_with_close_audit_link()
     {
-        string readme = File.ReadAllText(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
+        string readme = ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, "docs", "architecture", "README.md"));
 
         readme.Should().Contain("SYSTEM_NOT_JOB_ACCEPTANCE_2026-09-11.md");
         readme.ToLowerInvariant().Should().Contain("system-not-job");
@@ -55,7 +55,7 @@ public sealed class SystemNotJobSn040WaveCloseAuditArchitectureTests
 
         File.Exists(path).Should().BeTrue();
 
-        string source = File.ReadAllText(path);
+        string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
         source.Should().Contain("system-not-job-00-index.md");
         source.Should().Contain("toHaveLength(40)");

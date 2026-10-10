@@ -68,7 +68,7 @@ public sealed class ArchitectureSpineAs070RestatementDoesNotResetBandArchitectur
 
     private static string ReadRepoFile(params string[] segments)
     {
-        return File.ReadAllText(Path.Combine(RepoRoot, Path.Combine(segments)));
+        return ArchitectureSourceProbe.ReadPathWithPartials(Path.Combine(RepoRoot, Path.Combine(segments)));
     }
 
     private static string FindRepoRoot()

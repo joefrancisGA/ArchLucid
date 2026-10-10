@@ -11,6 +11,7 @@ import { OPERATOR_HOME_BUYER_ORIENTATION_PARAGRAPH } from "@/app/(operator)/_sec
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import { resolveContinueLastArchitectureIdentityTarget } from "@/lib/resolve-continue-last-architecture-identity";
 import {
+  resolveWorkingHomeNewReviewBridgeCopy,
   resolveWorkingHomeSingleStartPrimaryLabel,
 } from "@/lib/system-not-job-no-second-start-cta-working";
 import { cn } from "@/lib/utils";
@@ -61,7 +62,7 @@ export function OperatorHomeWorkingPrimaryCta(
     <div className="space-y-2" data-testid="operator-home-working-primary-cta">
       <Button asChild variant={variant} size="sm" className="h-8 w-fit">
         <Link href={REVIEWS_NEW_GUIDED_INTAKE_HREF} data-testid="operator-home-working-new-review-primary">
-          {resolveWorkingHomeSingleStartPrimaryLabel()}
+          {resolveWorkingHomeNewReviewBridgeCopy() ?? resolveWorkingHomeSingleStartPrimaryLabel()}
         </Link>
       </Button>
       {orientationCopy !== null ? (

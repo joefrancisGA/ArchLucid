@@ -15,7 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion111_decision_receipt_uses_lifecycle_guard()
     {
-        string receipt = File.ReadAllText(
+        string receipt = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "DecisionReceiptService.cs"));
 
         receipt.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
@@ -24,7 +24,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion112_sponsor_one_pager_uses_lifecycle_guard()
     {
-        string pdf = File.ReadAllText(
+        string pdf = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "SponsorOnePagerPdfBuilder.cs"));
 
         pdf.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
@@ -33,7 +33,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion113_findings_evidence_chain_and_inspect_use_lifecycle_guard()
     {
-        string query = File.ReadAllText(
+        string query = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -54,7 +54,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
             .Should()
             .BeTrue();
 
-        string compare = File.ReadAllText(
+        string compare = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "CompareRunsApplicationFacade.cs"));
 
         compare.Should().Contain("RunComparePinFingerprintGuard");
@@ -64,12 +64,12 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion115_export_and_traceability_use_lifecycle_guard()
     {
-        string export = File.ReadAllText(
+        string export = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Analysis", "RunExportAuthorityMaterialLoader.cs"));
 
         export.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
 
-        string trace = File.ReadAllText(
+        string trace = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Traceability", "TraceabilityBundleBuilder.cs"));
 
         trace.Should().Contain("AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow");
@@ -78,7 +78,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion116_km_identity_fallback_verifies_hash()
     {
-        string access = File.ReadAllText(
+        string access = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -92,7 +92,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion117_km_graph_reuse_checks_pin_fingerprints()
     {
-        string reuse = File.ReadAllText(
+        string reuse = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Core",
@@ -102,7 +102,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
 
         reuse.Should().Contain("GraphPinFingerprintsMatchRunHeader");
 
-        string kmResolver = File.ReadAllText(
+        string kmResolver = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -117,7 +117,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion118_governance_paths_require_pin_assignments()
     {
-        string factory = File.ReadAllText(
+        string factory = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Application",
@@ -126,7 +126,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
 
         factory.Should().Contain("ResolveCommitTimeAssignmentsOrThrow");
 
-        string preCommit = File.ReadAllText(
+        string preCommit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "PreCommitGovernanceGate.cs"));
 
         preCommit.Should().Contain("ResolveCommitTimeAssignmentsWithEnforcementAsync");
@@ -136,7 +136,7 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion119_replay_commit_reverifies_pins()
     {
-        string commit = File.ReadAllText(
+        string commit = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Application", "Replay", "ReplayRunCommitStage.cs"));
 
         commit.Should().Contain("VerifyPinIntegrityOrThrowAsync");
@@ -146,13 +146,13 @@ public sealed class ArchitectureReviewRobustnessWave12ArchitectureTests
     [Fact]
     public void Suggestion120_hasher_v7_and_openapi_pin_surface()
     {
-        string hasher = File.ReadAllText(
+        string hasher = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "ManifestHashService.cs"));
 
         hasher.Should().Contain("HasherSchemaVersion = \"v12\"");
         hasher.Should().Contain("CreateTimePackageOrigin");
 
-        string openApi = File.ReadAllText(
+        string openApi = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",

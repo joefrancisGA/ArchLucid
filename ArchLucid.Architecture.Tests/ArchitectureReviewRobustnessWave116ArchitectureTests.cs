@@ -15,28 +15,28 @@ public sealed class ArchitectureReviewRobustnessWave116ArchitectureTests
     [Fact]
     public void Suggestion1377_1383_run_detail_summary_sse_and_roi_read_sealed_manifest_mappers()
     {
-        string authorityReads = File.ReadAllText(
+        string authorityReads = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "AuthorityReadsController.cs"));
-        string runDetailQuery = File.ReadAllText(
+        string runDetailQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunQueryController.Detail.cs"));
-        string authorityRunDetail = File.ReadAllText(
+        string authorityRunDetail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "AuthorityQueryController.RunDetail.cs"));
-        string runEvents = File.ReadAllText(
+        string runEvents = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -60,15 +60,15 @@ public sealed class ArchitectureReviewRobustnessWave116ArchitectureTests
     [Fact]
     public void Suggestion1384_1387_run_detail_and_summary_stream_blocked_reason_wiring()
     {
-        string runDetailBlocked = File.ReadAllText(
+        string runDetailBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-detail-blocked-reason.ts"));
-        string detailArtifacts = File.ReadAllText(
+        string detailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string runSummaryBlocked = File.ReadAllText(
+        string runSummaryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-summary-blocked-reason.ts"));
-        string runSummaryQuery = File.ReadAllText(
+        string runSummaryQuery = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "use-run-summary-query.ts"));
-        string runSummaryStream = File.ReadAllText(
+        string runSummaryStream = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "hooks", "useRunSummaryStream.ts"));
 
         runDetailBlocked.Should().Contain("runDetailBlockedReason");
@@ -84,7 +84,7 @@ public sealed class ArchitectureReviewRobustnessWave116ArchitectureTests
     [Fact]
     public void Suggestion1388_compare_and_progress_fail_closed_ux()
     {
-        string compareFormFetch = File.ReadAllText(
+        string compareFormFetch = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -95,9 +95,9 @@ public sealed class ArchitectureReviewRobustnessWave116ArchitectureTests
                 "compare-two-reviews",
                 "_sections",
                 "use-compare-form-fetch.ts"));
-        string progressTracker = File.ReadAllText(
+        string progressTracker = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "runs", "RunProgressTracker.tsx"));
-        string commitRunButton = File.ReadAllText(
+        string commitRunButton = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "CommitRunButton.tsx"));
 
         compareFormFetch.Should().Contain("runSummaryBlockedReason");

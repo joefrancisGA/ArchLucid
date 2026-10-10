@@ -105,6 +105,17 @@ export type RunDetailGovernancePresentation = {
   readonly reviewPolicyPackCallout: ReviewPolicyPackCallout | null;
 };
 
+/** WS-14: Working desks block finalize on degraded finding coverage; Guided/demo stay advisory. */
+export function resolveWorkingDeskDegradedCoverageScorecardFlags(model: RunDetailPageModel): {
+  readonly blockDegradedFindingCoverageOnWorking: boolean;
+  readonly degradedFindingCoverage: boolean;
+} {
+  return {
+    blockDegradedFindingCoverageOnWorking: model.buyerPolishedArtifactTable !== true,
+    degradedFindingCoverage: model.resolvedDetail.degradedFindingCoverage === true,
+  };
+}
+
 export async function buildRunDetailGovernancePresentation(
   model: RunDetailPageModel,
   workspaceDerive: typeof import("@/lib/run-detail-workspace-derive"),

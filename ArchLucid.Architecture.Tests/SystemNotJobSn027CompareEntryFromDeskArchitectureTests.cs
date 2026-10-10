@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn027CompareEntryFromDeskArchitectureTests
     [Fact]
     public void Sn027_compare_entry_module_names_base_prefill_and_nested_path()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-compare-entry-from-desk.ts"));
 
         module.Should().Contain("resolveArchitectureDeskCompareBaseRunId");
@@ -26,7 +26,7 @@ public sealed class SystemNotJobSn027CompareEntryFromDeskArchitectureTests
     [Fact]
     public void Sn027_desk_compare_action_uses_resolver_not_peer_compare_two_reviews_only()
     {
-        string compareAction = File.ReadAllText(
+        string compareAction = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -43,7 +43,7 @@ public sealed class SystemNotJobSn027CompareEntryFromDeskArchitectureTests
     [Fact]
     public void Sn027_vitest_ratchet_names_working_nested_prefill_and_single_review_base()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

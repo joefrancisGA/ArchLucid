@@ -19,9 +19,18 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(typeof(ArchitectureShareListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> ListArchitectureShares(Guid architectureId, CancellationToken cancellationToken)
+    public Task<IActionResult> ListArchitectureShares(Guid architectureId, CancellationToken cancellationToken)
+        => ListShares(architectureId, cancellationToken);
+
+    private async Task<IActionResult> ListShares(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IActionResult? adminGuardResult =
+            await EnsureArchitectureShareAdminAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (adminGuardResult is not null)
+            return adminGuardResult;
+
         string actorOid = _actorContext.GetActorId();
 
         ArchitectureShareListResponse? response = await _architectureShareService.TryListSharesAsync(
@@ -49,15 +58,26 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareGranted via LogOrThrowAsync.")]
-    public async Task<IActionResult> PutArchitectureShare(
+    public Task<IActionResult> PutArchitectureShare(
         Guid architectureId,
         [FromBody] PutArchitectureShareRequest? body,
+        CancellationToken cancellationToken)
+        => UpsertShare(architectureId, body, cancellationToken);
+
+    private async Task<IActionResult> UpsertShare(
+        Guid architectureId,
+        PutArchitectureShareRequest? body,
         CancellationToken cancellationToken)
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IActionResult? adminGuardResult =
+            await EnsureArchitectureShareAdminAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (adminGuardResult is not null)
+            return adminGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
@@ -90,6 +110,11 @@ public sealed partial class ArchitecturesController
                 ProblemTypes.ResourceNotFound);
         }
 
+        if (result.Status == ArchitectureShareMutationStatus.ScimGroupNotSupported)
+        {
+            return this.BadRequestProblem(result.ValidationMessage!, ProblemTypes.ValidationFailed);
+        }
+
         if (result.Status == ArchitectureShareMutationStatus.ValidationFailed)
         {
             return this.BadRequestProblem(result.ValidationMessage!, ProblemTypes.ValidationFailed);
@@ -115,12 +140,23 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareRevoked via LogOrThrowAsync.")]
-    public async Task<IActionResult> RevokeArchitectureShare(
+    public Task<IActionResult> RevokeArchitectureShare(
+        Guid architectureId,
+        string targetActorOid,
+        CancellationToken cancellationToken)
+        => DeleteShare(architectureId, targetActorOid, cancellationToken);
+
+    private async Task<IActionResult> DeleteShare(
         Guid architectureId,
         string targetActorOid,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IActionResult? adminGuardResult =
+            await EnsureArchitectureShareAdminAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (adminGuardResult is not null)
+            return adminGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
@@ -186,6 +222,11 @@ public sealed partial class ArchitecturesController
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IActionResult? adminGuardResult =
+            await EnsureArchitectureShareAdminAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (adminGuardResult is not null)
+            return adminGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);

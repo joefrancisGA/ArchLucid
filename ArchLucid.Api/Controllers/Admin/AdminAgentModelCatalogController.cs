@@ -86,7 +86,7 @@ public sealed class AdminAgentModelCatalogController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
 
         AgentModelCatalogRow? before = await _catalogRepository.TryGetAsync(aliasId, cancellationToken).ConfigureAwait(false);
@@ -187,7 +187,7 @@ public sealed class AdminAgentModelCatalogController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
     }
 }

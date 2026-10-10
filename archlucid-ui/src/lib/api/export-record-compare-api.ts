@@ -4,7 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { exportRecordCompareBlockedReason } from "@/lib/exports/export-record-compare-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type ExportRecordDiffResponse = components["schemas"]["ExportRecordDiffResponse"];
 
@@ -19,7 +19,7 @@ export async function compareExportRecords(
   });
 
   try {
-    return await apiGet<ExportRecordDiffResponse>(
+    return await apiGetSealedManifestAware<ExportRecordDiffResponse>(
       `/v1/architecture/review/exports/compare?${query.toString()}`,
     );
   } catch (error: unknown) {

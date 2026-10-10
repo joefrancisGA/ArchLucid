@@ -15,21 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
     [Fact]
     public void Suggestion1329_1331_page_bundle_critical_timelines_and_workspace_context_sealed_manifest_mappers()
     {
-        string critical = File.ReadAllText(
+        string critical = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunDetailPageBundleController.Critical.cs"));
-        string timelines = File.ReadAllText(
+        string timelines = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
                 "Controllers",
                 "Authority",
                 "RunDetailPageBundleController.Timelines.cs"));
-        string workspaceContext = File.ReadAllText(
+        string workspaceContext = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -45,7 +45,7 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
     [Fact]
     public void Suggestion1332_1335_run_summary_detail_buyer_summary_and_retrieval_grounding_sealed_manifest_mappers()
     {
-        string runDetail = File.ReadAllText(
+        string runDetail = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "ArchLucid.Api",
@@ -62,9 +62,9 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
     [Fact]
     public void Suggestion1336_1340_page_bundle_timelines_workspace_context_and_run_detail_read_blocked_reason_wiring()
     {
-        string pageBundleClient = File.ReadAllText(
+        string pageBundleClient = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-run-detail-page-bundle-client.ts"));
-        string timelinesBlocked = File.ReadAllText(
+        string timelinesBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -72,7 +72,7 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
                 "lib",
                 "runs",
                 "run-detail-timelines-bundle-blocked-reason.ts"));
-        string pageBundleBlocked = File.ReadAllText(
+        string pageBundleBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -80,11 +80,11 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
                 "lib",
                 "runs",
                 "run-detail-page-bundle-blocked-reason.ts"));
-        string runsList = File.ReadAllText(
+        string runsList = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-list.ts"));
-        string runSummaryBlocked = File.ReadAllText(
+        string runSummaryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "runs", "run-summary-blocked-reason.ts"));
-        string buyerSummaryBlocked = File.ReadAllText(
+        string buyerSummaryBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -92,9 +92,9 @@ public sealed class ArchitectureReviewRobustnessWave112ArchitectureTests
                 "lib",
                 "runs",
                 "buyer-run-detail-summary-blocked-reason.ts"));
-        string detailArtifacts = File.ReadAllText(
+        string detailArtifacts = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "api", "architecture-runs-read-detail-artifacts.ts"));
-        string retrievalBlocked = File.ReadAllText(
+        string retrievalBlocked = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

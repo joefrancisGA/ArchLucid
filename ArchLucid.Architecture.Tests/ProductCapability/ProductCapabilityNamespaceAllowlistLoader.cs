@@ -20,7 +20,7 @@ internal static class ProductCapabilityNamespaceAllowlistLoader
         if (!File.Exists(path))
             throw new FileNotFoundException("Product capability namespace allowlist is missing.", path);
 
-        string json = File.ReadAllText(path);
+        string json = ArchitectureSourceProbe.ReadPathWithPartials(path);
         ProductCapabilityNamespaceAllowlistDocument? document =
             JsonSerializer.Deserialize<ProductCapabilityNamespaceAllowlistDocument>(json, SerializerOptions);
 

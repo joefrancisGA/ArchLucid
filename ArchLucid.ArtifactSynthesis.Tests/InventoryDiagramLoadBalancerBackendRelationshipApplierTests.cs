@@ -8,6 +8,8 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
 {
     private readonly DiagramAstFromGraphCompiler compiler = new();

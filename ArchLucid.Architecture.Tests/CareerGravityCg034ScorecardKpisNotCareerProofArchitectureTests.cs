@@ -14,9 +14,9 @@ public sealed class CareerGravityCg034ScorecardKpisNotCareerProofArchitectureTes
     [Fact]
     public void Cg034_scorecard_page_wires_kpi_career_honesty_strip()
     {
-        string copy = File.ReadAllText(
+        string copy = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "scorecard", "scorecard-kpi-career-honesty.ts"));
-        string pageView = File.ReadAllText(
+        string pageView = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -27,7 +27,7 @@ public sealed class CareerGravityCg034ScorecardKpisNotCareerProofArchitectureTes
                 "architecture-scorecard",
                 "_sections",
                 "PilotScorecardPageView.tsx"));
-        string outcomes = File.ReadAllText(
+        string outcomes = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -49,7 +49,7 @@ public sealed class CareerGravityCg034ScorecardKpisNotCareerProofArchitectureTes
     [Fact]
     public void Cg034_docs_record_scorecard_kpi_honesty()
     {
-        string docs = File.ReadAllText(
+        string docs = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "docs", "library", "OPERATOR_UI_EXPERIENCE_MODES.md"));
 
         docs.Should().Contain("CG-034");

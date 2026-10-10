@@ -14,7 +14,7 @@ public sealed class SystemNotJobSn028NoCreateArchitectureVsReviewForkWorkingArch
     [Fact]
     public void Sn028_module_names_single_start_resolver_and_banned_peer_labels()
     {
-        string module = File.ReadAllText(
+        string module = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",
@@ -31,7 +31,7 @@ public sealed class SystemNotJobSn028NoCreateArchitectureVsReviewForkWorkingArch
     [Fact]
     public void Sn028_operator_nav_labels_wires_working_single_start_presentation()
     {
-        string navLabels = File.ReadAllText(
+        string navLabels = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "operator", "operator-nav-labels.ts"));
 
         navLabels.Should().Contain("resolveWorkingSingleStartNavPresentation");
@@ -41,7 +41,7 @@ public sealed class SystemNotJobSn028NoCreateArchitectureVsReviewForkWorkingArch
     [Fact]
     public void Sn028_vitest_ratchet_names_working_collapse_and_guided_peer_parity()
     {
-        string test = File.ReadAllText(
+        string test = ArchitectureSourceProbe.ReadPathWithPartials(
             Path.Combine(
                 RepoRoot,
                 "archlucid-ui",

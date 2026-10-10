@@ -2,6 +2,7 @@ using ArchLucid.KnowledgeGraph.Inventory;
 using ArchLucid.Persistence.InfraEvidence;
 
 using FluentAssertions;
+using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.KnowledgeGraph.Tests.Inventory;
 
