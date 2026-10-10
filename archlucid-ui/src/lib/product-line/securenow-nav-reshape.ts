@@ -305,6 +305,10 @@ export function reshapeNavGroupsForSecureNow(
 
   const environmentLinks = pickNavLinks(linksByHref, SECURENOW_ENVIRONMENT_NAV_HREFS).map(
     remapSecureNowInfrastructureNavLink,
+  ).map((link) =>
+    link.href === SECURENOW_INFRASTRUCTURE_DRIFT_PATH
+      ? { ...link, label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL }
+      : link,
   );
 
   if (environmentLinks.length > 0) {
