@@ -57,7 +57,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | first draft (~6,700) | 7,000 |
 | 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | first draft (~5,600) | 6,000 |
 | 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | first draft (~5,600) | 6,000 |
-| 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | stub | 6,000 |
+| 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | first draft (~6,000) | 6,000 |
 | | **Total** | | **~76,000** |
 
 Status values: `stub` → `outline` → `first draft` → `revised` → `reviewed` → `final`.
