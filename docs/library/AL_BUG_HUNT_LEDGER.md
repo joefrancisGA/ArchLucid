@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalDocumentBuilder.BuildForManifest` generated a new random decision document id whenever a reachable deserialized decision had no `DecisionId`, so repeated indexing accumulated duplicate decision vectors instead of replacing the prior document. Missing IDs now use a manifest-scoped deterministic index; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 357/357.
+
 2026-10-10 seed hunt (seed→hit): `core-costing` — live Azure pricing cancellation was swallowed by both the Retail client’s broad HTTP catch and the estimator’s broad fallback catch, so a canceled pricing request silently returned an illustrative estimate. Both layers now rethrow `OperationCanceledException`; regression `EstimateNodesAsync_propagates_cancellation_from_live_pricing_probe`; scoped Costing tests passed 426/426.
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — dotenv comment scanning treated an escaped quote inside a double-quoted value as a quote delimiter, so a reachable `#` in the value truncated valid SQL connection settings and suppressed the inferred edge. The scanner now tracks escaped quotes and unescapes supported double-quoted dotenv escapes; regression `Dotenv_escaped_quote_does_not_make_hash_inside_quoted_value_a_comment`; scoped ContextIngestion/Canonicalization tests passed 813/813.
@@ -18860,6 +18862,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-10 seed hunt (seed→hit): missing manifest decision IDs generated random retrieval document IDs across retries; use a manifest-scoped deterministic index; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`; 357 scoped Retrieval/Indexing tests passed.
+
 2026-10-10 seed hunt (seed→hit): `RetrievalIndexingService` removed prior vectors for an empty-content document before validating the batch-wide chunk cap. A later oversized document then threw `MaxChunksPerIndexOperation` after partially mutating the batch, leaving the earlier document unsearchable. Empty-document deletion and catalog updates now occur after cap validation and successful embedding/upsert work. Regression `IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`; 356 scoped retrieval/indexing tests passed. Seeded four follow-up candidates.
 
 2026-10-09 seed hunt (seed-only): re-read retrieval indexing, scope validation, and Azure Search scope-filter boundaries; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused retrieval/indexing test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
@@ -18892,11 +18896,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 56
+- **hunts:** 57
 - **last-hunt:** 2026-10-10
-- **bugs-found:** 25
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — empty-document reindex deleted prior vectors before a later batch hit the chunk cap
+- **last-bug:** 2026-10-10 — missing manifest decision IDs generated duplicate retrieval document IDs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18904,7 +18908,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RetrievalDocumentBuilder.BuildForProvenance` content hash ignores graph bytes — same run id, changed provenance graph — **hit 2026-10-09 seed hunt:** unchanged-document skip kept the first graph searchable; hash now covers serialized graph content; regression `IndexDocumentsAsync_reindexes_provenance_when_graph_changes_for_same_run`.
 - [x] (proven) `RetrievalIndexingService` deletes prior vectors for an empty document before batch chunk-cap validation — **hit 2026-10-10 seed hunt:** an oversized later document threw after the empty reindex had already removed earlier vectors; defer empty-document deletion and catalog mutation until cap validation and embedding/upsert work complete; regression `IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`.
-- [ ] (candidate) `RetrievalDocumentBuilder.BuildForManifest` generates a new random decision id when a manifest decision has no id, so repeated indexing of the same manifest may create unbounded decision document ids.
+- [x] (proven) `RetrievalDocumentBuilder.BuildForManifest` generated a new random decision id when a manifest decision had no id, so repeated indexing of the same manifest created duplicate decision document ids; **hit 2026-10-10 seed hunt:** use `generated-{manifestId}-{decisionIndex}` for missing IDs; regression `BuildForManifest_missing_decision_id_is_stable_across_rebuilds`.
 - [ ] (candidate) `RetrievalQueryService.ResolveQueryPlanAsync` mutates `AllowedPolicyPackRulePackIds` while resolving platform corpora, so a reused query object may retain assignment state across calls with changed scope.
 - [ ] (candidate) `AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` emits platform-corpus clauses alongside tenant scope, so an empty assigned policy-pack set may still expose non-policy platform documents where callers expect no platform results.
 - [ ] (candidate) `RetrievalIndexingService` records empty-document catalog state after vector cleanup, so a cleanup failure may leave catalog freshness inconsistent with the still-present vectors.

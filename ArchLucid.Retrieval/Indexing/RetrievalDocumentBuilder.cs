@@ -44,13 +44,16 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             }
         ];
 
-        foreach (var decision in manifest.Decisions)
+        for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
+            ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
+
             if (string.IsNullOrWhiteSpace(decision.Title))
                 continue;
 
+            // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
