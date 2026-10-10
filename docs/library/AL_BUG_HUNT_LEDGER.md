@@ -12167,6 +12167,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): repeated the unchanged scope-binding review and retained the same five bounded candidates. No candidate met the full hunt-ready bar and no hypothesis was promoted; no production code or regression test changed.
 
+2026-10-10 seed hunt (seed-only): re-read the selected middleware/filter files and existing security tests; no new reachable mechanism-backed candidate emerged. The picker-filter test host hung before producing a result and was stopped; the prior focused baseline remains 96 passing unit tests with the documented stale ADR 0037 expectations and unavailable SQL-backed integration tests.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
