@@ -446,7 +446,7 @@ Invoke-ArgQuery -Name 'role-assignments' -Query (Get-Content queries/role-assign
 Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptions.kql -Raw)
 ```
 
-**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, plus `Get-MgServicePrincipal -All -Property 'id,appId,displayName'`. Write both to the snapshot directory.
+**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, plus `Get-MgServicePrincipal -All -Property 'id,appId,displayName'`. Write them to `federated-credentials.json` and `service-principals.json` in the snapshot directory.
 
 **Step 3 — Compare expected and read scope.** Put the lab's expected subscription list in `expected-subscriptions.json` (this is a human assertion; record who wrote it and when). Add a `scopeNotReadable` gap for every expected subscription missing from `subscriptions.json`.
 
