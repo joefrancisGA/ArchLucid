@@ -9068,16 +9068,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: review-recurrence
 
+- **hunts:** 26
+- **last-hunt:** 2026-10-10
+
+2026-10-10 seed hunt (seed-only): `review-recurrence` — re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its focused tests; no new producer-backed hunt-ready row emerged, and the scoped test command was blocked before discovery by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`. Seeded one bounded batch-capacity candidate; no production change.
+
 - **id:** review-recurrence
 - **status:** open
 - **impact:** low
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 25
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-30
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -9153,6 +9156,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — `@daily` alias batch returns fewer than requested count when cron is invalid mid-loop — **cheap-disproof 2026-09-11 seed hunt #1782:** invalid cron returns null on first iteration and stops; regression `ComputeNextRunsUtc_returns_empty_for_invalid_cron_expression`.
 - [x] (valid-no-repro) `NormalizeReferenceUtc` — `DateTimeKind.Unspecified` reference shifts next-run by local offset — **cheap-disproof 2026-09-11 seed hunt #1782:** unspecified kind is relabeled UTC without `ToUniversalTime`; regression `ComputeNextRunUtc_normalizes_unspecified_reference_kind_to_utc`.
+- **(candidate)** `ComputeNextRunsUtc` — a very large positive `count` such as `int.MaxValue` allocates the result-list capacity before the cron expression is evaluated, so an invalid or unreachable schedule request could cause excessive allocation; the selected calculator file does not establish a caller-provided count limit, so retain pending caller-contract evidence.
 
 2026-09-11 seed hunt #1782 (seed-only): reseeded review-recurrence after #1775; cheap-disproof closed invalid-cron mid-batch stop and unspecified-reference normalization; 47 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
