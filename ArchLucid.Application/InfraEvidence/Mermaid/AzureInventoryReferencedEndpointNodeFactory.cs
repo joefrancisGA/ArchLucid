@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
@@ -8,6 +9,15 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 internal static class AzureInventoryReferencedEndpointNodeFactory
 {
+    public static bool IsHiddenEndpoint(string armId, IReadOnlySet<string> collectedArmIds, IReadOnlySet<string> hiddenArmIds, bool retainIdentityDiagramArmTypes)
+    {
+        return hiddenArmIds.Contains(armId)
+            || (!collectedArmIds.Contains(armId)
+                && TryReadResourceType(armId, out string resourceType)
+                && AzureInventoryNeverShowArmTypes.ShouldOmitResource(
+                    resourceType, armId, retainIdentityDiagramArmTypes: retainIdentityDiagramArmTypes));
+    }
+
     public static void EnsureNode(
         string normalizedArmId,
         Dictionary<string, string> nodeIdByArmId,

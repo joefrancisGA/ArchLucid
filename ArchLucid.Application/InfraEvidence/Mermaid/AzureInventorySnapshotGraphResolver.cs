@@ -154,8 +154,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             string fromArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
             string toArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
             if (!includeNeverShowArmTypes
-                && (IsHiddenEndpoint(fromArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)
-                    || IsHiddenEndpoint(toArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
+                && (AzureInventoryReferencedEndpointNodeFactory.IsHiddenEndpoint(fromArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)
+                    || AzureInventoryReferencedEndpointNodeFactory.IsHiddenEndpoint(toArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
             {
                 continue;
             }
@@ -250,8 +250,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
         AzureInventorySnapshotPrivateEndpointEdgeHydrator.AddMissingTargetEdges(
             snapshot,
             nodeIdByArmId,
+            nodes,
+            seenNodeIds,
             edges,
-            edgeKeys);
+            edgeKeys,
+            collectedArmIds,
+            hiddenArmIds,
+            includeNeverShowArmTypes,
+            retainIdentityDiagramArmTypes);
         AzureInventorySnapshotSubnetPlacementEdgeHydrator.AddMissingPlacementEdges(
             snapshot,
             nodeIdByArmId,
@@ -323,15 +329,6 @@ public sealed class AzureInventorySnapshotGraphResolver(
             Nodes = nodes,
             Edges = edges,
         };
-    }
-
-    private static bool IsHiddenEndpoint(string armId, IReadOnlySet<string> collectedArmIds, IReadOnlySet<string> hiddenArmIds, bool retainIdentityDiagramArmTypes)
-    {
-        return hiddenArmIds.Contains(armId)
-            || (!collectedArmIds.Contains(armId)
-                && AzureInventoryReferencedEndpointNodeFactory.TryReadResourceType(armId, out string resourceType)
-                && AzureInventoryNeverShowArmTypes.ShouldOmitResource(
-                    resourceType, armId, retainIdentityDiagramArmTypes: retainIdentityDiagramArmTypes));
     }
 
     private static string ResolveNodeId(AzureInventoryResourceRecord resource)
