@@ -9092,3 +9092,16 @@
 {"at":"2026-10-10T00:48:37.5232296Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
 {"at":"2026-10-10T00:52:27.2566138Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-10T00:55:17.6167592Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-10T01:02:24.3738960Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-10T01:06:47.8384795Z","zoneId":"ui-oidc","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-10T01:11:45.9134005Z","zoneId":"core-tenancy-commercial","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Identity/","ArchLucid.Core/Billing/","ArchLucid.Core/Budgeting/"]}
+{"at":"2026-10-10T01:29:56.8854818Z","zoneId":"email-otp-auth","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs","ArchLucid.Application/Identity/EmailOtpAuthService.cs"]}
+{"at":"2026-10-10T01:37:28.0842347Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs","ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs","ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs"]}
+{"at":"2026-10-10T01:43:15.2120828Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T01:48:12.3484945Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T01:52:41.2329191Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T01:57:11.7901747Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T02:01:40.6621501Z","zoneId":"api-key-auth","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T02:08:23.9130408Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T02:13:39.8796960Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-10T02:18:44.5984224Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared"}
