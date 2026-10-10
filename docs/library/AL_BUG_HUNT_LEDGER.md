@@ -29413,13 +29413,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1050
+- **hunts:** 1051
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — malformed JSON resource entry discarded valid sibling resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread JSON, appsettings, CloudFormation, Kubernetes, Bicep, Terraform-show-JSON, YAML/Kustomize, connector orchestration, actor metadata canonicalization, and diagram parsing paths; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 826/826. No production change.
+
+- [ ] (candidate) `ContextIngestionService.CanonicalizeActorsJson` — a syntactically valid `ActorsJson` array containing a malformed actor value falls back to the original array, so reordering valid actor entries can change scope metadata; locus: actor deserialization fallback; input: persisted or request-supplied actor JSON with one non-object array member.
+- [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a multi-document CloudFormation YAML upload may deserialize only one document or skip the template after a later document; locus: single-document YAML deserialization; input: reachable CloudFormation YAML upload containing `---` documents.
+- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — a Bicep array mixing object literals and primitive values may retain only object members and silently lose the primitive property values; locus: object-array detection before primitive parsing; input: reachable Bicep resource property array with mixed literal elements.
 
 2026-10-10 seed hunt (seed→hit): `JsonInfrastructureDeclarationParser.ParseResourceItems` deserialized every element of a reachable top-level JSON resource array as `ResourceDeclarationItem`, so one malformed non-object entry caused the whole upload to be skipped and discarded valid sibling resources. Array parsing now ignores non-object entries while preserving valid objects; regression `ParseAsync_ignoresNonObjectResourceEntries`; pre-fix repro failed, scoped ContextIngestion/Canonicalization tests passed 826/826, and Release compile passed with 0 warnings and 0 errors.
 
