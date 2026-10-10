@@ -170,5 +170,6 @@ public sealed class ArchitectureReviewRobustnessWave13ArchitectureTests
                 "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
 
         orchestrator.Should().Contain("AuthorityCommitRecoveryVerifier");
+        orchestrator.Should().Contain("ShouldVerifySealedInventory");
     }
 }
