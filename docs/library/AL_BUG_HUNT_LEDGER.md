@@ -35220,9 +35220,9 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 32
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
+- **hunts:** 33
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
 - **related-pd-tb:** none
@@ -35230,9 +35230,11 @@ ABQ-09 churn hotspot.
 
 2026-10-10 seed hunt (seed-only): reread `ResourceHubClient.tsx` and its focused component tests; no candidate met the same-run failing-repro promotion bar. The focused UI test run was blocked before execution by the existing duplicate `CreateEmptyAgentResultRepository` member `CS0111` in the shared .NET test project. Seeded bounded candidates for resource-title trailing segments, duplicate RBAC/network row keys, and tab navigation carrying stale technical-disclosure state; no production or regression code was changed.
 
-- [ ] (candidate) `ResourceHubClient.resourceTitle` — a reachable captured resource identifier ending in `/` produces an empty final segment and suppresses the fallback identifier, so the resource hub title can render blank; input is reachable from `hub.currentConfiguration.azureResourceId` or `hub.externalResourceId`.
+- [x] (proven) `ResourceHubClient.resourceTitle` — a reachable captured resource identifier ending in `/` produced an empty final segment and suppressed the fallback identifier, so the resource hub title rendered as `—`; **hit 2026-10-10 seed hunt:** resource-name extraction now ignores empty path segments and falls back from configuration to external resource identity; regression `falls back to the external resource name when the configuration id has a trailing slash`.
 - [ ] (candidate) `ResourceHubClient` RBAC and network relationship tables — captured rows can share the current React key fields (`principalId-roleDefinitionId` or `fromAzureResourceId-toAzureResourceId`) while differing in scope or relationship type, making row identity non-unique; input is reachable from `hub.rbacAssignments` and `hub.networkRelationships`.
 - [ ] (candidate) `ResourceHubClient.setActiveTab` / `syncInfraResourceHubTechnicalKeyToUrl` — switching tabs while a technical disclosure query key is present may retain a disclosure key that the destination tab does not render until the effect observes the URL change; input is reachable from the technical disclosure query parameter and tab navigation.
+
+2026-10-10 seed hunt (seed→hit): proved the trailing-slash resource-title candidate with a reachable captured configuration identifier; normalized non-empty path segments and fell back to the external resource name; regression `falls back to the external resource name when the configuration id has a trailing slash`.
 
 2026-10-03 seed hunt (seed-only): re-read `ResourceHubClient` and its three scoped test suites; no hunt-ready row was promoted; retained the existing architecture-finding pagination routing, trailing-resource-title, audit-control identity, and row-key candidates; no production fix or repro was attempted.
 

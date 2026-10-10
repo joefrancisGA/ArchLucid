@@ -109,6 +109,22 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
   });
 
+  it("falls back to the external resource name when the configuration id has a trailing slash", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementationOnce(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          azureResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/",
+        },
+      }),
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
+  });
+
   it("renders cross-workbench overview links without hub tab switchers", async () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
