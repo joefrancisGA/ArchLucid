@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 thorough hunt (hit): `ui-governance-findings-queue` — a mixed findings/decision queue rendered decision rows with findings bulk-selection checkboxes, and `availableFindingIds` admitted decision ids to bulk disposition. Findings-only selection is now enforced in the client, table, grouped table, and row renderer; regression `does not expose decision rows to findings bulk selection`; focused queue tests passed 6/6 and UI typecheck passed.
+
 2026-10-10 seed hunt (seed→hit): `email-otp-auth` — proved that a failed email delivery deleted every active challenge for the email, including a newer concurrent resend that had delivered successfully. Cleanup now targets the failed request’s challenge id through the repository interface and both storage implementations; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
 
 2026-10-10 thorough hunt (dry): `core-tenancy-commercial` — the five picker candidates were reviewed against the scoped Identity/Billing/Budgeting source. Numeric Marketplace `planId` coercion is an explicit supported shape with no wrong tier outcome; duplicate claim mappings are warned and resolve deterministically to the first entry; non-ASCII email-domain labels are rejected by the ASCII label validator; and the remaining plan-id negation and billing-row claims lacked partner/onboarding reachability evidence. No hunt-ready row remained and no failing repro was established. Relevant Core tests passed 96/96; the picker filter also passed 4/4 with analyzers disabled after the baseline ARCH002 error.
@@ -34633,11 +34635,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 34
-- **bugs-found:** 26
+- **hunts:** 35
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — stale bulk-selection URL IDs reached the disposition surface
+- **last-bug:** 2026-10-10 — decision rows reached findings bulk disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34654,7 +34656,7 @@ ABQ-09 churn hotspot.
 ### Hypotheses
 
 - [ ] (candidate) `GovernanceFindingsQueueClient` / `useGovernanceFindingsQueueBulkActions` — the new URL-selection boundary uses all loaded queue rows rather than currently displayed rows, so a filtered-out finding can remain selected and reach bulk disposition; input: `bulkFindings=<loaded-id>` while an active register/NL/density filter hides that row.
-- [ ] (candidate) `GovernanceFindingsQueueClient` — `availableFindingIds` is built from every queue row even when non-finding record kinds are present, so an ID not eligible for the findings disposition API may be accepted by the bulk-selection hook; input: a loaded queue containing a non-`finding` row with a bulk-selection URL id.
+- [x] (proven) `GovernanceFindingsQueueClient` / `GovernanceFindingsQueueDesktopTable` / `GovernanceFindingsQueueTableRow` — mixed queue rows of `recordKind: "decision"` were included in `availableFindingIds` and rendered a selectable checkbox, allowing a decision id to reach findings bulk disposition; **hit 2026-10-10 thorough hunt:** filter available ids to findings, suppress decision-row checkboxes, and restrict page/group select-all to finding rows; regression `does not expose decision rows to findings bulk selection`.
 - [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `findingIds` is extracted after display filtering, so ITSM correlation prefetch may omit loaded findings hidden by density or search filters and leave a later unfiltered navigation without prefetched correlation context; input: a loaded finding hidden by `hideGeneric=1` before opening it from a scope change.
 - [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — synchronous local filter setters followed by saved-view navigation may briefly render the prior queue with the new filter state before the URL-derived queue mode catches up; input: selecting a saved view while the queue is loading and its payload changes scope.
 - [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — mode changes update the available-ID boundary but retain a selected ID that is shared by tenant and assigned-to-me queues, so selection semantics may leak across product-line route transitions; input: the same finding id appears in both queue modes while `bulkFindings` persists.
