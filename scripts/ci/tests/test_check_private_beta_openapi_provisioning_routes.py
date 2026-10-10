@@ -21,7 +21,7 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
             "paths": {
                 route: {
                     method: {
-                        "responses": {"401": {}, "403": {}},
+                        "responses": {"401": {}, "403": {}, "429": {}, "500": {}, "503": {}},
                         "x-archlucid-audience": "operator",
                     }
                     for method in methods
@@ -63,7 +63,7 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
             "paths": {
                 route: {
                     method: {
-                        "responses": {"401": {}, "403": {}},
+                        "responses": {"401": {}, "403": {}, "429": {}, "500": {}, "503": {}},
                         "x-archlucid-audience": "reader",
                     }
                     for method in methods
