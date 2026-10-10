@@ -9272,7 +9272,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-08
@@ -16914,14 +16914,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
 - **hunts:** 43
-- **bugs-found:** 28
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — undefined numeric finding category counted as grounded
+- **last-bug:** 2026-10-10 — retry evaluation metrics attached to superseded agent result
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-10 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` treated undefined numeric finding category `"99"` as a defined `AgentType`, so matching finding text was counted as grounded. The parser now requires `Enum.IsDefined`; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`; 203 scoped Evaluation tests passed.
+
+2026-10-10 seed hunt (seed→hit): latest retry traces were evaluated against the first persisted `AgentResult` sharing their task id, so evaluation metrics could attach to a superseded result. Shared latest-result selection now orders matching results by creation time and is used by recorder and PilotStrict aggregation; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`; 204 scoped Evaluation tests passed.
 
 2026-10-09 seed hunt (seed→hit): findings ignored `evidenceRefs` and prompt `message` text; unresolved finding citations counted as supported and prompt-shaped messages counted as ungrounded; findings now share claim evidence-ref rules and architecture-finding message aliases; regressions `Evaluate_finding_unresolved_evidence_ref_counts_as_unsupported` and `Evaluate_finding_message_with_resolved_ref_is_supported`; 193 scoped AgentRuntime `Evaluation` tests passed.
 
@@ -16931,7 +16933,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` — a reachable reference-trace JSON payload with `findings: [null]` counted the null slot toward `MinimumFindingCount`, so a case requiring one finding could pass with no valid finding — **hit 2026-10-10 seed hunt:** count only non-null findings before applying the minimum; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`.
 
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
-- [ ] (candidate) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` / `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted `AgentResult` rows for one retried task can use the first result for mode/prompt selection while calibrated confidence and structural mode lookups use another duplicate; locus: `FirstOrDefault` versus grouped/dictionary selection; input: an auto-retried task with two persisted results sharing `TaskId`; reachability: quality evaluation, confidence enrichment, and sponsor aggregation all consume persisted retry results.
+- [x] (proven) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate persisted `AgentResult` rows for one retried task used the first result for mode/prompt selection while the latest trace represented another duplicate; **hit 2026-10-10 seed hunt:** shared latest-result selection by creation time; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`.
 - [x] (proven) `AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync` / `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — confidence enrichment omitted the host `AgentExecutionOptions.Mode` when persisted task mode was absent, so a real trace could skip real-only finding-citation coverage — **hit 2026-10-10 seed hunt:** thread host execution mode through the confidence pipeline and quality evaluator; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null or blank evidence-reference items was counted toward the PilotStrict minimum without validating each reference — **hit 2026-10-10 seed hunt:** count only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`.
