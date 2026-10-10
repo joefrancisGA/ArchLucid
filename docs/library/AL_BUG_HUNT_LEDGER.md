@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read query-plan policy-pack assignment mutation, Azure scope-filter inclusion rules, in-memory scope matching, and indexing cleanup after the stable decision-ID fix; no new hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 357/357; retained the existing bounded query-reuse candidate and made no production change.
 
+2026-10-10 seed hunt (seed-only): `retrieval` — re-read cancellation handling, Azure chunk deletion, circuit-breaking embeddings, agentic fallback paths, and in-memory mutation boundaries; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; retained the existing bounded candidates and made no production change.
+
 2026-10-10 seed hunt (seed-only): `retrieval` — re-read retrieval chunkers, embedding cache/provider cardinality, Azure scope filters, in-memory matching, and generated finding identity after the finding-ID fix; no fresh hypothesis met the full reachability and wrong-outcome bar. The scoped Retrieval/Indexing suite passed 359/359; seeded bounded follow-up candidates and made no production change.
 
 2026-10-10 seed hunt (seed→hit): `retrieval` — `RetrievalDocumentBuilder.BuildForFindings` generated a new random finding document id whenever a reachable deserialized finding had no `FindingId`, so repeated indexing accumulated duplicate finding vectors instead of replacing the prior document. Missing IDs now use a run-scoped deterministic index; regression `BuildForFindings_missing_finding_id_is_stable_across_rebuilds`; scoped Retrieval/Indexing tests passed 359/359.
@@ -16157,7 +16159,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 61
+- **hunts:** 62
 - **last-hunt:** 2026-10-09
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
