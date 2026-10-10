@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-REQUIRED_BRANCHES = ("main", "master", "RC34")
+REQUIRED_BRANCHES = ("main", "master", "RC35")
 REQUIRED_SPECS = (
     "archlucid-ui/e2e/live-api-scim-invite-substitute-smoke.spec.ts",
     "archlucid-ui/e2e/live-api-invite-flow.spec.ts",
@@ -67,7 +67,7 @@ def _check_workflow(root: Path) -> list[str]:
     issues: list[str] = []
 
     if not all(branch in content for branch in REQUIRED_BRANCHES):
-        issues.append("private-beta workflow must include main, master, and RC34 push branches")
+        issues.append("private-beta workflow must include main, master, and RC35 push branches")
 
     if "npm ci --dry-run --ignore-scripts --no-audit --no-fund" not in content:
         issues.append("private-beta workflow must run the npm lockfile preflight")
@@ -104,8 +104,8 @@ def _check_ruleset(root: Path) -> list[str]:
 
     branches = payload.get("conditions", {}).get("ref_name", {}).get("include", [])
 
-    if "refs/heads/RC34" not in branches:
-        issues.append("golden-cohort ruleset JSON must name RC34 as the release-cut target")
+    if "refs/heads/RC35" not in branches:
+        issues.append("golden-cohort ruleset JSON must name RC35 as the release-cut target")
 
     contexts = {
         check.get("context")
@@ -177,7 +177,7 @@ def _check_staging_dispatch(root: Path) -> list[str]:
     )
 
     return [
-        f"staging workflow is missing owner-approved RC34 dispatch marker: {marker}"
+        f"staging workflow is missing owner-approved RC35 dispatch marker: {marker}"
         for marker in required_markers
         if marker not in content
     ]

@@ -21,15 +21,15 @@ Everything else is deferred during the cut freeze. The path is exercised by
 [`PRIVATE_BETA_TRUNK_SMOKE.md`](PRIVATE_BETA_TRUNK_SMOKE.md), while a real
 staging witness remains the owner's Gate 1 action.
 
-For an owner-approved RC34 staging witness, dispatch
-`CD staging on merge` with the immutable RC34 head SHA as `target_sha`.
+For an owner-approved RC35 staging witness, dispatch
+`CD staging on merge` with the immutable RC35 head SHA as `target_sha`.
 Automatic deployment remains limited to green `master`/`main` CI runs.
 
 ## Go / no-go preflight
 
 | Check | Evidence | Owner | Cut decision |
 | --- | --- | --- | --- |
-| RC34 typecheck, push corset, OpenAPI, and beta wiring | Green RC34 Actions run | Cursor | No-go if red |
+| RC35 typecheck, push corset, OpenAPI, and beta wiring | Green RC35 Actions run | Cursor | No-go if red |
 | JwtBearer invite path | `Operator UI: private-beta access-path (JwtBearer)` green; flaky tests are investigated, not ignored | Cursor | No-go on a hard failure |
 | Recovery cases | Expired invite/session, wrong tenant, missing role, and dead deep link show a bounded recovery surface | Cursor + owner witness | No-go if blank or cross-tenant |
 | Gate 1 | `ship-gate-evidence/{runId}/` from a staging smoke | Owner | Unknown until observed |
@@ -254,7 +254,7 @@ record and the owner has decided whether to proceed.
 
 For every cut, retain:
 
-- RC34 head SHA and links to typecheck, private-beta, OpenAPI, and release-gate
+- RC35 head SHA and links to typecheck, private-beta, OpenAPI, and release-gate
   runs;
 - Gate 1 `ship-gate-evidence` path, or an explicit `UNKNOWN`;
 - tenant-scoped access-recovery results;
@@ -272,7 +272,7 @@ The last completed RC34 witness on 2026-10-07 was:
 | JwtBearer private-beta access path | `37642959086` |
 | RC release gate | `37642959088` |
 
-For a new cut, replace these run ids with the current SHA's runs. A green RC34
+For a new cut, replace these run ids with the current SHA's runs. A green RC35
 run is not a staging Gate 1 witness; retain `UNKNOWN` until
 `ship-gate-evidence/{runId}/` exists.
 

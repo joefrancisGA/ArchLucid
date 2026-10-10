@@ -37,7 +37,7 @@ class TestPrivateBetaReadiness(unittest.TestCase):
             issues = sut._check_workflow(root)
 
             self.assertIn(
-                "private-beta workflow must include main, master, and RC34 push branches",
+                "private-beta workflow must include main, master, and RC35 push branches",
                 issues,
             )
             self.assertIn(
@@ -62,7 +62,7 @@ class TestPrivateBetaReadiness(unittest.TestCase):
 
             issues = sut._check_ruleset(root)
 
-            self.assertTrue(any("RC34" in issue for issue in issues))
+            self.assertTrue(any("RC35" in issue for issue in issues))
             self.assertTrue(any("missing contexts" in issue for issue in issues))
 
     def test_staging_contract_requires_owner_approved_sha_dispatch(self) -> None:
