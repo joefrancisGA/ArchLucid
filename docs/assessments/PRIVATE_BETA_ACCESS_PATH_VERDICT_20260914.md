@@ -9,7 +9,7 @@
 ## RC35 refresh — 2026-10-10
 
 The access-path verdict above is a historical snapshot. The new private-beta
-release cut is **`RC35`** at `a86feae465` (master merged with `origin/RC34`,
+release cut is **`RC35`** at `cdf893ecab` (master merged with `origin/RC34`,
 trunk-preferred conflict resolution). Re-run private-beta and push-corset
 witnesses on `RC35` before treating CI as current.
 
