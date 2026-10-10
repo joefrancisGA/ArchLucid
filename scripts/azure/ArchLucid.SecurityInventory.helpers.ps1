@@ -1608,11 +1608,6 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
         [object[]] $InventoryResources
     )
 
-    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
-    {
-        return @()
-    }
-
     $rows = [System.Collections.ArrayList]::new()
 
     foreach ($resource in @($InventoryResources))
@@ -1622,16 +1617,41 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$resourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -like "*userAssignedIdentities*")) { continue }
+        if (-not $resourceType.Equals(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                [System.StringComparison]::OrdinalIgnoreCase)) { continue }
         if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
-
-        [string]$principalId = "$( $resource.properties.principalId )".Trim()
-        [string]$clientId = "$( $resource.properties.clientId )".Trim()
-
-        if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
 
         try
         {
+            [string]$principalId = Get-ArchLucidInventoryPropertyStringValue `
+                -Properties $resource.properties `
+                -PropertyName "principalId"
+            [string]$clientId = Get-ArchLucidInventoryPropertyStringValue `
+                -Properties $resource.properties `
+                -PropertyName "clientId"
+
+            if ([string]::IsNullOrWhiteSpace($principalId))
+            {
+                [string]$identityPath = "${resourceId}?api-version=2023-01-31"
+                $identityResponse = Invoke-AzRestMethod -Method GET -Path $identityPath -ErrorAction Stop
+                $identityPayload = $identityResponse.Content | ConvertFrom-Json -ErrorAction Stop
+                [object]$identityProperties = $identityPayload.properties
+
+                $principalId = Get-ArchLucidInventoryPropertyStringValue `
+                    -Properties $identityProperties `
+                    -PropertyName "principalId"
+
+                if ([string]::IsNullOrWhiteSpace($clientId))
+                {
+                    $clientId = Get-ArchLucidInventoryPropertyStringValue `
+                        -Properties $identityProperties `
+                        -PropertyName "clientId"
+                }
+            }
+
+            if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
+
             [string]$path = "$resourceId/federatedIdentityCredentials?api-version=2023-01-31"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
