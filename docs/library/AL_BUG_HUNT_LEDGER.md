@@ -29413,13 +29413,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1049
-- **bugs-found:** 428
+- **hunts:** 1050
+- **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
+- **last-bug:** 2026-10-10 — malformed JSON resource entry discarded valid sibling resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `JsonInfrastructureDeclarationParser.ParseResourceItems` deserialized every element of a reachable top-level JSON resource array as `ResourceDeclarationItem`, so one malformed non-object entry caused the whole upload to be skipped and discarded valid sibling resources. Array parsing now ignores non-object entries while preserving valid objects; regression `ParseAsync_ignoresNonObjectResourceEntries`; pre-fix repro failed, scoped ContextIngestion/Canonicalization tests passed 826/826, and Release compile passed with 0 warnings and 0 errors.
+
+- [x] (proven) `JsonInfrastructureDeclarationParser.ParseResourceItems` — a reachable JSON infrastructure upload with a non-object array entry discarded valid sibling resources — **hit 2026-10-10 seed hunt:** skip non-object array elements before deserialization; regression `ParseAsync_ignoresNonObjectResourceEntries`.
 
 2026-10-10 seed hunt (seed-only): reread SVG sanitization, draw.io expansion/XML parsing, VSDX package path and XML guards, structured diagram JSON validation, pixel-stub detection, and diagram model validation; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 825/825. No production change.
 
