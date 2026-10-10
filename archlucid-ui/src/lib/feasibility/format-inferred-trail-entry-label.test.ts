@@ -53,7 +53,7 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
       key: null,
       value: "Observed",
       confidence: 50,
-    })).toBe("Inferred trail key was not stored.");
+    })).toBe("Inferred trail key was not stored. Value: Observed (confidence 50)");
     expect(formatInferredTrailEntryLabel({
       key: "signal",
       value: "Observed",
