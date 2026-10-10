@@ -84,6 +84,89 @@ public sealed class RetrievalDocumentBuilderTests
     }
 
     [Fact]
+    public void BuildForManifest_missing_decision_id_is_stable_across_rebuilds()
+    {
+        Guid runId = Guid.NewGuid();
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = runId,
+            ManifestId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 7, 9, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "hash",
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ArchLucid.Core.Manifest.Sections.ManifestMetadata { Name = "Retail API" },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = null!,
+                    Title = "Use private endpoints",
+                    Category = "Security",
+                    SelectedOption = "Private Link",
+                    Rationale = "Reduce public exposure.",
+                },
+            ],
+        };
+
+        RetrievalDocumentBuilder sut = new();
+
+        string firstDocumentId = sut.BuildForManifest(manifest)
+            .Single(document => document.SourceType == "ManifestDecision")
+            .DocumentId;
+        string secondDocumentId = sut.BuildForManifest(manifest)
+            .Single(document => document.SourceType == "ManifestDecision")
+            .DocumentId;
+
+        secondDocumentId.Should().Be(firstDocumentId);
+    }
+
+    [Fact]
+    public void BuildForFindings_missing_finding_id_is_stable_across_rebuilds()
+    {
+        Guid runId = Guid.NewGuid();
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = null!,
+                Category = "Security",
+                Severity = FindingSeverity.Error,
+                Rationale = "Use private endpoints.",
+            },
+        ];
+
+        RetrievalDocumentBuilder sut = new();
+
+        string firstDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+        string secondDocumentId = sut.BuildForFindings(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                runId,
+                Guid.NewGuid(),
+                findings,
+                DateTime.UtcNow)
+            .Single()
+            .DocumentId;
+
+        secondDocumentId.Should().Be(firstDocumentId);
+    }
+
+    [Fact]
     public void BuildForFindings_skips_muted_and_empty_messages()
     {
         Guid tenantId = Guid.NewGuid();

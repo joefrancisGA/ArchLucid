@@ -187,7 +187,11 @@ public sealed class AgentOutputFaithfulnessEvaluator(
             if (double.IsNaN(score) || double.IsInfinity(score))
                 return null;
 
-            return Math.Clamp(score, 0.0, 1.0);
+            // Scores outside the judge contract are malformed output, not low/high confidence.
+            if (score < 0.0 || score > 1.0)
+                return null;
+
+            return score;
         }
         catch (JsonException)
         {

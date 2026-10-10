@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
@@ -55,7 +56,12 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
                         (bool schemaPassed, bool referenceMatched) =
                             await _confidencePipeline
-                                .EvaluateTraceSignalsAsync(traceForAgent, context.Evidence, context.CalibratedConfidenceByTaskId, ct)
+                                .EvaluateTraceSignalsAsync(
+                                    traceForAgent,
+                                    context.Evidence,
+                                    context.CalibratedConfidenceByTaskId,
+                                    ct,
+                                    result.TaskStructuralExecutionMode)
                                 .ConfigureAwait(false);
 
                         bool touched = false;

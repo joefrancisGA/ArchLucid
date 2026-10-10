@@ -54,6 +54,42 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ignores_non_object_root_module_resources()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-malformed-resource",
+            Content = """
+                      {
+                        "format_version": "1.0",
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              "malformed-resource-entry",
+                              {
+                                "address": "azurerm_resource_group.main",
+                                "mode": "managed",
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "eastus", "name": "rg-demo" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Name.Should().Be("azurerm_resource_group.main");
+    }
+
+    [Fact]
     public async Task ParseAsync_maps_key_vault_to_security_baseline()
     {
         InfrastructureDeclarationReference decl = new()

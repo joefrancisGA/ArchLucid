@@ -21,15 +21,15 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
 
     private static readonly Regex C4ActorRegex = new(
         @"^\s*Person\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
     private static readonly Regex C4SystemRegex = new(
         @"^\s*(?:Container|System|System_Ext|Container_Ext)\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
     private static readonly Regex C4RelRegex = new(
         @"^\s*Rel\s*\(\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']*)[""']",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
     private readonly ArchitectureDiagramServiceTypeInferencer inferencer = new();
 
@@ -220,8 +220,12 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
         string label,
         string kind)
     {
-        if (nodes.ContainsKey(nodeId))
+        if (nodes.TryGetValue(nodeId, out ArchitectureDiagramNodeRecord? existing))
         {
+            existing.Label = label;
+            existing.Kind = kind;
+            existing.Provenance = ArchitectureDiagramProvenanceKinds.Inferred;
+
             return;
         }
 

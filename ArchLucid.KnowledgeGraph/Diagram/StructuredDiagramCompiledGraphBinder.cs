@@ -126,7 +126,8 @@ public static class StructuredDiagramCompiledGraphBinder
             return null;
         }
 
-        if (!diagramNode.Properties.TryGetValue(
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                diagramNode.Properties,
                 StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId,
                 out string? evidenceItemId)
             || string.IsNullOrWhiteSpace(evidenceItemId))

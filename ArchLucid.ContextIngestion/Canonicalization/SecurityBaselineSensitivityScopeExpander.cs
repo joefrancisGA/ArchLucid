@@ -14,6 +14,8 @@ public static class SecurityBaselineSensitivityScopeExpander
 
         Dictionary<string, string> sensitivityByNodeId = items
             .Where(static o => string.Equals(o.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
+            .GroupBy(static o => $"obj-{o.ObjectId}", StringComparer.OrdinalIgnoreCase)
+            .Select(static group => group.First())
             .ToDictionary(
                 static o => $"obj-{o.ObjectId}",
                 static o => o.Properties.TryGetValue(CanonicalGraphPropertyKeys.TopologySensitivity, out string? sensitivity)

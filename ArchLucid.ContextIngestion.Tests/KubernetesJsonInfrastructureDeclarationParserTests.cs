@@ -12,6 +12,38 @@ public sealed class KubernetesJsonInfrastructureDeclarationParserTests
         Microsoft.Extensions.Logging.Abstractions.NullLogger<KubernetesJsonInfrastructureDeclarationParser>.Instance);
 
     [Fact]
+    public async Task ParseAsync_IgnoresNonObjectImagePullSecretEntries()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "deployment.json",
+            Format = "kubernetes-json",
+            DeclarationId = "kubernetes-malformed-image-pull-secret",
+            Content = """
+                      {
+                        "apiVersion": "apps/v1",
+                        "kind": "Deployment",
+                        "metadata": { "name": "api" },
+                        "spec": {
+                          "template": {
+                            "spec": {
+                              "imagePullSecrets": [
+                                "malformed-secret-entry",
+                                { "name": "registry-secret" }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "api");
+    }
+
+    [Fact]
     public async Task ParseAsync_MapsDeploymentAndNetworkPolicy()
     {
         InfrastructureDeclarationReference declaration = new()

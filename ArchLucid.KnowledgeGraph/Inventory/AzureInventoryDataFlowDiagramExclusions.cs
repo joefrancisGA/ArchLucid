@@ -109,14 +109,16 @@ public static class AzureInventoryDataFlowDiagramExclusions
         }
 
         if (node.Properties != null
-            && node.Properties.TryGetValue("arm.resourceGroup", out string? resourceGroup)
+            && GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.resourceGroup", out string? resourceGroup)
+            && resourceGroup is not null
             && resourceGroup.StartsWith(CloudShellStorageResourceGroupPrefix, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
         if (node.Properties != null
-            && node.Properties.TryGetValue("arm.id", out string? armId)
+            && GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.id", out string? armId)
+            && armId is not null
             && armId.Contains(
                 "/resourceGroups/" + CloudShellStorageResourceGroupPrefix,
                 StringComparison.OrdinalIgnoreCase))
@@ -136,7 +138,7 @@ public static class AzureInventoryDataFlowDiagramExclusions
     private static string ReadArmType(GraphNode node)
     {
         if (node.Properties != null
-            && node.Properties.TryGetValue("arm.type", out string? armType)
+            && GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "arm.type", out string? armType)
             && !string.IsNullOrWhiteSpace(armType))
         {
             return armType;

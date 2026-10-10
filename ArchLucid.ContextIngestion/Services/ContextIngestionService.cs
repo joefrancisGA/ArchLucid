@@ -76,6 +76,7 @@ public class ContextIngestionService(
                     .Where(static h => !string.IsNullOrWhiteSpace(h))
                     .Select(static h =>
                         TopologyHintStableObjectIds.CanonicalizeHintName(h.Trim()).ToLowerInvariant())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(static h => h, StringComparer.OrdinalIgnoreCase));
         }
 

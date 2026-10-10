@@ -108,4 +108,16 @@ public sealed class StructureAwareTextChunkerTests
             fenceMarkers.Should().BeOneOf(0, 2, 4);
         }
     }
+
+    [Fact]
+    public void Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks()
+    {
+        StructureAwareTextChunker sut = new();
+        string text = $"````markdown\nline 1\n```\nliteral triple fence\n{new string('x', 500)}\n````";
+
+        IReadOnlyList<string> chunks = sut.Chunk(text, maxChars: 200, overlap: 20);
+
+        chunks.Should().NotBeEmpty();
+        chunks.Should().OnlyContain(chunk => chunk.StartsWith("````markdown") && chunk.EndsWith("````"));
+    }
 }

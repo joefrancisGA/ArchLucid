@@ -122,6 +122,26 @@ public sealed class UploadedConfigInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task Dotenv_escaped_quote_does_not_make_hash_inside_quoted_value_a_comment()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = ".env",
+            Format = "dotenv",
+            DeclarationId = "dotenv-escaped-quote-1",
+            Content = "SQL_CONNECTION=\"Server=sql1.database.windows.net;Initial Catalog=archlucid;Application Name=\\\"p # q\\\"\"\n",
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _dotenvParser.ParseAsync(declaration, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToHost]
+            .Should().Be("sql1.database.windows.net");
+        objects[0].Properties[OperatorInferredConnectionCanonicalPropertyKeys.ToCatalog]
+            .Should().Be("archlucid");
+    }
+
+    [Fact]
     public async Task Dotenv_url_fragment_hash_stays_in_the_value()
     {
         InfrastructureDeclarationReference declaration = new()

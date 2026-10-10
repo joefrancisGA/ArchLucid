@@ -69,6 +69,7 @@ public sealed class RetrievalIndexingService(
         int maxChunks = caps.MaxChunksPerIndexOperation;
 
         List<(RetrievalDocument Doc, IReadOnlyList<string> Split, string Fingerprint)> work = [];
+        List<(RetrievalDocument Doc, string Fingerprint)> emptyDocuments = [];
         DateTimeOffset indexedUtc = TimeProvider.System.UtcNowDateTime();
 
         foreach (RetrievalDocument doc in documents)
@@ -94,19 +95,7 @@ public sealed class RetrievalIndexingService(
 
             if (split.Count == 0)
             {
-                if (_indexCatalog.TryGet(doc.DocumentId, out _))
-                {
-                    await _vectorIndex.RemoveChunksForDocumentAsync(
-                        doc.DocumentId,
-                        doc.TenantId,
-                        doc.WorkspaceId,
-                        doc.ProjectId,
-                        ct).ConfigureAwait(false);
-                }
-
-                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
-                ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
-
+                emptyDocuments.Add((doc, fingerprint));
                 continue;
             }
 
@@ -197,6 +186,24 @@ public sealed class RetrievalIndexingService(
                     await _vectorIndex.RemoveChunkIdsAsync(staleChunkIds, ct).ConfigureAwait(false);
                 }
             }
+        }
+
+        foreach ((RetrievalDocument doc, string fingerprint) in emptyDocuments)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (_indexCatalog.TryGet(doc.DocumentId, out _))
+            {
+                await _vectorIndex.RemoveChunksForDocumentAsync(
+                    doc.DocumentId,
+                    doc.TenantId,
+                    doc.WorkspaceId,
+                    doc.ProjectId,
+                    ct).ConfigureAwait(false);
+            }
+
+            _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc, indexedChunkCount: 0);
+            ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
         }
 
         foreach ((RetrievalDocument doc, IReadOnlyList<string> split, string fingerprint) in work)
