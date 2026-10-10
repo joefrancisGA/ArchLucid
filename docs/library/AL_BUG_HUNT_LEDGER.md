@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — PilotStrict accepted a reachable reference-trace JSON payload whose non-empty `citations` array contained only `null` or blank entries, so malformed citation presence could bypass the citation gate. Citation presence now requires a non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 196 scoped Evaluation tests passed.
+
 2026-10-10 seed hunt (seed→hit): `agent-runtime-evaluation` — a reachable reference-trace JSON payload containing `findings: [null]` threw during required finding-category evaluation instead of recording a failed reference case. Null finding entries are now skipped before category normalization; regression `EvaluateTraceAsync_treats_null_finding_as_failed_case_instead_of_throwing`; 194 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack assignment mutations, catalog CRUD and page-bundle/version reads, simulation/validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis met the hunt-ready bar and no candidate was promoted. The focused `PolicyPacksController` filter passed 80/80. No production change.
@@ -16781,11 +16783,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 32
-- **bugs-found:** 19
+- **hunts:** 33
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-10 — null reference-trace finding threw during reference-case category evaluation
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — malformed non-empty citation entries bypassed the PilotStrict citation-presence gate
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16805,10 +16807,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputQualityGate.ResolveRejectReasonCategory` — a rejected PilotStrict result caused only by citation coverage can be classified from free-form reason tokens rather than the gate outcome cause — locus: `AgentOutputQualityGate.cs` ~49–75; input: rejected PilotStrict evaluation with a non-empty generic reason.
 - [ ] (candidate) `AgentOutputEvaluationHarness.Evaluate` — required JSON keys are compared case-sensitively even though web serialization uses camelCase — locus: `AgentOutputEvaluationHarness.cs` ~50–73; input: expectation requiring `Findings` against serialized `findings`.
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfies the presence gate — locus: `AgentOutputTraceCitationGate.cs` ~50–63; input: PilotStrict output with `citations: [null]`.
+- [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the presence gate — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
 
 ### Hypotheses
+
+- [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the PilotStrict presence gate, allowing malformed citation payloads to avoid the citation-specific rejection reason — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 
 - [x] (valid-no-repro) `AgentOutputLlmSemanticJudge.TryJudgeAsync` — a configured `JudgeInvocationCount` greater than one launches samples concurrently after one budget peek — **cheap-disproof 2026-10-04 thorough hunt:** the selected files do not establish whether the budget tracker reserves atomically per completion or whether multi-sample quota overrun is a wrong product outcome.
 - [x] (valid-no-repro) `AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync` — `Task.WhenAll` over persisted traces propagates one evaluator exception — **cheap-disproof 2026-10-04 thorough hunt:** enforcing quality-gate exceptions are intentional and the selected files establish no requirement to continue recording other traces after an evaluator failure.
