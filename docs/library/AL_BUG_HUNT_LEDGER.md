@@ -19101,6 +19101,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` — trusts any non-empty same-origin BFF response URL — **cheap-disproof 2026-10-10 thorough hunt:** the BFF URL is derived from discovery parsing, which validates HTTP(S) endpoints before returning it; no attacker-controlled client input reaches this response shape.
 - [x] (invalid) `decodeJwtPayload` — accepts JSON arrays/primitives as a record — **cheap-disproof 2026-10-10 thorough hunt:** property access on non-object JSON yields no display hint and no wrong outcome; the focused JWT/session tests passed.
 
+- [ ] (candidate) `parseDiscoveryDocument` — a non-empty but non-URL `issuer` from a reachable discovery response is retained in the parsed document, so a future in-zone caller may treat untrusted issuer metadata as authoritative.
+- [ ] (candidate) `postTokenForm` — a successful token endpoint response with a non-object JSON body reaches the cast return path, so a reachable provider response may fail later as an opaque token-state error rather than a controlled OAuth failure.
+- [ ] (candidate) `persistTokenResponse` — a valid access token with an extremely large finite `expires_in` produces an unchecked epoch hint, so a reachable provider lifetime outside normal OIDC bounds may keep the browser signed in beyond the intended session window.
+- [ ] (candidate) `refreshBffSessionCookie` — a finite `expires_at_ms` inside the one-minute acceptance skew is accepted as the new client expiry, so a reachable near-expired refresh response may immediately re-enter refresh without a bounded retry outcome.
+- [ ] (candidate) `initiateSupplementalOidcRedirect` — supplemental provider scopes are read directly from public configuration while primary scopes use the shared config helper, so a reachable Google configuration override may omit required identity scopes and produce an incomplete callback identity.
+
 ---
 
 ## Zone: archlucid-core
