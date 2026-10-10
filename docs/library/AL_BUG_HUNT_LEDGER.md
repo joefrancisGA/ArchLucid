@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `email-otp-auth` — proved that a failed email delivery deleted every active challenge for the email, including a newer concurrent resend that had delivered successfully. Cleanup now targets the failed request’s challenge id through the repository interface and both storage implementations; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
+
 2026-10-10 thorough hunt (dry): `core-tenancy-commercial` — the five picker candidates were reviewed against the scoped Identity/Billing/Budgeting source. Numeric Marketplace `planId` coercion is an explicit supported shape with no wrong tier outcome; duplicate claim mappings are warned and resolve deterministically to the first entry; non-ASCII email-domain labels are rejected by the ASCII label validator; and the remaining plan-id negation and billing-row claims lacked partner/onboarding reachability evidence. No hunt-ready row remained and no failing repro was established. Relevant Core tests passed 96/96; the picker filter also passed 4/4 with analyzers disabled after the baseline ARCH002 error.
 
 2026-10-10 thorough hunt (dry): `ui-oidc` — cheap-disproved all five candidates: non-2xx BFF sync remains intentional best-effort behavior; session hints have no durable wrong outcome without a reachable caller; BFF refresh emits integer epoch values; RP logout URLs are discovery-derived and HTTP(S)-validated; and non-object JWT payloads produce no display hint. No failing repro was established and no fix was shipped. The focused OIDC suite passed 71/71.
@@ -6727,9 +6729,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: email-otp-auth
 
+2026-10-10 seed hunt (seed→hit): proved `EmailOtpRequestFlow` delivery-failure cleanup deleted a newer concurrently replaced challenge by email; added `DeleteActiveChallengeAsync(Guid)` and used it for failure and cancellation cleanup; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
+
 2026-10-09 seed hunt (seed-only): repeated the selected controller/service review and focused test inventory; no fresh reachable mechanism-backed candidate emerged and no hypothesis was promoted. The exact scoped test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 50 · **Bugs found:** 14 · **Consecutive dry hunts:** 0
+**Hunts:** 52 · **Bugs found:** 15 · **Consecutive dry hunts:** 0
 
 2026-10-08 thorough hunt (hit): proved that a successful OTP result with `PlatformUserId = Guid.Empty` passed the controller's null-only guard and issued a token for the empty identity; added a fail-closed guard and regression; 1 API regression, 41 service tests, and 3 concurrency tests passed.
 
@@ -6797,13 +6801,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 51
-- **bugs-found:** 14
+- **hunts:** 52
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — email OTP verify advertised a longer lifetime than the issued JWT
+- **last-hunt:** 2026-10-10
+- **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
@@ -6831,6 +6835,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2074 (seed-only): reseeded email-otp-auth; 41 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [x] (proven) `EmailOtpRequestFlow.ExecuteAsync` — notifier failure cleanup deleted all active challenges for the email, so a newer concurrent resend could be deleted after successful delivery — **hit 2026-10-10 seed hunt:** `DeleteActiveChallengesForEmailAsync(normalizedEmail)` was not scoped to the request’s `challengeId`; replaced with `DeleteActiveChallengeAsync(challengeId)` in failure and cancellation paths, implemented for in-memory and Dapper repositories; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge` failed before the fix and passed after it.
 
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` — response lifetime and JWT `exp` disagreed when `Auth:EmailOtp:AccessTokenLifetimeMinutes` differed from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes` — **hit 2026-10-09 thorough hunt:** 2000-minute email OTP config with a 60-minute trial TTL returned 86400 seconds and a JWT that expired in 3600; issuer now takes the clamped caller lifetime; regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`.
 - [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — padded invitation token — **cheap-disproof 2026-10-09:** `EmailOtpInvitationTokenHasher.Hash` trims before SHA-256, and whitespace-only tokens return before hashing in `ResolveInvitationIdAsync`.
