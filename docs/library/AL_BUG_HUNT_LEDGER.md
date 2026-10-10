@@ -2,8 +2,6 @@
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm.tsx` payload shaping, submit locking, response/error handling, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
-2026-10-10 seed hunt (seed-only): `ui-form-validation` — re-read `SignupForm.tsx` payload shaping, submit locking, response/error handling, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
-
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — repeated the selected SignupForm review; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — repeated the selected SignupForm review after the prior seed pass; no fresh row met the full reachability and wrong-outcome bar. The scoped SignupForm suite passed 99/99; retained the existing bounded candidates and made no production change.
