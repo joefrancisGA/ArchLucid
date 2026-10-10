@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected evaluation-path reread after the required-key and judge-score candidate seed; no fresh mechanism met the promotion bar, and the remaining score-validation row would duplicate a saturated class. The scoped Evaluation suite passed 202/202. No production or regression code was changed.
@@ -7664,7 +7666,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
+- **hunts:** 36
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -27353,6 +27355,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-10 seed hunt (seed-only): repeated the Contracts DTO reread against the same comparison and SecureNow paths; no fresh contract-only wrong outcome met the promotion bar beyond the retained candidates. The scoped Contracts suite passed 520/520. No production or regression code was changed.
+
 2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs plus the existing Contracts round-trip tests; no new row met the same-run failing-repro bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for empty diagram-source content, arbitrary match-kind values, and nullable audit collections; no production or regression code was changed.
 
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-contracts; proved `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` dropped out-of-range numeric ordinals instead of throwing like `treatment`/`classification`; fixed to throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`; 22 scoped `ArchitectureFindingJsonConverter` tests passed.
@@ -27365,7 +27369,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
