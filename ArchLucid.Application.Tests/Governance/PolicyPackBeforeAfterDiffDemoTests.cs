@@ -207,7 +207,7 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             management,
             packs,
             versions,
-            Mock.Of<IPolicyPackAssignmentRepository>(),
+            assignments,
             audit.Object,
             Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IIntegrationEventPublisher>(),

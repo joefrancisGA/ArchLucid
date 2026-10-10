@@ -141,7 +141,8 @@ public sealed class AuthorityPipelineFindingsStage(
 
         IReadOnlyList<AgentResult> agentResults = await _agentResultRepository
             .GetByRunIdAsync(scope, run.RunId.ToString("D"), cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwait(false)
+            ?? [];
 
         FindingsSnapshotWithheldMerger.MergeAgentWithheld(findingsSnapshot, agentResults);
 

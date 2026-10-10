@@ -1,8 +1,10 @@
+using System.Data;
 using System.Diagnostics;
 
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -332,7 +334,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
                 SealedManifestHashTestSupport.CreateManifestHashService(),
                 NullLogger<AuthorityPipelineFindingsStage>.Instance,
-                Mock.Of<IAgentResultRepository>()),
+                CreateEmptyAgentResultRepository()),
             new AuthorityPipelineDecisioningStage(
                 decision.Object,
                 stagePersistence,
@@ -415,5 +417,20 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
             .ReturnsAsync((ScopeContext _, RunRecord _, GraphSnapshot graph, CancellationToken _) => graph);
 
         return applicator.Object;
+    }
+
+    private static IAgentResultRepository CreateEmptyAgentResultRepository()
+    {
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync(Array.Empty<AgentResult>());
+
+        return agentResults.Object;
     }
 }

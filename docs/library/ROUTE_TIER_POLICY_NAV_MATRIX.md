@@ -193,7 +193,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Billing/BillingCheckoutController.cs` | `/v1/tenant/billing` | none | AdminAuthority | /administration/workspace-settings |  |
 | `Billing/BillingMarketplaceWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Billing/BillingStripeWebhookController.cs` | `/v1/billing/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
-| `Billing/WalletController.cs` | `/v1/billing/wallet` | none | AdminAuthority |  |  |
+| `Billing/WalletController.cs` | `/v1/billing/wallet` | none | AuthenticatedUserOnly |  |  |
 | `Demo/DemoCommitPagePreviewController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
 | `Demo/DemoExplainController.cs` | `/v1/demo` | none | AllowAnonymous |  | demo_tooling |
 | `Demo/DemoViewerController.cs` | `/v1/demo/viewer` | none | AllowAnonymous |  | demo_tooling |

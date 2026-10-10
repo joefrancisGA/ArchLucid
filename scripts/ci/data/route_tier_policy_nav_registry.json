@@ -1217,7 +1217,7 @@
       "route_template": "v{version:apiVersion}/billing/wallet",
       "normalized_prefix": "/v1/billing/wallet",
       "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },
