@@ -94,9 +94,18 @@ public sealed class QuickScanDistributedConcurrencyService(
             admitResult = await _store.TryAdmitAsync(admitRequest, cancellationToken).ConfigureAwait(false);
             admittedResult = admitResult;
 
-            emergencyReject = await TryCreateEmergencyDisabledRejectAfterAdmitAsync(
-                admittedResult!,
-                cancellationToken).ConfigureAwait(false);
+            try
+            {
+                emergencyReject = await TryCreateEmergencyDisabledRejectAfterAdmitAsync(
+                    admittedResult!,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                await CleanupAdmitResultAfterPostAdmitFailureAsync(admitResult).ConfigureAwait(false);
+
+                throw;
+            }
 
             if (emergencyReject is not null)
             {
