@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `TerraformShowJsonInfrastructureDeclarationParser` aborted a reachable Terraform show JSON upload when a malformed non-object entry appeared in `root_module.resources`, before valid sibling resources could be parsed. Terraform property lookup now reuses the guarded shared JSON reader; regression `ParseAsync_ignores_non_object_root_module_resources`; focused repro passed after the fix.
+
 2026-10-10 seed hunt (seed→hit): `ArmJsonLinkedTemplateBatchIndex` aborted a reachable ARM batch normalization when a malformed non-object entry appeared in `resources`, before valid sibling declarations could be parsed. Link indexing now reuses the guarded shared JSON property reader; regression `NormalizeAsync_ArmBatch_IgnoresNonObjectResourceEntriesWhenIndexingLinks`; scoped ContextIngestion/Canonicalization tests passed 822/822; Release compile passed with 0 warnings and 0 errors.
 
 2026-10-10 seed hunt (seed→hit): `PulumiStackJsonInfrastructureDeclarationParser` aborted a reachable Pulumi stack upload when a malformed non-object entry appeared in `deployment.resources`, discarding valid sibling resources. Shared infrastructure property lookup now returns no match for non-object JSON values; regression `ParseAsync_ignoresNonObjectResourceEntries`; scoped ContextIngestion/Canonicalization tests passed 821/821; Release compile passed with 0 warnings and 0 errors.
@@ -27421,6 +27423,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-10 seed hunt (seed→hit): duplicate pre-dedup topology object ids no longer throw during sensitivity expansion; 819 scoped ContextIngestion/Canonicalization tests passed.
 
 - [x] (proven) `SecurityBaselineSensitivityScopeExpander.Expand` — duplicate topology object ids in pre-dedup connector output caused `ToDictionary` to throw before `CanonicalDeduplicator` ran — **hit 2026-10-10 seed hunt:** group duplicate ids and retain the first sensitivity entry; covered by the scoped canonicalization suite.
+
+2026-10-10 seed hunt (seed→hit): Terraform show JSON resource arrays now ignore non-object entries without aborting valid sibling resources; focused repro passed after the fix.
+
+- [x] (proven) `TerraformShowJsonInfrastructureDeclarationParser.TryGetPropertyIgnoreCase` — a reachable non-object entry in `values.root_module.resources` caused `InvalidOperationException` during label counting — **hit 2026-10-10 seed hunt:** reuse `InfrastructureDeclarationJsonElementReader.TryGetPropertyIgnoreCase`, which rejects non-object values; regression `ParseAsync_ignores_non_object_root_module_resources`.
 
 2026-10-10 seed hunt (seed→hit): ARM linked-template indexing now ignores non-object resource entries without aborting batch normalization; scoped ContextIngestion/Canonicalization tests passed 822/822.
 
