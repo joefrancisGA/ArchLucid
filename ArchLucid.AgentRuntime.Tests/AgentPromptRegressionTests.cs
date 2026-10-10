@@ -138,6 +138,7 @@ public sealed class AgentPromptRegressionTests
 
         string raw = File.ReadAllText(baselinePath);
         using JsonDocument doc = JsonDocument.Parse(raw);
+
         if (!doc.RootElement.TryGetProperty(baselineProperty, out JsonElement expectedEl))
             throw new InvalidOperationException($"Baseline JSON missing property '{baselineProperty}'.");
 

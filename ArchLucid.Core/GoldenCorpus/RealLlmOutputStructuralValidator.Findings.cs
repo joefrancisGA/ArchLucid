@@ -15,6 +15,7 @@ public static partial class RealLlmOutputStructuralValidator
         }
         checks.Add(new RealLlmStructuralCheckItem("findingsNonEmpty", true, "Findings array is non-empty."));
         int index = 0;
+
         foreach (JsonElement finding in findings.EnumerateArray())
         {
             if (finding.ValueKind != JsonValueKind.Object)

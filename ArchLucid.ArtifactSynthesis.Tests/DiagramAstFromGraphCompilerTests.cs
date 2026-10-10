@@ -159,8 +159,9 @@ public sealed class DiagramAstFromGraphCompilerTests
         DiagramNode vmNode = ast.Nodes.Should().ContainSingle(node => node.Label == "vm-westus-app").Subject;
         string westRegionId = ast.Subgraphs.Should().ContainSingle(subgraph => subgraph.Label == "Region westus").Subject.SubgraphId;
         vmNode.SubgraphId.Should().Be(westRegionId);
-        ast.Nodes.Should().OnlyContain(node =>
-            node.SubgraphId == null || ast.Subgraphs.Any(subgraph => subgraph.SubgraphId == node.SubgraphId));
+        ast.Nodes.Where(node => node.SubgraphId is not null)
+            .Should()
+            .OnlyContain(node => ast.Subgraphs.Any(subgraph => subgraph.SubgraphId == node.SubgraphId));
     }
 
     [Fact]

@@ -206,6 +206,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         // Data architecture is a placement canvas: containment and movement hydrators
         // would draw Reads from / Writes to that the mode's honesty caption forbids.
+
         if (!isDataArchitectureMode)
         {
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
@@ -927,7 +928,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         foreach (GraphNode node in nodes)
         {
-            if (node.Properties == null
+            if (node.Properties is null
                 || !node.Properties.TryGetValue("arm.parentId", out string? parentId)
                 || string.IsNullOrWhiteSpace(parentId))
             {
