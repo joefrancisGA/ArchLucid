@@ -249,7 +249,7 @@ $federated = foreach ($app in $applications) {
 
 For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Chapter 4 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
 
-> **As of 2026-10:** GitHub's issuer is `https://token.actions.githubusercontent.com`. Repositories created after July 15, 2026 use immutable subjects that include owner and repository IDs (`repo:owner@id/repo@id:…`), so expect both formats in one tenant. Re-check the formats before you write rules that parse them.
+> **As of 2026-10:** GitHub's issuer is `https://token.actions.githubusercontent.com`. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`), so expect both formats in one tenant. Re-check the formats before you write rules that parse them.
 
 Calling Graph once per application is slow in large tenants. Batching requests, or filtering to applications that have service principals with Azure role assignments, cuts the time considerably. Get it correct first, then make it fast.
 
