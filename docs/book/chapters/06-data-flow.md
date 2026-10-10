@@ -303,8 +303,10 @@ def activity_problems(index: int, sentence: dict, items: dict) -> list[str]:
 
     for item in observed:
         window = item.get("window") or {}
+        start = window.get("start")
+        end = window.get("end")
 
-        if window.get("start") not in text or window.get("end") not in text:
+        if not start or not end or start not in text or end not in text:
             problems.append(f"Sentence {index}: activity from {item['id']} stated without its window.")
 
     return problems
