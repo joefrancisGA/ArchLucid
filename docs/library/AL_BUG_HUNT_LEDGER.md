@@ -12155,6 +12155,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: scope-binding-middleware
 
+2026-10-10 seed hunt (seed-only): repeated the scoped review with unchanged production behavior. The focused run again had 96 passing unit tests, 2 stale API-key workspace/project expectations, and 8 SQL-backed integration tests blocked by the missing SQL Server connection. No new hunt-ready row was promoted.
+
 2026-10-10 seed hunt (seed-only): repeated the selected source/test review with unchanged production behavior. The two API-key workspace/project unit expectation failures remain the documented ADR 0037 exception, not a production repro; 96 focused unit tests passed and 8 SQL-backed integration tests were blocked by the missing SQL Server connection. No new candidate was promoted or added.
 
 2026-10-10 seed hunt (seed-only): re-read the three selected middleware/filter files and focused security tests. No new hunt-ready row was promoted. Two existing unit expectations that API keys without workspace/project claims must reject those headers conflict with the source-documented ADR 0037 exception for tenant-bound API keys, so they were treated as valid-no-repro/stale expectations rather than a production defect. The filter ran 96 passing tests; 8 SQL-backed integration tests were blocked by the missing SQL Server test connection.
