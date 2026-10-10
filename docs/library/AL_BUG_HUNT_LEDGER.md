@@ -18953,6 +18953,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five configuration/session candidates: discovery normalization is deterministic, redirect URI validation is deployment configuration, stale PKCE has no wrong outcome without state reuse, malformed storage has no production writer, and cross-provider selection requires an unreachable state collision. No failing repro or fix was established. The focused OIDC suite passed 71/71.
 
+2026-10-10 seed hunt (seed-only): re-read the remaining OIDC configuration and PKCE helpers after the prior dry hunt. No new row met the full hunt-ready bar; seeded five bounded candidates for supplemental authority normalization, scope-string shape, PKCE cleanup outside a browser, random-state entropy, and optional logout fallback. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed→hit): promoted and proved UTF-8 JWT display-name decoding; `atob()` exposed UTF-8 payload bytes as Latin-1 characters, producing mojibake for non-ASCII identity names. Decoding through `TextDecoder` preserves display names; regression `decodes UTF-8 display names without mojibake`; focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five callback/session candidates; no failing repro was established and no fix was shipped. The focused OIDC module suite passed all 70 tests.
@@ -19126,6 +19128,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE state has no local age bound — **cheap-disproof 2026-10-10 thorough hunt:** callback matching still requires the cryptographic state/verifier pair and stale storage alone does not create a new authorization or cross-provider binding.
 - [x] (invalid) `readSessionKey` — whitespace-only storage values are treated as present for PKCE and return-path state — **cheap-disproof 2026-10-10 thorough hunt:** production callers write generated PKCE values and safe return paths; no selected-file caller writes malformed whitespace state.
 - [x] (invalid) `consumePkceState` — matching state is consumed from either flow without explicit provider binding — **cheap-disproof 2026-10-10 thorough hunt:** independently generated states must collide for cross-provider selection, and the callback flow is selected by the stored state pair; no reachable collision was established.
+
+- [ ] (candidate) `getGoogleOidcAuthority` / `initiateSupplementalOidcRedirect` — supplemental authority normalization may differ from the primary authority path for unusual scheme-less or trailing-slash values.
+- [ ] (candidate) `getOidcScopes` — a configured scope string containing duplicate or conflicting scopes is forwarded unchanged, so provider-specific scope negotiation may produce an incomplete identity response.
+- [ ] (candidate) `clearPkceState` / `clearPostSignInReturnUrl` — cleanup assumes browser `sessionStorage` exists, so a reachable server-rendered or constrained callback path may throw while handling a failed redirect.
+- [ ] (candidate) `randomOpaqueState` — the fixed 16-byte state generation may be insufficient if a reachable provider or browser truncates the URL-safe value during authorization.
+- [ ] (candidate) `signOutAndRedirectHome` — absent RP logout metadata falls back to `/` after local cleanup, so a reachable provider without `end_session_endpoint` may leave federated state active.
 
 ---
 
