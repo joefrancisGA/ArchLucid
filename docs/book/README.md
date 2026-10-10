@@ -59,7 +59,8 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | revised (~5,600) | 6,000 |
 | 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | revised (~6,000) | 6,000 |
 | A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,300 incl. code) | 4,000 |
-| | **Total** | | **~80,000** |
+| B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~4,500 incl. code) | 5,000 |
+| | **Total** | | **~85,000** |
 
 Status values: `stub` → `outline` → `first draft` → `revised` → `reviewed` → `final`.
 

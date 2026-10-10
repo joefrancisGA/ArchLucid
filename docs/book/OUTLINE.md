@@ -31,6 +31,6 @@
 ## Appendices (planned)
 
 - A. Companion lab setup (sample tenant, Terraform, deliberately vulnerable paths). First draft: [appendices/a-companion-lab.md](appendices/a-companion-lab.md).
-- B. Query cookbook (Resource Graph KQL, Microsoft Graph).
+- B. Query cookbook (Resource Graph KQL, Microsoft Graph). First draft: [appendices/b-query-cookbook.md](appendices/b-query-cookbook.md).
 - C. Prompt patterns for grounded security explanations.
 - D. Optional case study (owner-approved, sanitized).
