@@ -273,7 +273,14 @@ export async function expectLiveBrandedNotFoundRecovery(
 ): Promise<void> {
   const timeoutMs = options?.timeoutMs ?? 60_000;
 
+  let attempt = 0;
+
   await expect(async () => {
+    if (attempt > 0) {
+      await page.reload({ waitUntil: "domcontentloaded" });
+    }
+    attempt += 1;
+
     await page.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => undefined);
     await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 10_000 });
   }).toPass({ timeout: timeoutMs, intervals: [1_000, 3_000, 5_000] }).catch(async (error: unknown) => {
