@@ -27334,16 +27334,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-09-26 seed hunt (seed→hit): reseeded archlucid-contracts; proved `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` dropped out-of-range numeric ordinals instead of throwing like `treatment`/`classification`; fixed to throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`; 22 scoped `ArchitectureFindingJsonConverter` tests passed.
 
+2026-10-10 seed hunt (seed-only): reread recently changed infrastructure-diagram comparison and SecureNow contract DTOs; no contract-only wrong outcome reached the hunt-ready bar. The scoped Contracts suite passed 520/520. Seeded bounded candidates for nullable JSON collections, empty snapshot identifiers, nullable mapping identifiers, and unknown edge-gap values; no production or regression code was changed.
+
 - **id:** archlucid-contracts
 - **status:** open
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-03 — string numeric classification ordinal silently accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -27360,6 +27362,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- (candidate) `InfrastructureDiagramComparisonCreateRequest.Sources` — public comparison-create JSON can send `"sources": null` and replace the initialized list; if the orchestration enumerates without normalizing null, a valid request can fail or be treated as an empty comparison. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
+- (candidate) `InfrastructureDiagramComparisonCreateRequest.SnapshotId` — public comparison-create JSON can send the all-zero GUID; if the service treats the missing snapshot as an empty inventory rather than rejecting it, the caller can receive a successful comparison with no authoritative inventory. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
+- (candidate) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — mapping-save JSON can omit or set `"diagramNodeId": null` while supplying a normalized label and cloud-resource id; if null means “missing” rather than an intentional clear, the save path can create or overwrite a mapping that cannot be addressed by diagram node id. Reachability: API mapping-save payload for the recently added infrastructure-diagram comparison workflow.
+- (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.
