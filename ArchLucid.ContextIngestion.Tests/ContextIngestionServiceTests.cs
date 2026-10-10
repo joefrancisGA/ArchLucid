@@ -266,6 +266,41 @@ public sealed class ContextIngestionServiceTests
     }
 
     [Fact]
+    public async Task IngestAsync_DuplicateTopologyHints_ProduceStableScopeMetadata()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        ContextIngestionService sut = new(
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor>(),
+                new DefaultContextDeltaSummaryBuilder()),
+            new CompositeCanonicalEnricher([]),
+            new CanonicalDeduplicator(),
+            repo);
+
+        const string projectId = "proj-topology-hint-duplicates";
+        ContextIngestionRequest firstRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet"]
+        };
+
+        ContextSnapshot firstSnapshot = await sut.IngestAsync(firstRequest, CancellationToken.None);
+
+        ContextIngestionRequest secondRequest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = projectId,
+            TopologyHints = ["hub-vnet", "hub-vnet"]
+        };
+
+        ContextSnapshot secondSnapshot = await sut.IngestAsync(secondRequest, CancellationToken.None);
+
+        secondSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]
+            .Should().Be(firstSnapshot.SourceHashes[ContextScopeMetadataKeys.TopologyHints]);
+    }
+
+    [Fact]
     public async Task IngestAsync_ConstraintPaddingAndCasing_ProducesStableScopeMetadata()
     {
         InMemoryContextSnapshotRepository repo = new();
