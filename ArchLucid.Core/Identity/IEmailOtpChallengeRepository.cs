@@ -50,6 +50,11 @@ public interface IEmailOtpChallengeRepository
         string normalizedEmail,
         CancellationToken cancellationToken);
 
+    /// <summary>Removes one active challenge after its own delivery attempt fails.</summary>
+    Task DeleteActiveChallengeAsync(
+        Guid challengeId,
+        CancellationToken cancellationToken);
+
     /// <summary>
     ///     Atomically invalidates active challenges for <paramref name="insert.NormalizedEmail" /> and inserts
     ///     <paramref name="insert" /> so concurrent resends cannot leave multiple active rows.

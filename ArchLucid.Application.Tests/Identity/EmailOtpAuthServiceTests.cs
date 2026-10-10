@@ -853,6 +853,82 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            MaxCodeRequestsPerEmailPerHour = 5,
+            ResendCooldownSeconds = -1
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _,
+            options);
+
+        TaskCompletionSource firstNotifierStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource releaseFirstNotifier = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource secondNotifierStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int sendAttempts = 0;
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                int attempt = Interlocked.Increment(ref sendAttempts);
+
+                if (attempt == 1)
+                {
+                    firstNotifierStarted.SetResult();
+                    await releaseFirstNotifier.Task;
+
+                    return false;
+                }
+
+                secondNotifierStarted.SetResult();
+
+                return true;
+            });
+
+        // Hold the first delivery failure until the second request has replaced its challenge.
+        Task<EmailOtpChallengeRequestResult> firstRequest = sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "concurrent-delivery@example.com" },
+            CancellationToken.None);
+
+        await firstNotifierStarted.Task;
+
+        Task<EmailOtpChallengeRequestResult> secondRequest = sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "concurrent-delivery@example.com" },
+            CancellationToken.None);
+
+        await secondNotifierStarted.Task;
+        releaseFirstNotifier.SetResult();
+
+        EmailOtpChallengeRequestResult[] results = await Task.WhenAll(firstRequest, secondRequest);
+
+        EmailOtpChallengeRequestResult successfulRequest = Assert.Single(
+            results,
+            result => result.ChallengeId is not null);
+
+        EmailOtpChallengeRecord? newerChallenge =
+            await challenges.GetByIdAsync(successfulRequest.ChallengeId!.Value, CancellationToken.None);
+
+        Assert.NotNull(newerChallenge);
+        Assert.Null(newerChallenge!.InvalidatedUtc);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_removes_challenge_when_notifier_cancels_after_persistence()
     {
         EmailOtpAuthOptions options = new()

@@ -109,6 +109,24 @@ public sealed partial class DapperEmailOtpChallengeRepository(ISqlConnectionFact
                 cancellationToken: cancellationToken));
     }
 
+    public async Task DeleteActiveChallengeAsync(Guid challengeId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           DELETE FROM dbo.EmailOtpChallenges
+                           WHERE Id = @Id
+                             AND CompletedUtc IS NULL
+                             AND InvalidatedUtc IS NULL;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { Id = challengeId },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
         EmailOtpChallengeInsert insert,
         DateTimeOffset invalidatedUtc,
