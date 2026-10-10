@@ -16799,13 +16799,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-10 seed hunt (seed-only): reread the trace quality, confidence, citation, faithfulness, grounding, and reference-case paths after the latest evaluation fixes; no fresh row met the same-run failing-repro bar. The scoped Evaluation suite passed 200/200. Seeded numeric enum-category grounding and blank-valued citation-object candidates; no production or regression code was changed.
+
 - **id:** agent-runtime-evaluation
 - **status:** open
 - **impact:** medium
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
@@ -16833,6 +16835,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputFaithfulnessEvaluator.TrimForJudge` — truncation can split a UTF-16 surrogate pair and send malformed Unicode to the judge — locus: `AgentOutputFaithfulnessEvaluator.cs` ~160–170; input: evidence whose configured limit lands between a supplementary-character pair.
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the presence gate — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
+- [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepts a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal can be treated as an automatically grounded category when the rest of the finding text overlaps evidence. Reachability: agent-produced `findings[].category` JSON is parsed by the evaluation checker at the trust boundary.
+- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` has a property and therefore satisfies the presence gate despite containing no usable citation value. Reachability: agent-produced top-level `citations` JSON is consumed by the PilotStrict quality gate.
 
 ### Hypotheses
 
