@@ -295,6 +295,27 @@ public sealed class CircuitBreakingContentSafetyGuardTests
     }
 
     [Fact]
+    public async Task When_inner_throws_operation_canceled_with_unrelated_token_rethrows_without_opening_circuit()
+    {
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerGate gate = new("content-safety-unrelated-cancel", options);
+        Mock<IContentSafetyGuard> inner = new();
+        using CancellationTokenSource innerTimeout = new();
+        inner.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException("simulated inner timeout", innerTimeout.Token));
+
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object,
+            gate,
+            new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        Func<Task> act = () => sut.CheckInputAsync("a", CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        gate.CurrentState.Should().Be("Closed");
+    }
+
+    [Fact]
     public async Task When_inner_throws_operation_canceled_and_token_cancelled_rethrows_without_opening_circuit()
     {
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
