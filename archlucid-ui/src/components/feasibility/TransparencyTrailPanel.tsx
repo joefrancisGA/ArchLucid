@@ -116,6 +116,21 @@ export function TransparencyTrailPanel(props: TransparencyTrailPanelProps): Reac
             {trail.asserted.map((entry) => (
               <li key={entry.key}>
                 {entry.key}: {entry.value}
+                {typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
+                  ? ` — ${entry.responderLabel}`
+                  : entry.responderLabel === null || entry.responderLabel === undefined
+                    ? " — Responder was not stored."
+                    : ""}
+                {typeof entry.questionId === "string" && entry.questionId.length > 0
+                  ? ` — Question id: ${entry.questionId}`
+                  : entry.questionId === null || entry.questionId === undefined
+                    ? " — Question id was not stored."
+                    : ""}
+                {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
+                  ? ` — Answer recorded time: ${entry.recordedUtc}`
+                  : entry.recordedUtc === null || entry.recordedUtc === undefined
+                    ? " — Answer recorded time was not stored."
+                    : ""}
               </li>
             ))}
           </ul>

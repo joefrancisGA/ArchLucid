@@ -53,7 +53,7 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
   const envelope = verdict.softEnvelope;
 
   if (envelope === null || envelope === undefined) {
-    return [];
+    return ["Operating envelope was not stored.", ""];
   }
 
   const lines: string[] = [];

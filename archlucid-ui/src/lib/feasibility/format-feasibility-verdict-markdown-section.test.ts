@@ -62,4 +62,26 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(markdown).toContain("Holds for this manifest snapshot.");
     expect(markdown).not.toContain("failed review run");
   });
+
+  it("reports a missing soft envelope without treating an empty stored value as missing", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: null,
+    });
+    const stored = formatFeasibilityVerdictMarkdownSection({
+      kind: "SoftInfeasible",
+      summary: "Not feasible as specified.",
+      softEnvelope: {
+        confidenceLow: 0,
+        confidenceHigh: 0,
+        envelopeDescription: "",
+        softAssumption: "",
+        costOfBeingWrong: "",
+      },
+    });
+
+    expect(missing).toContain("Operating envelope was not stored.");
+    expect(stored).not.toContain("Operating envelope was not stored.");
+  });
 });

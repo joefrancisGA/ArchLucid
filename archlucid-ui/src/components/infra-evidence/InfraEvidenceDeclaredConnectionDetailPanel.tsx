@@ -122,9 +122,17 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Approved by</dt>
-          {matchedConnection != null ? (
-            <dd className="m-0">Approver was not included on the loaded connection</dd>
-          ) : null}
+          <dd className="m-0">
+            {props.edge.declaredConnectionId === null
+              ? "Approver was not stored."
+              : props.connectionsLoading
+                ? "Loading approver…"
+                : props.connectionsError !== null
+                  ? "Approver could not be loaded."
+                  : matchedConnection === null
+                    ? "Approver could not be resolved because the declared connection was not found."
+                    : "Approver was not included on the loaded connection"}
+          </dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Expires</dt>

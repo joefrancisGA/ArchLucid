@@ -77,6 +77,8 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${summary.unresolvedIssueCount} unresolved review issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
+      : summary.unresolvedIssueCount === null || summary.unresolvedIssueCount === undefined
+        ? "Unresolved issue count was not stored."
       : null,
     typeof summary.complianceGapCount === "number" &&
     Number.isFinite(summary.complianceGapCount) &&

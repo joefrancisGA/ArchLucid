@@ -206,6 +206,25 @@ describe("RunExplanationSection", () => {
     );
   });
 
+  it("reports a missing faithfulness warning but hides stored empty text", () => {
+    const { rerender } = render(
+      <RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />,
+    );
+
+    expect(screen.getByText("Faithfulness warning was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ faithfulnessWarning: "" })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.queryByText("Faithfulness warning was not stored.")).not.toBeInTheDocument();
+  });
+
   it("omits model confidence block when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 
@@ -251,6 +270,63 @@ describe("RunExplanationSection", () => {
     expect(screen.queryByText("Themes were not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Key drivers were not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Risk implications were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders missing compliance implications and stored implication values", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({ explanation: { complianceImplications: null as never } })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Compliance implications were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ explanation: { complianceImplications: ["DPA alignment"] } })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("DPA alignment")).toBeInTheDocument();
+    expect(screen.queryByText("Compliance implications were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("reports missing finding traces and missing trace fields", () => {
+    const { rerender } = render(
+      <RunExplanationSection
+        summary={mockSummary({ findingTraceConfidences: null })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Finding traces were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({
+          findingTraceConfidences: [
+            {
+              findingId: "f1",
+              traceConfidenceLabel: "Low",
+              missingTraceFields: null,
+            } as never,
+          ],
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText(/Missing trace fields were not stored\./)).toBeInTheDocument();
   });
 
   it("reveals provenance in details", () => {
