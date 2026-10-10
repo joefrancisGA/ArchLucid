@@ -2,6 +2,8 @@
 
 2026-10-10 seed hunt (seed-only): `api-policy-packs` — re-read policy-pack assignment mutations, catalog CRUD and page-bundle/version reads, simulation/validation routes, facade outcome mapping, and conditional ETags; no fresh reachability-backed wrong-outcome hypothesis met the hunt-ready bar and no candidate was promoted. The focused `PolicyPacksController` filter passed 80/80. No production change.
 
+2026-10-10 seed hunt (seed→hit): `api-policy-packs` — `GetVersion` trimmed and validated a semver route value but forwarded the original padded value to the facade, so a reachable `GET /v1/policy-packs/{policyPackId}/versions/{packVersion}` request such as `1.0.0%20` could return version-not-found despite valid semver. The controller now forwards the normalized version; regression `GetVersion_forwards_trimmed_pack_version_to_facade`; 81 scoped `PolicyPacksController` tests passed.
+
 2026-10-10 thorough hunt (dry): `knowledge-graph-provenance` — cheap-disproved the four picker candidates. Provenance null-list input lacked a selected-path caller; graph delta extraction is unused repo-wide; active edge inferrers emit canonical node ids; and the scoped suites produced no failure attributable to these rows. KnowledgeGraph had 362 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed→hit): `TerraformShowJsonInfrastructureDeclarationParser` aborted a reachable Terraform show JSON upload when a malformed non-object entry appeared in `root_module.resources`, before valid sibling resources could be parsed. Terraform property lookup now reuses the guarded shared JSON reader; regression `ParseAsync_ignores_non_object_root_module_resources`; scoped ContextIngestion/Canonicalization tests passed 823/823; Release compile passed with 0 warnings and 0 errors.
@@ -32490,11 +32492,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 36
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 1
+- **hunts:** 37
+- **bugs-found:** 19
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-07 — platform-default pack republish surfaced HTTP 500
+- **last-bug:** 2026-10-10 — padded semver route value was validated but not normalized before version lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -32520,6 +32522,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
+- [x] (proven) `PolicyPacksController.GetVersion` — an OpenAPI route parameter with surrounding whitespace, such as `1.0.0%20`, passed `ValidatePackVersion` because validation trims for semver checks but was forwarded untrimmed to `GetVersionAsync`, so a valid version lookup could return not-found — **hit 2026-10-10 seed hunt:** forward `packVersion.Trim()` after validation; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
 - [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — a reachable facade outcome outside the explicitly mapped cross-tenant, validation, and not-found cases could fall through to HTTP 200 with a null or incomplete catalog detail — **cheap-disproof 2026-10-09:** the selected controller’s reachable facade outcome set is the mapped cross-tenant, validation, not-found, or success path; a conflict outcome is not established by these files.
 - [x] (invalid) `PolicyPacksController.DemoteCatalogEntry` — a reachable facade conflict outcome could fall through to HTTP 204, making a failed catalog mutation appear successful — **cheap-disproof 2026-10-09:** the selected controller has no reachable conflict-producing facade path; sealed-manifest conflicts are exceptions caught before result mapping.
 - [x] (invalid) `PolicyPacksController.Create` — a success-shaped facade result with no `PolicyPack` value could be serialized as HTTP 200 instead of failing closed — **cheap-disproof 2026-10-09:** a null success value is a constructed mock/implementation state with no reachable OpenAPI or controller caller in the selected paths.
