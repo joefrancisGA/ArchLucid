@@ -61,7 +61,7 @@ GitHub cannot apply rulesets from files in the repo. The intended list in [`.git
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 
-**RC35 cut (2026-10-10):** branch `RC35` at `cdf893ecab` — master plus `origin/RC34` merge (trunk-preferred). Re-run push corset and private-beta witnesses on `RC35` before applying ruleset changes.
+**RC35 cut (2026-10-10):** branch `RC35` at `c059d8a2e2` — master plus `origin/RC34` merge (trunk-preferred). Re-run push corset and private-beta witnesses on `RC35` before applying ruleset changes.
 
 **RC34 witness (2026-10-07):** completed run `37642959507` on SHA `5396261f3d` produced green gitleaks, typecheck, OpenAPI, beta-readiness, and push-corset jobs; private-beta JwtBearer run `37642959086` was also green. The live ruleset still targets `master`/`main`, so the private-beta addon remains an owner decision after a green `master` JwtBearer run. **Do not** apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) until that condition is met.
 
