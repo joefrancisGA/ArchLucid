@@ -82,7 +82,36 @@ export function RunDetailFeasibilityVerdictSection(
                 ? "Soft assumption was not stored."
                 : verdict.softEnvelope.softAssumption}
             </dd>
+            <dt className="font-medium">Cost of being wrong</dt>
+            <dd className="m-0">
+              {verdict.softEnvelope.costOfBeingWrong === null || verdict.softEnvelope.costOfBeingWrong === undefined
+                ? "Cost of being wrong was not stored."
+                : verdict.softEnvelope.costOfBeingWrong}
+            </dd>
           </dl>
+        ) : null}
+
+        {verdict.proposedRelaxations === null || verdict.proposedRelaxations === undefined ? (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were not stored.</p>
+        ) : verdict.proposedRelaxations.length > 0 ? (
+          <div className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)}>
+            <p className="m-0 font-medium">Proposed relaxations</p>
+            <ul className="m-0 mt-1 list-disc pl-5">
+              {verdict.proposedRelaxations.map((relaxation, index) => (
+                <li key={`${relaxation.invariantKey ?? "missing"}-${index}`}>
+                  <strong>
+                    {relaxation.invariantKey === null || relaxation.invariantKey === undefined
+                      ? "Relaxation invariant key was not stored."
+                      : relaxation.invariantKey}
+                  </strong>
+                  {": "}
+                  {relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
+                    ? "Trade-off description was not stored."
+                    : relaxation.tradeOffDescription}
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
         {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (

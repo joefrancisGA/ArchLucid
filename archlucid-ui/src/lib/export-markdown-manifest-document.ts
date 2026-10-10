@@ -130,7 +130,13 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     lines.push("### Constraints");
     lines.push("");
     pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
-    pushBulletLines(lines, constraints.preferences, undefined);
+
+    if (constraints.preferences === null || constraints.preferences === undefined) {
+      lines.push("Preferences were not stored.");
+    } else {
+      pushBulletLines(lines, constraints.preferences, undefined);
+    }
+
     lines.push("");
   } else {
     lines.push("Constraints were not stored.");
@@ -211,8 +217,18 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const sid = normalizeInlineText(s.serviceId);
       const purpose = normalizeInlineText(s.purpose);
 
-      if (name) {
+      if (s.serviceName === null || s.serviceName === undefined) {
+        lines.push("- Service name was not stored.");
+
+        if (sid) {
+          lines.push(`  - **Service id:** \`${sid}\``);
+        }
+      } else {
         lines.push(`- **${name}**${sid ? ` (\`${sid}\`)` : ""}`);
+      }
+
+      if (s.serviceId === null || s.serviceId === undefined) {
+        lines.push("  - Service id was not stored.");
       }
 
       if (purpose) {
@@ -237,8 +253,18 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const name = normalizeInlineText(ds.name);
       const did = normalizeInlineText(ds.datastoreId);
 
-      if (name) {
+      if (ds.name === null || ds.name === undefined) {
+        lines.push("- Datastore name was not stored.");
+
+        if (did) {
+          lines.push(`  - **Datastore id:** \`${did}\``);
+        }
+      } else {
         lines.push(`- **${name}**${did ? ` (\`${did}\`)` : ""}`);
+      }
+
+      if (ds.datastoreId === null || ds.datastoreId === undefined) {
+        lines.push("  - Datastore id was not stored.");
       }
     }
 
@@ -290,7 +316,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         lines.push("");
       }
 
-      if (did) {
+      if (d.decisionId === null || d.decisionId === undefined) {
+        lines.push("- Decision id was not stored.");
+      } else if (did) {
         lines.push(`- **Decision id:** \`${did}\``);
       }
 
@@ -298,7 +326,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         lines.push(`- **Category:** ${category}`);
       }
 
-      if (option) {
+      if (d.selectedOption === null || d.selectedOption === undefined) {
+        lines.push("- Selected option was not stored.");
+      } else if (option) {
         lines.push(`- **Selected option:** ${option}`);
       }
 
