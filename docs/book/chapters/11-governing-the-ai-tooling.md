@@ -274,14 +274,14 @@ Three controls cover most of it.
 **Cache by everything that determines the output.** An explanation depends on the tenant, the pack, the audience, the prompt template, and the model version. If none of those changed, the explanation doesn't need to be regenerated:
 
 ```python
-def explanation_cache_key(tenant_id: str, pack_sha256: str, audience: str, prompt_version: str, model_version: str) -> str:
-    """Every input that can change the explanation is part of the key, including the tenant."""
-    parts = [tenant_id, pack_sha256, audience, prompt_version, model_version]
+def explanation_cache_key(tenant_id: str, pack_sha256: str, audience: str, prompt_version: str, model_version: str, validator_version: str) -> str:
+    """Every input and policy version governing a cached explanation is part of the key."""
+    parts = [tenant_id, pack_sha256, audience, prompt_version, model_version, validator_version]
 
     if any(not part for part in parts):
         raise ValueError("every cache key part is required")
 
-    return "explain:" + ":".join(parts)
+    return "explain:" + ":".join(f"{len(part)}:{part}" for part in parts)
 ```
 
 Using the pack hash rather than the snapshot ID means an unchanged pack from a new snapshot is a cache hit, which is the common case for a stable estate. Including the prompt and model versions means a change to either regenerates everything, which is what you want after an upgrade. Including the tenant is the isolation rule from section 11.7. Cache only explanations that passed validation and were approved, so the cache can't serve a draft that a reviewer rejected.
