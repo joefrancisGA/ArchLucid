@@ -10,6 +10,49 @@ namespace ArchLucid.ContextIngestion.Tests;
 public sealed class SecurityBaselineSensitivityScopeExpanderTests
 {
     [Fact]
+    public void Expand_ignores_duplicate_topology_object_ids_before_sensitivity_indexing()
+    {
+        CanonicalObject firstTopology = new()
+        {
+            ObjectId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            ObjectType = "TopologyResource",
+            Name = "first-database",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.DataBearing,
+            },
+        };
+        CanonicalObject duplicateTopology = new()
+        {
+            ObjectId = firstTopology.ObjectId,
+            ObjectType = "TopologyResource",
+            Name = "duplicate-database",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.PublicEdge,
+            },
+        };
+        CanonicalObject baseline = new()
+        {
+            ObjectType = "SecurityBaseline",
+            Name = "Encrypt data at rest",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["controlId"] = "storage-encryption",
+                [CanonicalGraphPropertyKeys.BaselineScope] = TopologySensitivityLevels.DataBearing,
+            },
+        };
+
+        IReadOnlyList<CanonicalObject> expanded =
+            SecurityBaselineSensitivityScopeExpander.Expand([firstTopology, duplicateTopology, baseline]);
+
+        expanded.Single(o => string.Equals(o.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
+            .Properties[CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds]
+            .Should()
+            .Be($"obj-{firstTopology.ObjectId}");
+    }
+
+    [Fact]
     public void Expand_links_baseline_to_matching_topology_sensitivity()
     {
         CanonicalObject web = new()

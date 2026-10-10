@@ -14,6 +14,8 @@
 
 2026-10-10 seed hunt (seed→hit): `context-ingestion` — `ContextIngestionService.ApplyScopeMetadata` preserved duplicate topology hints in `SourceHashes` even though the topology normalizer deduplicated them, so equivalent requests produced different metadata and false change signals. Topology-hint metadata now uses distinct canonical hints; regression `IngestAsync_DuplicateTopologyHints_ProduceStableScopeMetadata`; scoped ContextIngestion/Canonicalization tests passed 819/819.
 
+2026-10-10 seed hunt (seed→hit): `context-ingestion` — `SecurityBaselineSensitivityScopeExpander` built a dictionary of topology resources before canonical deduplication, so duplicate stable topology object ids from connector output could throw during enrichment instead of allowing the later deduplicator to collapse them. Duplicate topology ids now retain the first sensitivity entry; regression `Expand_ignores_duplicate_topology_object_ids_before_sensitivity_indexing`; scoped ContextIngestion/Canonicalization tests passed 820/820.
+
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — reviewed the reachable form submission state machine, schema-to-payload boundary, server-status mapping, and optional Select/Input transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
 
 2026-10-10 seed hunt (seed-only): `ui-form-validation` — rechecked the SignupForm schema boundary, payload shaping, submit lock, response/error branches, attribution fallback, and optional-field transitions; no fresh row met the full reachability and wrong-outcome bar. The exact SignupForm filter passed 99/99; retained the existing five bounded candidates and made no production change.
@@ -27411,6 +27413,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-10 seed hunt (seed→hit): duplicate pre-dedup topology object ids no longer throw during sensitivity expansion; 819 scoped ContextIngestion/Canonicalization tests passed.
+
+- [x] (proven) `SecurityBaselineSensitivityScopeExpander.Expand` — duplicate topology object ids in pre-dedup connector output caused `ToDictionary` to throw before `CanonicalDeduplicator` ran — **hit 2026-10-10 seed hunt:** group duplicate ids and retain the first sensitivity entry; covered by the scoped canonicalization suite.
 
 2026-10-10 seed hunt (seed→hit): duplicate topology hints now produce set-stable scope metadata; 819 scoped ContextIngestion/Canonicalization tests passed.
 
