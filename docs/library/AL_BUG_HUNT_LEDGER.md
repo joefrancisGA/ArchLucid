@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted `{"citations":[{"source":""}]}` because any property made the object appear non-empty; a malformed agent payload could satisfy PilotStrict citation presence. The gate now requires at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
+
 2026-10-10 seed hunt (seed→hit): `AgentOutputReferenceCaseRunEvaluator` counted `findings: [null]` toward `MinimumFindingCount`, so a malformed reachable reference-trace payload could pass a case requiring one finding. The evaluator now counts only non-null findings; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`; 201 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed-only): `agent-runtime-evaluation` — reread the confidence pipeline, evaluation recorder, sponsor aggregator, quality gate, and reference-case paths. No new row met the same-run failing-repro bar; seeded a bounded candidate for duplicate persisted AgentResult rows where first-result selection can disagree with latest-trace and calibrated-confidence selection. The scoped Evaluation filter passed 200/200. No production change.
@@ -16801,7 +16803,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
-2026-10-10 seed hunt (seed→hit): proved that `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` counted JSON-null findings toward `MinimumFindingCount`, allowing a malformed reference-trace result to pass a case with no valid finding. The evaluator now counts only non-null findings; regression `ComputeAnyPassingReferenceCase_does_not_count_null_finding_toward_minimum`; 201 scoped Evaluation tests passed.
+2026-10-10 seed hunt (seed→hit): proved that `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` accepted citation objects containing only blank string values, allowing malformed agent output to satisfy PilotStrict citation presence. The gate now requires a nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`; 202 scoped Evaluation tests passed.
 
 - **id:** agent-runtime-evaluation
 - **status:** open
@@ -16809,11 +16811,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 41
-- **bugs-found:** 26
+- **hunts:** 42
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — null reference-case findings counted toward minimum
+- **last-bug:** 2026-10-10 — blank citation objects satisfied PilotStrict presence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16839,7 +16841,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a non-empty citations array containing only null or blank entries satisfied the presence gate — **hit 2026-10-10 seed hunt:** require at least one non-empty citation object; regressions `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateTraceAsync` — cancellation after earlier case rows persist can leave a partial evaluation set without a run-level completion marker — locus: `AgentOutputReferenceCaseRunEvaluator.cs` ~100–162; input: multi-case trace evaluation canceled between repository appends.
 - [ ] (candidate) `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` — `Enum.TryParse` accepts a numeric finding category such as `"99"` without checking `Enum.IsDefined`, so an undefined enum ordinal can be treated as an automatically grounded category when the rest of the finding text overlaps evidence. Reachability: agent-produced `findings[].category` JSON is parsed by the evaluation checker at the trust boundary.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` has a property and therefore satisfies the presence gate despite containing no usable citation value. Reachability: agent-produced top-level `citations` JSON is consumed by the PilotStrict quality gate.
+- [x] (proven) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a citation object such as `{"source":""}` had a property and therefore satisfied the presence gate despite containing no usable citation value — **hit 2026-10-10 seed hunt:** require at least one nonblank string property; regression `TryEvaluateTrace_pilot_strict_rejects_on_missing_or_invalid_citations`.
 
 ### Hypotheses
 
