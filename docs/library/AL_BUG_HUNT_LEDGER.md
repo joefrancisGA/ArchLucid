@@ -29413,13 +29413,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1045
+- **hunts:** 1046
 - **bugs-found:** 427
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — escaped dotenv quote caused valid connection proposal suppression
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed-only): reread dotenv and compose-env parsing, declaration path/module resolution, connector delta keys, topology hint identity, uploaded-config filtering, and context-ingestion property promotion; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 824/824. No production change.
 
 2026-10-10 seed hunt (seed-only): reread context-ingestion orchestration, scope metadata canonicalization, connector ordering, canonical enrichers, diagram object mapping, property readers, and Terraform parser boundaries; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 824/824. No production change.
 
