@@ -97,14 +97,23 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
 
         if (document.RootElement.ValueKind is JsonValueKind.Array)
         {
-            List<ResourceDeclarationItem>? resources = JsonSerializer.Deserialize<List<ResourceDeclarationItem>>(
-                content,
-                JsonOptions);
+            List<ResourceDeclarationItem> resources = [];
 
-            return resources ?? [];
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (element.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                ResourceDeclarationItem? resource = element.Deserialize<ResourceDeclarationItem>(JsonOptions);
+
+                if (resource is not null)
+                    resources.Add(resource);
+            }
+
+            return resources;
         }
 
-        ResourceDeclarationDocument? doc = JsonSerializer.Deserialize<ResourceDeclarationDocument>(content, JsonOptions);
+        ResourceDeclarationDocument? doc = document.RootElement.Deserialize<ResourceDeclarationDocument>(JsonOptions);
 
         if (doc?.Resources is null || doc.Resources.Count == 0)
             return [];
