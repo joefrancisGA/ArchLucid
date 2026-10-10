@@ -166,12 +166,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                        OR COALESCE(s.SubscriptionId, JSON_VALUE(p.ManifestJson, '$.subscriptionId')) = @SubscriptionId
                                    )
                                """
-            + PersistenceTenantScope.AndTripleWhere(scope, "s")
+            + SnapshotListSqlSeparator.BeforeOrderBy(PersistenceTenantScope.AndTripleWhere(scope, "s"))
             + """
                                ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """
-                               + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
+            + PersistenceTenantScope.AndTripleWhere(PersistenceTenantScope.TrustedJobScope);
 
         object parameters = new
         {

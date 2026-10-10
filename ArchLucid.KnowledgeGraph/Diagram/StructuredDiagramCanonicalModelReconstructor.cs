@@ -66,7 +66,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
             diagramNodeIdByObjectId[canonicalObject.ObjectId.Trim()] = diagramNodeId;
 
-            if (canonicalObject.Properties.TryGetValue("extractionMethod", out string? method)
+            if (GraphNodePropertyReader.TryGetPropertyValue(
+                    canonicalObject.Properties,
+                    "extractionMethod",
+                    out string? method)
                 && !string.IsNullOrWhiteSpace(method))
             {
                 extractionMethod = method.Trim();
@@ -122,7 +125,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
     {
         foreach (CanonicalObject canonicalObject in nodes)
         {
-            if (canonicalObject.Properties.TryGetValue("sourceEvidenceItemId", out string? raw)
+            if (GraphNodePropertyReader.TryGetPropertyValue(
+                    canonicalObject.Properties,
+                    "sourceEvidenceItemId",
+                    out string? raw)
                 && !string.IsNullOrWhiteSpace(raw))
             {
                 return raw.Trim();
@@ -138,7 +144,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         foreach (CanonicalObject canonicalObject in nodes)
         {
-            if (!canonicalObject.Properties.TryGetValue("inferenceConfidence", out string? raw)
+            if (!GraphNodePropertyReader.TryGetPropertyValue(
+                    canonicalObject.Properties,
+                    "inferenceConfidence",
+                    out string? raw)
                 || string.IsNullOrWhiteSpace(raw)
                 || !double.TryParse(raw.Trim(), out double confidence))
             {
@@ -172,7 +181,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
                 continue;
             }
 
-            if (!source.Properties.TryGetValue("connectedToNodeIds", out string? connectedRaw)
+            if (!GraphNodePropertyReader.TryGetPropertyValue(
+                    source.Properties,
+                    "connectedToNodeIds",
+                    out string? connectedRaw)
                 || string.IsNullOrWhiteSpace(connectedRaw))
             {
                 continue;
@@ -216,7 +228,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
     {
         diagramNodeId = string.Empty;
 
-        if (!canonicalObject.Properties.TryGetValue("diagramNodeId", out string? raw)
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "diagramNodeId",
+                out string? raw)
             || string.IsNullOrWhiteSpace(raw))
         {
             return false;
@@ -228,7 +243,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
     private static string ReadLabel(CanonicalObject canonicalObject)
     {
-        if (canonicalObject.Properties.TryGetValue("text", out string? text)
+        if (GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "text",
+                out string? text)
             && !string.IsNullOrWhiteSpace(text))
         {
             return text.Trim();
@@ -239,7 +257,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
     private static string? ReadDiagramSubgraphId(CanonicalObject canonicalObject)
     {
-        if (!canonicalObject.Properties.TryGetValue("diagramSubgraphId", out string? raw)
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "diagramSubgraphId",
+                out string? raw)
             || string.IsNullOrWhiteSpace(raw))
         {
             return null;
@@ -250,7 +271,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
     private static string? ReadDiagramSubgraphLabel(CanonicalObject canonicalObject)
     {
-        if (!canonicalObject.Properties.TryGetValue("diagramSubgraphLabel", out string? raw)
+        if (!GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "diagramSubgraphLabel",
+                out string? raw)
             || string.IsNullOrWhiteSpace(raw))
         {
             return null;
@@ -261,7 +285,10 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
     private static string ReadDiagramNodeKind(CanonicalObject canonicalObject)
     {
-        if (canonicalObject.Properties.TryGetValue("diagramNodeKind", out string? kind)
+        if (GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "diagramNodeKind",
+                out string? kind)
             && !string.IsNullOrWhiteSpace(kind))
         {
             return kind.Trim();
@@ -272,7 +299,11 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
     private static string ReadProvenance(CanonicalObject canonicalObject)
     {
-        if (canonicalObject.Properties.TryGetValue("inferenceConfidence", out string? confidence)
+        if (GraphNodePropertyReader.TryGetPropertyValue(
+                canonicalObject.Properties,
+                "inferenceConfidence",
+                out string? confidence)
+            && confidence is not null
             && string.Equals(confidence.Trim(), "1", StringComparison.Ordinal))
         {
             return ArchitectureDiagramProvenanceKinds.Asserted;

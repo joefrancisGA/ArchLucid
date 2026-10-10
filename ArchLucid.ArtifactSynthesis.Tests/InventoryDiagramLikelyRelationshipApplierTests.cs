@@ -51,6 +51,83 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
         ast.Nodes[0].UnresolvedRelationshipDetails.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Apply_marks_redacted_storage_host_edge_as_likely()
+    {
+        DiagramAst ast = new()
+        {
+            Nodes =
+            [
+                new DiagramNode { NodeId = "app", Label = "app" },
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "storage",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "storage",
+                    Label = "Connected",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryStorageHostRef,
+                    ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
+                },
+            ],
+        };
+
+        InventoryDiagramLikelyRelationshipApplier.Apply(ast);
+
+        ast.Edges.Should().ContainSingle();
+        ast.Edges.Single().Label.Should().Be("Likely");
+        ast.Nodes[0].UnresolvedRelationshipDetails.Should()
+            .Contain(InventoryDiagramLikelyRelationshipApplier.StorageHostOutlineSentence);
+    }
+
+    [Fact]
+    public void Apply_removes_storage_host_guess_when_solid_edge_exists()
+    {
+        DiagramAst ast = new()
+        {
+            Nodes =
+            [
+                new DiagramNode { NodeId = "app", Label = "app" },
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "storage",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "storage",
+                    Label = "Likely",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryStorageHostRef,
+                    ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
+                },
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "storage",
+                    Label = "Connected",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryAdfLinkedService,
+                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                },
+            ],
+        };
+
+        InventoryDiagramLikelyRelationshipApplier.Apply(ast);
+
+        ast.Edges.Should().ContainSingle(edge => edge.Label == "Connected");
+    }
+
     private static DiagramAst CreateAst(string inferenceSource, string provenanceKind)
     {
         return new DiagramAst

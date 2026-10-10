@@ -27,12 +27,8 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
             ? "| Fallback path | Real → Simulator (fallback) |\n"
             : string.Empty;
         string deployment = input.RealModeFellBackToSimulator
-            ? IsOmitted(input.PilotAoaiDeploymentSnapshot)
-                ? "Deployment snapshot was not stored."
-                : input.PilotAoaiDeploymentSnapshot ?? string.Empty
-            : IsOmitted(input.HostAzureOpenAiDeploymentName)
-                ? "Azure OpenAI deployment was not stored."
-                : input.HostAzureOpenAiDeploymentName ?? string.Empty;
+            ? ResolveDeploymentValue(input.PilotAoaiDeploymentSnapshot, "Deployment snapshot was not stored.")
+            : ResolveDeploymentValue(input.HostAzureOpenAiDeploymentName, "Azure OpenAI deployment was not stored.");
 
         return $"""
                 ## Execution provenance
@@ -49,6 +45,9 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
 
     private static string ResolveModeLabel(ExecutionProvenanceFooterInput input) =>
         StructuralExecutionModeLabels.ToDisplayLabel(input.PersistedStructuralExecutionMode);
+
+    private static string ResolveDeploymentValue(string? value, string omittedMessage) =>
+        IsOmitted(value) ? omittedMessage : value ?? string.Empty;
 
     private static bool IsOmitted(string? value) =>
         value is null || (value.Length > 0 && string.IsNullOrWhiteSpace(value));

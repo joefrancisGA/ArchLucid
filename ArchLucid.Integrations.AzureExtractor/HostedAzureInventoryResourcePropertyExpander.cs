@@ -94,6 +94,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddAppServiceSubnetProperty(propertiesElement, properties);
             AddKindProperty(propertiesElement, properties);
             AddSiteWorkflowConnectionParameters(propertiesElement, properties);
+            AddWebAppContainerImageProperty(propertiesElement, properties);
         }
 
         if (resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
@@ -120,6 +121,13 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("Microsoft.App/containerApps", StringComparison.OrdinalIgnoreCase))
         {
             AddContainerAppProperties(propertiesElement, properties);
+        }
+
+        if (resourceType.Equals(
+                "Microsoft.ContainerRegistry/registries",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            AddContainerRegistryLoginServerProperty(propertiesElement, properties);
         }
 
         if (resourceType.Contains("managedEnvironments", StringComparison.OrdinalIgnoreCase))
@@ -791,6 +799,118 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             if (!string.IsNullOrWhiteSpace(fqdn))
             {
                 properties["configuration.ingress.fqdn"] = fqdn.Trim().ToLowerInvariant();
+            }
+        }
+
+        AddContainerImageProperties(propertiesElement, properties);
+    }
+
+    private static void AddContainerImageProperties(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("template", out JsonElement templateElement)
+            || templateElement.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        int index = 0;
+        AddContainerImageProperties(
+            templateElement,
+            "containers",
+            ref index,
+            properties);
+        AddContainerImageProperties(
+            templateElement,
+            "initContainers",
+            ref index,
+            properties);
+    }
+
+    private static void AddContainerImageProperties(
+        JsonElement templateElement,
+        string propertyName,
+        ref int index,
+        Dictionary<string, object?> properties)
+    {
+        if (!templateElement.TryGetProperty(propertyName, out JsonElement containersElement)
+            || containersElement.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (JsonElement containerElement in containersElement.EnumerateArray())
+        {
+            if (containerElement.ValueKind is JsonValueKind.Object
+                && containerElement.TryGetProperty("image", out JsonElement imageElement)
+                && imageElement.ValueKind is JsonValueKind.String)
+            {
+                string? image = imageElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(image))
+                {
+                    properties[$"container.image[{index}]"] = image.Trim();
+                }
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddWebAppContainerImageProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (!propertiesElement.TryGetProperty("siteConfig", out JsonElement siteConfigElement)
+            || siteConfigElement.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        string? image = TryReadDockerImage(siteConfigElement, "linuxFxVersion")
+            ?? TryReadDockerImage(siteConfigElement, "windowsFxVersion");
+
+        if (!string.IsNullOrWhiteSpace(image))
+        {
+            properties["container.image[0]"] = image;
+        }
+    }
+
+    private static string? TryReadDockerImage(
+        JsonElement siteConfigElement,
+        string propertyName)
+    {
+        if (!siteConfigElement.TryGetProperty(propertyName, out JsonElement valueElement)
+            || valueElement.ValueKind is not JsonValueKind.String)
+        {
+            return null;
+        }
+
+        string? value = valueElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(value)
+            || !value.StartsWith("DOCKER|", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string image = value["DOCKER|".Length..].Trim();
+        return string.IsNullOrWhiteSpace(image) ? null : image;
+    }
+
+    private static void AddContainerRegistryLoginServerProperty(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        if (propertiesElement.TryGetProperty("loginServer", out JsonElement loginServerElement)
+            && loginServerElement.ValueKind is JsonValueKind.String)
+        {
+            string? loginServer = loginServerElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(loginServer))
+            {
+                properties["loginServer"] = loginServer.Trim().ToLowerInvariant();
             }
         }
     }

@@ -10,4 +10,6 @@ public static class InventoryDiagramOrphanedStatePropertyKeys
     public const string RequiredSubnetArmId = "inventory.orphanedState.requiredSubnetArmId";
 
     public const string RequiredVirtualNetworkArmId = "inventory.orphanedState.requiredVirtualNetworkArmId";
+
+    public const string SkuName = "sku.name";
 }

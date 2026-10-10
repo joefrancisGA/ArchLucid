@@ -136,7 +136,10 @@ public static class CanonicalInfrastructurePropertyBag
 
     private static string NormalizeSensitiveKeyName(string rawKey)
     {
-        return rawKey.Trim().ToLowerInvariant().Replace("_", string.Empty, StringComparison.Ordinal);
+        return rawKey.Trim()
+            .ToLowerInvariant()
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal);
     }
 
     internal static bool IsRedactionToken(string rawValue)

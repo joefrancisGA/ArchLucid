@@ -9,6 +9,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 internal static class InventoryDiagramLikelyRelationshipApplier
 {
     public const string OutlineSentence = "No stored link yet; inferred from resource group.";
+    public const string StorageHostOutlineSentence =
+        "No stored link yet; inferred from a redacted host reference.";
 
     public static void Apply(DiagramAst ast)
     {
@@ -18,14 +20,27 @@ internal static class InventoryDiagramLikelyRelationshipApplier
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
-        foreach (DiagramEdge edge in ast.Edges.Where(edge => !edge.IsLayoutOnly))
+        foreach (DiagramEdge edge in ast.Edges.Where(edge => !edge.IsLayoutOnly).ToList())
         {
-            if (!IsResourceGroupGuess(edge))
+            bool isResourceGroupGuess = IsResourceGroupGuess(edge);
+            bool isStorageHostGuess = IsStorageHostGuess(edge, nodesById);
+
+            if (!isResourceGroupGuess && !isStorageHostGuess)
             {
                 continue;
             }
 
-            edge.Label = OutlineSentence;
+            if (isStorageHostGuess
+                && HasSolidEdgeBetween(ast, edge))
+            {
+                ast.Edges.Remove(edge);
+                continue;
+            }
+
+            string outlineSentence = isStorageHostGuess
+                ? StorageHostOutlineSentence
+                : OutlineSentence;
+            edge.Label = isStorageHostGuess ? "Likely" : OutlineSentence;
             edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
 
             if (!nodesById.TryGetValue(edge.FromNodeId, out DiagramNode? sourceNode))
@@ -33,11 +48,43 @@ internal static class InventoryDiagramLikelyRelationshipApplier
                 continue;
             }
 
-            if (!sourceNode.UnresolvedRelationshipDetails.Contains(OutlineSentence, StringComparer.Ordinal))
+            if (!sourceNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
             {
-                sourceNode.UnresolvedRelationshipDetails.Add(OutlineSentence);
+                sourceNode.UnresolvedRelationshipDetails.Add(outlineSentence);
             }
         }
+    }
+
+    private static bool IsStorageHostGuess(
+        DiagramEdge edge,
+        IReadOnlyDictionary<string, DiagramNode> nodesById)
+    {
+        if (!string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryStorageHostRef,
+                StringComparison.OrdinalIgnoreCase)
+            || !nodesById.TryGetValue(edge.ToNodeId, out DiagramNode? targetNode))
+        {
+            return false;
+        }
+
+        return targetNode.ArmResourceType?.Equals(
+                   "Microsoft.Storage/storageAccounts",
+                   StringComparison.OrdinalIgnoreCase)
+               == true;
+    }
+
+    private static bool HasSolidEdgeBetween(DiagramAst ast, DiagramEdge candidate)
+    {
+        return ast.Edges.Any(edge =>
+            !ReferenceEquals(edge, candidate)
+            && !edge.IsLayoutOnly
+            && !string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryStorageHostRef,
+                StringComparison.OrdinalIgnoreCase)
+            && ((edge.FromNodeId == candidate.FromNodeId && edge.ToNodeId == candidate.ToNodeId)
+                || (edge.FromNodeId == candidate.ToNodeId && edge.ToNodeId == candidate.FromNodeId)));
     }
 
     private static bool IsResourceGroupGuess(DiagramEdge edge)

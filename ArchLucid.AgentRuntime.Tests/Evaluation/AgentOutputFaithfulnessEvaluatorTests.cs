@@ -84,6 +84,33 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"faithfulnessScore":2.0,"rationale":"malformed"}""");
+
+        AgentOutputFaithfulnessEvaluator sut = CreateEvaluator(
+            client.Object,
+            qualityGateEnabled: true,
+            faithfulnessEnabled: true);
+
+        double? score = await sut.TryEvaluateAsync(
+            "trace-out-of-range",
+            """{"claims":[{"text":"Use Blob storage","evidence":"catalog"}]}""",
+            SampleEvidence(),
+            CancellationToken.None);
+
+        score.Should().BeNull();
+    }
+
+    [Fact]
     public void FaithfulnessJudgePromptResolver_exposes_catalog_metadata()
     {
         ResolvedSystemPrompt resolved = FaithfulnessJudgePromptResolver.Resolve();

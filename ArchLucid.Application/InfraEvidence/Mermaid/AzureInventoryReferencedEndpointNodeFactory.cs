@@ -30,6 +30,19 @@ internal static class AzureInventoryReferencedEndpointNodeFactory
             return [];
         }
 
+        return ResolveTargetNodeIds(normalizedArmId, nodeIdByArmId, nodes, seenNodeIds);
+    }
+
+    /// <summary>
+    ///     Reuses exact, descendant, or ancestor mappings, including hydrated synthetic endpoints,
+    ///     before creating a reference for an absent ARM resource. Callers apply visibility policy first.
+    /// </summary>
+    public static IReadOnlyList<string> ResolveTargetNodeIds(
+        string normalizedArmId,
+        Dictionary<string, string> nodeIdByArmId,
+        List<GraphNode> nodes,
+        HashSet<string> seenNodeIds)
+    {
         IReadOnlyList<string> relatedNodeIds = AzureInventoryArmEndpointNodeResolver.ResolveRelatedNodeIds(
             nodeIdByArmId, normalizedArmId);
         if (relatedNodeIds.Count > 0)

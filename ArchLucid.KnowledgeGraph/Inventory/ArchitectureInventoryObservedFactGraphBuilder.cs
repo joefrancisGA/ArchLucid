@@ -34,7 +34,7 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             }
 
             string nodeId = ResolveNodeId(resource);
-            nodeIdByArmId[resource.AzureResourceId] = nodeId;
+            nodeIdByArmId[normalizedArmId] = nodeId;
 
             GraphNode node = new()
             {
@@ -79,15 +79,18 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
         }
 
         List<GraphEdge> edges = [];
-        HashSet<string> edgeKeys = new(StringComparer.Ordinal);
+        HashSet<string> edgeKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships
                      .OrderBy(candidate => candidate.FromAzureResourceId, StringComparer.Ordinal)
                      .ThenBy(candidate => candidate.ToAzureResourceId, StringComparer.Ordinal)
                      .ThenBy(candidate => candidate.RelationshipType, StringComparer.Ordinal))
         {
-            if (!nodeIdByArmId.TryGetValue(relationship.FromAzureResourceId, out string? fromNodeId)
-                || !nodeIdByArmId.TryGetValue(relationship.ToAzureResourceId, out string? toNodeId))
+            string normalizedFromArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
+            string normalizedToArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+
+            if (!nodeIdByArmId.TryGetValue(normalizedFromArmId, out string? fromNodeId)
+                || !nodeIdByArmId.TryGetValue(normalizedToArmId, out string? toNodeId))
             {
                 continue;
             }

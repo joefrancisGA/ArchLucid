@@ -1,5 +1,7 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph.Inventory;
+using AzureInventoryAdfExternalSourceNodeFactory =
+    ArchLucid.Core.AzureExtractor.AzureInventoryAdfExternalSourceNodeFactory;
 
 using FluentAssertions;
 
@@ -99,6 +101,44 @@ public sealed class AzureInventoryDataFlowStageResolverTests
     public void Resolve_external_source_flag_returns_source_even_when_arm_type_empty()
     {
         AzureInventoryDataFlowStageResolver.Resolve(string.Empty, isExternalSource: true)
+            .Should()
+            .Be(AzureInventoryDataFlowStageNames.Source);
+    }
+
+    [Fact]
+    public void Resolve_reads_arm_type_when_persisted_property_key_uses_different_casing()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "storage-account",
+            NodeType = "Microsoft.Web/sites",
+            Label = "storage-account",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Arm.Type"] = "Microsoft.Storage/storageAccounts",
+            },
+        };
+
+        AzureInventoryDataFlowStageResolver.Resolve(node)
+            .Should()
+            .Be(AzureInventoryDataFlowStageNames.Storage);
+    }
+
+    [Fact]
+    public void Resolve_reads_external_source_marker_when_persisted_property_key_uses_different_casing()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "inventory-resource",
+            NodeType = "Microsoft.Web/sites",
+            Label = "external-source",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Arm.ExternalSource"] = AzureInventoryAdfExternalSourceNodeFactory.ExternalSourcePropertyValue,
+            },
+        };
+
+        AzureInventoryDataFlowStageResolver.Resolve(node)
             .Should()
             .Be(AzureInventoryDataFlowStageNames.Source);
     }

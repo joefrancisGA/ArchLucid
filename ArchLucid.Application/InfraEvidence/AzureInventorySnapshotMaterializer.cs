@@ -129,6 +129,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                     });
                 }
 
+                AddBastionSkuNameProperty(row, resourceRowId, properties);
+
                 if (row.IsUnknownType)
                 {
                     unknowns.Add(new AzureInventoryUnknownResourceWrite
@@ -372,6 +374,35 @@ public sealed class AzureInventorySnapshotMaterializer(
         }
 
         return SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+    }
+
+    private static void AddBastionSkuNameProperty(
+        AzureExtractorExtendedResourceRow row,
+        Guid resourceRowId,
+        List<AzureInventoryResourcePropertyWrite> properties)
+    {
+        if (string.IsNullOrWhiteSpace(row.SkuName)
+            || !row.ResourceType.Contains("bastionHosts", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (properties.Any(property =>
+                property.ResourceRowId == resourceRowId
+                && property.PropertyKey.Equals(
+                    InventoryDiagramOrphanedStatePropertyKeys.SkuName,
+                    StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        properties.Add(new AzureInventoryResourcePropertyWrite
+        {
+            ResourceRowId = resourceRowId,
+            PropertyKey = InventoryDiagramOrphanedStatePropertyKeys.SkuName,
+            PropertyValue = row.SkuName.Trim(),
+            IsRedacted = false,
+        });
     }
 
     private static void AppendRecoveryServicesVaultProtectedItemProperties(

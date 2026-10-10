@@ -44,13 +44,16 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             }
         ];
 
-        foreach (var decision in manifest.Decisions)
+        for (int decisionIndex = 0; decisionIndex < manifest.Decisions.Count; decisionIndex++)
         {
+            ResolvedArchitectureDecision decision = manifest.Decisions[decisionIndex];
+
             if (string.IsNullOrWhiteSpace(decision.Title))
                 continue;
 
+            // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
             string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{manifest.ManifestId:N}-{decisionIndex}"
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
@@ -228,8 +231,10 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     {
         List<RetrievalDocument> documents = [];
 
-        foreach (var finding in findings)
+        for (int findingIndex = 0; findingIndex < findings.Count; findingIndex++)
         {
+            Finding finding = findings[findingIndex];
+
             if (finding.IsMuted)
                 continue;
 
@@ -239,8 +244,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             if (string.IsNullOrWhiteSpace(message))
                 continue;
 
+            // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
             string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
-                ? Guid.NewGuid().ToString("N")
+                ? $"generated-{runId:N}-{findingIndex}"
                 : finding.FindingId.Trim();
 
             string content = $"[{finding.Category}] {finding.Severity}: {message}";

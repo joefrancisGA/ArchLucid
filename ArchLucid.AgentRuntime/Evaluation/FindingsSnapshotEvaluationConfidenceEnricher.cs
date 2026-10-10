@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
@@ -44,7 +45,17 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                             AgentEvaluationConfidencePipeline.ResolveTraceForSnapshotFinding(finding, context);
 
                         (bool schemaPassed, bool referenceMatched) =
-                            await _confidencePipeline.EvaluateTraceSignalsAsync(trace, context.Evidence, context.CalibratedConfidenceByTaskId, ct)
+                            await _confidencePipeline.EvaluateTraceSignalsAsync(
+                                    trace,
+                                    context.Evidence,
+                                    context.CalibratedConfidenceByTaskId,
+                                    ct,
+                                    trace is not null
+                                        && context.StructuralExecutionModeByTaskId.TryGetValue(
+                                            trace.TaskId,
+                                            out StructuralExecutionMode? mode)
+                                        ? mode
+                                        : null)
                                 .ConfigureAwait(false);
 
                         FindingConfidenceCalculationResult calculated = _confidencePipeline.ComputeFindingConfidence(

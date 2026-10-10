@@ -105,6 +105,27 @@ public sealed class SimpleTerraformDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_ResourceHeaderInsideComment_DoesNotTruncatePreviousResource()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "commented-resource.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "azurerm_resource_group" "core" {
+                        # resource "azurerm_storage_account" "example"
+                        location = "eastus"
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Properties["tf.location"].Should().Be("eastus");
+    }
+
+    [Fact]
     public async Task ParseAsync_ExtractsAwsAndGcpResourceBlocks()
     {
         InfrastructureDeclarationReference declaration = new()

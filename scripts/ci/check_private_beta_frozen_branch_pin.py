@@ -34,6 +34,21 @@ def git_ref_exists(root: Path, ref: str) -> bool:
     return result.returncode == 0
 
 
+def git_ref_sha(root: Path, ref: str) -> str | None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", ref],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    return result.stdout.strip() or None
+
+
 def is_ancestor(root: Path, ancestor: str, ref: str) -> bool:
     result = subprocess.run(
         ["git", "merge-base", "--is-ancestor", ancestor, ref],

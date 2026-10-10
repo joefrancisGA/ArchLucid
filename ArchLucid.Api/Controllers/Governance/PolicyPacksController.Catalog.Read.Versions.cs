@@ -61,7 +61,8 @@ public sealed partial class PolicyPacksController
         if (versionProblem is not null)
             return versionProblem;
 
-        PolicyPackVersionHttpResult result = await _httpFacade.GetVersionAsync(policyPackId, packVersion, ct)
+        string normalizedPackVersion = packVersion.Trim();
+        PolicyPackVersionHttpResult result = await _httpFacade.GetVersionAsync(policyPackId, normalizedPackVersion, ct)
             .ConfigureAwait(false);
 
         return this.MapVersionLookup(result);

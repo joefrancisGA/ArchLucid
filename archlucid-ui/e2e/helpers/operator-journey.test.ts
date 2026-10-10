@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findingJobViewChipListsRows,
   reviewDetailErrorShellMessage,
+  reviewDetailReadinessState,
   shouldReloadReviewDetailAfterErrorShell,
 } from "./operator-journey";
 
@@ -22,6 +23,15 @@ describe("review detail readiness diagnostics", () => {
     expect(findingJobViewChipListsRows("Needs my decision (0)")).toBe(false);
     expect(findingJobViewChipListsRows("Coverage gaps (6)")).toBe(true);
     expect(findingJobViewChipListsRows("Needs governance (10)")).toBe(true);
+  });
+
+  it("identifies which readiness signal is still missing", () => {
+    expect(reviewDetailReadinessState(false, true)).toBe(
+      "retry (review-detail-root=hidden, main-h1=visible)",
+    );
+    expect(reviewDetailReadinessState(true, false)).toBe(
+      "retry (review-detail-root=visible, main-h1=hidden)",
+    );
   });
 
 });

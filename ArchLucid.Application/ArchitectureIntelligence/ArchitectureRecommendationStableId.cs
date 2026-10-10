@@ -25,6 +25,23 @@ public static class ArchitectureRecommendationStableId
         return new Guid(digest.AsSpan(0, 16)).ToString("N");
     }
 
+    public static string FromTradeOff(
+        QualityDimension firstDimension,
+        QualityDimension secondDimension,
+        string proposedDecision)
+    {
+        ArgumentNullException.ThrowIfNull(proposedDecision);
+
+        string canonical = string.Join(
+            '\u001f',
+            firstDimension.ToString(),
+            secondDimension.ToString(),
+            proposedDecision);
+        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
+
+        return new Guid(digest.AsSpan(0, 16)).ToString("N");
+    }
+
     public static string FromLlmRecommendation(string problem, string proposedChange, string? dimension)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(problem);

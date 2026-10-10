@@ -88,6 +88,31 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
     }
 
     [Fact]
+    public void ReconstructModels_reads_diagram_node_id_when_persisted_property_key_uses_different_casing()
+    {
+        List<CanonicalObject> canonicalObjects =
+        [
+            new CanonicalObject
+            {
+                ObjectId = "obj-1",
+                ObjectType = "TopologyResource",
+                Name = "api",
+                SourceType = ArchitectureDiagramCanonicalObjectMapper.StructuredDiagramSourceType,
+                SourceId = "doc-1",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["DIAGRAMNODEID"] = "api",
+                },
+            },
+        ];
+
+        IReadOnlyList<StructuredDiagramReconstructedDocument> documents =
+            StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments(canonicalObjects);
+
+        documents.Should().ContainSingle().Which.Model.Nodes.Should().ContainSingle(node => node.Id == "api");
+    }
+
+    [Fact]
     public void ResolveLabelOnlyInferenceConfidence_uses_minimum_non_asserted_confidence()
     {
         List<CanonicalObject> canonicalObjects =

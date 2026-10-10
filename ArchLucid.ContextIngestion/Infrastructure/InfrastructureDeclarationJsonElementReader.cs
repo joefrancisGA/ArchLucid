@@ -9,6 +9,13 @@ internal static class InfrastructureDeclarationJsonElementReader
 {
     internal static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
     {
+        if (element.ValueKind is not JsonValueKind.Object)
+        {
+            value = default;
+
+            return false;
+        }
+
         if (element.TryGetProperty(propertyName, out value))
             return true;
 

@@ -314,6 +314,25 @@ public sealed class ApplicationProblemMapperTests
     }
 
     [SkippableFact]
+    public void TryMapDatabaseException_SqlUndeclaredVariable137_Returns500InternalServerError()
+    {
+        DefaultHttpContext http = CreateHttpContext("/v1/infra-evidence/snapshots", "sql-undeclared-137");
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
+            SqlExceptionTestFactory.Create(137),
+            "/v1/infra-evidence/snapshots",
+            http,
+            out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.InternalError);
+        p.Title.Should().Be("Database Query Failed");
+    }
+
+    [SkippableFact]
     public void TryMapUnhandledException_OperationCanceled_without_request_abort_maps_to_503()
     {
         OperationCanceledException ex = new();

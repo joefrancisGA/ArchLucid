@@ -253,6 +253,82 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(
+            new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16, MaxChunksPerIndexOperation = 0 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        RetrievalDocument indexedDoc = new()
+        {
+            DocumentId = "d-empty-cap-rollback",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "existing corpus",
+            ContentHash = "HASH-EXISTING",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([indexedDoc], CancellationToken.None);
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().BeGreaterThan(0);
+
+        caps.Setup(m => m.CurrentValue).Returns(
+            new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16, MaxChunksPerIndexOperation = 2 });
+
+        RetrievalDocument emptiedDoc = new()
+        {
+            DocumentId = indexedDoc.DocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "   ",
+            ContentHash = "HASH-EMPTY",
+            CreatedUtc = indexedDoc.CreatedUtc,
+        };
+
+        RetrievalDocument oversizedDoc = new()
+        {
+            DocumentId = "d-over-cap-after-empty",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = new string('x', 5200),
+            ContentHash = "HASH-OVERSIZED",
+            CreatedUtc = indexedDoc.CreatedUtc,
+        };
+
+        Func<Task> overCapAttempt = async () =>
+            await sut.IndexDocumentsAsync([emptiedDoc, oversizedDoc], CancellationToken.None);
+
+        await overCapAttempt.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*MaxChunksPerIndexOperation*");
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public async Task IndexDocumentsAsync_SkipsEmbeddingWhenContentHashAndFingerprintUnchanged()
     {
         int embedCalls = 0;

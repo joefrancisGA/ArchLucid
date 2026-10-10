@@ -165,7 +165,7 @@ internal static class SimpleTerraformResourceBlockParser
         if (string.IsNullOrWhiteSpace(content))
             return [];
 
-        MatchCollection matches = ResourceHeaderRegex.Matches(content);
+        MatchCollection matches = ResourceHeaderRegex.Matches(MaskComments(content));
 
         if (matches.Count == 0)
             return [];
@@ -196,7 +196,7 @@ internal static class SimpleTerraformResourceBlockParser
         if (string.IsNullOrWhiteSpace(content))
             return [];
 
-        MatchCollection matches = ModuleHeaderRegex.Matches(content);
+        MatchCollection matches = ModuleHeaderRegex.Matches(MaskComments(content));
 
         if (matches.Count == 0)
             return [];
@@ -492,5 +492,79 @@ internal static class SimpleTerraformResourceBlockParser
         }
 
         return newlineCount + 1;
+    }
+
+    private static string MaskComments(string content)
+    {
+        char[] masked = content.ToCharArray();
+        bool inBlockComment = false;
+        char quotedBy = '\0';
+        bool escaped = false;
+
+        for (int index = 0; index < masked.Length; index++)
+        {
+            char current = content[index];
+
+            if (inBlockComment)
+            {
+                if (current == '*' && index + 1 < masked.Length && content[index + 1] == '/')
+                {
+                    masked[index] = ' ';
+                    masked[++index] = ' ';
+                    inBlockComment = false;
+                    continue;
+                }
+
+                if (current is not '\r' and not '\n')
+                    masked[index] = ' ';
+
+                continue;
+            }
+
+            if (quotedBy != '\0')
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (current == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (current == quotedBy)
+                    quotedBy = '\0';
+
+                continue;
+            }
+
+            if (current is '"' or '\'')
+            {
+                quotedBy = current;
+                continue;
+            }
+
+            if (current == '/' && index + 1 < masked.Length && content[index + 1] == '*')
+            {
+                masked[index] = ' ';
+                masked[++index] = ' ';
+                inBlockComment = true;
+                continue;
+            }
+
+            if (current == '#'
+                || (current == '/' && index + 1 < masked.Length && content[index + 1] == '/'))
+            {
+                while (index < masked.Length && content[index] is not '\r' and not '\n')
+                    masked[index++] = ' ';
+
+                index--;
+            }
+        }
+
+        return new string(masked);
     }
 }

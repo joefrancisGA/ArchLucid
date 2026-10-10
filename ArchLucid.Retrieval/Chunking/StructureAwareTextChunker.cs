@@ -54,6 +54,7 @@ public sealed class StructureAwareTextChunker : ITextChunker
         List<string> lines = text.Split('\n').ToList();
         List<string> buffer = [];
         bool inCodeFence = false;
+        int codeFenceLength = 0;
 
         for (int i = 0; i < lines.Count; i++)
         {
@@ -67,13 +68,18 @@ public sealed class StructureAwareTextChunker : ITextChunker
                     FlushBuffer(segments, buffer);
                     buffer.Add(line);
                     inCodeFence = true;
+                    codeFenceLength = GetCodeFenceLength(trimmedLine);
                     continue;
                 }
 
-                buffer.Add(line);
-                FlushBuffer(segments, buffer);
-                inCodeFence = false;
-                continue;
+                if (IsClosingCodeFenceDelimiter(trimmedLine, codeFenceLength))
+                {
+                    buffer.Add(line);
+                    FlushBuffer(segments, buffer);
+                    inCodeFence = false;
+                    codeFenceLength = 0;
+                    continue;
+                }
             }
 
             if (inCodeFence)
@@ -222,6 +228,24 @@ public sealed class StructureAwareTextChunker : ITextChunker
 
     private static bool IsCodeFenceDelimiter(string trimmedLine)
     {
-        return trimmedLine.StartsWith("```", StringComparison.Ordinal);
+        return GetCodeFenceLength(trimmedLine) >= 3;
+    }
+
+    private static bool IsClosingCodeFenceDelimiter(string trimmedLine, int openingFenceLength)
+    {
+        int closingFenceLength = GetCodeFenceLength(trimmedLine);
+
+        return closingFenceLength >= openingFenceLength
+            && string.IsNullOrWhiteSpace(trimmedLine[closingFenceLength..]);
+    }
+
+    private static int GetCodeFenceLength(string trimmedLine)
+    {
+        int length = 0;
+
+        while (length < trimmedLine.Length && trimmedLine[length] == '`')
+            length++;
+
+        return length;
     }
 }

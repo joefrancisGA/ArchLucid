@@ -118,6 +118,19 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(screen.getByText("Not used on decision rows")).toBeInTheDocument();
   });
 
+  it("does not expose decision rows to findings bulk selection", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), recordKind: "decision" }]}
+        buyerPolishedShell={false}
+        selectedFindingIds={new Set()}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    expect(screen.queryByRole("checkbox", { name: "Select finding: Risk 0" })).toBeNull();
+  });
+
   it("keeps remaining resource groups expanded when disclosure URL references a filtered-out group", () => {
     const staleGroupKey = `resource:${resourceGroupA}`;
     searchQuery = `${GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM}=${encodeURIComponent(staleGroupKey)}`;
