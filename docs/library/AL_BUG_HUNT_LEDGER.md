@@ -27352,6 +27352,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
 
+- **(candidate)** `StructuredExplanationParser.TryReadObjectStringProperty` checks `id` before `text` for object-shaped reasoning/list tokens; a compatibility payload such as `{"reasoning":{"id":"provider-response-id","text":"actual explanation"}}` would expose the identifier as reasoning. The parser accepts this object shape, but the canonical schema and prompt require a string and the repository has no producer fixture establishing the mixed object contract, so retain as seed-only pending provider-contract evidence.
+
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
 - **status:** open
