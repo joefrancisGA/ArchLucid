@@ -21,12 +21,16 @@ class TestPrivateBetaRefParity(unittest.TestCase):
         workflow = "\n".join(sut.REQUIRED_MARKERS)
         spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
         helper = " ".join(sut.REQUIRED_HELPER_MARKERS)
+        readiness = " ".join(sut.REQUIRED_READINESS_MARKERS)
 
         def fake_show(ref: str, path: str) -> str:
             if path == sut.WORKFLOW_PATH:
                 return workflow
 
-            return spec if path == sut.SPEC_PATH else helper
+            if path == sut.SPEC_PATH:
+                return spec
+
+            return helper if path == sut.HELPER_PATH else readiness
 
         with patch.object(sut, "_show_ref", side_effect=fake_show):
             self.assertEqual(sut.compare_refs("base", "release"), [])
@@ -40,13 +44,17 @@ class TestPrivateBetaRefParity(unittest.TestCase):
     def test_requires_failure_class_diagnostics_in_private_beta_helper(self) -> None:
         workflow = "\n".join(sut.REQUIRED_MARKERS)
         spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
-        helper = " ".join(marker for marker in sut.REQUIRED_HELPER_MARKERS if marker != "[dead-link-404]")
+        helper = " ".join(sut.REQUIRED_HELPER_MARKERS)
+        readiness = " ".join(marker for marker in sut.REQUIRED_READINESS_MARKERS if marker != "[dead-link-404]")
 
         def fake_show(ref: str, path: str) -> str:
             if path == sut.WORKFLOW_PATH:
                 return workflow
 
-            return spec if path == sut.SPEC_PATH else helper
+            if path == sut.SPEC_PATH:
+                return spec
+
+            return helper if path == sut.HELPER_PATH else readiness
 
         with patch.object(sut, "_show_ref", side_effect=fake_show):
             issues = sut.compare_refs("base", "release")
