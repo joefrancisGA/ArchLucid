@@ -19,7 +19,10 @@ REQUIRED_ROUTES: dict[str, tuple[str, ...]] = {
     "/scim/v2/Users/{id}": ("delete", "get", "patch", "put"),
 }
 REQUIRED_OPERATION_CONTRACTS: dict[tuple[str, str], dict[str, object]] = {
-    (route, method): {"audience": "operator", "responses": ("401", "403")}
+    (route, method): {
+        "audience": "operator",
+        "responses": ("401", "403", "429", "500", "503"),
+    }
     for route, methods in REQUIRED_ROUTES.items()
     for method in methods
 }
