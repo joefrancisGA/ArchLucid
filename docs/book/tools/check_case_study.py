@@ -23,6 +23,9 @@ REVIEW = "review"
 
 GUID = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")
 IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?:/\d{1,2})?\b")
+IPV6 = re.compile(
+    r"(?<![0-9A-Fa-f:])(?:[0-9A-Fa-f]{0,4}:){2,7}[0-9A-Fa-f:.]*(?:/\d{1,3})?(?![0-9A-Fa-f:])"
+)
 EMAIL = re.compile(r"\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
 TENANT_DOMAIN = re.compile(r"\b[a-z0-9-]+\.onmicrosoft\.com\b", re.IGNORECASE)
 
@@ -43,6 +46,7 @@ DOCUMENTATION_NETWORKS = [
     ipaddress.ip_network("192.0.2.0/24"),
     ipaddress.ip_network("198.51.100.0/24"),
     ipaddress.ip_network("203.0.113.0/24"),
+    ipaddress.ip_network("2001:db8::/32"),
 ]
 
 
@@ -53,15 +57,15 @@ class Finding:
     message: str
 
 
-def parse_address(text: str) -> ipaddress.IPv4Address | None:
-    """Return the address part of an IPv4 match, or None if it isn't a valid address."""
+def parse_address(text: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
+    """Return the address part of a match, or None if it isn't a valid address."""
     try:
         return ipaddress.ip_address(text.split("/")[0])
     except ValueError:
         return None
 
 
-def is_documentation_address(address: ipaddress.IPv4Address) -> bool:
+def is_documentation_address(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
     return any(address in network for network in DOCUMENTATION_NETWORKS)
 
 
@@ -71,17 +75,18 @@ def check_guids(line: str) -> Iterator[tuple[str, str]]:
 
 
 def check_addresses(line: str) -> Iterator[tuple[str, str]]:
-    for match in IPV4.finditer(line):
-        address = parse_address(match.group(0))
+    for pattern in (IPV4, IPV6):
+        for match in pattern.finditer(line):
+            address = parse_address(match.group(0))
 
-        if address is None or is_documentation_address(address):
-            continue
+            if address is None or is_documentation_address(address):
+                continue
 
-        # Private ranges reveal topology rather than identity, so they need judgment, not a hard stop.
-        if address.is_private:
-            yield REVIEW, f"private address {match.group(0)}; keep only if a point needs it"
-        else:
-            yield ERROR, f"public IP address {match.group(0)}; use 192.0.2.0/24, 198.51.100.0/24, or 203.0.113.0/24"
+            # Private ranges reveal topology rather than identity, so they need judgment, not a hard stop.
+            if address.is_private:
+                yield REVIEW, f"private address {match.group(0)}; keep only if a point needs it"
+            else:
+                yield ERROR, f"public IP address {match.group(0)}; use documentation IP ranges"
 
 
 def check_emails(line: str) -> Iterator[tuple[str, str]]:
