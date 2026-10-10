@@ -555,6 +555,51 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinEvidenceRefCount = 1,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1
+        };
+
+        Mock<IAgentOutputQualityGate> gate = new();
+        gate.Setup(g => g.Evaluate(It.IsAny<AgentOutputEvaluationScore>(), It.IsAny<AgentOutputSemanticScore>()))
+            .Returns(AgentOutputQualityGateOutcome.Accepted);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-null-evidence-ref",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[null],"confidence":0.5,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
+                """
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                gate.Object,
+                CancellationToken.None);
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.EvaluationReason.Should().Contain("evidence_ref_count_below_floor");
+    }
+
+    [Fact]
     public async Task TryEvaluateTrace_embedding_scorer_sets_mean_cosine_on_semantic_score()
     {
         AgentOutputQualityGateOptions options = new()

@@ -75,6 +75,11 @@ internal static class AgentOutputTraceCitationGate
             refsElement.ValueKind != JsonValueKind.Array)
             return 0;
 
-        return refsElement.GetArrayLength();
+        // Count usable references only; null, non-string, and blank entries do not
+        // satisfy the PilotStrict evidence contract.
+        return refsElement.EnumerateArray()
+            .Count(static reference =>
+                reference.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(reference.GetString()));
     }
 }

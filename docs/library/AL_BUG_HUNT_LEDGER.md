@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-10 seed hunt (seed→hit): `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` counted null and blank entries toward the PilotStrict evidence-reference floor, so a reachable agent payload with `evidenceRefs: [null]` could pass the configured minimum. The gate now counts only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`; 200 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
+
 2026-10-10 seed hunt (seed→hit): `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` clamped an out-of-range judge score such as `2.0` to `1.0`, so malformed external LLM output could be accepted as perfect faithfulness. The parser now rejects scores outside `[0,1]`; regression `TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range`; 199 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
 
 2026-10-10 seed hunt (seed→hit): `AgentOutputEvaluationHarness` counted JSON `findings: [null]` toward the minimum finding count, then dereferenced the null entry while normalizing categories, so malformed reachable agent output could either throw or pass harness evaluation. The harness now counts only non-null findings and skips null/category-null entries; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`; 198 scoped Evaluation tests passed. The scoped AgentRuntime compile check timed out without compiler errors.
@@ -16795,8 +16797,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 36
-- **bugs-found:** 23
+- **hunts:** 37
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — confidence enrichment skipped real-only finding citation coverage
@@ -16811,7 +16813,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
-- [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null evidence-reference items is counted toward the PilotStrict minimum without validating each reference — locus: `AgentOutputTraceCitationGate.cs` ~31–42; input: parsed result with `evidenceRefs: [null]`.
+- [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null or blank evidence-reference items was counted toward the PilotStrict minimum without validating each reference — **hit 2026-10-10 seed hunt:** count only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`.
 - [x] (proven) `AgentOutputFaithfulnessEvaluator.TryParseFaithfulnessResponse` — a numeric score outside the intended judge range was silently clamped to 0 or 1 rather than treated as malformed judge output — **hit 2026-10-10 seed hunt:** reject scores outside `[0,1]` instead of clamping; regression `TryEvaluateAsync_rejects_faithfulness_score_outside_judge_range`.
 
 2026-10-09 seed hunt (seed-only): re-read the quality gate, evaluation harness, faithfulness evaluator, citation gate, reference-case evaluator, and semantic judge after the prior seed; no new hypothesis met the same-run failing-repro bar. Seeded five additional reachable `(candidate)` rows; no production code changed and no regression was added.
