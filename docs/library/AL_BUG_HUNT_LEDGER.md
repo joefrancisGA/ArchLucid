@@ -12053,6 +12053,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): re-read the API-key handler, material normalizer boundary, admin rotation service/controller, configuration validation, and focused tests; the five existing candidates remained either intentional configuration semantics or lacked a demonstrated wrong outcome/reachability chain, so none was promoted. The focused API-key filter passed 71 unit tests; 2 SQL-backed endpoint tests were blocked by the missing SQL Server test connection. No new candidate was added because the source review produced no distinct mechanism beyond the existing bounded rows.
 
+2026-10-10 seed hunt (seed-only): re-read shared-slot precedence, comma-delimited rotation material, append rotation, cancellation, expiry, and the admin settings routes. Existing coverage establishes shared-key admin precedence with expired-admin read-only fallback; no fresh hunt-ready row met the full reachability and wrong-outcome bar. No production code changed.
+
 - [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — if deployment configuration assigns the same material to `AdminKey` and `ReadOnlyKey`, the first matching branch grants the admin permission set rather than rejecting the ambiguous configuration or selecting the least-privileged role — locus: `matchesAdmin` is evaluated before `matchesReader`; input: a Key Vault or app-configuration deployment with identical non-empty values in both slots and an inbound `X-Api-Key` using that material.
 - [ ] (candidate) `ApiKeyMaterialNormalizer.Normalize` — stripping control/format characters makes a configured key containing such a character authenticate with the visually cleaned inbound value, creating an equivalence class broader than the operator’s exact secret — locus: `RemoveInvisibleKeyMaterialChars` is applied to both config segments and headers; input: an operator-provided `Authentication:ApiKey:AdminKey` value containing a control or format character and a request header from a normal HTTP client.
 - [ ] (candidate) `ApiKeyAuthenticationHandler.MatchesAnyCommaSeparatedKey` — a comma in configured key material is always treated as a rotation delimiter, so a deployment that provisions a literal comma-containing secret cannot authenticate that secret as one value — locus: every comma terminates a segment before normalization; input: a Key Vault/app-configuration API key containing a comma, followed by an `X-Api-Key` header containing the same value.
@@ -12096,7 +12098,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 76
+- **hunts:** 77
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
