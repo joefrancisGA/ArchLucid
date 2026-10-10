@@ -12,8 +12,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-if ! bash scripts/ci/ensure_openapi_contract_build.sh; then
-  echo "::error title=OpenAPI contract build failed::The OpenAPI snapshot tests were not reached because the contract test project failed to build. Resolve compiler or restore errors before investigating snapshot drift."
+BUILD_LOG="$(mktemp)"
+trap 'rm -f "${BUILD_LOG}"' EXIT
+
+if ! bash scripts/ci/ensure_openapi_contract_build.sh 2>&1 | tee "${BUILD_LOG}"; then
+  error_codes="$(grep -oE '(CS|MSB)[0-9]{4}' "${BUILD_LOG}" | sort -u | paste -sd ',' - || true)"
+  if [ -z "${error_codes}" ]; then
+    error_codes="unclassified"
+  fi
+
+  echo "::error title=OpenAPI contract build failed::The OpenAPI snapshot tests were not reached because the contract test project failed to build (${error_codes}). Resolve compiler or restore errors before investigating snapshot drift."
 
   exit 1
 fi
