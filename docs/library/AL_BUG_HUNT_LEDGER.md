@@ -10545,8 +10545,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 33
-- **last-hunt:** 2026-10-06
+- **hunts:** 34
+- **last-hunt:** 2026-10-10
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
@@ -33512,6 +33512,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-10 seed hunt (seed-only): reread post-mark observability isolation, benign skip completion, sealed-manifest validation ordering, direct export dead-letter persistence, and shared retry handling; no fresh reachable wrong outcome survived the hunt-ready bar. The scoped coordination/outbox suite passed 21/21. Retained the existing bounded candidates; no production change.
 
 2026-10-10 seed hunt (seed-only): reread Cosmos missing-snapshot and RunId mismatch skips, processor-batch cancellation/isolation, retry/dead-letter persistence, and post-mark logging guards; no fresh reachable wrong outcome survived the hunt-ready bar. The scoped coordination/outbox suite passed 21/21. Retained the existing bounded candidates; no production change.
+
+2026-10-10 seed hunt (seed-only): reread the selected coordination processors and focused outbox tests; cancellation, retry threshold, option normalization, missing-detail skips, and export exception boundaries remained contract-dependent or lacked a reachable wrong outcome. The scoped coordination/outbox suite was run; no production or regression code changed.
 
 - [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — cancellation during bounded parallel processing can leave already-dequeued sibling entries leased without an explicit cancellation reconciliation — locus: `RecoverableOutboxProcessorBase.cs` ~55–76; input: cancel a batch after one parallel entry completes and another is still leased.
 - [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — cancellation after failure persistence but during the dead-letter/retry hook can obscure the persisted terminal state from the processor caller — locus: `RecoverableOutboxFailureHandler.cs` ~34–78; input: cancellation races a hook after `RecordBackoffAfterProcessingFailureAsync` succeeds.
