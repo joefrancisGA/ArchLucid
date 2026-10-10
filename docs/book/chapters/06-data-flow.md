@@ -64,9 +64,9 @@ Flows come with evidence of varying strength. Chapter 5 separated intended, conf
 
 ### Declared flows
 
-Declared flows are the cheapest to collect, because they're in the configuration your collector already reads:
+Declared flows are the cheapest to collect. Most are in configuration a Reader-only collector already sees. One important source isn't:
 
-- **App settings and connection string names.** An app setting named `ARCHIVE_ACCOUNT` with the value `custarchive`, or a connection string entry named `CustomerDb`, declares that the app talks to that store. Collect names and non-secret values only. Chapter 3's rule holds: never collect secret values. A Key Vault reference (`@Microsoft.KeyVault(...)`) declares a flow to the vault and, by name, hints at the target.
+- **App settings and connection string names.** An app setting named `ARCHIVE_ACCOUNT` with the value `custarchive`, or a connection string entry named `CustomerDb`, declares that the app talks to that store. A Key Vault reference (`@Microsoft.KeyVault(...)`) declares a flow to the vault and, by name, hints at the target. Reader can't list app settings, though. Listing them is a separate action that returns every value, secrets included, so you can't fetch the names without the secrets, and Chapter 3's rule says never collect secret values. Read them instead from the infrastructure as code that created the app, where they're reviewed, and where secrets should already be Key Vault references rather than literals. Appendix B, section B.6, covers the options.
 - **Data-plane role assignments to workload identities.** When `mi-pay-reconcile` holds Storage Blob Data Reader on `custarchive`, someone granted that access for a reason. It's a capability, but for a workload identity it's also a strong declaration of design intent.
 - **Integration configuration.** Data Factory and Synapse linked services, Event Grid subscriptions, Service Bus and Event Hubs consumers, Logic App connections, and diagnostic settings that send logs to a workspace or storage account all declare flows.
 - **Private endpoints and firewall rules.** A private endpoint for `custdata` in the payments application subnet declares that something in that subnet is meant to reach it (Chapter 5).
@@ -328,7 +328,7 @@ An observed-activity item in the pack looks like this:
 
 This lab builds the capability-versus-flow table for the payments estate, observes what it can, and grades how a model describes the result. It uses the companion lab tenant (Appendix A).
 
-**Step 1 — Collect declared flows.** Extend the collector with app setting **names** and non-secret values for App Service and Function Apps (never connection string values or secrets), data-plane role assignments to managed identities, and diagnostic settings. Record which stores have read logging enabled, and since when.
+**Step 1 — Collect declared flows.** Take the app settings from the lab's Terraform, not from the live apps: `payments.tf` declares `ARCHIVE_ACCOUNT` on `pay-reconcile` and `CUSTOMER_ACCOUNT` on the payments API. In the manifest, record that this evidence came from code, and which commit you read. From the snapshot, take the data-plane role assignments to managed identities and the compute identity attachments. Collect diagnostic settings through Azure Resource Manager, because Resource Graph doesn't hold them (Appendix B, section B.8), and record which stores have read logging enabled, and since when.
 
 **Step 2 — Build the table.** For every path from Chapter 4's lab, find the final `grants` edge and look for a matching declared flow. Produce the table from section 6.3, and classify each row with the four patterns.
 
@@ -395,4 +395,4 @@ AzureActivity
 - Still to do: exercise `activity_problems` with Chapter 7's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.
 - Have counsel review section 6.5's framing so it stays clear of legal advice.
 - Add the Chapter 6 fact checks to GTM **M-306** when it is picked up.
-- Step 1 asks the collector to read app setting names, but Reader can't list app settings, and the list action returns values, secrets included. Revise Step 1 to use Appendix B section B.6's options, starting with reading declared flows from infrastructure as code.
+- Confirm before submission that Reader still can't list App Service app settings (`Microsoft.Web/sites/config/list/action`). Section 6.2 and Step 1 depend on it.
