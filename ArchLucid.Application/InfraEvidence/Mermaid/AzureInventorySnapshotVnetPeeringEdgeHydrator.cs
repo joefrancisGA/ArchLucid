@@ -19,7 +19,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
         List<GraphNode> nodes,
         HashSet<string> seenNodeIds,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotPropertyIndex? propertyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
@@ -29,10 +30,8 @@ internal static class AzureInventorySnapshotVnetPeeringEdgeHydrator
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
         HashSet<string> peeringPairKeys = BuildExistingPeeringPairKeys(edges);
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
+            (propertyIndex ?? AzureInventorySnapshotPropertyIndex.Create(snapshot)).ByResourceRowId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {

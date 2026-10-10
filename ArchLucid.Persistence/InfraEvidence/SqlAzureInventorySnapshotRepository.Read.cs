@@ -102,7 +102,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     cancellationToken: cancellationToken));
 
         const string roleAssignmentsSql = """
-                                          SELECT Scope, PrincipalId, RoleDefinitionId
+                                          SELECT Scope, PrincipalId, RoleDefinitionId, PimEligibilityKind
                                           FROM dbo.AzureInventoryRoleAssignments
                                           WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId;
                                           """;
