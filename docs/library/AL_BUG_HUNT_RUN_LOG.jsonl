@@ -9320,3 +9320,4 @@
 {"at":"2026-10-10T21:08:44.6628689Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"],"severity":"medium","defectClass":"other"}
 {"at":"2026-10-10T21:14:57.5437082Z","zoneId":"agent-runtime-evaluation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"]}
 {"at":"2026-10-10T21:25:04.9627063Z","zoneId":"ui-architecture-diagram","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/architecture/ArchitectureDiagram","archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx","archlucid-ui/src/lib/architecture/architecture-diagram-"]}
+{"at":"2026-10-10T21:30:54.3228920Z","zoneId":"agent-runtime-evaluation","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Evaluation/"]}

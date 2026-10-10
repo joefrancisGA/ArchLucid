@@ -16913,17 +16913,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 45
-- **bugs-found:** 29
+- **hunts:** 46
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — retry evaluation metrics attached to superseded agent result
+- **last-bug:** 2026-10-10 — confidence enrichment used superseded structural execution mode
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-10 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` treated undefined numeric finding category `"99"` as a defined `AgentType`, so matching finding text was counted as grounded. The parser now requires `Enum.IsDefined`; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`; 203 scoped Evaluation tests passed.
 
 2026-10-10 seed hunt (seed→hit): latest retry traces were evaluated against the first persisted `AgentResult` sharing their task id, so evaluation metrics could attach to a superseded result. Shared latest-result selection now orders matching results by creation time and is used by recorder and PilotStrict aggregation; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`; 204 scoped Evaluation tests passed.
+
+2026-10-10 seed hunt (seed→hit): confidence enrichment selected the first persisted structural execution mode for duplicate task results while calibrated confidence used the latest result, so a retried Real task could be evaluated with Simulator metadata. Structural-mode lookup now reuses latest-result selection; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`.
 
 2026-10-10 seed hunt (seed-only): reread embedding faithfulness, trace faithfulness, reference-case evaluation, confidence enrichment, and their focused tests after the retry-selection fix. No fresh candidate met the same-run promotion bar without duplicating saturated null/score classes. Seeded two bounded follow-up candidates; 204 scoped Evaluation tests passed. No production change.
 
@@ -16937,7 +16939,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AgentOutputQualityGate.Evaluate` — a non-finite calibrated confidence can bypass both reject and warning comparisons because `NaN < floor` is false — locus: `AgentOutputQualityGate.cs` ~25–43; input: evaluator supplies `double.NaN` as calibrated confidence for an otherwise low-scoring result.
 - [x] (proven) `AgentOutputEvaluationRecorder.EvaluateOneAsync` / `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — duplicate persisted `AgentResult` rows for one retried task used the first result for mode/prompt selection while the latest trace represented another duplicate; **hit 2026-10-10 seed hunt:** shared latest-result selection by creation time; regression `EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result`.
 - [ ] (candidate) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks compare ordinal names, so a configuration key such as `Findings` can falsely fail against Web/camelCase serialized `findings`; reachability: reference-case and harness expectations are configuration inputs paired with serialized agent output.
-- [ ] (candidate) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted results can supply first-row structural execution mode while calibrated confidence uses the latest-row overwrite, so confidence enrichment evaluates one retry with mixed-attempt metadata; reachability: auto-retried agent tasks persist multiple `AgentResult` rows sharing `TaskId`.
+- [x] (proven) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted results supplied the first-row structural execution mode while calibrated confidence used the latest-row overwrite, so confidence enrichment evaluated one retry with mixed-attempt metadata — **hit 2026-10-10 seed hunt:** reuse `AgentResultLatestForTaskSelector` when building the structural-mode lookup; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`.
 - [x] (proven) `AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync` / `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — confidence enrichment omitted the host `AgentExecutionOptions.Mode` when persisted task mode was absent, so a real trace could skip real-only finding-citation coverage — **hit 2026-10-10 seed hunt:** thread host execution mode through the confidence pipeline and quality evaluator; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
 - [x] (proven) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — an array containing null or blank evidence-reference items was counted toward the PilotStrict minimum without validating each reference — **hit 2026-10-10 seed hunt:** count only non-empty string references; regression `TryEvaluateTrace_pilot_strict_null_evidence_ref_does_not_satisfy_evidence_ref_floor`.
