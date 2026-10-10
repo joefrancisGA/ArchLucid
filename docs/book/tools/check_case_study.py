@@ -32,7 +32,7 @@ TENANT_DOMAIN = re.compile(r"\b[a-z0-9-]+\.onmicrosoft\.com\b", re.IGNORECASE)
 # A named service endpoint ("acct.blob.core.windows.net") identifies a real resource.
 # "privatelink" is the generic private DNS zone label, not a resource name.
 SERVICE_ENDPOINT = re.compile(
-    r"\b(?!privatelink\.)[a-z0-9-]+\.(?:blob|file|queue|table|dfs)\.core\.windows\.net\b"
+    r"\b(?!privatelink\.(?:blob|file|queue|table|dfs)\.core\.windows\.net\b)[a-z0-9-]+\.(?:privatelink\.)?(?:blob|file|queue|table|dfs)\.core\.windows\.net\b"
     r"|\b[a-z0-9-]+\.(?:vault\.azure\.net|azurewebsites\.net|database\.windows\.net)\b",
     re.IGNORECASE,
 )
