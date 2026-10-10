@@ -8,6 +8,7 @@ import {
   resolveSecureNowEditionIdFromEnv,
   SECURENOW_EDITION_ENV_NAME,
 } from "@/lib/product-line/resolve-securenow-edition-id";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
 
 describe("SecureNow edition resolution", () => {
   afterEach(() => {
@@ -29,5 +30,12 @@ describe("SecureNow edition resolution", () => {
 
     expect(resolveSecureNowEditionIdFromEnv()).toBe("generic");
     expect(isSecureNowEditionId("enterprise")).toBe(false);
+  });
+
+  it("locks UHG deployments to SecureNow despite a product-line cookie", () => {
+    vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "uhg");
+    document.cookie = "archlucid_product_line_v1=architecture; Path=/";
+
+    expect(resolveProductLineId()).toBe("security");
   });
 });
