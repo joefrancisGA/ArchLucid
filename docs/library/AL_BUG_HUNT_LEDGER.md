@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 50
-- **bugs-found:** 43
+- **hunts:** 51
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — persisted source-evidence property casing dropped diagram citation metadata
+- **last-bug:** 2026-10-10 — persisted diagram property casing dropped reconstructed diagram nodes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `StructuredDiagramCanonicalModelReconstructor` used exact property-key reads across structured diagram reconstruction, so a reachable persisted canonical object with casing-drifted `diagramNodeId` was discarded and its document reconstructed with no nodes; all structured diagram property reads now reuse `GraphNodePropertyReader`; regression `ReconstructModels_reads_diagram_node_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and reconstructor tests passed 6/6 after the fix.
+
+- [x] (proven) `StructuredDiagramCanonicalModelReconstructor` — casing-drifted persisted `diagramNodeId` caused a valid structured diagram object to be omitted — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader` for structured diagram property reads; regression `ReconstructModels_reads_diagram_node_id_when_persisted_property_key_uses_different_casing`.
 
 2026-10-10 seed hunt (seed→hit): `ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder.TryReadSourceEvidenceItemId` used an exact persisted property-key lookup, so a reachable diagram snapshot with casing-drifted `structuredDiagram.sourceEvidenceItemId` rebound without its citation metadata; source-evidence lookup now reuses `GraphNodePropertyReader`; regression `Rebind_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and focused rebinder tests passed 7/7 after the fix.
 
