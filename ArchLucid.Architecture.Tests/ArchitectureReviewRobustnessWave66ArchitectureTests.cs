@@ -15,27 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave66ArchitectureTests
     [Fact]
     public void Suggestion777_779_policy_pack_crud_mutation_sealed_guard_and_openapi_409()
     {
-        string policyCrud = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Crud.cs"));
-        string policyFacadeCrud = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "PolicyPacks",
-                "PolicyPackHttpFacade.Crud.cs"));
-        string policyMutationGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "PolicyPacks",
-                "PolicyPackHttpFacade.MutationSealedManifestGuard.cs"));
+        string policyCrud = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs");
+        string policyFacadeCrud = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/PolicyPacks/PolicyPackHttpFacade.Crud.cs");
+        string policyMutationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/PolicyPacks/PolicyPackHttpFacade.MutationSealedManifestGuard.cs");
 
         policyCrud.Should().Contain("Create");
         policyCrud.Should().Contain("Publish");
@@ -50,20 +32,8 @@ public sealed class ArchitectureReviewRobustnessWave66ArchitectureTests
     [Fact]
     public void Suggestion778_policy_pack_assignment_mutation_sealed_guard_and_openapi_409()
     {
-        string policyAssignment = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string policyFacadeCrud = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "PolicyPacks",
-                "PolicyPackHttpFacade.Crud.cs"));
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string policyFacadeCrud = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/PolicyPacks/PolicyPackHttpFacade.Crud.cs");
 
         policyAssignment.Should().Contain("SetAssignmentEnabled");
         policyAssignment.Should().Contain("SetAssignmentOrganizationRequired");
@@ -76,41 +46,11 @@ public sealed class ArchitectureReviewRobustnessWave66ArchitectureTests
     [Fact]
     public void Suggestion780_782_draft_intake_mutation_sealed_guard_and_openapi_409()
     {
-        string draftQuestions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Questions.cs"));
-        string draftAdmit = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.AdmitSubmit.cs"));
-        string draftBranch = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.Branch.cs"));
-        string draftAbandonReopen = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.AbandonReopen.cs"));
-        string draftCloneSnapshot = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.CloneSnapshot.cs"));
+        string draftQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs");
+        string draftAdmit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.AdmitSubmit.cs");
+        string draftBranch = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.Branch.cs");
+        string draftAbandonReopen = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.AbandonReopen.cs");
+        string draftCloneSnapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.CloneSnapshot.cs");
 
         draftQuestions.Should().Contain("AnswerQuestion");
         draftQuestions.Should().Contain("SkipQuestion");

@@ -12,8 +12,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_service_system_prompt_requires_weakest_band_inheritance()
     {
-        string askService = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskService.cs"));
+        string askService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Services/Ask/AskService.cs");
 
         askService.Should().Contain("weakest semantic support band");
         askService.Should().Contain("TB-1003");
@@ -22,8 +21,7 @@ public sealed class ArchitectureSpineAs069AskInheritsBandArchitectureTests
     [Fact]
     public void As069_ask_user_prompt_composer_wires_band_index_constraint()
     {
-        string composer = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Host.Core", "Services", "Ask", "AskUserPromptComposer.cs"));
+        string composer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Host.Core/Services/Ask/AskUserPromptComposer.cs");
 
         composer.Should().Contain("BuildPromptConstraintSection");
         composer.Should().Contain("findingBandIndex");

@@ -15,20 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave129ArchitectureTests
     [Fact]
     public void Suggestion1533_1538_draft_wizard_and_compare_runtime_409_mappers()
     {
-        string draftController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "DraftRequestsController.cs"));
-        string draftList = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "DraftRequestsController.List.cs"));
-        string draftQuestions = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "DraftRequestsController.Questions.cs"));
-        string draftLifecycle = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "DraftRequestsController.Lifecycle.Branch.cs"));
-        string draftGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "DraftRequestsController.SealedManifestGuard.cs"));
-        string wizardController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "WizardIntakeDraftsController.cs"));
-        string compareController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonController.cs"));
+        string draftController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.cs");
+        string draftList = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.List.cs");
+        string draftQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs");
+        string draftLifecycle = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.Branch.cs");
+        string draftGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs");
+        string wizardController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/WizardIntakeDraftsController.cs");
+        string compareController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.cs");
 
         draftController.Should().Contain("GetDraft");
         draftController.Should().Contain("MapDraftRequestSealedManifestConflict");
@@ -73,14 +66,11 @@ public sealed class ArchitectureReviewRobustnessWave129ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "draft-intake", "DraftIntakeWhatIfBranchPanel.tsx"));
 
         draftCrudApi.Should().Contain("listDraftRequests");
-        draftCrudApi.Should().Contain("apiGet");
-        draftCrudApi.Should().Contain("architectureDraftListBlockedReason");
+        draftCrudApi.Should().Contain("apiGetSealedManifestAware");
         draftQuestionsApi.Should().Contain("getDraftQuestions");
-        draftQuestionsApi.Should().Contain("apiGet");
-        draftQuestionsApi.Should().Contain("architectureDraftQuestionsBlockedReason");
+        draftQuestionsApi.Should().Contain("apiGetSealedManifestAware");
         draftLifecycleApi.Should().Contain("getDraftBranchQuota");
-        draftLifecycleApi.Should().Contain("apiGet");
-        draftLifecycleApi.Should().Contain("architectureDraftBranchQuotaBlockedReason");
+        draftLifecycleApi.Should().Contain("apiGetSealedManifestAware");
         draftListHook.Should().Contain("architectureDraftListBlockedReason");
         draftListBlocked.Should().Contain("architectureDraftQuestionsBlockedReason");
         draftListBlocked.Should().Contain("architectureDraftBranchQuotaBlockedReason");

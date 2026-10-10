@@ -15,24 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
     [Fact]
     public void Suggestion1221_1224_seed_fake_policy_pack_pilot_and_finding_verification_sealed_manifest_conflict_mappers()
     {
-        string seedFake = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "InternalArchitectureDiagnosticsController.SeedFake.cs"));
-        string policyMapper = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Http", "Governance", "PolicyPackHttpResultMapper.cs"));
-        string pilotPacks = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string findingVerification = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingVerificationController.cs"));
+        string seedFake = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/InternalArchitectureDiagnosticsController.SeedFake.cs");
+        string policyMapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/PolicyPackHttpResultMapper.cs");
+        string pilotPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string findingVerification = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingVerificationController.cs");
 
         seedFake.Should().Contain("MapInternalArchitectureDiagnosticsSealedManifestConflict");
         policyMapper.Should().Contain("MapPolicyPackSealedManifestConflict");
@@ -43,20 +29,8 @@ public sealed class ArchitectureReviewRobustnessWave103ArchitectureTests
     [Fact]
     public void Suggestion1225_1227_workspace_prior_compare_sealed_manifest_blocked_reason_mappers()
     {
-        string workspaceContext = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.WorkspaceContext.cs"));
-        string bundleGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.SealedManifestGuard.cs"));
+        string workspaceContext = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
+        string bundleGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.SealedManifestGuard.cs");
 
         workspaceContext.Should().Contain("MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason");
         bundleGuard.Should().Contain("MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason");

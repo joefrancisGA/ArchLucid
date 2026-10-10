@@ -15,55 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave90ArchitectureTests
     [Fact]
     public void Suggestion1065_1071_comparison_provenance_run_comparison_and_governance_openapi_409()
     {
-        string comparisonGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonController.SealedManifestGuard.cs"));
-        string provenanceGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceController.SealedManifestGuard.cs"));
-        string provenanceQueryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceQueryController.SealedManifestGuard.cs"));
-        string runComparisonGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunComparisonController.SealedManifestGuard.cs"));
-        string resolutionGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceResolutionController.SealedManifestGuard.cs"));
-        string setupGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceSetupController.SealedManifestGuard.cs"));
-        string environmentCatalogGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceEnvironmentCatalogController.SealedManifestGuard.cs"));
+        string comparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonController.SealedManifestGuard.cs");
+        string provenanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.SealedManifestGuard.cs");
+        string provenanceQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.SealedManifestGuard.cs");
+        string runComparisonGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs");
+        string resolutionGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceResolutionController.SealedManifestGuard.cs");
+        string setupGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceSetupController.SealedManifestGuard.cs");
+        string environmentCatalogGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.SealedManifestGuard.cs");
 
         comparisonGuard.Should().Contain("MapComparisonSealedManifestConflict");
         provenanceGuard.Should().Contain("MapProvenanceSealedManifestConflict");

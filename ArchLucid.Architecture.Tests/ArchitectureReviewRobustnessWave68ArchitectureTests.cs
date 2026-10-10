@@ -15,55 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave68ArchitectureTests
     [Fact]
     public void Suggestion801_806_draft_submit_governance_policy_run_mutation_openapi_409()
     {
-        string draftSubmit = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.Lifecycle.AdmitSubmit.cs"));
-        string approvalReview = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.ApprovalRequests.Review.cs"));
-        string policyAssignment = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string policyFacadeCrud = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "PolicyPacks",
-                "PolicyPackHttpFacade.Crud.cs"));
-        string runDisposition = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.RunDetail.cs"));
-        string replayRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.CommitReplayPin.Replay.cs"));
-        string authorityGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.SealedManifestGuard.cs"));
+        string draftSubmit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Lifecycle.AdmitSubmit.cs");
+        string approvalReview = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.ApprovalRequests.Review.cs");
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string policyFacadeCrud = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/PolicyPacks/PolicyPackHttpFacade.Crud.cs");
+        string runDisposition = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
+        string replayRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.CommitReplayPin.Replay.cs");
+        string authorityGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
 
         draftSubmit.Should().Contain("SubmitDraft");
         draftSubmit.Should().Contain("EnsureDraftIntakeSealedManifestReadAllowedAsync");

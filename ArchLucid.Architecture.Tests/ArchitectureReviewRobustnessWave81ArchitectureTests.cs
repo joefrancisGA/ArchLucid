@@ -15,97 +15,19 @@ public sealed class ArchitectureReviewRobustnessWave81ArchitectureTests
     [Fact]
     public void Suggestion957_963_finding_audit_precommit_and_infra_audit_openapi_409()
     {
-        string findingAssignment = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingRemediationAssignmentController.cs"));
-        string findingAssignmentGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingRemediationAssignmentController.SealedManifestGuard.cs"));
-        string auditExport = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "AuditController.Export.Download.cs"));
-        string auditCsv = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "AuditController.Export.Csv.cs"));
-        string auditGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "AuditController.SealedManifestGuard.cs"));
-        string preCommit = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernancePreCommitSimulationController.cs"));
-        string preCommitGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernancePreCommitSimulationController.SealedManifestGuard.cs"));
-        string infraAsk = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceAskController.cs"));
-        string infraAskGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceAskController.SealedManifestGuard.cs"));
-        string auditLineage = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "AuditEvidenceLineageController.cs"));
-        string auditLineageGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "AuditEvidenceLineageController.SealedManifestGuard.cs"));
-        string auditPackage = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "AuditEvidencePackageController.cs"));
-        string auditPackageGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "AuditEvidencePackageController.SealedManifestGuard.cs"));
+        string findingAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingRemediationAssignmentController.cs");
+        string findingAssignmentGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingRemediationAssignmentController.SealedManifestGuard.cs");
+        string auditExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Download.cs");
+        string auditCsv = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.Export.Csv.cs");
+        string auditGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/AuditController.SealedManifestGuard.cs");
+        string preCommit = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs");
+        string preCommitGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.SealedManifestGuard.cs");
+        string infraAsk = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceAskController.cs");
+        string infraAskGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceAskController.SealedManifestGuard.cs");
+        string auditLineage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/AuditEvidenceLineageController.cs");
+        string auditLineageGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/AuditEvidenceLineageController.SealedManifestGuard.cs");
+        string auditPackage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/AuditEvidencePackageController.cs");
+        string auditPackageGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/AuditEvidencePackageController.SealedManifestGuard.cs");
 
         findingAssignment.Should().Contain("EnsureFindingRemediationAssignmentSealedManifestAllowedAsync");
         findingAssignmentGuard.Should().Contain("GovernanceDispositionSealedManifestGuard");

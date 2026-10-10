@@ -15,34 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave133ArchitectureTests
     [Fact]
     public void Suggestion1581_1584_1589_attestation_recurrence_and_policy_simulate_runtime_409_mappers()
     {
-        string attestationController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Attestation.cs"));
-        string schedulesController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Schedules.cs"));
-        string recurrenceFacade = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Recurrence.cs"));
-        string policySimulate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Simulate.cs"));
+        string attestationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs");
+        string schedulesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs");
+        string recurrenceFacade = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Recurrence.cs");
+        string policySimulate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs");
 
         attestationController.Should().Contain("UpsertRealizedValueAttestation");
         attestationController.Should().Contain("MapGovernanceStickinessSealedManifestConflict");

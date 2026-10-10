@@ -15,15 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion453_remediation_instance_list_sealed_hash_guard_and_409()
     {
-        string queryService = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "InfraEvidence",
-                "RemediationInstances",
-                "RemediationInstanceQueryService.cs"));
-        string controller = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "InfraEvidence", "RemediationInstancesController.cs"));
+        string queryService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceQueryService.cs");
+        string controller = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs");
 
         queryService.Should().Contain("ListInstancesAsync");
         queryService.Should().Contain("RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync");
@@ -35,15 +28,8 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion455_456_demo_and_workspace_context_compare_facade_preflight()
     {
-        string demoCompare = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Demo", "DemoViewerController.Compare.cs"));
-        string workspaceContext = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.WorkspaceContext.cs"));
+        string demoCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/DemoViewerController.Compare.cs");
+        string workspaceContext = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
 
         demoCompare.Should().Contain("compareRunsFacade");
         demoCompare.Should().Contain("LoadScopedRunPairAsync");
@@ -57,12 +43,9 @@ public sealed class ArchitectureReviewRobustnessWave39ArchitectureTests
     [Fact]
     public void Suggestion458_464_openapi_409_roi_freshness_and_holistic_guard()
     {
-        string replay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ComparisonsController.Replay.cs"));
-        string referenceExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Pilots", "ReferenceEvidenceAdminExportService.cs"));
-        string holistic = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.CompareHolistic.cs"));
+        string replay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.Replay.cs");
+        string referenceExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Pilots/ReferenceEvidenceAdminExportService.cs");
+        string holistic = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
 
         replay.Should().Contain("ReplayComparisonsBatch");
         replay.Should().Contain("Status409Conflict");

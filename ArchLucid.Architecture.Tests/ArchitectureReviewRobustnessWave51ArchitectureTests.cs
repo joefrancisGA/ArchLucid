@@ -15,19 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave51ArchitectureTests
     [Fact]
     public void Suggestion597_601_run_detail_summary_events_roi_and_source_context_openapi_409()
     {
-        string runDetailQuery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Detail.cs"));
-        string authorityRunDetail = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.RunDetail.cs"));
-        string runEvents = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityRunEventsController.cs"));
-        string productPublish = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.ProductPublish.cs"));
+        string runDetailQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs");
+        string authorityRunDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
+        string runEvents = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityRunEventsController.cs");
+        string productPublish = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.ProductPublish.cs");
 
         runDetailQuery.Should().Contain("GetRun");
         runDetailQuery.Should().Contain("GetRunRoiEstimate");
@@ -81,14 +72,14 @@ public sealed class ArchitectureReviewRobustnessWave51ArchitectureTests
                 "use-architecture-intelligence-product-context.ts"));
 
         runDetailList.Should().Contain("getRunSummary");
-        runDetailList.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailList);
         runSummaryBlockedReason.Should().Contain("runSummaryBlockedReason");
         runSummaryQuery.Should().Contain("runSummaryBlockedReason");
         runDetailArtifacts.Should().Contain("getRunDetail");
         runDetailArtifacts.Should().Contain("/v1/runs/");
-        runDetailArtifacts.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailArtifacts);
         closedLoopApi.Should().Contain("fetchArchitectureIntelligenceProductSourceContext");
-        closedLoopApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(closedLoopApi);
         aiBlockedReason.Should().Contain("architectureIntelligenceSourceContextBlockedReason");
         aiSourceContextQuery.Should().Contain("architectureIntelligenceSourceContextBlockedReason");
         aiProductContext.Should().Contain("architectureIntelligenceSourceContextBlockedReason");

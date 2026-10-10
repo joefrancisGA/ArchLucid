@@ -15,57 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave70ArchitectureTests
     [Fact]
     public void Suggestion825_830_pin_archive_async_replay_result_comparison_batch_openapi_409()
     {
-        string pinRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.CommitReplayPin.Pin.cs"));
-        string archiveRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Archive.cs"));
-        string asyncOperations = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.AsyncOperations.cs"));
-        string submitResult = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.cs"));
-        string comparisonHistory = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.History.cs"));
-        string batchCreate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Create.Batch.cs"));
-        string runsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.SealedManifestGuard.cs"));
-        string comparisonsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.SealedManifestGuard.cs"));
+        string pinRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.CommitReplayPin.Pin.cs");
+        string archiveRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Archive.cs");
+        string asyncOperations = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.AsyncOperations.cs");
+        string submitResult = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.cs");
+        string comparisonHistory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string batchCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Create.Batch.cs");
+        string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
+        string comparisonsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
 
         pinRun.Should().Contain("PinRun");
         pinRun.Should().Contain("EnsureRunSealedManifestReadAllowedAsync");

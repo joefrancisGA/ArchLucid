@@ -19,8 +19,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
             .Should()
             .BeTrue();
 
-        string kernel = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Architecture", "ArchitectureSynthesisKernel.cs"));
+        string kernel = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureSynthesisKernel.cs");
 
         kernel.Should().Contain("EnsureArchitectureIdentityAsync");
         kernel.Should().NotContain("synthesis continues");
@@ -47,8 +46,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion13_draft_spawn_pins_architecture_version()
     {
-        string draftResponse = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Contracts", "Drafts", "DraftRequestResponse.cs"));
+        string draftResponse = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Contracts/Drafts/DraftRequestResponse.cs");
 
         draftResponse.Should().Contain("SpawnedArchitectureVersionId");
     }
@@ -64,8 +62,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
 
         orchestrator.Should().Contain("FindingAnalysisContextGraphStamp.Stamp");
 
-        string mergeStage = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "Services", "Findings", "FindingsMergeAndGateStage.cs"));
+        string mergeStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/Findings/FindingsMergeAndGateStage.cs");
 
         mergeStage.Should().Contain("PolicyPackCategoryCoverageValidator");
     }
@@ -73,19 +70,11 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion15_post_commit_v2_appendix_enqueue_removed()
     {
-        string enqueuer = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Runs", "Orchestration", "PostCommitProjectionEnqueuer.cs"));
+        string enqueuer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/PostCommitProjectionEnqueuer.cs");
 
         enqueuer.Should().NotContain("PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization");
 
-        string idempotencyHandler = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "Commit",
-                "AuthorityCommitIdempotencyHandler.cs"));
+        string idempotencyHandler = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Commit/AuthorityCommitIdempotencyHandler.cs");
 
         idempotencyHandler.Should().NotContain("EnqueueDecisionEngineV2NodeMaterializationAsync");
     }
@@ -124,8 +113,7 @@ public sealed class ArchitectureReviewRobustnessWave2ArchitectureTests
     [Fact]
     public void Suggestion19_graph_reuse_requires_observation_fingerprint()
     {
-        string resolver = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Core", "Persistence", "Graph", "GraphSnapshotCommittedReuseResolver.cs"));
+        string resolver = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Core/Persistence/Graph/GraphSnapshotCommittedReuseResolver.cs");
 
         resolver.Should().Contain("IsObservationallyEqual");
         resolver.Should().Contain("contextCanonicalFingerprint");

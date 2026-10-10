@@ -15,22 +15,14 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
     [Fact]
     public void Suggestion573_577_page_bundles_run_detail_graph_and_registers_openapi_409()
     {
-        string criticalBundle = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.Critical.cs"));
-        string workspaceBundle = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.WorkspaceContext.cs"));
-        string sealedGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunDetailPageBundleController.SealedManifestGuard.cs"));
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string runDetailQuery = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.RunDetail.cs"));
-        string reviewGraph = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "GraphController.ReviewGraph.cs"));
-        string registersController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceStickinessController.Registers.cs"));
-        string registersGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Governance", "Stickiness", "GovernanceStickinessFacade.RegistersSealedManifestGuard.cs"));
+        string criticalBundle = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.Critical.cs");
+        string workspaceBundle = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
+        string sealedGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.SealedManifestGuard.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string runDetailQuery = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
+        string reviewGraph = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.ReviewGraph.cs");
+        string registersController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
+        string registersGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.RegistersSealedManifestGuard.cs");
 
         criticalBundle.Should().Contain("GetCriticalPageBundle");
         criticalBundle.Should().Contain("EnsureSealedManifestReadAllowed");
@@ -74,18 +66,18 @@ public sealed class ArchitectureReviewRobustnessWave49ArchitectureTests
         string registersBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "governance", "governance-registers-blocked-reason.ts"));
 
-        pageBundleClient.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(pageBundleClient);
         pageBundleClient.Should().Contain("fetchRunDetailCriticalPageBundle");
         pageBundleClient.Should().Contain("fetchRunDetailWorkspaceContextBundle");
         pageBundleBlockedReason.Should().Contain("runDetailPageBundleBlockedReason");
         runDetailArtifacts.Should().Contain("getRunDetail");
-        runDetailArtifacts.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailArtifacts);
         runDetailList.Should().Contain("getBuyerRunDetailSummary");
-        runDetailList.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(runDetailList);
         graphApi.Should().Contain("getArchitectureGraph");
-        graphApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(graphApi);
         graphBlockedReason.Should().Contain("evidenceGraphBlockedReason");
-        registersApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(registersApi);
         registersBlockedReason.Should().Contain("governanceRegistersBlockedReason");
     }
 

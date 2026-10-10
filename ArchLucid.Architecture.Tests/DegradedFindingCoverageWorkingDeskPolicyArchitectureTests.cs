@@ -16,8 +16,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Server_blocks_degraded_coverage_on_working_desk_finalize_only()
     {
-        string validator = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "CareerArtifacts", "CareerArtifactCompletenessValidator.cs"));
+        string validator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/CareerArtifactCompletenessValidator.cs");
 
         validator.Should().Contain("if (!input.WorkingDesk || input.ArtifactKind != CareerArtifactKind.Finalize || !input.DegradedFindingCoverage)");
         validator.Should().Contain("DegradedFindingCoverageCode");
@@ -27,13 +26,7 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     [Fact]
     public void Orchestrator_passes_working_desk_and_degraded_coverage_into_finalize_completeness_input()
     {
-        string orchestrator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("IsWorkingDeskAsync");
         orchestrator.Should().Contain("RunFindingCoverageProjection.Build");

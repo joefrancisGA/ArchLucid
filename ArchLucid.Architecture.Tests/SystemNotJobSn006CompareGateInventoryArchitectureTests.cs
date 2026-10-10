@@ -43,13 +43,7 @@ public sealed class SystemNotJobSn006CompareGateInventoryArchitectureTests
     [Fact]
     public void Sn006_authority_compare_service_requires_golden_manifest_ids()
     {
-        string compareService = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Persistence",
-                "Coordination",
-                "Compare",
-                "AuthorityCompareService.cs"));
+        string compareService = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Persistence/Coordination/Compare/AuthorityCompareService.cs");
 
         compareService.Should().Contain("GoldenManifestId");
         compareService.Should().Contain("CompareManifestsAsync");

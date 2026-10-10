@@ -15,120 +15,23 @@ public sealed class ArchitectureReviewRobustnessWave78ArchitectureTests
     [Fact]
     public void Suggestion921_927_docx_ledger_clarification_graph_run_query_and_infra_openapi_409()
     {
-        string docxExport = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "DocxExportController.cs"));
-        string docxGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "DocxExportController.SealedManifestGuard.cs"));
-        string technologyLedger = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "TechnologyLedgerController.cs"));
-        string technologyLedgerGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "TechnologyLedgerController.SealedManifestGuard.cs"));
-        string clarificationQuestions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.cs"));
-        string clarificationGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.SealedManifestGuard.cs"));
-        string reviewGraph = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.ReviewGraph.cs"));
-        string graphSnapshot = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.Snapshot.cs"));
-        string graphGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "GraphController.SealedManifestGuard.cs"));
-        string runDetail = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.Detail.cs"));
-        string runFindings = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.Findings.cs"));
-        string runProvenance = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.Provenance.cs"));
-        string runQueryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunQueryController.SealedManifestGuard.cs"));
-        string snapshotsController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceSnapshotsController.cs"));
-        string snapshotsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceSnapshotsController.SealedManifestGuard.cs"));
-        string remediationController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "RemediationInstancesController.cs"));
-        string remediationGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "RemediationInstancesController.SealedManifestGuard.cs"));
+        string docxExport = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.cs");
+        string docxGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/DocxExportController.SealedManifestGuard.cs");
+        string technologyLedger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string technologyLedgerGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.SealedManifestGuard.cs");
+        string clarificationQuestions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string clarificationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.SealedManifestGuard.cs");
+        string reviewGraph = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.ReviewGraph.cs");
+        string graphSnapshot = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.Snapshot.cs");
+        string graphGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/GraphController.SealedManifestGuard.cs");
+        string runDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs");
+        string runFindings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
+        string runProvenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Provenance.cs");
+        string runQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.SealedManifestGuard.cs");
+        string snapshotsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs");
+        string snapshotsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.SealedManifestGuard.cs");
+        string remediationController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.cs");
+        string remediationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/RemediationInstancesController.SealedManifestGuard.cs");
 
         docxExport.Should().Contain("ExportRunDocx");
         docxExport.Should().Contain("EnsureArchitecturePackageDocxSealedManifestAllowedAsync");

@@ -15,54 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave140ArchitectureTests
     [Fact]
     public void Suggestion1665_1670_1676_pilot_intelligence_batch_and_revoke_runtime_409_mappers()
     {
-        string pilotsPacks = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotsGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
-        string boardPack = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsBoardPackController.cs"));
-        string boardPackGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsBoardPackController.SealedManifestGuard.cs"));
-        string intelligenceRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.Run.cs"));
-        string intelligenceGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "ArchitectureIntelligence",
-                "ArchitectureIntelligenceController.SealedManifestGuard.cs"));
-        string batchCreate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Create.Batch.cs"));
-        string runsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.SealedManifestGuard.cs"));
-        string revokeRisk = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "Stickiness",
-                "GovernanceStickinessFacade.Findings.RiskExceptions.cs"));
+        string pilotsPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string pilotsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
+        string boardPack = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsBoardPackController.cs");
+        string boardPackGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsBoardPackController.SealedManifestGuard.cs");
+        string intelligenceRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.Run.cs");
+        string intelligenceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/ArchitectureIntelligence/ArchitectureIntelligenceController.SealedManifestGuard.cs");
+        string batchCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Create.Batch.cs");
+        string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
+        string revokeRisk = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.RiskExceptions.cs");
 
         pilotsPacks.Should().Contain("PostFirstValueReportPdf");
         pilotsPacks.Should().Contain("PostSponsorOnePager");

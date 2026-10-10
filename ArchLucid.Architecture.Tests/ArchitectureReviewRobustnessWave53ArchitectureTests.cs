@@ -15,16 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
     [Fact]
     public void Suggestion621_626_export_history_request_authority_provenance_governance_and_findings_openapi_409()
     {
-        string exports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ExportsController.cs"));
-        string architectureRequest = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunsController.ArchitectureRequests.cs"));
-        string authorityProvenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceQueryController.cs"));
-        string governance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Governance", "GovernanceController.PromotionsActivations.cs"));
-        string findings = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "RunQueryController.Findings.cs"));
+        string exports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ExportsController.cs");
+        string architectureRequest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.ArchitectureRequests.cs");
+        string authorityProvenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceQueryController.cs");
+        string governance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PromotionsActivations.cs");
+        string findings = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunQueryController.Findings.cs");
 
         exports.Should().Contain("GetRunExportHistory");
         exports.Should().Contain("EnsureSealedManifestReadAllowedAsync");
@@ -71,12 +66,12 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
                 "governance-stickiness-summary-blocked-reason.ts"));
 
         preFinalizeApi.Should().Contain("getPreFinalizeChecklist");
-        preFinalizeApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(preFinalizeApi);
         preFinalizeBlocked.Should().Contain("preFinalizeChecklistBlockedReason");
         preFinalizePanel.Should().Contain("preFinalizeChecklistBlockedReason");
         stickinessRegisters.Should().Contain("getGovernanceReviewsAwaitingAction");
         stickinessRegisters.Should().Contain("getGovernanceDecisionsNeededSummary");
-        stickinessRegisters.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(stickinessRegisters);
         stickinessBlocked.Should().Contain("governanceStickinessSummaryBlockedReason");
     }
 
@@ -127,11 +122,11 @@ public sealed class ArchitectureReviewRobustnessWave53ArchitectureTests
 
         findingHook.Should().Contain("findingProvenanceBlockedReason");
         exportHistoryApi.Should().Contain("getRunExportHistory");
-        exportHistoryApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(exportHistoryApi);
         exportHistoryBlocked.Should().Contain("runExportHistoryBlockedReason");
         authorityProvenanceApi.Should().Contain("getAuthorityProvenanceGraph");
         authorityProvenanceApi.Should().Contain("/v1/authority/runs/");
-        authorityProvenanceApi.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(authorityProvenanceApi);
         authorityProvenanceBlocked.Should().Contain("authorityProvenanceAliasBlockedReason");
     }
 }

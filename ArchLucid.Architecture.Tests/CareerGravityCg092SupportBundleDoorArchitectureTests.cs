@@ -14,8 +14,7 @@ public sealed class CareerGravityCg092SupportBundleDoorArchitectureTests
     [Fact]
     public void Cg092_triage_index_builder_resolves_career_posture_from_run_stamp()
     {
-        string builder = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "Support", "SupportBundleTriageIndexBuilder.cs"));
+        string builder = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/Support/SupportBundleTriageIndexBuilder.cs");
 
         builder.Should().Contain("ExportBundleCareerPostureResolver.ResolveTriageFromRunFields");
         builder.Should().Contain("CareerPosture");
@@ -25,8 +24,7 @@ public sealed class CareerGravityCg092SupportBundleDoorArchitectureTests
     [Fact]
     public void Cg092_cli_run_info_includes_execute_door_stamp_fields()
     {
-        string runInfo = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Cli", "ArchLucidCliApiClient.Results.Runs.cs"));
+        string runInfo = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/ArchLucidCliApiClient.Results.Runs.cs");
 
         runInfo.Should().Contain("WorkingCareerRehearsalDoor");
         runInfo.Should().Contain("ExecutePostureCapturedUtc");

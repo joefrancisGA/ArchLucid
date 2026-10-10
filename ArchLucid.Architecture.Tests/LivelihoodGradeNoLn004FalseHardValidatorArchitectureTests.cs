@@ -11,24 +11,9 @@ public sealed class LivelihoodGradeNoLn004FalseHardValidatorArchitectureTests
     [Fact]
     public void Ln004_validator_wired_into_career_artifact_completeness()
     {
-        string validator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "CareerArtifacts",
-                "CareerArtifactCompletenessValidator.cs"));
-        string dedicated = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning",
-                "CareerArtifacts",
-                "WorkingCareerHardInfeasibleCitationValidator.cs"));
-        string mapper = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Exports",
-                "CareerArtifactCompletenessInputMapper.cs"));
+        string validator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/CareerArtifactCompletenessValidator.cs");
+        string dedicated = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/WorkingCareerHardInfeasibleCitationValidator.cs");
+        string mapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs");
 
         dedicated.Should().Contain("LN-004");
         validator.Should().Contain("EvaluateUncitedHardInfeasible");

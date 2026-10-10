@@ -15,101 +15,21 @@ public sealed class ArchitectureReviewRobustnessWave79ArchitectureTests
     [Fact]
     public void Suggestion933_941_infra_inventory_advisory_authority_and_explanation_openapi_409()
     {
-        string diffsController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceDiffsController.cs"));
-        string diffsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceDiffsController.SealedManifestGuard.cs"));
-        string inventoryController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceInventoryController.cs"));
-        string inventoryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "InfraEvidenceInventoryController.SealedManifestGuard.cs"));
-        string advisoryController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string advisoryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisoryController.SealedManifestGuard.cs"));
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityReadsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityReadsController.SealedManifestGuard.cs"));
-        string authorityTrail = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.Trail.cs"));
-        string authorityRunDetail = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.RunDetail.cs"));
-        string authorityQueryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.SealedManifestGuard.cs"));
-        string runExplain = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.RunExplain.cs"));
-        string findingExplain = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.FindingExplain.cs"));
-        string holisticCritic = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
-        string explainGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.SealedManifestGuard.cs"));
+        string diffsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceDiffsController.cs");
+        string diffsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceDiffsController.SealedManifestGuard.cs");
+        string inventoryController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceInventoryController.cs");
+        string inventoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceInventoryController.SealedManifestGuard.cs");
+        string advisoryController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.cs");
+        string advisoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.SealedManifestGuard.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string authorityReadsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs");
+        string authorityTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string authorityRunDetail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.RunDetail.cs");
+        string authorityQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
+        string runExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs");
+        string findingExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
+        string holisticCritic = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
+        string explainGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs");
 
         diffsController.Should().Contain("ListChangesForDiff");
         diffsController.Should().Contain("MapDiffSealedManifestConflict");

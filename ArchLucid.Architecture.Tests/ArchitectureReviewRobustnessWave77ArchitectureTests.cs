@@ -15,97 +15,22 @@ public sealed class ArchitectureReviewRobustnessWave77ArchitectureTests
     [Fact]
     public void Suggestion909_915_advisory_diagram_hub_compare_provenance_roi_and_stickiness_openapi_409()
     {
-        string advisoryController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Advisory", "AdvisoryController.cs"));
-        string advisoryGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "AdvisoryController.SealedManifestGuard.cs"));
-        string diagramIngest = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.cs"));
-        string diagramIngestGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "ArchitectureDiagramIngestController.SealedManifestGuard.cs"));
-        string evidenceHub = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "CloudResourceEvidenceHubController.cs"));
-        string evidenceHubGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "InfraEvidence",
-                "CloudResourceEvidenceHubController.SealedManifestGuard.cs"));
-        string compareExplain = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.CompareHolistic.cs"));
-        string explainGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ExplanationController.SealedManifestGuard.cs"));
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
-        string authorityTrail = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityQueryController.Trail.cs"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string roiGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.SealedManifestGuard.cs"));
-        string crossTenantGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Roi",
-                "CrossTenantPortfolioSealedManifestGuard.cs"));
-        string stickinessRegisters = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Registers.cs"));
-        string stickinessAttestation = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Attestation.cs"));
-        string stickinessGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.SealedManifestGuard.cs"));
+        string advisoryController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.cs");
+        string advisoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/AdvisoryController.SealedManifestGuard.cs");
+        string diagramIngest = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.cs");
+        string diagramIngestGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/ArchitectureDiagramIngestController.SealedManifestGuard.cs");
+        string evidenceHub = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs");
+        string evidenceHubGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs");
+        string compareExplain = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs");
+        string explainGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
+        string authorityTrail = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
+        string roiGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.SealedManifestGuard.cs");
+        string crossTenantGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Roi/CrossTenantPortfolioSealedManifestGuard.cs");
+        string stickinessRegisters = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs");
+        string stickinessAttestation = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs");
+        string stickinessGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.SealedManifestGuard.cs");
 
         advisoryController.Should().Contain("ApplyRecommendationAction");
         advisoryController.Should().Contain("EnsureAdvisoryApplySealedManifestAllowedAsync");

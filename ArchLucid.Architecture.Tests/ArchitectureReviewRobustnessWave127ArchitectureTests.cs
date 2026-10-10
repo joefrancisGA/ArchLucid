@@ -15,21 +15,9 @@ public sealed class ArchitectureReviewRobustnessWave127ArchitectureTests
     [Fact]
     public void Suggestion1509_1510_architecture_identity_list_and_get_sealed_manifest_mappers()
     {
-        string architecturesController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Architecture", "ArchitecturesController.cs"));
-        string architecturesGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "ArchitecturesController.SealedManifestGuard.cs"));
-        string identityGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Architecture",
-                "ArchitectureIdentitySealedManifestReadGuard.cs"));
+        string architecturesController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.cs");
+        string architecturesGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/ArchitecturesController.SealedManifestGuard.cs");
+        string identityGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Architecture/ArchitectureIdentitySealedManifestReadGuard.cs");
 
         architecturesController.Should().Contain("ListArchitectures");
         architecturesController.Should().Contain("GetArchitecture");

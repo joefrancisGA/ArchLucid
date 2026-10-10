@@ -30,8 +30,7 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "components", "findings", "FindingExplainabilityDialog.tsx"));
         string findingExplainBlockedReason = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "explain", "finding-explain-blocked-reason.ts"));
-        string findingExplainability = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ExplanationController.FindingExplain.cs"));
+        string findingExplainability = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs");
 
         auditExportHook.Should().Contain("auditExportBlockedReason");
         auditExportHook.Should().Contain("resolveAuditPageExportCareerContext");
@@ -45,10 +44,8 @@ public sealed class ArchitectureReviewRobustnessWave44ArchitectureTests
     [Fact]
     public void Suggestion516_517_openapi_409_declarations()
     {
-        string signedReviewRecord = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityQueryController.Trail.cs"));
-        string artifactExports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
+        string signedReviewRecord = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.Trail.cs");
+        string artifactExports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.RunArtifacts.cs");
 
         signedReviewRecord.Should().Contain("GetRunGoldenManifest");
         signedReviewRecord.Should().Contain("Status409Conflict");

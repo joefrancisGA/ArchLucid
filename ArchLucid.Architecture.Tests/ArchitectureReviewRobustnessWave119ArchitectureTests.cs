@@ -15,29 +15,10 @@ public sealed class ArchitectureReviewRobustnessWave119ArchitectureTests
     [Fact]
     public void Suggestion1413_1419_provenance_and_comparison_history_sealed_manifest_mappers()
     {
-        string provenance = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Planning", "ProvenanceController.cs"));
-        string provenanceGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ProvenanceController.SealedManifestGuard.cs"));
-        string comparisonHistory = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.History.cs"));
-        string comparisonsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Planning",
-                "ComparisonsController.SealedManifestGuard.cs"));
+        string provenance = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.cs");
+        string provenanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ProvenanceController.SealedManifestGuard.cs");
+        string comparisonHistory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.History.cs");
+        string comparisonsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Planning/ComparisonsController.SealedManifestGuard.cs");
 
         provenance.Should().Contain("GetFullGraph");
         provenance.Should().Contain("GetDecisionGraph");

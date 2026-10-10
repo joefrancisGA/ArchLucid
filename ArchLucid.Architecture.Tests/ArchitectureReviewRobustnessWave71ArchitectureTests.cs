@@ -15,54 +15,15 @@ public sealed class ArchitectureReviewRobustnessWave71ArchitectureTests
     [Fact]
     public void Suggestion837_842_create_replay_governance_pilot_mutation_openapi_409()
     {
-        string createRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.Create.Sync.cs"));
-        string asyncCreate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.AsyncOperations.cs"));
-        string runsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunsController.SealedManifestGuard.cs"));
-        string authorityReplay = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReplayController.cs"));
-        string authorityReplayGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityReplayController.SealedManifestGuard.cs"));
-        string mutationCorrections = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.MutationCorrections.cs"));
-        string governanceGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.SealedManifestGuard.cs"));
-        string pilotsPacks = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotsGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
+        string createRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.Create.Sync.cs");
+        string asyncCreate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.AsyncOperations.cs");
+        string runsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunsController.SealedManifestGuard.cs");
+        string authorityReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.cs");
+        string authorityReplayGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReplayController.SealedManifestGuard.cs");
+        string mutationCorrections = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.MutationCorrections.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
+        string pilotsPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string pilotsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
 
         createRun.Should().Contain("CreateRun");
         createRun.Should().Contain("EnsureArchitectureRunCreateSealedManifestAllowedAsync");

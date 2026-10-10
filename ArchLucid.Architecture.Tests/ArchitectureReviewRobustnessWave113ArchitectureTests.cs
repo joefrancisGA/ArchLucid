@@ -15,15 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
     [Fact]
     public void Suggestion1341_1343_technology_ledger_read_patch_and_guard_sealed_manifest_mappers()
     {
-        string ledger = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "TechnologyLedgerController.cs"));
-        string ledgerGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "TechnologyLedgerController.SealedManifestGuard.cs"));
+        string ledger = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs");
+        string ledgerGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.SealedManifestGuard.cs");
 
         ledger.Should().Contain("MapTechnologyLedgerSealedManifestConflict");
         ledger.Should().Contain("GetTechnologyLedger");
@@ -34,20 +27,8 @@ public sealed class ArchitectureReviewRobustnessWave113ArchitectureTests
     [Fact]
     public void Suggestion1344_1346_clarification_questions_read_apply_and_guard_sealed_manifest_mappers()
     {
-        string clarification = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.cs"));
-        string clarificationGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewClarificationQuestionsController.SealedManifestGuard.cs"));
+        string clarification = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.cs");
+        string clarificationGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewClarificationQuestionsController.SealedManifestGuard.cs");
 
         clarification.Should().Contain("MapClarificationQuestionsSealedManifestConflict");
         clarification.Should().Contain("GetClarificationQuestions");

@@ -15,87 +15,19 @@ public sealed class ArchitectureReviewRobustnessWave74ArchitectureTests
     [Fact]
     public void Suggestion873_882_governance_roi_export_and_analysis_mutation_openapi_409()
     {
-        string stickinessExceptions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Exceptions.cs"));
-        string stickinessDispositions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Dispositions.cs"));
-        string stickinessSchedules = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Schedules.cs"));
-        string stickinessGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.SealedManifestGuard.cs"));
-        string artifactDownload = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.Export.Download.cs"));
-        string artifactGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ArtifactExportController.SealedManifestGuard.cs"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
-        string roiGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.SealedManifestGuard.cs"));
-        string draftController = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Architecture",
-                "DraftRequestsController.cs"));
-        string policyAssignment = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string policyGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.SealedManifestGuard.cs"));
-        string consultingDocx = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.ConsultingDocx.Download.cs"));
-        string analysisGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.SealedManifestGuard.cs"));
+        string stickinessExceptions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs");
+        string stickinessDispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs");
+        string stickinessSchedules = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs");
+        string stickinessGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.SealedManifestGuard.cs");
+        string artifactDownload = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.Export.Download.cs");
+        string artifactGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.SealedManifestGuard.cs");
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
+        string roiGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.SealedManifestGuard.cs");
+        string draftController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Architecture/DraftRequestsController.cs");
+        string policyAssignment = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string policyGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.SealedManifestGuard.cs");
+        string consultingDocx = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.ConsultingDocx.Download.cs");
+        string analysisGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.SealedManifestGuard.cs");
 
         stickinessExceptions.Should().Contain("RenewRiskException");
         stickinessExceptions.Should().Contain("RevokeRiskException");

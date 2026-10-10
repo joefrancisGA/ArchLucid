@@ -15,61 +15,16 @@ public sealed class ArchitectureReviewRobustnessWave75ArchitectureTests
     [Fact]
     public void Suggestion885_891_pilot_governance_and_analysis_mutation_openapi_409()
     {
-        string pilotDeltas = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Deltas.cs"));
-        string pilotCloseout = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Closeout.cs"));
-        string pilotGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Pilots",
-                "PilotsController.SealedManifestGuard.cs"));
-        string findingMute = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Findings", "FindingMuteController.cs"));
-        string findingMuteGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingMuteController.SealedManifestGuard.cs"));
-        string consultingDocxAsync = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.ConsultingDocx.AsyncRecommend.cs"));
-        string analysisGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AnalysisReportsController.SealedManifestGuard.cs"));
-        string governanceDryRun = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PolicyPacks.DryRun.cs"));
-        string governanceSimulate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.PolicyPacks.Simulate.cs"));
-        string governanceGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceController.SealedManifestGuard.cs"));
+        string pilotDeltas = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Deltas.cs");
+        string pilotCloseout = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Closeout.cs");
+        string pilotGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
+        string findingMute = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.cs");
+        string findingMuteGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingMuteController.SealedManifestGuard.cs");
+        string consultingDocxAsync = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.ConsultingDocx.AsyncRecommend.cs");
+        string analysisGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AnalysisReportsController.SealedManifestGuard.cs");
+        string governanceDryRun = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PolicyPacks.DryRun.cs");
+        string governanceSimulate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.PolicyPacks.Simulate.cs");
+        string governanceGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceController.SealedManifestGuard.cs");
 
         pilotDeltas.Should().Contain("GetPilotRunDeltas");
         pilotDeltas.Should().Contain("EnsureRunSealedManifestReadAllowedAsync");

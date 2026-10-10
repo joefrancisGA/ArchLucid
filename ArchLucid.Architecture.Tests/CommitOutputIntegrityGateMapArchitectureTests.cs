@@ -17,13 +17,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void CommitOutputIntegrityService_enforces_structural_and_provenance_gates_before_scorecard()
     {
-        string integrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string integrity = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs");
 
         integrity.Should().Contain("StructuralExecutionModeCommitGuard.GetBlockingReasons");
         integrity.Should().Contain("AuthorityRunLifecyclePhaseResolver.Resolve");
@@ -41,13 +35,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void CommitOutputIntegrityService_runs_semantic_judge_after_blocking_gates_that_must_precede_persist()
     {
-        string integrity = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "CommitOutputIntegrityService.cs"));
+        string integrity = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs");
 
         int provenance = integrity.IndexOf(
             "DecisionGradeFindingProvenanceValidator.GetViolations",
@@ -79,13 +67,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void FinalizeQualityScorecard_evaluator_counts_ten_ui_parity_dimensions()
     {
-        string evaluator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Finalization",
-                "FinalizeQualityScorecardEvaluator.cs"));
+        string evaluator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Finalization/FinalizeQualityScorecardEvaluator.cs");
 
         evaluator.Should().Contain("IsCoverageGapJobView");
         evaluator.Should().Contain("IsOpenRequiredCapabilityCoverageJobView");
@@ -103,13 +85,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void Orchestrator_enforces_career_artifact_gates_outside_scorecard()
     {
-        string orchestrator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("CareerArtifactCompletenessValidator");
         orchestrator.Should().Contain("MapForFinalize");
@@ -119,12 +95,7 @@ public sealed class CommitOutputIntegrityGateMapArchitectureTests
     [Fact]
     public void FinalizeReadinessService_reuses_commit_gate_evaluators()
     {
-        string readiness = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Governance",
-                "FinalizeReadinessService.cs"));
+        string readiness = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/FinalizeReadinessService.cs");
 
         readiness.Should().Contain("CareerArtifactCompletenessValidator");
         readiness.Should().Contain("StructuralExecutionModeCommitGuard.GetBlockingReasons");

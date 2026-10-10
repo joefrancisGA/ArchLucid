@@ -15,17 +15,9 @@ public sealed class CareerGravityCg021CareerBlocksFinalizeWhenSimulatorArchitect
     [Fact]
     public void Cg021_server_mapper_passes_working_door_stamp_into_finalize_validator()
     {
-        string mapper = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Application", "Exports", "CareerArtifactCompletenessInputMapper.cs"));
-        string orchestrator = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Application",
-                "Runs",
-                "Orchestration",
-                "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"));
-        string presenter = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Decisioning", "CareerArtifacts", "SimulatorCareerHonestyPresenter.cs"));
+        string mapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Exports/CareerArtifactCompletenessInputMapper.cs");
+        string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
+        string presenter = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/CareerArtifacts/SimulatorCareerHonestyPresenter.cs");
 
         mapper.Should().Contain("workingCareerRehearsalDoor");
         orchestrator.Should().Contain("workingCareerRehearsalDoor: runRecord.WorkingCareerRehearsalDoor");

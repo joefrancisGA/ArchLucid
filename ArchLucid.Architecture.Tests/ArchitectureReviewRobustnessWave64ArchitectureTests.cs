@@ -15,36 +15,11 @@ public sealed class ArchitectureReviewRobustnessWave64ArchitectureTests
     [Fact]
     public void Suggestion753_758_disposition_coverage_exceptions_and_policy_assign_openapi_409()
     {
-        string dispositions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Dispositions.cs"));
-        string runCoverageAck = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunCoverageController.Acknowledgement.cs"));
-        string exceptions = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "GovernanceStickinessController.Exceptions.cs"));
-        string policyAssign = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "PolicyPacksController.Assignment.cs"));
-        string policyMapper = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Http", "Governance", "PolicyPackHttpResultMapper.cs"));
+        string dispositions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs");
+        string runCoverageAck = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs");
+        string exceptions = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs");
+        string policyAssign = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs");
+        string policyMapper = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Http/Governance/PolicyPackHttpResultMapper.cs");
 
         dispositions.Should().Contain("RecordDisposition");
         dispositions.Should().Contain("RecordBulkDisposition");

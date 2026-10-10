@@ -15,13 +15,7 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
     [Fact]
     public void Suggestion1233_1234_workspace_prior_compare_lifecycle_incomplete_blocked_reason_mappers()
     {
-        string workspaceContext = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunDetailPageBundleController.WorkspaceContext.cs"));
+        string workspaceContext = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunDetailPageBundleController.WorkspaceContext.cs");
 
         workspaceContext.Should().Contain("LeftLifecycleIncomplete");
         workspaceContext.Should().Contain("RightLifecycleIncomplete");
@@ -31,55 +25,13 @@ public sealed class ArchitectureReviewRobustnessWave104ArchitectureTests
     [Fact]
     public void Suggestion1235_1239_recommendation_learning_saved_views_and_insight_signal_sealed_manifest_mappers()
     {
-        string recLearningMutate = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "RecommendationLearningController.Mutate.cs"));
-        string recLearningOps = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "RecommendationLearningController.Ops.cs"));
-        string recLearningGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Advisory",
-                "RecommendationLearningController.SealedManifestGuard.cs"));
-        string savedViews = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Operator",
-                "OperatorSavedViewsController.cs"));
-        string savedViewsGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Operator",
-                "OperatorSavedViewsController.SealedManifestGuard.cs"));
-        string insightSignal = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingInsightSignalController.cs"));
-        string insightSignalGuard = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Findings",
-                "FindingInsightSignalController.SealedManifestGuard.cs"));
+        string recLearningMutate = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/RecommendationLearningController.Mutate.cs");
+        string recLearningOps = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/RecommendationLearningController.Ops.cs");
+        string recLearningGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Advisory/RecommendationLearningController.SealedManifestGuard.cs");
+        string savedViews = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Operator/OperatorSavedViewsController.cs");
+        string savedViewsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Operator/OperatorSavedViewsController.SealedManifestGuard.cs");
+        string insightSignal = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingInsightSignalController.cs");
+        string insightSignalGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Findings/FindingInsightSignalController.SealedManifestGuard.cs");
 
         recLearningMutate.Should().Contain("MapRecommendationLearningSealedManifestConflict");
         recLearningOps.Should().Contain("MapRecommendationLearningSealedManifestConflict");

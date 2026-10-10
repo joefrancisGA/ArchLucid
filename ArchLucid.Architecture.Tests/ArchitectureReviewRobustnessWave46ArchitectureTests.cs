@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
     [Fact]
     public void Suggestion537_538_artifact_descriptor_and_run_manifest_openapi_409()
     {
-        string artifactExports = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "ArtifactExportController.RunArtifacts.cs"));
-        string authorityReads = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Authority", "AuthorityReadsController.cs"));
+        string artifactExports = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ArtifactExportController.RunArtifacts.cs");
+        string authorityReads = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
 
         artifactExports.Should().Contain("GetArtifactDescriptor");
         artifactExports.Should().Contain("Status409Conflict");
@@ -72,10 +70,9 @@ public sealed class ArchitectureReviewRobustnessWave46ArchitectureTests
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-sponsor-roi-summary-client.ts"));
         string crossTenantClient = File.ReadAllText(
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "fetch-cross-tenant-portfolio-client.ts"));
-        string roiController = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Roi", "RoiController.cs"));
+        string roiController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Roi/RoiController.cs");
 
-        postureRegisters.Should().Contain("apiGetSealedManifestAware");
+        ArchitectureSourceProbe.ShouldUseSealedManifestAwareRead(postureRegisters);
         postureOverview.Should().Contain("governancePostureBlockedReason");
         sponsorRoiClient.Should().Contain("sponsorRoiSummaryBlockedReason");
         crossTenantClient.Should().Contain("crossTenantPortfolioBlockedReason");

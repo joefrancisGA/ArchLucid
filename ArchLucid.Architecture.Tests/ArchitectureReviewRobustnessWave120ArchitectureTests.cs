@@ -15,10 +15,8 @@ public sealed class ArchitectureReviewRobustnessWave120ArchitectureTests
     [Fact]
     public void Suggestion1425_1432_pilot_sponsor_collateral_sealed_manifest_mappers()
     {
-        string pilotPacks = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.Packs.cs"));
-        string pilotGuard = File.ReadAllText(
-            Path.Combine(RepoRoot, "ArchLucid.Api", "Controllers", "Pilots", "PilotsController.SealedManifestGuard.cs"));
+        string pilotPacks = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.Packs.cs");
+        string pilotGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Pilots/PilotsController.SealedManifestGuard.cs");
 
         pilotPacks.Should().Contain("GetExecutiveReviewPacket");
         pilotPacks.Should().Contain("GetSponsorProofPackZip");

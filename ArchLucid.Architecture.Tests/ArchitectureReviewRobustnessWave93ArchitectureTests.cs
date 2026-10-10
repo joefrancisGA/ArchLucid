@@ -15,55 +15,13 @@ public sealed class ArchitectureReviewRobustnessWave93ArchitectureTests
     [Fact]
     public void Suggestion1101_1107_comparison_demo_and_admin_action_level_sealed_manifest_conflict_mappers()
     {
-        string runComparisonReplay = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "RunComparisonController.Replay.cs"));
-        string manifestCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Governance",
-                "ManifestsController.Compare.cs"));
-        string reviewsDemo = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "ReviewsDemoController.cs"));
-        string quickStart = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Demo",
-                "QuickStartController.cs"));
-        string operations = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "OperationsController.cs"));
-        string referenceEvidenceZip = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Admin",
-                "ReferenceEvidenceAdminZipResultFactory.cs"));
-        string authorityCompare = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Api",
-                "Controllers",
-                "Authority",
-                "AuthorityCompareController.cs"));
+        string runComparisonReplay = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/RunComparisonController.Replay.cs");
+        string manifestCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/ManifestsController.Compare.cs");
+        string reviewsDemo = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/ReviewsDemoController.cs");
+        string quickStart = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Demo/QuickStartController.cs");
+        string operations = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/OperationsController.cs");
+        string referenceEvidenceZip = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Admin/ReferenceEvidenceAdminZipResultFactory.cs");
+        string authorityCompare = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityCompareController.cs");
 
         runComparisonReplay.Should().Contain("MapRunComparisonSealedManifestConflict");
         manifestCompare.Should().Contain("MapGoldenManifestReadSealedManifestConflict");

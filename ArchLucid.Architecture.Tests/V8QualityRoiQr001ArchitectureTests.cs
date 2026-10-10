@@ -14,12 +14,7 @@ public sealed class V8QualityRoiQr001ArchitectureTests
     [Fact]
     public void Qr001_decisioning_graph_factory_and_advisory_guard_exist()
     {
-        string factory = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "ArchLucid.Decisioning.Tests",
-                "GoldenCorpus",
-                "GoldenCorpusIngestDeclarationGraphFactory.cs"));
+        string factory = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusIngestDeclarationGraphFactory.cs");
         string guardScript = File.ReadAllText(
             Path.Combine(RepoRoot, "scripts", "ci", "check_insight_density_advisory_surfaces.py"));
         string ratchet = File.ReadAllText(
