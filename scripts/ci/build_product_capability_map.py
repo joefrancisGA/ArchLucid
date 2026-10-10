@@ -47,6 +47,18 @@ CONTROLLER_OVERRIDES: dict[str, tuple[str, str, str, str | None]] = {
         "assigned",
         None,
     ),
+    "ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController": (
+        "infra-evidence",
+        "both",
+        "assigned",
+        None,
+    ),
+    "ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController": (
+        "infra-evidence",
+        "both",
+        "assigned",
+        None,
+    ),
     "ArchLucid.Api.Controllers.Authority.GcpTier2ConnectionController": (
         "infra-evidence",
         "architecture",
