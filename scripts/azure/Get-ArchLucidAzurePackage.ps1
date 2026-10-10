@@ -455,11 +455,7 @@ try
 
     # Companion rows (network associations) may still be derived from never-show attachment types before they are omitted from resources.json.
     $inventoryForAssociationDerivation = @($resources)
-    $resources = @($resources) | Where-Object { -not (Test-ArchLucidAzureInventoryNeverShowResourceType -ResourceType $_.resourceType) }
-    [string[]]$privateLinkOnlyNicArmIds = @(Get-ArchLucidAzurePrivateLinkOnlyNicArmIds -InventoryResources @($inventoryForAssociationDerivation))
-    $resources = @($resources) | Where-Object {
-        -not (Test-ArchLucidAzureInventoryNeverShowResource -Resource $_ -PrivateLinkOnlyNicArmIds $privateLinkOnlyNicArmIds)
-    }
+    # Preserve collected evidence; visibility filtering belongs to diagram projections.
 
     $manifest = [ordered]@{
         schemaVersion = $schemaVersion

@@ -166,7 +166,7 @@ public sealed class HostedAzureExtractorClient(
                 .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
                 .ConfigureAwait(false);
 
-        List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+        IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
 
         if (diagnosticSettingsResult.PartialCollection)
@@ -410,7 +410,7 @@ public sealed class HostedAzureExtractorClient(
                 .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
                 .ConfigureAwait(false);
 
-        List<HostedAzureArmResourceRecord> inventoryResources = FilterInventoryResources(resources);
+        IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
 
         if (diagnosticSettingsResult.PartialCollection)
@@ -557,20 +557,6 @@ public sealed class HostedAzureExtractorClient(
         }
 
         return value.GetString();
-    }
-
-    private static List<HostedAzureArmResourceRecord> FilterInventoryResources(
-        IReadOnlyList<HostedAzureArmResourceRecord> resources)
-    {
-        HashSet<string> privateLinkOnlyNicArmIds =
-            HostedAzureInventoryPrivateLinkOnlyNicCatalog.BuildOmittedNicArmIds(resources);
-
-        return resources
-            .Where(resource => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(
-                resource.ResourceType,
-                resource.ResourceId,
-                privateLinkOnlyNicArmIds))
-            .ToList();
     }
 
     private async Task<IReadOnlyList<AzureInventoryEntraGroupMembershipRow>> TryReadEntraGroupMembershipsAsync(

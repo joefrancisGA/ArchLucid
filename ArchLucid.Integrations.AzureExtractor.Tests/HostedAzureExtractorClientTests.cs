@@ -1,6 +1,7 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Integrations.AzureExtractor;
 
 using Azure.Core;
@@ -17,8 +18,12 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 [Trait("Category", "Unit")]
 public sealed class HostedAzureExtractorClientTests
 {
-    [Fact]
-    public async Task CollectZipAsync_builds_zip_from_arm_resources()
+    [Theory]
+    [InlineData("Microsoft.Storage/storageAccounts", "Microsoft.Storage/storageAccounts/sa1")]
+    [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities", "Microsoft.ManagedIdentity/userAssignedIdentities/mi1")]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", "Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1")]
+    [InlineData("Microsoft.Network/privateDnsZones/virtualNetworkLinks", "Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")]
+    public async Task CollectZipAsync_builds_zip_from_all_collected_arm_resources(string resourceType, string resourcePath)
     {
         Mock<IHostedAzureExtractorCredentialFactory> credentialFactory = new();
         credentialFactory
@@ -28,8 +33,8 @@ public sealed class HostedAzureExtractorClientTests
         IReadOnlyList<HostedAzureArmResourceRecord> resources =
         [
             new HostedAzureArmResourceRecord(
-                ResourceType: "Microsoft.Storage/storageAccounts",
-                ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                ResourceType: resourceType,
+                ResourceId: $"/subscriptions/sub/resourceGroups/rg/providers/{resourcePath}",
                 Name: "sa1",
                 Location: "eastus",
                 Sku: null,
@@ -159,6 +164,13 @@ public sealed class HostedAzureExtractorClientTests
         Assert.Null(error);
         Assert.NotNull(manifest);
         Assert.Equal("Contoso Production", manifest!.SubscriptionName);
+        stream.Position = 0;
+        AzureExtractorPackageInventoryReadResult inventory = AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+        Assert.True(inventory.Succeeded);
+        AzureExtractorExtendedResourceRow row = Assert.Single(inventory.Resources);
+        Assert.Equal(resourceType, row.ResourceType);
+        Assert.Equal(resources[0].ResourceId, row.AzureResourceId);
+        Assert.Equal("Succeeded", row.Properties["provisioningState"]);
     }
 
     [Fact]

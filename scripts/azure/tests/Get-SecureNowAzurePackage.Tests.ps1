@@ -72,6 +72,7 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
     It 'uses SecureNow consumer branding in README.txt while emitting schema-version-2 ZIP output' {
         [object[]]$fixtureResources =
             @(Get-Content -LiteralPath $script:armFixturePath -Raw -Encoding Utf8 | ConvertFrom-Json)
+        $fixtureResources += @(Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fixtures/arm-hidden-resources.sample.json') -Raw -Encoding Utf8 | ConvertFrom-Json)
 
         [object[]]$mockAzResources =
             @( $fixtureResources | ForEach-Object { New-ArchLucidMockAzResource $_ } )
@@ -155,7 +156,20 @@ Describe 'Get-SecureNowAzurePackage.ps1' {
                 $readme | Should -Not -Match 'ArchLucid Azure extractor output'
 
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
-                $resources.Count | Should -Be 2
+                $resources.Count | Should -Be 7
+                foreach ($fixtureResource in $fixtureResources)
+                {
+                    @($resources | Where-Object { $_.resourceId -eq $fixtureResource.resourceId }).Count | Should -Be 1
+                }
+                [object]$identity = $resources | Where-Object { $_.resourceType -eq 'Microsoft.ManagedIdentity/userAssignedIdentities' }
+                $identity.properties.provisioningState | Should -Be 'Succeeded'
+                ($identity.properties | ConvertTo-Json -Depth 12) | Should -Not -Match 'fixture-secret'
+                [object[]]$preservedAssociations = @(Get-Content -LiteralPath (Join-Path $staging 'network-associations.json') -Raw -Encoding Utf8 | ConvertFrom-Json)
+                @($preservedAssociations | Where-Object {
+                    $_.associationType -eq 'peToNic' -and
+                    $_.fromResourceId -eq '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/privateEndpoints/pe1' -and
+                    $_.toResourceId -eq '/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Network/networkInterfaces/pe-nic'
+                }).Count | Should -Be 1
 
                 [string]$diagnosticSettingsPath = Join-Path $staging 'diagnostic-settings.json'
                 Test-Path -LiteralPath $diagnosticSettingsPath | Should -Be $true
