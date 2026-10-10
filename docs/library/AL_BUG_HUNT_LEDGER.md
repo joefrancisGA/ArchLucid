@@ -29813,13 +29813,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 51
-- **bugs-found:** 44
+- **hunts:** 52
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — persisted diagram property casing dropped reconstructed diagram nodes
+- **last-bug:** 2026-10-10 — persisted compiled-diagram evidence casing dropped citation metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-10 seed hunt (seed→hit): `StructuredDiagramCompiledGraphBinder.TryReadSourceEvidenceItemId` used an exact persisted property-key lookup, so a reachable compiled diagram node with casing-drifted `structuredDiagram.sourceEvidenceItemId` bound without its citation metadata; source-evidence lookup now reuses `GraphNodePropertyReader`; regression `BindToCanonicalNodes_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and binder tests passed 8/8 after the fix.
+
+- [x] (proven) `StructuredDiagramCompiledGraphBinder.TryReadSourceEvidenceItemId` — casing-drifted compiled diagram evidence keys produced a null canonical binding citation — **hit 2026-10-10 seed hunt:** reuse `GraphNodePropertyReader`; regression `BindToCanonicalNodes_reads_source_evidence_id_when_persisted_property_key_uses_different_casing`.
 
 2026-10-10 seed hunt (seed→hit): `StructuredDiagramCanonicalModelReconstructor` used exact property-key reads across structured diagram reconstruction, so a reachable persisted canonical object with casing-drifted `diagramNodeId` was discarded and its document reconstructed with no nodes; all structured diagram property reads now reuse `GraphNodePropertyReader`; regression `ReconstructModels_reads_diagram_node_id_when_persisted_property_key_uses_different_casing`; pre-fix repro failed and reconstructor tests passed 6/6 after the fix.
 
