@@ -10682,9 +10682,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 39 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
+**Hunts:** 40 · **Bugs found:** 5 · **Consecutive dry hunts:** 0
 
-2026-10-11 seed hunt (seed-only): re-read `AuthCallbackAccessPanel.tsx` and the focused 63-test component suite; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused `AuthCallbackAccessPanel` Vitest suite passed 63/63; no production or regression code changed.
+2026-10-11 seed hunt (seed→hit): `containsUnsupportedAccessRequestText` rejected normal newline characters in the user-editable optional note because Unicode `Cc` includes line breaks, so a valid multiline access request never reached `fetch`. The guard now permits CR/LF/tab while retaining rejection of other control and bidi-format characters; regression `posts access request when the optional note contains a normal newline` failed first with zero POSTs and the focused `AuthCallbackAccessPanel` Vitest suite passes 64/64.
+
+- [x] (proven) `containsUnsupportedAccessRequestText` — rejects normal newline characters in the optional note — **hit 2026-10-11 seed hunt:** the textarea emits reachable multiline note input and the broad `Cc` guard blocked the request before `fetch`; regression `posts access request when the optional note contains a normal newline`.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
