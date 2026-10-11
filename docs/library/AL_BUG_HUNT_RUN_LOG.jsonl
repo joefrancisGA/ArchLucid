@@ -9513,3 +9513,4 @@
 {"at":"2026-10-11T18:41:51.239061Z","zoneId":"extraction-router","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-11T18:45:59.381263Z","zoneId":"extraction-router","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-11T18:50:18.075086Z","zoneId":"extraction-router","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-11T18:55:18.140178Z","zoneId":"cli-tenant-isolation","outcome":"dry","productLine":"archlucid-shared"}

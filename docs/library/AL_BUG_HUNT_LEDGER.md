@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — cheap-disproved all five retained candidates: the 204 replay mismatch is covered by the existing 2xx verified-absent trust rule, 201 is not a reachable API status for this list contract, primary visibility has no reachable 204/304 caller path, description text is not the canonical top-level `runId`, and cursors are read from decoded JSON before one URL-escape. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. No failing repro or production change.
+
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread; no new reachable mechanism-backed wrong outcome or candidate met the promotion bar. The focused filter passed 32/32. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread with no new reachable mechanism-backed wrong outcome or candidate meeting the promotion bar. The focused filter passed 32/32. No production or regression code changed.
@@ -10041,10 +10043,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -10086,11 +10088,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.ShouldTrustVerifiedAbsentOutcomeOverFieldStatus` — manifest `observedStatusCode` 204 with `observedOutcome` `HTTP 200; foreign runId absent`. Live `ScanRunListForForeignRunIdAsync` maps 204 to list-unavailable SKIP, but 204 is inside the 2xx trust window. Not promoted: same fail-open replay merge as the 503 verified-absent fix.
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` — `observedStatusCode` 201 and `observedOutcome` `HTTP 201; foreign runId absent` replay as Pass. Live empty non-204 2xx bodies are list-unavailable. `AuthorityReadsController.ListRuns` returns 200, not 201.
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ProbePrimaryRunVisibilityAsync` — any 2xx, including 204, counts as the supplied run being visible. `RunQueryController.GetRun` returns 200, 304, 404, or 409. 304 requires `If-None-Match`, which `CliHttpProbeSession` does not send.
-- [ ] (candidate) `TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList` — a scannable `items` page whose `runId` values omit the foreign id while `description` contains it. A successful parse does not use the malformed-JSON substring fallback. `RunSummaryResponse` stores the id on `runId`.
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — `nextCursor` is percent-encoded once before the next `GET /v1/runs`. `RunCursorCodec.Encode` returns base64url. A cursor that was already percent-encoded would be encoded twice, `ListRuns` would return 400, and the probe would SKIP as list-unavailable.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestOfflineRunner.ShouldTrustVerifiedAbsentOutcomeOverFieldStatus` — a 204 field with a verified `HTTP 200; foreign runId absent` outcome is accepted by the existing 2xx trust rule; no wrong outcome is established.
+- [x] (invalid) `TenantIsolationNegativeTestOfflineRunner.EvaluateExcludeRunIdProbeVerdict` — the proposed 201 list response is not a reachable status for the canonical `ListRuns` contract, which returns 200; no repro input is justified.
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ProbePrimaryRunVisibilityAsync` — the proposed 204/304 primary responses are not reachable through the documented run-detail status contract and the client does not send conditional headers.
+- [x] (valid-no-repro) `TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList` — canonical list items carry the identity on top-level `runId`; description text is not an identity field, and the focused suite covers top-level matching and malformed-payload fallback.
+- [x] (invalid) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — the cursor is obtained from decoded JSON and escaped once; no reachable already-encoded cursor input exists in the selected paths.
 - [x] (proven) Offline replay trusted manifest `verdict: pass` even when `observedStatusCode` was 200 on deny-status probes — fixed by deriving deny verdicts from observed status unless manifest marks skip.
 - [x] (invalid) Probe uses the victim tenant's token instead of the attacker token — live mode applies alternate scope headers on a second client; same credential probes cross-tenant scope by design.
 - [x] (proven) Live ship-gate reported overall PASS when cross-tenant probes were SKIP (primary sanity Pass + infra 5xx skips) — fixed by downgrading live overall to SKIP and non-zero exit when isolation was not verified.
