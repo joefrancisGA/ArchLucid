@@ -300,6 +300,9 @@ export async function expectLiveBrandedNotFoundRecovery(
   await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: timeoutMs });
 }
 
+/** OperatorPageHeader title test id on `/architecture/reviews` (H1, not H2). */
+export const LIVE_REVIEWS_HUB_TITLE_TEST_ID = "reviews-hub-page-title";
+
 /** Verifies the Reviews heading separately so hub timeouts are not reported as generic journey failures. */
 export async function expectLiveReviewsHubHeading(
   page: Page,
@@ -308,11 +311,11 @@ export async function expectLiveReviewsHubHeading(
   const timeoutMs = options?.timeoutMs ?? 90_000;
 
   try {
-    await expect(page.getByRole("heading", { level: 2, name: /^Reviews$/i })).toBeVisible({
+    await expect(page.getByTestId(LIVE_REVIEWS_HUB_TITLE_TEST_ID)).toBeVisible({
       timeout: timeoutMs,
     });
   } catch (error: unknown) {
-    throw new Error("[reviews-hub-timeout] Reviews hub H2 did not become visible.", { cause: error });
+    throw new Error("[reviews-hub-timeout] Reviews hub heading did not become visible.", { cause: error });
   }
 }
 

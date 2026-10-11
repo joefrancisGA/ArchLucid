@@ -44,6 +44,10 @@ class TestPrivateBetaReadiness(unittest.TestCase):
                 "private-beta workflow must run the npm lockfile preflight",
                 issues,
             )
+            self.assertIn(
+                "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI",
+                issues,
+            )
 
     def test_ruleset_requires_rc34_and_all_contexts(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

@@ -79,6 +79,11 @@ def _check_workflow(root: Path) -> list[str]:
     if "live-api-private-beta-access.spec.ts" not in content:
         issues.append("private-beta workflow must run the canonical access-path spec")
 
+    if "RateLimiting__AuthRouting__PermitLimit" not in content:
+        issues.append(
+            "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI"
+        )
+
     if "report_private_beta_rate_limit_diagnostics.py" not in content:
         issues.append("private-beta workflow must include rate-limit diagnostics wiring")
 
