@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `architecture-recommendation` — reread the selected recommendation engine and trade-off builder plus the focused alternatives/proposed-change tests; no fresh row met the full hunt-ready bar. Retained the two bounded caller/contract candidates and seeded three additional candidates for null/duplicate finding handling and priority-resolution semantics. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `retrieval` — reread retrieval query planning, in-memory/Azure vector indexing, scope validation, chunkers, and embedding cache paths; no fresh row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for non-positive chunk-size handling, duplicate document identity within one indexing batch, and duplicate chunk-id overwrite semantics. The exact Retrieval/Indexing filter passed 364/364. No production or regression code changed.
 
 2026-10-11 thorough hunt (dry): `finding-inspect-sql` — cheap-disproof closed the digest-shape candidate because the inspect path has no reachable caller contract requiring validation beyond display normalization; closed malformed agent-trace `modelAlias` loss because `JSON_VALUE` null behavior is an intentional projection fallback with no alternate in-zone source; and closed arbitrary disposition-pointer selection because migration 370 enforces one current pointer per scoped finding with `PK_FindingCurrentDispositions`. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
@@ -9709,6 +9711,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — the supplied `ArchitectureKnowledgeModel.IsProvisionalSynthesis` is not consulted at this locus, so a direct caller passing a provisional model with a Fail finding could emit a remediation recommendation instead of evidence-first output — input: the `context.Model` passed by `ClosedLoopRecommendationStage` while framing is incomplete; upstream `ClosedLoopReviewStage` currently gates those findings, so caller/contract evidence is still needed.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — only Security/Cost, Security/Reliability, and Reliability/Cost pairs are synthesized, so a reachable Security plus DataArchitecture finding pair receives no competing-dimension trade-off — input: specialist review findings with `QualityDimension.Security` and `QualityDimension.DataArchitecture`; no selected contract currently states that every dimension pair must produce a trade-off.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — a reachable null entry inside the `findings` list throws through `IsActionableFinding` instead of being skipped or reported as invalid input; the list is caller-provided, but collection-element nullability is not established by the selected contract.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — duplicate actionable findings with the same title/dimension can emit duplicate recommendations with separate stable identities; the selected engine does not deduplicate findings before creating recommendations, but no caller contract establishes whether duplicate specialist rows are valid.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — when declared priorities mention both dimensions in different entries, the resolver balances instead of honoring list order; `DeclaredPriorities` is reachable operator input, but precedence semantics are not established by the selected contract.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
@@ -9870,7 +9875,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 61
+- **hunts:** 62
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
