@@ -63,6 +63,30 @@ def _check_required_files(root: Path) -> list[str]:
     ]
 
 
+_AUTH_ROUTING_CI_PERMIT_ASSIGNMENT = 'RateLimiting__AuthRouting__PermitLimit: "500"'
+_API_RESTART_STEP_MARKER = "Restart API after Enterprise grant"
+
+
+def _check_auth_routing_ci_permit(content: str) -> list[str]:
+    start_block, separator, restart_block = content.partition(_API_RESTART_STEP_MARKER)
+
+    if not separator:
+        return [
+            "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI"
+        ]
+
+    if (
+        _AUTH_ROUTING_CI_PERMIT_ASSIGNMENT not in start_block
+        or _AUTH_ROUTING_CI_PERMIT_ASSIGNMENT not in restart_block
+    ):
+        return [
+            'private-beta workflow must set RateLimiting__AuthRouting__PermitLimit: "500" '
+            "in both API-start environment blocks"
+        ]
+
+    return []
+
+
 def _check_workflow(root: Path) -> list[str]:
     content = _read(root, ".github/workflows/private-beta-access-on-push.yml")
     issues: list[str] = []
@@ -79,10 +103,7 @@ def _check_workflow(root: Path) -> list[str]:
     if "live-api-private-beta-access.spec.ts" not in content:
         issues.append("private-beta workflow must run the canonical access-path spec")
 
-    if "RateLimiting__AuthRouting__PermitLimit" not in content:
-        issues.append(
-            "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI"
-        )
+    issues.extend(_check_auth_routing_ci_permit(content))
 
     if "report_private_beta_rate_limit_diagnostics.py" not in content:
         issues.append("private-beta workflow must include rate-limit diagnostics wiring")

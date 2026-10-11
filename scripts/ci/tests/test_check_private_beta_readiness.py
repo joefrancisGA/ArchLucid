@@ -49,6 +49,33 @@ class TestPrivateBetaReadiness(unittest.TestCase):
                 issues,
             )
 
+    def test_workflow_requires_auth_routing_permit_in_both_api_start_blocks(self) -> None:
+        assignment = 'RateLimiting__AuthRouting__PermitLimit: "500"'
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                "\n".join(
+                    [
+                        "branches: [main, master, RC35]",
+                        assignment,
+                        "Restart API after Enterprise grant (refresh tenant-tier cache)",
+                        'RateLimiting__AuthRouting__PermitLimit: "10"',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                'private-beta workflow must set RateLimiting__AuthRouting__PermitLimit: "500" '
+                "in both API-start environment blocks",
+                issues,
+            )
+
     def test_ruleset_requires_rc34_and_all_contexts(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
