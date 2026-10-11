@@ -8,6 +8,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Asp.Versioning;
@@ -80,6 +81,7 @@ public sealed class OperationalSecurityFindingsController(
     }
 
     [HttpPost("lookup")]
+    [MutatingAuditExcluded("Finding lookup is a read-only natural-key query posted to keep the request bounded.")]
     [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Lookup(
