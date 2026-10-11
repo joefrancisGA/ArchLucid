@@ -43,6 +43,8 @@ internal static class DemoSeedExportLineageAuditRepair
 
         string ruleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? DemoRuleSetId : golden.RuleSetId;
 
+        // Fail closed after bounded retries: this repair exists so demo seed cannot succeed
+        // without the ManifestGenerated export-lineage anchor (TB-307 / ADR 0040).
         await DurableAuditLogRetry.LogOrThrowAsync(
             ct => deps.AuditService.LogAsync(
                 new AuditEvent
