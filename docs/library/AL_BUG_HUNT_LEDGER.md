@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
+
+2026-10-11 seed hunt (seed-only): `core-explanation-json` — re-read the structured parser, shared token readers, prompt schema, and existing candidate rows. The four bounded candidates remain provider-contract or downstream-semantics questions rather than same-run hunt-ready defects; the focused `RunExplanation` suite passed 47/47. No production or regression code changed.
+
+2026-10-11 seed hunt (seed-only): `archlucid-contracts` — rechecked the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — rechecked the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
@@ -27675,7 +27681,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -27801,11 +27807,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 42
-- **bugs-found:** 31
+- **hunts:** 43
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-03 — string numeric classification ordinal silently accepted
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — string numeric semantic support band ordinal silently accepted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -27893,6 +27899,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-11 seed hunt #1748 (seed→hit): reseeded archlucid-contracts; proved unknown sourceAgent string silent default; 20 scoped `ArchitectureFindingJsonConverter` tests passed.
 
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — numeric `semanticSupportBand` ordinals outside `Enum.IsDefined` returned false and left `SemanticSupportBand` null while sibling `treatment`/`classification` readers throw — **hit 2026-09-26 seed hunt:** out-of-range ordinals now throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`.
+
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — string numeric `semanticSupportBand` ordinals such as `"99"` passed `Enum.TryParse` without an `Enum.IsDefined` check and were silently ignored, while numeric ordinals throw — **hit 2026-10-11 seed hunt:** added the defined-value guard; regression `Deserialize_string_numeric_semantic_support_band_out_of_range_throws`.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 
