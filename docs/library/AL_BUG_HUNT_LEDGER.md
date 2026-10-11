@@ -15500,6 +15500,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-11 thorough hunt (dry): cheap-disproved the circuit-open audit-attribution candidate because the selected guard has no request scope and its explicit system actor/event shape establishes `Guid.Empty` as intentional absent scope; retained the Azure category-order and configuration-threshold candidates because their expected contract is outside the selected files. The exact picker filter passed 584/584, with no failing repro or production change.
+
 2026-10-10 seed hunt (seed-only): re-read the selected Content Safety guards and prompt-injection sanitizers; the exact picker filter passed 584/584. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. Seeded bounded candidates for configured severity-threshold range handling and degraded-audit attribution; no production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected Safety and PromptInjection reread; no new hunt-ready row was found, and the exact picker filter passed 584 tests. No production or regression code changed.
@@ -16390,10 +16392,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 71
-- **last-hunt:** 2026-10-10
+- **hunts:** 72
+- **last-hunt:** 2026-10-11
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-bug:** 2026-10-10 — inner content-safety cancellation was converted into SDK output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -16422,7 +16424,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `AzureContentSafetyGuard.MapResult` — a reachable Azure response containing multiple blocking categories returns whichever blocking category appears first, while Azure response ordering is not established as stable; diagnostic category/reason text could vary across equivalent blocked inputs.
 - [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — a reachable `ArchLucid:ContentSafety:BlockSeverityThreshold` value outside the documented four-level scale is passed directly to comparison logic, potentially changing block behavior without startup validation; configuration validation is outside the selected files.
-- [ ] (candidate) `CircuitBreakingContentSafetyGuard.TryAuditAsync` — fail-open degraded safety events always use `Guid.Empty` tenant/workspace/project identifiers, potentially losing tenant attribution for a reachable circuit-open request; the selected guard has no request-scope source to establish whether system-level attribution is intentional.
+- [x] (invalid) `CircuitBreakingContentSafetyGuard.TryAuditAsync` — fail-open degraded safety events always use `Guid.Empty` tenant/workspace/project identifiers — **cheap-disproof 2026-10-11 thorough hunt:** the selected guard has no request-scope source, and the explicit system actor/event shape makes absent tenant/workspace/project scope intentional here.
 
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract — **cheap-disproof 2026-10-10 thorough hunt:** no selected production caller passes a nullable Azure tag map into this sanitizer; the proposed JSON input has no reachability citation in the selected paths.
 - [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — an externally populated evidence payload with a null collection reaches a direct `foreach` over `Policies`, `ServiceCatalog`, `Patterns`, or `Notes` — **cheap-disproof 2026-10-10 thorough hunt:** the selected runtime assembles `AgentEvidencePackage` in process and provides initialized collections; no selected JSON/API deserialization boundary supplies a null collection.
