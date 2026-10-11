@@ -266,6 +266,20 @@ export async function expectLiveReviewsHubListReady(
   await expectNoGenericErrorBoundary(page);
 }
 
+/** Verifies the production Reviews title separately from inventory hydration. */
+export async function expectLiveReviewsHubHeading(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+
+  try {
+    await expect(page.getByTestId("reviews-hub-page-title")).toBeVisible({ timeout: timeoutMs });
+  } catch (error: unknown) {
+    throw new Error("[reviews-hub-timeout] Reviews hub title did not become visible.", { cause: error });
+  }
+}
+
 /** Waits for the invitee landing guide to render its meaningful first-review surface. */
 export async function expectLiveFirstReviewGuideReady(
   page: Page,
