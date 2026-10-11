@@ -36409,3 +36409,4 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — the zone reached 45 hunts with the same four candidates and no hunt-ready promotion; no reachable failing repro was found. The scoped host-core job suite passed 76/76. No production change.
+2026-10-11 thorough hunt (dry): `host-core-jobs` — after 45 hunts, the candidate set remains unchanged and no reachable failing repro or hunt-ready promotion was found. The scoped host-core job suite passed 76/76. No production change.
