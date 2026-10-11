@@ -12443,13 +12443,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed-only): repeated the selected source and focused-test reread. No fresh mechanism-backed reachable candidate met the hunt-ready bar; existing candidate lenses were retained without duplication. The scoped API assembly reported 96 passed, 2 known stale ADR 0037 API-key expectations, and 6 SQL-backed integration tests blocked by unavailable SQL Server; no production or regression change.
 
+2026-10-11 seed hunt (seed-only): repeated the selected source and focused-test reread after the prior seed-only pass. No fresh mechanism-backed reachable candidate met the hunt-ready bar; existing candidate lenses remain bounded and no duplicate rows were added. The scoped API assembly again reported 96 passed, 2 known stale ADR 0037 API-key expectations, and 6 SQL-backed integration tests blocked by unavailable SQL Server; no production or regression change.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
