@@ -20,6 +20,7 @@ import { collectArchLucidRoleClaimValues } from "@/lib/nav-authority";
 import { liveApiBase, liveE2eHarnessHeaders, liveJsonHeaders, resolveLiveJwtMode } from "./live-api-client";
 import { mergeTenantScope } from "./live-api-headers";
 import { throwIfNotOk } from "./live-api-response";
+import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
 
 /** Matches {@link ScopeIds.DefaultTenant} when JWT omits scope claims. */
 export const LIVE_E2E_DEFAULT_TENANT_ID = "11111111-1111-1111-1111-111111111111";
@@ -74,6 +75,8 @@ export function isLivePrivateBetaJwtConfigured(): boolean {
  * last-open identity desk (DA-09 / ADR 0077). Eval chrome keeps Start review.
  */
 export async function expectPrivateBetaStartIntakeSurface(page: Page): Promise<void> {
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
+
   const startReviewTitle = page.getByTestId("reviews-new-page-title");
   const createArchitectureTitle = page.getByTestId("architecture-new-page-title");
   const architectureDesk = page.getByTestId("architecture-identity-desk");
