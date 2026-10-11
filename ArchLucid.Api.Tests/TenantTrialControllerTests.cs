@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Tests.Tenancy;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
