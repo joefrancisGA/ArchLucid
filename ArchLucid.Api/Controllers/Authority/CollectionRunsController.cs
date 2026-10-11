@@ -1,6 +1,8 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.SecureNow;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
@@ -53,6 +55,7 @@ public sealed class CollectionRunsController(
 
     [HttpPost(":trigger")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("AutomationCollectionRunTrigger emits SecureNow.CollectionRunTriggered after the Automation runbook is accepted.")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -63,7 +66,7 @@ public sealed class CollectionRunsController(
             cancellationToken);
 
         if (!result.Succeeded)
-            return UnprocessableEntity(new ProblemDetails { Detail = result.FailureDetail });
+            return this.UnprocessableEntityProblem(result.FailureDetail ?? "The collection run could not be started.");
 
         return Accepted(new
         {
