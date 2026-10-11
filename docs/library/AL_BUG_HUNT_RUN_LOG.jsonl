@@ -9547,3 +9547,4 @@
 {"at":"2026-10-11T21:57:44.7002712Z","zoneId":"application-pilots","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-11T22:04:11.8568957Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"securenow","paths":["ArchLucid.Application/Billing/"]}
 {"at":"2026-10-11T22:09:19.7544240Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"securenow","paths":["ArchLucid.Application/Billing/"]}
+{"at":"2026-10-11T22:14:16.3411634Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}

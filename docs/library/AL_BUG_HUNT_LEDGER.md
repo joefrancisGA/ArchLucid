@@ -35640,6 +35640,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-11 thorough hunt (dry): cheap-disproved the four open candidates. The client trims `runId` before exposing scope state, the more-filters disclosure has URL/effect synchronization and focused coverage, assigned-mode active chips are derived from the complete filter state, and derivation disclosure ids are trimmed before comparison. No failing repro was established. Candidate-specific URL, scope, filter-chip, and disclosure tests passed 13/13; the picker-scoped client file remained at 22 tests with 11 known external-store/update-depth and workspace-label baseline failures.
+
 2026-10-11 seed hunt (seed-only): reread the queue shell, toolbar, scope, results, outcome, triage, and assigned-row paths after the whitespace-scope fix; no new row met the full hunt-ready bar. Seeded four bounded candidates for raw whitespace scope in the results footer, URL-backed disclosure state transitions, assigned-scope filter visibility, and derivation disclosure identity. No production or regression change.
 
 2026-10-11 seed hunt (seed→hit): `GovernanceFindingsQueueScopeSection` treated any non-empty raw `scopedRunId` as an active review scope even when the client’s trimmed `scopedRunFilterActive` was false. A reachable `runId=%20` URL therefore rendered a blank review-scope banner and encoded whitespace into the Open review link; regression `does not render a review scope banner for a whitespace-only run id` failed first and passed after using `scopedRunFilterActive` for both scope branches. Scope-section tests passed 5/5.
@@ -35666,9 +35668,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 30
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — whitespace run id rendered review scope
 - **related-pd-tb:** none
@@ -35688,10 +35690,10 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive, potentially rendering a next-review footer for an invalid scope; requires the footer contract and a falsifiable rendered/API outcome.
-- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update; requires a reachable toggle sequence and a wrong disclosure state after navigation settles.
-- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — assigned-to-me active filter chips are gated by `activeFiltersSummary`, so a valid assigned queue filter represented outside that summary may hide the clear affordance; requires a concrete filter-state contract and a reachable missing-chip outcome.
-- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` — a reachable derivation disclosure id containing surrounding whitespace may fail the raw equality check against `row.findingId`, leaving the persisted disclosure closed for the selected finding; requires a reachable URL/row-id normalization contract and a visible disclosure mismatch.
+- [x] (invalid) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive — **invalid 2026-10-11 thorough hunt:** `scopedRunIdFromQuery` trims URL input before the Results section receives it; the whitespace-only prerequisite is not reachable there.
+- [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update — **cheap-disproof 2026-10-11 thorough hunt:** the controlled disclosure writes through the URL helper and the effect rehydrates state from the settled parameter; focused URL/scope tests passed.
+- [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — assigned-to-me active filter chips are gated by `activeFiltersSummary`, so a valid assigned queue filter represented outside that summary may hide the clear affordance — **cheap-disproof 2026-10-11 thorough hunt:** the summary is derived from register, job-view, natural-language, and search filters, matching the chip inputs; no separate assigned filter state is present in this boundary.
+- [x] (invalid) `GovernanceFindingsQueueAssignedToMeRowCells` — a reachable derivation disclosure id containing surrounding whitespace may fail the raw equality check against `row.findingId` — **invalid 2026-10-11 thorough hunt:** `parseGovernanceFindingDerivationIdFromSearch` trims the URL value before row comparison; focused disclosure tests passed.
 
 - [x] (invalid) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner — **cheap-disproof 2026-10-10 thorough hunt:** no approval provenance source or caller exists in the selected client boundary; the null value is the conservative absent-record state.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering — **cheap-disproof 2026-10-10 thorough hunt:** `applyFindingsSavedViewFilters` accepts non-object input as `{}` and supplies safe defaults; no throw or wrong queue state is reachable.
