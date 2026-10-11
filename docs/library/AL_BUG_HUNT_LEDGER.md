@@ -36401,3 +36401,4 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review; no reachable failing repro or newly actionable mechanism. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review; no reachable failing repro or actionable mechanism beyond the previously classified SQL concurrency candidate. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — unchanged candidates remain below the hunt-ready bar; no reachable failing repro was found. The scoped host-core job suite passed 76/76. No production change.
+2026-10-11 thorough hunt (dry): `host-core-jobs` — no candidate advanced beyond the hunt-ready bar; no reachable failing repro was found. The scoped host-core job suite passed 76/76. No production change.
