@@ -94,6 +94,17 @@ bash scripts/ci/retrigger_private_beta_smoke_branch.sh cursor/al-beta-private-be
 
 Artifact names use the `-smoke-branch` suffix (e.g. `ui-e2e-live-beta-access-smoke-branch-playwright-report`).
 
+Before changing `scripts/ci/private_beta_frozen_branch.sha`, pass the latest completed
+JwtBearer conclusion through the witness guard:
+
+```bash
+python3 scripts/ci/check_private_beta_pin_witness.py --conclusion success
+```
+
+The guard rejects `failure`, `cancelled`, and other non-success conclusions. With no
+conclusion it prints a notice and authorizes no pin change; the caller must still leave
+the pin unchanged. Do not advance the pin while the current frozen smoke is running.
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):
