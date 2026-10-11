@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client, findings/decision row mappers, query fallback, table/body, scope, toolbar, and outcome paths. No fresh row met the full hunt-ready bar; retained bounded candidates for whitespace-padded API finding identifiers, whitespace/empty decision identifiers, and fallback trace-row run identity normalization. The picker-scoped client file ran 22 tests with 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
+2026-10-11 thorough hunt (hit): `ui-governance-findings-queue` — risk and decision register mappers admitted malformed identifier shapes from the generated optional API fields: padded finding ids destabilized bulk-selection identity after URL normalization, while an omitted decision id could throw during title construction. The mappers now drop missing decision ids and normalize accepted ids; regressions cover both paths. Mapper tests passed 3/3; the picker-scoped client file retained 11 known external-store/update-depth and workspace-label baseline failures.
 
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — re-read the processor isolation shell and option verification path; the existing candidate set remains contract-dependent and no new reachable wrong outcome emerged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
 
@@ -35706,11 +35706,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 45
-- **bugs-found:** 30
-- **consecutive-dry-hunts:** 1
+- **hunts:** 46
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — whitespace run id rendered review scope
+- **last-bug:** 2026-10-11 — malformed register identifiers destabilized governance queue rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35728,9 +35728,9 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `riskRegisterRows` — an API risk-register `findingId` containing surrounding whitespace is admitted after the trimmed emptiness check but retained untrimmed, so inspect links and bulk-selection identity may encode or submit a non-canonical finding id; reachable from the generated risk-register `findingId` string contract, but the API’s canonical identifier formatting and wrong downstream outcome remain unproven.
-- [ ] (candidate) `decisionRegisterRows` — an API decision-register `decisionId` that is empty or whitespace is copied into `findingId` after the title fallback, so a rendered decision row may expose an empty-id inspect link; reachable from the generated decision-register string contract, but server-side non-empty enforcement and the user-visible wrong route remain unproven.
-- [ ] (candidate) `traceRowsForRun` — a fallback explanation row keeps the source `RunSummary.runId` without the normalization used for register rows, so a reachable padded run id could produce a mismatched review/evidence URL or dedupe key; the fallback caller supplies API run summaries, but canonical run-id formatting and a wrong navigation outcome remain unproven.
+- [x] (proven) `riskRegisterRows` — an API risk-register `findingId` containing surrounding whitespace was admitted after the trimmed emptiness check but retained untrimmed, so bulk-selection identity diverged after the URL helper normalized the same id; **hit 2026-10-11 thorough hunt:** normalize accepted risk-register finding ids before queue selection and links; regression `normalizes surrounding whitespace from risk-register finding ids`.
+- [x] (proven) `decisionRegisterRows` — an API decision-register entry with omitted optional identity/title fields reached `.trim()` through the title fallback and threw during queue mapping; **hit 2026-10-11 thorough hunt:** drop entries without a non-empty decision id and use the normalized id for title/finding identity; regression `drops decision-register entries without a decision id before queue rendering`.
+- [x] (valid-no-repro) `traceRowsForRun` — a fallback explanation row keeps the source `RunSummary.runId` without the normalization used for register rows, so a reachable padded run id could produce a mismatched review/evidence URL or dedupe key — **cheap-disproof 2026-10-11 thorough hunt:** `RunSummary.runId` is required at the local fallback boundary and all finding navigation helpers trim run ids before encoding; no distinct reachable wrong outcome remained.
 
 - [x] (invalid) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive — **invalid 2026-10-11 thorough hunt:** `scopedRunIdFromQuery` trims URL input before the Results section receives it; the whitespace-only prerequisite is not reachable there.
 - [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update — **cheap-disproof 2026-10-11 thorough hunt:** the controlled disclosure writes through the URL helper and the effect rehydrates state from the settled parameter; focused URL/scope tests passed.

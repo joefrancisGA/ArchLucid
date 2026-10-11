@@ -22,6 +22,7 @@ import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/g
 export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
   // OpenAPI marks findingId optional; malformed register rows must not become selectable queue items.
   return entries.filter((entry) => entry.findingId?.trim().length > 0).map((entry) => {
+    const findingId = entry.findingId.trim();
     const runId = (entry.runId ?? "").trim();
     const systemName = (entry.systemName ?? "").trim();
     const resourceId = (entry.resourceId ?? "").trim();
@@ -36,7 +37,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       runId,
       runLabel,
       manifestId: (entry.manifestId ?? "").trim(),
-      findingId: entry.findingId,
+      findingId,
       title: entry.title,
       severity: entry.severity,
       category: entry.category,
@@ -66,10 +67,11 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
 }
 
 export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[]): GovernanceFindingQueueRow[] {
-  return entries.map((entry) => {
+  return entries.filter((entry) => entry.decisionId?.trim().length > 0).map((entry) => {
+    const decisionId = entry.decisionId.trim();
     const runId = (entry.runId ?? "").trim();
     const manifestId = (entry.manifestId ?? "").trim();
-    const titleRaw = (entry.title ?? entry.selectedOption ?? entry.decisionId).trim();
+    const titleRaw = (entry.title ?? entry.selectedOption ?? decisionId).trim();
     const rationale = (entry.rationale ?? "").trim();
     const selectedOption = (entry.selectedOption ?? "").trim();
     const recommended =
@@ -83,8 +85,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       runId,
       runLabel: runId.length > 0 ? runId : "Not returned",
       manifestId,
-      findingId: entry.decisionId,
-      title: titleRaw.length > 0 ? titleRaw : entry.decisionId,
+      findingId: decisionId,
+      title: titleRaw.length > 0 ? titleRaw : decisionId,
       severity: "Info",
       category: (entry.category ?? "").trim().length > 0 ? entry.category : "Architecture decision",
       status: "Recorded",
