@@ -196,6 +196,9 @@ describe("DiagramReconcileWorkbenchClient", () => {
       within(conflictRow).queryByTestId("infra-diagram-reconcile-remediation-infra-only-1"),
     ).not.toBeInTheDocument();
 
+    const infrastructureOnlyRow = screen.getByTestId("infra-diagram-reconcile-row-infra-only-1");
+    expect(within(infrastructureOnlyRow).queryByText("Create operational finding")).not.toBeInTheDocument();
+
     const filter = screen.getByTestId("infra-diagram-reconcile-filter");
     fireEvent.change(filter, { target: { value: "Conflict" } });
 
