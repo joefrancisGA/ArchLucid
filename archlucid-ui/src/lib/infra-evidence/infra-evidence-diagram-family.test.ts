@@ -1,0 +1,50 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  filterInfraEvidenceDiagramOutlineByFamily,
+  INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+  resolveInfraEvidenceDiagramFamily,
+} from "@/lib/infra-evidence/infra-evidence-diagram-family";
+import type { InfraEvidenceMermaidOutlineEdge } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+
+function edge(
+  label: string,
+  inferenceSource: string | null,
+): InfraEvidenceMermaidOutlineEdge {
+  return {
+    from: "from",
+    to: "to",
+    label,
+    source: "probable",
+    confidenceBand: "probable",
+    provenanceKind: "DerivedFact",
+    inferenceSource,
+    declaredConnectionId: null,
+  };
+}
+
+describe("infra-evidence-diagram-family", () => {
+  it("prefers inference sources over labels", () => {
+    expect(resolveInfraEvidenceDiagramFamily(edge("May access", "inventory-hostname-inferred-target"))).toBe(
+      "InferredHostname",
+    );
+  });
+
+  it("maps family verbs and leaves unknown edges in All only", () => {
+    expect(resolveInfraEvidenceDiagramFamily(edge("Reads from", null))).toBe("DeclaredMovement");
+    expect(resolveInfraEvidenceDiagramFamily(edge("May access", null))).toBe("AuthorizedAccess");
+    expect(resolveInfraEvidenceDiagramFamily(edge("connects", null))).toBe(INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL);
+  });
+
+  it("filters only matching edges while retaining nodes", () => {
+    const outline = {
+      nodes: [{ id: "from", label: "from", resourceType: null, resourceGroup: null }],
+      edges: [edge("May access", "inventory-app-authorized-access"), edge("Reads from", null)],
+    };
+
+    const filtered = filterInfraEvidenceDiagramOutlineByFamily(outline, "AuthorizedAccess");
+
+    expect(filtered.nodes).toHaveLength(1);
+    expect(filtered.edges.map((item) => item.label)).toEqual(["May access"]);
+  });
+});

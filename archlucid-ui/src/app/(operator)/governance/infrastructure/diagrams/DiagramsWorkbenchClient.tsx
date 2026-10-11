@@ -65,6 +65,7 @@ import {
   INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM,
   INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM,
   INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM,
+  INFRA_DIAGRAMS_EVIDENCE_FAMILY_PARAM,
   INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM,
   INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM,
   INFRA_DIAGRAMS_SUBSCRIPTION_FILTER_PARAM,
@@ -77,6 +78,7 @@ import {
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
   parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
   parseInfraDiagramsIncludeAvdAssetsFromSearch,
+  parseInfraDiagramsEvidenceFamilyFromSearch,
   parseInfraDiagramsSubscriptionFilterFromSearch,
   isInfraDiagramsMermaidModeSelected,
   parseInfraDiagramsMermaidModeFromSearch,
@@ -85,6 +87,14 @@ import {
   parseInfraDiagramsSnapshotIdFromSearch,
   resolveInfraDiagramsSelectedSnapshotId,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-filter-url";
+import {
+  filterInfraEvidenceDiagramOutlineByFamily,
+  INFRA_EVIDENCE_DIAGRAM_FAMILIES,
+  INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+  INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS,
+  resolveInfraEvidenceDiagramFamily,
+  type InfraEvidenceDiagramFamily,
+} from "@/lib/infra-evidence/infra-evidence-diagram-family";
 import {
   exceedsInfraEvidenceMermaidClientGuard,
   INFRA_EVIDENCE_MERMAID_CLIENT_READABILITY_THRESHOLDS,
@@ -303,6 +313,8 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
   "The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
+const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
+
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
     case "dataArchitecture":
@@ -425,6 +437,9 @@ export function DiagramsWorkbenchClient() {
   const urlIncludeAvdAssets = parseInfraDiagramsIncludeAvdAssetsFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM),
   );
+  const urlEvidenceFamily = parseInfraDiagramsEvidenceFamilyFromSearch(
+    searchParams.get(INFRA_DIAGRAMS_EVIDENCE_FAMILY_PARAM),
+  );
   const includeNeverShow = parseInfraDiagramsIncludeNeverShowFromSearch(
     searchParams.get(INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM),
     searchParams.get(INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM),
@@ -471,6 +486,9 @@ export function DiagramsWorkbenchClient() {
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
+  const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
+    urlEvidenceFamily as InfraEvidenceDiagramFamily,
+  );
   const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
   const [showNetworkDetails, setShowNetworkDetails] = useState(
@@ -512,6 +530,10 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSelectedMode(urlMermaidMode);
   }, [urlMermaidMode]);
+
+  useEffect(() => {
+    setSelectedEvidenceFamily(urlEvidenceFamily as InfraEvidenceDiagramFamily);
+  }, [urlEvidenceFamily]);
 
   useEffect(() => {
     setSeedNodeDraft(urlSeedNodeId);
@@ -570,6 +592,7 @@ export function DiagramsWorkbenchClient() {
       includeRecoveryServices?: boolean;
       includeCrossGroupFanOut?: boolean;
       includeAvdAssets?: boolean;
+      evidenceFamily?: string;
     }) => {
       router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
         scroll: false,
@@ -895,6 +918,41 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
 
+  const evidenceFamilyFilterEnabled = EVIDENCE_FAMILY_FILTER_MODES.has(selectedMode);
+  const availableEvidenceFamilies = useMemo(
+    () => INFRA_EVIDENCE_DIAGRAM_FAMILIES.filter(
+      (family) => visibleMermaidOutline?.edges.some(
+        (edge) => resolveInfraEvidenceDiagramFamily(edge) === family,
+      ) === true,
+    ),
+    [visibleMermaidOutline],
+  );
+  const familyFilteredOutline = useMemo(
+    () => evidenceFamilyFilterEnabled
+      ? filterInfraEvidenceDiagramOutlineByFamily(visibleMermaidOutline ?? { nodes: [], edges: [] }, selectedEvidenceFamily)
+      : visibleMermaidOutline,
+    [evidenceFamilyFilterEnabled, selectedEvidenceFamily, visibleMermaidOutline],
+  );
+  const visibleFamilyConnectors = useMemo(
+    () => evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+      ? familyFilteredOutline?.edges.map((edge) => ({
+          from: edge.from,
+          to: edge.to,
+          label: edge.label,
+        })) ?? []
+      : null,
+    [evidenceFamilyFilterEnabled, familyFilteredOutline, selectedEvidenceFamily],
+  );
+
+  const handleEvidenceFamilyChange = useCallback(
+    (family: InfraEvidenceDiagramFamily) => {
+      setSelectedEvidenceFamily(family);
+      setSelectedInventoryEdge(null);
+      syncUrl({ evidenceFamily: family });
+    },
+    [syncUrl],
+  );
+
   const handleConnectorSelect = useCallback(
     (selection: ArchitectureDiagramConnectorSelection | null) => {
       if (selection == null) {
@@ -902,7 +960,7 @@ export function DiagramsWorkbenchClient() {
         return;
       }
 
-      const edge = resolveConnectorOutlineEdge(selection, visibleMermaidOutline);
+      const edge = resolveConnectorOutlineEdge(selection, familyFilteredOutline);
 
       if (edge == null) {
         setSelectedInventoryEdge(null);
@@ -917,7 +975,7 @@ export function DiagramsWorkbenchClient() {
           : edge
       ));
     },
-    [visibleMermaidOutline],
+    [familyFilteredOutline],
   );
 
   const selectedConnector = selectedInventoryEdge == null
@@ -930,7 +988,7 @@ export function DiagramsWorkbenchClient() {
 
   useEffect(() => {
     setSelectedInventoryEdge(null);
-  }, [visibleMermaidOutline]);
+  }, [familyFilteredOutline]);
 
   const visibleSeedCatalogOutline = useMemo(() => {
     if (seedCatalogOutline == null) {
@@ -941,12 +999,12 @@ export function DiagramsWorkbenchClient() {
   }, [includeNeverShow, seedCatalogOutline]);
 
   const diagramWalkthrough = useMemo(() => {
-    if (visibleMermaidOutline == null) {
+    if (familyFilteredOutline == null) {
       return null;
     }
 
-    return buildDiagramWalkthrough(visibleMermaidOutline);
-  }, [visibleMermaidOutline]);
+    return buildDiagramWalkthrough(familyFilteredOutline);
+  }, [familyFilteredOutline]);
 
   const alwaysExcludedCollapseEntries = useMemo(() => {
     if (includeNeverShow) {
@@ -1027,8 +1085,8 @@ export function DiagramsWorkbenchClient() {
     && densityCoachPresentation?.variant !== "empty-identity";
 
   const cameraFocusNodeIds = useMemo(
-    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, visibleMermaidOutline),
-    [appliedSeedNodeId, visibleMermaidOutline],
+    () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, familyFilteredOutline),
+    [appliedSeedNodeId, familyFilteredOutline],
   );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
@@ -2734,6 +2792,36 @@ export function DiagramsWorkbenchClient() {
               ) : null}
             </div>
           ) : null}
+          {evidenceFamilyFilterEnabled && availableEvidenceFamilies.length > 0 ? (
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-testid="infra-diagrams-evidence-family-chips"
+              aria-label="Evidence family filters"
+            >
+              {[INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL, ...availableEvidenceFamilies].map((family) => (
+                <Button
+                  key={family}
+                  type="button"
+                  size="sm"
+                  variant={selectedEvidenceFamily === family ? "primary" : "outline"}
+                  aria-pressed={selectedEvidenceFamily === family}
+                  onClick={() => handleEvidenceFamilyChange(family)}
+                >
+                  {INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS[family]}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+          {evidenceFamilyFilterEnabled
+            && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+            && familyFilteredOutline?.edges.length === 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-evidence-family-empty"
+            >
+              No connectors in this family on this diagram.
+            </p>
+          ) : null}
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
@@ -2746,21 +2834,26 @@ export function DiagramsWorkbenchClient() {
             cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
-            outline={visibleMermaidOutline}
+            outline={familyFilteredOutline}
             selectedConnector={selectedConnector}
+            visibleConnectors={visibleFamilyConnectors}
             onSelectConnector={handleConnectorSelect}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
           />
           <InfraEvidenceDiagramLegend
-            outline={visibleMermaidOutline}
-            mermaidSource={displayMermaidSource}
+            outline={familyFilteredOutline}
+            mermaidSource={
+              evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+                ? null
+                : displayMermaidSource
+            }
             layoutSvg={displayLayoutSvg}
           />
-          {visibleMermaidOutline != null ? (
+          {familyFilteredOutline != null ? (
             <InfraEvidenceDiagramOutline
-              outline={visibleMermaidOutline}
+              outline={familyFilteredOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
