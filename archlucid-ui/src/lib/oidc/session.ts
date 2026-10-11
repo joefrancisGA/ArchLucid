@@ -46,6 +46,7 @@ const EXPIRY_SKEW_MS = 60_000;
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
 let latestTokenSyncGeneration = -1;
+let tokenSyncChain: Promise<void> = Promise.resolve();
 
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
@@ -104,7 +105,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   const generationAtPersist = refreshSessionGeneration;
   latestTokenSyncGeneration = generationAtPersist;
 
-  void (async () => {
+  const syncTokenToBff = async (): Promise<void> => {
     if (generationAtPersist !== refreshSessionGeneration) {
       return;
     }
@@ -117,7 +118,10 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
         await clearBffSessionCookie();
       }
     }
-  })();
+  };
+
+  // Serialize writes because concurrent provider responses can complete out of order.
+  tokenSyncChain = tokenSyncChain.catch(() => undefined).then(syncTokenToBff);
 }
 
 export type ClearOidcSessionOptions = {

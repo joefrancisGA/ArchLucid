@@ -9353,3 +9353,4 @@
 {"at":"2026-10-11T01:27:41.0304814Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
 {"at":"2026-10-11T01:31:08.9053566Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"fail-open-validation"}
 {"at":"2026-10-11T01:36:54.9769189Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
+{"at":"2026-10-11T01:43:11.0900575Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
