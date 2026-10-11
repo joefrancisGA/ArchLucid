@@ -2,6 +2,8 @@
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
 
+2026-10-11 thorough hunt (hit): `AdminApiKeySettingsController.RotateKeyIdAsync` wrote the raw legacy route `keyId` into the rotation audit after the service had trimmed and case-normalized it, so a reachable route value such as `%20readonly%20` produced `" readonly "` in audit JSON but `"ReadOnly"` in the response. The audit now uses the canonical `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` failed before the fix and the focused controller audit tests passed 3/3.
+
 2026-10-11 seed hunt (seed-only): `core-explanation-json` — re-read the structured parser, shared token readers, prompt schema, and existing candidate rows. The four bounded candidates remain provider-contract or downstream-semantics questions rather than same-run hunt-ready defects; the focused `RunExplanation` suite passed 47/47. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `core-explanation-json` — repeated the source-backed review of structured normalization, numeric/text token coercion, duplicate-property handling, and prompt-schema reachability. The retained candidates still lack a confirmed producer contract plus wrong outcome; `RunExplanation` passed 47/47. No production or regression code changed.
@@ -12230,6 +12232,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `AdminApiKeySettingsService.Rotate` — non-invalidating rotation returns an append suffix without carrying expiry metadata, so an operator applying the returned deployment material may leave the newly generated key governed by an old slot expiry — locus: `AdminApiKeyRotateResponse` contains `AppendConfigSuffix` but no replacement expiry; input: an admin settings request with an existing configured key and an expiry timestamp, followed by applying the response through deployment configuration.
 - [ ] (candidate) `AdminApiKeySettingsController.LogRotationAuditAsync` — cancellation after material generation but before audit persistence can return no rotation response while the request has already crossed the controller’s issuance boundary, leaving a material-issuance operation without an audit row — locus: the service generates the plaintext before the cancellable audit call; input: an HTTP client disconnect/cancellation during `POST /v1/admin/settings/api-keys/rotate` or the legacy key-id route.
 
+- [x] (proven) `AdminApiKeySettingsController.RotateKeyIdAsync` — legacy route audit JSON used the raw `keyId` while `AdminApiKeySettingsService.ParseSlot` canonicalized whitespace and casing for the response — **hit 2026-10-11 thorough hunt:** audit `keyId` now uses `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value`.
+
 2026-10-09 seed hunt (seed-only): re-read the selected API-key handler, admin service/controller, and focused tests; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused API test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [ ] (candidate) `ApiKeyAuthenticationHandler.HandleAuthenticateAsync` — when the same secret is configured in both `AdminKey` and `ReadOnlyKey`, the admin branch wins and grants admin permissions to a key intended for read-only use — locus: ordered `matchesAdmin` before `matchesReader` branches; input: identical `Authentication:ApiKey:AdminKey` and `ReadOnlyKey` configuration.
@@ -12267,11 +12271,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 78
-- **bugs-found:** 21
+- **hunts:** 79
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-09 — API key rotation audits stored the actor as unknown
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — legacy API key rotation audit stored a noncanonical route slot
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
