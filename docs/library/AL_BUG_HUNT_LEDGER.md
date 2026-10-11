@@ -35229,6 +35229,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-11 seed hunt (seed-only): reread the queue shell, toolbar, scope, results, outcome, triage, and assigned-row paths after the whitespace-scope fix; no new row met the full hunt-ready bar. Seeded four bounded candidates for raw whitespace scope in the results footer, URL-backed disclosure state transitions, assigned-scope filter visibility, and derivation disclosure identity. No production or regression change.
+
 2026-10-11 seed hunt (seed→hit): `GovernanceFindingsQueueScopeSection` treated any non-empty raw `scopedRunId` as an active review scope even when the client’s trimmed `scopedRunFilterActive` was false. A reachable `runId=%20` URL therefore rendered a blank review-scope banner and encoded whitespace into the Open review link; regression `does not render a review scope banner for a whitespace-only run id` failed first and passed after using `scopedRunFilterActive` for both scope branches. Scope-section tests passed 5/5.
 
 2026-10-11 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` passed `showInsightDensityScore` into the virtualized body, but `GovernanceFindingsQueueVirtualizedTableBody` dropped it before rendering rows. A reachable working-mode queue with 50+ findings therefore omitted density scores only on the virtualized path; regression `preserves insight density scores in the virtualized body` failed first and passed after forwarding the prop. Desktop-table and related governance regressions passed 12/12.
@@ -35253,7 +35255,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -35274,6 +35276,11 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive, potentially rendering a next-review footer for an invalid scope; requires the footer contract and a falsifiable rendered/API outcome.
+- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update; requires a reachable toggle sequence and a wrong disclosure state after navigation settles.
+- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — assigned-to-me active filter chips are gated by `activeFiltersSummary`, so a valid assigned queue filter represented outside that summary may hide the clear affordance; requires a concrete filter-state contract and a reachable missing-chip outcome.
+- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` — a reachable derivation disclosure id containing surrounding whitespace may fail the raw equality check against `row.findingId`, leaving the persisted disclosure closed for the selected finding; requires a reachable URL/row-id normalization contract and a visible disclosure mismatch.
 
 - [x] (invalid) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner — **cheap-disproof 2026-10-10 thorough hunt:** no approval provenance source or caller exists in the selected client boundary; the null value is the conservative absent-record state.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering — **cheap-disproof 2026-10-10 thorough hunt:** `applyFindingsSavedViewFilters` accepts non-object input as `{}` and supplies safe defaults; no throw or wrong queue state is reachable.
