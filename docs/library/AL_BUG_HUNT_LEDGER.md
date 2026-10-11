@@ -11142,15 +11142,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed→hit): re-read `ArchitectureIntelligencePageClient` and both focused page-client suites; proved that a source-context refetch failure hid prior reasoning results but left the Publish to findings/advisory button enabled. Added `productContextLoadFailed` to the publish gate; regression `does not show reasoning results when product context load failure panel is visible` now also asserts the publish button is disabled. The focused suites passed 55/55.
 
+2026-10-11 thorough hunt (dry): cheap-disproof closed the two remaining candidates. The failed-context action controls intentionally remain available for freeform/fixture recovery, while retry increments `productContextReloadNonce` and the inbound-run reset clears prior reasoning state before successful hydration. The focused suites passed 55/55; no production or regression code changed.
+
 - **id:** ui-architecture-intelligence
 - **status:** open
 - **impact:** medium
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — source-context failure left the publish action enabled after prior reasoning
 - **related-pd-tb:** none
@@ -11169,8 +11171,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — the failure panel intentionally restores freeform intake, but the page still constructs every action control from the prior hook state; input: a deep-linked review whose source-context request fails after an earlier action state; reachability: the UI's retry/fixture recovery path from `ArchitectureIntelligenceProductContextLoadFailure`.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — a successful retry can restore hydrated intake while stale action state is supplied by the hook; input: retry succeeds after a failed source-context load following an in-progress or completed action; reachability: the page's visible retry button invokes `retryProductContextLoad` and then re-enters the normal intake/result branches.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — **cheap-disproof 2026-10-11 thorough hunt:** the failure panel explicitly restores freeform intake and golden-fixture recovery, so run/golden controls remain available for operator-supplied replacement input; existing failure-state coverage exercises the recovery form.
+- [x] (valid-no-repro) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — **cheap-disproof 2026-10-11 thorough hunt:** `retryProductContextLoad` increments `productContextReloadNonce`, and the inbound-run reset effect clears `runState` before the refetch can hydrate the page; no stale result survives the retry boundary.
 
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` scope banner — the existing failure-state contract intentionally keeps the selected review scope visible while offering paste/fixture recovery; `ArchitectureIntelligencePageClient.test.tsx` covers the banner during product-context failure.
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — a deep-linked review populated `activeRunId` before any analysis result existed, enabling “Publish to findings/advisory”; the button now also requires non-null `runState`; regression `keeps publish disabled for a deep-linked review before analysis produces a result`.
