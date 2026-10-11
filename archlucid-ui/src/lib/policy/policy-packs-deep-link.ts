@@ -93,6 +93,17 @@ export function policyPacksAuthorHref(policyPackId?: string, ruleId?: string): s
 
 }
 
+/** Opens the existing authoring path with the organization starter selected in the visual builder. */
+export function policyPacksOrganizationStarterHref(): string {
+  const params = new URLSearchParams();
+
+  params.set(POLICY_PACKS_TAB_QUERY_PARAM, "author");
+  params.set("inputMode", "visual");
+  params.set("generatorTemplate", "organization-security-architecture-starter");
+
+  return `${GOVERNANCE_POLICY_PACKS_PATH}?${params.toString()}`;
+}
+
 export function policyPacksRuleHref(ruleId: string): string {
 
   const id = ruleId.trim();
