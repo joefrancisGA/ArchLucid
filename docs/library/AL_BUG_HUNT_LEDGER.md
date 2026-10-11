@@ -17009,6 +17009,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed-only): re-read the heuristic finding/proposed-change, embedding faithfulness, and cancellation paths after the recent JSON-boundary fixes; remaining exact-key observations were the same closed casing class or lacked a distinct reachable wrong outcome. The scoped Evaluation suite passed 213/213; no production or regression code changed.
+
 2026-10-11 seed hunt (seed→hit): `HeuristicAgentOutputClaimEvidenceStage` and `HeuristicAgentOutputSemanticEvaluator` used exact-case lookups for claims/evidence fields, so valid case-variant agent output received zero heuristic semantic quality. Claim evidence and overall presence checks now ignore case; regression `Evaluate_matches_case_variant_claims_and_evidence_properties`.
 
 - [x] (proven) `HeuristicAgentOutputClaimEvidenceStage.Evaluate` / `HeuristicAgentOutputSemanticEvaluator.ComputeOverallScore` — case-variant claims and evidence references were ignored, producing an incorrect zero semantic score — **hit 2026-10-11 seed hunt:** use case-insensitive lookups for claim/evidence fields; regression `Evaluate_matches_case_variant_claims_and_evidence_properties`.
