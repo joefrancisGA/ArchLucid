@@ -9351,3 +9351,4 @@
 {"at":"2026-10-11T01:19:18.3225092Z","zoneId":"agent-runtime-safety","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
 {"at":"2026-10-11T01:23:38.2906683Z","zoneId":"ui-marketing-surfaces","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(marketing)/"]}
 {"at":"2026-10-11T01:27:41.0304814Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
+{"at":"2026-10-11T01:31:08.9053566Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"fail-open-validation"}

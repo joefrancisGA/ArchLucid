@@ -19304,6 +19304,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-11 seed hunt (seed→hit): proved `resolveExpiresInSeconds` coerced malformed provider JSON scalars (`expires_in: null`) to zero, causing an immediate expiry/refresh path; now rejects null/boolean scalars before numeric coercion; regression `maps a null provider expires_in to the default lifetime`; focused OIDC suite passed 73/73.
+
 2026-10-11 seed hunt (seed→hit): proved a stale in-flight token-to-BFF sync could clear the replacement session cookie after sign-out and immediate re-authentication; `persistTokenResponse` now only performs stale cleanup when no newer token sync owns the current session generation; regression `does not let stale token sync cleanup clear a replacement session cookie`; focused OIDC suite passed 72/72.
 
 2026-10-11 thorough hunt (dry): cheap-disproved all five candidates. Primary and supplemental authorities pass through the same discovery URL normalization; configured scopes are deployment input with no reproduced negotiation failure; cleanup is called only from browser redirect flows; 16-byte state is standard high-entropy opaque state with no reachable truncation; and local logout fallback is intentional when the provider publishes no RP logout endpoint. No failing repro or fix was established. The focused OIDC suite passed 71/71.
@@ -19354,11 +19356,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 39
-- **bugs-found:** 34
+- **hunts:** 40
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — stale token sync cleared replacement BFF session
+- **last-bug:** 2026-10-11 — malformed OIDC expires_in scalar caused immediate expiry
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19366,6 +19368,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `resolveExpiresInSeconds` — a token endpoint JSON response with `expires_in: null` is coerced to zero, causing an immediate client/BFF expiry and refresh path — **hit 2026-10-11 seed hunt:** `Number(null)` returns `0`; reject null and boolean scalars before coercion and use the default lifetime; regression `maps a null provider expires_in to the default lifetime` in `resolve-expires-in-seconds.test.ts`.
 - [x] (proven) `persistTokenResponse` — a stale in-flight token sync clears the replacement session's BFF cookie after sign-out and immediate re-authentication — **hit 2026-10-11 seed hunt:** the generation guard detected stale completion but unconditionally called `clearBffSessionCookie`, so the old sync could delete a newer session cookie; stale cleanup now runs only when no newer token sync owns the current generation; regression `does not let stale token sync cleanup clear a replacement session cookie` in `session.test.ts`.
 - [x] (valid-no-repro) `parseDiscoveryDocument` accepts any non-empty `issuer` string without validating that it is an absolute HTTP(S) issuer matching the configured authority, so a reachable discovery response can be treated as metadata for a different issuer — **cheap-disproved 2026-09-30:** the parsed `issuer` is not consumed by the browser authorization or token flow; only validated endpoint fields drive behavior in these files, so no wrong outcome is reachable here.
 - [x] (proven) `initiateOidcRedirect` writes PKCE state before discovery completes and leaves that state in `sessionStorage` when discovery fails, so a failed redirect attempt can leave stale verifier/nonce material for the next callback — **hit 2026-09-30:** discovery rejection left the newly generated state, verifier, and nonce stored despite no authorization redirect; fixed by clearing flow-scoped PKCE state on discovery failure for primary and Google redirects; regression `clears primary PKCE state when discovery fails before redirect`.
