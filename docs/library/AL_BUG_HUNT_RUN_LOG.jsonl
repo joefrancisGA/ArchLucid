@@ -9535,3 +9535,4 @@
 {"at":"2026-10-11T20:20:28.2325990Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-11T20:28:53.9827470Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-11T20:46:17.1394120Z","zoneId":"api-key-auth","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs","ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs","ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs"]}
+{"at":"2026-10-11T20:58:51.3179600Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/Billing/"]}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed→hit): `TenantCostEstimateService.TryGetEstimateAsync` returned negative monthly cost guidance when reachable `Billing:UnitRates` configuration supplied negative rates; the service now rejects any negative computed band. Regression `TryGetEstimateAsync_rejects_negative_configured_standard_rates` failed before the fix; the scoped billing filter passed 26/26. The Application compile check timed out after no compiler errors.
+
 2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
 
 2026-10-11 thorough hunt (hit): `AdminApiKeySettingsController.RotateKeyIdAsync` wrote the raw legacy route `keyId` into the rotation audit after the service had trimmed and case-normalized it, so a reachable route value such as `%20readonly%20` produced `" readonly "` in audit JSON but `"ReadOnly"` in the response. The audit now uses the canonical `response.Slot`; regression `RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value` failed before the fix and the focused controller audit tests passed 3/3.
@@ -16839,15 +16841,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 22
-- **bugs-found:** 14
+- **hunts:** 23
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — inverted unit-rate band displayed the higher monthly amount first
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — negative tenant billing rates produced negative cost guidance
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): promoted inverted `Billing:UnitRates` bands. Why ArchLucid renders low — high, and Standard 500/100 plus Enterprise 900/200 displayed backwards. Both commercial bands now order the lower amount first. Regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`. 30 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, and TenantCostEstimate tests passed.
+
+- [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — negative `Billing:UnitRates` values were ordered and returned as negative monthly cost guidance instead of being rejected — **hit 2026-10-11 seed hunt:** negative computed bands now return no estimate; regression `TryGetEstimateAsync_rejects_negative_configured_standard_rates`.
 
 2026-10-09 seed hunt (seed→hit): promoted daily-bucket rounding. A $0.0004 month over 7 days rounded to $0.0001 per day, the last day clamped to zero, and the chart summed to $0.0006. The share now floors to 4 decimals when rounding would overshoot. Regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`. 26 scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests passed.
 
