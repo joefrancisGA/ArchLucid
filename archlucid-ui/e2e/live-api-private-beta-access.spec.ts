@@ -331,8 +331,10 @@ test.describe(
     expect(decodeURIComponent(returnUrl)).toContain(toRunGuidPathSegment(fakeRunId));
 
     await writeJwtBrowserSession(page, accessToken);
-    await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 60_000 });
+    await expect(async () => {
+      await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 10_000 });
+    }).toPass({ timeout: 60_000, intervals: [1_000, 3_000, 5_000] });
     await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 60_000 });
   });
 
